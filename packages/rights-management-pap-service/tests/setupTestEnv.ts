@@ -18,7 +18,10 @@ import { initSchema } from "../src/schema";
 
 console.debug("Setting up test environment from .env and .env.dev files");
 
-dotenv.config({ path: [path.join(__dirname, ".env"), path.join(__dirname, ".env.dev")] });
+dotenv.config({
+	path: [path.join(__dirname, ".env"), path.join(__dirname, ".env.dev")],
+	quiet: true
+});
 
 export const TEST_DIRECTORY_ROOT = "./.tmp/";
 export const TEST_DIRECTORY = `${TEST_DIRECTORY_ROOT}test-data-${Converter.bytesToHex(RandomHelper.generate(8))}`;
