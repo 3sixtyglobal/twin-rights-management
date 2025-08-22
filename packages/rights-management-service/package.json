@@ -1,6 +1,6 @@
 {
 	"name": "@twin.org/rights-management-service",
-	"version": "0.0.2-next.1",
+	"version": "0.0.2-next.2",
 	"description": "Rights Management service implementation and REST endpoint definitions",
 	"repository": {
 		"type": "git",
@@ -35,18 +35,18 @@
 		"@twin.org/core": "next",
 		"@twin.org/entity": "next",
 		"@twin.org/nameof": "next",
-		"@twin.org/rights-management-models": "0.0.2-next.1",
+		"@twin.org/rights-management-models": "0.0.2-next.2",
 		"@twin.org/standards-w3c-odrl": "next",
 		"@twin.org/web": "next"
 	},
 	"devDependencies": {
 		"@twin.org/entity-storage-connector-memory": "next",
-		"@twin.org/rights-management-pap-service": "0.0.2-next.1",
-		"@twin.org/rights-management-pdp-service": "0.0.2-next.1",
-		"@twin.org/rights-management-pep-service": "0.0.2-next.1",
-		"@twin.org/rights-management-pip-service": "0.0.2-next.1",
-		"@twin.org/rights-management-pmp-service": "0.0.2-next.1",
-		"@twin.org/rights-management-pxp-service": "0.0.2-next.1",
+		"@twin.org/rights-management-pap-service": "0.0.2-next.2",
+		"@twin.org/rights-management-pdp-service": "0.0.2-next.2",
+		"@twin.org/rights-management-pep-service": "0.0.2-next.2",
+		"@twin.org/rights-management-pip-service": "0.0.2-next.2",
+		"@twin.org/rights-management-pmp-service": "0.0.2-next.2",
+		"@twin.org/rights-management-pxp-service": "0.0.2-next.2",
 		"@twin.org/nameof-transformer": "next",
 		"@twin.org/nameof-vitest-plugin": "next",
 		"@twin.org/ts-to-openapi": "next",

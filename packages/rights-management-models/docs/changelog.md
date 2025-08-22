@@ -1,5 +1,12 @@
 # @twin.org/rights-management-models - Changelog
 
+## [0.0.2-next.2](https://github.com/twinfoundation/rights-management/compare/rights-management-models-v0.0.2-next.1...rights-management-models-v0.0.2-next.2) (2025-08-22)
+
+
+### Features
+
+* add scaffold for other services ([de25f34](https://github.com/twinfoundation/rights-management/commit/de25f34c40fb65b6d73df98965ea4e368019da84))
+
 ## [0.0.2-next.1](https://github.com/twinfoundation/rights-management/compare/rights-management-models-v0.0.2-next.0...rights-management-models-v0.0.2-next.1) (2025-08-20)
 
 
