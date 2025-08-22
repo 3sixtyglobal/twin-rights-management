@@ -41,6 +41,8 @@
 	},
 	"devDependencies": {
 		"@twin.org/entity-storage-connector-memory": "next",
+		"@twin.org/logging-connector-entity-storage": "next",
+		"@twin.org/logging-service": "next",
 		"@twin.org/rights-management-pap-service": "0.0.2-next.2",
 		"@twin.org/rights-management-pdp-service": "0.0.2-next.2",
 		"@twin.org/rights-management-pep-service": "0.0.2-next.2",
