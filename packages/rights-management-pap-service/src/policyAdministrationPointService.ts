@@ -1,6 +1,7 @@
 // Copyright 2024 IOTA Stiftung.
 // SPDX-License-Identifier: Apache-2.0.
 import {
+	ComponentFactory,
 	Guards,
 	Is,
 	NotFoundError,
@@ -14,6 +15,7 @@ import {
 	EntityStorageConnectorFactory,
 	type IEntityStorageConnector
 } from "@twin.org/entity-storage-models";
+import type { ILoggingComponent } from "@twin.org/logging-models";
 import { nameof } from "@twin.org/nameof";
 import type { IPolicyAdministrationPointComponent } from "@twin.org/rights-management-models";
 import { OdrlDataTypes, type IOdrlPolicy } from "@twin.org/standards-w3c-odrl";
@@ -37,6 +39,12 @@ export class PolicyAdministrationPointService implements IPolicyAdministrationPo
 	public readonly CLASS_NAME: string = nameof<PolicyAdministrationPointService>();
 
 	/**
+	 * The logging component.
+	 * @internal
+	 */
+	private readonly _logging?: ILoggingComponent;
+
+	/**
 	 * The entity storage component for storing policies.
 	 * @internal
 	 */
@@ -47,6 +55,10 @@ export class PolicyAdministrationPointService implements IPolicyAdministrationPo
 	 * @param options The options for the component.
 	 */
 	constructor(options?: IPolicyAdministrationPointServiceOptions) {
+		this._logging = ComponentFactory.getIfExists<ILoggingComponent>(
+			options?.loggingComponentType ?? "logging"
+		);
+
 		OdrlDataTypes.registerRedirects();
 		OdrlDataTypes.registerTypes();
 

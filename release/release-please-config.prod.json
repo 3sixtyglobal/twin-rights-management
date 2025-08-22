@@ -22,6 +22,41 @@
 				"src/index.ts"
 			]
 		},
+		"packages/rights-management-pmp-service": {
+			"package-name": "rights-management-pmp-service",
+			"changelog-path": "docs/changelog.md",
+			"extra-files": [
+				"src/index.ts"
+			]
+		},
+		"packages/rights-management-pip-service": {
+			"package-name": "rights-management-pip-service",
+			"changelog-path": "docs/changelog.md",
+			"extra-files": [
+				"src/index.ts"
+			]
+		},
+		"packages/rights-management-pxp-service": {
+			"package-name": "rights-management-pxp-service",
+			"changelog-path": "docs/changelog.md",
+			"extra-files": [
+				"src/index.ts"
+			]
+		},
+		"packages/rights-management-pdp-service": {
+			"package-name": "rights-management-pdp-service",
+			"changelog-path": "docs/changelog.md",
+			"extra-files": [
+				"src/index.ts"
+			]
+		},
+		"packages/rights-management-pep-service": {
+			"package-name": "rights-management-pep-service",
+			"changelog-path": "docs/changelog.md",
+			"extra-files": [
+				"src/index.ts"
+			]
+		},
 		"packages/rights-management-service": {
 			"package-name": "rights-management-service",
 			"changelog-path": "docs/changelog.md",
@@ -45,6 +80,11 @@
 			"components": [
 				"rights-management-models",
 				"rights-management-pap-service",
+				"rights-management-pmp-service",
+				"rights-management-pip-service",
+				"rights-management-pxp-service",
+				"rights-management-pdp-service",
+				"rights-management-pep-service",
 				"rights-management-service",
 				"rights-management-rest-client"
 			]

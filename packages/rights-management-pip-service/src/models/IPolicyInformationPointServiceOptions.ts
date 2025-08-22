@@ -1,0 +1,13 @@
+// Copyright 2024 IOTA Stiftung.
+// SPDX-License-Identifier: Apache-2.0.
+
+/**
+ * Options for the Policy Information Point Component.
+ */
+export interface IPolicyInformationPointServiceOptions {
+	/**
+	 * The logging component for logging policy information.
+	 * @default logging
+	 */
+	loggingComponentType?: string;
+}

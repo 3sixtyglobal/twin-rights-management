@@ -6,7 +6,8 @@
 			"papUpdateFailed": "Failed to update policy through PAP",
 			"papRetrieveFailed": "Failed to retrieve policy through PAP",
 			"papRemoveFailed": "Failed to remove policy through PAP",
-			"papQueryFailed": "Failed to query policies through PAP"
+			"papQueryFailed": "Failed to query policies through PAP",
+			"pepInterceptFailed": "Failed to intercept data through PEP"
 		}
 	}
 }

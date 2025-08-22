@@ -6,7 +6,14 @@
  */
 export interface IPolicyAdministrationPointServiceOptions {
 	/**
+	 * The logging component for logging administration actions.
+	 * @default logging
+	 */
+	loggingComponentType?: string;
+
+	/**
 	 * The entity storage component for storing policies.
+	 * @default odrl-policy
 	 */
 	odrlPolicyEntityStorageType?: string;
 }

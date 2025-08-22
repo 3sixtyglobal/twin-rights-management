@@ -18,6 +18,8 @@ import type {
 	IPapRetrieveRequest,
 	IPapRetrieveResponse,
 	IPapUpdateRequest,
+	IPepInterceptRequest,
+	IPepInterceptResponse,
 	IRightsManagementComponent
 } from "@twin.org/rights-management-models";
 import { OdrlContexts } from "@twin.org/standards-w3c-odrl";
@@ -258,7 +260,52 @@ export function generateRestRoutesRightsManagement(
 		]
 	};
 
-	return [createRoute, updateRoute, retrieveRoute, removeRoute, queryRoute];
+	const interceptRoute: IRestRoute<IPepInterceptRequest, IPepInterceptResponse> = {
+		operationId: "pepIntercept",
+		summary: "Intercept a request",
+		tag: tags[0].name,
+		method: "POST",
+		path: `${baseRouteName}/pep/intercept`,
+		handler: async (httpRequestContext, request) =>
+			pepIntercept(httpRequestContext, componentName, request),
+		requestType: {
+			type: nameof<IPepInterceptRequest>(),
+			examples: [
+				{
+					id: "pepInterceptExample",
+					request: {
+						body: {
+							assetType: "document",
+							action: "view",
+							data: {
+								id: "document-1",
+								param1: 1,
+								param2: 2
+							}
+						}
+					}
+				}
+			]
+		},
+		responseType: [
+			{
+				type: nameof<IPepInterceptResponse>(),
+				examples: [
+					{
+						id: "pepInterceptResponseExample",
+						response: {
+							body: {
+								id: "document-1",
+								param1: 1
+							}
+						}
+					}
+				]
+			}
+		]
+	};
+
+	return [createRoute, updateRoute, retrieveRoute, removeRoute, queryRoute, interceptRoute];
 }
 
 /**
@@ -411,5 +458,33 @@ export async function papQuery(
 			cursor: result.cursor,
 			policies: result.policies
 		}
+	};
+}
+
+/**
+ * PEP: Intercept.
+ * @param httpRequestContext The request context for the API.
+ * @param componentName The name of the component to use in the routes.
+ * @param request The request.
+ * @returns The response object with additional http response properties.
+ */
+export async function pepIntercept(
+	httpRequestContext: IHttpRequestContext,
+	componentName: string,
+	request: IPepInterceptRequest
+): Promise<IPepInterceptResponse> {
+	Guards.object<IPepInterceptRequest>(ROUTES_SOURCE, nameof(request), request);
+
+	const component = ComponentFactory.get<IRightsManagementComponent>(componentName);
+	const result = await component.pepIntercept(
+		request.body.assetType,
+		request.body.action,
+		request.body.data,
+		httpRequestContext.userIdentity ?? "",
+		httpRequestContext.nodeIdentity ?? ""
+	);
+
+	return {
+		body: result
 	};
 }

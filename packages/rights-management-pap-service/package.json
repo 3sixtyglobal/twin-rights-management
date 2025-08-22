@@ -33,14 +33,17 @@
 	"dependencies": {
 		"@twin.org/core": "next",
 		"@twin.org/data-json-ld": "next",
-		"@twin.org/rights-management-models": "0.0.2-next.1",
 		"@twin.org/entity": "next",
 		"@twin.org/entity-storage-models": "next",
-		"@twin.org/standards-w3c-odrl": "next",
-		"@twin.org/nameof": "next"
+		"@twin.org/logging-models": "next",
+		"@twin.org/rights-management-models": "0.0.2-next.1",
+		"@twin.org/nameof": "next",
+		"@twin.org/standards-w3c-odrl": "next"
 	},
 	"devDependencies": {
 		"@twin.org/entity-storage-connector-memory": "next",
+		"@twin.org/logging-connector-entity-storage": "next",
+		"@twin.org/logging-service": "next",
 		"@twin.org/nameof-transformer": "next",
 		"@twin.org/nameof-vitest-plugin": "next",
 		"@rollup/plugin-json": "6.1.0",

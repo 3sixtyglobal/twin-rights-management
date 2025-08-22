@@ -22,7 +22,7 @@ export interface IPolicyEnforcementPointComponent extends IComponent {
 		assetType: string,
 		action: string,
 		data: T | undefined,
-		userIdentity: string,
-		nodeIdentity: string
+		userIdentity: string | undefined,
+		nodeIdentity: string | undefined
 	): Promise<T | undefined>;
 }

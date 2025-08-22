@@ -7,7 +7,13 @@
 export interface IRightsManagementServiceConstructorOptions {
 	/**
 	 * The type of the Policy Administration Point (PAP) component.
-	 * @default pap
+	 * @default policy-administration-point
 	 */
-	papComponentType?: string;
+	policyAdministrationPointComponentType?: string;
+
+	/**
+	 * The type of the Policy Enforcement Point (PEP) component.
+	 * @default policy-enforcement-point
+	 */
+	policyEnforcementPointComponentType?: string;
 }

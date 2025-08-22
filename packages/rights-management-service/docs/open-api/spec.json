@@ -576,6 +576,121 @@
 					}
 				}
 			}
+		},
+		"/rights-management/pep/intercept": {
+			"post": {
+				"operationId": "pepIntercept",
+				"summary": "Intercept a request",
+				"tags": [
+					"Policy Administration Point"
+				],
+				"security": [
+					{
+						"jwtBearerAuthScheme": []
+					}
+				],
+				"requestBody": {
+					"description": "The request structure for intercepting a request and enforcing a policy.",
+					"required": true,
+					"content": {
+						"application/json": {
+							"schema": {
+								"$ref": "#/components/schemas/PepInterceptRequest"
+							},
+							"examples": {
+								"pepInterceptExample": {
+									"value": {
+										"assetType": "document",
+										"action": "view",
+										"data": {
+											"id": "document-1",
+											"param1": 1,
+											"param2": 2
+										}
+									}
+								}
+							}
+						}
+					}
+				},
+				"responses": {
+					"200": {
+						"description": "The response structure for intercepting a request and enforcing a policy.",
+						"content": {
+							"application/json": {
+								"schema": {
+									"$ref": "#/components/schemas/PepInterceptResponse"
+								},
+								"examples": {
+									"pepInterceptResponseExample": {
+										"value": {
+											"id": "document-1",
+											"param1": 1
+										}
+									}
+								}
+							}
+						}
+					},
+					"400": {
+						"description": "The server cannot process the request, see the content for more details.",
+						"content": {
+							"application/json": {
+								"schema": {
+									"$ref": "#/components/schemas/Error"
+								},
+								"examples": {
+									"exampleResponse": {
+										"value": {
+											"name": "GeneralError",
+											"message": "component.error",
+											"properties": {
+												"foo": "bar"
+											}
+										}
+									}
+								}
+							}
+						}
+					},
+					"401": {
+						"description": "You are not authorized to use the API or no credentials were supplied, see the content for more details.",
+						"content": {
+							"application/json": {
+								"schema": {
+									"$ref": "#/components/schemas/Error"
+								},
+								"examples": {
+									"exampleResponse": {
+										"value": {
+											"name": "UnauthorizedError",
+											"message": "component.error"
+										}
+									}
+								}
+							}
+						}
+					},
+					"500": {
+						"description": "The server has encountered a situation it does not know how to handle, see the content for more details.",
+						"content": {
+							"application/json": {
+								"schema": {
+									"$ref": "#/components/schemas/Error"
+								},
+								"examples": {
+									"exampleResponse": {
+										"value": {
+											"name": "InternalServerError",
+											"message": "component.error"
+										}
+									}
+								}
+							}
+						}
+					}
+				}
+			}
 		}
 	},
 	"components": {
@@ -989,6 +1104,32 @@
 				],
 				"additionalProperties": false,
 				"description": "The body of the response."
+			},
+			"PepInterceptRequest": {
+				"type": "object",
+				"properties": {
+					"assetType": {
+						"type": "string",
+						"description": "The type of the asset to enforce the policy on."
+					},
+					"action": {
+						"type": "string",
+						"description": "The action to perform on the asset."
+					},
+					"data": {
+						"description": "The data to include in the request."
+					}
+				},
+				"required": [
+					"assetType",
+					"action",
+					"data"
+				],
+				"additionalProperties": false,
+				"description": "The body parameters of the request."
+			},
+			"PepInterceptResponse": {
+				"description": "The manipulated data with any policies applied."
 			}
 		},
 		"securitySchemes": {
