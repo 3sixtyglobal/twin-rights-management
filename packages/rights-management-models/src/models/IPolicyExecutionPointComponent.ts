@@ -49,7 +49,8 @@ export interface IPolicyExecutionPointComponent extends IComponent {
 	/**
 	 * Unregister an action from the execution point.
 	 * @param actionId The id of the action to unregister.
+	 * @param stage The stage at which the action was executed.
 	 * @returns Nothing.
 	 */
-	unregisterAction(actionId: string): Promise<void>;
+	unregisterAction(actionId: string, stage: PolicyDecisionStage): Promise<void>;
 }

@@ -7,3 +7,7 @@
 ## Interfaces
 
 - [IPolicyExecutionPointServiceOptions](interfaces/IPolicyExecutionPointServiceOptions.md)
+
+## Functions
+
+- [createLoggingPolicyActionCallback](functions/createLoggingPolicyActionCallback.md)

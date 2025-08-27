@@ -1,11 +1,11 @@
 // Copyright 2024 IOTA Stiftung.
 // SPDX-License-Identifier: Apache-2.0.
-import { ComponentFactory } from "@twin.org/core";
+import { BaseError, ComponentFactory, Guards } from "@twin.org/core";
 import type { ILoggingComponent } from "@twin.org/logging-models";
 import { nameof } from "@twin.org/nameof";
-import type {
-	IPolicyExecutionPointComponent,
-	PolicyActionCallback,
+import {
+	type IPolicyExecutionPointComponent,
+	type PolicyActionCallback,
 	PolicyDecisionStage
 } from "@twin.org/rights-management-models";
 import type { IOdrlPolicy } from "@twin.org/standards-w3c-odrl";
@@ -27,6 +27,19 @@ export class PolicyExecutionPointService implements IPolicyExecutionPointCompone
 	private readonly _logging?: ILoggingComponent;
 
 	/**
+	 * These actions can be registered to perform specific tasks before or after the policy execution.
+	 * @internal
+	 */
+	private readonly _executeActions: {
+		[stage in PolicyDecisionStage]: {
+			actions: {
+				actionId: string;
+				callback: PolicyActionCallback<unknown>;
+			}[];
+		};
+	};
+
+	/**
 	 * Create a new instance of PolicyExecutionPointService (PXP).
 	 * @param options The options for the component.
 	 */
@@ -34,6 +47,15 @@ export class PolicyExecutionPointService implements IPolicyExecutionPointCompone
 		this._logging = ComponentFactory.getIfExists<ILoggingComponent>(
 			options?.loggingComponentType ?? "logging"
 		);
+
+		this._executeActions = {
+			[PolicyDecisionStage.Before]: {
+				actions: []
+			},
+			[PolicyDecisionStage.After]: {
+				actions: []
+			}
+		};
 	}
 
 	/**
@@ -55,7 +77,32 @@ export class PolicyExecutionPointService implements IPolicyExecutionPointCompone
 		userIdentity: string,
 		nodeIdentity: string,
 		policies: IOdrlPolicy[]
-	): Promise<void> {}
+	): Promise<void> {
+		Guards.arrayOneOf(this.CLASS_NAME, nameof(stage), stage, Object.values(PolicyDecisionStage));
+		Guards.stringValue(this.CLASS_NAME, nameof(assetType), assetType);
+		Guards.stringValue(this.CLASS_NAME, nameof(action), action);
+
+		const actions = this._executeActions[stage].actions;
+		for (const { actionId, callback } of actions) {
+			try {
+				await callback(assetType, action, data, userIdentity, nodeIdentity, policies, stage);
+			} catch (error) {
+				this._logging?.log({
+					level: "error",
+					source: this.CLASS_NAME,
+					ts: Date.now(),
+					message: "actionExecutionFailed",
+					data: {
+						actionId,
+						stage,
+						assetType,
+						action
+					},
+					error: BaseError.fromError(error)
+				});
+			}
+		}
+	}
 
 	/**
 	 * Register an action to be executed.
@@ -68,12 +115,40 @@ export class PolicyExecutionPointService implements IPolicyExecutionPointCompone
 		actionId: string,
 		stage: PolicyDecisionStage,
 		action: PolicyActionCallback<T>
-	): Promise<void> {}
+	): Promise<void> {
+		Guards.stringValue(this.CLASS_NAME, nameof(actionId), actionId);
+		Guards.arrayOneOf(this.CLASS_NAME, nameof(stage), stage, Object.values(PolicyDecisionStage));
+		Guards.function(this.CLASS_NAME, nameof(action), action);
+
+		const currentIndex = this._executeActions[stage].actions.findIndex(
+			a => a.actionId === actionId
+		);
+		if (currentIndex !== -1) {
+			this._executeActions[stage].actions[currentIndex].callback =
+				action as PolicyActionCallback<unknown>;
+		} else {
+			this._executeActions[stage].actions.push({
+				actionId,
+				callback: action as PolicyActionCallback<unknown>
+			});
+		}
+	}
 
 	/**
 	 * Unregister an action from the execution point.
 	 * @param actionId The id of the action to unregister.
+	 * @param stage The stage at which the action was executed.
 	 * @returns Nothing.
 	 */
-	public async unregisterAction(actionId: string): Promise<void> {}
+	public async unregisterAction(actionId: string, stage: PolicyDecisionStage): Promise<void> {
+		Guards.stringValue(this.CLASS_NAME, nameof(actionId), actionId);
+		Guards.arrayOneOf(this.CLASS_NAME, nameof(stage), stage, Object.values(PolicyDecisionStage));
+
+		const currentIndex = this._executeActions[stage].actions.findIndex(
+			a => a.actionId === actionId
+		);
+		if (currentIndex !== -1) {
+			this._executeActions[stage].actions.splice(currentIndex, 1);
+		}
+	}
 }

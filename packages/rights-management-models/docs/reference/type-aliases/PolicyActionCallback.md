@@ -1,6 +1,6 @@
 # Type Alias: PolicyActionCallback()\<T\>
 
-> **PolicyActionCallback**\<`T`\> = (`assetType`, `action`, `data`, `userIdentity`, `nodeIdentity`, `policies`) => `Promise`\<`void`\>
+> **PolicyActionCallback**\<`T`\> = (`assetType`, `action`, `data`, `userIdentity`, `nodeIdentity`, `policies`, `stage`) => `Promise`\<`void`\>
 
 Callback function type for policy actions.
 This function is called when a policy action is executed.
@@ -51,6 +51,12 @@ The node identity to use in the decision making.
 `IOdrlPolicy`[]
 
 The policies that apply to the data.
+
+### stage
+
+[`PolicyDecisionStage`](PolicyDecisionStage.md)
+
+The stage of the policy decision.
 
 ## Returns
 

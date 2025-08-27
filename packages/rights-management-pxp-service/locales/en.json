@@ -1,7 +1,12 @@
 {
 	"error": {
-		"policyAdministrationPointService": {
-			"policyNotFound": "Policy not found with id: \"{notFoundId}\""
+		"policyExecutionPointService": {
+			"actionExecutionFailed": "Action execution failed for id: \"{actionId}\", at stage \"{stage}\", with asset type \"{assetType}\" and action \"{action}\""
+		}
+	},
+	"info": {
+		"loggingPolicyAction": {
+			"policyExecuted": "Policy executed for asset type: \"{assetType}\", action: \"{action}\", data: \"{data}\", user identity: \"{userIdentity}\", node identity: \"{nodeIdentity}\", policies: \"{policies}\", stage: \"{stage}\""
 		}
 	}
 }

@@ -117,7 +117,7 @@ Nothing.
 
 ### unregisterAction()
 
-> **unregisterAction**(`actionId`): `Promise`\<`void`\>
+> **unregisterAction**(`actionId`, `stage`): `Promise`\<`void`\>
 
 Unregister an action from the execution point.
 
@@ -128,6 +128,12 @@ Unregister an action from the execution point.
 `string`
 
 The id of the action to unregister.
+
+##### stage
+
+[`PolicyDecisionStage`](../type-aliases/PolicyDecisionStage.md)
+
+The stage at which the action was executed.
 
 #### Returns
 
