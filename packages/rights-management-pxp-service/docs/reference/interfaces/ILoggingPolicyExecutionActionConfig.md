@@ -1,6 +1,6 @@
-# Interface: IPolicyExecutionPointServiceConfig
+# Interface: ILoggingPolicyExecutionActionConfig
 
-Options for the Policy Execution Point Component.
+Options for the Logging Policy Execution Action Component.
 
 ## Properties
 

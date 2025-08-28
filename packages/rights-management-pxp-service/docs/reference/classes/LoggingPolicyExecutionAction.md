@@ -19,7 +19,7 @@ Create a new instance of LoggingPolicyExecutionAction.
 
 ##### options?
 
-[`IPolicyExecutionPointServiceConstructorOptions`](../interfaces/IPolicyExecutionPointServiceConstructorOptions.md)
+[`ILoggingPolicyExecutionActionConstructorOptions`](../interfaces/ILoggingPolicyExecutionActionConstructorOptions.md)
 
 The options for the logging policy execution action.
 

@@ -3,9 +3,9 @@
 import type { PolicyDecisionStage } from "@twin.org/rights-management-models";
 
 /**
- * Options for the Policy Execution Point Component.
+ * Options for the Logging Policy Execution Action Component.
  */
-export interface IPolicyExecutionPointServiceConfig {
+export interface ILoggingPolicyExecutionActionConfig {
 	/**
 	 * The policy decision stages to log, if undefined defaults to all.
 	 */

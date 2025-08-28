@@ -8,7 +8,7 @@ import {
 	PolicyDecisionStage
 } from "@twin.org/rights-management-models";
 import type { IOdrlPolicy } from "@twin.org/standards-w3c-odrl";
-import type { IPolicyExecutionPointServiceConstructorOptions } from "../models/IPolicyExecutionPointServiceConstructorOptions";
+import type { ILoggingPolicyExecutionActionConstructorOptions } from "../models/ILoggingPolicyExecutionActionConstructorOptions";
 
 /**
  * Logging Policy Execution Action to send decisions to logging.
@@ -45,7 +45,7 @@ export class LoggingPolicyExecutionAction implements IPolicyExecutionAction, ICo
 	 * Create a new instance of LoggingPolicyExecutionAction.
 	 * @param options The options for the logging policy execution action.
 	 */
-	constructor(options?: IPolicyExecutionPointServiceConstructorOptions) {
+	constructor(options?: ILoggingPolicyExecutionActionConstructorOptions) {
 		this._logging = ComponentFactory.get<ILoggingComponent>(
 			options?.loggingComponentType ?? "logging"
 		);

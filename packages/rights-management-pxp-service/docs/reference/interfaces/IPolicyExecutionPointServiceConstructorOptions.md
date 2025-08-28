@@ -15,11 +15,3 @@ The logging component for logging policy execution.
 ```ts
 logging
 ```
-
-***
-
-### config?
-
-> `optional` **config**: [`IPolicyExecutionPointServiceConfig`](IPolicyExecutionPointServiceConfig.md)
-
-The configuration for the policy execution point service.
