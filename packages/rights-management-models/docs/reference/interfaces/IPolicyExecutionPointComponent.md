@@ -13,15 +13,9 @@ registered actions based on the decision.
 
 ### executeActions()
 
-> **executeActions**\<`T`\>(`stage`, `assetType`, `action`, `data`, `userIdentity`, `nodeIdentity`, `policies`): `Promise`\<`void`\>
+> **executeActions**(`stage`, `assetType`, `action`, `data`, `userIdentity`, `nodeIdentity`, `policies`): `Promise`\<`void`\>
 
 Execute actions based on the PDP's decisions.
-
-#### Type Parameters
-
-##### T
-
-`T` = `unknown`
 
 #### Parameters
 
@@ -45,9 +39,9 @@ The action being performed on the asset.
 
 ##### data
 
-The data used in the decision by the PDP.
+`unknown`
 
-`undefined` | `T`
+The data used in the decision by the PDP.
 
 ##### userIdentity
 
@@ -77,15 +71,9 @@ Nothing.
 
 ### registerAction()
 
-> **registerAction**\<`T`\>(`actionId`, `stage`, `action`): `Promise`\<`void`\>
+> **registerAction**(`actionId`, `stage`, `action`): `Promise`\<`void`\>
 
 Register an action to be executed.
-
-#### Type Parameters
-
-##### T
-
-`T` = `unknown`
 
 #### Parameters
 
@@ -103,7 +91,7 @@ The stage at which the action should be executed.
 
 ##### action
 
-[`PolicyActionCallback`](../type-aliases/PolicyActionCallback.md)\<`T`\>
+[`IPolicyExecutionAction`](IPolicyExecutionAction.md)
 
 The action to execute.
 

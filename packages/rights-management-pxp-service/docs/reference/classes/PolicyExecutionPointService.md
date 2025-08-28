@@ -18,7 +18,7 @@ Create a new instance of PolicyExecutionPointService (PXP).
 
 ##### options?
 
-[`IPolicyExecutionPointServiceOptions`](../interfaces/IPolicyExecutionPointServiceOptions.md)
+[`IPolicyExecutionPointServiceConstructorOptions`](../interfaces/IPolicyExecutionPointServiceConstructorOptions.md)
 
 The options for the component.
 
@@ -110,15 +110,9 @@ Nothing.
 
 ### registerAction()
 
-> **registerAction**\<`T`\>(`actionId`, `stage`, `action`): `Promise`\<`void`\>
+> **registerAction**(`actionId`, `stage`, `action`): `Promise`\<`void`\>
 
 Register an action to be executed.
-
-#### Type Parameters
-
-##### T
-
-`T` = `unknown`
 
 #### Parameters
 
@@ -136,7 +130,7 @@ The stage at which the action should be executed.
 
 ##### action
 
-`PolicyActionCallback`\<`T`\>
+`IPolicyExecutionAction`
 
 The action to execute.
 

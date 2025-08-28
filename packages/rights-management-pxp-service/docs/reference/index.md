@@ -2,12 +2,11 @@
 
 ## Classes
 
+- [LoggingPolicyExecutionAction](classes/LoggingPolicyExecutionAction.md)
 - [PolicyExecutionPointService](classes/PolicyExecutionPointService.md)
 
 ## Interfaces
 
-- [IPolicyExecutionPointServiceOptions](interfaces/IPolicyExecutionPointServiceOptions.md)
-
-## Functions
-
-- [createLoggingPolicyActionCallback](functions/createLoggingPolicyActionCallback.md)
+- [ILoggingPolicyExecutionActionConstructorOptions](interfaces/ILoggingPolicyExecutionActionConstructorOptions.md)
+- [IPolicyExecutionPointServiceConfig](interfaces/IPolicyExecutionPointServiceConfig.md)
+- [IPolicyExecutionPointServiceConstructorOptions](interfaces/IPolicyExecutionPointServiceConstructorOptions.md)

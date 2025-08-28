@@ -13,8 +13,16 @@ import { LoggingService } from "@twin.org/logging-service";
 import { nameof } from "@twin.org/nameof";
 import { PolicyDecisionStage } from "@twin.org/rights-management-models";
 import { type IOdrlPolicy, OdrlContexts, PolicyType } from "@twin.org/standards-w3c-odrl";
-import { createLoggingPolicyActionCallback } from "../src/policyActions/loggingPolicyActions";
+import { LoggingPolicyExecutionAction } from "../src/policyExecutionActions/loggingPolicyExecutionAction";
 import { PolicyExecutionPointService } from "../src/policyExecutionPointService";
+
+/**
+ * Mock class
+ */
+class MockPolicyExecutionAction {
+	// eslint-disable-next-line no-restricted-syntax
+	public execute = vi.fn();
+}
 
 let loggingMemoryEntityStorage: MemoryEntityStorageConnector<LogEntry>;
 
@@ -37,12 +45,8 @@ describe("rights-management-pxp", () => {
 
 	test("can register an action and expect it to be called when executed before", async () => {
 		const policyExecutionPoint = new PolicyExecutionPointService();
-		const mockCallback = vi.fn();
-		await policyExecutionPoint.registerAction(
-			"testAction",
-			PolicyDecisionStage.Before,
-			mockCallback
-		);
+		const mockAction = new MockPolicyExecutionAction();
+		await policyExecutionPoint.registerAction("testAction", PolicyDecisionStage.Before, mockAction);
 		await policyExecutionPoint.executeActions(
 			PolicyDecisionStage.Before,
 			"assetType",
@@ -52,7 +56,7 @@ describe("rights-management-pxp", () => {
 			"nodeIdentity",
 			[]
 		);
-		expect(mockCallback).toHaveBeenCalledWith(
+		expect(mockAction.execute).toHaveBeenCalledWith(
 			"assetType",
 			"action",
 			{},
@@ -65,12 +69,8 @@ describe("rights-management-pxp", () => {
 
 	test("can register an action and expect it to be called when executed after", async () => {
 		const policyExecutionPoint = new PolicyExecutionPointService();
-		const mockCallback = vi.fn();
-		await policyExecutionPoint.registerAction(
-			"testAction",
-			PolicyDecisionStage.After,
-			mockCallback
-		);
+		const mockAction = new MockPolicyExecutionAction();
+		await policyExecutionPoint.registerAction("testAction", PolicyDecisionStage.After, mockAction);
 		await policyExecutionPoint.executeActions(
 			PolicyDecisionStage.After,
 			"assetType",
@@ -80,7 +80,7 @@ describe("rights-management-pxp", () => {
 			"nodeIdentity",
 			[]
 		);
-		expect(mockCallback).toHaveBeenCalledWith(
+		expect(mockAction.execute).toHaveBeenCalledWith(
 			"assetType",
 			"action",
 			{},
@@ -93,18 +93,18 @@ describe("rights-management-pxp", () => {
 
 	test("can register multiple actions and all are executed", async () => {
 		const policyExecutionPoint = new PolicyExecutionPointService();
-		const mockCallback1 = vi.fn();
-		const mockCallback2 = vi.fn();
+		const mockAction1 = new MockPolicyExecutionAction();
+		const mockAction2 = new MockPolicyExecutionAction();
 
 		await policyExecutionPoint.registerAction(
 			"testAction1",
 			PolicyDecisionStage.Before,
-			mockCallback1
+			mockAction1
 		);
 		await policyExecutionPoint.registerAction(
 			"testAction2",
 			PolicyDecisionStage.Before,
-			mockCallback2
+			mockAction2
 		);
 
 		await policyExecutionPoint.executeActions(
@@ -117,19 +117,15 @@ describe("rights-management-pxp", () => {
 			[]
 		);
 
-		expect(mockCallback1).toHaveBeenCalledOnce();
-		expect(mockCallback2).toHaveBeenCalledOnce();
+		expect(mockAction1.execute).toHaveBeenCalledOnce();
+		expect(mockAction2.execute).toHaveBeenCalledOnce();
 	});
 
 	test("can unregister an action", async () => {
 		const policyExecutionPoint = new PolicyExecutionPointService();
-		const mockCallback = vi.fn();
+		const mockAction = new MockPolicyExecutionAction();
 
-		await policyExecutionPoint.registerAction(
-			"testAction",
-			PolicyDecisionStage.Before,
-			mockCallback
-		);
+		await policyExecutionPoint.registerAction("testAction", PolicyDecisionStage.Before, mockAction);
 		await policyExecutionPoint.unregisterAction("testAction", PolicyDecisionStage.Before);
 		await policyExecutionPoint.executeActions(
 			PolicyDecisionStage.Before,
@@ -141,23 +137,23 @@ describe("rights-management-pxp", () => {
 			[]
 		);
 
-		expect(mockCallback).not.toHaveBeenCalled();
+		expect(mockAction.execute).not.toHaveBeenCalled();
 	});
 
 	test("can register action with same id to replace existing action", async () => {
 		const policyExecutionPoint = new PolicyExecutionPointService();
-		const mockCallback1 = vi.fn();
-		const mockCallback2 = vi.fn();
+		const mockAction1 = new MockPolicyExecutionAction();
+		const mockAction2 = new MockPolicyExecutionAction();
 
 		await policyExecutionPoint.registerAction(
 			"testAction",
 			PolicyDecisionStage.Before,
-			mockCallback1
+			mockAction1
 		);
 		await policyExecutionPoint.registerAction(
 			"testAction",
 			PolicyDecisionStage.Before,
-			mockCallback2
+			mockAction2
 		);
 
 		await policyExecutionPoint.executeActions(
@@ -170,8 +166,8 @@ describe("rights-management-pxp", () => {
 			[]
 		);
 
-		expect(mockCallback1).not.toHaveBeenCalled();
-		expect(mockCallback2).toHaveBeenCalledOnce();
+		expect(mockAction1.execute).not.toHaveBeenCalled();
+		expect(mockAction2.execute).toHaveBeenCalledOnce();
 	});
 
 	test("unregistering non-existent action does not throw error", async () => {
@@ -184,19 +180,21 @@ describe("rights-management-pxp", () => {
 
 	test("continues executing other actions when one throws error", async () => {
 		const policyExecutionPoint = new PolicyExecutionPointService();
+		const errorAction = new MockPolicyExecutionAction();
+		const successAction = new MockPolicyExecutionAction();
+
 		// eslint-disable-next-line no-restricted-syntax
-		const errorCallback = vi.fn().mockRejectedValue(new Error("Test error"));
-		const successCallback = vi.fn();
+		errorAction.execute.mockRejectedValue(new Error("Test error"));
 
 		await policyExecutionPoint.registerAction(
 			"errorAction",
 			PolicyDecisionStage.Before,
-			errorCallback
+			errorAction
 		);
 		await policyExecutionPoint.registerAction(
 			"successAction",
 			PolicyDecisionStage.Before,
-			successCallback
+			successAction
 		);
 
 		await policyExecutionPoint.executeActions(
@@ -209,19 +207,21 @@ describe("rights-management-pxp", () => {
 			[]
 		);
 
-		expect(errorCallback).toHaveBeenCalledOnce();
-		expect(successCallback).toHaveBeenCalledOnce();
+		expect(errorAction.execute).toHaveBeenCalledOnce();
+		expect(successAction.execute).toHaveBeenCalledOnce();
 	});
 
 	test("logs error when action execution fails", async () => {
 		const policyExecutionPoint = new PolicyExecutionPointService();
+		const errorAction = new MockPolicyExecutionAction();
+
 		// eslint-disable-next-line no-restricted-syntax
-		const errorCallback = vi.fn().mockRejectedValue(new Error("Test error"));
+		errorAction.execute.mockRejectedValue(new Error("Test error"));
 
 		await policyExecutionPoint.registerAction(
 			"errorAction",
 			PolicyDecisionStage.Before,
-			errorCallback
+			errorAction
 		);
 		await policyExecutionPoint.executeActions(
 			PolicyDecisionStage.Before,
@@ -241,17 +241,13 @@ describe("rights-management-pxp", () => {
 
 	test("executes actions with correct parameters including data", async () => {
 		const policyExecutionPoint = new PolicyExecutionPointService();
-		const mockCallback = vi.fn();
+		const mockAction = new MockPolicyExecutionAction();
 		const testData = { key: "value" };
 		const testPolicies = [
 			{ "@context": OdrlContexts.ContextRoot, "@type": PolicyType.Agreement, uid: "policy1" }
 		];
 
-		await policyExecutionPoint.registerAction(
-			"testAction",
-			PolicyDecisionStage.Before,
-			mockCallback
-		);
+		await policyExecutionPoint.registerAction("testAction", PolicyDecisionStage.Before, mockAction);
 		await policyExecutionPoint.executeActions(
 			PolicyDecisionStage.Before,
 			"assetType",
@@ -262,7 +258,7 @@ describe("rights-management-pxp", () => {
 			testPolicies
 		);
 
-		expect(mockCallback).toHaveBeenCalledWith(
+		expect(mockAction.execute).toHaveBeenCalledWith(
 			"assetType",
 			"action",
 			testData,
@@ -271,6 +267,41 @@ describe("rights-management-pxp", () => {
 			testPolicies,
 			PolicyDecisionStage.Before
 		);
+	});
+
+	test("loggingPolicyAction combined with other actions", async () => {
+		const policyExecutionPoint = new PolicyExecutionPointService();
+		const customAction = new MockPolicyExecutionAction();
+		const testPolicies = [
+			{ "@context": OdrlContexts.ContextRoot, "@type": PolicyType.Agreement, uid: "policy1" }
+		];
+
+		await policyExecutionPoint.registerAction(
+			"customAction",
+			PolicyDecisionStage.Before,
+			customAction
+		);
+		await policyExecutionPoint.registerAction(
+			"loggingAction",
+			PolicyDecisionStage.Before,
+			new LoggingPolicyExecutionAction()
+		);
+
+		await policyExecutionPoint.executeActions(
+			PolicyDecisionStage.Before,
+			"api",
+			"call",
+			{ endpoint: "/users" },
+			"apiUser",
+			"apiNode",
+			testPolicies
+		);
+
+		// Check both custom action was called and logging occurred
+		expect(customAction.execute).toHaveBeenCalledOnce();
+		const logEntries = await loggingMemoryEntityStorage.query();
+		expect(logEntries.entities.length).toBe(1);
+		expect(logEntries.entities[0].message).toBe("policyActionExecuted");
 	});
 
 	test("loggingPolicyAction logs policy execution details", async () => {
@@ -293,7 +324,7 @@ describe("rights-management-pxp", () => {
 		await policyExecutionPoint.registerAction(
 			"loggingAction",
 			PolicyDecisionStage.Before,
-			createLoggingPolicyActionCallback("logging")
+			new LoggingPolicyExecutionAction()
 		);
 		await policyExecutionPoint.executeActions(
 			PolicyDecisionStage.Before,
@@ -308,7 +339,7 @@ describe("rights-management-pxp", () => {
 		const logEntries = await loggingMemoryEntityStorage.query();
 		expect(logEntries.entities.length).toBe(1);
 		expect(logEntries.entities[0].level).toBe("info");
-		expect(logEntries.entities[0].message).toBe("policyExecuted");
+		expect(logEntries.entities[0].message).toBe("policyActionExecuted");
 		expect(logEntries.entities[0].data).toEqual({
 			assetType: "document",
 			action: "read",
@@ -329,7 +360,7 @@ describe("rights-management-pxp", () => {
 		await policyExecutionPoint.registerAction(
 			"loggingAction",
 			PolicyDecisionStage.After,
-			createLoggingPolicyActionCallback("logging")
+			new LoggingPolicyExecutionAction()
 		);
 		await policyExecutionPoint.executeActions(
 			PolicyDecisionStage.After,
@@ -359,7 +390,7 @@ describe("rights-management-pxp", () => {
 		await policyExecutionPoint.registerAction(
 			"loggingAction",
 			PolicyDecisionStage.Before,
-			createLoggingPolicyActionCallback("logging")
+			new LoggingPolicyExecutionAction()
 		);
 		await policyExecutionPoint.executeActions(
 			PolicyDecisionStage.Before,
@@ -395,7 +426,7 @@ describe("rights-management-pxp", () => {
 		await policyExecutionPoint.registerAction(
 			"loggingAction",
 			PolicyDecisionStage.Before,
-			createLoggingPolicyActionCallback("logging", { includeData: true, includePolicies: true })
+			new LoggingPolicyExecutionAction({ config: { includeData: true, includePolicies: true } })
 		);
 		await policyExecutionPoint.executeActions(
 			PolicyDecisionStage.Before,
@@ -421,12 +452,12 @@ describe("rights-management-pxp", () => {
 		await policyExecutionPoint.registerAction(
 			"beforeLogging",
 			PolicyDecisionStage.Before,
-			createLoggingPolicyActionCallback("logging")
+			new LoggingPolicyExecutionAction()
 		);
 		await policyExecutionPoint.registerAction(
 			"afterLogging",
 			PolicyDecisionStage.After,
-			createLoggingPolicyActionCallback("logging")
+			new LoggingPolicyExecutionAction()
 		);
 
 		await policyExecutionPoint.executeActions(
@@ -454,41 +485,6 @@ describe("rights-management-pxp", () => {
 		expect(logEntries.entities[1]?.data?.stage).toBe(PolicyDecisionStage.After);
 	});
 
-	test("loggingPolicyAction combined with other actions", async () => {
-		const policyExecutionPoint = new PolicyExecutionPointService();
-		const customAction = vi.fn();
-		const testPolicies = [
-			{ "@context": OdrlContexts.ContextRoot, "@type": PolicyType.Agreement, uid: "policy1" }
-		];
-
-		await policyExecutionPoint.registerAction(
-			"customAction",
-			PolicyDecisionStage.Before,
-			customAction
-		);
-		await policyExecutionPoint.registerAction(
-			"loggingAction",
-			PolicyDecisionStage.Before,
-			createLoggingPolicyActionCallback("logging")
-		);
-
-		await policyExecutionPoint.executeActions(
-			PolicyDecisionStage.Before,
-			"api",
-			"call",
-			{ endpoint: "/users" },
-			"apiUser",
-			"apiNode",
-			testPolicies
-		);
-
-		// Check both custom action was called and logging occurred
-		expect(customAction).toHaveBeenCalledOnce();
-		const logEntries = await loggingMemoryEntityStorage.query();
-		expect(logEntries.entities.length).toBe(1);
-		expect(logEntries.entities[0].message).toBe("policyExecuted");
-	});
-
 	test("loggingPolicyAction logs different asset types and actions", async () => {
 		const policyExecutionPoint = new PolicyExecutionPointService();
 		const testPolicies = [
@@ -498,7 +494,7 @@ describe("rights-management-pxp", () => {
 		await policyExecutionPoint.registerAction(
 			"loggingAction",
 			PolicyDecisionStage.Before,
-			createLoggingPolicyActionCallback("logging")
+			new LoggingPolicyExecutionAction()
 		);
 
 		// Execute different combinations
@@ -558,7 +554,7 @@ describe("rights-management-pxp", () => {
 		await policyExecutionPoint.registerAction(
 			"loggingAction",
 			PolicyDecisionStage.Before,
-			createLoggingPolicyActionCallback("logging")
+			new LoggingPolicyExecutionAction()
 		);
 		await policyExecutionPoint.executeActions(
 			PolicyDecisionStage.Before,

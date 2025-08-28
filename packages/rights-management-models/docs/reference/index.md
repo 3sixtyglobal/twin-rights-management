@@ -5,6 +5,7 @@
 - [IPolicyAdministrationPointComponent](interfaces/IPolicyAdministrationPointComponent.md)
 - [IPolicyDecisionPointComponent](interfaces/IPolicyDecisionPointComponent.md)
 - [IPolicyEnforcementPointComponent](interfaces/IPolicyEnforcementPointComponent.md)
+- [IPolicyExecutionAction](interfaces/IPolicyExecutionAction.md)
 - [IPolicyExecutionPointComponent](interfaces/IPolicyExecutionPointComponent.md)
 - [IPolicyInformationPointComponent](interfaces/IPolicyInformationPointComponent.md)
 - [IPolicyManagementPointComponent](interfaces/IPolicyManagementPointComponent.md)
@@ -21,9 +22,9 @@
 
 ## Type Aliases
 
-- [PolicyActionCallback](type-aliases/PolicyActionCallback.md)
 - [PolicyDecisionStage](type-aliases/PolicyDecisionStage.md)
 
 ## Variables
 
+- [PolicyExecutionActionFactory](variables/PolicyExecutionActionFactory.md)
 - [PolicyDecisionStage](variables/PolicyDecisionStage.md)

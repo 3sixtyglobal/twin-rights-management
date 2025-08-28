@@ -2,9 +2,9 @@
 // SPDX-License-Identifier: Apache-2.0.
 
 /**
- * Options for the Policy Execution Point Component.
+ * Options for the Logging Policy Execution Action.
  */
-export interface IPolicyExecutionPointServiceOptions {
+export interface ILoggingPolicyExecutionActionConstructorOptions {
 	/**
 	 * The logging component for logging policy execution.
 	 * @default logging

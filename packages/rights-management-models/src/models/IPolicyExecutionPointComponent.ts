@@ -2,7 +2,7 @@
 // SPDX-License-Identifier: Apache-2.0.
 import type { IComponent } from "@twin.org/core";
 import type { IOdrlPolicy } from "@twin.org/standards-w3c-odrl";
-import type { PolicyActionCallback } from "./policyActionCallback";
+import type { IPolicyExecutionAction } from "./IPolicyExecutionAction";
 import type { PolicyDecisionStage } from "./policyDecisionStage";
 
 /**
@@ -23,11 +23,11 @@ export interface IPolicyExecutionPointComponent extends IComponent {
 	 * @param policies The policies that apply to the data.
 	 * @returns Nothing.
 	 */
-	executeActions<T = unknown>(
+	executeActions(
 		stage: PolicyDecisionStage,
 		assetType: string,
 		action: string,
-		data: T | undefined,
+		data: unknown,
 		userIdentity: string,
 		nodeIdentity: string,
 		policies: IOdrlPolicy[]
@@ -40,10 +40,10 @@ export interface IPolicyExecutionPointComponent extends IComponent {
 	 * @param action The action to execute.
 	 * @returns Nothing.
 	 */
-	registerAction<T = unknown>(
+	registerAction(
 		actionId: string,
 		stage: PolicyDecisionStage,
-		action: PolicyActionCallback<T>
+		action: IPolicyExecutionAction
 	): Promise<void>;
 
 	/**

@@ -5,8 +5,8 @@
 		}
 	},
 	"info": {
-		"loggingPolicyAction": {
-			"policyExecuted": "Policy executed for asset type: \"{assetType}\", action: \"{action}\", data: \"{data}\", user identity: \"{userIdentity}\", node identity: \"{nodeIdentity}\", policies: \"{policies}\", stage: \"{stage}\""
+		"loggingPolicyExecutionAction": {
+			"policyActionExecuted": "Policy executed for asset type: \"{assetType}\", action: \"{action}\", data: \"{data}\", user identity: \"{userIdentity}\", node identity: \"{nodeIdentity}\", policies: \"{policies}\", stage: \"{stage}\""
 		}
 	}
 }

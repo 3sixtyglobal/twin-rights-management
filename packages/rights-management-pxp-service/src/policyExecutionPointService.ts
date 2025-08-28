@@ -4,12 +4,12 @@ import { BaseError, ComponentFactory, Guards } from "@twin.org/core";
 import type { ILoggingComponent } from "@twin.org/logging-models";
 import { nameof } from "@twin.org/nameof";
 import {
+	type IPolicyExecutionAction,
 	type IPolicyExecutionPointComponent,
-	type PolicyActionCallback,
 	PolicyDecisionStage
 } from "@twin.org/rights-management-models";
 import type { IOdrlPolicy } from "@twin.org/standards-w3c-odrl";
-import type { IPolicyExecutionPointServiceOptions } from "./models/IPolicyExecutionPointServiceOptions";
+import type { IPolicyExecutionPointServiceConstructorOptions } from "./models/IPolicyExecutionPointServiceConstructorOptions";
 
 /**
  * Class implementation of Policy Execution Point Component.
@@ -34,7 +34,7 @@ export class PolicyExecutionPointService implements IPolicyExecutionPointCompone
 		[stage in PolicyDecisionStage]: {
 			actions: {
 				actionId: string;
-				callback: PolicyActionCallback<unknown>;
+				executionAction: IPolicyExecutionAction;
 			}[];
 		};
 	};
@@ -43,7 +43,7 @@ export class PolicyExecutionPointService implements IPolicyExecutionPointCompone
 	 * Create a new instance of PolicyExecutionPointService (PXP).
 	 * @param options The options for the component.
 	 */
-	constructor(options?: IPolicyExecutionPointServiceOptions) {
+	constructor(options?: IPolicyExecutionPointServiceConstructorOptions) {
 		this._logging = ComponentFactory.getIfExists<ILoggingComponent>(
 			options?.loggingComponentType ?? "logging"
 		);
@@ -83,9 +83,17 @@ export class PolicyExecutionPointService implements IPolicyExecutionPointCompone
 		Guards.stringValue(this.CLASS_NAME, nameof(action), action);
 
 		const actions = this._executeActions[stage].actions;
-		for (const { actionId, callback } of actions) {
+		for (const { actionId, executionAction } of actions) {
 			try {
-				await callback(assetType, action, data, userIdentity, nodeIdentity, policies, stage);
+				await executionAction.execute(
+					assetType,
+					action,
+					data,
+					userIdentity,
+					nodeIdentity,
+					policies,
+					stage
+				);
 			} catch (error) {
 				this._logging?.log({
 					level: "error",
@@ -111,25 +119,24 @@ export class PolicyExecutionPointService implements IPolicyExecutionPointCompone
 	 * @param action The action to execute.
 	 * @returns Nothing.
 	 */
-	public async registerAction<T = unknown>(
+	public async registerAction(
 		actionId: string,
 		stage: PolicyDecisionStage,
-		action: PolicyActionCallback<T>
+		action: IPolicyExecutionAction
 	): Promise<void> {
 		Guards.stringValue(this.CLASS_NAME, nameof(actionId), actionId);
 		Guards.arrayOneOf(this.CLASS_NAME, nameof(stage), stage, Object.values(PolicyDecisionStage));
-		Guards.function(this.CLASS_NAME, nameof(action), action);
+		Guards.object<IPolicyExecutionAction>(this.CLASS_NAME, nameof(action), action);
 
 		const currentIndex = this._executeActions[stage].actions.findIndex(
 			a => a.actionId === actionId
 		);
 		if (currentIndex !== -1) {
-			this._executeActions[stage].actions[currentIndex].callback =
-				action as PolicyActionCallback<unknown>;
+			this._executeActions[stage].actions[currentIndex].executionAction = action;
 		} else {
 			this._executeActions[stage].actions.push({
 				actionId,
-				callback: action as PolicyActionCallback<unknown>
+				executionAction: action
 			});
 		}
 	}
