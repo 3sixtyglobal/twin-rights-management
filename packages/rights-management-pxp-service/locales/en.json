@@ -7,6 +7,10 @@
 	"info": {
 		"loggingPolicyExecutionAction": {
 			"policyActionExecuted": "Policy executed for asset type: \"{assetType}\", action: \"{action}\", data: \"{data}\", user identity: \"{userIdentity}\", node identity: \"{nodeIdentity}\", policies: \"{policies}\", stage: \"{stage}\""
+		},
+		"policyExecutionPointService": {
+			"registeredAction": "Action registered with id: \"{actionId}\", at stage \"{stage}\"",
+			"unregisteredAction": "Action unregistered with id: \"{actionId}\", at stage \"{stage}\""
 		}
 	}
 }

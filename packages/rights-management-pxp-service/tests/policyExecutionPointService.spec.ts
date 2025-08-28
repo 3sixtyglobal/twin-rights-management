@@ -233,10 +233,12 @@ describe("rights-management-pxp", () => {
 			[]
 		);
 
-		const logEntries = await loggingMemoryEntityStorage.query();
-		expect(logEntries.entities.length).toBe(1);
-		expect(logEntries.entities[0].level).toBe("error");
-		expect(logEntries.entities[0].message).toBe("actionExecutionFailed");
+		const logEntries = loggingMemoryEntityStorage.getStore();
+		expect(logEntries.length).toBe(2);
+		expect(logEntries[0].level).toBe("info");
+		expect(logEntries[0].message).toBe("registeredAction");
+		expect(logEntries[1].level).toBe("error");
+		expect(logEntries[1].message).toBe("actionExecutionFailed");
 	});
 
 	test("executes actions with correct parameters including data", async () => {
@@ -299,9 +301,11 @@ describe("rights-management-pxp", () => {
 
 		// Check both custom action was called and logging occurred
 		expect(customAction.execute).toHaveBeenCalledOnce();
-		const logEntries = await loggingMemoryEntityStorage.query();
-		expect(logEntries.entities.length).toBe(1);
-		expect(logEntries.entities[0].message).toBe("policyActionExecuted");
+		const logEntries = loggingMemoryEntityStorage.getStore();
+		expect(logEntries.length).toBe(3);
+		expect(logEntries[0].message).toBe("registeredAction");
+		expect(logEntries[1].message).toBe("registeredAction");
+		expect(logEntries[2].message).toBe("policyActionExecuted");
 	});
 
 	test("loggingPolicyAction logs policy execution details", async () => {
@@ -336,11 +340,13 @@ describe("rights-management-pxp", () => {
 			testPolicies
 		);
 
-		const logEntries = await loggingMemoryEntityStorage.query();
-		expect(logEntries.entities.length).toBe(1);
-		expect(logEntries.entities[0].level).toBe("info");
-		expect(logEntries.entities[0].message).toBe("policyActionExecuted");
-		expect(logEntries.entities[0].data).toEqual({
+		const logEntries = loggingMemoryEntityStorage.getStore();
+		expect(logEntries.length).toBe(2);
+		expect(logEntries[0].level).toBe("info");
+		expect(logEntries[0].message).toBe("registeredAction");
+		expect(logEntries[1].level).toBe("info");
+		expect(logEntries[1].message).toBe("policyActionExecuted");
+		expect(logEntries[1].data).toEqual({
 			assetType: "document",
 			action: "read",
 			userIdentity: "user123",
@@ -372,9 +378,11 @@ describe("rights-management-pxp", () => {
 			testPolicies
 		);
 
-		const logEntries = await loggingMemoryEntityStorage.query();
-		expect(logEntries.entities.length).toBe(1);
-		expect(logEntries.entities[0].data).toEqual({
+		const logEntries = loggingMemoryEntityStorage.getStore();
+		expect(logEntries.length).toBe(2);
+		expect(logEntries[0].level).toBe("info");
+		expect(logEntries[0].message).toBe("registeredAction");
+		expect(logEntries[1].data).toEqual({
 			assetType: "image",
 			action: "write",
 			userIdentity: "",
@@ -402,9 +410,11 @@ describe("rights-management-pxp", () => {
 			[]
 		);
 
-		const logEntries = await loggingMemoryEntityStorage.query();
-		expect(logEntries.entities.length).toBe(1);
-		expect(logEntries.entities[0].data).toEqual({
+		const logEntries = loggingMemoryEntityStorage.getStore();
+		expect(logEntries.length).toBe(2);
+		expect(logEntries[0].level).toBe("info");
+		expect(logEntries[0].message).toBe("registeredAction");
+		expect(logEntries[1].data).toEqual({
 			assetType: "video",
 			action: "delete",
 			userIdentity: "admin",
@@ -438,9 +448,12 @@ describe("rights-management-pxp", () => {
 			multiplePolicies
 		);
 
-		const logEntries = await loggingMemoryEntityStorage.query();
-		expect(logEntries.entities.length).toBe(1);
-		expect((logEntries.entities[0]?.data?.policies as IOdrlPolicy[])?.length).toBe(3);
+		const logEntries = loggingMemoryEntityStorage.getStore();
+		expect(logEntries.length).toBe(2);
+		expect(logEntries.length).toBe(2);
+		expect(logEntries[0].level).toBe("info");
+		expect(logEntries[0].message).toBe("registeredAction");
+		expect((logEntries[1]?.data?.policies as IOdrlPolicy[])?.length).toBe(3);
 	});
 
 	test("multiple loggingPolicyActions create separate log entries", async () => {
@@ -479,10 +492,14 @@ describe("rights-management-pxp", () => {
 			testPolicies
 		);
 
-		const logEntries = await loggingMemoryEntityStorage.query();
-		expect(logEntries.entities.length).toBe(2);
-		expect(logEntries.entities[0]?.data?.stage).toBe(PolicyDecisionStage.Before);
-		expect(logEntries.entities[1]?.data?.stage).toBe(PolicyDecisionStage.After);
+		const logEntries = loggingMemoryEntityStorage.getStore();
+		expect(logEntries.length).toBe(4);
+		expect(logEntries[0].level).toBe("info");
+		expect(logEntries[0].message).toBe("registeredAction");
+		expect(logEntries[1].level).toBe("info");
+		expect(logEntries[1].message).toBe("registeredAction");
+		expect(logEntries[2]?.data?.stage).toBe(PolicyDecisionStage.Before);
+		expect(logEntries[3]?.data?.stage).toBe(PolicyDecisionStage.After);
 	});
 
 	test("loggingPolicyAction logs different asset types and actions", async () => {
@@ -526,11 +543,11 @@ describe("rights-management-pxp", () => {
 			testPolicies
 		);
 
-		const logEntries = await loggingMemoryEntityStorage.query();
-		expect(logEntries.entities.length).toBe(3);
+		const logEntries = loggingMemoryEntityStorage.getStore();
+		expect(logEntries.length).toBe(4);
 
-		const assetTypes = logEntries.entities.map(entry => entry.data?.assetType);
-		const actions = logEntries.entities.map(entry => entry.data?.action);
+		const assetTypes = logEntries.map(entry => entry.data?.assetType);
+		const actions = logEntries.map(entry => entry.data?.action);
 
 		expect(assetTypes).toContain("document");
 		expect(assetTypes).toContain("image");
@@ -566,11 +583,11 @@ describe("rights-management-pxp", () => {
 			testPolicies
 		);
 
-		const logEntries = await loggingMemoryEntityStorage.query();
-		expect(logEntries.entities.length).toBe(1);
+		const logEntries = loggingMemoryEntityStorage.getStore();
+		expect(logEntries.length).toBe(2);
 
 		// Verify that sensitive data is not logged
-		const logEntry = logEntries.entities[0];
+		const logEntry = logEntries[1];
 		expect(JSON.stringify(logEntry)).not.toContain("secret123");
 		expect(JSON.stringify(logEntry)).not.toContain("1234-5678-9012-3456");
 		expect(JSON.stringify(logEntry)).not.toContain("123-45-6789");

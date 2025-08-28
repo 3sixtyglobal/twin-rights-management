@@ -139,6 +139,17 @@ export class PolicyExecutionPointService implements IPolicyExecutionPointCompone
 				executionAction: action
 			});
 		}
+
+		this._logging?.log({
+			level: "info",
+			source: this.CLASS_NAME,
+			ts: Date.now(),
+			message: "registeredAction",
+			data: {
+				actionId,
+				stage
+			}
+		});
 	}
 
 	/**
@@ -157,5 +168,16 @@ export class PolicyExecutionPointService implements IPolicyExecutionPointCompone
 		if (currentIndex !== -1) {
 			this._executeActions[stage].actions.splice(currentIndex, 1);
 		}
+
+		this._logging?.log({
+			level: "info",
+			source: this.CLASS_NAME,
+			ts: Date.now(),
+			message: "unregisteredAction",
+			data: {
+				actionId,
+				stage
+			}
+		});
 	}
 }

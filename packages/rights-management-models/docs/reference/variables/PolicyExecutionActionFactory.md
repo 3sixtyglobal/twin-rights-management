@@ -2,4 +2,4 @@
 
 > `const` **PolicyExecutionActionFactory**: `Factory`\<[`IPolicyExecutionAction`](../interfaces/IPolicyExecutionAction.md)\>
 
-Factory for creating data converter connectors.
+Factory for creating policy execution actions.
