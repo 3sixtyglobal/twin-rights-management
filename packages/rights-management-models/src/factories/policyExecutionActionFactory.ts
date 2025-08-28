@@ -4,7 +4,7 @@ import { Factory } from "@twin.org/core";
 import type { IPolicyExecutionAction } from "../models/IPolicyExecutionAction";
 
 /**
- * Factory for creating data converter connectors.
+ * Factory for creating policy execution actions.
  */
 // eslint-disable-next-line @typescript-eslint/naming-convention
 export const PolicyExecutionActionFactory = Factory.createFactory<IPolicyExecutionAction>(
