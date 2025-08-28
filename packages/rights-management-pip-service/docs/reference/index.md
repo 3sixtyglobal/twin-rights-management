@@ -3,7 +3,9 @@
 ## Classes
 
 - [PolicyInformationPointService](classes/PolicyInformationPointService.md)
+- [IdentityPolicyInformationSource](classes/IdentityPolicyInformationSource.md)
 
 ## Interfaces
 
-- [IPolicyInformationPointServiceOptions](interfaces/IPolicyInformationPointServiceOptions.md)
+- [IIdentityPolicyInformationSourceConstructorOptions](interfaces/IIdentityPolicyInformationSourceConstructorOptions.md)
+- [IPolicyInformationPointServiceConstructorOptions](interfaces/IPolicyInformationPointServiceConstructorOptions.md)

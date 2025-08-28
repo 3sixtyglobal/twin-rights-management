@@ -12,15 +12,9 @@ it is making decisions.
 
 ### retrieve()
 
-> **retrieve**\<`T`\>(`assetType`, `action`, `data`, `userIdentity`, `nodeIdentity`): `Promise`\<`IJsonLdNodeObject`[]\>
+> **retrieve**(`assetType`, `action`, `data`, `userIdentity`, `nodeIdentity`, `policies`): `Promise`\<\{\[`source`: `string`\]: `IJsonLdNodeObject`[]; \}\>
 
 Retrieve additional information which is relevant in the PDP decision making.
-
-#### Type Parameters
-
-##### T
-
-`T` = `unknown`
 
 #### Parameters
 
@@ -38,9 +32,9 @@ The action being performed on the asset.
 
 ##### data
 
-The data to get any additional information for.
+`unknown`
 
-`undefined` | `T`
+The data to get any additional information for.
 
 ##### userIdentity
 
@@ -54,8 +48,64 @@ The user identity to get additional information for.
 
 The node identity to get additional information for.
 
+##### policies
+
+`IOdrlPolicy`[]
+
+The policies that apply to the data.
+
 #### Returns
 
-`Promise`\<`IJsonLdNodeObject`[]\>
+`Promise`\<\{\[`source`: `string`\]: `IJsonLdNodeObject`[]; \}\>
 
 Returns additional information based on the data and identities.
+
+***
+
+### registerSource()
+
+> **registerSource**(`sourceId`, `source`): `Promise`\<`void`\>
+
+Register a source to use for retrieval.
+
+#### Parameters
+
+##### sourceId
+
+`string`
+
+The id of the source to register.
+
+##### source
+
+[`IPolicyInformationSource`](IPolicyInformationSource.md)
+
+The source to register.
+
+#### Returns
+
+`Promise`\<`void`\>
+
+Nothing.
+
+***
+
+### unregisterSource()
+
+> **unregisterSource**(`sourceId`): `Promise`\<`void`\>
+
+Unregister a source from the retrieval.
+
+#### Parameters
+
+##### sourceId
+
+`string`
+
+The id of the source to unregister.
+
+#### Returns
+
+`Promise`\<`void`\>
+
+Nothing.

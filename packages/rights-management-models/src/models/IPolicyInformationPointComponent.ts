@@ -2,6 +2,8 @@
 // SPDX-License-Identifier: Apache-2.0.
 import type { IComponent } from "@twin.org/core";
 import type { IJsonLdNodeObject } from "@twin.org/data-json-ld";
+import type { IOdrlPolicy } from "@twin.org/standards-w3c-odrl";
+import type { IPolicyInformationSource } from "./IPolicyInformationSource";
 
 /**
  * Interface describing a Policy Information Point (PEP) contract.
@@ -16,13 +18,30 @@ export interface IPolicyInformationPointComponent extends IComponent {
 	 * @param data The data to get any additional information for.
 	 * @param userIdentity The user identity to get additional information for.
 	 * @param nodeIdentity The node identity to get additional information for.
+	 * @param policies The policies that apply to the data.
 	 * @returns Returns additional information based on the data and identities.
 	 */
-	retrieve<T = unknown>(
+	retrieve(
 		assetType: string,
 		action: string,
-		data: T | undefined,
+		data: unknown,
 		userIdentity: string,
-		nodeIdentity: string
-	): Promise<IJsonLdNodeObject[]>;
+		nodeIdentity: string,
+		policies: IOdrlPolicy[]
+	): Promise<{ [source: string]: IJsonLdNodeObject[] }>;
+
+	/**
+	 * Register a source to use for retrieval.
+	 * @param sourceId The id of the source to register.
+	 * @param source The source to register.
+	 * @returns Nothing.
+	 */
+	registerSource(sourceId: string, source: IPolicyInformationSource): Promise<void>;
+
+	/**
+	 * Unregister a source from the retrieval.
+	 * @param sourceId The id of the source to unregister.
+	 * @returns Nothing.
+	 */
+	unregisterSource(sourceId: string): Promise<void>;
 }

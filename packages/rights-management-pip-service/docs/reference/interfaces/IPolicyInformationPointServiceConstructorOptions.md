@@ -1,4 +1,4 @@
-# Interface: IPolicyInformationPointServiceOptions
+# Interface: IPolicyInformationPointServiceConstructorOptions
 
 Options for the Policy Information Point Component.
 

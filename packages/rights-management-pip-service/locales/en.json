@@ -1,5 +1,16 @@
 {
 	"error": {
-		"policyInformationPointService": {}
+		"policyInformationPointService": {},
+		"identityPolicyInformationSource": {
+			"userIdentityRetrievalFailed": "Failed to retrieve user identity information for user: \"{userIdentity}\"",
+			"nodeIdentityRetrievalFailed": "Failed to retrieve node identity information for node: \"{nodeIdentity}\""
+		}
+	},
+	"info": {
+		"policyInformationPointService": {
+			"registeredSource": "Source registered with id: \"{sourceId}\"",
+			"unregisteredSource": "Source unregistered with id: \"{sourceId}\"",
+			"sourceRetrieveFailed": "Failed to retrieve information from source with id: \"{sourceId}\", for asset type \"{assetType}\", action \"{action}\""
+		}
 	}
 }

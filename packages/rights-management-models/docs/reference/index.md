@@ -8,6 +8,7 @@
 - [IPolicyExecutionAction](interfaces/IPolicyExecutionAction.md)
 - [IPolicyExecutionPointComponent](interfaces/IPolicyExecutionPointComponent.md)
 - [IPolicyInformationPointComponent](interfaces/IPolicyInformationPointComponent.md)
+- [IPolicyInformationSource](interfaces/IPolicyInformationSource.md)
 - [IPolicyManagementPointComponent](interfaces/IPolicyManagementPointComponent.md)
 - [IRightsManagementComponent](interfaces/IRightsManagementComponent.md)
 - [IPapCreateRequest](interfaces/IPapCreateRequest.md)
@@ -27,4 +28,5 @@
 ## Variables
 
 - [PolicyExecutionActionFactory](variables/PolicyExecutionActionFactory.md)
+- [PolicyInformationSourceFactory](variables/PolicyInformationSourceFactory.md)
 - [PolicyDecisionStage](variables/PolicyDecisionStage.md)

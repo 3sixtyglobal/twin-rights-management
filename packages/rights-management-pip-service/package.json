@@ -33,6 +33,7 @@
 	"dependencies": {
 		"@twin.org/core": "next",
 		"@twin.org/data-json-ld": "next",
+		"@twin.org/identity-models": "next",
 		"@twin.org/rights-management-models": "0.0.2-next.2",
 		"@twin.org/logging-models": "next",
 		"@twin.org/nameof": "next"

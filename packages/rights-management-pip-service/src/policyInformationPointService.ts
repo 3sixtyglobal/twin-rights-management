@@ -1,11 +1,15 @@
 // Copyright 2024 IOTA Stiftung.
 // SPDX-License-Identifier: Apache-2.0.
-import { ComponentFactory } from "@twin.org/core";
+import { BaseError, ComponentFactory, Guards, Is } from "@twin.org/core";
 import type { IJsonLdNodeObject } from "@twin.org/data-json-ld";
 import type { ILoggingComponent } from "@twin.org/logging-models";
 import { nameof } from "@twin.org/nameof";
-import type { IPolicyInformationPointComponent } from "@twin.org/rights-management-models";
-import type { IPolicyInformationPointServiceOptions } from "./models/IPolicyInformationPointServiceOptions";
+import type {
+	IPolicyInformationPointComponent,
+	IPolicyInformationSource
+} from "@twin.org/rights-management-models";
+import type { IOdrlPolicy } from "@twin.org/standards-w3c-odrl";
+import type { IPolicyInformationPointServiceConstructorOptions } from "./models/IPolicyInformationPointServiceConstructorOptions";
 
 /**
  * Class implementation of Policy Information Point Component.
@@ -23,13 +27,23 @@ export class PolicyInformationPointService implements IPolicyInformationPointCom
 	private readonly _logging?: ILoggingComponent;
 
 	/**
+	 * These sources can be registered to retrieve data based on the input.
+	 * @internal
+	 */
+	private readonly _sources: {
+		sourceId: string;
+		source: IPolicyInformationSource;
+	}[];
+
+	/**
 	 * Create a new instance of PolicyInformationPointService (PIP).
 	 * @param options The options for the component.
 	 */
-	constructor(options?: IPolicyInformationPointServiceOptions) {
+	constructor(options?: IPolicyInformationPointServiceConstructorOptions) {
 		this._logging = ComponentFactory.getIfExists<ILoggingComponent>(
 			options?.loggingComponentType ?? "logging"
 		);
+		this._sources = [];
 	}
 
 	/**
@@ -39,15 +53,108 @@ export class PolicyInformationPointService implements IPolicyInformationPointCom
 	 * @param data The data to get any additional information for.
 	 * @param userIdentity The user identity to get additional information for.
 	 * @param nodeIdentity The node identity to get additional information for.
+	 * @param policies The policies that apply to the data.
 	 * @returns Returns additional information based on the data and identities.
 	 */
-	public async retrieve<T = unknown>(
+	public async retrieve(
 		assetType: string,
 		action: string,
-		data: T | undefined,
+		data: unknown,
 		userIdentity: string,
-		nodeIdentity: string
-	): Promise<IJsonLdNodeObject[]> {
-		return [];
+		nodeIdentity: string,
+		policies: IOdrlPolicy[]
+	): Promise<{ [source: string]: IJsonLdNodeObject[] }> {
+		Guards.stringValue(this.CLASS_NAME, nameof(assetType), assetType);
+		Guards.stringValue(this.CLASS_NAME, nameof(action), action);
+		Guards.stringValue(this.CLASS_NAME, nameof(userIdentity), userIdentity);
+		Guards.stringValue(this.CLASS_NAME, nameof(nodeIdentity), nodeIdentity);
+
+		const information: { [source: string]: IJsonLdNodeObject[] } = {};
+
+		await Promise.all(
+			this._sources.map(async ({ sourceId, source }) => {
+				try {
+					const result = await source.retrieve(
+						assetType,
+						action,
+						data,
+						userIdentity,
+						nodeIdentity,
+						policies
+					);
+
+					if (Is.arrayValue(result)) {
+						information[sourceId] = result;
+					}
+				} catch (error) {
+					this._logging?.log({
+						level: "error",
+						source: this.CLASS_NAME,
+						ts: Date.now(),
+						message: "sourceRetrieveFailed",
+						data: {
+							sourceId,
+							assetType,
+							action
+						},
+						error: BaseError.fromError(error)
+					});
+				}
+			})
+		);
+
+		return information;
+	}
+
+	/**
+	 * Register a source to use for retrieval.
+	 * @param sourceId The id of the source to register.
+	 * @param source The source to register.
+	 * @returns Nothing.
+	 */
+	public async registerSource(sourceId: string, source: IPolicyInformationSource): Promise<void> {
+		Guards.stringValue(this.CLASS_NAME, nameof(sourceId), sourceId);
+		Guards.objectValue<IPolicyInformationSource>(this.CLASS_NAME, nameof(source), source);
+
+		const currentIndex = this._sources.findIndex(s => s.sourceId === sourceId);
+		if (currentIndex !== -1) {
+			this._sources[currentIndex].source = source;
+		} else {
+			this._sources.push({ sourceId, source });
+		}
+
+		this._logging?.log({
+			level: "info",
+			source: this.CLASS_NAME,
+			ts: Date.now(),
+			message: "registeredSource",
+			data: {
+				sourceId
+			}
+		});
+	}
+
+	/**
+	 * Unregister a source from the retrieval.
+	 * @param sourceId The id of the source to unregister.
+	 * @returns Nothing.
+	 */
+	public async unregisterSource(sourceId: string): Promise<void> {
+		Guards.stringValue(this.CLASS_NAME, nameof(sourceId), sourceId);
+
+		const currentIndex = this._sources.findIndex(s => s.sourceId === sourceId);
+		if (currentIndex !== -1) {
+			this._sources.splice(currentIndex, 1);
+		}
+
+		this._logging?.log({
+			level: "info",
+			source: this.CLASS_NAME,
+			ts: Date.now(),
+			message: "unregisteredSource",
+			data: {
+				sourceId
+			}
+		});
 	}
 }
