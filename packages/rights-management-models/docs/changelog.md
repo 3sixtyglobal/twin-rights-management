@@ -1,5 +1,17 @@
 # @twin.org/rights-management-models - Changelog
 
+## [0.0.2-next.3](https://github.com/twinfoundation/rights-management/compare/rights-management-models-v0.0.2-next.2...rights-management-models-v0.0.2-next.3) (2025-08-29)
+
+
+### Features
+
+* add policy information point ([#27](https://github.com/twinfoundation/rights-management/issues/27)) ([61a1cd1](https://github.com/twinfoundation/rights-management/commit/61a1cd18f0c2c4a847c0a30da70de6814c777e29))
+* eslint migration to flat config ([23a0c08](https://github.com/twinfoundation/rights-management/commit/23a0c085e7fc2e522c8d85d325dc5844b9c3fd8e))
+* policy execution point ([#26](https://github.com/twinfoundation/rights-management/issues/26)) ([d930f10](https://github.com/twinfoundation/rights-management/commit/d930f104006a0d815cdf222b87d11d749351fb84))
+* switch execution callback to class/factory pattern ([60db8cf](https://github.com/twinfoundation/rights-management/commit/60db8cfa213d7d4432396b196442d592a5dab6a6))
+* switch execution callback to class/factory pattern ([a6b5660](https://github.com/twinfoundation/rights-management/commit/a6b56602aad98652de06961c436c76d52bf42665))
+* switch execution callback to class/factory pattern ([8294daf](https://github.com/twinfoundation/rights-management/commit/8294daf933b74a1f90f1a34f206b215e59d76810))
+
 ## [0.0.2-next.2](https://github.com/twinfoundation/rights-management/compare/rights-management-models-v0.0.2-next.1...rights-management-models-v0.0.2-next.2) (2025-08-22)
 
 
