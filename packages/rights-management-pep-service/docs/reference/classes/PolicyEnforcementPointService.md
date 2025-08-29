@@ -18,7 +18,7 @@ Create a new instance of PolicyEnforcementPointService (PEP).
 
 ##### options?
 
-[`IPolicyEnforcementPointServiceOptions`](../interfaces/IPolicyEnforcementPointServiceOptions.md)
+[`IPolicyEnforcementPointServiceConstructorOptions`](../interfaces/IPolicyEnforcementPointServiceConstructorOptions.md)
 
 The options for the component.
 

@@ -4,7 +4,7 @@
 /**
  * Options for the Policy Decision Point Component.
  */
-export interface IPolicyDecisionPointServiceOptions {
+export interface IPolicyDecisionPointServiceConstructorOptions {
 	/**
 	 * The logging component for logging policy decisions.
 	 * @default logging

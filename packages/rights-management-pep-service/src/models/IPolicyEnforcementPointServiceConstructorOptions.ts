@@ -4,7 +4,7 @@
 /**
  * Options for the Policy Enforcement Point Component.
  */
-export interface IPolicyEnforcementPointServiceOptions {
+export interface IPolicyEnforcementPointServiceConstructorOptions {
 	/**
 	 * The logging component for logging policy enforcement.
 	 * @default logging

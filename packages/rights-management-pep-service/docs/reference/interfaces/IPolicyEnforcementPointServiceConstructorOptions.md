@@ -1,4 +1,4 @@
-# Interface: IPolicyEnforcementPointServiceOptions
+# Interface: IPolicyEnforcementPointServiceConstructorOptions
 
 Options for the Policy Enforcement Point Component.
 

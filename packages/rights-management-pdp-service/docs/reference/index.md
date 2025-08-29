@@ -6,4 +6,4 @@
 
 ## Interfaces
 
-- [IPolicyDecisionPointServiceOptions](interfaces/IPolicyDecisionPointServiceOptions.md)
+- [IPolicyDecisionPointServiceConstructorOptions](interfaces/IPolicyDecisionPointServiceConstructorOptions.md)

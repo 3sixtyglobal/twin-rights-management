@@ -4,7 +4,7 @@
 /**
  * Options for the Policy Administration Point Component.
  */
-export interface IPolicyAdministrationPointServiceOptions {
+export interface IPolicyAdministrationPointServiceConstructorOptions {
 	/**
 	 * The logging component for logging administration actions.
 	 * @default logging

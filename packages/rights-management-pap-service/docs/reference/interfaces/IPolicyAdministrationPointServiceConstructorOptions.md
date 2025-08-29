@@ -1,4 +1,4 @@
-# Interface: IPolicyAdministrationPointServiceOptions
+# Interface: IPolicyAdministrationPointServiceConstructorOptions
 
 Options for the Policy Administration Point Component.
 

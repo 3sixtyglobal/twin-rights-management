@@ -1,4 +1,4 @@
-# Interface: IPolicyDecisionPointServiceOptions
+# Interface: IPolicyDecisionPointServiceConstructorOptions
 
 Options for the Policy Decision Point Component.
 

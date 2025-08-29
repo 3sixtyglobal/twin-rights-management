@@ -18,7 +18,7 @@ Create a new instance of PolicyDecisionPointService (PDP).
 
 ##### options?
 
-[`IPolicyDecisionPointServiceOptions`](../interfaces/IPolicyDecisionPointServiceOptions.md)
+[`IPolicyDecisionPointServiceConstructorOptions`](../interfaces/IPolicyDecisionPointServiceConstructorOptions.md)
 
 The options for the component.
 

@@ -18,7 +18,7 @@ Create a new instance of PolicyManagementPointService (PMP).
 
 ##### options?
 
-[`IPolicyManagementPointServiceOptions`](../interfaces/IPolicyManagementPointServiceOptions.md)
+[`IPolicyManagementPointServiceConstructorOptions`](../interfaces/IPolicyManagementPointServiceConstructorOptions.md)
 
 The options for the component.
 

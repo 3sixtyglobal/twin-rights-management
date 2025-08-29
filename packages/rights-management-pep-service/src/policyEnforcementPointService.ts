@@ -7,7 +7,7 @@ import type {
 	IPolicyDecisionPointComponent,
 	IPolicyEnforcementPointComponent
 } from "@twin.org/rights-management-models";
-import type { IPolicyEnforcementPointServiceOptions } from "./models/IPolicyEnforcementPointServiceOptions";
+import type { IPolicyEnforcementPointServiceConstructorOptions } from "./models/IPolicyEnforcementPointServiceConstructorOptions";
 
 /**
  * Class implementation of Policy Enforcement Point Component.
@@ -34,7 +34,7 @@ export class PolicyEnforcementPointService implements IPolicyEnforcementPointCom
 	 * Create a new instance of PolicyEnforcementPointService (PEP).
 	 * @param options The options for the component.
 	 */
-	constructor(options?: IPolicyEnforcementPointServiceOptions) {
+	constructor(options?: IPolicyEnforcementPointServiceConstructorOptions) {
 		this._logging = ComponentFactory.getIfExists<ILoggingComponent>(
 			options?.loggingComponentType ?? "logging"
 		);

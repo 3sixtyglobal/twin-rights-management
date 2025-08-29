@@ -10,7 +10,7 @@ import type {
 	IPolicyManagementPointComponent
 } from "@twin.org/rights-management-models";
 import type { IOdrlPolicy } from "@twin.org/standards-w3c-odrl";
-import type { IPolicyDecisionPointServiceOptions } from "./models/IPolicyDecisionPointServiceOptions";
+import type { IPolicyDecisionPointServiceConstructorOptions } from "./models/IPolicyDecisionPointServiceConstructorOptions";
 
 /**
  * Class implementation of Policy Decision Point Component.
@@ -49,7 +49,7 @@ export class PolicyDecisionPointService implements IPolicyDecisionPointComponent
 	 * Create a new instance of PolicyDecisionPointService (PDP).
 	 * @param options The options for the component.
 	 */
-	constructor(options?: IPolicyDecisionPointServiceOptions) {
+	constructor(options?: IPolicyDecisionPointServiceConstructorOptions) {
 		this._logging = ComponentFactory.getIfExists<ILoggingComponent>(
 			options?.loggingComponentType ?? "logging"
 		);

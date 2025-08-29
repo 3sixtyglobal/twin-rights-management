@@ -18,7 +18,7 @@ Create a new instance of PolicyAdministrationPointService (PAP).
 
 ##### options?
 
-[`IPolicyAdministrationPointServiceOptions`](../interfaces/IPolicyAdministrationPointServiceOptions.md)
+[`IPolicyAdministrationPointServiceConstructorOptions`](../interfaces/IPolicyAdministrationPointServiceConstructorOptions.md)
 
 The options for the component.
 

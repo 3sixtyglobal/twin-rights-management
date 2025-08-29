@@ -20,7 +20,7 @@ import { nameof } from "@twin.org/nameof";
 import type { IPolicyAdministrationPointComponent } from "@twin.org/rights-management-models";
 import { OdrlDataTypes, type IOdrlPolicy } from "@twin.org/standards-w3c-odrl";
 import type { OdrlPolicy } from "./entities/odrlPolicy";
-import type { IPolicyAdministrationPointServiceOptions } from "./models/IPolicyAdministrationPointServiceOptions";
+import type { IPolicyAdministrationPointServiceConstructorOptions } from "./models/IPolicyAdministrationPointServiceConstructorOptions";
 import { convertFromStoragePolicy, convertToStoragePolicy } from "./utils/odrlPolicyConverters";
 
 /**
@@ -54,7 +54,7 @@ export class PolicyAdministrationPointService implements IPolicyAdministrationPo
 	 * Create a new instance of PolicyAdministrationPointService (PAP).
 	 * @param options The options for the component.
 	 */
-	constructor(options?: IPolicyAdministrationPointServiceOptions) {
+	constructor(options?: IPolicyAdministrationPointServiceConstructorOptions) {
 		this._logging = ComponentFactory.getIfExists<ILoggingComponent>(
 			options?.loggingComponentType ?? "logging"
 		);

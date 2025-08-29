@@ -8,7 +8,7 @@ import type {
 	IPolicyManagementPointComponent
 } from "@twin.org/rights-management-models";
 import type { IOdrlPolicy } from "@twin.org/standards-w3c-odrl";
-import type { IPolicyManagementPointServiceOptions } from "./models/IPolicyManagementPointServiceOptions";
+import type { IPolicyManagementPointServiceConstructorOptions } from "./models/IPolicyManagementPointServiceConstructorOptions";
 
 /**
  * Class implementation of Policy Management Point Component.
@@ -35,7 +35,7 @@ export class PolicyManagementPointService implements IPolicyManagementPointCompo
 	 * Create a new instance of PolicyManagementPointService (PMP).
 	 * @param options The options for the component.
 	 */
-	constructor(options?: IPolicyManagementPointServiceOptions) {
+	constructor(options?: IPolicyManagementPointServiceConstructorOptions) {
 		this._logging = ComponentFactory.getIfExists<ILoggingComponent>(
 			options?.loggingComponentType ?? "logging"
 		);
