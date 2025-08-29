@@ -1,5 +1,19 @@
 # Changelog
 
+## [0.0.2-next.4](https://github.com/twinfoundation/rights-management/compare/rights-management-pip-service-v0.0.2-next.3...rights-management-pip-service-v0.0.2-next.4) (2025-08-29)
+
+
+### Features
+
+* eslint migration to flat config ([67aed43](https://github.com/twinfoundation/rights-management/commit/67aed4313412f5c2e9d970c1e34d65f6dc2010f5))
+
+
+### Dependencies
+
+* The following workspace dependencies were updated
+  * dependencies
+    * @twin.org/rights-management-models bumped from 0.0.2-next.3 to 0.0.2-next.4
+
 ## [0.0.2-next.3](https://github.com/twinfoundation/rights-management/compare/rights-management-pip-service-v0.0.2-next.2...rights-management-pip-service-v0.0.2-next.3) (2025-08-29)
 
 

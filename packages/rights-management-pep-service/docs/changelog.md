@@ -1,5 +1,26 @@
 # Changelog
 
+## [0.0.2-next.4](https://github.com/twinfoundation/rights-management/compare/rights-management-pep-service-v0.0.2-next.3...rights-management-pep-service-v0.0.2-next.4) (2025-08-29)
+
+
+### Features
+
+* eslint migration to flat config ([dfb15f6](https://github.com/twinfoundation/rights-management/commit/dfb15f6574477d837d623a65501a6bb983ce938d))
+* improve constructor option naming ([c89a7e8](https://github.com/twinfoundation/rights-management/commit/c89a7e8df43a5017ac5cf84b549f5a26cc41e089))
+
+
+### Dependencies
+
+* The following workspace dependencies were updated
+  * dependencies
+    * @twin.org/rights-management-models bumped from 0.0.2-next.3 to 0.0.2-next.4
+  * devDependencies
+    * @twin.org/rights-management-pap-service bumped from 0.0.2-next.3 to 0.0.2-next.4
+    * @twin.org/rights-management-pdp-service bumped from 0.0.2-next.3 to 0.0.2-next.4
+    * @twin.org/rights-management-pip-service bumped from 0.0.2-next.3 to 0.0.2-next.4
+    * @twin.org/rights-management-pmp-service bumped from 0.0.2-next.3 to 0.0.2-next.4
+    * @twin.org/rights-management-pxp-service bumped from 0.0.2-next.3 to 0.0.2-next.4
+
 ## [0.0.2-next.3](https://github.com/twinfoundation/rights-management/compare/rights-management-pep-service-v0.0.2-next.2...rights-management-pep-service-v0.0.2-next.3) (2025-08-29)
 
 

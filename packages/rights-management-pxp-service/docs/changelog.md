@@ -1,5 +1,19 @@
 # Changelog
 
+## [0.0.2-next.4](https://github.com/twinfoundation/rights-management/compare/rights-management-pxp-service-v0.0.2-next.3...rights-management-pxp-service-v0.0.2-next.4) (2025-08-29)
+
+
+### Features
+
+* eslint migration to flat config ([4bf13f0](https://github.com/twinfoundation/rights-management/commit/4bf13f071de299ea146d310070554c5f109a18c6))
+
+
+### Dependencies
+
+* The following workspace dependencies were updated
+  * dependencies
+    * @twin.org/rights-management-models bumped from 0.0.2-next.3 to 0.0.2-next.4
+
 ## [0.0.2-next.3](https://github.com/twinfoundation/rights-management/compare/rights-management-pxp-service-v0.0.2-next.2...rights-management-pxp-service-v0.0.2-next.3) (2025-08-29)
 
 
