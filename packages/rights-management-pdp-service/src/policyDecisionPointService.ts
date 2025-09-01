@@ -4,6 +4,7 @@ import { ComponentFactory } from "@twin.org/core";
 import type { ILoggingComponent } from "@twin.org/logging-models";
 import { nameof } from "@twin.org/nameof";
 import type {
+	IPolicyContext,
 	IPolicyDecisionPointComponent,
 	IPolicyExecutionPointComponent,
 	IPolicyInformationPointComponent,
@@ -71,18 +72,16 @@ export class PolicyDecisionPointService implements IPolicyDecisionPointComponent
 	 * Executes any actions on the Policy Execution Point (PXP) when the decision is made.
 	 * @param assetType The type of asset being processed.
 	 * @param action The action being performed on the asset.
+	 * @param context The context information to use in the decision making.
 	 * @param data The data to make a decision on.
-	 * @param userIdentity The user identity to use in the decision making.
-	 * @param nodeIdentity The node identity to use in the decision making.
 	 * @returns Returns the policy decisions which apply to the data so that the PEP
 	 * can manipulate the data accordingly.
 	 */
-	public async evaluate<T = unknown>(
+	public async evaluate<C extends IPolicyContext = IPolicyContext, D = unknown>(
 		assetType: string,
 		action: string,
-		data: T | undefined,
-		userIdentity: string,
-		nodeIdentity: string
+		context: C | undefined,
+		data: D | undefined
 	): Promise<IOdrlPolicy[]> {
 		return [];
 	}

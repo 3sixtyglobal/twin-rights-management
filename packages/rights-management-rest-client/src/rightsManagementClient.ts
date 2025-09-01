@@ -19,6 +19,7 @@ import type {
 	IPapUpdateRequest,
 	IPepInterceptRequest,
 	IPepInterceptResponse,
+	IPolicyContext,
 	IRightsManagementComponent
 } from "@twin.org/rights-management-models";
 import type { IOdrlPolicy } from "@twin.org/standards-w3c-odrl";
@@ -138,14 +139,16 @@ export class RightsManagementClient extends BaseRestClient implements IRightsMan
 	 * PEP: Process the data using Policy Decision Point (PDP) and return the manipulated data.
 	 * @param assetType The type of asset being processed.
 	 * @param action The action being performed on the asset.
+	 * @param context The context in which the action is being performed.
 	 * @param data The data to process.
 	 * @returns The manipulated data with any policies applied.
 	 */
-	public async pepIntercept<T = unknown>(
+	public async pepIntercept<C extends IPolicyContext = IPolicyContext, D = unknown, R = unknown>(
 		assetType: string,
 		action: string,
-		data: T | undefined
-	): Promise<T | undefined> {
+		context: C | undefined,
+		data: D | undefined
+	): Promise<R | undefined> {
 		Guards.stringValue(this.CLASS_NAME, nameof(assetType), assetType);
 		Guards.stringValue(this.CLASS_NAME, nameof(action), action);
 
@@ -156,11 +159,12 @@ export class RightsManagementClient extends BaseRestClient implements IRightsMan
 				body: {
 					assetType,
 					action,
+					context,
 					data
 				}
 			}
 		);
 
-		return response.body as T;
+		return response.body as R;
 	}
 }

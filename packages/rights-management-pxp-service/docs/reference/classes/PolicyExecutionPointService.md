@@ -42,15 +42,19 @@ The class name of the Policy Execution Point Service.
 
 ### executeActions()
 
-> **executeActions**\<`T`\>(`stage`, `assetType`, `action`, `data`, `userIdentity`, `nodeIdentity`, `policies`): `Promise`\<`void`\>
+> **executeActions**\<`C`, `D`\>(`stage`, `assetType`, `action`, `context`, `data`, `policies`): `Promise`\<`void`\>
 
 Execute actions based on the PDP's decisions.
 
 #### Type Parameters
 
-##### T
+##### C
 
-`T` = `unknown`
+`C` *extends* `IPolicyContext` = `IPolicyContext`
+
+##### D
+
+`D` = `unknown`
 
 #### Parameters
 
@@ -72,23 +76,17 @@ The type of asset being processed.
 
 The action being performed on the asset.
 
+##### context
+
+The context information to use in the decision making.
+
+`undefined` | `C`
+
 ##### data
 
 The data used in the decision by the PDP.
 
-`undefined` | `T`
-
-##### userIdentity
-
-`string`
-
-The user identity to use in the decision making.
-
-##### nodeIdentity
-
-`string`
-
-The node identity to use in the decision making.
+`undefined` | `D`
 
 ##### policies
 

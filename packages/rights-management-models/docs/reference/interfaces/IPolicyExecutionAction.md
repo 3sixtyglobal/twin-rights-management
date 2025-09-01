@@ -6,11 +6,27 @@ Interface for policy execution actions.
 
 ### execute()
 
-> **execute**(`assetType`, `action`, `data`, `userIdentity`, `nodeIdentity`, `policies`, `stage`): `Promise`\<`void`\>
+> **execute**\<`C`, `D`\>(`stage`, `assetType`, `action`, `context`, `data`, `policies`): `Promise`\<`void`\>
 
 Execute function type for policy actions.
 
+#### Type Parameters
+
+##### C
+
+`C` *extends* [`IPolicyContext`](IPolicyContext.md) = [`IPolicyContext`](IPolicyContext.md)
+
+##### D
+
+`D` = `unknown`
+
 #### Parameters
+
+##### stage
+
+[`PolicyDecisionStage`](../type-aliases/PolicyDecisionStage.md)
+
+The stage of the policy decision.
 
 ##### assetType
 
@@ -24,35 +40,23 @@ The type of asset being processed.
 
 The action being performed on the asset.
 
-##### data
+##### context
 
-`unknown`
+The context information to use in the decision making.
+
+`undefined` | `C`
+
+##### data
 
 The data to process.
 
-##### userIdentity
-
-`string`
-
-The user identity to use in the decision making.
-
-##### nodeIdentity
-
-`string`
-
-The node identity to use in the decision making.
+`undefined` | `D`
 
 ##### policies
 
 `IOdrlPolicy`[]
 
 The policies that apply to the data.
-
-##### stage
-
-[`PolicyDecisionStage`](../type-aliases/PolicyDecisionStage.md)
-
-The stage of the policy decision.
 
 #### Returns
 

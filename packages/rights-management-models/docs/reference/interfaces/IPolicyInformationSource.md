@@ -6,9 +6,19 @@ Interface for policy information sources.
 
 ### retrieve()
 
-> **retrieve**(`assetType`, `action`, `data`, `userIdentity`, `nodeIdentity`, `policies`): `Promise`\<`undefined` \| `IJsonLdNodeObject`[]\>
+> **retrieve**\<`C`, `D`\>(`assetType`, `action`, `context`, `data`, `policies`): `Promise`\<`undefined` \| `IJsonLdNodeObject`[]\>
 
 Retrieve information from the sources.
+
+#### Type Parameters
+
+##### C
+
+`C` *extends* [`IPolicyContext`](IPolicyContext.md) = [`IPolicyContext`](IPolicyContext.md)
+
+##### D
+
+`D` = `unknown`
 
 #### Parameters
 
@@ -24,23 +34,17 @@ The type of asset being processed.
 
 The action being performed on the asset.
 
-##### data
+##### context
 
-`unknown`
+The context information to use in the decision making.
+
+`undefined` | `C`
+
+##### data
 
 The data to process.
 
-##### userIdentity
-
-`string`
-
-The user identity to use in the decision making.
-
-##### nodeIdentity
-
-`string`
-
-The node identity to use in the decision making.
+`undefined` | `D`
 
 ##### policies
 

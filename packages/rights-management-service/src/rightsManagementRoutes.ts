@@ -322,11 +322,6 @@ export async function papCreate(
 ): Promise<ICreatedResponse> {
 	Guards.object<IPapCreateRequest>(ROUTES_SOURCE, nameof(request), request);
 	Guards.object<IPapCreateRequest["body"]>(ROUTES_SOURCE, nameof(request.body), request.body);
-	Guards.stringValue(
-		ROUTES_SOURCE,
-		nameof(httpRequestContext.nodeIdentity),
-		httpRequestContext.nodeIdentity
-	);
 
 	const component = ComponentFactory.get<IRightsManagementComponent>(componentName);
 
@@ -357,11 +352,6 @@ export async function papUpdate(
 	Guards.object(ROUTES_SOURCE, nameof(request.pathParams), request.pathParams);
 	Guards.stringValue(ROUTES_SOURCE, nameof(request.pathParams.id), request.pathParams.id);
 	Guards.object(ROUTES_SOURCE, nameof(request.body), request.body);
-	Guards.stringValue(
-		ROUTES_SOURCE,
-		nameof(httpRequestContext.nodeIdentity),
-		httpRequestContext.nodeIdentity
-	);
 
 	const component = ComponentFactory.get<IRightsManagementComponent>(componentName);
 	await component.papUpdate(request.body);
@@ -390,11 +380,6 @@ export async function papRetrieve(
 		request.pathParams
 	);
 	Guards.stringValue(ROUTES_SOURCE, nameof(request.pathParams.id), request.pathParams.id);
-	Guards.stringValue(
-		ROUTES_SOURCE,
-		nameof(httpRequestContext.nodeIdentity),
-		httpRequestContext.nodeIdentity
-	);
 
 	const component = ComponentFactory.get<IRightsManagementComponent>(componentName);
 	const policy = await component.papRetrieve(request.pathParams.id);
@@ -479,9 +464,12 @@ export async function pepIntercept(
 	const result = await component.pepIntercept(
 		request.body.assetType,
 		request.body.action,
-		request.body.data,
-		httpRequestContext.userIdentity ?? "",
-		httpRequestContext.nodeIdentity ?? ""
+		{
+			...(request.body.context ?? {}),
+			userIdentity: httpRequestContext.userIdentity,
+			nodeIdentity: httpRequestContext.nodeIdentity
+		},
+		request.body.data
 	);
 
 	return {

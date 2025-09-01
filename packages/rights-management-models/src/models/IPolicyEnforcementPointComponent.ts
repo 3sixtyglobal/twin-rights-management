@@ -1,6 +1,7 @@
 // Copyright 2024 IOTA Stiftung.
 // SPDX-License-Identifier: Apache-2.0.
 import type { IComponent } from "@twin.org/core";
+import type { IPolicyContext } from "./IPolicyContext";
 
 /**
  * Interface describing a Policy Enforcement Point (PEP) contract.
@@ -13,16 +14,14 @@ export interface IPolicyEnforcementPointComponent extends IComponent {
 	 * Process the data using Policy Decision Point (PDP) and return the manipulated data.
 	 * @param assetType The type of asset being processed.
 	 * @param action The action being performed on the asset.
+	 * @param context The context information to use in the decision making.
 	 * @param data The data to process.
-	 * @param userIdentity The user identity to use in the decision making.
-	 * @param nodeIdentity The node identity to use in the decision making.
 	 * @returns The manipulated data with any policies applied.
 	 */
-	intercept<T = unknown>(
+	intercept<C extends IPolicyContext = IPolicyContext, D = unknown, R = unknown>(
 		assetType: string,
 		action: string,
-		data: T | undefined,
-		userIdentity: string | undefined,
-		nodeIdentity: string | undefined
-	): Promise<T | undefined>;
+		context: C | undefined,
+		data: D | undefined
+	): Promise<R | undefined>;
 }

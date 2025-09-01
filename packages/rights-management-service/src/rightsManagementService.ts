@@ -5,6 +5,7 @@ import type { EntityCondition } from "@twin.org/entity";
 import { nameof } from "@twin.org/nameof";
 import type {
 	IPolicyAdministrationPointComponent,
+	IPolicyContext,
 	IPolicyEnforcementPointComponent,
 	IRightsManagementComponent
 } from "@twin.org/rights-management-models";
@@ -148,28 +149,25 @@ export class RightsManagementService implements IRightsManagementComponent {
 	 * PEP: Process the data using Policy Decision Point (PDP) and return the manipulated data.
 	 * @param assetType The type of asset being processed.
 	 * @param action The action being performed on the asset.
+	 * @param context The context to use in the decision making.
 	 * @param data The data to process.
-	 * @param userIdentity The user identity to use in the decision making.
-	 * @param nodeIdentity The node identity to use in the decision making.
 	 * @returns The manipulated data with any policies applied.
 	 */
-	public async pepIntercept<T = unknown>(
+	public async pepIntercept<C extends IPolicyContext = IPolicyContext, D = unknown, R = unknown>(
 		assetType: string,
 		action: string,
-		data: T | undefined,
-		userIdentity: string | undefined,
-		nodeIdentity: string | undefined
-	): Promise<T | undefined> {
+		context: C | undefined,
+		data: D | undefined
+	): Promise<R | undefined> {
 		Guards.stringValue(this.CLASS_NAME, nameof(assetType), assetType);
 		Guards.stringValue(this.CLASS_NAME, nameof(action), action);
 
 		try {
-			const result = await this._policyEnforcementPointComponent.intercept(
+			const result = await this._policyEnforcementPointComponent.intercept<C, D, R>(
 				assetType,
 				action,
-				data,
-				userIdentity,
-				nodeIdentity
+				context,
+				data
 			);
 			return result;
 		} catch (error) {

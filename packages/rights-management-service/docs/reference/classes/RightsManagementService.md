@@ -185,15 +185,23 @@ Cursor for next page of results and the policies matching the query.
 
 ### pepIntercept()
 
-> **pepIntercept**\<`T`\>(`assetType`, `action`, `data`, `userIdentity`, `nodeIdentity`): `Promise`\<`undefined` \| `T`\>
+> **pepIntercept**\<`C`, `D`, `R`\>(`assetType`, `action`, `context`, `data`): `Promise`\<`undefined` \| `R`\>
 
 PEP: Process the data using Policy Decision Point (PDP) and return the manipulated data.
 
 #### Type Parameters
 
-##### T
+##### C
 
-`T` = `unknown`
+`C` *extends* `IPolicyContext` = `IPolicyContext`
+
+##### D
+
+`D` = `unknown`
+
+##### R
+
+`R` = `unknown`
 
 #### Parameters
 
@@ -209,27 +217,21 @@ The type of asset being processed.
 
 The action being performed on the asset.
 
+##### context
+
+The context to use in the decision making.
+
+`undefined` | `C`
+
 ##### data
 
 The data to process.
 
-`undefined` | `T`
-
-##### userIdentity
-
-The user identity to use in the decision making.
-
-`undefined` | `string`
-
-##### nodeIdentity
-
-The node identity to use in the decision making.
-
-`undefined` | `string`
+`undefined` | `D`
 
 #### Returns
 
-`Promise`\<`undefined` \| `T`\>
+`Promise`\<`undefined` \| `R`\>
 
 The manipulated data with any policies applied.
 

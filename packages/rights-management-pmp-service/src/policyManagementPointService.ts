@@ -5,6 +5,7 @@ import type { ILoggingComponent } from "@twin.org/logging-models";
 import { nameof } from "@twin.org/nameof";
 import type {
 	IPolicyAdministrationPointComponent,
+	IPolicyContext,
 	IPolicyManagementPointComponent
 } from "@twin.org/rights-management-models";
 import type { IOdrlPolicy } from "@twin.org/standards-w3c-odrl";
@@ -49,17 +50,15 @@ export class PolicyManagementPointService implements IPolicyManagementPointCompo
 	 * Get the policies from a PAP based on the data and identities.
 	 * @param assetType The type of asset being processed.
 	 * @param action The action being performed on the asset.
+	 * @param context The context information to use in the decision making.
 	 * @param data The data to retrieve the policies for.
-	 * @param userIdentity The user identity to retrieve the policies for.
-	 * @param nodeIdentity The node identity to retrieve the policies for.
-	 * @returns Returns the policies which apply to the data and identities so that the PDP can make a decision.
+	 * @returns Returns the policies which apply to the data and context so that the PDP can make a decision.
 	 */
-	public async retrieve<T = unknown>(
+	public async retrieve<C extends IPolicyContext = IPolicyContext, D = unknown>(
 		assetType: string,
 		action: string,
-		data: T | undefined,
-		userIdentity: string,
-		nodeIdentity: string
+		context: C | undefined,
+		data: D | undefined
 	): Promise<IOdrlPolicy[]> {
 		return [];
 	}

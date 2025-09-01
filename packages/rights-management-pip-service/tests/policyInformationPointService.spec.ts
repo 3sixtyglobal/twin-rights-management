@@ -75,8 +75,7 @@ describe("rights-management-pip", () => {
 			"document",
 			"read",
 			{},
-			"user123",
-			"node456",
+			{ userIdentity: "user123", nodeIdentity: "node456" },
 			[]
 		);
 
@@ -84,8 +83,7 @@ describe("rights-management-pip", () => {
 			"document",
 			"read",
 			{},
-			"user123",
-			"node456",
+			{ userIdentity: "user123", nodeIdentity: "node456" },
 			[]
 		);
 		expect(information).toEqual({
@@ -114,8 +112,7 @@ describe("rights-management-pip", () => {
 			"image",
 			"edit",
 			{},
-			"user456",
-			"node789",
+			{ userIdentity: "user123", nodeIdentity: "node456" },
 			[]
 		);
 
@@ -123,16 +120,14 @@ describe("rights-management-pip", () => {
 			"image",
 			"edit",
 			{},
-			"user456",
-			"node789",
+			{ userIdentity: "user123", nodeIdentity: "node456" },
 			[]
 		);
 		expect(contextSource.retrieve).toHaveBeenCalledWith(
 			"image",
 			"edit",
 			{},
-			"user456",
-			"node789",
+			{ userIdentity: "user123", nodeIdentity: "node456" },
 			[]
 		);
 		expect(information).toEqual({ context: contextInfo, identity: identityInfo });
@@ -148,8 +143,7 @@ describe("rights-management-pip", () => {
 			"test",
 			"action",
 			{},
-			"user",
-			"node",
+			{ userIdentity: "user123", nodeIdentity: "node456" },
 			[]
 		);
 
@@ -173,8 +167,7 @@ describe("rights-management-pip", () => {
 			"database",
 			"query",
 			{},
-			"dbUser",
-			"dbNode",
+			{ userIdentity: "user123", nodeIdentity: "node456" },
 			[]
 		);
 
@@ -190,7 +183,13 @@ describe("rights-management-pip", () => {
 		failingSource.retrieve.mockRejectedValue(new Error("Identity resolution failed"));
 
 		await policyInformationPoint.registerSource("failing", failingSource);
-		await policyInformationPoint.retrieve("file", "upload", {}, "uploader", "fileNode", []);
+		await policyInformationPoint.retrieve(
+			"file",
+			"upload",
+			{ userIdentity: "user123", nodeIdentity: "node456" },
+			"fileNode",
+			[]
+		);
 
 		const logEntries = loggingMemoryEntityStorage.getStore();
 		expect(logEntries.length).toBe(2);

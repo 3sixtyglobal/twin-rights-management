@@ -12,6 +12,7 @@ export * from "./models/api/policyAdministrationPoint/IPapUpdateRequest";
 export * from "./models/api/policyAdministrationPoint/IPepInterceptRequest";
 export * from "./models/api/policyAdministrationPoint/IPepInterceptResponse";
 export * from "./models/IPolicyAdministrationPointComponent";
+export * from "./models/IPolicyContext";
 export * from "./models/IPolicyDecisionPointComponent";
 export * from "./models/IPolicyEnforcementPointComponent";
 export * from "./models/IPolicyExecutionAction";

@@ -5,6 +5,7 @@ import type { IJsonLdNodeObject } from "@twin.org/data-json-ld";
 import type { ILoggingComponent } from "@twin.org/logging-models";
 import { nameof } from "@twin.org/nameof";
 import type {
+	IPolicyContext,
 	IPolicyInformationPointComponent,
 	IPolicyInformationSource
 } from "@twin.org/rights-management-models";
@@ -50,38 +51,27 @@ export class PolicyInformationPointService implements IPolicyInformationPointCom
 	 * Retrieve additional information which is relevant in the PDP decision making.
 	 * @param assetType The type of asset being processed.
 	 * @param action The action being performed on the asset.
+	 * @param context The context information to use in the decision making.
 	 * @param data The data to get any additional information for.
-	 * @param userIdentity The user identity to get additional information for.
-	 * @param nodeIdentity The node identity to get additional information for.
 	 * @param policies The policies that apply to the data.
 	 * @returns Returns additional information based on the data and identities.
 	 */
-	public async retrieve(
+	public async retrieve<C extends IPolicyContext = IPolicyContext, D = unknown>(
 		assetType: string,
 		action: string,
-		data: unknown,
-		userIdentity: string,
-		nodeIdentity: string,
+		context: C | undefined,
+		data: D | undefined,
 		policies: IOdrlPolicy[]
 	): Promise<{ [source: string]: IJsonLdNodeObject[] }> {
 		Guards.stringValue(this.CLASS_NAME, nameof(assetType), assetType);
 		Guards.stringValue(this.CLASS_NAME, nameof(action), action);
-		Guards.stringValue(this.CLASS_NAME, nameof(userIdentity), userIdentity);
-		Guards.stringValue(this.CLASS_NAME, nameof(nodeIdentity), nodeIdentity);
 
 		const information: { [source: string]: IJsonLdNodeObject[] } = {};
 
 		await Promise.all(
 			this._sources.map(async ({ sourceId, source }) => {
 				try {
-					const result = await source.retrieve(
-						assetType,
-						action,
-						data,
-						userIdentity,
-						nodeIdentity,
-						policies
-					);
+					const result = await source.retrieve(assetType, action, context, data, policies);
 
 					if (Is.arrayValue(result)) {
 						information[sourceId] = result;

@@ -51,19 +51,17 @@ describe("rights-management-pxp", () => {
 			PolicyDecisionStage.Before,
 			"assetType",
 			"action",
+			{ userIdentity: "userIdentity", nodeIdentity: "nodeIdentity" },
 			{},
-			"userIdentity",
-			"nodeIdentity",
 			[]
 		);
 		expect(mockAction.execute).toHaveBeenCalledWith(
+			PolicyDecisionStage.Before,
 			"assetType",
 			"action",
+			{ userIdentity: "userIdentity", nodeIdentity: "nodeIdentity" },
 			{},
-			"userIdentity",
-			"nodeIdentity",
-			[],
-			PolicyDecisionStage.Before
+			[]
 		);
 	});
 
@@ -75,19 +73,17 @@ describe("rights-management-pxp", () => {
 			PolicyDecisionStage.After,
 			"assetType",
 			"action",
+			{ userIdentity: "userIdentity", nodeIdentity: "nodeIdentity" },
 			{},
-			"userIdentity",
-			"nodeIdentity",
 			[]
 		);
 		expect(mockAction.execute).toHaveBeenCalledWith(
+			PolicyDecisionStage.After,
 			"assetType",
 			"action",
+			{ userIdentity: "userIdentity", nodeIdentity: "nodeIdentity" },
 			{},
-			"userIdentity",
-			"nodeIdentity",
-			[],
-			PolicyDecisionStage.After
+			[]
 		);
 	});
 
@@ -111,9 +107,8 @@ describe("rights-management-pxp", () => {
 			PolicyDecisionStage.Before,
 			"assetType",
 			"action",
+			{ userIdentity: "userIdentity", nodeIdentity: "nodeIdentity" },
 			{},
-			"userIdentity",
-			"nodeIdentity",
 			[]
 		);
 
@@ -131,9 +126,8 @@ describe("rights-management-pxp", () => {
 			PolicyDecisionStage.Before,
 			"assetType",
 			"action",
+			{ userIdentity: "userIdentity", nodeIdentity: "nodeIdentity" },
 			{},
-			"userIdentity",
-			"nodeIdentity",
 			[]
 		);
 
@@ -160,9 +154,8 @@ describe("rights-management-pxp", () => {
 			PolicyDecisionStage.Before,
 			"assetType",
 			"action",
+			{ userIdentity: "userIdentity", nodeIdentity: "nodeIdentity" },
 			{},
-			"userIdentity",
-			"nodeIdentity",
 			[]
 		);
 
@@ -201,9 +194,8 @@ describe("rights-management-pxp", () => {
 			PolicyDecisionStage.Before,
 			"assetType",
 			"action",
+			{ userIdentity: "userIdentity", nodeIdentity: "nodeIdentity" },
 			{},
-			"userIdentity",
-			"nodeIdentity",
 			[]
 		);
 
@@ -227,9 +219,8 @@ describe("rights-management-pxp", () => {
 			PolicyDecisionStage.Before,
 			"assetType",
 			"action",
+			{ userIdentity: "userIdentity", nodeIdentity: "nodeIdentity" },
 			{},
-			"userIdentity",
-			"nodeIdentity",
 			[]
 		);
 
@@ -254,20 +245,18 @@ describe("rights-management-pxp", () => {
 			PolicyDecisionStage.Before,
 			"assetType",
 			"action",
+			{ userIdentity: "userIdentity", nodeIdentity: "nodeIdentity" },
 			testData,
-			"userIdentity",
-			"nodeIdentity",
 			testPolicies
 		);
 
 		expect(mockAction.execute).toHaveBeenCalledWith(
+			PolicyDecisionStage.Before,
 			"assetType",
 			"action",
+			{ userIdentity: "userIdentity", nodeIdentity: "nodeIdentity" },
 			testData,
-			"userIdentity",
-			"nodeIdentity",
-			testPolicies,
-			PolicyDecisionStage.Before
+			testPolicies
 		);
 	});
 
@@ -293,9 +282,8 @@ describe("rights-management-pxp", () => {
 			PolicyDecisionStage.Before,
 			"api",
 			"call",
+			{ userIdentity: "apiUser", nodeIdentity: "apiNode" },
 			{ endpoint: "/users" },
-			"apiUser",
-			"apiNode",
 			testPolicies
 		);
 
@@ -334,9 +322,8 @@ describe("rights-management-pxp", () => {
 			PolicyDecisionStage.Before,
 			"document",
 			"read",
+			{ userIdentity: "user123", nodeIdentity: "node456" },
 			testData,
-			"user123",
-			"node456",
 			testPolicies
 		);
 
@@ -372,9 +359,8 @@ describe("rights-management-pxp", () => {
 			PolicyDecisionStage.After,
 			"image",
 			"write",
+			{},
 			null,
-			"",
-			"",
 			testPolicies
 		);
 
@@ -404,9 +390,8 @@ describe("rights-management-pxp", () => {
 			PolicyDecisionStage.Before,
 			"video",
 			"delete",
+			{ userIdentity: "admin", nodeIdentity: "mainNode" },
 			{},
-			"admin",
-			"mainNode",
 			[]
 		);
 
@@ -442,9 +427,8 @@ describe("rights-management-pxp", () => {
 			PolicyDecisionStage.Before,
 			"database",
 			"query",
+			{ userIdentity: "dbUser", nodeIdentity: "dbNode" },
 			{ table: "users" },
-			"dbUser",
-			"dbNode",
 			multiplePolicies
 		);
 
@@ -477,18 +461,16 @@ describe("rights-management-pxp", () => {
 			PolicyDecisionStage.Before,
 			"file",
 			"upload",
+			{ userIdentity: "uploader", nodeIdentity: "fileNode" },
 			{ size: 1024 },
-			"uploader",
-			"fileNode",
 			testPolicies
 		);
 		await policyExecutionPoint.executeActions(
 			PolicyDecisionStage.After,
 			"file",
 			"upload",
+			{ userIdentity: "uploader", nodeIdentity: "fileNode" },
 			{ size: 1024 },
-			"uploader",
-			"fileNode",
 			testPolicies
 		);
 
@@ -519,27 +501,24 @@ describe("rights-management-pxp", () => {
 			PolicyDecisionStage.Before,
 			"document",
 			"read",
+			{ userIdentity: "reader", nodeIdentity: "docNode" },
 			{},
-			"reader",
-			"docNode",
 			testPolicies
 		);
 		await policyExecutionPoint.executeActions(
 			PolicyDecisionStage.Before,
 			"image",
 			"edit",
+			{ userIdentity: "editor", nodeIdentity: "imgNode" },
 			{},
-			"editor",
-			"imgNode",
 			testPolicies
 		);
 		await policyExecutionPoint.executeActions(
 			PolicyDecisionStage.Before,
 			"video",
 			"stream",
+			{ userIdentity: "viewer", nodeIdentity: "streamNode" },
 			{},
-			"viewer",
-			"streamNode",
 			testPolicies
 		);
 
@@ -577,9 +556,8 @@ describe("rights-management-pxp", () => {
 			PolicyDecisionStage.Before,
 			"userProfile",
 			"update",
+			{ userIdentity: "user123", nodeIdentity: "profileNode" },
 			sensitiveData,
-			"user123",
-			"profileNode",
 			testPolicies
 		);
 

@@ -4,6 +4,7 @@ import { ComponentFactory, type IComponent, Is } from "@twin.org/core";
 import type { ILoggingComponent } from "@twin.org/logging-models";
 import { nameof } from "@twin.org/nameof";
 import {
+	type IPolicyContext,
 	type IPolicyExecutionAction,
 	PolicyDecisionStage
 } from "@twin.org/rights-management-models";
@@ -60,23 +61,21 @@ export class LoggingPolicyExecutionAction implements IPolicyExecutionAction, ICo
 
 	/**
 	 * Execute function type for policy actions.
+	 * @param stage The stage of the policy decision.
 	 * @param assetType The type of asset being processed.
 	 * @param action The action being performed on the asset.
+	 * @param context The context information to use in the decision making.
 	 * @param data The data to process.
-	 * @param userIdentity The user identity to use in the decision making.
-	 * @param nodeIdentity The node identity to use in the decision making.
 	 * @param policies The policies that apply to the data.
-	 * @param stage The stage of the policy decision.
 	 * @returns A promise that resolves when the action is complete.
 	 */
-	public async execute(
+	public async execute<C extends IPolicyContext = IPolicyContext, D = unknown>(
+		stage: PolicyDecisionStage,
 		assetType: string,
 		action: string,
-		data: unknown,
-		userIdentity: string,
-		nodeIdentity: string,
-		policies: IOdrlPolicy[],
-		stage: PolicyDecisionStage
+		context: C | undefined,
+		data: D | undefined,
+		policies: IOdrlPolicy[]
 	): Promise<void> {
 		if (this._stages.includes(stage)) {
 			// Even if we don't have the options to include data or include policies we
@@ -96,8 +95,8 @@ export class LoggingPolicyExecutionAction implements IPolicyExecutionAction, ICo
 					assetType,
 					action,
 					data: logData,
-					userIdentity,
-					nodeIdentity,
+					userIdentity: context?.userIdentity ?? "",
+					nodeIdentity: context?.nodeIdentity ?? "",
 					policies: logPolicies,
 					stage
 				}

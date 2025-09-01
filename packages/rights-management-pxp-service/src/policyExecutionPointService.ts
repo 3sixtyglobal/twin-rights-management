@@ -4,6 +4,7 @@ import { BaseError, ComponentFactory, Guards } from "@twin.org/core";
 import type { ILoggingComponent } from "@twin.org/logging-models";
 import { nameof } from "@twin.org/nameof";
 import {
+	type IPolicyContext,
 	type IPolicyExecutionAction,
 	type IPolicyExecutionPointComponent,
 	PolicyDecisionStage
@@ -63,19 +64,17 @@ export class PolicyExecutionPointService implements IPolicyExecutionPointCompone
 	 * @param stage The stage at which the PXP is executed in the PDP.
 	 * @param assetType The type of asset being processed.
 	 * @param action The action being performed on the asset.
+	 * @param context The context information to use in the decision making.
 	 * @param data The data used in the decision by the PDP.
-	 * @param userIdentity The user identity to use in the decision making.
-	 * @param nodeIdentity The node identity to use in the decision making.
 	 * @param policies The policies that apply to the data.
 	 * @returns Nothing.
 	 */
-	public async executeActions<T = unknown>(
+	public async executeActions<C extends IPolicyContext = IPolicyContext, D = unknown>(
 		stage: PolicyDecisionStage,
 		assetType: string,
 		action: string,
-		data: T | undefined,
-		userIdentity: string,
-		nodeIdentity: string,
+		context: C | undefined,
+		data: D | undefined,
 		policies: IOdrlPolicy[]
 	): Promise<void> {
 		Guards.arrayOneOf(this.CLASS_NAME, nameof(stage), stage, Object.values(PolicyDecisionStage));
@@ -85,15 +84,7 @@ export class PolicyExecutionPointService implements IPolicyExecutionPointCompone
 		const actions = this._executeActions[stage].actions;
 		for (const { actionId, executionAction } of actions) {
 			try {
-				await executionAction.execute(
-					assetType,
-					action,
-					data,
-					userIdentity,
-					nodeIdentity,
-					policies,
-					stage
-				);
+				await executionAction.execute(stage, assetType, action, context, data, policies);
 			} catch (error) {
 				this._logging?.log({
 					level: "error",

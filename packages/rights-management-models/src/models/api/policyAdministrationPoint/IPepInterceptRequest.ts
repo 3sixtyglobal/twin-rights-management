@@ -20,8 +20,15 @@ export interface IPepInterceptRequest {
 		action: string;
 
 		/**
+		 * The context in which the action is being performed.
+		 * userIdentity and nodeIdentity should not be passed as they will
+		 * be populated by the authenticated context on the server side.
+		 */
+		context?: unknown;
+
+		/**
 		 * The data to include in the request.
 		 */
-		data: unknown;
+		data?: unknown;
 	};
 }

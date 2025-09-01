@@ -3,6 +3,7 @@
 ## Interfaces
 
 - [IPolicyAdministrationPointComponent](interfaces/IPolicyAdministrationPointComponent.md)
+- [IPolicyContext](interfaces/IPolicyContext.md)
 - [IPolicyDecisionPointComponent](interfaces/IPolicyDecisionPointComponent.md)
 - [IPolicyEnforcementPointComponent](interfaces/IPolicyEnforcementPointComponent.md)
 - [IPolicyExecutionAction](interfaces/IPolicyExecutionAction.md)
