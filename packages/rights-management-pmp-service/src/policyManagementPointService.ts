@@ -30,7 +30,7 @@ export class PolicyManagementPointService implements IPolicyManagementPointCompo
 	 * The policy administration point component.
 	 * @internal
 	 */
-	private readonly _policyAdministrationPointComponent?: IPolicyAdministrationPointComponent;
+	private readonly _policyAdministrationPointComponent: IPolicyAdministrationPointComponent;
 
 	/**
 	 * Create a new instance of PolicyManagementPointService (PMP).

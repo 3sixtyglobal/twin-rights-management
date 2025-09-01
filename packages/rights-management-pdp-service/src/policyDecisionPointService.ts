@@ -32,19 +32,19 @@ export class PolicyDecisionPointService implements IPolicyDecisionPointComponent
 	 * The policy management point component.
 	 * @internal
 	 */
-	private readonly _policyManagementPointComponent?: IPolicyManagementPointComponent;
+	private readonly _policyManagementPointComponent: IPolicyManagementPointComponent;
 
 	/**
 	 * The policy information point component.
 	 * @internal
 	 */
-	private readonly _policyInformationPointComponent?: IPolicyInformationPointComponent;
+	private readonly _policyInformationPointComponent: IPolicyInformationPointComponent;
 
 	/**
 	 * The policy execution point component.
 	 * @internal
 	 */
-	private readonly _policyExecutionPointComponent?: IPolicyExecutionPointComponent;
+	private readonly _policyExecutionPointComponent: IPolicyExecutionPointComponent;
 
 	/**
 	 * Create a new instance of PolicyDecisionPointService (PDP).
