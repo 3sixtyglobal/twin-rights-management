@@ -64,6 +64,12 @@ export class StaticPolicyInformationSource implements IPolicyInformationSource, 
 		policies: IOdrlPolicy[]
 	): Promise<IJsonLdNodeObject[] | undefined> {
 		Guards.stringValue(this.CLASS_NAME, nameof(assetType), assetType);
+		Guards.arrayOneOf(
+			this.CLASS_NAME,
+			nameof(accessMode),
+			accessMode,
+			Object.values(PolicyInformationAccessMode)
+		);
 		Guards.stringValue(this.CLASS_NAME, nameof(action), action);
 
 		const information: IJsonLdNodeObject[] = [];

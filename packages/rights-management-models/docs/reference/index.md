@@ -6,6 +6,7 @@
 - [IPolicyContext](interfaces/IPolicyContext.md)
 - [IPolicyDecisionPointComponent](interfaces/IPolicyDecisionPointComponent.md)
 - [IPolicyEnforcementPointComponent](interfaces/IPolicyEnforcementPointComponent.md)
+- [IPolicyEnforcementProcessor](interfaces/IPolicyEnforcementProcessor.md)
 - [IPolicyExecutionAction](interfaces/IPolicyExecutionAction.md)
 - [IPolicyExecutionPointComponent](interfaces/IPolicyExecutionPointComponent.md)
 - [IPolicyInformationPointComponent](interfaces/IPolicyInformationPointComponent.md)
@@ -29,6 +30,7 @@
 
 ## Variables
 
+- [PolicyEnforcementProcessorFactory](variables/PolicyEnforcementProcessorFactory.md)
 - [PolicyExecutionActionFactory](variables/PolicyExecutionActionFactory.md)
 - [PolicyInformationSourceFactory](variables/PolicyInformationSourceFactory.md)
 - [PolicyDecisionStage](variables/PolicyDecisionStage.md)

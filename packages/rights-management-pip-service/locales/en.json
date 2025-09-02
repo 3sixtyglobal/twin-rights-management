@@ -1,6 +1,8 @@
 {
 	"error": {
-		"policyInformationPointService": {},
+		"policyInformationPointService": {
+			"sourceRetrieveFailed": "Failed to retrieve information from source with id: \"{sourceId}\", for asset type \"{assetType}\", action \"{action}\""
+		},
 		"identityPolicyInformationSource": {
 			"identityRetrievalFailed": "Failed to retrieve identity information for: \"{identity}\""
 		}
@@ -8,8 +10,7 @@
 	"info": {
 		"policyInformationPointService": {
 			"registeredSource": "Source registered with id: \"{sourceId}\"",
-			"unregisteredSource": "Source unregistered with id: \"{sourceId}\"",
-			"sourceRetrieveFailed": "Failed to retrieve information from source with id: \"{sourceId}\", for asset type \"{assetType}\", action \"{action}\""
+			"unregisteredSource": "Source unregistered with id: \"{sourceId}\""
 		},
 		"identityPolicyInformationSource": {
 			"identityRetrieving": "Retrieving identity information for: \"{identity}\", for asset type \"{assetType}\", action \"{action}\""

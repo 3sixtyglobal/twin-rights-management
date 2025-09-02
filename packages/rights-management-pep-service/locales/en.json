@@ -1,5 +1,15 @@
 {
 	"error": {
-		"policyEnforcementPointService": {}
+		"policyEnforcementPointService": {
+			"processingFailed": "Failed to process information using processor with id: \"{processorId}\", for asset type \"{assetType}\", action \"{action}\""
+		}
+	},
+	"info": {
+		"policyEnforcementPointService": {
+			"registeredProcessor": "Processor registered with id: \"{processorId}\"",
+			"unregisteredProcessor": "Processor unregistered with id: \"{processorId}\"",
+			"processing": "Processing information using processor with id: \"{processorId}\", for asset type \"{assetType}\", action \"{action}\"",
+			"intercepting": "Intercepting information for asset type \"{assetType}\", action \"{action}\""
+		}
 	}
 }

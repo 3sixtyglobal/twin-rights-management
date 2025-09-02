@@ -1,6 +1,6 @@
 // Copyright 2024 IOTA Stiftung.
 // SPDX-License-Identifier: Apache-2.0.
-import { ComponentFactory } from "@twin.org/core";
+import { ComponentFactory, GeneralError } from "@twin.org/core";
 import { MemoryEntityStorageConnector } from "@twin.org/entity-storage-connector-memory";
 import { EntityStorageConnectorFactory } from "@twin.org/entity-storage-models";
 import {
@@ -171,7 +171,7 @@ describe("rights-management-pxp", () => {
 		).resolves.not.toThrow();
 	});
 
-	test("continues executing other actions when one throws error", async () => {
+	test("throws error and stops executing subsequent actions when one throws error", async () => {
 		const policyExecutionPoint = new PolicyExecutionPointService();
 		const errorAction = new MockPolicyExecutionAction();
 		const successAction = new MockPolicyExecutionAction();
@@ -190,17 +190,19 @@ describe("rights-management-pxp", () => {
 			successAction
 		);
 
-		await policyExecutionPoint.executeActions(
-			PolicyDecisionStage.Before,
-			"assetType",
-			"action",
-			{ userIdentity: "userIdentity", nodeIdentity: "nodeIdentity" },
-			{},
-			[]
-		);
+		await expect(
+			policyExecutionPoint.executeActions(
+				PolicyDecisionStage.Before,
+				"assetType",
+				"action",
+				{ userIdentity: "userIdentity", nodeIdentity: "nodeIdentity" },
+				{},
+				[]
+			)
+		).rejects.toBeInstanceOf(GeneralError);
 
 		expect(errorAction.execute).toHaveBeenCalledOnce();
-		expect(successAction.execute).toHaveBeenCalledOnce();
+		expect(successAction.execute).not.toHaveBeenCalled();
 	});
 
 	test("logs error when action execution fails", async () => {
@@ -215,21 +217,23 @@ describe("rights-management-pxp", () => {
 			PolicyDecisionStage.Before,
 			errorAction
 		);
-		await policyExecutionPoint.executeActions(
-			PolicyDecisionStage.Before,
-			"assetType",
-			"action",
-			{ userIdentity: "userIdentity", nodeIdentity: "nodeIdentity" },
-			{},
-			[]
-		);
+		await expect(
+			policyExecutionPoint.executeActions(
+				PolicyDecisionStage.Before,
+				"assetType",
+				"action",
+				{ userIdentity: "userIdentity", nodeIdentity: "nodeIdentity" },
+				{},
+				[]
+			)
+		).rejects.toBeInstanceOf(GeneralError);
 
 		const logEntries = loggingMemoryEntityStorage.getStore();
-		expect(logEntries.length).toBe(2);
-		expect(logEntries[0].level).toBe("info");
-		expect(logEntries[0].message).toBe("registeredAction");
-		expect(logEntries[1].level).toBe("error");
-		expect(logEntries[1].message).toBe("actionExecutionFailed");
+		const messages = logEntries.map(l => l.message);
+		expect(messages).toContain("registeredAction");
+		expect(messages).toContain("executingActions");
+		expect(messages).toContain("executingAction");
+		expect(messages).toContain("actionExecutionFailed");
 	});
 
 	test("executes actions with correct parameters including data", async () => {
@@ -290,10 +294,11 @@ describe("rights-management-pxp", () => {
 		// Check both custom action was called and logging occurred
 		expect(customAction.execute).toHaveBeenCalledOnce();
 		const logEntries = loggingMemoryEntityStorage.getStore();
-		expect(logEntries.length).toBe(3);
-		expect(logEntries[0].message).toBe("registeredAction");
-		expect(logEntries[1].message).toBe("registeredAction");
-		expect(logEntries[2].message).toBe("policyActionExecuted");
+		const messages = logEntries.map(l => l.message);
+		expect(messages.filter(m => m === "registeredAction").length).toBe(2);
+		expect(messages).toContain("executingActions");
+		expect(messages.filter(m => m === "executingAction").length).toBe(2);
+		expect(messages).toContain("policyActionExecuted");
 	});
 
 	test("loggingPolicyAction logs policy execution details", async () => {
@@ -328,12 +333,13 @@ describe("rights-management-pxp", () => {
 		);
 
 		const logEntries = loggingMemoryEntityStorage.getStore();
-		expect(logEntries.length).toBe(2);
-		expect(logEntries[0].level).toBe("info");
-		expect(logEntries[0].message).toBe("registeredAction");
-		expect(logEntries[1].level).toBe("info");
-		expect(logEntries[1].message).toBe("policyActionExecuted");
-		expect(logEntries[1].data).toEqual({
+		const messages = logEntries.map(l => l.message);
+		expect(messages[0]).toBe("registeredAction");
+		expect(messages).toContain("executingActions");
+		expect(messages).toContain("executingAction");
+		expect(messages).toContain("policyActionExecuted");
+		const policyLog = logEntries.find(l => l.message === "policyActionExecuted");
+		expect(policyLog?.data).toEqual({
 			assetType: "document",
 			action: "read",
 			userIdentity: "user123",
@@ -365,10 +371,8 @@ describe("rights-management-pxp", () => {
 		);
 
 		const logEntries = loggingMemoryEntityStorage.getStore();
-		expect(logEntries.length).toBe(2);
-		expect(logEntries[0].level).toBe("info");
-		expect(logEntries[0].message).toBe("registeredAction");
-		expect(logEntries[1].data).toEqual({
+		const policyLog = logEntries.find(l => l.message === "policyActionExecuted");
+		expect(policyLog?.data).toEqual({
 			assetType: "image",
 			action: "write",
 			userIdentity: "",
@@ -396,10 +400,8 @@ describe("rights-management-pxp", () => {
 		);
 
 		const logEntries = loggingMemoryEntityStorage.getStore();
-		expect(logEntries.length).toBe(2);
-		expect(logEntries[0].level).toBe("info");
-		expect(logEntries[0].message).toBe("registeredAction");
-		expect(logEntries[1].data).toEqual({
+		const policyLog = logEntries.find(l => l.message === "policyActionExecuted");
+		expect(policyLog?.data).toEqual({
 			assetType: "video",
 			action: "delete",
 			userIdentity: "admin",
@@ -433,11 +435,8 @@ describe("rights-management-pxp", () => {
 		);
 
 		const logEntries = loggingMemoryEntityStorage.getStore();
-		expect(logEntries.length).toBe(2);
-		expect(logEntries.length).toBe(2);
-		expect(logEntries[0].level).toBe("info");
-		expect(logEntries[0].message).toBe("registeredAction");
-		expect((logEntries[1]?.data?.policies as IOdrlPolicy[])?.length).toBe(3);
+		const policyLog = logEntries.find(l => l.message === "policyActionExecuted");
+		expect((policyLog?.data?.policies as IOdrlPolicy[])?.length).toBe(3);
 	});
 
 	test("multiple loggingPolicyActions create separate log entries", async () => {
@@ -475,13 +474,14 @@ describe("rights-management-pxp", () => {
 		);
 
 		const logEntries = loggingMemoryEntityStorage.getStore();
-		expect(logEntries.length).toBe(4);
-		expect(logEntries[0].level).toBe("info");
-		expect(logEntries[0].message).toBe("registeredAction");
-		expect(logEntries[1].level).toBe("info");
-		expect(logEntries[1].message).toBe("registeredAction");
-		expect(logEntries[2]?.data?.stage).toBe(PolicyDecisionStage.Before);
-		expect(logEntries[3]?.data?.stage).toBe(PolicyDecisionStage.After);
+		const beforeLog = logEntries.find(
+			l => l.message === "policyActionExecuted" && l.data?.stage === PolicyDecisionStage.Before
+		);
+		const afterLog = logEntries.find(
+			l => l.message === "policyActionExecuted" && l.data?.stage === PolicyDecisionStage.After
+		);
+		expect(beforeLog).toBeDefined();
+		expect(afterLog).toBeDefined();
 	});
 
 	test("loggingPolicyAction logs different asset types and actions", async () => {
@@ -523,17 +523,12 @@ describe("rights-management-pxp", () => {
 		);
 
 		const logEntries = loggingMemoryEntityStorage.getStore();
-		expect(logEntries.length).toBe(4);
-
-		const assetTypes = logEntries.map(entry => entry.data?.assetType);
-		const actions = logEntries.map(entry => entry.data?.action);
-
-		expect(assetTypes).toContain("document");
-		expect(assetTypes).toContain("image");
-		expect(assetTypes).toContain("video");
-		expect(actions).toContain("read");
-		expect(actions).toContain("edit");
-		expect(actions).toContain("stream");
+		const executedLogs = logEntries.filter(l => l.message === "policyActionExecuted");
+		expect(executedLogs.length).toBe(3);
+		const assetTypes = executedLogs.map(entry => entry.data?.assetType);
+		const actions = executedLogs.map(entry => entry.data?.action);
+		expect(new Set(assetTypes)).toEqual(new Set(["document", "image", "video"]));
+		expect(new Set(actions)).toEqual(new Set(["read", "edit", "stream"]));
 	});
 
 	test("loggingPolicyAction does not log sensitive data content", async () => {
@@ -562,16 +557,13 @@ describe("rights-management-pxp", () => {
 		);
 
 		const logEntries = loggingMemoryEntityStorage.getStore();
-		expect(logEntries.length).toBe(2);
-
+		const policyLog = logEntries.find(l => l.message === "policyActionExecuted");
 		// Verify that sensitive data is not logged
-		const logEntry = logEntries[1];
-		expect(JSON.stringify(logEntry)).not.toContain("secret123");
-		expect(JSON.stringify(logEntry)).not.toContain("1234-5678-9012-3456");
-		expect(JSON.stringify(logEntry)).not.toContain("123-45-6789");
-
+		expect(JSON.stringify(policyLog)).not.toContain("secret123");
+		expect(JSON.stringify(policyLog)).not.toContain("1234-5678-9012-3456");
+		expect(JSON.stringify(policyLog)).not.toContain("123-45-6789");
 		// But metadata should be present
-		expect(logEntry.data?.assetType).toBe("userProfile");
-		expect(logEntry.data?.action).toBe("update");
+		expect(policyLog?.data?.assetType).toBe("userProfile");
+		expect(policyLog?.data?.action).toBe("update");
 	});
 });

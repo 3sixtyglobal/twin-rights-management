@@ -62,3 +62,53 @@ The data to process.
 `Promise`\<`undefined` \| `R`\>
 
 The manipulated data with any policies applied.
+
+***
+
+### registerProcessor()
+
+> **registerProcessor**(`processorId`, `processor`): `Promise`\<`void`\>
+
+Register a processor to use for handling data.
+
+#### Parameters
+
+##### processorId
+
+`string`
+
+The id of the processor to register.
+
+##### processor
+
+[`IPolicyEnforcementProcessor`](IPolicyEnforcementProcessor.md)
+
+The processor to register.
+
+#### Returns
+
+`Promise`\<`void`\>
+
+Nothing.
+
+***
+
+### unregisterProcessor()
+
+> **unregisterProcessor**(`processorId`): `Promise`\<`void`\>
+
+Unregister a processor from the handling.
+
+#### Parameters
+
+##### processorId
+
+`string`
+
+The id of the processor to unregister.
+
+#### Returns
+
+`Promise`\<`void`\>
+
+Nothing.

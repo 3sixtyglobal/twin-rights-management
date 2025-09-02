@@ -1,6 +1,6 @@
 // Copyright 2024 IOTA Stiftung.
 // SPDX-License-Identifier: Apache-2.0.
-import { BaseError, ComponentFactory, Guards } from "@twin.org/core";
+import { BaseError, ComponentFactory, GeneralError, Guards } from "@twin.org/core";
 import type { ILoggingComponent } from "@twin.org/logging-models";
 import { nameof } from "@twin.org/nameof";
 import {
@@ -81,9 +81,33 @@ export class PolicyExecutionPointService implements IPolicyExecutionPointCompone
 		Guards.stringValue(this.CLASS_NAME, nameof(assetType), assetType);
 		Guards.stringValue(this.CLASS_NAME, nameof(action), action);
 
+		this._logging?.log({
+			level: "info",
+			source: this.CLASS_NAME,
+			ts: Date.now(),
+			message: "executingActions",
+			data: {
+				stage,
+				assetType,
+				action
+			}
+		});
+
 		const actions = this._executeActions[stage].actions;
 		for (const { actionId, executionAction } of actions) {
 			try {
+				this._logging?.log({
+					level: "info",
+					source: this.CLASS_NAME,
+					ts: Date.now(),
+					message: "executingAction",
+					data: {
+						stage,
+						assetType,
+						action,
+						actionId
+					}
+				});
 				await executionAction.execute(stage, assetType, action, context, data, policies);
 			} catch (error) {
 				this._logging?.log({
@@ -99,6 +123,17 @@ export class PolicyExecutionPointService implements IPolicyExecutionPointCompone
 					},
 					error: BaseError.fromError(error)
 				});
+				throw new GeneralError(
+					this.CLASS_NAME,
+					"actionExecutionFailed",
+					{
+						actionId,
+						stage,
+						assetType,
+						action
+					},
+					error
+				);
 			}
 		}
 	}

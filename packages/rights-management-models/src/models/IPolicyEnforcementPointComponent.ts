@@ -2,6 +2,7 @@
 // SPDX-License-Identifier: Apache-2.0.
 import type { IComponent } from "@twin.org/core";
 import type { IPolicyContext } from "./IPolicyContext";
+import type { IPolicyEnforcementProcessor } from "./IPolicyEnforcementProcessor";
 
 /**
  * Interface describing a Policy Enforcement Point (PEP) contract.
@@ -24,4 +25,19 @@ export interface IPolicyEnforcementPointComponent extends IComponent {
 		context: C | undefined,
 		data: D | undefined
 	): Promise<R | undefined>;
+
+	/**
+	 * Register a processor to use for handling data.
+	 * @param processorId The id of the processor to register.
+	 * @param processor The processor to register.
+	 * @returns Nothing.
+	 */
+	registerProcessor(processorId: string, processor: IPolicyEnforcementProcessor): Promise<void>;
+
+	/**
+	 * Unregister a processor from the handling.
+	 * @param processorId The id of the processor to unregister.
+	 * @returns Nothing.
+	 */
+	unregisterProcessor(processorId: string): Promise<void>;
 }

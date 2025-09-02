@@ -10,7 +10,9 @@
 		},
 		"policyExecutionPointService": {
 			"registeredAction": "Action registered with id: \"{actionId}\", at stage \"{stage}\"",
-			"unregisteredAction": "Action unregistered with id: \"{actionId}\", at stage \"{stage}\""
+			"unregisteredAction": "Action unregistered with id: \"{actionId}\", at stage \"{stage}\"",
+			"executingActions": "Executing actions for stage: \"{stage}\", asset type: \"{assetType}\", action: \"{action}\"",
+			"executingAction": "Executing action for stage: \"{stage}\", asset type: \"{assetType}\", action: \"{action}\", action id: \"{actionId}\""
 		}
 	}
 }
