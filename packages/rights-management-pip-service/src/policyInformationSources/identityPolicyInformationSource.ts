@@ -5,7 +5,11 @@ import type { IJsonLdNodeObject } from "@twin.org/data-json-ld";
 import type { IIdentityResolverComponent } from "@twin.org/identity-models";
 import type { ILoggingComponent } from "@twin.org/logging-models";
 import { nameof } from "@twin.org/nameof";
-import type { IPolicyContext, IPolicyInformationSource } from "@twin.org/rights-management-models";
+import type {
+	IPolicyContext,
+	IPolicyInformationSource,
+	PolicyInformationAccessMode
+} from "@twin.org/rights-management-models";
 import type { IOdrlPolicy } from "@twin.org/standards-w3c-odrl";
 import type { IIdentityPolicyInformationSourceConstructorOptions } from "../models/IIdentityPolicyInformationSourceConstructorOptions";
 
@@ -14,7 +18,7 @@ import type { IIdentityPolicyInformationSourceConstructorOptions } from "../mode
  */
 export class IdentityPolicyInformationSource implements IPolicyInformationSource, IComponent {
 	/**
-	 * The class name of the Policy Execution Point Service.
+	 * The class name of the Identity Policy Information Source.
 	 */
 	public readonly CLASS_NAME: string = nameof<IdentityPolicyInformationSource>();
 
@@ -47,6 +51,7 @@ export class IdentityPolicyInformationSource implements IPolicyInformationSource
 	 * Retrieve information from the sources.
 	 * @param assetType The type of asset being processed.
 	 * @param action The action being performed on the asset.
+	 * @param accessMode The access mode to use for the retrieval.
 	 * @param context The context information to use in the decision making.
 	 * @param data The data to process.
 	 * @param policies The policies that apply to the data.
@@ -55,6 +60,7 @@ export class IdentityPolicyInformationSource implements IPolicyInformationSource
 	public async retrieve<C extends IPolicyContext = IPolicyContext, D = unknown>(
 		assetType: string,
 		action: string,
+		accessMode: PolicyInformationAccessMode,
 		context: C | undefined,
 		data: D | undefined,
 		policies: IOdrlPolicy[]
@@ -66,49 +72,46 @@ export class IdentityPolicyInformationSource implements IPolicyInformationSource
 		const userIdentity = context?.userIdentity;
 		const nodeIdentity = context?.nodeIdentity;
 
+		const lookupIdentities = [];
 		if (Is.stringValue(userIdentity)) {
-			try {
-				const userDoc = await this._identityResolver.identityResolve(userIdentity);
-				information.push(userDoc as unknown as IJsonLdNodeObject);
-			} catch (err) {
-				this._logging?.log({
-					level: "error",
-					source: this.CLASS_NAME,
-					ts: Date.now(),
-					message: "userIdentityRetrievalFailed",
-					data: {
-						assetType,
-						action,
-						userIdentity,
-						nodeIdentity
-					},
-					error: BaseError.fromError(err)
-				});
-			}
+			lookupIdentities.push(userIdentity);
 		}
-
-		// No need to retrieve node identity if it is the same as user identity
 		if (Is.stringValue(nodeIdentity) && userIdentity !== nodeIdentity) {
-			try {
-				const nodeDoc = await this._identityResolver.identityResolve(nodeIdentity);
-				information.push(nodeDoc as unknown as IJsonLdNodeObject);
-			} catch (err) {
-				this._logging?.log({
-					level: "error",
-					source: this.CLASS_NAME,
-					ts: Date.now(),
-					message: "nodeIdentityRetrievalFailed",
-					data: {
-						assetType,
-						action,
-						userIdentity,
-						nodeIdentity
-					},
-					error: BaseError.fromError(err)
-				});
-			}
+			lookupIdentities.push(nodeIdentity);
 		}
 
+		for (const identity of lookupIdentities) {
+			if (Is.stringValue(identity)) {
+				try {
+					this._logging?.log({
+						level: "info",
+						source: this.CLASS_NAME,
+						ts: Date.now(),
+						message: "identityRetrieving",
+						data: {
+							assetType,
+							action,
+							identity
+						}
+					});
+					const userDoc = await this._identityResolver.identityResolve(identity);
+					information.push(userDoc as unknown as IJsonLdNodeObject);
+				} catch (err) {
+					this._logging?.log({
+						level: "error",
+						source: this.CLASS_NAME,
+						ts: Date.now(),
+						message: "identityRetrievalFailed",
+						data: {
+							assetType,
+							action,
+							identity
+						},
+						error: BaseError.fromError(err)
+					});
+				}
+			}
+		}
 		return information;
 	}
 }

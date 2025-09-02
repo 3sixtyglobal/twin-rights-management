@@ -7,7 +7,8 @@ import { nameof } from "@twin.org/nameof";
 import type {
 	IPolicyContext,
 	IPolicyInformationPointComponent,
-	IPolicyInformationSource
+	IPolicyInformationSource,
+	PolicyInformationAccessMode
 } from "@twin.org/rights-management-models";
 import type { IOdrlPolicy } from "@twin.org/standards-w3c-odrl";
 import type { IPolicyInformationPointServiceConstructorOptions } from "./models/IPolicyInformationPointServiceConstructorOptions";
@@ -51,6 +52,7 @@ export class PolicyInformationPointService implements IPolicyInformationPointCom
 	 * Retrieve additional information which is relevant in the PDP decision making.
 	 * @param assetType The type of asset being processed.
 	 * @param action The action being performed on the asset.
+	 * @param accessMode The access mode to use for the retrieval.
 	 * @param context The context information to use in the decision making.
 	 * @param data The data to get any additional information for.
 	 * @param policies The policies that apply to the data.
@@ -59,6 +61,7 @@ export class PolicyInformationPointService implements IPolicyInformationPointCom
 	public async retrieve<C extends IPolicyContext = IPolicyContext, D = unknown>(
 		assetType: string,
 		action: string,
+		accessMode: PolicyInformationAccessMode,
 		context: C | undefined,
 		data: D | undefined,
 		policies: IOdrlPolicy[]
@@ -71,7 +74,14 @@ export class PolicyInformationPointService implements IPolicyInformationPointCom
 		await Promise.all(
 			this._sources.map(async ({ sourceId, source }) => {
 				try {
-					const result = await source.retrieve(assetType, action, context, data, policies);
+					const result = await source.retrieve(
+						assetType,
+						action,
+						accessMode,
+						context,
+						data,
+						policies
+					);
 
 					if (Is.arrayValue(result)) {
 						information[sourceId] = result;

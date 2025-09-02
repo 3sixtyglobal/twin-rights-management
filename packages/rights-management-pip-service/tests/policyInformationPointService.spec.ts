@@ -12,7 +12,10 @@ import {
 import { LoggingConnectorFactory } from "@twin.org/logging-models";
 import { LoggingService } from "@twin.org/logging-service";
 import { nameof } from "@twin.org/nameof";
-import type { IPolicyInformationSource } from "@twin.org/rights-management-models";
+import {
+	PolicyInformationAccessMode,
+	type IPolicyInformationSource
+} from "@twin.org/rights-management-models";
 import { beforeEach, describe, expect, test, vi } from "vitest";
 import { PolicyInformationPointService } from "../src/policyInformationPointService";
 
@@ -74,6 +77,7 @@ describe("rights-management-pip", () => {
 		const information = await policyInformationPoint.retrieve(
 			"document",
 			"read",
+			PolicyInformationAccessMode.Any,
 			{},
 			{ userIdentity: "user123", nodeIdentity: "node456" },
 			[]
@@ -82,6 +86,7 @@ describe("rights-management-pip", () => {
 		expect(mockSource.retrieve).toHaveBeenCalledWith(
 			"document",
 			"read",
+			PolicyInformationAccessMode.Any,
 			{},
 			{ userIdentity: "user123", nodeIdentity: "node456" },
 			[]
@@ -111,6 +116,7 @@ describe("rights-management-pip", () => {
 		const information = await policyInformationPoint.retrieve(
 			"image",
 			"edit",
+			PolicyInformationAccessMode.Any,
 			{},
 			{ userIdentity: "user123", nodeIdentity: "node456" },
 			[]
@@ -119,6 +125,7 @@ describe("rights-management-pip", () => {
 		expect(identitySource.retrieve).toHaveBeenCalledWith(
 			"image",
 			"edit",
+			PolicyInformationAccessMode.Any,
 			{},
 			{ userIdentity: "user123", nodeIdentity: "node456" },
 			[]
@@ -126,6 +133,7 @@ describe("rights-management-pip", () => {
 		expect(contextSource.retrieve).toHaveBeenCalledWith(
 			"image",
 			"edit",
+			PolicyInformationAccessMode.Any,
 			{},
 			{ userIdentity: "user123", nodeIdentity: "node456" },
 			[]
@@ -142,6 +150,7 @@ describe("rights-management-pip", () => {
 		const information = await policyInformationPoint.retrieve(
 			"test",
 			"action",
+			PolicyInformationAccessMode.Any,
 			{},
 			{ userIdentity: "user123", nodeIdentity: "node456" },
 			[]
@@ -166,6 +175,7 @@ describe("rights-management-pip", () => {
 		const information = await policyInformationPoint.retrieve(
 			"database",
 			"query",
+			PolicyInformationAccessMode.Any,
 			{},
 			{ userIdentity: "user123", nodeIdentity: "node456" },
 			[]
@@ -186,6 +196,7 @@ describe("rights-management-pip", () => {
 		await policyInformationPoint.retrieve(
 			"file",
 			"upload",
+			PolicyInformationAccessMode.Any,
 			{ userIdentity: "user123", nodeIdentity: "node456" },
 			"fileNode",
 			[]

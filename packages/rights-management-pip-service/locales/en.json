@@ -2,8 +2,7 @@
 	"error": {
 		"policyInformationPointService": {},
 		"identityPolicyInformationSource": {
-			"userIdentityRetrievalFailed": "Failed to retrieve user identity information for user: \"{userIdentity}\"",
-			"nodeIdentityRetrievalFailed": "Failed to retrieve node identity information for node: \"{nodeIdentity}\""
+			"identityRetrievalFailed": "Failed to retrieve identity information for: \"{identity}\""
 		}
 	},
 	"info": {
@@ -11,6 +10,13 @@
 			"registeredSource": "Source registered with id: \"{sourceId}\"",
 			"unregisteredSource": "Source unregistered with id: \"{sourceId}\"",
 			"sourceRetrieveFailed": "Failed to retrieve information from source with id: \"{sourceId}\", for asset type \"{assetType}\", action \"{action}\""
+		},
+		"identityPolicyInformationSource": {
+			"identityRetrieving": "Retrieving identity information for: \"{identity}\", for asset type \"{assetType}\", action \"{action}\""
+		},
+		"staticPolicyInformationSource": {
+			"staticRetrieving": "Retrieving static policy information for asset type: \"{assetType}\", action: \"{action}\", access mode: \"{accessMode}\"",
+			"staticRetrieved": "Retrieved static policy information for asset type: \"{assetType}\", action: \"{action}\", access mode: \"{accessMode}\", item count: {itemCount}"
 		}
 	}
 }

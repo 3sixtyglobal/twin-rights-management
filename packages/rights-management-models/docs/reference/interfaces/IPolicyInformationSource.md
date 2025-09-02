@@ -6,7 +6,7 @@ Interface for policy information sources.
 
 ### retrieve()
 
-> **retrieve**\<`C`, `D`\>(`assetType`, `action`, `context`, `data`, `policies`): `Promise`\<`undefined` \| `IJsonLdNodeObject`[]\>
+> **retrieve**\<`C`, `D`\>(`assetType`, `action`, `accessMode`, `context`, `data`, `policies`): `Promise`\<`undefined` \| `IJsonLdNodeObject`[]\>
 
 Retrieve information from the sources.
 
@@ -33,6 +33,12 @@ The type of asset being processed.
 `string`
 
 The action being performed on the asset.
+
+##### accessMode
+
+[`PolicyInformationAccessMode`](../type-aliases/PolicyInformationAccessMode.md)
+
+The access mode to use for the retrieval.
 
 ##### context
 

@@ -1,6 +1,6 @@
-# Class: IdentityPolicyInformationSource
+# Class: StaticPolicyInformationSource
 
-Policy information source which retrieves the identity information.
+Policy information source which retrieves static information.
 
 ## Implements
 
@@ -11,21 +11,21 @@ Policy information source which retrieves the identity information.
 
 ### Constructor
 
-> **new IdentityPolicyInformationSource**(`options?`): `IdentityPolicyInformationSource`
+> **new StaticPolicyInformationSource**(`options?`): `StaticPolicyInformationSource`
 
-Create a new instance of IdentityPolicyInformationSource.
+Create a new instance of StaticPolicyInformationSource.
 
 #### Parameters
 
 ##### options?
 
-[`IIdentityPolicyInformationSourceConstructorOptions`](../interfaces/IIdentityPolicyInformationSourceConstructorOptions.md)
+[`IStaticPolicyInformationSourceConstructorOptions`](../interfaces/IStaticPolicyInformationSourceConstructorOptions.md)
 
 The options for the logging policy source.
 
 #### Returns
 
-`IdentityPolicyInformationSource`
+`StaticPolicyInformationSource`
 
 ## Properties
 
@@ -33,7 +33,7 @@ The options for the logging policy source.
 
 > `readonly` **CLASS\_NAME**: `string`
 
-The class name of the Identity Policy Information Source.
+The class name of the Static Policy Information Source.
 
 #### Implementation of
 
@@ -104,3 +104,23 @@ The objects containing relevant information or undefined if nothing relevant is 
 #### Implementation of
 
 `IPolicyInformationSource.retrieve`
+
+***
+
+### addInformation()
+
+> **addInformation**(`info`): `void`
+
+Add static policy information.
+
+#### Parameters
+
+##### info
+
+[`IStaticPolicyInformationSource`](../interfaces/IStaticPolicyInformationSource.md)
+
+The static policy information to add.
+
+#### Returns
+
+`void`

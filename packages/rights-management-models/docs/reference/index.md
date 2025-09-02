@@ -25,9 +25,11 @@
 ## Type Aliases
 
 - [PolicyDecisionStage](type-aliases/PolicyDecisionStage.md)
+- [PolicyInformationAccessMode](type-aliases/PolicyInformationAccessMode.md)
 
 ## Variables
 
 - [PolicyExecutionActionFactory](variables/PolicyExecutionActionFactory.md)
 - [PolicyInformationSourceFactory](variables/PolicyInformationSourceFactory.md)
 - [PolicyDecisionStage](variables/PolicyDecisionStage.md)
+- [PolicyInformationAccessMode](variables/PolicyInformationAccessMode.md)

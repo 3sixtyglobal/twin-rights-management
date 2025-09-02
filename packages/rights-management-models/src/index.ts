@@ -22,3 +22,4 @@ export * from "./models/IPolicyInformationSource";
 export * from "./models/IPolicyManagementPointComponent";
 export * from "./models/IRightsManagementComponent";
 export * from "./models/policyDecisionStage";
+export * from "./models/policyInformationAccessMode";
