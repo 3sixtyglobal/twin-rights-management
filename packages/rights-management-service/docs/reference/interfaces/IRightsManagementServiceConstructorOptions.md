@@ -29,3 +29,31 @@ The type of the Policy Enforcement Point (PEP) component.
 ```ts
 policy-enforcement-point
 ```
+
+***
+
+### policyNegotiationPointComponentType?
+
+> `optional` **policyNegotiationPointComponentType**: `string`
+
+The type of the Policy Negotiation Point (PNP) component.
+
+#### Default
+
+```ts
+policy-negotiation-point
+```
+
+***
+
+### policyNegotiationAdminPointComponentType?
+
+> `optional` **policyNegotiationAdminPointComponentType**: `string`
+
+The type of the Policy Negotiation Admin Point (PNAP) component.
+
+#### Default
+
+```ts
+policy-negotiation-admin-point
+```

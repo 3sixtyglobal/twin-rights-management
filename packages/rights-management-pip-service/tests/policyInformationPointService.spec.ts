@@ -16,7 +16,6 @@ import {
 	PolicyInformationAccessMode,
 	type IPolicyInformationSource
 } from "@twin.org/rights-management-models";
-import { beforeEach, describe, expect, test, vi } from "vitest";
 import { PolicyInformationPointService } from "../src/policyInformationPointService";
 
 /**
@@ -29,7 +28,7 @@ class MockPolicyInformationSource implements IPolicyInformationSource {
 
 let loggingMemoryEntityStorage: MemoryEntityStorageConnector<LogEntry>;
 
-describe("rights-management-pip", () => {
+describe("PolicyInformationPointService", () => {
 	beforeEach(() => {
 		initSchema();
 
@@ -166,7 +165,6 @@ describe("rights-management-pip", () => {
 
 		const workingInfo: IJsonLdNodeObject[] = [{ "@id": "working-info", "@type": "Info" }];
 		workingSource.retrieve.mockResolvedValue(workingInfo);
-		// eslint-disable-next-line no-restricted-syntax
 		failingSource.retrieve.mockRejectedValue(new Error("Source error"));
 
 		await policyInformationPoint.registerSource("working", workingSource);
@@ -189,7 +187,6 @@ describe("rights-management-pip", () => {
 	test("logs error when information source fails", async () => {
 		const policyInformationPoint = new PolicyInformationPointService();
 		const failingSource = new MockPolicyInformationSource();
-		// eslint-disable-next-line no-restricted-syntax
 		failingSource.retrieve.mockRejectedValue(new Error("Identity resolution failed"));
 
 		await policyInformationPoint.registerSource("failing", failingSource);

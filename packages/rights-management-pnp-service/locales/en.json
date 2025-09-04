@@ -1,0 +1,31 @@
+{
+	"error": {
+		"policyNegotiationPointService": {
+			"negotiationFailed": "Failed to negotiate using negotiator with id: \"{negotiatorId}\", for asset type \"{assetType}\", action \"{action}\"",
+			"stateFailed": "Failed to retrieve state for policy with id: \"{policyId}\"",
+			"policyFailed": "Failed to retrieve policy for policy with id: \"{policyId}\"",
+			"policyNotFound": "Policy with id: \"{policyId}\" not found",
+			"noNegotiatorFound": "No negotiator found for asset type \"{assetType}\" and action \"{action}\"",
+			"proofNegotiationFailed": "Failed to verify proof for asset type \"{assetType}\", action \"{action}\", node identity \"{nodeIdentity}\"",
+			"proofPolicyIdFailed": "Failed to verify proof for policy with id: \"{policyId}\", node identity \"{nodeIdentity}\""
+		},
+		"policyNegotiationAdminPointService": {
+			"policyNotFound": "Policy with id: \"{policyId}\" not found"
+		},
+		"policyNegotiationRequestPointService": {
+			"missingNodeIdentity": "The node identity is missing"
+		}
+	},
+	"info": {
+		"policyNegotiationPointService": {
+			"registeredNegotiator": "Negotiator registered with id: \"{negotiatorId}\"",
+			"unregisteredNegotiator": "Negotiator unregistered with id: \"{negotiatorId}\""
+		},
+		"policyNegotiationRequestPointService": {
+			"negotiationRequest": "Negotiation request sent for asset type: \"{assetType}\", action: \"{action}\", url: \"{url}\"",
+			"negotiationResponse": "Negotiation response received for asset type: \"{assetType}\", action: \"{action}\", url: \"{url}\", status: \"{status}\"",
+			"negotiationStatus": "Negotiation status retrieved for policy with id: \"{policyId}\", status: \"{status}\", url: \"{url}\"",
+			"negotiationCancel": "Negotiation cancelled for policy with id: \"{policyId}\", url: \"{url}\""
+		}
+	}
+}

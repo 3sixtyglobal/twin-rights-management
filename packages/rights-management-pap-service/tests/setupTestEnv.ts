@@ -61,7 +61,7 @@ const createTestPolicy = (
 	policyType: PolicyType,
 	assetId: string,
 	action: ActionType
-): Omit<IOdrlPolicy, "uid"> => ({
+): Omit<IOdrlPolicy, "uid"> & { uid?: string } => ({
 	"@context": OdrlContexts.ContextRoot,
 	"@type": policyType,
 	permission: [

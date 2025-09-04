@@ -26,7 +26,7 @@ class MockPolicyExecutionAction {
 
 let loggingMemoryEntityStorage: MemoryEntityStorageConnector<LogEntry>;
 
-describe("rights-management-pxp", () => {
+describe("PolicyExecutionPointService", () => {
 	beforeEach(() => {
 		initSchema();
 
@@ -176,7 +176,6 @@ describe("rights-management-pxp", () => {
 		const errorAction = new MockPolicyExecutionAction();
 		const successAction = new MockPolicyExecutionAction();
 
-		// eslint-disable-next-line no-restricted-syntax
 		errorAction.execute.mockRejectedValue(new Error("Test error"));
 
 		await policyExecutionPoint.registerAction(
@@ -209,7 +208,6 @@ describe("rights-management-pxp", () => {
 		const policyExecutionPoint = new PolicyExecutionPointService();
 		const errorAction = new MockPolicyExecutionAction();
 
-		// eslint-disable-next-line no-restricted-syntax
 		errorAction.execute.mockRejectedValue(new Error("Test error"));
 
 		await policyExecutionPoint.registerAction(

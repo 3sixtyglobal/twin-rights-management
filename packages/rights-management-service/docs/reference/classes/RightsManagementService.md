@@ -51,7 +51,7 @@ PAP: Create a new policy with auto-generated UID.
 
 ##### policy
 
-`Omit`\<`IOdrlPolicy`, `"uid"`\>
+`Omit`\<`IOdrlPolicy`, `"uid"`\> & `object`
 
 The policy to create (uid will be auto-generated).
 
@@ -238,3 +238,251 @@ The manipulated data with any policies applied.
 #### Implementation of
 
 `IRightsManagementComponent.pepIntercept`
+
+***
+
+### pnpNegotiate()
+
+> **pnpNegotiate**\<`C`\>(`assetType`, `action`, `resourceId`, `context`, `requesterInformation`, `proof`): `Promise`\<`IPolicyState`\>
+
+PNP: Negotiates the creation of a policy for the requested resource.
+
+#### Type Parameters
+
+##### C
+
+`C` *extends* `IPolicyContext` = `IPolicyContext`
+
+#### Parameters
+
+##### assetType
+
+`string`
+
+The type of asset being processed.
+
+##### action
+
+`string`
+
+The action being performed on the asset.
+
+##### resourceId
+
+The ID of the resource being requested, can be empty if asset type access requested.
+
+`undefined` | `string`
+
+##### context
+
+`C`
+
+The context from the requesting node.
+
+##### requesterInformation
+
+Information provided by the requester to determine if a policy can be created.
+
+`undefined` | \{\[`source`: `string`\]: `IJsonLdNodeObject`[]; \}
+
+##### proof
+
+`IProof`
+
+The proof provided by the requester to support the policy creation.
+
+#### Returns
+
+`Promise`\<`IPolicyState`\>
+
+The state of the policy.
+
+#### Implementation of
+
+`IRightsManagementComponent.pnpNegotiate`
+
+***
+
+### pnpNegotiationState()
+
+> **pnpNegotiationState**(`policyId`, `nodeIdentity`, `proof`): `Promise`\<`IPolicyState`\>
+
+PNP: Retrieves the current state of a policy.
+
+#### Parameters
+
+##### policyId
+
+`string`
+
+The ID of the policy to retrieve the state for.
+
+##### nodeIdentity
+
+`string`
+
+The identity of the node requesting the state.
+
+##### proof
+
+`IProof`
+
+The proof provided by the requester.
+
+#### Returns
+
+`Promise`\<`IPolicyState`\>
+
+The current state of the policy.
+
+#### Implementation of
+
+`IRightsManagementComponent.pnpNegotiationState`
+
+***
+
+### pnpNegotiationCancel()
+
+> **pnpNegotiationCancel**(`policyId`, `nodeIdentity`, `proof`): `Promise`\<`void`\>
+
+PNP: Cancels an ongoing negotiation for a resource.
+
+#### Parameters
+
+##### policyId
+
+`string`
+
+The ID of the policy to cancel.
+
+##### nodeIdentity
+
+`string`
+
+The identity of the node requesting the cancellation.
+
+##### proof
+
+`IProof`
+
+The proof provided by the requester.
+
+#### Returns
+
+`Promise`\<`void`\>
+
+Nothing.
+
+#### Implementation of
+
+`IRightsManagementComponent.pnpNegotiationCancel`
+
+***
+
+### pnapGet()
+
+> **pnapGet**(`policyId`): `Promise`\<`IPolicyNegotiation`\>
+
+PNAP: Retrieves a policy negotiation.
+
+#### Parameters
+
+##### policyId
+
+`string`
+
+The ID of the policy to retrieve the negotiation for.
+
+#### Returns
+
+`Promise`\<`IPolicyNegotiation`\>
+
+The policy negotiation.
+
+#### Implementation of
+
+`IRightsManagementComponent.pnapGet`
+
+***
+
+### pnapSet()
+
+> **pnapSet**(`negotiation`): `Promise`\<`void`\>
+
+PNAP: Sets a policy negotiation.
+
+#### Parameters
+
+##### negotiation
+
+`IPolicyNegotiation`
+
+The updated policy negotiation.
+
+#### Returns
+
+`Promise`\<`void`\>
+
+Nothing.
+
+#### Implementation of
+
+`IRightsManagementComponent.pnapSet`
+
+***
+
+### pnapRemove()
+
+> **pnapRemove**(`policyId`): `Promise`\<`void`\>
+
+PNAP: Cancels an ongoing negotiation for a resource.
+
+#### Parameters
+
+##### policyId
+
+`string`
+
+The ID of the policy to cancel.
+
+#### Returns
+
+`Promise`\<`void`\>
+
+Nothing.
+
+#### Implementation of
+
+`IRightsManagementComponent.pnapRemove`
+
+***
+
+### pnapQuery()
+
+> **pnapQuery**(`status?`, `cursor?`): `Promise`\<\{ `items`: `IPolicyNegotiation`[]; `cursor?`: `string`; \}\>
+
+PNAP: Get a list of the negotiations.
+
+#### Parameters
+
+##### status?
+
+`PolicyNegotiationStatus`
+
+The state of the negotiations to retrieve.
+
+##### cursor?
+
+`string`
+
+The cursor to use for pagination.
+
+#### Returns
+
+`Promise`\<\{ `items`: `IPolicyNegotiation`[]; `cursor?`: `string`; \}\>
+
+A list of negotiations and cursor if there are more entries.
+
+#### Implementation of
+
+`IRightsManagementComponent.pnapQuery`

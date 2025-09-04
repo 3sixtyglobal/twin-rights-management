@@ -2,6 +2,7 @@
 // SPDX-License-Identifier: Apache-2.0.
 import { existsSync } from "node:fs";
 import { rm } from "node:fs/promises";
+import { ObjectHelper } from "@twin.org/core";
 import type { EntityCondition } from "@twin.org/entity";
 import type { MemoryEntityStorageConnector } from "@twin.org/entity-storage-connector-memory";
 import { EntityStorageConnectorFactory } from "@twin.org/entity-storage-models";
@@ -15,7 +16,7 @@ import {
 import type { OdrlPolicy } from "../src/entities/odrlPolicy";
 import { PolicyAdministrationPointService } from "../src/policyAdministrationPointService";
 
-describe("rights-management-pap", () => {
+describe("PolicyAdministrationPointService", () => {
 	let policyAdminPoint: PolicyAdministrationPointService;
 	let odrlPolicyEntityStorage: MemoryEntityStorageConnector<OdrlPolicy>;
 
@@ -40,12 +41,13 @@ describe("rights-management-pap", () => {
 
 	test("should create a policy in entity storage", async () => {
 		// Remove UID from sample policy since create now auto-generates UIDs
-		const { ...policyWithoutUid } = SAMPLE_POLICY;
+		const policyWithoutUid = ObjectHelper.clone(SAMPLE_POLICY);
+		ObjectHelper.propertyDelete(policyWithoutUid, "uid");
 		const resultUid = await policyAdminPoint.create(policyWithoutUid);
 
 		expect(resultUid).toBeDefined();
 		expect(typeof resultUid).toBe("string");
-		expect(resultUid).toMatch(/^urn:rights-management:/);
+		expect(resultUid).toMatch(/^urn:policy:/);
 
 		const store = odrlPolicyEntityStorage.getStore();
 		expect(store).toBeDefined();
@@ -66,7 +68,8 @@ describe("rights-management-pap", () => {
 	});
 
 	test("should retrieve a policy from entity storage", async () => {
-		const { ...policyWithoutUid } = SAMPLE_POLICY;
+		const policyWithoutUid = ObjectHelper.clone(SAMPLE_POLICY);
+		ObjectHelper.propertyDelete(policyWithoutUid, "uid");
 		const createdUid = await policyAdminPoint.create(policyWithoutUid);
 
 		const retrievedPolicy = await policyAdminPoint.retrieve(createdUid);
@@ -90,7 +93,8 @@ describe("rights-management-pap", () => {
 	});
 
 	test("should remove a policy from entity storage", async () => {
-		const { ...policyWithoutUid } = SAMPLE_POLICY;
+		const policyWithoutUid = ObjectHelper.clone(SAMPLE_POLICY);
+		ObjectHelper.propertyDelete(policyWithoutUid, "uid");
 		const createdUid = await policyAdminPoint.create(policyWithoutUid);
 
 		let store = odrlPolicyEntityStorage.getStore();
@@ -209,11 +213,11 @@ describe("rights-management-pap", () => {
 					action: "use"
 				}
 			]
-		} as Omit<IOdrlPolicy, "uid">;
+		};
 
 		const result = await policyAdminPoint.create(validPolicy);
 		expect(result).toBeDefined();
-		expect(result).toMatch(/^urn:rights-management:/);
+		expect(result).toMatch(/^urn:policy:/);
 
 		const retrievedPolicy = await policyAdminPoint.retrieve(result);
 		expect(retrievedPolicy).toBeDefined();
@@ -231,7 +235,7 @@ describe("rights-management-pap", () => {
 					action: "invalidAction"
 				}
 			]
-		} as unknown as Omit<IOdrlPolicy, "uid">;
+		};
 
 		const result = await policyAdminPoint.create(invalidOdrlPolicy);
 		expect(result).toBeDefined();
@@ -247,12 +251,12 @@ describe("rights-management-pap", () => {
 					action: "use"
 				}
 			]
-		} as Omit<IOdrlPolicy, "uid">;
+		};
 
 		const result = await policyAdminPoint.create(policyWithoutUid);
 		expect(result).toBeDefined();
 		expect(result).toBeDefined();
-		expect(result).toMatch(/^urn:rights-management:/);
+		expect(result).toMatch(/^urn:policy:/);
 
 		const retrievedPolicy = await policyAdminPoint.retrieve(result);
 		expect(retrievedPolicy).toBeDefined();
@@ -260,7 +264,8 @@ describe("rights-management-pap", () => {
 	});
 
 	test("should create multiple policies with unique auto-generated UIDs", async () => {
-		const { ...policyWithoutUid } = SAMPLE_POLICY;
+		const policyWithoutUid = ObjectHelper.clone(SAMPLE_POLICY);
+		ObjectHelper.propertyDelete(policyWithoutUid, "uid");
 		const uid1 = await policyAdminPoint.create(policyWithoutUid);
 		const uid2 = await policyAdminPoint.create(policyWithoutUid);
 
@@ -276,7 +281,8 @@ describe("rights-management-pap", () => {
 	});
 
 	test("should update an existing policy", async () => {
-		const { ...policyWithoutUid } = SAMPLE_POLICY;
+		const policyWithoutUid = ObjectHelper.clone(SAMPLE_POLICY);
+		ObjectHelper.propertyDelete(policyWithoutUid, "uid");
 		const createResult = await policyAdminPoint.create(policyWithoutUid);
 		const policyId = createResult;
 
@@ -360,7 +366,7 @@ describe("rights-management-pap", () => {
 					]
 				}
 			]
-		} as Omit<IOdrlPolicy, "uid">;
+		};
 
 		const createResult = await policyAdminPoint.create(initialPolicy);
 		const policyId = createResult;
@@ -446,7 +452,8 @@ describe("rights-management-pap", () => {
 	});
 
 	test("should validate updated policy through JSON-LD validation", async () => {
-		const { ...policyWithoutUid } = SAMPLE_POLICY;
+		const policyWithoutUid = ObjectHelper.clone(SAMPLE_POLICY);
+		ObjectHelper.propertyDelete(policyWithoutUid, "uid");
 		const createResult = await policyAdminPoint.create(policyWithoutUid);
 		const policyId = createResult;
 
@@ -468,7 +475,8 @@ describe("rights-management-pap", () => {
 	});
 
 	test("should update policy and persist changes", async () => {
-		const { ...policyWithoutUid } = SAMPLE_POLICY;
+		const policyWithoutUid = ObjectHelper.clone(SAMPLE_POLICY);
+		ObjectHelper.propertyDelete(policyWithoutUid, "uid");
 		const createResult = await policyAdminPoint.create(policyWithoutUid);
 		const policyId = createResult;
 

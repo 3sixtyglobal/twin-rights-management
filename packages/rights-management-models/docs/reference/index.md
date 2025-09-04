@@ -1,5 +1,9 @@
 # @twin.org/rights-management-models
 
+## Classes
+
+- [OdrlPolicyHelper](classes/OdrlPolicyHelper.md)
+
 ## Interfaces
 
 - [IPolicyAdministrationPointComponent](interfaces/IPolicyAdministrationPointComponent.md)
@@ -12,6 +16,12 @@
 - [IPolicyInformationPointComponent](interfaces/IPolicyInformationPointComponent.md)
 - [IPolicyInformationSource](interfaces/IPolicyInformationSource.md)
 - [IPolicyManagementPointComponent](interfaces/IPolicyManagementPointComponent.md)
+- [IPolicyNegotiation](interfaces/IPolicyNegotiation.md)
+- [IPolicyNegotiationAdminPointComponent](interfaces/IPolicyNegotiationAdminPointComponent.md)
+- [IPolicyNegotiationPointComponent](interfaces/IPolicyNegotiationPointComponent.md)
+- [IPolicyNegotiationRequestPointComponent](interfaces/IPolicyNegotiationRequestPointComponent.md)
+- [IPolicyNegotiator](interfaces/IPolicyNegotiator.md)
+- [IPolicyState](interfaces/IPolicyState.md)
 - [IRightsManagementComponent](interfaces/IRightsManagementComponent.md)
 - [IPapCreateRequest](interfaces/IPapCreateRequest.md)
 - [IPapQueryRequest](interfaces/IPapQueryRequest.md)
@@ -22,11 +32,24 @@
 - [IPapUpdateRequest](interfaces/IPapUpdateRequest.md)
 - [IPepInterceptRequest](interfaces/IPepInterceptRequest.md)
 - [IPepInterceptResponse](interfaces/IPepInterceptResponse.md)
+- [IPnapGetRequest](interfaces/IPnapGetRequest.md)
+- [IPnapGetResponse](interfaces/IPnapGetResponse.md)
+- [IPnapQueryRequest](interfaces/IPnapQueryRequest.md)
+- [IPnapQueryResponse](interfaces/IPnapQueryResponse.md)
+- [IPnapRemoveRequest](interfaces/IPnapRemoveRequest.md)
+- [IPnapSetRequest](interfaces/IPnapSetRequest.md)
+- [IPnpNegotiateRequest](interfaces/IPnpNegotiateRequest.md)
+- [IPnpNegotiateResponse](interfaces/IPnpNegotiateResponse.md)
+- [IPnpNegotiationCancelRequest](interfaces/IPnpNegotiationCancelRequest.md)
+- [IPnpNegotiationStateRequest](interfaces/IPnpNegotiationStateRequest.md)
+- [IPnpNegotiationStateResponse](interfaces/IPnpNegotiationStateResponse.md)
 
 ## Type Aliases
 
 - [PolicyDecisionStage](type-aliases/PolicyDecisionStage.md)
 - [PolicyInformationAccessMode](type-aliases/PolicyInformationAccessMode.md)
+- [PolicyNegotiationStatus](type-aliases/PolicyNegotiationStatus.md)
+- [RightsManagementNamespaces](type-aliases/RightsManagementNamespaces.md)
 
 ## Variables
 
@@ -35,3 +58,5 @@
 - [PolicyInformationSourceFactory](variables/PolicyInformationSourceFactory.md)
 - [PolicyDecisionStage](variables/PolicyDecisionStage.md)
 - [PolicyInformationAccessMode](variables/PolicyInformationAccessMode.md)
+- [PolicyNegotiationStatus](variables/PolicyNegotiationStatus.md)
+- [RightsManagementNamespaces](variables/RightsManagementNamespaces.md)

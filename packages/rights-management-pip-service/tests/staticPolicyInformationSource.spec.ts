@@ -13,7 +13,6 @@ import { LoggingConnectorFactory } from "@twin.org/logging-models";
 import { LoggingService } from "@twin.org/logging-service";
 import { nameof } from "@twin.org/nameof";
 import { PolicyInformationAccessMode } from "@twin.org/rights-management-models";
-import { beforeEach, describe, expect, test } from "vitest";
 import { StaticPolicyInformationSource } from "../src/policyInformationSources/staticPolicyInformationSource";
 
 let loggingMemoryEntityStorage: MemoryEntityStorageConnector<LogEntry>;

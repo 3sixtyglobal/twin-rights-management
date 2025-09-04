@@ -34,9 +34,11 @@
 		"@twin.org/api-models": "next",
 		"@twin.org/api-core": "next",
 		"@twin.org/core": "next",
+		"@twin.org/data-json-ld": "next",
 		"@twin.org/entity": "next",
 		"@twin.org/nameof": "next",
 		"@twin.org/rights-management-models": "0.0.2-next.4",
+		"@twin.org/standards-w3c-did": "next",
 		"@twin.org/web": "next"
 	},
 	"devDependencies": {

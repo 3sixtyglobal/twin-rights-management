@@ -21,7 +21,7 @@ import { PolicyManagementPointService } from "../src/policyManagementPointServic
 let loggingMemoryEntityStorage: MemoryEntityStorageConnector<LogEntry>;
 let odrlPolicyMemoryEntityStorage: MemoryEntityStorageConnector<OdrlPolicy>;
 
-describe("rights-management-pmp", () => {
+describe("PolicyManagementPointService", () => {
 	beforeEach(() => {
 		initSchemaLogging();
 		initSchemaPolicyAdministrationPoint();

@@ -39,10 +39,10 @@
 					"content": {
 						"application/json": {
 							"schema": {
-								"$ref": "https://schema.twindev.org/w3c-odrl/OdrlPolicy"
+								"$ref": "#/components/schemas/PapCreateRequest"
 							},
 							"examples": {
-								"papCreateExample": {
+								"papCreateRequestExample": {
 									"value": {
 										"@context": "https://www.w3.org/ns/odrl/2/",
 										"@type": "Set",
@@ -164,7 +164,7 @@
 								"$ref": "https://schema.twindev.org/w3c-odrl/OdrlPolicy"
 							},
 							"examples": {
-								"papUpdateExample": {
+								"papUpdateRequestExample": {
 									"value": {
 										"@context": "https://www.w3.org/ns/odrl/2/",
 										"@type": "Set",
@@ -598,7 +598,7 @@
 								"$ref": "#/components/schemas/PepInterceptRequest"
 							},
 							"examples": {
-								"pepInterceptExample": {
+								"pepInterceptRequestExample": {
 									"value": {
 										"assetType": "document",
 										"action": "view",
@@ -691,10 +691,863 @@
 					}
 				}
 			}
+		},
+		"/rights-management/pnp/negotiate": {
+			"post": {
+				"operationId": "pnpNegotiate",
+				"summary": "Negotiate a policy",
+				"tags": [
+					"Policy Administration Point"
+				],
+				"requestBody": {
+					"description": "The request structure for negotiating a policy.",
+					"required": true,
+					"content": {
+						"application/json": {
+							"schema": {
+								"$ref": "#/components/schemas/PnpNegotiateRequest"
+							},
+							"examples": {
+								"pnpNegotiateRequestExample": {
+									"value": {
+										"assetType": "document",
+										"action": "view",
+										"context": {
+											"nodeIdentity": "urn:example:node:1"
+										},
+										"proof": {
+											"created": "2024-08-22T11:56:56.272Z",
+											"type": "DataIntegrityProof",
+											"cryptosuite": "eddsa-jcs-2022",
+											"proofPurpose": "assertionMethod",
+											"proofValue": "z3Vcuh2BP9ShC4UEJ3yRZgcTJ6gmRtydDrh6AmY1zEciQqEWTvXfBZNxxjTzdJjT44cmn9VDWbBHqxFsX9fjsfXzK",
+											"verificationMethod": "did:entity-storage:0x6363636363636363636363636363636363636363636363636363636363636363#assertion"
+										}
+									}
+								}
+							}
+						}
+					}
+				},
+				"responses": {
+					"200": {
+						"description": "The response structure for negotiating a policy.",
+						"content": {
+							"application/json": {
+								"schema": {
+									"$ref": "#/components/schemas/PolicyState"
+								},
+								"examples": {
+									"IPnpNegotiateResponseExample": {
+										"value": {
+											"id": "policy-1",
+											"status": "approved"
+										}
+									}
+								}
+							}
+						}
+					},
+					"400": {
+						"description": "The server cannot process the request, see the content for more details.",
+						"content": {
+							"application/json": {
+								"schema": {
+									"$ref": "#/components/schemas/Error"
+								},
+								"examples": {
+									"exampleResponse": {
+										"value": {
+											"name": "GeneralError",
+											"message": "component.error",
+											"properties": {
+												"foo": "bar"
+											}
+										}
+									}
+								}
+							}
+						}
+					},
+					"500": {
+						"description": "The server has encountered a situation it does not know how to handle, see the content for more details.",
+						"content": {
+							"application/json": {
+								"schema": {
+									"$ref": "#/components/schemas/Error"
+								},
+								"examples": {
+									"exampleResponse": {
+										"value": {
+											"name": "InternalServerError",
+											"message": "component.error"
+										}
+									}
+								}
+							}
+						}
+					}
+				}
+			}
+		},
+		"/rights-management/pnp/{policyId}": {
+			"post": {
+				"operationId": "pnpNegotiationState",
+				"summary": "Get the state of a policy",
+				"tags": [
+					"Policy Administration Point"
+				],
+				"parameters": [
+					{
+						"name": "policyId",
+						"description": "The ID of the policy being requested.",
+						"in": "path",
+						"required": true,
+						"schema": {
+							"type": "string"
+						},
+						"style": "simple",
+						"example": "policy-1"
+					}
+				],
+				"requestBody": {
+					"description": "The request structure for negotiating a policy.",
+					"required": true,
+					"content": {
+						"application/json": {
+							"schema": {
+								"$ref": "#/components/schemas/PnpNegotiationStateRequest"
+							},
+							"examples": {
+								"pnpNegotiationStateRequestExample": {
+									"value": {
+										"nodeIdentity": "urn:example:node:1",
+										"proof": {
+											"created": "2024-08-22T11:56:56.272Z",
+											"type": "DataIntegrityProof",
+											"cryptosuite": "eddsa-jcs-2022",
+											"proofPurpose": "assertionMethod",
+											"proofValue": "z3Vcuh2BP9ShC4UEJ3yRZgcTJ6gmRtydDrh6AmY1zEciQqEWTvXfBZNxxjTzdJjT44cmn9VDWbBHqxFsX9fjsfXzK",
+											"verificationMethod": "did:entity-storage:0x6363636363636363636363636363636363636363636363636363636363636363#assertion"
+										}
+									}
+								}
+							}
+						}
+					}
+				},
+				"responses": {
+					"200": {
+						"description": "The response structure for negotiation state request.",
+						"content": {
+							"application/json": {
+								"schema": {
+									"$ref": "#/components/schemas/PolicyState"
+								},
+								"examples": {
+									"IPnpNegotiationStateResponseExample": {
+										"value": {
+											"id": "policy-1",
+											"status": "approved"
+										}
+									}
+								}
+							}
+						}
+					},
+					"400": {
+						"description": "The server cannot process the request, see the content for more details.",
+						"content": {
+							"application/json": {
+								"schema": {
+									"$ref": "#/components/schemas/Error"
+								},
+								"examples": {
+									"exampleResponse": {
+										"value": {
+											"name": "GeneralError",
+											"message": "component.error",
+											"properties": {
+												"foo": "bar"
+											}
+										}
+									}
+								}
+							}
+						}
+					},
+					"500": {
+						"description": "The server has encountered a situation it does not know how to handle, see the content for more details.",
+						"content": {
+							"application/json": {
+								"schema": {
+									"$ref": "#/components/schemas/Error"
+								},
+								"examples": {
+									"exampleResponse": {
+										"value": {
+											"name": "InternalServerError",
+											"message": "component.error"
+										}
+									}
+								}
+							}
+						}
+					}
+				}
+			},
+			"delete": {
+				"operationId": "pnpCancel",
+				"summary": "Cancel a policy negotiation",
+				"tags": [
+					"Policy Administration Point"
+				],
+				"parameters": [
+					{
+						"name": "policyId",
+						"description": "The ID of the policy being cancelled.",
+						"in": "path",
+						"required": true,
+						"schema": {
+							"type": "string"
+						},
+						"style": "simple",
+						"example": "policy-1"
+					}
+				],
+				"requestBody": {
+					"description": "The request structure for cancelling a policy negotiation.",
+					"required": true,
+					"content": {
+						"application/json": {
+							"schema": {
+								"$ref": "#/components/schemas/PnpNegotiationCancelRequest"
+							},
+							"examples": {
+								"pnpNegotiationCancelRequestExample": {
+									"value": {
+										"nodeIdentity": "urn:example:node:1",
+										"proof": {
+											"created": "2024-08-22T11:56:56.272Z",
+											"type": "DataIntegrityProof",
+											"cryptosuite": "eddsa-jcs-2022",
+											"proofPurpose": "assertionMethod",
+											"proofValue": "z3Vcuh2BP9ShC4UEJ3yRZgcTJ6gmRtydDrh6AmY1zEciQqEWTvXfBZNxxjTzdJjT44cmn9VDWbBHqxFsX9fjsfXzK",
+											"verificationMethod": "did:entity-storage:0x6363636363636363636363636363636363636363636363636363636363636363#assertion"
+										}
+									}
+								}
+							}
+						}
+					}
+				},
+				"responses": {
+					"204": {
+						"description": "The rest request ended in success with no data."
+					},
+					"400": {
+						"description": "The server cannot process the request, see the content for more details.",
+						"content": {
+							"application/json": {
+								"schema": {
+									"$ref": "#/components/schemas/Error"
+								},
+								"examples": {
+									"exampleResponse": {
+										"value": {
+											"name": "GeneralError",
+											"message": "component.error",
+											"properties": {
+												"foo": "bar"
+											}
+										}
+									}
+								}
+							}
+						}
+					},
+					"500": {
+						"description": "The server has encountered a situation it does not know how to handle, see the content for more details.",
+						"content": {
+							"application/json": {
+								"schema": {
+									"$ref": "#/components/schemas/Error"
+								},
+								"examples": {
+									"exampleResponse": {
+										"value": {
+											"name": "InternalServerError",
+											"message": "component.error"
+										}
+									}
+								}
+							}
+						}
+					}
+				}
+			}
+		},
+		"/rights-management/pnap/{policyId}": {
+			"get": {
+				"operationId": "pnapGet",
+				"summary": "Get a policy negotiation",
+				"tags": [
+					"Policy Administration Point"
+				],
+				"parameters": [
+					{
+						"name": "policyId",
+						"description": "The ID of the policy being requested.",
+						"in": "path",
+						"required": true,
+						"schema": {
+							"type": "string"
+						},
+						"style": "simple",
+						"example": "policy-1"
+					}
+				],
+				"security": [
+					{
+						"jwtBearerAuthScheme": []
+					}
+				],
+				"responses": {
+					"200": {
+						"description": "The response structure for policy negotiation request.",
+						"content": {
+							"application/json": {
+								"schema": {
+									"$ref": "#/components/schemas/PolicyNegotiation"
+								},
+								"examples": {
+									"pnapGetResponseExample": {
+										"value": {
+											"id": "policy-1",
+											"status": "manual",
+											"dateCreated": "2025-09-03T00:00:00.000Z",
+											"assetType": "document",
+											"action": "view",
+											"context": {}
+										}
+									}
+								}
+							}
+						}
+					},
+					"400": {
+						"description": "The server cannot process the request, see the content for more details.",
+						"content": {
+							"application/json": {
+								"schema": {
+									"$ref": "#/components/schemas/Error"
+								},
+								"examples": {
+									"exampleResponse": {
+										"value": {
+											"name": "GeneralError",
+											"message": "component.error",
+											"properties": {
+												"foo": "bar"
+											}
+										}
+									}
+								}
+							}
+						}
+					},
+					"401": {
+						"description": "You are not authorized to use the API or no credentials were supplied, see the content for more details.",
+						"content": {
+							"application/json": {
+								"schema": {
+									"$ref": "#/components/schemas/Error"
+								},
+								"examples": {
+									"exampleResponse": {
+										"value": {
+											"name": "UnauthorizedError",
+											"message": "component.error"
+										}
+									}
+								}
+							}
+						}
+					},
+					"500": {
+						"description": "The server has encountered a situation it does not know how to handle, see the content for more details.",
+						"content": {
+							"application/json": {
+								"schema": {
+									"$ref": "#/components/schemas/Error"
+								},
+								"examples": {
+									"exampleResponse": {
+										"value": {
+											"name": "InternalServerError",
+											"message": "component.error"
+										}
+									}
+								}
+							}
+						}
+					}
+				}
+			},
+			"put": {
+				"operationId": "pnapSet",
+				"summary": "Set a policy negotiation",
+				"tags": [
+					"Policy Administration Point"
+				],
+				"parameters": [
+					{
+						"name": "policyId",
+						"description": "The ID of the policy being requested.",
+						"in": "path",
+						"required": true,
+						"schema": {
+							"type": "string"
+						},
+						"style": "simple",
+						"example": "policy-1"
+					}
+				],
+				"security": [
+					{
+						"jwtBearerAuthScheme": []
+					}
+				],
+				"requestBody": {
+					"description": "The request structure for setting a policy negotiation.",
+					"required": true,
+					"content": {
+						"application/json": {
+							"schema": {
+								"$ref": "#/components/schemas/PolicyNegotiation"
+							},
+							"examples": {
+								"pnapSetRequestExample": {
+									"value": {
+										"id": "policy-1",
+										"status": "approved",
+										"dateCreated": "2025-09-03T00:00:00.000Z",
+										"assetType": "document",
+										"action": "view",
+										"context": {}
+									}
+								}
+							}
+						}
+					}
+				},
+				"responses": {
+					"204": {
+						"description": "The rest request ended in success with no data."
+					},
+					"400": {
+						"description": "The server cannot process the request, see the content for more details.",
+						"content": {
+							"application/json": {
+								"schema": {
+									"$ref": "#/components/schemas/Error"
+								},
+								"examples": {
+									"exampleResponse": {
+										"value": {
+											"name": "GeneralError",
+											"message": "component.error",
+											"properties": {
+												"foo": "bar"
+											}
+										}
+									}
+								}
+							}
+						}
+					},
+					"401": {
+						"description": "You are not authorized to use the API or no credentials were supplied, see the content for more details.",
+						"content": {
+							"application/json": {
+								"schema": {
+									"$ref": "#/components/schemas/Error"
+								},
+								"examples": {
+									"exampleResponse": {
+										"value": {
+											"name": "UnauthorizedError",
+											"message": "component.error"
+										}
+									}
+								}
+							}
+						}
+					},
+					"500": {
+						"description": "The server has encountered a situation it does not know how to handle, see the content for more details.",
+						"content": {
+							"application/json": {
+								"schema": {
+									"$ref": "#/components/schemas/Error"
+								},
+								"examples": {
+									"exampleResponse": {
+										"value": {
+											"name": "InternalServerError",
+											"message": "component.error"
+										}
+									}
+								}
+							}
+						}
+					}
+				}
+			},
+			"delete": {
+				"operationId": "pnapRemove",
+				"summary": "Remove a policy negotiation",
+				"tags": [
+					"Policy Administration Point"
+				],
+				"parameters": [
+					{
+						"name": "policyId",
+						"description": "The ID of the policy being removed.",
+						"in": "path",
+						"required": true,
+						"schema": {
+							"type": "string"
+						},
+						"style": "simple",
+						"example": "policy-1"
+					}
+				],
+				"security": [
+					{
+						"jwtBearerAuthScheme": []
+					}
+				],
+				"responses": {
+					"204": {
+						"description": "The rest request ended in success with no data."
+					},
+					"400": {
+						"description": "The server cannot process the request, see the content for more details.",
+						"content": {
+							"application/json": {
+								"schema": {
+									"$ref": "#/components/schemas/Error"
+								},
+								"examples": {
+									"exampleResponse": {
+										"value": {
+											"name": "GeneralError",
+											"message": "component.error",
+											"properties": {
+												"foo": "bar"
+											}
+										}
+									}
+								}
+							}
+						}
+					},
+					"401": {
+						"description": "You are not authorized to use the API or no credentials were supplied, see the content for more details.",
+						"content": {
+							"application/json": {
+								"schema": {
+									"$ref": "#/components/schemas/Error"
+								},
+								"examples": {
+									"exampleResponse": {
+										"value": {
+											"name": "UnauthorizedError",
+											"message": "component.error"
+										}
+									}
+								}
+							}
+						}
+					},
+					"500": {
+						"description": "The server has encountered a situation it does not know how to handle, see the content for more details.",
+						"content": {
+							"application/json": {
+								"schema": {
+									"$ref": "#/components/schemas/Error"
+								},
+								"examples": {
+									"exampleResponse": {
+										"value": {
+											"name": "InternalServerError",
+											"message": "component.error"
+										}
+									}
+								}
+							}
+						}
+					}
+				}
+			}
+		},
+		"/rights-management/pnap": {
+			"get": {
+				"operationId": "pnapQuery",
+				"summary": "Query policy negotiations",
+				"tags": [
+					"Policy Administration Point"
+				],
+				"parameters": [
+					{
+						"name": "status",
+						"description": "The status of the policy negotiations.",
+						"in": "query",
+						"required": false,
+						"schema": {
+							"type": "string"
+						},
+						"example": "manual"
+					},
+					{
+						"name": "cursor",
+						"description": "The cursor for pagination.",
+						"in": "query",
+						"required": false,
+						"schema": {
+							"type": "string"
+						},
+						"example": "next-cursor"
+					}
+				],
+				"security": [
+					{
+						"jwtBearerAuthScheme": []
+					}
+				],
+				"responses": {
+					"200": {
+						"description": "The response structure for querying manual policy negotiations.",
+						"content": {
+							"application/json": {
+								"schema": {
+									"$ref": "#/components/schemas/PnapQueryResponse"
+								},
+								"examples": {
+									"pnapQueryResponseExample": {
+										"value": {
+											"items": [
+												{
+													"id": "policy-1",
+													"status": "manual",
+													"dateCreated": "2025-09-03T00:00:00.000Z",
+													"assetType": "document",
+													"action": "view",
+													"context": {}
+												}
+											],
+											"cursor": "next-cursor"
+										}
+									}
+								}
+							}
+						}
+					},
+					"400": {
+						"description": "The server cannot process the request, see the content for more details.",
+						"content": {
+							"application/json": {
+								"schema": {
+									"$ref": "#/components/schemas/Error"
+								},
+								"examples": {
+									"exampleResponse": {
+										"value": {
+											"name": "GeneralError",
+											"message": "component.error",
+											"properties": {
+												"foo": "bar"
+											}
+										}
+									}
+								}
+							}
+						}
+					},
+					"401": {
+						"description": "You are not authorized to use the API or no credentials were supplied, see the content for more details.",
+						"content": {
+							"application/json": {
+								"schema": {
+									"$ref": "#/components/schemas/Error"
+								},
+								"examples": {
+									"exampleResponse": {
+										"value": {
+											"name": "UnauthorizedError",
+											"message": "component.error"
+										}
+									}
+								}
+							}
+						}
+					},
+					"500": {
+						"description": "The server has encountered a situation it does not know how to handle, see the content for more details.",
+						"content": {
+							"application/json": {
+								"schema": {
+									"$ref": "#/components/schemas/Error"
+								},
+								"examples": {
+									"exampleResponse": {
+										"value": {
+											"name": "InternalServerError",
+											"message": "component.error"
+										}
+									}
+								}
+							}
+						}
+					}
+				}
+			}
 		}
 	},
 	"components": {
 		"schemas": {
+			"DataIntegrityProof": {
+				"type": "object",
+				"properties": {
+					"@context": {
+						"anyOf": [
+							{
+								"type": "string",
+								"const": "https://www.w3.org/ns/credentials/v2"
+							},
+							{
+								"type": "array",
+								"minItems": 1,
+								"items": {
+									"$ref": "https://schema.twindev.org/json-ld/JsonLdContextDefinitionElement"
+								},
+								"prefixItems": [
+									{
+										"type": "string",
+										"const": "https://www.w3.org/ns/credentials/v2"
+									}
+								]
+							}
+						],
+						"description": "JSON-LD Context."
+					},
+					"type": {
+						"type": "string",
+						"const": "DataIntegrityProof",
+						"description": "JSON-LD Type."
+					},
+					"cryptosuite": {
+						"anyOf": [
+							{
+								"$ref": "#/components/schemas/DidCryptoSuites"
+							},
+							{
+								"type": "string"
+							}
+						],
+						"description": "An identifier for the cryptographic suite that can be used to verify the proof."
+					},
+					"id": {
+						"type": "string",
+						"description": "The id of the proof."
+					},
+					"proofPurpose": {
+						"type": "string",
+						"description": "The reason the proof was created."
+					},
+					"proofValue": {
+						"type": "string",
+						"description": "Contains the base-encoded binary data necessary to verify the digital proof using the verificationMethod specified."
+					},
+					"verificationMethod": {
+						"type": "string",
+						"description": "The verification method of the proof."
+					},
+					"created": {
+						"type": "string",
+						"description": "The iso date of when the proof was created."
+					},
+					"expires": {
+						"type": "string",
+						"description": "The iso date of when the proof expires."
+					},
+					"domain": {
+						"anyOf": [
+							{
+								"type": "string"
+							},
+							{
+								"type": "array",
+								"items": false,
+								"prefixItems": [
+									{
+										"type": "string"
+									}
+								]
+							}
+						],
+						"description": "One or more security domains in which the proof is meant to be used."
+					},
+					"challenge": {
+						"anyOf": [
+							{
+								"type": "string"
+							},
+							{
+								"type": "array",
+								"items": false,
+								"prefixItems": [
+									{
+										"type": "string"
+									}
+								]
+							}
+						],
+						"description": "Provided to mitigate replay attacks on domains."
+					},
+					"previousProof": {
+						"type": "string",
+						"description": "Identifies another data integrity proof that MUST verify before the current proof is processed"
+					},
+					"nonce": {
+						"type": "string",
+						"description": "Use of this field is to increase privacy by decreasing linkability that is the result of deterministically generated signatures."
+					}
+				},
+				"required": [
+					"type",
+					"cryptosuite",
+					"proofPurpose"
+				],
+				"additionalProperties": false,
+				"description": "Interface describing a did proof. https://www.w3.org/TR/vc-data-integrity/"
+			},
+			"DidCryptoSuites": {
+				"anyOf": [
+					{
+						"type": "string",
+						"const": "eddsa-jcs-2022",
+						"description": "The type for EdDSA crypto suite for JSON Canonicalization Scheme [RFC8785]. https://www.w3.org/TR/vc-di-eddsa/#eddsa-jcs-2022"
+					},
+					{
+						"type": "string",
+						"const": "eddsa-rdfc-2022",
+						"description": "The type for EdDSA crypto suite for RDF Dataset Canonicalization. https://www.w3.org/TR/vc-di-eddsa/#eddsa-rdfc-2022"
+					}
+				],
+				"description": "The types for DID Proof crypto suites."
+			},
 			"Error": {
 				"type": "object",
 				"properties": {
@@ -730,9 +1583,67 @@
 				"additionalProperties": false,
 				"description": "Model to describe serialized error."
 			},
-			"OdrlPolicy": {
+			"JsonWebSignature2020Proof": {
 				"type": "object",
 				"properties": {
+					"@context": {
+						"anyOf": [
+							{
+								"type": "string",
+								"const": "https://w3id.org/security/suites/jws-2020/v1"
+							},
+							{
+								"type": "array",
+								"minItems": 1,
+								"items": {
+									"$ref": "https://schema.twindev.org/json-ld/JsonLdContextDefinitionElement"
+								},
+								"prefixItems": [
+									{
+										"type": "string",
+										"const": "https://w3id.org/security/suites/jws-2020/v1"
+									}
+								]
+							}
+						],
+						"description": "JSON-LD Context."
+					},
+					"type": {
+						"type": "string",
+						"const": "JsonWebSignature2020",
+						"description": "JSON-LD Type."
+					},
+					"proofPurpose": {
+						"type": "string",
+						"description": "The reason the proof was created."
+					},
+					"verificationMethod": {
+						"type": "string",
+						"description": "The verification method of the proof."
+					},
+					"created": {
+						"type": "string",
+						"description": "The iso date of when the proof was created."
+					},
+					"jws": {
+						"type": "string",
+						"description": "The JSON Web Signature."
+					}
+				},
+				"required": [
+					"type",
+					"proofPurpose"
+				],
+				"additionalProperties": false,
+				"description": "Interface describing a did proof in JSON Web Signature 2020 Format. https://www.w3.org/TR/vc-jws-2020/"
+			},
+			"PapCreateRequest": {
+				"type": "object",
+				"additionalProperties": false,
+				"properties": {
+					"uid": {
+						"type": "string"
+					},
 					"@context": {
 						"$ref": "https://schema.twindev.org/w3c-odrl/OdrlContextType"
 					},
@@ -1071,15 +1982,15 @@
 				},
 				"required": [
 					"@context",
-					"@type",
+					"@graph",
 					"@id",
 					"@included",
-					"@graph",
+					"@index",
 					"@nest",
 					"@reverse",
-					"@index"
+					"@type"
 				],
-				"additionalProperties": false
+				"description": "The body of the request - the policy to create (uid will be auto-generated)."
 			},
 			"PapQueryResponse": {
 				"type": "object",
@@ -1132,6 +2043,291 @@
 			},
 			"PepInterceptResponse": {
 				"description": "The manipulated data with any policies applied."
+			},
+			"PnapQueryResponse": {
+				"type": "object",
+				"properties": {
+					"items": {
+						"type": "array",
+						"items": false,
+						"description": "The list of policy negotiations.",
+						"prefixItems": [
+							{
+								"$ref": "#/components/schemas/PolicyNegotiation"
+							}
+						]
+					},
+					"cursor": {
+						"type": "string",
+						"description": "The cursor for pagination."
+					}
+				},
+				"required": [
+					"items"
+				],
+				"additionalProperties": false,
+				"description": "The body of the response."
+			},
+			"PnpNegotiateRequest": {
+				"type": "object",
+				"properties": {
+					"assetType": {
+						"type": "string",
+						"description": "The type of the asset being requested."
+					},
+					"action": {
+						"type": "string",
+						"description": "The action being performed on the asset."
+					},
+					"resourceId": {
+						"type": "string",
+						"description": "The id of the item being requested."
+					},
+					"context": {
+						"$ref": "#/components/schemas/PolicyContext"
+					},
+					"requesterInformation": {
+						"type": "object",
+						"additionalProperties": {
+							"type": "array",
+							"items": false,
+							"prefixItems": [
+								{
+									"$ref": "https://schema.twindev.org/json-ld/JsonLdNodeObject"
+								}
+							]
+						},
+						"description": "Additional information provided by the requester to determine if a policy can be created."
+					},
+					"proof": {
+						"$ref": "#/components/schemas/Proof"
+					}
+				},
+				"required": [
+					"assetType",
+					"action",
+					"context",
+					"proof"
+				],
+				"additionalProperties": false,
+				"description": "The body parameters of the request."
+			},
+			"PnpNegotiationCancelRequest": {
+				"type": "object",
+				"properties": {
+					"nodeIdentity": {
+						"type": "string",
+						"description": "The node sending the request."
+					},
+					"proof": {
+						"$ref": "#/components/schemas/Proof"
+					}
+				},
+				"required": [
+					"nodeIdentity",
+					"proof"
+				],
+				"additionalProperties": false,
+				"description": "The body of the request."
+			},
+			"PnpNegotiationStateRequest": {
+				"type": "object",
+				"properties": {
+					"nodeIdentity": {
+						"type": "string",
+						"description": "The node sending the request."
+					},
+					"proof": {
+						"$ref": "#/components/schemas/Proof"
+					}
+				},
+				"required": [
+					"nodeIdentity",
+					"proof"
+				],
+				"additionalProperties": false,
+				"description": "The body of the request."
+			},
+			"PolicyContext": {
+				"type": "object",
+				"properties": {
+					"userIdentity": {
+						"type": "string",
+						"description": "The user identity to use in the decision making."
+					},
+					"nodeIdentity": {
+						"type": "string",
+						"description": "The node identity to use in the decision making."
+					}
+				},
+				"additionalProperties": false,
+				"description": "Context information to be used when making a policy decision."
+			},
+			"PolicyNegotiation": {
+				"type": "object",
+				"properties": {
+					"id": {
+						"type": "string",
+						"description": "The unique identifier for the policy."
+					},
+					"dateCreated": {
+						"type": "string",
+						"description": "The date and time when the negotiation was created."
+					},
+					"assetType": {
+						"type": "string",
+						"description": "The asset type the negotiation is for."
+					},
+					"action": {
+						"type": "string",
+						"description": "The action the negotiation is for."
+					},
+					"resourceId": {
+						"type": "string",
+						"description": "The resource id the negotiation is for."
+					},
+					"context": {
+						"$ref": "#/components/schemas/PolicyContext"
+					},
+					"requesterInformation": {
+						"type": "object",
+						"additionalProperties": {
+							"type": "array",
+							"items": false,
+							"prefixItems": [
+								{
+									"$ref": "https://schema.twindev.org/json-ld/JsonLdNodeObject"
+								}
+							]
+						},
+						"description": "The requester information."
+					},
+					"status": {
+						"$ref": "#/components/schemas/PolicyNegotiationStatus"
+					},
+					"reason": {
+						"type": "string",
+						"description": "A reason which might be provided if the negotiation status is not approved."
+					},
+					"expires": {
+						"type": "number",
+						"description": "The expiration time for the policy negotiation."
+					}
+				},
+				"required": [
+					"id",
+					"dateCreated",
+					"assetType",
+					"action",
+					"context",
+					"status"
+				],
+				"additionalProperties": false,
+				"description": "Interface describing a rights management policy negotiation."
+			},
+			"PolicyNegotiationAdminPointComponent": {
+				"type": "object",
+				"additionalProperties": false,
+				"properties": {
+					"CLASS_NAME": {
+						"type": "string",
+						"description": "The name of the component."
+					}
+				},
+				"required": [
+					"CLASS_NAME"
+				],
+				"description": "Interface describing a Policy Negotiation Admin Point (PNAP) contract. Components performs administration tasks on the policy negotiations."
+			},
+			"PolicyNegotiationPointComponent": {
+				"type": "object",
+				"additionalProperties": false,
+				"properties": {
+					"CLASS_NAME": {
+						"type": "string",
+						"description": "The name of the component."
+					}
+				},
+				"required": [
+					"CLASS_NAME"
+				],
+				"description": "Interface describing a Policy Negotiation Point (PNP) contract. When receiving a request from another component, the PNP will negotiate the terms of the request and determine the appropriate policies to create."
+			},
+			"PolicyNegotiationRequestPointComponent": {
+				"type": "object",
+				"additionalProperties": false,
+				"properties": {
+					"CLASS_NAME": {
+						"type": "string",
+						"description": "The name of the component."
+					}
+				},
+				"required": [
+					"CLASS_NAME"
+				],
+				"description": "Interface describing a Policy Negotiation Request Point (PNRP) contract. Can be used to create the requests to send to other nodes."
+			},
+			"PolicyNegotiationStatus": {
+				"anyOf": [
+					{
+						"type": "string",
+						"const": "manual",
+						"description": "Manual - manual approval is required."
+					},
+					{
+						"type": "string",
+						"const": "approved",
+						"description": "Approved - the negotiation has been approved."
+					},
+					{
+						"type": "string",
+						"const": "rejected",
+						"description": "Rejected - the negotiation has been rejected."
+					}
+				],
+				"description": "The status of the negotiation in the Policy Negotiation Point (PNP)."
+			},
+			"PolicyState": {
+				"type": "object",
+				"properties": {
+					"id": {
+						"type": "string",
+						"description": "The id of the policy."
+					},
+					"status": {
+						"$ref": "#/components/schemas/PolicyNegotiationStatus"
+					},
+					"reason": {
+						"type": "string",
+						"description": "A reason which might be provided if the negotiation status is not approved."
+					},
+					"expires": {
+						"type": "string",
+						"description": "The expiration date of the policy created by the negotiation if it was approved, and it has an expiration date."
+					}
+				},
+				"required": [
+					"id",
+					"status"
+				],
+				"additionalProperties": false,
+				"description": "The state of the policy negotiation."
+			},
+			"Proof": {
+				"anyOf": [
+					{
+						"$ref": "#/components/schemas/DataIntegrityProof"
+					},
+					{
+						"$ref": "#/components/schemas/JsonWebSignature2020Proof"
+					}
+				],
+				"description": "Interface describing a proof."
+			},
+			"ProofSignerVerifier": {
+				"type": "object",
+				"additionalProperties": false,
+				"description": "Interface describing a proof signer and verifier."
 			}
 		},
 		"securitySchemes": {

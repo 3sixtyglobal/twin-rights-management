@@ -13,7 +13,7 @@ export interface IPolicyAdministrationPointComponent extends IComponent {
 	 * @param policy The policy to create (uid will be auto-generated).
 	 * @returns The UID of the created policy.
 	 */
-	create(policy: Omit<IOdrlPolicy, "uid">): Promise<string>;
+	create(policy: Omit<IOdrlPolicy, "uid"> & { uid?: string }): Promise<string>;
 
 	/**
 	 * Update an existing policy.

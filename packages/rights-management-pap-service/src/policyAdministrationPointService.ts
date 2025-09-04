@@ -17,7 +17,10 @@ import {
 } from "@twin.org/entity-storage-models";
 import type { ILoggingComponent } from "@twin.org/logging-models";
 import { nameof } from "@twin.org/nameof";
-import type { IPolicyAdministrationPointComponent } from "@twin.org/rights-management-models";
+import {
+	RightsManagementNamespaces,
+	type IPolicyAdministrationPointComponent
+} from "@twin.org/rights-management-models";
 import { OdrlDataTypes, type IOdrlPolicy } from "@twin.org/standards-w3c-odrl";
 import type { OdrlPolicy } from "./entities/odrlPolicy";
 import type { IPolicyAdministrationPointServiceConstructorOptions } from "./models/IPolicyAdministrationPointServiceConstructorOptions";
@@ -27,12 +30,6 @@ import { convertFromStoragePolicy, convertToStoragePolicy } from "./utils/odrlPo
  * Class implementation of Policy Administration Point Component.
  */
 export class PolicyAdministrationPointService implements IPolicyAdministrationPointComponent {
-	/**
-	 * Default maximum query results.
-	 * @internal
-	 */
-	private static readonly _DEFAULT_MAX_QUERY_RESULTS: number = 10;
-
 	/**
 	 * The class name of the Policy Administration Point Service.
 	 */
@@ -72,10 +69,10 @@ export class PolicyAdministrationPointService implements IPolicyAdministrationPo
 	 * @param policy The policy to create (uid will be auto-generated).
 	 * @returns The UID of the created policy.
 	 */
-	public async create(policy: Omit<IOdrlPolicy, "uid">): Promise<string> {
+	public async create(policy: Omit<IOdrlPolicy, "uid"> & { uid?: string }): Promise<string> {
 		Guards.object<IOdrlPolicy>(this.CLASS_NAME, nameof(policy), policy);
 
-		const uid = Urn.generateRandom("rights-management").toString(false);
+		const uid = policy.uid ?? Urn.generateRandom(RightsManagementNamespaces.Policy).toString(false);
 
 		const completePolicy: IOdrlPolicy = {
 			...policy,
@@ -170,7 +167,7 @@ export class PolicyAdministrationPointService implements IPolicyAdministrationPo
 			undefined,
 			undefined,
 			cursor,
-			pageSize ?? PolicyAdministrationPointService._DEFAULT_MAX_QUERY_RESULTS
+			pageSize
 		);
 		return {
 			cursor: result.cursor,

@@ -26,7 +26,6 @@ import { PolicyInformationPointService } from "@twin.org/rights-management-pip-s
 import { PolicyManagementPointService } from "@twin.org/rights-management-pmp-service";
 import { PolicyExecutionPointService } from "@twin.org/rights-management-pxp-service";
 import { OdrlContexts, type IOdrlPolicy } from "@twin.org/standards-w3c-odrl";
-import { beforeEach, describe, expect, test, vi } from "vitest";
 import { PolicyEnforcementPointService } from "../src/policyEnforcementPointService";
 
 /**
@@ -50,7 +49,7 @@ class MockPolicyEnforcementProcessor implements IPolicyEnforcementProcessor {
 let loggingMemoryEntityStorage: MemoryEntityStorageConnector<LogEntry>;
 let odrlPolicyMemoryEntityStorage: MemoryEntityStorageConnector<OdrlPolicy>;
 
-describe("rights-management-pdp", () => {
+describe("PolicyEnforcementPointService", () => {
 	beforeEach(() => {
 		initSchemaLogging();
 		initSchemaPolicyAdministrationPoint();
@@ -79,7 +78,6 @@ describe("rights-management-pdp", () => {
 		ComponentFactory.register("policy-execution-point", () => new PolicyExecutionPointService());
 		ComponentFactory.register("policy-decision-point", () => new PolicyDecisionPointService());
 
-		// Register mock PDP
 		ComponentFactory.register(
 			"policy-decision-point",
 			() => new MockPolicyDecisionPointComponent()
@@ -225,7 +223,6 @@ describe("rights-management-pdp", () => {
 		const failingProcessor = new MockPolicyEnforcementProcessor();
 		const subsequentProcessor = new MockPolicyEnforcementProcessor();
 
-		// eslint-disable-next-line no-restricted-syntax
 		failingProcessor.process.mockRejectedValue(new Error("Processor failed"));
 		subsequentProcessor.process.mockResolvedValue({ content: "should not be called" });
 
@@ -284,7 +281,6 @@ describe("rights-management-pdp", () => {
 
 		const policyEnforcementPoint = new PolicyEnforcementPointService();
 		const failingProcessor = new MockPolicyEnforcementProcessor();
-		// eslint-disable-next-line no-restricted-syntax
 		failingProcessor.process.mockRejectedValue(new Error("Processing error"));
 
 		await policyEnforcementPoint.registerProcessor("errorProcessor", failingProcessor);

@@ -8,7 +8,7 @@ import {
 	type IRestRoute,
 	type ITag
 } from "@twin.org/api-models";
-import { ComponentFactory, Coerce, Guards } from "@twin.org/core";
+import { Coerce, ComponentFactory, Guards } from "@twin.org/core";
 import { nameof } from "@twin.org/nameof";
 import type {
 	IPapCreateRequest,
@@ -20,10 +20,22 @@ import type {
 	IPapUpdateRequest,
 	IPepInterceptRequest,
 	IPepInterceptResponse,
-	IRightsManagementComponent
+	IPnapGetRequest,
+	IPnapGetResponse,
+	IPnapQueryRequest,
+	IPnapQueryResponse,
+	IPnapRemoveRequest,
+	IPnapSetRequest,
+	IPnpNegotiateRequest,
+	IPnpNegotiateResponse,
+	IPnpNegotiationCancelRequest,
+	IPnpNegotiationStateRequest,
+	IPnpNegotiationStateResponse,
+	IRightsManagementComponent,
+	PolicyNegotiationStatus
 } from "@twin.org/rights-management-models";
 import { OdrlContexts } from "@twin.org/standards-w3c-odrl";
-import { HttpStatusCode } from "@twin.org/web";
+import { HttpMethod, HttpStatusCode } from "@twin.org/web";
 
 /**
  * The source used when communicating about these routes.
@@ -50,7 +62,7 @@ export function generateRestRoutesRightsManagement(
 	baseRouteName: string,
 	componentName: string
 ): IRestRoute[] {
-	const createRoute: IRestRoute<IPapCreateRequest, ICreatedResponse> = {
+	const papCreateRoute: IRestRoute<IPapCreateRequest, ICreatedResponse> = {
 		operationId: "papCreate",
 		summary: "Create a policy",
 		tag: tags[0].name,
@@ -62,7 +74,7 @@ export function generateRestRoutesRightsManagement(
 			type: nameof<IPapCreateRequest>(),
 			examples: [
 				{
-					id: "papCreateExample",
+					id: "papCreateRequestExample",
 					request: {
 						body: {
 							"@context": OdrlContexts.ContextRoot,
@@ -96,7 +108,7 @@ export function generateRestRoutesRightsManagement(
 		]
 	};
 
-	const updateRoute: IRestRoute<IPapUpdateRequest, INoContentResponse> = {
+	const papUpdateRoute: IRestRoute<IPapUpdateRequest, INoContentResponse> = {
 		operationId: "papUpdate",
 		summary: "Update a policy",
 		tag: tags[0].name,
@@ -108,7 +120,7 @@ export function generateRestRoutesRightsManagement(
 			type: nameof<IPapUpdateRequest>(),
 			examples: [
 				{
-					id: "papUpdateExample",
+					id: "papUpdateRequestExample",
 					request: {
 						pathParams: {
 							id: "urn:rights-management:abc123def456"
@@ -135,7 +147,7 @@ export function generateRestRoutesRightsManagement(
 		]
 	};
 
-	const retrieveRoute: IRestRoute<IPapRetrieveRequest, IPapRetrieveResponse> = {
+	const papRetrieveRoute: IRestRoute<IPapRetrieveRequest, IPapRetrieveResponse> = {
 		operationId: "papRetrieve",
 		summary: "Retrieve a policy",
 		tag: tags[0].name,
@@ -147,7 +159,7 @@ export function generateRestRoutesRightsManagement(
 			type: nameof<IPapRetrieveRequest>(),
 			examples: [
 				{
-					id: "papRetrieveExample",
+					id: "papRetrieveRequestExample",
 					request: {
 						pathParams: {
 							id: "urn:rights-management:abc123def456"
@@ -181,7 +193,7 @@ export function generateRestRoutesRightsManagement(
 		]
 	};
 
-	const removeRoute: IRestRoute<IPapRemoveRequest, INoContentResponse> = {
+	const papRemoveRoute: IRestRoute<IPapRemoveRequest, INoContentResponse> = {
 		operationId: "papRemove",
 		summary: "Remove a policy",
 		tag: tags[0].name,
@@ -193,7 +205,7 @@ export function generateRestRoutesRightsManagement(
 			type: nameof<IPapRemoveRequest>(),
 			examples: [
 				{
-					id: "papRemoveExample",
+					id: "papRemoveRequestExample",
 					request: {
 						pathParams: {
 							id: "urn:rights-management:abc123def456"
@@ -209,7 +221,7 @@ export function generateRestRoutesRightsManagement(
 		]
 	};
 
-	const queryRoute: IRestRoute<IPapQueryRequest, IPapQueryResponse> = {
+	const papQueryRoute: IRestRoute<IPapQueryRequest, IPapQueryResponse> = {
 		operationId: "papQuery",
 		summary: "Query policies",
 		tag: tags[0].name,
@@ -221,7 +233,7 @@ export function generateRestRoutesRightsManagement(
 			type: nameof<IPapQueryRequest>(),
 			examples: [
 				{
-					id: "papQueryExample",
+					id: "papQueryRequestExample",
 					request: {
 						query: {
 							cursor: "optional-pagination-cursor"
@@ -260,7 +272,7 @@ export function generateRestRoutesRightsManagement(
 		]
 	};
 
-	const interceptRoute: IRestRoute<IPepInterceptRequest, IPepInterceptResponse> = {
+	const pepInterceptRoute: IRestRoute<IPepInterceptRequest, IPepInterceptResponse> = {
 		operationId: "pepIntercept",
 		summary: "Intercept a request",
 		tag: tags[0].name,
@@ -272,7 +284,7 @@ export function generateRestRoutesRightsManagement(
 			type: nameof<IPepInterceptRequest>(),
 			examples: [
 				{
-					id: "pepInterceptExample",
+					id: "pepInterceptRequestExample",
 					request: {
 						body: {
 							assetType: "document",
@@ -305,7 +317,312 @@ export function generateRestRoutesRightsManagement(
 		]
 	};
 
-	return [createRoute, updateRoute, retrieveRoute, removeRoute, queryRoute, interceptRoute];
+	const papNegotiateRoute: IRestRoute<IPnpNegotiateRequest, IPnpNegotiateResponse> = {
+		operationId: "pnpNegotiate",
+		summary: "Negotiate a policy",
+		tag: tags[0].name,
+		method: "POST",
+		path: `${baseRouteName}/pnp/negotiate`,
+		handler: async (httpRequestContext, request) =>
+			pnpNegotiate(httpRequestContext, componentName, request),
+		requestType: {
+			type: nameof<IPnpNegotiateRequest>(),
+			examples: [
+				{
+					id: "pnpNegotiateRequestExample",
+					request: {
+						body: {
+							assetType: "document",
+							action: "view",
+							context: {
+								nodeIdentity: "urn:example:node:1"
+							},
+							proof: {
+								created: "2024-08-22T11:56:56.272Z",
+								type: "DataIntegrityProof",
+								cryptosuite: "eddsa-jcs-2022",
+								proofPurpose: "assertionMethod",
+								proofValue:
+									"z3Vcuh2BP9ShC4UEJ3yRZgcTJ6gmRtydDrh6AmY1zEciQqEWTvXfBZNxxjTzdJjT44cmn9VDWbBHqxFsX9fjsfXzK",
+								verificationMethod:
+									"did:entity-storage:0x6363636363636363636363636363636363636363636363636363636363636363#assertion"
+							}
+						}
+					}
+				}
+			]
+		},
+		responseType: [
+			{
+				type: nameof<IPnpNegotiateResponse>(),
+				examples: [
+					{
+						id: "IPnpNegotiateResponseExample",
+						response: {
+							body: {
+								id: "policy-1",
+								status: "approved"
+							}
+						}
+					}
+				]
+			}
+		],
+		skipAuth: true
+	};
+
+	const papNegotiationStateRoute: IRestRoute<
+		IPnpNegotiationStateRequest,
+		IPnpNegotiationStateResponse
+	> = {
+		operationId: "pnpNegotiationState",
+		summary: "Get the state of a policy",
+		tag: tags[0].name,
+		method: "POST",
+		path: `${baseRouteName}/pnp/:policyId`,
+		handler: async (httpRequestContext, request) =>
+			pnpNegotiationState(httpRequestContext, componentName, request),
+		requestType: {
+			type: nameof<IPnpNegotiationStateRequest>(),
+			examples: [
+				{
+					id: "pnpNegotiationStateRequestExample",
+					request: {
+						pathParams: {
+							policyId: "policy-1"
+						},
+						body: {
+							nodeIdentity: "urn:example:node:1",
+							proof: {
+								created: "2024-08-22T11:56:56.272Z",
+								type: "DataIntegrityProof",
+								cryptosuite: "eddsa-jcs-2022",
+								proofPurpose: "assertionMethod",
+								proofValue:
+									"z3Vcuh2BP9ShC4UEJ3yRZgcTJ6gmRtydDrh6AmY1zEciQqEWTvXfBZNxxjTzdJjT44cmn9VDWbBHqxFsX9fjsfXzK",
+								verificationMethod:
+									"did:entity-storage:0x6363636363636363636363636363636363636363636363636363636363636363#assertion"
+							}
+						}
+					}
+				}
+			]
+		},
+		responseType: [
+			{
+				type: nameof<IPnpNegotiationStateResponse>(),
+				examples: [
+					{
+						id: "IPnpNegotiationStateResponseExample",
+						response: {
+							body: {
+								id: "policy-1",
+								status: "approved"
+							}
+						}
+					}
+				]
+			}
+		],
+		skipAuth: true
+	};
+
+	const pnpNegotiationCancelRoute: IRestRoute<IPnpNegotiationCancelRequest, INoContentResponse> = {
+		operationId: "pnpCancel",
+		summary: "Cancel a policy negotiation",
+		tag: tags[0].name,
+		method: "DELETE",
+		path: `${baseRouteName}/pnp/:policyId`,
+		handler: async (httpRequestContext, request) =>
+			pnpNegotiationCancel(httpRequestContext, componentName, request),
+		requestType: {
+			type: nameof<IPnpNegotiationCancelRequest>(),
+			examples: [
+				{
+					id: "pnpNegotiationCancelRequestExample",
+					request: {
+						pathParams: {
+							policyId: "policy-1"
+						},
+						body: {
+							nodeIdentity: "urn:example:node:1",
+							proof: {
+								created: "2024-08-22T11:56:56.272Z",
+								type: "DataIntegrityProof",
+								cryptosuite: "eddsa-jcs-2022",
+								proofPurpose: "assertionMethod",
+								proofValue:
+									"z3Vcuh2BP9ShC4UEJ3yRZgcTJ6gmRtydDrh6AmY1zEciQqEWTvXfBZNxxjTzdJjT44cmn9VDWbBHqxFsX9fjsfXzK",
+								verificationMethod:
+									"did:entity-storage:0x6363636363636363636363636363636363636363636363636363636363636363#assertion"
+							}
+						}
+					}
+				}
+			]
+		},
+		responseType: [
+			{
+				type: nameof<INoContentResponse>()
+			}
+		],
+		skipAuth: true
+	};
+
+	const pnapGetRoute: IRestRoute<IPnapGetRequest, IPnapGetResponse> = {
+		operationId: "pnapGet",
+		summary: "Get a policy negotiation",
+		tag: tags[0].name,
+		method: HttpMethod.GET,
+		path: `${baseRouteName}/pnap/:policyId`,
+		handler: async (httpRequestContext, request) =>
+			pnapGet(httpRequestContext, componentName, request),
+		requestType: {
+			type: nameof<IPnapGetRequest>(),
+			examples: [
+				{
+					id: "pnapGetRequestExample",
+					request: {
+						pathParams: { policyId: "policy-1" }
+					}
+				}
+			]
+		},
+		responseType: [
+			{
+				type: nameof<IPnapGetResponse>(),
+				examples: [
+					{
+						id: "pnapGetResponseExample",
+						response: {
+							body: {
+								id: "policy-1",
+								status: "manual",
+								dateCreated: "2025-09-03T00:00:00.000Z",
+								assetType: "document",
+								action: "view",
+								context: {}
+							}
+						}
+					}
+				]
+			}
+		]
+	};
+
+	const pnapSetRoute: IRestRoute<IPnapSetRequest, INoContentResponse> = {
+		operationId: "pnapSet",
+		summary: "Set a policy negotiation",
+		tag: tags[0].name,
+		method: HttpMethod.PUT,
+		path: `${baseRouteName}/pnap/:policyId`,
+		handler: async (httpRequestContext, request) =>
+			pnapSet(httpRequestContext, componentName, request),
+		requestType: {
+			type: nameof<IPnapSetRequest>(),
+			examples: [
+				{
+					id: "pnapSetRequestExample",
+					request: {
+						pathParams: { policyId: "policy-1" },
+						body: {
+							id: "policy-1",
+							status: "approved",
+							dateCreated: "2025-09-03T00:00:00.000Z",
+							assetType: "document",
+							action: "view",
+							context: {}
+						}
+					}
+				}
+			]
+		},
+		responseType: [{ type: nameof<INoContentResponse>() }]
+	};
+
+	const pnapRemoveRoute: IRestRoute<IPnapRemoveRequest, INoContentResponse> = {
+		operationId: "pnapRemove",
+		summary: "Remove a policy negotiation",
+		tag: tags[0].name,
+		method: HttpMethod.DELETE,
+		path: `${baseRouteName}/pnap/:policyId`,
+		handler: async (httpRequestContext, request) =>
+			pnapRemove(httpRequestContext, componentName, request),
+		requestType: {
+			type: nameof<IPnapRemoveRequest>(),
+			examples: [
+				{
+					id: "pnapRemoveRequestExample",
+					request: {
+						pathParams: { policyId: "policy-1" }
+					}
+				}
+			]
+		},
+		responseType: [{ type: nameof<INoContentResponse>() }]
+	};
+
+	const pnapQueryRoute: IRestRoute<IPnapQueryRequest, IPnapQueryResponse> = {
+		operationId: "pnapQuery",
+		summary: "Query policy negotiations",
+		tag: tags[0].name,
+		method: HttpMethod.GET,
+		path: `${baseRouteName}/pnap`,
+		handler: async (httpRequestContext, request) =>
+			pnapQuery(httpRequestContext, componentName, request),
+		requestType: {
+			type: nameof<IPnapQueryRequest>(),
+			examples: [
+				{
+					id: "pnapQueryRequestExample",
+					request: {
+						query: { status: "manual", cursor: "next-cursor" }
+					}
+				}
+			]
+		},
+		responseType: [
+			{
+				type: nameof<IPnapQueryResponse>(),
+				examples: [
+					{
+						id: "pnapQueryResponseExample",
+						response: {
+							body: {
+								items: [
+									{
+										id: "policy-1",
+										status: "manual",
+										dateCreated: "2025-09-03T00:00:00.000Z",
+										assetType: "document",
+										action: "view",
+										context: {}
+									}
+								],
+								cursor: "next-cursor"
+							}
+						}
+					}
+				]
+			}
+		]
+	};
+
+	return [
+		papCreateRoute,
+		papUpdateRoute,
+		papRetrieveRoute,
+		papRemoveRoute,
+		papQueryRoute,
+		pepInterceptRoute,
+		papNegotiateRoute,
+		papNegotiationStateRoute,
+		pnpNegotiationCancelRoute,
+		pnapGetRoute,
+		pnapSetRoute,
+		pnapRemoveRoute,
+		pnapQueryRoute
+	];
 }
 
 /**
@@ -474,5 +791,209 @@ export async function pepIntercept(
 
 	return {
 		body: result
+	};
+}
+
+/**
+ * PNP: Negotiate.
+ * @param httpRequestContext The request context for the API.
+ * @param componentName The name of the component to use in the routes.
+ * @param request The request.
+ * @returns The response object with additional http response properties.
+ */
+export async function pnpNegotiate(
+	httpRequestContext: IHttpRequestContext,
+	componentName: string,
+	request: IPnpNegotiateRequest
+): Promise<IPnpNegotiateResponse> {
+	Guards.object<IPnpNegotiateRequest>(ROUTES_SOURCE, nameof(request), request);
+
+	const component = ComponentFactory.get<IRightsManagementComponent>(componentName);
+	const result = await component.pnpNegotiate(
+		request.body.assetType,
+		request.body.action,
+		request.body.resourceId,
+		request.body.context,
+		request.body.requesterInformation,
+		request.body.proof
+	);
+
+	return {
+		body: result
+	};
+}
+
+/**
+ * PNP: Negotiation State.
+ * @param httpRequestContext The request context for the API.
+ * @param componentName The name of the component to use in the routes.
+ * @param request The request.
+ * @returns The response object with additional http response properties.
+ */
+export async function pnpNegotiationState(
+	httpRequestContext: IHttpRequestContext,
+	componentName: string,
+	request: IPnpNegotiationStateRequest
+): Promise<IPnpNegotiationStateResponse> {
+	Guards.object<IPnpNegotiationStateRequest>(ROUTES_SOURCE, nameof(request), request);
+	Guards.object<IPnpNegotiationStateRequest["body"]>(
+		ROUTES_SOURCE,
+		nameof(request.body),
+		request.body
+	);
+
+	const component = ComponentFactory.get<IRightsManagementComponent>(componentName);
+	const result = await component.pnpNegotiationState(
+		request.pathParams.policyId,
+		request.body.nodeIdentity,
+		request.body.proof
+	);
+
+	return {
+		body: result
+	};
+}
+
+/**
+ * PNP: Negotiation Cancel.
+ * @param httpRequestContext The request context for the API.
+ * @param componentName The name of the component to use in the routes.
+ * @param request The request.
+ * @returns The response object with additional http response properties.
+ */
+export async function pnpNegotiationCancel(
+	httpRequestContext: IHttpRequestContext,
+	componentName: string,
+	request: IPnpNegotiationCancelRequest
+): Promise<INoContentResponse> {
+	Guards.object<IPnpNegotiationCancelRequest>(ROUTES_SOURCE, nameof(request), request);
+	Guards.object<IPnpNegotiationCancelRequest["body"]>(
+		ROUTES_SOURCE,
+		nameof(request.body),
+		request.body
+	);
+
+	const component = ComponentFactory.get<IRightsManagementComponent>(componentName);
+	await component.pnpNegotiationCancel(
+		request.pathParams.policyId,
+		request.body.nodeIdentity,
+		request.body.proof
+	);
+
+	return {
+		statusCode: HttpStatusCode.noContent
+	};
+}
+
+/**
+ * PNAP: Get a policy negotiation.
+ * @param httpRequestContext The request context for the API.
+ * @param componentName The name of the component to use in the routes.
+ * @param request The request.
+ * @returns The response object with additional http response properties.
+ */
+export async function pnapGet(
+	httpRequestContext: IHttpRequestContext,
+	componentName: string,
+	request: IPnapGetRequest
+): Promise<IPnapGetResponse> {
+	Guards.object<IPnapGetRequest>(ROUTES_SOURCE, nameof(request), request);
+	Guards.object(ROUTES_SOURCE, nameof(request.pathParams), request.pathParams);
+	Guards.stringValue(
+		ROUTES_SOURCE,
+		nameof(request.pathParams.policyId),
+		request.pathParams.policyId
+	);
+
+	const component = ComponentFactory.get<IRightsManagementComponent>(componentName);
+	const negotiation = await component.pnapGet(request.pathParams.policyId);
+
+	return {
+		body: negotiation
+	};
+}
+
+/**
+ * PNAP: Set a policy negotiation.
+ * @param httpRequestContext The request context for the API.
+ * @param componentName The name of the component to use in the routes.
+ * @param request The request.
+ * @returns The response object with additional http response properties.
+ */
+export async function pnapSet(
+	httpRequestContext: IHttpRequestContext,
+	componentName: string,
+	request: IPnapSetRequest
+): Promise<INoContentResponse> {
+	Guards.object<IPnapSetRequest>(ROUTES_SOURCE, nameof(request), request);
+	Guards.object(ROUTES_SOURCE, nameof(request.pathParams), request.pathParams);
+	Guards.stringValue(
+		ROUTES_SOURCE,
+		nameof(request.pathParams.policyId),
+		request.pathParams.policyId
+	);
+	Guards.object(ROUTES_SOURCE, nameof(request.body), request.body);
+
+	const component = ComponentFactory.get<IRightsManagementComponent>(componentName);
+	await component.pnapSet(request.body);
+
+	return {
+		statusCode: HttpStatusCode.noContent
+	};
+}
+
+/**
+ * PNAP: Remove a policy negotiation.
+ * @param httpRequestContext The request context for the API.
+ * @param componentName The name of the component to use in the routes.
+ * @param request The request.
+ * @returns The response object with additional http response properties.
+ */
+export async function pnapRemove(
+	httpRequestContext: IHttpRequestContext,
+	componentName: string,
+	request: IPnapRemoveRequest
+): Promise<INoContentResponse> {
+	Guards.object<IPnapRemoveRequest>(ROUTES_SOURCE, nameof(request), request);
+	Guards.object(ROUTES_SOURCE, nameof(request.pathParams), request.pathParams);
+	Guards.stringValue(
+		ROUTES_SOURCE,
+		nameof(request.pathParams.policyId),
+		request.pathParams.policyId
+	);
+
+	const component = ComponentFactory.get<IRightsManagementComponent>(componentName);
+	await component.pnapRemove(request.pathParams.policyId);
+
+	return {
+		statusCode: HttpStatusCode.noContent
+	};
+}
+
+/**
+ * PNAP: Query policy negotiations.
+ * @param httpRequestContext The request context for the API.
+ * @param componentName The name of the component to use in the routes.
+ * @param request The request.
+ * @returns The response object with additional http response properties.
+ */
+export async function pnapQuery(
+	httpRequestContext: IHttpRequestContext,
+	componentName: string,
+	request: IPnapQueryRequest
+): Promise<IPnapQueryResponse> {
+	Guards.object<IPnapQueryRequest>(ROUTES_SOURCE, nameof(request), request);
+
+	const component = ComponentFactory.get<IRightsManagementComponent>(componentName);
+	const result = await component.pnapQuery(
+		request.query?.status as PolicyNegotiationStatus,
+		request.query?.cursor
+	);
+
+	return {
+		body: {
+			items: result.items,
+			cursor: result.cursor
+		}
 	};
 }

@@ -18,7 +18,7 @@ Create a new policy with auto-generated UID.
 
 ##### policy
 
-`Omit`\<`IOdrlPolicy`, `"uid"`\>
+`Omit`\<`IOdrlPolicy`, `"uid"`\> & `object`
 
 The policy to create (uid will be auto-generated).
 

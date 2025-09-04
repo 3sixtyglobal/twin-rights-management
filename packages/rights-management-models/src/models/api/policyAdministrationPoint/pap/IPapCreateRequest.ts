@@ -9,5 +9,5 @@ export interface IPapCreateRequest {
 	/**
 	 * The body of the request - the policy to create (uid will be auto-generated).
 	 */
-	body: Omit<IOdrlPolicy, "uid">;
+	body: Omit<IOdrlPolicy, "uid"> & { uid?: string };
 }

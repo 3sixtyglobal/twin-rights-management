@@ -16,4 +16,16 @@ export interface IRightsManagementServiceConstructorOptions {
 	 * @default policy-enforcement-point
 	 */
 	policyEnforcementPointComponentType?: string;
+
+	/**
+	 * The type of the Policy Negotiation Point (PNP) component.
+	 * @default policy-negotiation-point
+	 */
+	policyNegotiationPointComponentType?: string;
+
+	/**
+	 * The type of the Policy Negotiation Admin Point (PNAP) component.
+	 * @default policy-negotiation-admin-point
+	 */
+	policyNegotiationAdminPointComponentType?: string;
 }

@@ -24,7 +24,7 @@ import { PolicyDecisionPointService } from "../src/policyDecisionPointService";
 let loggingMemoryEntityStorage: MemoryEntityStorageConnector<LogEntry>;
 let odrlPolicyMemoryEntityStorage: MemoryEntityStorageConnector<OdrlPolicy>;
 
-describe("rights-management-pdp", () => {
+describe("PolicyDecisionPointService", () => {
 	beforeEach(() => {
 		initSchemaLogging();
 		initSchemaPolicyAdministrationPoint();
