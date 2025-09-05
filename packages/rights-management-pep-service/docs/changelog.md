@@ -1,5 +1,25 @@
 # Changelog
 
+## [0.0.2-next.7](https://github.com/twinfoundation/rights-management/compare/rights-management-pep-service-v0.0.2-next.6...rights-management-pep-service-v0.0.2-next.7) (2025-09-05)
+
+
+### Features
+
+* separate pep constructor config ([32dd4af](https://github.com/twinfoundation/rights-management/commit/32dd4afb7b01c48d595c8226299207882a3954c8))
+
+
+### Dependencies
+
+* The following workspace dependencies were updated
+  * dependencies
+    * @twin.org/rights-management-models bumped from 0.0.2-next.6 to 0.0.2-next.7
+  * devDependencies
+    * @twin.org/rights-management-pap-service bumped from 0.0.2-next.6 to 0.0.2-next.7
+    * @twin.org/rights-management-pdp-service bumped from 0.0.2-next.6 to 0.0.2-next.7
+    * @twin.org/rights-management-pip-service bumped from 0.0.2-next.6 to 0.0.2-next.7
+    * @twin.org/rights-management-pmp-service bumped from 0.0.2-next.6 to 0.0.2-next.7
+    * @twin.org/rights-management-pxp-service bumped from 0.0.2-next.6 to 0.0.2-next.7
+
 ## [0.0.2-next.6](https://github.com/twinfoundation/rights-management/compare/rights-management-pep-service-v0.0.2-next.5...rights-management-pep-service-v0.0.2-next.6) (2025-09-05)
 
 
