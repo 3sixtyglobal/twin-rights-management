@@ -1,5 +1,19 @@
 # @twin.org/rights-management-pap-service - Changelog
 
+## [0.0.2-next.5](https://github.com/twinfoundation/rights-management/compare/rights-management-pap-service-v0.0.2-next.4...rights-management-pap-service-v0.0.2-next.5) (2025-09-05)
+
+
+### Features
+
+* add policy negotiation point PNP, PNAP and PNRP ([#32](https://github.com/twinfoundation/rights-management/issues/32)) ([90f0659](https://github.com/twinfoundation/rights-management/commit/90f06593a1126df3c2f4ca23cf95a08260fd6415))
+
+
+### Dependencies
+
+* The following workspace dependencies were updated
+  * dependencies
+    * @twin.org/rights-management-models bumped from 0.0.2-next.4 to 0.0.2-next.5
+
 ## [0.0.2-next.4](https://github.com/twinfoundation/rights-management/compare/rights-management-pap-service-v0.0.2-next.3...rights-management-pap-service-v0.0.2-next.4) (2025-08-29)
 
 

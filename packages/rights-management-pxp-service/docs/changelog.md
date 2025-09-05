@@ -1,5 +1,21 @@
 # Changelog
 
+## [0.0.2-next.5](https://github.com/twinfoundation/rights-management/compare/rights-management-pxp-service-v0.0.2-next.4...rights-management-pxp-service-v0.0.2-next.5) (2025-09-05)
+
+
+### Features
+
+* add PEP ([#31](https://github.com/twinfoundation/rights-management/issues/31)) ([34c7c29](https://github.com/twinfoundation/rights-management/commit/34c7c2965e5c0c2be24460628f83cdae0aa7f0d6))
+* add policy negotiation point PNP, PNAP and PNRP ([#32](https://github.com/twinfoundation/rights-management/issues/32)) ([90f0659](https://github.com/twinfoundation/rights-management/commit/90f06593a1126df3c2f4ca23cf95a08260fd6415))
+* introduce context for additional environment input ([e1d0392](https://github.com/twinfoundation/rights-management/commit/e1d0392622e5a018b695644f423c5b23cc40d3b7))
+
+
+### Dependencies
+
+* The following workspace dependencies were updated
+  * dependencies
+    * @twin.org/rights-management-models bumped from 0.0.2-next.4 to 0.0.2-next.5
+
 ## [0.0.2-next.4](https://github.com/twinfoundation/rights-management/compare/rights-management-pxp-service-v0.0.2-next.3...rights-management-pxp-service-v0.0.2-next.4) (2025-08-29)
 
 
