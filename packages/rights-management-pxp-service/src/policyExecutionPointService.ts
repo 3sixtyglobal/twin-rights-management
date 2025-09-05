@@ -1,6 +1,6 @@
 // Copyright 2024 IOTA Stiftung.
 // SPDX-License-Identifier: Apache-2.0.
-import { BaseError, ComponentFactory, GeneralError, Guards } from "@twin.org/core";
+import { BaseError, ComponentFactory, GeneralError, Guards, Is } from "@twin.org/core";
 import type { ILoggingComponent } from "@twin.org/logging-models";
 import { nameof } from "@twin.org/nameof";
 import {
@@ -34,7 +34,7 @@ export class PolicyExecutionPointService implements IPolicyExecutionPointCompone
 	private readonly _executeActions: {
 		[stage in PolicyDecisionStage]: {
 			actions: {
-				actionId: string;
+				executionActionId: string;
 				executionAction: IPolicyExecutionAction;
 			}[];
 		};
@@ -57,6 +57,24 @@ export class PolicyExecutionPointService implements IPolicyExecutionPointCompone
 				actions: []
 			}
 		};
+
+		if (Is.arrayValue(options?.config?.executionActions)) {
+			for (const { executionActionId, executionAction } of options.config.executionActions) {
+				const supportedStages = executionAction.supportedStages();
+				if (supportedStages.includes(PolicyDecisionStage.Before)) {
+					this._executeActions[PolicyDecisionStage.Before].actions.push({
+						executionActionId,
+						executionAction
+					});
+				}
+				if (supportedStages.includes(PolicyDecisionStage.After)) {
+					this._executeActions[PolicyDecisionStage.After].actions.push({
+						executionActionId,
+						executionAction
+					});
+				}
+			}
+		}
 	}
 
 	/**
@@ -94,7 +112,7 @@ export class PolicyExecutionPointService implements IPolicyExecutionPointCompone
 		});
 
 		const actions = this._executeActions[stage].actions;
-		for (const { actionId, executionAction } of actions) {
+		for (const { executionActionId: actionId, executionAction } of actions) {
 			try {
 				this._logging?.log({
 					level: "info",
@@ -155,13 +173,13 @@ export class PolicyExecutionPointService implements IPolicyExecutionPointCompone
 		Guards.object<IPolicyExecutionAction>(this.CLASS_NAME, nameof(action), action);
 
 		const currentIndex = this._executeActions[stage].actions.findIndex(
-			a => a.actionId === actionId
+			a => a.executionActionId === actionId
 		);
 		if (currentIndex !== -1) {
 			this._executeActions[stage].actions[currentIndex].executionAction = action;
 		} else {
 			this._executeActions[stage].actions.push({
-				actionId,
+				executionActionId: actionId,
 				executionAction: action
 			});
 		}
@@ -189,7 +207,7 @@ export class PolicyExecutionPointService implements IPolicyExecutionPointCompone
 		Guards.arrayOneOf(this.CLASS_NAME, nameof(stage), stage, Object.values(PolicyDecisionStage));
 
 		const currentIndex = this._executeActions[stage].actions.findIndex(
-			a => a.actionId === actionId
+			a => a.executionActionId === actionId
 		);
 		if (currentIndex !== -1) {
 			this._executeActions[stage].actions.splice(currentIndex, 1);

@@ -2,6 +2,7 @@
 // SPDX-License-Identifier: Apache-2.0.
 import {
 	ComponentFactory,
+	GeneralError,
 	Guards,
 	Is,
 	NotFoundError,
@@ -72,6 +73,20 @@ export class PolicyAdministrationPointService implements IPolicyAdministrationPo
 	public async create(policy: Omit<IOdrlPolicy, "uid"> & { uid?: string }): Promise<string> {
 		Guards.object<IOdrlPolicy>(this.CLASS_NAME, nameof(policy), policy);
 
+		// We allow the caller to provide a uid, but if they don't we generate one for them.
+		// if they provide one, we still validate it is a proper URN with the correct namespace.
+		if (Is.string(policy.uid)) {
+			Urn.guard(this.CLASS_NAME, nameof(policy.uid), policy.uid);
+			const urnParsed = Urn.fromValidString(policy.uid);
+
+			if (urnParsed.namespaceMethod() !== RightsManagementNamespaces.Policy) {
+				throw new GeneralError(this.CLASS_NAME, "namespaceMismatch", {
+					namespace: RightsManagementNamespaces.Policy,
+					id: policy.uid
+				});
+			}
+		}
+
 		const uid = policy.uid ?? Urn.generateRandom(RightsManagementNamespaces.Policy).toString(false);
 
 		const completePolicy: IOdrlPolicy = {
@@ -113,11 +128,11 @@ export class PolicyAdministrationPointService implements IPolicyAdministrationPo
 	}
 
 	/**
-	 * Retrieve a policy from the entity storage.
-	 * @param policyId The ID of the policy to retrieve.
+	 * Get a policy from the entity storage.
+	 * @param policyId The ID of the policy to get.
 	 * @returns The policy.
 	 */
-	public async retrieve(policyId: string): Promise<IOdrlPolicy> {
+	public async get(policyId: string): Promise<IOdrlPolicy> {
 		Guards.stringValue(this.CLASS_NAME, nameof(policyId), policyId);
 
 		const storagePolicy = await this._odrlPolicyEntityStorage.get(policyId);

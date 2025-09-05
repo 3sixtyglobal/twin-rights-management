@@ -1,13 +1,16 @@
 // Copyright 2024 IOTA Stiftung.
 // SPDX-License-Identifier: Apache-2.0.
+import type { IPolicyNegotiator } from "@twin.org/rights-management-models";
 
 /**
  * Options for the Policy Negotiation Point Component.
  */
 export interface IPolicyNegotiationPointServiceConfig {
 	/**
-	 * The id of the identity method to use when signing/verifying negotiations.
-	 * @default policy-negotiation-assertion
+	 * Initial negotiators to register with the PNP.
 	 */
-	negotiationMethodId?: string;
+	negotiators?: {
+		negotiatorId: string;
+		negotiator: IPolicyNegotiator;
+	}[];
 }

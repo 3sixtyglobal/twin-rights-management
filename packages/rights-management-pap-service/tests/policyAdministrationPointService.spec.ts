@@ -58,7 +58,7 @@ describe("PolicyAdministrationPointService", () => {
 		expect(storedPolicy.uid).toEqual(resultUid);
 		expect(storedPolicy.permission).toBeDefined();
 
-		const retrievedPolicy = await policyAdminPoint.retrieve(resultUid);
+		const retrievedPolicy = await policyAdminPoint.get(resultUid);
 
 		expect(retrievedPolicy).toBeDefined();
 		expect(retrievedPolicy.uid).toEqual(resultUid);
@@ -72,7 +72,7 @@ describe("PolicyAdministrationPointService", () => {
 		ObjectHelper.propertyDelete(policyWithoutUid, "uid");
 		const createdUid = await policyAdminPoint.create(policyWithoutUid);
 
-		const retrievedPolicy = await policyAdminPoint.retrieve(createdUid);
+		const retrievedPolicy = await policyAdminPoint.get(createdUid);
 
 		expect(retrievedPolicy).toBeDefined();
 		expect(retrievedPolicy.uid).toEqual(createdUid);
@@ -88,8 +88,17 @@ describe("PolicyAdministrationPointService", () => {
 		}
 	});
 
+	test("should throw error when using an invalid uid", async () => {
+		await expect(
+			policyAdminPoint.create({
+				...SAMPLE_POLICY,
+				uid: "invalid-uid-format"
+			})
+		).rejects.toThrow();
+	});
+
 	test("should throw error when retrieving non-existent policy", async () => {
-		await expect(policyAdminPoint.retrieve("non-existent-policy")).rejects.toThrow();
+		await expect(policyAdminPoint.get("non-existent-policy")).rejects.toThrow();
 	});
 
 	test("should remove a policy from entity storage", async () => {
@@ -100,7 +109,7 @@ describe("PolicyAdministrationPointService", () => {
 		let store = odrlPolicyEntityStorage.getStore();
 		expect(store.length).toEqual(1);
 
-		const retrievedPolicy = await policyAdminPoint.retrieve(createdUid);
+		const retrievedPolicy = await policyAdminPoint.get(createdUid);
 		expect(retrievedPolicy).toBeDefined();
 
 		await policyAdminPoint.remove(createdUid);
@@ -108,7 +117,7 @@ describe("PolicyAdministrationPointService", () => {
 		store = odrlPolicyEntityStorage.getStore();
 		expect(store.length).toEqual(0);
 
-		await expect(policyAdminPoint.retrieve(createdUid)).rejects.toThrow();
+		await expect(policyAdminPoint.get(createdUid)).rejects.toThrow();
 	});
 
 	test("should query policies without conditions", async () => {
@@ -219,7 +228,7 @@ describe("PolicyAdministrationPointService", () => {
 		expect(result).toBeDefined();
 		expect(result).toMatch(/^urn:policy:/);
 
-		const retrievedPolicy = await policyAdminPoint.retrieve(result);
+		const retrievedPolicy = await policyAdminPoint.get(result);
 		expect(retrievedPolicy).toBeDefined();
 		expect(retrievedPolicy.uid).toEqual(result);
 	});
@@ -258,7 +267,7 @@ describe("PolicyAdministrationPointService", () => {
 		expect(result).toBeDefined();
 		expect(result).toMatch(/^urn:policy:/);
 
-		const retrievedPolicy = await policyAdminPoint.retrieve(result);
+		const retrievedPolicy = await policyAdminPoint.get(result);
 		expect(retrievedPolicy).toBeDefined();
 		expect(retrievedPolicy.uid).toEqual(result);
 	});
@@ -274,8 +283,8 @@ describe("PolicyAdministrationPointService", () => {
 		expect(uid1).not.toEqual(uid2);
 
 		// Both policies should be retrievable
-		const policy1 = await policyAdminPoint.retrieve(uid1);
-		const policy2 = await policyAdminPoint.retrieve(uid2);
+		const policy1 = await policyAdminPoint.get(uid1);
+		const policy2 = await policyAdminPoint.get(uid2);
 		expect(policy1.uid).toEqual(uid1);
 		expect(policy2.uid).toEqual(uid2);
 	});
@@ -299,7 +308,7 @@ describe("PolicyAdministrationPointService", () => {
 		};
 
 		await policyAdminPoint.update(updatedPolicy);
-		const result = await policyAdminPoint.retrieve(policyId);
+		const result = await policyAdminPoint.get(policyId);
 
 		expect(result).toBeDefined();
 		expect(result.uid).toEqual(policyId);
@@ -386,7 +395,7 @@ describe("PolicyAdministrationPointService", () => {
 		};
 
 		await policyAdminPoint.update(replacementPolicy);
-		const result = await policyAdminPoint.retrieve(policyId);
+		const result = await policyAdminPoint.get(policyId);
 
 		expect(result).toBeDefined();
 		expect(result.uid).toEqual(policyId);
@@ -439,7 +448,7 @@ describe("PolicyAdministrationPointService", () => {
 		};
 
 		await policyAdminPoint.update(updateWithNewArray);
-		const result = await policyAdminPoint.retrieve(policyId);
+		const result = await policyAdminPoint.get(policyId);
 
 		expect(result).toBeDefined();
 		expect(result.uid).toEqual(policyId);
@@ -470,7 +479,7 @@ describe("PolicyAdministrationPointService", () => {
 		} as unknown as IOdrlPolicy;
 
 		await policyAdminPoint.update(invalidUpdate);
-		const result = await policyAdminPoint.retrieve(policyId);
+		const result = await policyAdminPoint.get(policyId);
 		expect(result).toBeDefined();
 	});
 
@@ -495,7 +504,7 @@ describe("PolicyAdministrationPointService", () => {
 
 		await policyAdminPoint.update(updatedPolicy);
 
-		const retrievedPolicy = await policyAdminPoint.retrieve(policyId);
+		const retrievedPolicy = await policyAdminPoint.get(policyId);
 		expect(retrievedPolicy).toBeDefined();
 		expect(retrievedPolicy.uid).toEqual(policyId);
 		expect(retrievedPolicy["@type"]).toEqual("Offer");

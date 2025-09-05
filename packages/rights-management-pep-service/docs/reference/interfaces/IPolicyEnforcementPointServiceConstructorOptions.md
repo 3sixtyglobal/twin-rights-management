@@ -29,3 +29,19 @@ The type of the policy decision point component.
 ```ts
 policy-decision-point
 ```
+
+***
+
+### processors?
+
+> `optional` **processors**: `object`[]
+
+Initial processors to register with the PEP.
+
+#### processorId
+
+> **processorId**: `string`
+
+#### processor
+
+> **processor**: `IPolicyEnforcementProcessor`

@@ -1,6 +1,7 @@
 {
 	"error": {
 		"policyAdministrationPointService": {
+			"namespaceMismatch": "The namespace in the urn \"{id}\" does not match the namespace of the rights management components \"{namespace}\"",
 			"policyNotFound": "Policy not found with id: \"{notFoundId}\""
 		}
 	}

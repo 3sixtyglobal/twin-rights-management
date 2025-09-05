@@ -23,11 +23,11 @@ export interface IPolicyAdministrationPointComponent extends IComponent {
 	update(policy: IOdrlPolicy): Promise<void>;
 
 	/**
-	 * Retrieve a policy.
-	 * @param policyId The id of the policy to retrieve.
+	 * Get a policy.
+	 * @param policyId The id of the policy to get.
 	 * @returns The policy.
 	 */
-	retrieve(policyId: string): Promise<IOdrlPolicy>;
+	get(policyId: string): Promise<IOdrlPolicy>;
 
 	/**
 	 * Remove a policy.

@@ -52,7 +52,7 @@ export class PolicyEnforcementPointService implements IPolicyEnforcementPointCom
 		this._policyDecisionPointComponent = ComponentFactory.get<IPolicyDecisionPointComponent>(
 			options?.policyDecisionPointComponentType ?? "policy-decision-point"
 		);
-		this._processors = [];
+		this._processors = options?.processors ?? [];
 	}
 
 	/**

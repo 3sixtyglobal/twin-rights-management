@@ -4,14 +4,16 @@ Options for the Policy Negotiation Point Component.
 
 ## Properties
 
-### negotiationMethodId?
+### negotiators?
 
-> `optional` **negotiationMethodId**: `string`
+> `optional` **negotiators**: `object`[]
 
-The id of the identity method to use when signing/verifying negotiations.
+Initial negotiators to register with the PNP.
 
-#### Default
+#### negotiatorId
 
-```ts
-policy-negotiation-assertion
-```
+> **negotiatorId**: `string`
+
+#### negotiator
+
+> **negotiator**: `IPolicyNegotiator`

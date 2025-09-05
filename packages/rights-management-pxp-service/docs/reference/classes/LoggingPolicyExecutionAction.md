@@ -41,6 +41,24 @@ The class name of the Policy Execution Point Service.
 
 ## Methods
 
+### supportedStages()
+
+> **supportedStages**(): `PolicyDecisionStage`[]
+
+Which stages should the action be executed at.
+
+#### Returns
+
+`PolicyDecisionStage`[]
+
+List of stages.
+
+#### Implementation of
+
+`IPolicyExecutionAction.supportedStages`
+
+***
+
 ### execute()
 
 > **execute**\<`C`, `D`\>(`stage`, `assetType`, `action`, `context`, `data`, `policies`): `Promise`\<`void`\>

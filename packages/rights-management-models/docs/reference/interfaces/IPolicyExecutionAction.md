@@ -4,6 +4,20 @@ Interface for policy execution actions.
 
 ## Methods
 
+### supportedStages()
+
+> **supportedStages**(): [`PolicyDecisionStage`](../type-aliases/PolicyDecisionStage.md)[]
+
+Which stages should the action be executed at.
+
+#### Returns
+
+[`PolicyDecisionStage`](../type-aliases/PolicyDecisionStage.md)[]
+
+List of stages.
+
+***
+
 ### execute()
 
 > **execute**\<`C`, `D`\>(`stage`, `assetType`, `action`, `context`, `data`, `policies`): `Promise`\<`void`\>

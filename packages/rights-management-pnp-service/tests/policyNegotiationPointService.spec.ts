@@ -190,7 +190,7 @@ describe("PolicyNegotiationPointService", () => {
 	test("negotiationState throws NotFoundError if no policy or negotiation exists", async () => {
 		const service = new PolicyNegotiationPointService();
 		vi.spyOn(identityConnector, "verifyProof").mockResolvedValue(true);
-		vi.spyOn(adminPointComponent, "retrieve").mockRejectedValue({ name: "NotFoundError" });
+		vi.spyOn(adminPointComponent, "get").mockRejectedValue({ name: "NotFoundError" });
 		vi.spyOn(negotiationAdminPointComponent, "get").mockResolvedValue(
 			null as unknown as PolicyNegotiation
 		);
@@ -202,7 +202,7 @@ describe("PolicyNegotiationPointService", () => {
 	test("negotiationState throws GeneralError if PAP retrieve fails with other error", async () => {
 		const service = new PolicyNegotiationPointService();
 		vi.spyOn(identityConnector, "verifyProof").mockResolvedValue(true);
-		vi.spyOn(adminPointComponent, "retrieve").mockRejectedValue(new Error("fail"));
+		vi.spyOn(adminPointComponent, "get").mockRejectedValue(new Error("fail"));
 		await expect(service.negotiationState("pid", "nid", validProof)).rejects.toMatchObject({
 			message: expect.stringMatching(/policyFailed/)
 		});
@@ -334,7 +334,7 @@ describe("PolicyNegotiationPointService", () => {
 	test("negotiationState throws NotFoundError if no policy or negotiation exists", async () => {
 		const service = new PolicyNegotiationPointService();
 		vi.spyOn(identityConnector, "verifyProof").mockResolvedValue(true);
-		vi.spyOn(adminPointComponent, "retrieve").mockRejectedValue({ name: "NotFoundError" });
+		vi.spyOn(adminPointComponent, "get").mockRejectedValue({ name: "NotFoundError" });
 		vi.spyOn(negotiationAdminPointComponent, "get").mockResolvedValue(
 			null as unknown as PolicyNegotiation
 		);
@@ -346,7 +346,7 @@ describe("PolicyNegotiationPointService", () => {
 	test("negotiationState throws GeneralError if PAP retrieve fails with other error", async () => {
 		const service = new PolicyNegotiationPointService();
 		vi.spyOn(identityConnector, "verifyProof").mockResolvedValue(true);
-		vi.spyOn(adminPointComponent, "retrieve").mockRejectedValue(new Error("fail"));
+		vi.spyOn(adminPointComponent, "get").mockRejectedValue(new Error("fail"));
 		await expect(service.negotiationState("pid", "nid", validProof)).rejects.toMatchObject({
 			message: expect.stringMatching(/policyFailed/)
 		});

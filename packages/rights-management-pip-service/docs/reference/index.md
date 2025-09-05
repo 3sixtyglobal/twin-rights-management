@@ -9,6 +9,7 @@
 ## Interfaces
 
 - [IIdentityPolicyInformationSourceConstructorOptions](interfaces/IIdentityPolicyInformationSourceConstructorOptions.md)
+- [IPolicyInformationPointServiceConfig](interfaces/IPolicyInformationPointServiceConfig.md)
 - [IPolicyInformationPointServiceConstructorOptions](interfaces/IPolicyInformationPointServiceConstructorOptions.md)
 - [IStaticPolicyInformationSource](interfaces/IStaticPolicyInformationSource.md)
 - [IStaticPolicyInformationSourceConfig](interfaces/IStaticPolicyInformationSourceConfig.md)

@@ -34,6 +34,7 @@
 	"dependencies": {
 		"@twin.org/core": "next",
 		"@twin.org/data-json-ld": "next",
+		"@twin.org/engine-models": "next",
 		"@twin.org/entity": "next",
 		"@twin.org/standards-w3c-did": "next",
 		"@twin.org/standards-w3c-odrl": "next",

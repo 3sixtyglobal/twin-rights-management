@@ -21,6 +21,11 @@ import { PolicyExecutionPointService } from "../src/policyExecutionPointService"
  */
 class MockPolicyExecutionAction {
 	// eslint-disable-next-line no-restricted-syntax
+	public supportedStages = vi
+		.fn()
+		.mockReturnValue([PolicyDecisionStage.Before, PolicyDecisionStage.After]);
+
+	// eslint-disable-next-line no-restricted-syntax
 	public execute = vi.fn();
 }
 

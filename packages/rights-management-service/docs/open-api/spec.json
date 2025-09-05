@@ -18,6 +18,18 @@
 		{
 			"name": "Policy Administration Point",
 			"description": "Endpoints for managing ODRL policies in the Policy Administration Point"
+		},
+		{
+			"name": "Policy Enforcement Point",
+			"description": "Endpoints for managing ODRL policies in the Policy Enforcement Point"
+		},
+		{
+			"name": "Policy Negotiation Point",
+			"description": "Endpoints for managing ODRL policies in the Policy Negotiation Point"
+		},
+		{
+			"name": "Policy Negotiation Administration Point",
+			"description": "Endpoints for managing ODRL policies in the Policy Negotiation Administration Point"
 		}
 	],
 	"paths": {
@@ -245,15 +257,15 @@
 				}
 			},
 			"get": {
-				"operationId": "papRetrieve",
-				"summary": "Retrieve a policy",
+				"operationId": "papGet",
+				"summary": "Get a policy",
 				"tags": [
 					"Policy Administration Point"
 				],
 				"parameters": [
 					{
 						"name": "id",
-						"description": "The ID of the policy to retrieve.",
+						"description": "The ID of the policy to get.",
 						"in": "path",
 						"required": true,
 						"schema": {
@@ -270,14 +282,14 @@
 				],
 				"responses": {
 					"200": {
-						"description": "The response structure for retrieving a policy.",
+						"description": "The response structure for getting a policy.",
 						"content": {
 							"application/json": {
 								"schema": {
 									"$ref": "https://schema.twindev.org/w3c-odrl/OdrlPolicy"
 								},
 								"examples": {
-									"papRetrieveResponseExample": {
+									"papGetResponseExample": {
 										"value": {
 											"@context": "https://www.w3.org/ns/odrl/2/",
 											"@type": "Set",
@@ -582,7 +594,7 @@
 				"operationId": "pepIntercept",
 				"summary": "Intercept a request",
 				"tags": [
-					"Policy Administration Point"
+					"Policy Enforcement Point"
 				],
 				"security": [
 					{
@@ -697,7 +709,7 @@
 				"operationId": "pnpNegotiate",
 				"summary": "Negotiate a policy",
 				"tags": [
-					"Policy Administration Point"
+					"Policy Negotiation Point"
 				],
 				"requestBody": {
 					"description": "The request structure for negotiating a policy.",
@@ -795,7 +807,7 @@
 				"operationId": "pnpNegotiationState",
 				"summary": "Get the state of a policy",
 				"tags": [
-					"Policy Administration Point"
+					"Policy Negotiation Point"
 				],
 				"parameters": [
 					{
@@ -900,7 +912,7 @@
 				"operationId": "pnpCancel",
 				"summary": "Cancel a policy negotiation",
 				"tags": [
-					"Policy Administration Point"
+					"Policy Negotiation Point"
 				],
 				"parameters": [
 					{
@@ -992,7 +1004,7 @@
 				"operationId": "pnapGet",
 				"summary": "Get a policy negotiation",
 				"tags": [
-					"Policy Administration Point"
+					"Policy Negotiation Administration Point"
 				],
 				"parameters": [
 					{
@@ -1098,7 +1110,7 @@
 				"operationId": "pnapSet",
 				"summary": "Set a policy negotiation",
 				"tags": [
-					"Policy Administration Point"
+					"Policy Negotiation Administration Point"
 				],
 				"parameters": [
 					{
@@ -1208,7 +1220,7 @@
 				"operationId": "pnapRemove",
 				"summary": "Remove a policy negotiation",
 				"tags": [
-					"Policy Administration Point"
+					"Policy Negotiation Administration Point"
 				],
 				"parameters": [
 					{
@@ -1297,7 +1309,7 @@
 				"operationId": "pnapQuery",
 				"summary": "Query policy negotiations",
 				"tags": [
-					"Policy Administration Point"
+					"Policy Negotiation Administration Point"
 				],
 				"parameters": [
 					{
@@ -1417,122 +1429,6 @@
 	},
 	"components": {
 		"schemas": {
-			"DataIntegrityProof": {
-				"type": "object",
-				"properties": {
-					"@context": {
-						"anyOf": [
-							{
-								"type": "string",
-								"const": "https://www.w3.org/ns/credentials/v2"
-							},
-							{
-								"type": "array",
-								"minItems": 1,
-								"items": {
-									"$ref": "https://schema.twindev.org/json-ld/JsonLdContextDefinitionElement"
-								},
-								"prefixItems": [
-									{
-										"type": "string",
-										"const": "https://www.w3.org/ns/credentials/v2"
-									}
-								]
-							}
-						],
-						"description": "JSON-LD Context."
-					},
-					"type": {
-						"type": "string",
-						"const": "DataIntegrityProof",
-						"description": "JSON-LD Type."
-					},
-					"cryptosuite": {
-						"anyOf": [
-							{
-								"$ref": "#/components/schemas/DidCryptoSuites"
-							},
-							{
-								"type": "string"
-							}
-						],
-						"description": "An identifier for the cryptographic suite that can be used to verify the proof."
-					},
-					"id": {
-						"type": "string",
-						"description": "The id of the proof."
-					},
-					"proofPurpose": {
-						"type": "string",
-						"description": "The reason the proof was created."
-					},
-					"proofValue": {
-						"type": "string",
-						"description": "Contains the base-encoded binary data necessary to verify the digital proof using the verificationMethod specified."
-					},
-					"verificationMethod": {
-						"type": "string",
-						"description": "The verification method of the proof."
-					},
-					"created": {
-						"type": "string",
-						"description": "The iso date of when the proof was created."
-					},
-					"expires": {
-						"type": "string",
-						"description": "The iso date of when the proof expires."
-					},
-					"domain": {
-						"anyOf": [
-							{
-								"type": "string"
-							},
-							{
-								"type": "array",
-								"items": false,
-								"prefixItems": [
-									{
-										"type": "string"
-									}
-								]
-							}
-						],
-						"description": "One or more security domains in which the proof is meant to be used."
-					},
-					"challenge": {
-						"anyOf": [
-							{
-								"type": "string"
-							},
-							{
-								"type": "array",
-								"items": false,
-								"prefixItems": [
-									{
-										"type": "string"
-									}
-								]
-							}
-						],
-						"description": "Provided to mitigate replay attacks on domains."
-					},
-					"previousProof": {
-						"type": "string",
-						"description": "Identifies another data integrity proof that MUST verify before the current proof is processed"
-					},
-					"nonce": {
-						"type": "string",
-						"description": "Use of this field is to increase privacy by decreasing linkability that is the result of deterministically generated signatures."
-					}
-				},
-				"required": [
-					"type",
-					"cryptosuite",
-					"proofPurpose"
-				],
-				"additionalProperties": false,
-				"description": "Interface describing a did proof. https://www.w3.org/TR/vc-data-integrity/"
-			},
 			"DidCryptoSuites": {
 				"anyOf": [
 					{
@@ -2100,7 +1996,7 @@
 						"description": "Additional information provided by the requester to determine if a policy can be created."
 					},
 					"proof": {
-						"$ref": "#/components/schemas/Proof"
+						"$ref": "https://schema.twindev.org/w3c-did/Proof"
 					}
 				},
 				"required": [
@@ -2120,7 +2016,7 @@
 						"description": "The node sending the request."
 					},
 					"proof": {
-						"$ref": "#/components/schemas/Proof"
+						"$ref": "https://schema.twindev.org/w3c-did/Proof"
 					}
 				},
 				"required": [
@@ -2138,7 +2034,7 @@
 						"description": "The node sending the request."
 					},
 					"proof": {
-						"$ref": "#/components/schemas/Proof"
+						"$ref": "https://schema.twindev.org/w3c-did/Proof"
 					}
 				},
 				"required": [
@@ -2225,48 +2121,6 @@
 				"additionalProperties": false,
 				"description": "Interface describing a rights management policy negotiation."
 			},
-			"PolicyNegotiationAdminPointComponent": {
-				"type": "object",
-				"additionalProperties": false,
-				"properties": {
-					"CLASS_NAME": {
-						"type": "string",
-						"description": "The name of the component."
-					}
-				},
-				"required": [
-					"CLASS_NAME"
-				],
-				"description": "Interface describing a Policy Negotiation Admin Point (PNAP) contract. Components performs administration tasks on the policy negotiations."
-			},
-			"PolicyNegotiationPointComponent": {
-				"type": "object",
-				"additionalProperties": false,
-				"properties": {
-					"CLASS_NAME": {
-						"type": "string",
-						"description": "The name of the component."
-					}
-				},
-				"required": [
-					"CLASS_NAME"
-				],
-				"description": "Interface describing a Policy Negotiation Point (PNP) contract. When receiving a request from another component, the PNP will negotiate the terms of the request and determine the appropriate policies to create."
-			},
-			"PolicyNegotiationRequestPointComponent": {
-				"type": "object",
-				"additionalProperties": false,
-				"properties": {
-					"CLASS_NAME": {
-						"type": "string",
-						"description": "The name of the component."
-					}
-				},
-				"required": [
-					"CLASS_NAME"
-				],
-				"description": "Interface describing a Policy Negotiation Request Point (PNRP) contract. Can be used to create the requests to send to other nodes."
-			},
 			"PolicyNegotiationStatus": {
 				"anyOf": [
 					{
@@ -2312,22 +2166,6 @@
 				],
 				"additionalProperties": false,
 				"description": "The state of the policy negotiation."
-			},
-			"Proof": {
-				"anyOf": [
-					{
-						"$ref": "#/components/schemas/DataIntegrityProof"
-					},
-					{
-						"$ref": "#/components/schemas/JsonWebSignature2020Proof"
-					}
-				],
-				"description": "Interface describing a proof."
-			},
-			"ProofSignerVerifier": {
-				"type": "object",
-				"additionalProperties": false,
-				"description": "Interface describing a proof signer and verifier."
 			}
 		},
 		"securitySchemes": {

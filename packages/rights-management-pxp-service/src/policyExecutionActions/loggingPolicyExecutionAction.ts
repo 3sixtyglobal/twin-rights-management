@@ -60,6 +60,14 @@ export class LoggingPolicyExecutionAction implements IPolicyExecutionAction, ICo
 	}
 
 	/**
+	 * Which stages should the action be executed at.
+	 * @returns List of stages.
+	 */
+	public supportedStages(): PolicyDecisionStage[] {
+		return this._stages;
+	}
+
+	/**
 	 * Execute function type for policy actions.
 	 * @param stage The stage of the policy decision.
 	 * @param assetType The type of asset being processed.

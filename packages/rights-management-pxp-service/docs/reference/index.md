@@ -9,4 +9,5 @@
 
 - [ILoggingPolicyExecutionActionConfig](interfaces/ILoggingPolicyExecutionActionConfig.md)
 - [ILoggingPolicyExecutionActionConstructorOptions](interfaces/ILoggingPolicyExecutionActionConstructorOptions.md)
+- [IPolicyExecutionPointServiceConfig](interfaces/IPolicyExecutionPointServiceConfig.md)
 - [IPolicyExecutionPointServiceConstructorOptions](interfaces/IPolicyExecutionPointServiceConstructorOptions.md)

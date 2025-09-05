@@ -1,5 +1,6 @@
 // Copyright 2024 IOTA Stiftung.
 // SPDX-License-Identifier: Apache-2.0.
+import type { IPolicyExecutionPointServiceConfig } from "./IPolicyExecutionPointServiceConfig";
 
 /**
  * Options for the Policy Execution Point Component.
@@ -10,4 +11,9 @@ export interface IPolicyExecutionPointServiceConstructorOptions {
 	 * @default logging
 	 */
 	loggingComponentType?: string;
+
+	/**
+	 * Configuration options for the policy execution point service.
+	 */
+	config?: IPolicyExecutionPointServiceConfig;
 }

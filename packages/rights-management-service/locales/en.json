@@ -1,20 +1,3 @@
 {
-	"error": {
-		"rightsManagementService": {
-			"queryFailed": "Failed to query policies",
-			"papCreateFailed": "Failed to create policy through PAP",
-			"papUpdateFailed": "Failed to update policy through PAP",
-			"papRetrieveFailed": "Failed to retrieve policy through PAP",
-			"papRemoveFailed": "Failed to remove policy through PAP",
-			"papQueryFailed": "Failed to query policies through PAP",
-			"pepInterceptFailed": "Failed to intercept data through PEP",
-			"pnpNegotiateFailed": "Failed to negotiate policy through PNP",
-			"pnpNegotiationState": "Failed to retrieve policy negotiation state through PNP",
-			"pnpNegotiationCancelFailed": "Failed to cancel policy negotiation through PNP",
-			"pnapGetFailed": "Failed to retrieve policy negotiation admin point through PNAP",
-			"pnapSetFailed": "Failed to set policy negotiation admin point through PNAP",
-			"pnapRemoveFailed": "Failed to remove policy negotiation admin point through PNAP",
-			"pnapQueryFailed": "Failed to query policy negotiation admin point through PNAP"
-		}
-	}
+	"error": {}
 }

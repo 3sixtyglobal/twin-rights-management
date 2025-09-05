@@ -1,31 +1,29 @@
 # @twin.org/rights-management-service
 
-## Classes
-
-- [RightsManagementService](classes/RightsManagementService.md)
-
-## Interfaces
-
-- [IRightsManagementServiceConstructorOptions](interfaces/IRightsManagementServiceConstructorOptions.md)
-
 ## Variables
 
+- [papTags](variables/papTags.md)
+- [pepTags](variables/pepTags.md)
+- [pnapTags](variables/pnapTags.md)
+- [pnpTags](variables/pnpTags.md)
 - [restEntryPoints](variables/restEntryPoints.md)
-- [tags](variables/tags.md)
 
 ## Functions
 
-- [generateRestRoutesRightsManagement](functions/generateRestRoutesRightsManagement.md)
+- [generateRestRoutesPolicyAdministrationPoint](functions/generateRestRoutesPolicyAdministrationPoint.md)
 - [papCreate](functions/papCreate.md)
 - [papUpdate](functions/papUpdate.md)
-- [papRetrieve](functions/papRetrieve.md)
+- [papGet](functions/papGet.md)
 - [papRemove](functions/papRemove.md)
 - [papQuery](functions/papQuery.md)
+- [generateRestRoutesPolicyEnforcementPoint](functions/generateRestRoutesPolicyEnforcementPoint.md)
 - [pepIntercept](functions/pepIntercept.md)
-- [pnpNegotiate](functions/pnpNegotiate.md)
-- [pnpNegotiationState](functions/pnpNegotiationState.md)
-- [pnpNegotiationCancel](functions/pnpNegotiationCancel.md)
+- [generateRestRoutesPolicyNegotiationAdminPoint](functions/generateRestRoutesPolicyNegotiationAdminPoint.md)
 - [pnapGet](functions/pnapGet.md)
 - [pnapSet](functions/pnapSet.md)
 - [pnapRemove](functions/pnapRemove.md)
 - [pnapQuery](functions/pnapQuery.md)
+- [generateRestRoutesPolicyNegotiationPoint](functions/generateRestRoutesPolicyNegotiationPoint.md)
+- [pnpNegotiate](functions/pnpNegotiate.md)
+- [pnpNegotiationState](functions/pnpNegotiationState.md)
+- [pnpNegotiationCancel](functions/pnpNegotiationCancel.md)

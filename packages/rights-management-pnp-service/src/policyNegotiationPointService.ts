@@ -90,7 +90,7 @@ export class PolicyNegotiationPointService implements IPolicyNegotiationPointCom
 			ComponentFactory.get<IPolicyAdministrationPointComponent>(
 				options?.policyAdministrationPointComponentType ?? "policy-administration-point"
 			);
-		this._negotiators = [];
+		this._negotiators = options?.config?.negotiators ?? [];
 	}
 
 	/**
@@ -190,7 +190,7 @@ export class PolicyNegotiationPointService implements IPolicyNegotiationPointCom
 		try {
 			// First try and get the policy from the PAP
 			// if it exists then we can locate expiry date if it has one
-			const policy = await this._policyAdministrationPointComponent.retrieve(policyId);
+			const policy = await this._policyAdministrationPointComponent.get(policyId);
 
 			return {
 				id: policyId,

@@ -45,7 +45,7 @@ export class PolicyInformationPointService implements IPolicyInformationPointCom
 		this._logging = ComponentFactory.getIfExists<ILoggingComponent>(
 			options?.loggingComponentType ?? "logging"
 		);
-		this._sources = [];
+		this._sources = options?.config?.sources ?? [];
 	}
 
 	/**

@@ -9,6 +9,12 @@ import type { PolicyDecisionStage } from "./policyDecisionStage";
  */
 export interface IPolicyExecutionAction {
 	/**
+	 * Which stages should the action be executed at.
+	 * @returns List of stages.
+	 */
+	supportedStages(): PolicyDecisionStage[];
+
+	/**
 	 * Execute function type for policy actions.
 	 * @param stage The stage of the policy decision.
 	 * @param assetType The type of asset being processed.

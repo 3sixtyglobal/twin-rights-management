@@ -92,11 +92,11 @@ Nothing.
 
 ***
 
-### retrieve()
+### get()
 
-> **retrieve**(`policyId`): `Promise`\<`IOdrlPolicy`\>
+> **get**(`policyId`): `Promise`\<`IOdrlPolicy`\>
 
-Retrieve a policy from the entity storage.
+Get a policy from the entity storage.
 
 #### Parameters
 
@@ -104,7 +104,7 @@ Retrieve a policy from the entity storage.
 
 `string`
 
-The ID of the policy to retrieve.
+The ID of the policy to get.
 
 #### Returns
 
@@ -114,7 +114,7 @@ The policy.
 
 #### Implementation of
 
-`IPolicyAdministrationPointComponent.retrieve`
+`IPolicyAdministrationPointComponent.get`
 
 ***
 
