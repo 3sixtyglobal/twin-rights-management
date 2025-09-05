@@ -1,5 +1,19 @@
 # Changelog
 
+## [0.0.2-next.8](https://github.com/twinfoundation/rights-management/compare/rights-management-pxp-service-v0.0.2-next.7...rights-management-pxp-service-v0.0.2-next.8) (2025-09-05)
+
+
+### Features
+
+* simplify structure of execution actions ([fe7903b](https://github.com/twinfoundation/rights-management/commit/fe7903b0ca0fa345f734c87dfb08c0af774ff875))
+
+
+### Dependencies
+
+* The following workspace dependencies were updated
+  * dependencies
+    * @twin.org/rights-management-models bumped from 0.0.2-next.7 to 0.0.2-next.8
+
 ## [0.0.2-next.7](https://github.com/twinfoundation/rights-management/compare/rights-management-pxp-service-v0.0.2-next.6...rights-management-pxp-service-v0.0.2-next.7) (2025-09-05)
 
 
