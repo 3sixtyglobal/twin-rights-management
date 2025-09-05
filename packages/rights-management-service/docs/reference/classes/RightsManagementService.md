@@ -435,7 +435,7 @@ Nothing.
 
 > **pnapRemove**(`policyId`): `Promise`\<`void`\>
 
-PNAP: Cancels an ongoing negotiation for a resource.
+PNAP: Removes a policy negotiation record.
 
 #### Parameters
 
@@ -443,7 +443,7 @@ PNAP: Cancels an ongoing negotiation for a resource.
 
 `string`
 
-The ID of the policy to cancel.
+The ID of the policy negotiation to remove.
 
 #### Returns
 

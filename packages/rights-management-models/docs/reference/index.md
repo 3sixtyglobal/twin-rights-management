@@ -53,9 +53,6 @@
 
 ## Variables
 
-- [PolicyEnforcementProcessorFactory](variables/PolicyEnforcementProcessorFactory.md)
-- [PolicyExecutionActionFactory](variables/PolicyExecutionActionFactory.md)
-- [PolicyInformationSourceFactory](variables/PolicyInformationSourceFactory.md)
 - [PolicyDecisionStage](variables/PolicyDecisionStage.md)
 - [PolicyInformationAccessMode](variables/PolicyInformationAccessMode.md)
 - [PolicyNegotiationStatus](variables/PolicyNegotiationStatus.md)

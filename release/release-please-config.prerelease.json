@@ -59,6 +59,13 @@
 				"src/index.ts"
 			]
 		},
+		"packages/rights-management-pnp-service": {
+			"package-name": "rights-management-pnp-service",
+			"changelog-path": "docs/changelog.md",
+			"extra-files": [
+				"src/index.ts"
+			]
+		},
 		"packages/rights-management-service": {
 			"package-name": "rights-management-service",
 			"changelog-path": "docs/changelog.md",
@@ -87,6 +94,7 @@
 				"rights-management-pxp-service",
 				"rights-management-pdp-service",
 				"rights-management-pep-service",
+				"rights-management-pnp-service",
 				"rights-management-service",
 				"rights-management-rest-client"
 			]
