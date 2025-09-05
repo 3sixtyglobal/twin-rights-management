@@ -32,16 +32,8 @@ policy-decision-point
 
 ***
 
-### processors?
+### config?
 
-> `optional` **processors**: `object`[]
+> `optional` **config**: [`IPolicyEnforcementPointServiceConfig`](IPolicyEnforcementPointServiceConfig.md)
 
-Initial processors to register with the PEP.
-
-#### processorId
-
-> **processorId**: `string`
-
-#### processor
-
-> **processor**: `IPolicyEnforcementProcessor`
+The configuration for the Policy Enforcement Point Service.

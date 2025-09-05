@@ -34,8 +34,8 @@ export class PolicyExecutionPointService implements IPolicyExecutionPointCompone
 	private readonly _executeActions: {
 		[stage in PolicyDecisionStage]: {
 			actions: {
-				executionActionId: string;
-				executionAction: IPolicyExecutionAction;
+				actionId: string;
+				action: IPolicyExecutionAction;
 			}[];
 		};
 	};
@@ -58,19 +58,19 @@ export class PolicyExecutionPointService implements IPolicyExecutionPointCompone
 			}
 		};
 
-		if (Is.arrayValue(options?.config?.executionActions)) {
-			for (const { executionActionId, executionAction } of options.config.executionActions) {
-				const supportedStages = executionAction.supportedStages();
+		if (Is.arrayValue(options?.config?.actions)) {
+			for (const { actionId, action } of options.config.actions) {
+				const supportedStages = action.supportedStages();
 				if (supportedStages.includes(PolicyDecisionStage.Before)) {
 					this._executeActions[PolicyDecisionStage.Before].actions.push({
-						executionActionId,
-						executionAction
+						actionId,
+						action
 					});
 				}
 				if (supportedStages.includes(PolicyDecisionStage.After)) {
 					this._executeActions[PolicyDecisionStage.After].actions.push({
-						executionActionId,
-						executionAction
+						actionId,
+						action
 					});
 				}
 			}
@@ -112,7 +112,7 @@ export class PolicyExecutionPointService implements IPolicyExecutionPointCompone
 		});
 
 		const actions = this._executeActions[stage].actions;
-		for (const { executionActionId: actionId, executionAction } of actions) {
+		for (const { actionId, action: executionAction } of actions) {
 			try {
 				this._logging?.log({
 					level: "info",
@@ -173,14 +173,14 @@ export class PolicyExecutionPointService implements IPolicyExecutionPointCompone
 		Guards.object<IPolicyExecutionAction>(this.CLASS_NAME, nameof(action), action);
 
 		const currentIndex = this._executeActions[stage].actions.findIndex(
-			a => a.executionActionId === actionId
+			a => a.actionId === actionId
 		);
 		if (currentIndex !== -1) {
-			this._executeActions[stage].actions[currentIndex].executionAction = action;
+			this._executeActions[stage].actions[currentIndex].action = action;
 		} else {
 			this._executeActions[stage].actions.push({
-				executionActionId: actionId,
-				executionAction: action
+				actionId,
+				action
 			});
 		}
 
@@ -207,7 +207,7 @@ export class PolicyExecutionPointService implements IPolicyExecutionPointCompone
 		Guards.arrayOneOf(this.CLASS_NAME, nameof(stage), stage, Object.values(PolicyDecisionStage));
 
 		const currentIndex = this._executeActions[stage].actions.findIndex(
-			a => a.executionActionId === actionId
+			a => a.actionId === actionId
 		);
 		if (currentIndex !== -1) {
 			this._executeActions[stage].actions.splice(currentIndex, 1);

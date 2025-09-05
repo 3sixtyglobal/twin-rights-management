@@ -9,8 +9,8 @@ export interface IPolicyExecutionPointServiceConfig {
 	/**
 	 * Initial execution actions to register with the PXP.
 	 */
-	executionActions?: {
-		executionActionId: string;
-		executionAction: IPolicyExecutionAction;
+	actions?: {
+		actionId: string;
+		action: IPolicyExecutionAction;
 	}[];
 }

@@ -4,16 +4,16 @@ Options for the Policy Execution Point Component.
 
 ## Properties
 
-### executionActions?
+### actions?
 
-> `optional` **executionActions**: `object`[]
+> `optional` **actions**: `object`[]
 
 Initial execution actions to register with the PXP.
 
-#### executionActionId
+#### actionId
 
-> **executionActionId**: `string`
+> **actionId**: `string`
 
-#### executionAction
+#### action
 
-> **executionAction**: `IPolicyExecutionAction`
+> **action**: `IPolicyExecutionAction`

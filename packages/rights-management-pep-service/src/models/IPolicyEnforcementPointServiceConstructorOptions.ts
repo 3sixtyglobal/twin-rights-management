@@ -1,7 +1,6 @@
 // Copyright 2024 IOTA Stiftung.
 // SPDX-License-Identifier: Apache-2.0.
-
-import type { IPolicyEnforcementProcessor } from "@twin.org/rights-management-models";
+import type { IPolicyEnforcementPointServiceConfig } from "./IPolicyEnforcementPointServiceConfig";
 
 /**
  * Options for the Policy Enforcement Point Component.
@@ -20,10 +19,7 @@ export interface IPolicyEnforcementPointServiceConstructorOptions {
 	policyDecisionPointComponentType?: string;
 
 	/**
-	 * Initial processors to register with the PEP.
+	 * The configuration for the Policy Enforcement Point Service.
 	 */
-	processors?: {
-		processorId: string;
-		processor: IPolicyEnforcementProcessor;
-	}[];
+	config?: IPolicyEnforcementPointServiceConfig;
 }
