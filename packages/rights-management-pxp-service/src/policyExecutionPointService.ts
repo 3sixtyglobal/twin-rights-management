@@ -31,13 +31,11 @@ export class PolicyExecutionPointService implements IPolicyExecutionPointCompone
 	 * These actions can be registered to perform specific tasks before or after the policy execution.
 	 * @internal
 	 */
-	private readonly _executeActions: {
+	private readonly _executionActions: {
 		[stage in PolicyDecisionStage]: {
-			actions: {
-				actionId: string;
-				action: IPolicyExecutionAction;
-			}[];
-		};
+			actionId: string;
+			action: IPolicyExecutionAction;
+		}[];
 	};
 
 	/**
@@ -49,26 +47,22 @@ export class PolicyExecutionPointService implements IPolicyExecutionPointCompone
 			options?.loggingComponentType ?? "logging"
 		);
 
-		this._executeActions = {
-			[PolicyDecisionStage.Before]: {
-				actions: []
-			},
-			[PolicyDecisionStage.After]: {
-				actions: []
-			}
+		this._executionActions = {
+			[PolicyDecisionStage.Before]: [],
+			[PolicyDecisionStage.After]: []
 		};
 
 		if (Is.arrayValue(options?.config?.actions)) {
 			for (const { actionId, action } of options.config.actions) {
 				const supportedStages = action.supportedStages();
 				if (supportedStages.includes(PolicyDecisionStage.Before)) {
-					this._executeActions[PolicyDecisionStage.Before].actions.push({
+					this._executionActions[PolicyDecisionStage.Before].push({
 						actionId,
 						action
 					});
 				}
 				if (supportedStages.includes(PolicyDecisionStage.After)) {
-					this._executeActions[PolicyDecisionStage.After].actions.push({
+					this._executionActions[PolicyDecisionStage.After].push({
 						actionId,
 						action
 					});
@@ -111,8 +105,7 @@ export class PolicyExecutionPointService implements IPolicyExecutionPointCompone
 			}
 		});
 
-		const actions = this._executeActions[stage].actions;
-		for (const { actionId, action: executionAction } of actions) {
+		for (const { actionId, action: executionAction } of this._executionActions[stage]) {
 			try {
 				this._logging?.log({
 					level: "info",
@@ -172,13 +165,11 @@ export class PolicyExecutionPointService implements IPolicyExecutionPointCompone
 		Guards.arrayOneOf(this.CLASS_NAME, nameof(stage), stage, Object.values(PolicyDecisionStage));
 		Guards.object<IPolicyExecutionAction>(this.CLASS_NAME, nameof(action), action);
 
-		const currentIndex = this._executeActions[stage].actions.findIndex(
-			a => a.actionId === actionId
-		);
+		const currentIndex = this._executionActions[stage].findIndex(a => a.actionId === actionId);
 		if (currentIndex !== -1) {
-			this._executeActions[stage].actions[currentIndex].action = action;
+			this._executionActions[stage][currentIndex].action = action;
 		} else {
-			this._executeActions[stage].actions.push({
+			this._executionActions[stage].push({
 				actionId,
 				action
 			});
@@ -206,11 +197,9 @@ export class PolicyExecutionPointService implements IPolicyExecutionPointCompone
 		Guards.stringValue(this.CLASS_NAME, nameof(actionId), actionId);
 		Guards.arrayOneOf(this.CLASS_NAME, nameof(stage), stage, Object.values(PolicyDecisionStage));
 
-		const currentIndex = this._executeActions[stage].actions.findIndex(
-			a => a.actionId === actionId
-		);
+		const currentIndex = this._executionActions[stage].findIndex(a => a.actionId === actionId);
 		if (currentIndex !== -1) {
-			this._executeActions[stage].actions.splice(currentIndex, 1);
+			this._executionActions[stage].splice(currentIndex, 1);
 		}
 
 		this._logging?.log({
