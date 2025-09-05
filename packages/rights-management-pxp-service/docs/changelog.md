@@ -1,5 +1,19 @@
 # Changelog
 
+## [0.0.2-next.6](https://github.com/twinfoundation/rights-management/compare/rights-management-pxp-service-v0.0.2-next.5...rights-management-pxp-service-v0.0.2-next.6) (2025-09-05)
+
+
+### Features
+
+* separate rest routes ([538b86b](https://github.com/twinfoundation/rights-management/commit/538b86be26b46711279101aa01fec119419d8149))
+
+
+### Dependencies
+
+* The following workspace dependencies were updated
+  * dependencies
+    * @twin.org/rights-management-models bumped from 0.0.2-next.5 to 0.0.2-next.6
+
 ## [0.0.2-next.5](https://github.com/twinfoundation/rights-management/compare/rights-management-pxp-service-v0.0.2-next.4...rights-management-pxp-service-v0.0.2-next.5) (2025-09-05)
 
 
