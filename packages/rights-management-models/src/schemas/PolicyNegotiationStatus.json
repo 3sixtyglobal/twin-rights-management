@@ -3,9 +3,5 @@
 	"$id": "https://schema.twindev.org/rights-management/PolicyNegotiationStatus",
 	"description": "The status of the negotiation in the Policy Negotiation Point (PNP).",
 	"type": "string",
-	"enum": [
-		"manual",
-		"approved",
-		"rejected"
-	]
+	"enum": ["manual", "approved", "rejected"]
 }
