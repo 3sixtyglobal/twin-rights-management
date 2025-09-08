@@ -615,8 +615,8 @@
 								"pnpNegotiateRequestExample": {
 									"value": {
 										"@context": [
-											"https://schema.twindev.org/rights-management",
-											"https://www.w3.org/ns/credentials/v2"
+											"https://www.w3.org/ns/credentials/v2",
+											"https://schema.twindev.org/rights-management"
 										],
 										"type": "PolicyNegotiationRequest",
 										"assetType": "document",
@@ -740,8 +740,8 @@
 								"pnpNegotiationStateRequestExample": {
 									"value": {
 										"@context": [
-											"https://schema.twindev.org/rights-management",
-											"https://www.w3.org/ns/credentials/v2"
+											"https://www.w3.org/ns/credentials/v2",
+											"https://schema.twindev.org/rights-management"
 										],
 										"type": "PolicyRequest",
 										"nodeIdentity": "urn:example:node:1",
@@ -861,8 +861,8 @@
 								"pnpNegotiationCancelRequestExample": {
 									"value": {
 										"@context": [
-											"https://schema.twindev.org/rights-management",
-											"https://www.w3.org/ns/credentials/v2"
+											"https://www.w3.org/ns/credentials/v2",
+											"https://schema.twindev.org/rights-management"
 										],
 										"type": "PolicyRequest",
 										"nodeIdentity": "urn:example:node:1",

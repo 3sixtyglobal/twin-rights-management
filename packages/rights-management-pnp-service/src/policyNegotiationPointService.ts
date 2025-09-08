@@ -18,16 +18,15 @@ import {
 	PolicyNegotiationStatus,
 	RightsManagementContexts,
 	RightsManagementNamespaces,
+	RightsManagementProofHelper,
 	RightsManagementTypes,
 	type IPolicyAdministrationPointComponent,
 	type IPolicyNegotiationAdminPointComponent,
 	type IPolicyNegotiationPointComponent,
-	type IPolicyNegotiationRequest,
 	type IPolicyNegotiator,
-	type IPolicyRequest,
 	type IPolicyState
 } from "@twin.org/rights-management-models";
-import { DidContexts, type IProof } from "@twin.org/standards-w3c-did";
+import type { IProof } from "@twin.org/standards-w3c-did";
 import type { PolicyNegotiation } from "./entities/policyNegotiation";
 import type { IPolicyNegotiationPointServiceConstructorOptions } from "./models/IPolicyNegotiationPointServiceConstructorOptions";
 
@@ -128,7 +127,15 @@ export class PolicyNegotiationPointService implements IPolicyNegotiationPointCom
 		Guards.object<IProof>(this.CLASS_NAME, nameof(proof), proof);
 
 		// First verify the proof
-		await this.verifyProofNegotiation(assetType, action, resourceId, nodeIdentity, proof);
+		await RightsManagementProofHelper.verifyProofNegotiation(
+			this._identityConnector,
+			nodeIdentity,
+			assetType,
+			action,
+			resourceId,
+			proof,
+			this._proofTtlInSeconds
+		);
 
 		// Proof verified so find a negotiator for the asset type and action
 		const findResult = this._negotiators.find(n => n.negotiator.canNegotiate(assetType, action));
@@ -195,7 +202,13 @@ export class PolicyNegotiationPointService implements IPolicyNegotiationPointCom
 		Guards.stringValue(this.CLASS_NAME, nameof(nodeIdentity), nodeIdentity);
 		Guards.object<IProof>(this.CLASS_NAME, nameof(proof), proof);
 
-		await this.verifyProofPolicyId(policyId, nodeIdentity, proof);
+		await RightsManagementProofHelper.verifyProofPolicyId(
+			this._identityConnector,
+			nodeIdentity,
+			policyId,
+			proof,
+			this._proofTtlInSeconds
+		);
 
 		try {
 			// First try and get the policy from the PAP
@@ -267,7 +280,13 @@ export class PolicyNegotiationPointService implements IPolicyNegotiationPointCom
 		Guards.stringValue(this.CLASS_NAME, nameof(nodeIdentity), nodeIdentity);
 		Guards.object<IProof>(this.CLASS_NAME, nameof(proof), proof);
 
-		await this.verifyProofPolicyId(policyId, nodeIdentity, proof);
+		await RightsManagementProofHelper.verifyProofPolicyId(
+			this._identityConnector,
+			nodeIdentity,
+			policyId,
+			proof,
+			this._proofTtlInSeconds
+		);
 
 		await this._policyNegotiationAdminPointComponent.remove(policyId);
 	}
@@ -325,114 +344,5 @@ export class PolicyNegotiationPointService implements IPolicyNegotiationPointCom
 				negotiatorId
 			}
 		});
-	}
-
-	/**
-	 * Verify the proof for a specific action and asset type.
-	 * @param assetType The type of the asset being accessed.
-	 * @param action The action being performed.
-	 * @param resourceId The specific resource id or can be left undefined for a whole asset class.
-	 * @param nodeIdentity The identity of the node performing the action.
-	 * @param proof The proof object containing the necessary information.
-	 * @throws GeneralError is the proof verification fails.
-	 * @internal
-	 */
-	private async verifyProofNegotiation(
-		assetType: string,
-		action: string,
-		resourceId: string | undefined,
-		nodeIdentity: string,
-		proof: IProof
-	): Promise<void> {
-		Guards.stringValue(this.CLASS_NAME, nameof(assetType), assetType);
-		Guards.stringValue(this.CLASS_NAME, nameof(action), action);
-		Guards.stringValue(this.CLASS_NAME, nameof(nodeIdentity), nodeIdentity);
-		Guards.objectValue<IProof>(this.CLASS_NAME, nameof(proof), proof);
-
-		this.verifyCreated(proof, nodeIdentity);
-
-		const proofDocument: Omit<IPolicyNegotiationRequest, "proof"> = {
-			"@context": [RightsManagementContexts.ContextRoot, DidContexts.ContextVCv2],
-			type: RightsManagementTypes.PolicyNegotiationRequest,
-			assetType,
-			action,
-			resourceId,
-			nodeIdentity
-		};
-
-		const isValid = await this._identityConnector.verifyProof(
-			proofDocument as unknown as IJsonLdNodeObject,
-			proof
-		);
-
-		if (!isValid) {
-			throw new GeneralError(this.CLASS_NAME, "proofNegotiationFailed", {
-				assetType,
-				action,
-				nodeIdentity
-			});
-		}
-	}
-
-	/**
-	 * Verify the proof for a policy id.
-	 * @param policyId The id of the policy being accessed.
-	 * @param nodeIdentity The identity of the node performing the action.
-	 * @param proof The proof object containing the necessary information.
-	 * @throws GeneralError is the proof verification fails.
-	 * @internal
-	 */
-	private async verifyProofPolicyId(
-		policyId: string,
-		nodeIdentity: string,
-		proof: IProof
-	): Promise<void> {
-		Guards.stringValue(this.CLASS_NAME, nameof(policyId), policyId);
-		Guards.stringValue(this.CLASS_NAME, nameof(nodeIdentity), nodeIdentity);
-		Guards.objectValue<IProof>(this.CLASS_NAME, nameof(proof), proof);
-
-		this.verifyCreated(proof, nodeIdentity);
-
-		const proofDocument: Omit<IPolicyRequest, "proof"> = {
-			"@context": [RightsManagementContexts.ContextRoot, DidContexts.ContextVCv2],
-			type: RightsManagementTypes.PolicyRequest,
-			id: policyId,
-			nodeIdentity
-		};
-
-		const isValid = await this._identityConnector.verifyProof(
-			proofDocument as unknown as IJsonLdNodeObject,
-			proof
-		);
-
-		if (!isValid) {
-			throw new GeneralError(this.CLASS_NAME, "proofPolicyIdFailed", { policyId, nodeIdentity });
-		}
-	}
-
-	/**
-	 * Verify that the proof has a created date and that it is within the allowed time-to-live (TTL).
-	 * @param proof The proof object to verify.
-	 * @param nodeIdentity The identity of the node performing the action.
-	 * @throws GeneralError if the proof is missing the created date or if it has expired.
-	 * @internal
-	 */
-	private verifyCreated(proof: IProof, nodeIdentity: string): void {
-		if (Is.empty(proof.created)) {
-			throw new GeneralError(this.CLASS_NAME, "proofMissingCreated", {
-				nodeIdentity
-			});
-		}
-
-		const proofCreated = new Date(proof.created);
-		const now = Date.now();
-		const proofTtlInMs = this._proofTtlInSeconds * 1000;
-
-		// If the proof has expired then we should reject it
-		if (proofCreated.getTime() + proofTtlInMs < now) {
-			throw new GeneralError(this.CLASS_NAME, "proofExpired", {
-				nodeIdentity
-			});
-		}
 	}
 }

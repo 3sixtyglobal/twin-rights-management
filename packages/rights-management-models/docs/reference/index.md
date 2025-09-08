@@ -3,6 +3,7 @@
 ## Classes
 
 - [OdrlPolicyHelper](classes/OdrlPolicyHelper.md)
+- [RightsManagementProofHelper](classes/RightsManagementProofHelper.md)
 
 ## Interfaces
 

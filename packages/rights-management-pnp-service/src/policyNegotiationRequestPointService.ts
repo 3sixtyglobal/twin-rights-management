@@ -1,22 +1,17 @@
 // Copyright 2024 IOTA Stiftung.
 // SPDX-License-Identifier: Apache-2.0.
 import { ComponentFactory, GeneralError, Guards, Is } from "@twin.org/core";
-import type { IJsonLdNodeObject } from "@twin.org/data-json-ld";
 import { IdentityConnectorFactory, type IIdentityConnector } from "@twin.org/identity-models";
 import type { ILoggingComponent } from "@twin.org/logging-models";
 import { nameof } from "@twin.org/nameof";
 import {
 	type IPolicyInformationPointComponent,
 	type IPolicyNegotiationPointComponent,
-	type IPolicyNegotiationRequest,
 	type IPolicyNegotiationRequestPointComponent,
-	type IPolicyRequest,
 	type IPolicyState,
 	PolicyInformationAccessMode,
-	RightsManagementContexts,
-	RightsManagementTypes
+	RightsManagementProofHelper
 } from "@twin.org/rights-management-models";
-import { DidContexts, type IProof, ProofTypes } from "@twin.org/standards-w3c-did";
 import type { IPolicyNegotiationRequestPointServiceConstructorOptions } from "./models/IPolicyNegotiationRequestPointServiceConstructorOptions";
 
 /**
@@ -133,7 +128,14 @@ export class PolicyNegotiationRequestPointService
 			[]
 		);
 
-		const proof = await this.createProofNegotiation(assetType, action, resourceId);
+		const proof = await RightsManagementProofHelper.createProofNegotiation(
+			this._identityConnector,
+			this._negotiationMethodId,
+			this._nodeIdentity,
+			assetType,
+			action,
+			resourceId
+		);
 
 		this._logging?.log({
 			level: "info",
@@ -189,7 +191,12 @@ export class PolicyNegotiationRequestPointService
 
 		const negotiationClient = await this._negotiationComponentCreator(url);
 
-		const proof = await this.createProofPolicyId(policyId);
+		const proof = await RightsManagementProofHelper.createProofPolicyId(
+			this._identityConnector,
+			this._negotiationMethodId,
+			this._nodeIdentity,
+			policyId
+		);
 
 		const result = await negotiationClient.negotiationState(policyId, this._nodeIdentity, proof);
 
@@ -235,76 +242,13 @@ export class PolicyNegotiationRequestPointService
 
 		const negotiationClient = await this._negotiationComponentCreator(url);
 
-		const proof = await this.createProofPolicyId(policyId);
+		const proof = await RightsManagementProofHelper.createProofPolicyId(
+			this._identityConnector,
+			this._negotiationMethodId,
+			this._nodeIdentity,
+			policyId
+		);
 
 		await negotiationClient.negotiationCancel(policyId, this._nodeIdentity, proof);
-	}
-
-	/**
-	 * Create the proof for a specific action and asset type.
-	 * @param assetType The type of the asset being accessed.
-	 * @param action The action being performed.
-	 * @param resourceId The specific resource id or can be left undefined for a whole asset class.
-	 * @returns The proof object.
-	 * @throws GeneralError is the proof creation fails.
-	 * @internal
-	 */
-	private async createProofNegotiation(
-		assetType: string,
-		action: string,
-		resourceId?: string
-	): Promise<IProof> {
-		Guards.stringValue(this.CLASS_NAME, nameof(assetType), assetType);
-		Guards.stringValue(this.CLASS_NAME, nameof(action), action);
-
-		if (!Is.stringValue(this._nodeIdentity)) {
-			throw new GeneralError(this.CLASS_NAME, "missingNodeIdentity");
-		}
-
-		const unsecureDocument: Omit<IPolicyNegotiationRequest, "proof"> = {
-			"@context": [RightsManagementContexts.ContextRoot, DidContexts.ContextVCv2],
-			type: RightsManagementTypes.PolicyNegotiationRequest,
-			assetType,
-			action,
-			resourceId,
-			nodeIdentity: this._nodeIdentity
-		};
-
-		return await this._identityConnector.createProof(
-			this._nodeIdentity,
-			this._negotiationMethodId,
-			ProofTypes.DataIntegrityProof,
-			unsecureDocument as unknown as IJsonLdNodeObject
-		);
-	}
-
-	/**
-	 * Create the proof for a policy id.
-	 * @param policyId The id of the policy being accessed.
-	 * @param nodeIdentity The identity of the node performing the action.
-	 * @returns The proof object.
-	 * @throws GeneralError is the proof creation fails.
-	 * @internal
-	 */
-	private async createProofPolicyId(policyId: string): Promise<IProof> {
-		Guards.stringValue(this.CLASS_NAME, nameof(policyId), policyId);
-
-		if (!Is.stringValue(this._nodeIdentity)) {
-			throw new GeneralError(this.CLASS_NAME, "missingNodeIdentity");
-		}
-
-		const unsecureDocument: Omit<IPolicyRequest, "proof"> = {
-			"@context": [RightsManagementContexts.ContextRoot, DidContexts.ContextVCv2],
-			type: RightsManagementTypes.PolicyRequest,
-			id: policyId,
-			nodeIdentity: this._nodeIdentity
-		};
-
-		return await this._identityConnector.createProof(
-			this._nodeIdentity,
-			this._negotiationMethodId,
-			ProofTypes.DataIntegrityProof,
-			unsecureDocument as unknown as IJsonLdNodeObject
-		);
 	}
 }

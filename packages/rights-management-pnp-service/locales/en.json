@@ -5,11 +5,7 @@
 			"stateFailed": "Failed to retrieve state for policy with id: \"{policyId}\"",
 			"policyFailed": "Failed to retrieve policy for policy with id: \"{policyId}\"",
 			"policyNotFound": "Policy with id: \"{policyId}\" not found",
-			"noNegotiatorFound": "No negotiator found for asset type \"{assetType}\" and action \"{action}\"",
-			"proofNegotiationFailed": "Failed to verify proof for asset type \"{assetType}\", action \"{action}\", node identity \"{nodeIdentity}\"",
-			"proofPolicyIdFailed": "Failed to verify proof for policy with id: \"{policyId}\", node identity \"{nodeIdentity}\"",
-			"proofMissingCreated": "The proof is missing the 'created' field for node identity \"{nodeIdentity}\"",
-			"proofExpired": "The proof has expired for node identity \"{nodeIdentity}\""
+			"noNegotiatorFound": "No negotiator found for asset type \"{assetType}\" and action \"{action}\""
 		},
 		"policyNegotiationAdminPointService": {
 			"policyNotFound": "Policy with id: \"{policyId}\" not found"

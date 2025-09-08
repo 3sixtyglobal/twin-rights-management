@@ -71,7 +71,7 @@ export class PolicyNegotiationPointClient
 					[HeaderTypes.Accept]: MimeTypes.JsonLd
 				},
 				body: {
-					"@context": [RightsManagementContexts.ContextRoot, DidContexts.ContextVCv2],
+					"@context": [DidContexts.ContextVCv2, RightsManagementContexts.ContextRoot],
 					type: RightsManagementTypes.PolicyNegotiationRequest,
 					assetType,
 					action,
@@ -113,7 +113,7 @@ export class PolicyNegotiationPointClient
 					policyId
 				},
 				body: {
-					"@context": [RightsManagementContexts.ContextRoot, DidContexts.ContextVCv2],
+					"@context": [DidContexts.ContextVCv2, RightsManagementContexts.ContextRoot],
 					type: RightsManagementTypes.PolicyRequest,
 					nodeIdentity,
 					proof
@@ -148,7 +148,7 @@ export class PolicyNegotiationPointClient
 				policyId
 			},
 			body: {
-				"@context": [RightsManagementContexts.ContextRoot, DidContexts.ContextVCv2],
+				"@context": [DidContexts.ContextVCv2, RightsManagementContexts.ContextRoot],
 				type: RightsManagementTypes.PolicyRequest,
 				nodeIdentity,
 				proof

@@ -1,3 +1,10 @@
 {
-	"error": {}
+	"error": {
+		"rightsManagementProofHelper": {
+			"proofNegotiationFailed": "Failed to verify proof for asset type \"{assetType}\", action \"{action}\", node identity \"{nodeIdentity}\"",
+			"proofPolicyIdFailed": "Failed to verify proof for policy with id: \"{policyId}\", node identity \"{nodeIdentity}\"",
+			"proofMissingCreated": "The proof is missing the 'created' field for node identity \"{nodeIdentity}\"",
+			"proofExpired": "The proof has expired for node identity \"{nodeIdentity}\""
+		}
+	}
 }

@@ -6,7 +6,7 @@ The JSON-LD definition for a proof request.
 
 ### @context
 
-> **@context**: \[`"https://schema.twindev.org/rights-management"`, `"https://www.w3.org/ns/credentials/v2"`\]
+> **@context**: \[`"https://www.w3.org/ns/credentials/v2"`, `"https://schema.twindev.org/rights-management"`\]
 
 The JSON-LD context.
 

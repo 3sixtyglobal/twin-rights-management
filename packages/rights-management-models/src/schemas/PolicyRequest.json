@@ -13,11 +13,11 @@
 			"prefixItems": [
 				{
 					"type": "string",
-					"const": "https://schema.twindev.org/rights-management"
+					"const": "https://www.w3.org/ns/credentials/v2"
 				},
 				{
 					"type": "string",
-					"const": "https://www.w3.org/ns/credentials/v2"
+					"const": "https://schema.twindev.org/rights-management"
 				}
 			]
 		},

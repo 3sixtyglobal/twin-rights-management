@@ -61,7 +61,7 @@ export function generateRestRoutesPolicyNegotiationPoint(
 					id: "pnpNegotiateRequestExample",
 					request: {
 						body: {
-							"@context": [RightsManagementContexts.ContextRoot, DidContexts.ContextVCv2],
+							"@context": [DidContexts.ContextVCv2, RightsManagementContexts.ContextRoot],
 							type: RightsManagementTypes.PolicyNegotiationRequest,
 							assetType: "document",
 							action: "view",
@@ -123,7 +123,7 @@ export function generateRestRoutesPolicyNegotiationPoint(
 							policyId: "policy-1"
 						},
 						body: {
-							"@context": [RightsManagementContexts.ContextRoot, DidContexts.ContextVCv2],
+							"@context": [DidContexts.ContextVCv2, RightsManagementContexts.ContextRoot],
 							type: RightsManagementTypes.PolicyRequest,
 							nodeIdentity: "urn:example:node:1",
 							proof: {
@@ -180,7 +180,7 @@ export function generateRestRoutesPolicyNegotiationPoint(
 							policyId: "policy-1"
 						},
 						body: {
-							"@context": [RightsManagementContexts.ContextRoot, DidContexts.ContextVCv2],
+							"@context": [DidContexts.ContextVCv2, RightsManagementContexts.ContextRoot],
 							type: RightsManagementTypes.PolicyRequest,
 							nodeIdentity: "urn:example:node:1",
 							proof: {

@@ -42,3 +42,4 @@ export * from "./models/rightsManagementContexts";
 export * from "./models/rightsManagementNamespaces";
 export * from "./models/rightsManagementTypes";
 export * from "./utils/odrlPolicyHelper";
+export * from "./utils/rightsManagementProofHelper";

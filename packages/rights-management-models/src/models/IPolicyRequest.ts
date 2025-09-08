@@ -11,7 +11,7 @@ export interface IPolicyRequest {
 	/**
 	 * The JSON-LD context.
 	 */
-	"@context": [typeof RightsManagementContexts.ContextRoot, typeof DidContexts.ContextVCv2];
+	"@context": [typeof DidContexts.ContextVCv2, typeof RightsManagementContexts.ContextRoot];
 
 	/**
 	 * The type of the proof.
