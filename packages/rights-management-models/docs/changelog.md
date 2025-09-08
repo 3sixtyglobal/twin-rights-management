@@ -1,5 +1,12 @@
 # @twin.org/rights-management-models - Changelog
 
+## [0.0.2-next.9](https://github.com/twinfoundation/rights-management/compare/rights-management-models-v0.0.2-next.8...rights-management-models-v0.0.2-next.9) (2025-09-08)
+
+
+### Features
+
+* add JSON-LD types for negotiation ([6be61f8](https://github.com/twinfoundation/rights-management/commit/6be61f890537cb9d22d4fad90092b858de2c9c2d))
+
 ## [0.0.2-next.8](https://github.com/twinfoundation/rights-management/compare/rights-management-models-v0.0.2-next.7...rights-management-models-v0.0.2-next.8) (2025-09-05)
 
 

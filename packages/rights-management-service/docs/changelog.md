@@ -1,5 +1,27 @@
 # @twin.org/rights-management-pap-service - Changelog
 
+## [0.0.2-next.9](https://github.com/twinfoundation/rights-management/compare/rights-management-service-v0.0.2-next.8...rights-management-service-v0.0.2-next.9) (2025-09-08)
+
+
+### Features
+
+* add JSON-LD types for negotiation ([6be61f8](https://github.com/twinfoundation/rights-management/commit/6be61f890537cb9d22d4fad90092b858de2c9c2d))
+
+
+### Dependencies
+
+* The following workspace dependencies were updated
+  * dependencies
+    * @twin.org/rights-management-models bumped from 0.0.2-next.8 to 0.0.2-next.9
+  * devDependencies
+    * @twin.org/rights-management-pap-service bumped from 0.0.2-next.8 to 0.0.2-next.9
+    * @twin.org/rights-management-pdp-service bumped from 0.0.2-next.8 to 0.0.2-next.9
+    * @twin.org/rights-management-pep-service bumped from 0.0.2-next.8 to 0.0.2-next.9
+    * @twin.org/rights-management-pip-service bumped from 0.0.2-next.8 to 0.0.2-next.9
+    * @twin.org/rights-management-pmp-service bumped from 0.0.2-next.8 to 0.0.2-next.9
+    * @twin.org/rights-management-pnp-service bumped from 0.0.2-next.8 to 0.0.2-next.9
+    * @twin.org/rights-management-pxp-service bumped from 0.0.2-next.8 to 0.0.2-next.9
+
 ## [0.0.2-next.8](https://github.com/twinfoundation/rights-management/compare/rights-management-service-v0.0.2-next.7...rights-management-service-v0.0.2-next.8) (2025-09-05)
 
 
