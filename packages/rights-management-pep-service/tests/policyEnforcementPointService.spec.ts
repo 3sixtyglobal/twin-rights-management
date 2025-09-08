@@ -150,20 +150,15 @@ describe("PolicyEnforcementPointService", () => {
 		const result = await policyEnforcementPoint.intercept(
 			"document",
 			"read",
-			{ userIdentity: "user123" },
+			"nodeIdentity123",
 			inputData
 		);
 
-		expect(mockPdp.evaluate).toHaveBeenCalledWith(
-			"document",
-			"read",
-			{ userIdentity: "user123" },
-			inputData
-		);
+		expect(mockPdp.evaluate).toHaveBeenCalledWith("document", "read", "nodeIdentity123", inputData);
 		expect(mockProcessor.process).toHaveBeenCalledWith(
 			"document",
 			"read",
-			{ userIdentity: "user123" },
+			"nodeIdentity123",
 			inputData, // Should be cloned version
 			mockPolicies
 		);
@@ -193,21 +188,21 @@ describe("PolicyEnforcementPointService", () => {
 		const result = await policyEnforcementPoint.intercept(
 			"document",
 			"process",
-			{ userIdentity: "processor" },
+			"processor",
 			inputData
 		);
 
 		expect(firstProcessor.process).toHaveBeenCalledWith(
 			"document",
 			"process",
-			{ userIdentity: "processor" },
+			"processor",
 			inputData,
 			mockPolicies
 		);
 		expect(secondProcessor.process).toHaveBeenCalledWith(
 			"document",
 			"process",
-			{ userIdentity: "processor" },
+			"processor",
 			firstProcessedData,
 			mockPolicies
 		);
@@ -230,12 +225,7 @@ describe("PolicyEnforcementPointService", () => {
 		await policyEnforcementPoint.registerProcessor("subsequentProcessor", subsequentProcessor);
 
 		await expect(
-			policyEnforcementPoint.intercept(
-				"document",
-				"test",
-				{ userIdentity: "tester" },
-				{ content: "test data" }
-			)
+			policyEnforcementPoint.intercept("document", "test", "tester", { content: "test data" })
 		).rejects.toBeInstanceOf(GeneralError);
 
 		expect(failingProcessor.process).toHaveBeenCalled();
@@ -286,12 +276,7 @@ describe("PolicyEnforcementPointService", () => {
 		await policyEnforcementPoint.registerProcessor("errorProcessor", failingProcessor);
 
 		await expect(
-			policyEnforcementPoint.intercept(
-				"document",
-				"fail",
-				{ userIdentity: "user" },
-				{ content: "test" }
-			)
+			policyEnforcementPoint.intercept("document", "fail", "nodeIdentity", { content: "test" })
 		).rejects.toBeInstanceOf(GeneralError);
 
 		const logEntries = await loggingMemoryEntityStorage.query();
@@ -311,7 +296,7 @@ describe("PolicyEnforcementPointService", () => {
 		const mockProcessor = new MockPolicyEnforcementProcessor();
 
 		// Processor modifies the data it receives
-		mockProcessor.process.mockImplementation(async (assetType, action, context, data) => {
+		mockProcessor.process.mockImplementation(async (assetType, action, nodeIdentity, data) => {
 			if (data && typeof data === "object") {
 				data.modified = true;
 			}
@@ -321,12 +306,7 @@ describe("PolicyEnforcementPointService", () => {
 		await policyEnforcementPoint.registerProcessor("modifyingProcessor", mockProcessor);
 
 		const originalData = { content: "original", modified: false };
-		await policyEnforcementPoint.intercept(
-			"document",
-			"modify",
-			{ userIdentity: "modifier" },
-			originalData
-		);
+		await policyEnforcementPoint.intercept("document", "modify", "nodeIdentity", originalData);
 
 		// Original data should remain unchanged
 		expect(originalData.modified).toBe(false);
@@ -361,7 +341,7 @@ describe("PolicyEnforcementPointService", () => {
 		const selectiveProcessor = new MockPolicyEnforcementProcessor();
 
 		// Processor only handles "document" asset type
-		selectiveProcessor.process.mockImplementation(async (assetType, action, context, data) => {
+		selectiveProcessor.process.mockImplementation(async (assetType, action, nodeIdentity, data) => {
 			if (assetType === "document") {
 				return { ...data, processed: true, processorType: "document-processor" };
 			}
@@ -377,14 +357,14 @@ describe("PolicyEnforcementPointService", () => {
 		const documentResult = await policyEnforcementPoint.intercept(
 			"document",
 			"read",
-			{ userIdentity: "user123" },
+			"nodeIdentity123",
 			documentData
 		);
 
 		const imageResult = await policyEnforcementPoint.intercept(
 			"image",
 			"view",
-			{ userIdentity: "user123" },
+			"nodeIdentity123",
 			imageData
 		);
 
@@ -405,12 +385,14 @@ describe("PolicyEnforcementPointService", () => {
 		const encryptionProcessor = new MockPolicyEnforcementProcessor();
 
 		// Processor only handles "transmit" action
-		encryptionProcessor.process.mockImplementation(async (assetType, action, context, data) => {
-			if (action === "transmit") {
-				return { ...data, encrypted: true, algorithm: "AES-256" };
+		encryptionProcessor.process.mockImplementation(
+			async (assetType, action, nodeIdentity, data) => {
+				if (action === "transmit") {
+					return { ...data, encrypted: true, algorithm: "AES-256" };
+				}
+				return data;
 			}
-			return data;
-		});
+		);
 
 		await policyEnforcementPoint.registerProcessor("encryptionProcessor", encryptionProcessor);
 
@@ -419,14 +401,14 @@ describe("PolicyEnforcementPointService", () => {
 		const transmitResult = await policyEnforcementPoint.intercept(
 			"document",
 			"transmit",
-			{ userIdentity: "sender" },
+			"nodeIdentitySender",
 			testData
 		);
 
 		const readResult = await policyEnforcementPoint.intercept(
 			"document",
 			"read",
-			{ userIdentity: "reader" },
+			"nodeIdentityReader",
 			testData
 		);
 
@@ -447,12 +429,12 @@ describe("PolicyEnforcementPointService", () => {
 		const watermarkProcessor = new MockPolicyEnforcementProcessor();
 
 		// Processor only handles "image" + "share" combination
-		watermarkProcessor.process.mockImplementation(async (assetType, action, context, data) => {
+		watermarkProcessor.process.mockImplementation(async (assetType, action, nodeIdentity, data) => {
 			if (assetType === "image" && action === "share") {
 				return {
 					...data,
 					watermarked: true,
-					watermark: `© ${context?.userIdentity ?? "Unknown"}`
+					watermark: `© ${nodeIdentity ?? "Unknown"}`
 				};
 			}
 			return data;
@@ -465,21 +447,21 @@ describe("PolicyEnforcementPointService", () => {
 		const shareResult = await policyEnforcementPoint.intercept(
 			"image",
 			"share",
-			{ userIdentity: "photographer" },
+			"nodeIdentityPhotographer",
 			imageData
 		);
 
 		const viewResult = await policyEnforcementPoint.intercept(
 			"image",
 			"view",
-			{ userIdentity: "photographer" },
+			"nodeIdentityPhotographer",
 			imageData
 		);
 
 		const shareDocumentResult = await policyEnforcementPoint.intercept(
 			"document",
 			"share",
-			{ userIdentity: "photographer" },
+			"nodeIdentityPhotographer",
 			{ content: "document data" }
 		);
 
@@ -488,7 +470,7 @@ describe("PolicyEnforcementPointService", () => {
 			filename: "photo.jpg",
 			content: "image data",
 			watermarked: true,
-			watermark: "© photographer"
+			watermark: "© nodeIdentityPhotographer"
 		});
 		expect(viewResult).toEqual(imageData); // Unchanged
 		expect(shareDocumentResult).toEqual({ content: "document data" }); // Unchanged
@@ -505,32 +487,36 @@ describe("PolicyEnforcementPointService", () => {
 		const encryptionProcessor = new MockPolicyEnforcementProcessor();
 
 		// Audit processor logs all "download" actions
-		auditProcessor.process.mockImplementation(async (assetType, action, context, data) => {
+		auditProcessor.process.mockImplementation(async (assetType, action, nodeIdentity, data) => {
 			if (action === "download") {
 				return {
 					...data,
 					audited: true,
-					auditLog: `${context?.userIdentity} downloaded ${assetType}`
+					auditLog: `${nodeIdentity} downloaded ${assetType}`
 				};
 			}
 			return data;
 		});
 
 		// Compression processor handles large files
-		compressionProcessor.process.mockImplementation(async (assetType, action, context, data) => {
-			if (assetType === "video" || assetType === "archive") {
-				return { ...data, compressed: true, algorithm: "gzip" };
+		compressionProcessor.process.mockImplementation(
+			async (assetType, action, nodeIdentity, data) => {
+				if (assetType === "video" || assetType === "archive") {
+					return { ...data, compressed: true, algorithm: "gzip" };
+				}
+				return data;
 			}
-			return data;
-		});
+		);
 
 		// Encryption processor handles sensitive documents
-		encryptionProcessor.process.mockImplementation(async (assetType, action, context, data) => {
-			if (assetType === "sensitive-document") {
-				return { ...data, encrypted: true, key: "secret-key" };
+		encryptionProcessor.process.mockImplementation(
+			async (assetType, action, nodeIdentity, data) => {
+				if (assetType === "sensitive-document") {
+					return { ...data, encrypted: true, key: "secret-key" };
+				}
+				return data;
 			}
-			return data;
-		});
+		);
 
 		await policyEnforcementPoint.registerProcessor("auditProcessor", auditProcessor);
 		await policyEnforcementPoint.registerProcessor("compressionProcessor", compressionProcessor);
@@ -541,7 +527,7 @@ describe("PolicyEnforcementPointService", () => {
 		const videoResult = await policyEnforcementPoint.intercept(
 			"video",
 			"download",
-			{ userIdentity: "viewer" },
+			"nodeIdentityViewer",
 			videoData
 		);
 
@@ -550,7 +536,7 @@ describe("PolicyEnforcementPointService", () => {
 		const sensitiveResult = await policyEnforcementPoint.intercept(
 			"sensitive-document",
 			"read",
-			{ userIdentity: "analyst" },
+			"nodeIdentityAnalyst",
 			sensitiveData
 		);
 
@@ -558,7 +544,7 @@ describe("PolicyEnforcementPointService", () => {
 			filename: "movie.mp4",
 			size: "2GB",
 			audited: true,
-			auditLog: "viewer downloaded video",
+			auditLog: "nodeIdentityViewer downloaded video",
 			compressed: true,
 			algorithm: "gzip"
 		});
@@ -567,114 +553,6 @@ describe("PolicyEnforcementPointService", () => {
 			content: "classified information",
 			encrypted: true,
 			key: "secret-key"
-		});
-	});
-
-	test("processor skips processing based on context information", async () => {
-		const mockPdp = ComponentFactory.get<MockPolicyDecisionPointComponent>("policy-decision-point");
-		mockPdp.evaluate.mockResolvedValue([]);
-
-		const policyEnforcementPoint = new PolicyEnforcementPointService();
-		const roleBasedProcessor = new MockPolicyEnforcementProcessor();
-
-		// Processor only applies restrictions for non-admin users
-		roleBasedProcessor.process.mockImplementation(async (assetType, action, context, data) => {
-			const userRoles = context?.roles ?? [];
-			const isAdmin = userRoles.includes("admin");
-
-			if (action === "modify" && !isAdmin) {
-				return { ...data, restricted: true, reason: "insufficient privileges" };
-			}
-			return data;
-		});
-
-		await policyEnforcementPoint.registerProcessor("roleBasedProcessor", roleBasedProcessor);
-
-		const documentData = { content: "important document" };
-
-		const adminResult = await policyEnforcementPoint.intercept(
-			"document",
-			"modify",
-			{ userIdentity: "admin-user", roles: ["admin", "user"] },
-			documentData
-		);
-
-		const userResult = await policyEnforcementPoint.intercept(
-			"document",
-			"modify",
-			{ userIdentity: "regular-user", roles: ["user"] },
-			documentData
-		);
-
-		expect(roleBasedProcessor.process).toHaveBeenCalledTimes(2);
-		expect(adminResult).toEqual({ content: "important document" }); // Unchanged for admin
-		expect(userResult).toEqual({
-			content: "important document",
-			restricted: true,
-			reason: "insufficient privileges"
-		});
-	});
-
-	test("processor chains with conditional processing", async () => {
-		const mockPdp = ComponentFactory.get<MockPolicyDecisionPointComponent>("policy-decision-point");
-		mockPdp.evaluate.mockResolvedValue([]);
-
-		const policyEnforcementPoint = new PolicyEnforcementPointService();
-
-		const validationProcessor = new MockPolicyEnforcementProcessor();
-		const sanitizationProcessor = new MockPolicyEnforcementProcessor();
-
-		// Validation processor adds validation status
-		validationProcessor.process.mockImplementation(async (assetType, action, context, data) => {
-			if (assetType === "user-input") {
-				const isValid = data?.content?.length > 0;
-				return { ...data, validated: isValid };
-			}
-			return data;
-		});
-
-		// Sanitization processor only runs if validation passed
-		sanitizationProcessor.process.mockImplementation(async (assetType, action, context, data) => {
-			if (assetType === "user-input" && data?.validated) {
-				return {
-					...data,
-					sanitized: true,
-					content: data.content.replace(/<script>(.*?)<\/script>/g, "")
-				};
-			}
-			return data;
-		});
-
-		await policyEnforcementPoint.registerProcessor("validationProcessor", validationProcessor);
-		await policyEnforcementPoint.registerProcessor("sanitizationProcessor", sanitizationProcessor);
-
-		const validInput = { content: "Hello <script>alert('xss')</script> World" };
-		const invalidInput = { content: "" };
-
-		const validResult = await policyEnforcementPoint.intercept(
-			"user-input",
-			"submit",
-			{ userIdentity: "user1" },
-			validInput
-		);
-
-		const invalidResult = await policyEnforcementPoint.intercept(
-			"user-input",
-			"submit",
-			{ userIdentity: "user2" },
-			invalidInput
-		);
-
-		expect(validResult).toEqual({
-			content: "Hello  World", // Script tag removed
-			validated: true,
-			sanitized: true
-		});
-
-		expect(invalidResult).toEqual({
-			content: "",
-			validated: false
-			// Not sanitized because validation failed
 		});
 	});
 });

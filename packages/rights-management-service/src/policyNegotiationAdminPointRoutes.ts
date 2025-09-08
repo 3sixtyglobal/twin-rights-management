@@ -78,7 +78,7 @@ export function generateRestRoutesPolicyNegotiationAdminPoint(
 								dateCreated: "2025-09-03T00:00:00.000Z",
 								assetType: "document",
 								action: "view",
-								context: {}
+								nodeIdentity: "urn:example:node:1"
 							}
 						}
 					}
@@ -108,7 +108,7 @@ export function generateRestRoutesPolicyNegotiationAdminPoint(
 							dateCreated: "2025-09-03T00:00:00.000Z",
 							assetType: "document",
 							action: "view",
-							context: {}
+							nodeIdentity: "urn:example:node:1"
 						}
 					}
 				}
@@ -173,7 +173,7 @@ export function generateRestRoutesPolicyNegotiationAdminPoint(
 										dateCreated: "2025-09-03T00:00:00.000Z",
 										assetType: "document",
 										action: "view",
-										context: {}
+										nodeIdentity: "urn:example:node:1"
 									}
 								],
 								cursor: "next-cursor"

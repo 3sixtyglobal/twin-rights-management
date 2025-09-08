@@ -14,17 +14,20 @@ import { IdentityConnectorFactory, type IIdentityConnector } from "@twin.org/ide
 import type { ILoggingComponent } from "@twin.org/logging-models";
 import { nameof } from "@twin.org/nameof";
 import {
-	type IPolicyNegotiationAdminPointComponent,
 	OdrlPolicyHelper,
 	PolicyNegotiationStatus,
+	RightsManagementContexts,
+	RightsManagementNamespaces,
+	RightsManagementTypes,
 	type IPolicyAdministrationPointComponent,
-	type IPolicyContext,
+	type IPolicyNegotiationAdminPointComponent,
 	type IPolicyNegotiationPointComponent,
+	type IPolicyNegotiationRequest,
 	type IPolicyNegotiator,
-	type IPolicyState,
-	RightsManagementNamespaces
+	type IPolicyRequest,
+	type IPolicyState
 } from "@twin.org/rights-management-models";
-import type { IProof } from "@twin.org/standards-w3c-did";
+import { DidContexts, type IProof } from "@twin.org/standards-w3c-did";
 import type { PolicyNegotiation } from "./entities/policyNegotiation";
 import type { IPolicyNegotiationPointServiceConstructorOptions } from "./models/IPolicyNegotiationPointServiceConstructorOptions";
 
@@ -62,6 +65,12 @@ export class PolicyNegotiationPointService implements IPolicyNegotiationPointCom
 	private readonly _policyAdministrationPointComponent: IPolicyAdministrationPointComponent;
 
 	/**
+	 * The time-to-live (TTL) for proof in seconds.
+	 * @internal
+	 */
+	private readonly _proofTtlInSeconds: number;
+
+	/**
 	 * These negotiators can be registered to handle negotiations for specific asset types and actions.
 	 * @internal
 	 */
@@ -90,6 +99,8 @@ export class PolicyNegotiationPointService implements IPolicyNegotiationPointCom
 			ComponentFactory.get<IPolicyAdministrationPointComponent>(
 				options?.policyAdministrationPointComponentType ?? "policy-administration-point"
 			);
+
+		this._proofTtlInSeconds = options?.config?.proofTtlInSeconds ?? 300; // Default to 5 minutes
 		this._negotiators = options?.config?.negotiators ?? [];
 	}
 
@@ -98,27 +109,26 @@ export class PolicyNegotiationPointService implements IPolicyNegotiationPointCom
 	 * @param assetType The type of asset being processed.
 	 * @param action The action being performed on the asset.
 	 * @param resourceId The ID of the resource being requested, can be empty if asset type access requested.
-	 * @param context The context from the requesting node.
-	 * @param requesterInformation Information provided by the requester to determine if a policy can be created.
+	 * @param nodeIdentity The identity of the node making the request.
+	 * @param information Information provided by the requester to determine if a policy can be created.
 	 * @param proof The proof provided by the requester to support the policy creation.
 	 * @returns The state of the policy.
 	 */
-	public async negotiate<C extends IPolicyContext = IPolicyContext>(
+	public async negotiate(
 		assetType: string,
 		action: string,
 		resourceId: string | undefined,
-		context: C,
-		requesterInformation: { [source: string]: IJsonLdNodeObject[] } | undefined,
+		nodeIdentity: string,
+		information: { [source: string]: IJsonLdNodeObject[] } | undefined,
 		proof: IProof
 	): Promise<IPolicyState> {
 		Guards.stringValue(this.CLASS_NAME, nameof(assetType), assetType);
 		Guards.stringValue(this.CLASS_NAME, nameof(action), action);
-		Guards.object<C>(this.CLASS_NAME, nameof(context), context);
-		Guards.stringValue(this.CLASS_NAME, nameof(context.nodeIdentity), context.nodeIdentity);
+		Guards.stringValue(this.CLASS_NAME, nameof(nodeIdentity), nodeIdentity);
 		Guards.object<IProof>(this.CLASS_NAME, nameof(proof), proof);
 
 		// First verify the proof
-		await this.verifyProofNegotiation(assetType, action, context.nodeIdentity, proof);
+		await this.verifyProofNegotiation(assetType, action, resourceId, nodeIdentity, proof);
 
 		// Proof verified so find a negotiator for the asset type and action
 		const findResult = this._negotiators.find(n => n.negotiator.canNegotiate(assetType, action));
@@ -135,8 +145,8 @@ export class PolicyNegotiationPointService implements IPolicyNegotiationPointCom
 			assetType,
 			action,
 			resourceId,
-			context,
-			requesterInformation
+			nodeIdentity,
+			information
 		);
 
 		// The only time we don't store the state is when the policy was
@@ -151,8 +161,8 @@ export class PolicyNegotiationPointService implements IPolicyNegotiationPointCom
 				assetType,
 				action,
 				resourceId,
-				context,
-				requesterInformation,
+				nodeIdentity,
+				information,
 				status: negotiated.state.status,
 				reason: negotiated.state.reason
 			};
@@ -193,6 +203,8 @@ export class PolicyNegotiationPointService implements IPolicyNegotiationPointCom
 			const policy = await this._policyAdministrationPointComponent.get(policyId);
 
 			return {
+				"@context": RightsManagementContexts.ContextRoot,
+				type: RightsManagementTypes.PolicyState,
 				id: policyId,
 				status: PolicyNegotiationStatus.Approved,
 				expires: OdrlPolicyHelper.findExpirationDate(policy)
@@ -223,6 +235,8 @@ export class PolicyNegotiationPointService implements IPolicyNegotiationPointCom
 			// We found an in-progress negotiation so just return the details from that
 			if (Is.object<PolicyNegotiation>(policy)) {
 				return {
+					"@context": RightsManagementContexts.ContextRoot,
+					type: RightsManagementTypes.PolicyState,
 					id: policy.id,
 					status: policy.status,
 					reason: policy.reason
@@ -317,6 +331,7 @@ export class PolicyNegotiationPointService implements IPolicyNegotiationPointCom
 	 * Verify the proof for a specific action and asset type.
 	 * @param assetType The type of the asset being accessed.
 	 * @param action The action being performed.
+	 * @param resourceId The specific resource id or can be left undefined for a whole asset class.
 	 * @param nodeIdentity The identity of the node performing the action.
 	 * @param proof The proof object containing the necessary information.
 	 * @throws GeneralError is the proof verification fails.
@@ -325,6 +340,7 @@ export class PolicyNegotiationPointService implements IPolicyNegotiationPointCom
 	private async verifyProofNegotiation(
 		assetType: string,
 		action: string,
+		resourceId: string | undefined,
 		nodeIdentity: string,
 		proof: IProof
 	): Promise<void> {
@@ -333,9 +349,21 @@ export class PolicyNegotiationPointService implements IPolicyNegotiationPointCom
 		Guards.stringValue(this.CLASS_NAME, nameof(nodeIdentity), nodeIdentity);
 		Guards.objectValue<IProof>(this.CLASS_NAME, nameof(proof), proof);
 
-		const proofDocument = { assetType, action, nodeIdentity } as unknown as IJsonLdNodeObject;
+		this.verifyCreated(proof, nodeIdentity);
 
-		const isValid = await this._identityConnector.verifyProof(proofDocument, proof);
+		const proofDocument: Omit<IPolicyNegotiationRequest, "proof"> = {
+			"@context": [RightsManagementContexts.ContextRoot, DidContexts.ContextVCv2],
+			type: RightsManagementTypes.PolicyNegotiationRequest,
+			assetType,
+			action,
+			resourceId,
+			nodeIdentity
+		};
+
+		const isValid = await this._identityConnector.verifyProof(
+			proofDocument as unknown as IJsonLdNodeObject,
+			proof
+		);
 
 		if (!isValid) {
 			throw new GeneralError(this.CLASS_NAME, "proofNegotiationFailed", {
@@ -363,12 +391,48 @@ export class PolicyNegotiationPointService implements IPolicyNegotiationPointCom
 		Guards.stringValue(this.CLASS_NAME, nameof(nodeIdentity), nodeIdentity);
 		Guards.objectValue<IProof>(this.CLASS_NAME, nameof(proof), proof);
 
-		const proofDocument = { policyId, nodeIdentity } as unknown as IJsonLdNodeObject;
+		this.verifyCreated(proof, nodeIdentity);
 
-		const isValid = await this._identityConnector.verifyProof(proofDocument, proof);
+		const proofDocument: Omit<IPolicyRequest, "proof"> = {
+			"@context": [RightsManagementContexts.ContextRoot, DidContexts.ContextVCv2],
+			type: RightsManagementTypes.PolicyRequest,
+			id: policyId,
+			nodeIdentity
+		};
+
+		const isValid = await this._identityConnector.verifyProof(
+			proofDocument as unknown as IJsonLdNodeObject,
+			proof
+		);
 
 		if (!isValid) {
 			throw new GeneralError(this.CLASS_NAME, "proofPolicyIdFailed", { policyId, nodeIdentity });
+		}
+	}
+
+	/**
+	 * Verify that the proof has a created date and that it is within the allowed time-to-live (TTL).
+	 * @param proof The proof object to verify.
+	 * @param nodeIdentity The identity of the node performing the action.
+	 * @throws GeneralError if the proof is missing the created date or if it has expired.
+	 * @internal
+	 */
+	private verifyCreated(proof: IProof, nodeIdentity: string): void {
+		if (Is.empty(proof.created)) {
+			throw new GeneralError(this.CLASS_NAME, "proofMissingCreated", {
+				nodeIdentity
+			});
+		}
+
+		const proofCreated = new Date(proof.created);
+		const now = Date.now();
+		const proofTtlInMs = this._proofTtlInSeconds * 1000;
+
+		// If the proof has expired then we should reject it
+		if (proofCreated.getTime() + proofTtlInMs < now) {
+			throw new GeneralError(this.CLASS_NAME, "proofExpired", {
+				nodeIdentity
+			});
 		}
 	}
 }

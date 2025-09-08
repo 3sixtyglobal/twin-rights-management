@@ -250,8 +250,8 @@ export class PolicyNegotiationAdminPointService implements IPolicyNegotiationAdm
 			assetType: entity.assetType,
 			action: entity.action,
 			resourceId: entity.resourceId,
-			context: entity.context,
-			requesterInformation: entity.requesterInformation,
+			nodeIdentity: entity.nodeIdentity,
+			information: entity.information,
 			status: entity.status,
 			reason: entity.reason,
 			expires: entity.expires
@@ -271,8 +271,8 @@ export class PolicyNegotiationAdminPointService implements IPolicyNegotiationAdm
 			assetType: model.assetType,
 			action: model.action,
 			resourceId: model.resourceId,
-			context: model.context,
-			requesterInformation: model.requesterInformation,
+			nodeIdentity: model.nodeIdentity,
+			information: model.information,
 			status: model.status,
 			reason: model.reason,
 			expires: model.expires

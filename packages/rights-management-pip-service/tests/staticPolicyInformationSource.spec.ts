@@ -64,7 +64,7 @@ describe("StaticPolicyInformationSource", () => {
 			"document",
 			"read",
 			PolicyInformationAccessMode.Any,
-			{ userIdentity: "user123" },
+			"node123",
 			{ content: "test" },
 			[]
 		);
@@ -93,7 +93,7 @@ describe("StaticPolicyInformationSource", () => {
 			"document",
 			"read",
 			PolicyInformationAccessMode.Public,
-			{ userIdentity: "user123" },
+			"node123",
 			{ content: "test" },
 			[]
 		);
@@ -122,7 +122,7 @@ describe("StaticPolicyInformationSource", () => {
 			"document",
 			"read",
 			PolicyInformationAccessMode.Private,
-			{ userIdentity: "user123" },
+			"node123",
 			{ content: "test" },
 			[]
 		);
@@ -143,7 +143,7 @@ describe("StaticPolicyInformationSource", () => {
 			"document",
 			"read",
 			PolicyInformationAccessMode.Public,
-			{ userIdentity: "user123" },
+			"node123",
 			{ content: "test" },
 			[]
 		);
@@ -152,7 +152,7 @@ describe("StaticPolicyInformationSource", () => {
 			"document",
 			"read",
 			PolicyInformationAccessMode.Private,
-			{ userIdentity: "user123" },
+			"node123",
 			{ content: "test" },
 			[]
 		);
@@ -176,7 +176,7 @@ describe("StaticPolicyInformationSource", () => {
 			"document",
 			"read",
 			PolicyInformationAccessMode.Public,
-			{ userIdentity: "user123" },
+			"node123",
 			{ content: "test" },
 			[]
 		);
@@ -199,7 +199,7 @@ describe("StaticPolicyInformationSource", () => {
 			"document",
 			"read",
 			PolicyInformationAccessMode.Private,
-			{ userIdentity: "user123" },
+			"node123",
 			{ content: "test" },
 			[]
 		);
@@ -230,7 +230,7 @@ describe("StaticPolicyInformationSource", () => {
 			"document",
 			"read",
 			PolicyInformationAccessMode.Public,
-			{ userIdentity: "user123" },
+			"node123",
 			{ content: "test" },
 			[]
 		);
@@ -239,7 +239,7 @@ describe("StaticPolicyInformationSource", () => {
 			"document",
 			"read",
 			PolicyInformationAccessMode.Private,
-			{ userIdentity: "user123" },
+			"node123",
 			{ content: "test" },
 			[]
 		);
@@ -248,7 +248,7 @@ describe("StaticPolicyInformationSource", () => {
 			"document",
 			"read",
 			PolicyInformationAccessMode.Any,
-			{ userIdentity: "user123" },
+			"node123",
 			{ content: "test" },
 			[]
 		);
@@ -279,7 +279,7 @@ describe("StaticPolicyInformationSource", () => {
 			"document",
 			"read",
 			PolicyInformationAccessMode.Public,
-			{ userIdentity: "user123" },
+			"node123",
 			{ content: "test" },
 			[]
 		);
@@ -308,7 +308,7 @@ describe("StaticPolicyInformationSource", () => {
 			"document",
 			"read",
 			PolicyInformationAccessMode.Any,
-			{ userIdentity: "user123" },
+			"node123",
 			{ content: "test" },
 			[]
 		);
@@ -317,7 +317,7 @@ describe("StaticPolicyInformationSource", () => {
 			"image",
 			"write",
 			PolicyInformationAccessMode.Any,
-			{ userIdentity: "user123" },
+			"node123",
 			{ content: "test" },
 			[]
 		);
@@ -347,7 +347,7 @@ describe("StaticPolicyInformationSource", () => {
 			"document",
 			"read",
 			PolicyInformationAccessMode.Any,
-			{ userIdentity: "user123" },
+			"node123",
 			{ content: "test" },
 			[]
 		);
@@ -356,7 +356,7 @@ describe("StaticPolicyInformationSource", () => {
 			"document",
 			"write",
 			PolicyInformationAccessMode.Any,
-			{ userIdentity: "user123" },
+			"node123",
 			{ content: "test" },
 			[]
 		);
@@ -386,7 +386,7 @@ describe("StaticPolicyInformationSource", () => {
 			"document",
 			"read",
 			PolicyInformationAccessMode.Any,
-			{ userIdentity: "user123" },
+			"node123",
 			{ content: "test" },
 			[]
 		);
@@ -395,7 +395,7 @@ describe("StaticPolicyInformationSource", () => {
 			"image",
 			"read",
 			PolicyInformationAccessMode.Any,
-			{ userIdentity: "user123" },
+			"node123",
 			{ content: "test" },
 			[]
 		);
@@ -404,7 +404,7 @@ describe("StaticPolicyInformationSource", () => {
 			"document",
 			"write",
 			PolicyInformationAccessMode.Any,
-			{ userIdentity: "user123" },
+			"node123",
 			{ content: "test" },
 			[]
 		);
@@ -435,7 +435,7 @@ describe("StaticPolicyInformationSource", () => {
 			"document",
 			"read",
 			PolicyInformationAccessMode.Any,
-			{ userIdentity: "user123" },
+			"node123",
 			{ content: "test" },
 			[]
 		);
@@ -444,7 +444,7 @@ describe("StaticPolicyInformationSource", () => {
 			"document",
 			"write",
 			PolicyInformationAccessMode.Any,
-			{ userIdentity: "user123" },
+			"node123",
 			{ content: "test" },
 			[]
 		);
@@ -453,7 +453,7 @@ describe("StaticPolicyInformationSource", () => {
 			"image",
 			"read",
 			PolicyInformationAccessMode.Any,
-			{ userIdentity: "user123" },
+			"node123",
 			{ content: "test" },
 			[]
 		);
@@ -484,7 +484,7 @@ describe("StaticPolicyInformationSource", () => {
 			"document",
 			"read",
 			PolicyInformationAccessMode.Any,
-			{ userIdentity: "user123" },
+			"node123",
 			{ content: "test" },
 			[]
 		);
@@ -493,7 +493,7 @@ describe("StaticPolicyInformationSource", () => {
 			"image",
 			"write",
 			PolicyInformationAccessMode.Any,
-			{ userIdentity: "user123" },
+			"node123",
 			{ content: "test" },
 			[]
 		);
@@ -527,7 +527,7 @@ describe("StaticPolicyInformationSource", () => {
 			"document",
 			"read",
 			PolicyInformationAccessMode.Any,
-			{ userIdentity: "user123" },
+			"node123",
 			{ content: "test" },
 			[]
 		);
@@ -536,7 +536,7 @@ describe("StaticPolicyInformationSource", () => {
 			"image",
 			"write",
 			PolicyInformationAccessMode.Any,
-			{ userIdentity: "user123" },
+			"node123",
 			{ content: "test" },
 			[]
 		);
@@ -545,7 +545,7 @@ describe("StaticPolicyInformationSource", () => {
 			"video",
 			"stream",
 			PolicyInformationAccessMode.Any,
-			{ userIdentity: "user123" },
+			"node123",
 			{ content: "test" },
 			[]
 		);
@@ -554,7 +554,7 @@ describe("StaticPolicyInformationSource", () => {
 			"document",
 			"write",
 			PolicyInformationAccessMode.Any,
-			{ userIdentity: "user123" },
+			"node123",
 			{ content: "test" },
 			[]
 		);
@@ -594,7 +594,7 @@ describe("StaticPolicyInformationSource", () => {
 			"document",
 			"read",
 			PolicyInformationAccessMode.Public,
-			{ userIdentity: "user123" },
+			"node123",
 			{ content: "test" },
 			[]
 		);
@@ -603,7 +603,7 @@ describe("StaticPolicyInformationSource", () => {
 			"image",
 			"write",
 			PolicyInformationAccessMode.Private,
-			{ userIdentity: "user123" },
+			"node123",
 			{ content: "test" },
 			[]
 		);
@@ -612,7 +612,7 @@ describe("StaticPolicyInformationSource", () => {
 			"document",
 			"read",
 			PolicyInformationAccessMode.Private,
-			{ userIdentity: "user123" },
+			"node123",
 			{ content: "test" },
 			[]
 		);
@@ -621,7 +621,7 @@ describe("StaticPolicyInformationSource", () => {
 			"document",
 			"write",
 			PolicyInformationAccessMode.Public,
-			{ userIdentity: "user123" },
+			"node123",
 			{ content: "test" },
 			[]
 		);
@@ -653,7 +653,7 @@ describe("StaticPolicyInformationSource", () => {
 			"document",
 			"read",
 			PolicyInformationAccessMode.Any,
-			{ userIdentity: "user123" },
+			"node123",
 			{ content: "test" },
 			[]
 		);

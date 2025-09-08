@@ -12,15 +12,9 @@ of the request and determine the appropriate policies to create.
 
 ### negotiate()
 
-> **negotiate**\<`C`\>(`assetType`, `action`, `resourceId`, `context`, `requesterInformation`, `proof`): `Promise`\<[`IPolicyState`](IPolicyState.md)\>
+> **negotiate**(`assetType`, `action`, `resourceId`, `nodeIdentity`, `information`, `proof`): `Promise`\<[`IPolicyState`](IPolicyState.md)\>
 
 Processes an incoming negotiation request for the resource.
-
-#### Type Parameters
-
-##### C
-
-`C` *extends* [`IPolicyContext`](IPolicyContext.md) = [`IPolicyContext`](IPolicyContext.md)
 
 #### Parameters
 
@@ -42,13 +36,13 @@ The ID of the resource being requested, can be empty if asset type access reques
 
 `undefined` | `string`
 
-##### context
+##### nodeIdentity
 
-`C`
+`string`
 
-The context from the requesting node.
+The identity of the node requesting the negotiation.
 
-##### requesterInformation
+##### information
 
 Information provided by the requester to determine if a policy can be created.
 

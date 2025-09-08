@@ -20,10 +20,6 @@
 			"description": "Endpoints for managing ODRL policies in the Policy Administration Point"
 		},
 		{
-			"name": "Policy Enforcement Point",
-			"description": "Endpoints for managing ODRL policies in the Policy Enforcement Point"
-		},
-		{
 			"name": "Policy Negotiation Point",
 			"description": "Endpoints for managing ODRL policies in the Policy Negotiation Point"
 		},
@@ -589,121 +585,6 @@
 				}
 			}
 		},
-		"/rights-management/pep/intercept": {
-			"post": {
-				"operationId": "pepIntercept",
-				"summary": "Intercept a request",
-				"tags": [
-					"Policy Enforcement Point"
-				],
-				"security": [
-					{
-						"jwtBearerAuthScheme": []
-					}
-				],
-				"requestBody": {
-					"description": "The request structure for intercepting a request and enforcing a policy.",
-					"required": true,
-					"content": {
-						"application/json": {
-							"schema": {
-								"$ref": "#/components/schemas/PepInterceptRequest"
-							},
-							"examples": {
-								"pepInterceptRequestExample": {
-									"value": {
-										"assetType": "document",
-										"action": "view",
-										"data": {
-											"id": "document-1",
-											"param1": 1,
-											"param2": 2
-										}
-									}
-								}
-							}
-						}
-					}
-				},
-				"responses": {
-					"200": {
-						"description": "The response structure for intercepting a request and enforcing a policy.",
-						"content": {
-							"application/json": {
-								"schema": {
-									"$ref": "#/components/schemas/PepInterceptResponse"
-								},
-								"examples": {
-									"pepInterceptResponseExample": {
-										"value": {
-											"id": "document-1",
-											"param1": 1
-										}
-									}
-								}
-							}
-						}
-					},
-					"400": {
-						"description": "The server cannot process the request, see the content for more details.",
-						"content": {
-							"application/json": {
-								"schema": {
-									"$ref": "#/components/schemas/Error"
-								},
-								"examples": {
-									"exampleResponse": {
-										"value": {
-											"name": "GeneralError",
-											"message": "component.error",
-											"properties": {
-												"foo": "bar"
-											}
-										}
-									}
-								}
-							}
-						}
-					},
-					"401": {
-						"description": "You are not authorized to use the API or no credentials were supplied, see the content for more details.",
-						"content": {
-							"application/json": {
-								"schema": {
-									"$ref": "#/components/schemas/Error"
-								},
-								"examples": {
-									"exampleResponse": {
-										"value": {
-											"name": "UnauthorizedError",
-											"message": "component.error"
-										}
-									}
-								}
-							}
-						}
-					},
-					"500": {
-						"description": "The server has encountered a situation it does not know how to handle, see the content for more details.",
-						"content": {
-							"application/json": {
-								"schema": {
-									"$ref": "#/components/schemas/Error"
-								},
-								"examples": {
-									"exampleResponse": {
-										"value": {
-											"name": "InternalServerError",
-											"message": "component.error"
-										}
-									}
-								}
-							}
-						}
-					}
-				}
-			}
-		},
 		"/rights-management/pnp/negotiate": {
 			"post": {
 				"operationId": "pnpNegotiate",
@@ -711,22 +592,36 @@
 				"tags": [
 					"Policy Negotiation Point"
 				],
+				"parameters": [
+					{
+						"name": "accept",
+						"in": "header",
+						"required": true,
+						"schema": {
+							"type": "string"
+						},
+						"style": "simple"
+					}
+				],
 				"requestBody": {
 					"description": "The request structure for negotiating a policy.",
 					"required": true,
 					"content": {
 						"application/json": {
 							"schema": {
-								"$ref": "#/components/schemas/PnpNegotiateRequest"
+								"$ref": "#/components/schemas/PolicyNegotiationRequest"
 							},
 							"examples": {
 								"pnpNegotiateRequestExample": {
 									"value": {
+										"@context": [
+											"https://schema.twindev.org/rights-management",
+											"https://www.w3.org/ns/credentials/v2"
+										],
+										"type": "PolicyNegotiationRequest",
 										"assetType": "document",
 										"action": "view",
-										"context": {
-											"nodeIdentity": "urn:example:node:1"
-										},
+										"nodeIdentity": "urn:example:node:1",
 										"proof": {
 											"created": "2024-08-22T11:56:56.272Z",
 											"type": "DataIntegrityProof",
@@ -752,6 +647,8 @@
 								"examples": {
 									"IPnpNegotiateResponseExample": {
 										"value": {
+											"@context": "https://schema.twindev.org/rights-management",
+											"type": "PolicyState",
 											"id": "policy-1",
 											"status": "approved"
 										}
@@ -820,6 +717,15 @@
 						},
 						"style": "simple",
 						"example": "policy-1"
+					},
+					{
+						"name": "accept",
+						"in": "header",
+						"required": true,
+						"schema": {
+							"type": "string"
+						},
+						"style": "simple"
 					}
 				],
 				"requestBody": {
@@ -828,11 +734,16 @@
 					"content": {
 						"application/json": {
 							"schema": {
-								"$ref": "#/components/schemas/PnpNegotiationStateRequest"
+								"$ref": "#/components/schemas/PolicyRequest"
 							},
 							"examples": {
 								"pnpNegotiationStateRequestExample": {
 									"value": {
+										"@context": [
+											"https://schema.twindev.org/rights-management",
+											"https://www.w3.org/ns/credentials/v2"
+										],
+										"type": "PolicyRequest",
 										"nodeIdentity": "urn:example:node:1",
 										"proof": {
 											"created": "2024-08-22T11:56:56.272Z",
@@ -859,6 +770,8 @@
 								"examples": {
 									"IPnpNegotiationStateResponseExample": {
 										"value": {
+											"@context": "https://schema.twindev.org/rights-management",
+											"type": "PolicyState",
 											"id": "policy-1",
 											"status": "approved"
 										}
@@ -925,6 +838,15 @@
 						},
 						"style": "simple",
 						"example": "policy-1"
+					},
+					{
+						"name": "accept",
+						"in": "header",
+						"required": true,
+						"schema": {
+							"type": "string"
+						},
+						"style": "simple"
 					}
 				],
 				"requestBody": {
@@ -933,11 +855,16 @@
 					"content": {
 						"application/json": {
 							"schema": {
-								"$ref": "#/components/schemas/PnpNegotiationCancelRequest"
+								"$ref": "#/components/schemas/PolicyRequest"
 							},
 							"examples": {
 								"pnpNegotiationCancelRequestExample": {
 									"value": {
+										"@context": [
+											"https://schema.twindev.org/rights-management",
+											"https://www.w3.org/ns/credentials/v2"
+										],
+										"type": "PolicyRequest",
 										"nodeIdentity": "urn:example:node:1",
 										"proof": {
 											"created": "2024-08-22T11:56:56.272Z",
@@ -1040,7 +967,7 @@
 											"dateCreated": "2025-09-03T00:00:00.000Z",
 											"assetType": "document",
 											"action": "view",
-											"context": {}
+											"nodeIdentity": "urn:example:node:1"
 										}
 									}
 								}
@@ -1146,7 +1073,7 @@
 										"dateCreated": "2025-09-03T00:00:00.000Z",
 										"assetType": "document",
 										"action": "view",
-										"context": {}
+										"nodeIdentity": "urn:example:node:1"
 									}
 								}
 							}
@@ -1356,7 +1283,7 @@
 													"dateCreated": "2025-09-03T00:00:00.000Z",
 													"assetType": "document",
 													"action": "view",
-													"context": {}
+													"nodeIdentity": "urn:example:node:1"
 												}
 											],
 											"cursor": "next-cursor"
@@ -1912,34 +1839,6 @@
 				"additionalProperties": false,
 				"description": "The body of the response."
 			},
-			"PepInterceptRequest": {
-				"type": "object",
-				"properties": {
-					"assetType": {
-						"type": "string",
-						"description": "The type of the asset to enforce the policy on."
-					},
-					"action": {
-						"type": "string",
-						"description": "The action to perform on the asset."
-					},
-					"context": {
-						"description": "The context in which the action is being performed. userIdentity and nodeIdentity should not be passed as they will be populated by the authenticated context on the server side."
-					},
-					"data": {
-						"description": "The data to include in the request."
-					}
-				},
-				"required": [
-					"assetType",
-					"action"
-				],
-				"additionalProperties": false,
-				"description": "The body parameters of the request."
-			},
-			"PepInterceptResponse": {
-				"description": "The manipulated data with any policies applied."
-			},
 			"PnapQueryResponse": {
 				"type": "object",
 				"properties": {
@@ -1964,101 +1863,6 @@
 				"additionalProperties": false,
 				"description": "The body of the response."
 			},
-			"PnpNegotiateRequest": {
-				"type": "object",
-				"properties": {
-					"assetType": {
-						"type": "string",
-						"description": "The type of the asset being requested."
-					},
-					"action": {
-						"type": "string",
-						"description": "The action being performed on the asset."
-					},
-					"resourceId": {
-						"type": "string",
-						"description": "The id of the item being requested."
-					},
-					"context": {
-						"$ref": "#/components/schemas/PolicyContext"
-					},
-					"requesterInformation": {
-						"type": "object",
-						"additionalProperties": {
-							"type": "array",
-							"items": false,
-							"prefixItems": [
-								{
-									"$ref": "https://schema.twindev.org/json-ld/JsonLdNodeObject"
-								}
-							]
-						},
-						"description": "Additional information provided by the requester to determine if a policy can be created."
-					},
-					"proof": {
-						"$ref": "https://schema.twindev.org/w3c-did/Proof"
-					}
-				},
-				"required": [
-					"assetType",
-					"action",
-					"context",
-					"proof"
-				],
-				"additionalProperties": false,
-				"description": "The body parameters of the request."
-			},
-			"PnpNegotiationCancelRequest": {
-				"type": "object",
-				"properties": {
-					"nodeIdentity": {
-						"type": "string",
-						"description": "The node sending the request."
-					},
-					"proof": {
-						"$ref": "https://schema.twindev.org/w3c-did/Proof"
-					}
-				},
-				"required": [
-					"nodeIdentity",
-					"proof"
-				],
-				"additionalProperties": false,
-				"description": "The body of the request."
-			},
-			"PnpNegotiationStateRequest": {
-				"type": "object",
-				"properties": {
-					"nodeIdentity": {
-						"type": "string",
-						"description": "The node sending the request."
-					},
-					"proof": {
-						"$ref": "https://schema.twindev.org/w3c-did/Proof"
-					}
-				},
-				"required": [
-					"nodeIdentity",
-					"proof"
-				],
-				"additionalProperties": false,
-				"description": "The body of the request."
-			},
-			"PolicyContext": {
-				"type": "object",
-				"properties": {
-					"userIdentity": {
-						"type": "string",
-						"description": "The user identity to use in the decision making."
-					},
-					"nodeIdentity": {
-						"type": "string",
-						"description": "The node identity to use in the decision making."
-					}
-				},
-				"additionalProperties": false,
-				"description": "Context information to be used when making a policy decision."
-			},
 			"PolicyNegotiation": {
 				"type": "object",
 				"properties": {
@@ -2082,10 +1886,11 @@
 						"type": "string",
 						"description": "The resource id the negotiation is for."
 					},
-					"context": {
-						"$ref": "#/components/schemas/PolicyContext"
+					"nodeIdentity": {
+						"type": "string",
+						"description": "The identity of the node making the request."
 					},
-					"requesterInformation": {
+					"information": {
 						"type": "object",
 						"additionalProperties": {
 							"type": "array",
@@ -2115,7 +1920,7 @@
 					"dateCreated",
 					"assetType",
 					"action",
-					"context",
+					"nodeIdentity",
 					"status"
 				],
 				"additionalProperties": false,
@@ -2144,6 +1949,16 @@
 			"PolicyState": {
 				"type": "object",
 				"properties": {
+					"@context": {
+						"type": "string",
+						"const": "https://schema.twindev.org/rights-management",
+						"description": "The JSON-LD context."
+					},
+					"type": {
+						"type": "string",
+						"const": "PolicyState",
+						"description": "The type of the proof."
+					},
 					"id": {
 						"type": "string",
 						"description": "The id of the policy."
@@ -2161,6 +1976,8 @@
 					}
 				},
 				"required": [
+					"@context",
+					"type",
 					"id",
 					"status"
 				],

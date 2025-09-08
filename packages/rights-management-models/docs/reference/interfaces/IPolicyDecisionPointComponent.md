@@ -14,7 +14,7 @@ Point (PEP) will execute any registered actions.
 
 ### evaluate()
 
-> **evaluate**\<`C`, `D`\>(`assetType`, `action`, `context`, `data`): `Promise`\<`IOdrlPolicy`[]\>
+> **evaluate**\<`D`\>(`assetType`, `action`, `nodeIdentity`, `data`): `Promise`\<`IOdrlPolicy`[]\>
 
 Evaluate requests from a Policy Enforcement Point (PEP).
 Uses the Policy Management Point (PMP) to retrieve the policies and the
@@ -22,10 +22,6 @@ Policy Information Point (PIP) to retrieve additional information.
 Executes any actions on the Policy Execution Point (PXP) when the decision is made.
 
 #### Type Parameters
-
-##### C
-
-`C` *extends* [`IPolicyContext`](IPolicyContext.md) = [`IPolicyContext`](IPolicyContext.md)
 
 ##### D
 
@@ -45,11 +41,11 @@ The type of asset being processed.
 
 The action being performed on the asset.
 
-##### context
+##### nodeIdentity
 
-The context information to use in the decision making.
+`string`
 
-`undefined` | `C`
+The identity of the node making the request.
 
 ##### data
 

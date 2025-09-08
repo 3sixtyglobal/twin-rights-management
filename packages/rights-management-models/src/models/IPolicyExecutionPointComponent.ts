@@ -2,7 +2,6 @@
 // SPDX-License-Identifier: Apache-2.0.
 import type { IComponent } from "@twin.org/core";
 import type { IOdrlPolicy } from "@twin.org/standards-w3c-odrl";
-import type { IPolicyContext } from "./IPolicyContext";
 import type { IPolicyExecutionAction } from "./IPolicyExecutionAction";
 import type { PolicyDecisionStage } from "./policyDecisionStage";
 
@@ -18,16 +17,16 @@ export interface IPolicyExecutionPointComponent extends IComponent {
 	 * @param stage The stage at which the PXP is executed in the PDP.
 	 * @param assetType The type of asset being processed.
 	 * @param action The action being performed on the asset.
-	 * @param context The context information to use in the decision making.
+	 * @param nodeIdentity The identity of the node making the request.
 	 * @param data The data used in the decision by the PDP.
 	 * @param policies The policies that apply to the data.
 	 * @returns Nothing.
 	 */
-	executeActions<C extends IPolicyContext = IPolicyContext, D = unknown>(
+	executeActions<D = unknown>(
 		stage: PolicyDecisionStage,
 		assetType: string,
 		action: string,
-		context: C | undefined,
+		nodeIdentity: string,
 		data: D | undefined,
 		policies: IOdrlPolicy[]
 	): Promise<void>;

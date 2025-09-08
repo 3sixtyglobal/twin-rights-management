@@ -1,10 +1,9 @@
 // Copyright 2024 IOTA Stiftung.
 // SPDX-License-Identifier: Apache-2.0.
-import { ComponentFactory, type IComponent, Is } from "@twin.org/core";
+import { ComponentFactory, Guards, type IComponent, Is } from "@twin.org/core";
 import type { ILoggingComponent } from "@twin.org/logging-models";
 import { nameof } from "@twin.org/nameof";
 import {
-	type IPolicyContext,
 	type IPolicyExecutionAction,
 	PolicyDecisionStage
 } from "@twin.org/rights-management-models";
@@ -72,19 +71,24 @@ export class LoggingPolicyExecutionAction implements IPolicyExecutionAction, ICo
 	 * @param stage The stage of the policy decision.
 	 * @param assetType The type of asset being processed.
 	 * @param action The action being performed on the asset.
-	 * @param context The context information to use in the decision making.
+	 * @param nodeIdentity The identity of the node making the request.
 	 * @param data The data to process.
 	 * @param policies The policies that apply to the data.
 	 * @returns A promise that resolves when the action is complete.
 	 */
-	public async execute<C extends IPolicyContext = IPolicyContext, D = unknown>(
+	public async execute<D = unknown>(
 		stage: PolicyDecisionStage,
 		assetType: string,
 		action: string,
-		context: C | undefined,
+		nodeIdentity: string,
 		data: D | undefined,
 		policies: IOdrlPolicy[]
 	): Promise<void> {
+		Guards.arrayOneOf(this.CLASS_NAME, nameof(stage), stage, Object.values(PolicyDecisionStage));
+		Guards.stringValue(this.CLASS_NAME, nameof(assetType), assetType);
+		Guards.stringValue(this.CLASS_NAME, nameof(action), action);
+		Guards.stringValue(this.CLASS_NAME, nameof(nodeIdentity), nodeIdentity);
+
 		if (this._stages.includes(stage)) {
 			// Even if we don't have the options to include data or include policies we
 			// still create dummy entries, as the logging string still has them embedded
@@ -103,8 +107,7 @@ export class LoggingPolicyExecutionAction implements IPolicyExecutionAction, ICo
 					assetType,
 					action,
 					data: logData,
-					userIdentity: context?.userIdentity ?? "",
-					nodeIdentity: context?.nodeIdentity ?? "",
+					nodeIdentity,
 					policies: logPolicies,
 					stage
 				}

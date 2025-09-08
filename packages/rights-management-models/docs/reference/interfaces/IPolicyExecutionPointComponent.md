@@ -13,15 +13,11 @@ registered actions based on the decision.
 
 ### executeActions()
 
-> **executeActions**\<`C`, `D`\>(`stage`, `assetType`, `action`, `context`, `data`, `policies`): `Promise`\<`void`\>
+> **executeActions**\<`D`\>(`stage`, `assetType`, `action`, `nodeIdentity`, `data`, `policies`): `Promise`\<`void`\>
 
 Execute actions based on the PDP's decisions.
 
 #### Type Parameters
-
-##### C
-
-`C` *extends* [`IPolicyContext`](IPolicyContext.md) = [`IPolicyContext`](IPolicyContext.md)
 
 ##### D
 
@@ -47,11 +43,11 @@ The type of asset being processed.
 
 The action being performed on the asset.
 
-##### context
+##### nodeIdentity
 
-The context information to use in the decision making.
+`string`
 
-`undefined` | `C`
+The identity of the node making the request.
 
 ##### data
 

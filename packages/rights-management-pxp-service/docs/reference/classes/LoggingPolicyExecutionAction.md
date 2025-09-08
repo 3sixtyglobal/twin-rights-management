@@ -61,15 +61,11 @@ List of stages.
 
 ### execute()
 
-> **execute**\<`C`, `D`\>(`stage`, `assetType`, `action`, `context`, `data`, `policies`): `Promise`\<`void`\>
+> **execute**\<`D`\>(`stage`, `assetType`, `action`, `nodeIdentity`, `data`, `policies`): `Promise`\<`void`\>
 
 Execute function type for policy actions.
 
 #### Type Parameters
-
-##### C
-
-`C` *extends* `IPolicyContext` = `IPolicyContext`
 
 ##### D
 
@@ -95,11 +91,11 @@ The type of asset being processed.
 
 The action being performed on the asset.
 
-##### context
+##### nodeIdentity
 
-The context information to use in the decision making.
+`string`
 
-`undefined` | `C`
+The identity of the node making the request.
 
 ##### data
 

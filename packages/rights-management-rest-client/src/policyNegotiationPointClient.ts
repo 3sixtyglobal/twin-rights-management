@@ -5,18 +5,20 @@ import type { IBaseRestClientConfig, INoContentResponse } from "@twin.org/api-mo
 import { Guards, NotImplementedError } from "@twin.org/core";
 import type { IJsonLdNodeObject } from "@twin.org/data-json-ld";
 import { nameof } from "@twin.org/nameof";
-import type {
-	IPnpNegotiateRequest,
-	IPnpNegotiateResponse,
-	IPnpNegotiationCancelRequest,
-	IPnpNegotiationStateRequest,
-	IPnpNegotiationStateResponse,
-	IPolicyContext,
-	IPolicyNegotiationPointComponent,
-	IPolicyNegotiator,
-	IPolicyState
+import {
+	RightsManagementContexts,
+	RightsManagementTypes,
+	type IPnpNegotiateRequest,
+	type IPnpNegotiateResponse,
+	type IPnpNegotiationCancelRequest,
+	type IPnpNegotiationStateRequest,
+	type IPnpNegotiationStateResponse,
+	type IPolicyNegotiationPointComponent,
+	type IPolicyNegotiator,
+	type IPolicyState
 } from "@twin.org/rights-management-models";
-import type { IProof } from "@twin.org/standards-w3c-did";
+import { DidContexts, type IProof } from "@twin.org/standards-w3c-did";
+import { HeaderTypes, MimeTypes } from "@twin.org/web";
 
 /**
  * Client for performing Rights Management Policy Negotiation through to REST endpoints.
@@ -43,34 +45,39 @@ export class PolicyNegotiationPointClient
 	 * @param assetType The type of asset being processed.
 	 * @param action The action being performed on the asset.
 	 * @param resourceId The ID of the resource being requested, can be empty if asset type access requested.
-	 * @param context The context from the requesting node.
-	 * @param requesterInformation Information provided by the requester to determine if a policy can be created.
+	 * @param nodeIdentity The identity of the node requesting the policy.
+	 * @param information Information provided by the requester to determine if a policy can be created.
 	 * @param proof The proof provided by the requester to support the policy creation.
 	 * @returns The state of the policy.
 	 */
-	public async negotiate<C extends IPolicyContext = IPolicyContext>(
+	public async negotiate(
 		assetType: string,
 		action: string,
 		resourceId: string | undefined,
-		context: C,
-		requesterInformation: { [source: string]: IJsonLdNodeObject[] } | undefined,
+		nodeIdentity: string,
+		information: { [source: string]: IJsonLdNodeObject[] } | undefined,
 		proof: IProof
 	): Promise<IPolicyState> {
 		Guards.stringValue(this.CLASS_NAME, nameof(assetType), assetType);
 		Guards.stringValue(this.CLASS_NAME, nameof(action), action);
-		Guards.stringValue(this.CLASS_NAME, nameof(resourceId), resourceId);
+		Guards.stringValue(this.CLASS_NAME, nameof(nodeIdentity), nodeIdentity);
 		Guards.object<IProof>(this.CLASS_NAME, nameof(proof), proof);
 
 		const response = await this.fetch<IPnpNegotiateRequest, IPnpNegotiateResponse>(
 			"/pnp/negotiate",
 			"POST",
 			{
+				headers: {
+					[HeaderTypes.Accept]: MimeTypes.JsonLd
+				},
 				body: {
+					"@context": [RightsManagementContexts.ContextRoot, DidContexts.ContextVCv2],
+					type: RightsManagementTypes.PolicyNegotiationRequest,
 					assetType,
 					action,
 					resourceId,
-					context,
-					requesterInformation,
+					nodeIdentity,
+					information,
 					proof
 				}
 			}
@@ -99,10 +106,15 @@ export class PolicyNegotiationPointClient
 			"/pnp/:policyId",
 			"POST",
 			{
+				headers: {
+					[HeaderTypes.Accept]: MimeTypes.JsonLd
+				},
 				pathParams: {
 					policyId
 				},
 				body: {
+					"@context": [RightsManagementContexts.ContextRoot, DidContexts.ContextVCv2],
+					type: RightsManagementTypes.PolicyRequest,
 					nodeIdentity,
 					proof
 				}
@@ -129,10 +141,15 @@ export class PolicyNegotiationPointClient
 		Guards.object<IProof>(this.CLASS_NAME, nameof(proof), proof);
 
 		await this.fetch<IPnpNegotiationCancelRequest, INoContentResponse>("/pnp/:policyId", "DELETE", {
+			headers: {
+				[HeaderTypes.Accept]: MimeTypes.JsonLd
+			},
 			pathParams: {
 				policyId
 			},
 			body: {
+				"@context": [RightsManagementContexts.ContextRoot, DidContexts.ContextVCv2],
+				type: RightsManagementTypes.PolicyRequest,
 				nodeIdentity,
 				proof
 			}

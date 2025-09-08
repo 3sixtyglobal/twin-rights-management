@@ -4,7 +4,6 @@ import { BaseError, ComponentFactory, GeneralError, Guards, ObjectHelper } from 
 import type { ILoggingComponent } from "@twin.org/logging-models";
 import { nameof } from "@twin.org/nameof";
 import type {
-	IPolicyContext,
 	IPolicyDecisionPointComponent,
 	IPolicyEnforcementPointComponent,
 	IPolicyEnforcementProcessor
@@ -59,18 +58,19 @@ export class PolicyEnforcementPointService implements IPolicyEnforcementPointCom
 	 * Process the data using Policy Decision Point (PDP) and return the manipulated data.
 	 * @param assetType The type of asset being processed.
 	 * @param action The action being performed on the asset.
-	 * @param context The context for the policy enforcement.
+	 * @param nodeIdentity The identity of the node making the request.
 	 * @param data The data to process.
 	 * @returns The manipulated data with any policies applied.
 	 */
-	public async intercept<C extends IPolicyContext = IPolicyContext, D = unknown, R = unknown>(
+	public async intercept<D = unknown, R = unknown>(
 		assetType: string,
 		action: string,
-		context: C | undefined,
+		nodeIdentity: string,
 		data: D | undefined
 	): Promise<R | undefined> {
 		Guards.stringValue(this.CLASS_NAME, nameof(assetType), assetType);
 		Guards.stringValue(this.CLASS_NAME, nameof(action), action);
+		Guards.stringValue(this.CLASS_NAME, nameof(nodeIdentity), nodeIdentity);
 
 		this._logging?.log({
 			level: "info",
@@ -86,7 +86,7 @@ export class PolicyEnforcementPointService implements IPolicyEnforcementPointCom
 		const policies = await this._policyDecisionPointComponent.evaluate(
 			assetType,
 			action,
-			context,
+			nodeIdentity,
 			data
 		);
 
@@ -109,7 +109,7 @@ export class PolicyEnforcementPointService implements IPolicyEnforcementPointCom
 				processedData = await processor.process(
 					assetType,
 					action,
-					context,
+					nodeIdentity,
 					processedData,
 					policies
 				);

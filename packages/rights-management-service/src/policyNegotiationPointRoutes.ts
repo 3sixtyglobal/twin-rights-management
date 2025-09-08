@@ -8,15 +8,18 @@ import type {
 } from "@twin.org/api-models";
 import { ComponentFactory, Guards } from "@twin.org/core";
 import { nameof } from "@twin.org/nameof";
-import type {
-	IPnpNegotiateRequest,
-	IPnpNegotiateResponse,
-	IPnpNegotiationCancelRequest,
-	IPnpNegotiationStateRequest,
-	IPnpNegotiationStateResponse,
-	IPolicyNegotiationPointComponent
+import {
+	RightsManagementContexts,
+	RightsManagementTypes,
+	type IPnpNegotiateRequest,
+	type IPnpNegotiateResponse,
+	type IPnpNegotiationCancelRequest,
+	type IPnpNegotiationStateRequest,
+	type IPnpNegotiationStateResponse,
+	type IPolicyNegotiationPointComponent
 } from "@twin.org/rights-management-models";
-import { HttpStatusCode } from "@twin.org/web";
+import { DidContexts } from "@twin.org/standards-w3c-did";
+import { HeaderTypes, HttpStatusCode, MimeTypes } from "@twin.org/web";
 
 /**
  * The source used when communicating about these routes.
@@ -58,11 +61,11 @@ export function generateRestRoutesPolicyNegotiationPoint(
 					id: "pnpNegotiateRequestExample",
 					request: {
 						body: {
+							"@context": [RightsManagementContexts.ContextRoot, DidContexts.ContextVCv2],
+							type: RightsManagementTypes.PolicyNegotiationRequest,
 							assetType: "document",
 							action: "view",
-							context: {
-								nodeIdentity: "urn:example:node:1"
-							},
+							nodeIdentity: "urn:example:node:1",
 							proof: {
 								created: "2024-08-22T11:56:56.272Z",
 								type: "DataIntegrityProof",
@@ -86,6 +89,8 @@ export function generateRestRoutesPolicyNegotiationPoint(
 						id: "IPnpNegotiateResponseExample",
 						response: {
 							body: {
+								"@context": RightsManagementContexts.ContextRoot,
+								type: RightsManagementTypes.PolicyState,
 								id: "policy-1",
 								status: "approved"
 							}
@@ -118,6 +123,8 @@ export function generateRestRoutesPolicyNegotiationPoint(
 							policyId: "policy-1"
 						},
 						body: {
+							"@context": [RightsManagementContexts.ContextRoot, DidContexts.ContextVCv2],
+							type: RightsManagementTypes.PolicyRequest,
 							nodeIdentity: "urn:example:node:1",
 							proof: {
 								created: "2024-08-22T11:56:56.272Z",
@@ -142,6 +149,8 @@ export function generateRestRoutesPolicyNegotiationPoint(
 						id: "IPnpNegotiationStateResponseExample",
 						response: {
 							body: {
+								"@context": RightsManagementContexts.ContextRoot,
+								type: RightsManagementTypes.PolicyState,
 								id: "policy-1",
 								status: "approved"
 							}
@@ -171,6 +180,8 @@ export function generateRestRoutesPolicyNegotiationPoint(
 							policyId: "policy-1"
 						},
 						body: {
+							"@context": [RightsManagementContexts.ContextRoot, DidContexts.ContextVCv2],
+							type: RightsManagementTypes.PolicyRequest,
 							nodeIdentity: "urn:example:node:1",
 							proof: {
 								created: "2024-08-22T11:56:56.272Z",
@@ -211,17 +222,22 @@ export async function pnpNegotiate(
 ): Promise<IPnpNegotiateResponse> {
 	Guards.object<IPnpNegotiateRequest>(ROUTES_SOURCE, nameof(request), request);
 
+	const mimeType = request.headers?.[HeaderTypes.Accept] === MimeTypes.JsonLd ? "jsonld" : "json";
+
 	const component = ComponentFactory.get<IPolicyNegotiationPointComponent>(componentName);
 	const result = await component.negotiate(
 		request.body.assetType,
 		request.body.action,
 		request.body.resourceId,
-		request.body.context,
-		request.body.requesterInformation,
+		request.body.nodeIdentity,
+		request.body.information,
 		request.body.proof
 	);
 
 	return {
+		headers: {
+			[HeaderTypes.ContentType]: mimeType === "json" ? MimeTypes.Json : MimeTypes.JsonLd
+		},
 		body: result
 	};
 }
@@ -245,6 +261,8 @@ export async function pnpNegotiationState(
 		request.body
 	);
 
+	const mimeType = request.headers?.[HeaderTypes.Accept] === MimeTypes.JsonLd ? "jsonld" : "json";
+
 	const component = ComponentFactory.get<IPolicyNegotiationPointComponent>(componentName);
 	const result = await component.negotiationState(
 		request.pathParams.policyId,
@@ -253,6 +271,9 @@ export async function pnpNegotiationState(
 	);
 
 	return {
+		headers: {
+			[HeaderTypes.ContentType]: mimeType === "json" ? MimeTypes.Json : MimeTypes.JsonLd
+		},
 		body: result
 	};
 }

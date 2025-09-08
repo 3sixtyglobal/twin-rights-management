@@ -42,15 +42,9 @@ The class name of the Policy Negotiation Point Service.
 
 ### negotiate()
 
-> **negotiate**\<`C`\>(`assetType`, `action`, `resourceId`, `context`, `requesterInformation`, `proof`): `Promise`\<`IPolicyState`\>
+> **negotiate**(`assetType`, `action`, `resourceId`, `nodeIdentity`, `information`, `proof`): `Promise`\<`IPolicyState`\>
 
 Processes an incoming negotiation request for the resource.
-
-#### Type Parameters
-
-##### C
-
-`C` *extends* `IPolicyContext` = `IPolicyContext`
 
 #### Parameters
 
@@ -72,13 +66,13 @@ The ID of the resource being requested, can be empty if asset type access reques
 
 `undefined` | `string`
 
-##### context
+##### nodeIdentity
 
-`C`
+`string`
 
-The context from the requesting node.
+The identity of the node making the request.
 
-##### requesterInformation
+##### information
 
 Information provided by the requester to determine if a policy can be created.
 

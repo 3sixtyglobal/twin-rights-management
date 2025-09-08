@@ -1,7 +1,6 @@
 // Copyright 2024 IOTA Stiftung.
 // SPDX-License-Identifier: Apache-2.0.
 import type { IOdrlPolicy } from "@twin.org/standards-w3c-odrl";
-import type { IPolicyContext } from "./IPolicyContext";
 import type { PolicyDecisionStage } from "./policyDecisionStage";
 
 /**
@@ -19,16 +18,16 @@ export interface IPolicyExecutionAction {
 	 * @param stage The stage of the policy decision.
 	 * @param assetType The type of asset being processed.
 	 * @param action The action being performed on the asset.
-	 * @param context The context information to use in the decision making.
+	 * @param nodeIdentity The identity of the node making the request.
 	 * @param data The data to process.
 	 * @param policies The policies that apply to the data.
 	 * @returns A promise that resolves when the action is complete.
 	 */
-	execute<C extends IPolicyContext = IPolicyContext, D = unknown>(
+	execute<D = unknown>(
 		stage: PolicyDecisionStage,
 		assetType: string,
 		action: string,
-		context: C | undefined,
+		nodeIdentity: string,
 		data: D | undefined,
 		policies: IOdrlPolicy[]
 	): Promise<void>;

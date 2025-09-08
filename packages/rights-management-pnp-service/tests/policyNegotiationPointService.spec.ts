@@ -49,7 +49,8 @@ const validProof: IProof = {
 	type: "DataIntegrityProof",
 	cryptosuite: "eddsa-jcs-2022",
 	proofPurpose: "assertionMethod",
-	proofValue: "p"
+	proofValue: "p",
+	created: new Date().toISOString()
 };
 
 describe("PolicyNegotiationPointService", () => {
@@ -141,7 +142,7 @@ describe("PolicyNegotiationPointService", () => {
 	test("negotiate throws if no negotiator found", async () => {
 		const service = new PolicyNegotiationPointService();
 		await expect(
-			service.negotiate("asset", "action", "resId", { nodeIdentity: "node" }, {}, validProof)
+			service.negotiate("asset", "action", "resId", "nodeIdentity", {}, validProof)
 		).rejects.toThrow();
 	});
 
@@ -158,7 +159,7 @@ describe("PolicyNegotiationPointService", () => {
 			"asset",
 			"action",
 			"resId",
-			{ nodeIdentity: "node" },
+			"nodeIdentity",
 			{},
 			validProof
 		);
@@ -179,7 +180,7 @@ describe("PolicyNegotiationPointService", () => {
 			dateCreated: new Date().toISOString(),
 			assetType: "asset",
 			action: "action",
-			context: { nodeIdentity: "nid" },
+			nodeIdentity: "nid",
 			status: "approved"
 		});
 		vi.spyOn(identityConnector, "verifyProof").mockResolvedValue(true);
@@ -282,7 +283,7 @@ describe("PolicyNegotiationPointService", () => {
 	test("negotiate throws if no negotiator found", async () => {
 		const service = new PolicyNegotiationPointService();
 		await expect(
-			service.negotiate("asset", "action", "resId", { nodeIdentity: "node" }, {}, validProof)
+			service.negotiate("asset", "action", "resId", "nodeIdentity", {}, validProof)
 		).rejects.toThrow();
 	});
 
@@ -299,7 +300,7 @@ describe("PolicyNegotiationPointService", () => {
 			"asset",
 			"action",
 			"resId",
-			{ nodeIdentity: "node" },
+			"nodeIdentity",
 			{},
 			validProof
 		);
@@ -313,7 +314,7 @@ describe("PolicyNegotiationPointService", () => {
 			dateCreated: new Date().toISOString(),
 			assetType: "asset",
 			action: "action",
-			context: { nodeIdentity: "nid" },
+			nodeIdentity: "nid",
 			status: "approved"
 		});
 		vi.spyOn(identityConnector, "verifyProof").mockResolvedValue(true);

@@ -4,6 +4,22 @@ The state of the policy negotiation.
 
 ## Properties
 
+### @context
+
+> **@context**: `"https://schema.twindev.org/rights-management"`
+
+The JSON-LD context.
+
+***
+
+### type
+
+> **type**: `"PolicyState"`
+
+The type of the proof.
+
+***
+
 ### id
 
 > **id**: `string`

@@ -1,12 +1,11 @@
 // Copyright 2024 IOTA Stiftung.
 // SPDX-License-Identifier: Apache-2.0.
-import { BaseError, ComponentFactory, type IComponent, Guards, Is } from "@twin.org/core";
+import { BaseError, ComponentFactory, Guards, type IComponent } from "@twin.org/core";
 import type { IJsonLdNodeObject } from "@twin.org/data-json-ld";
 import type { IIdentityResolverComponent } from "@twin.org/identity-models";
 import type { ILoggingComponent } from "@twin.org/logging-models";
 import { nameof } from "@twin.org/nameof";
 import type {
-	IPolicyContext,
 	IPolicyInformationSource,
 	PolicyInformationAccessMode
 } from "@twin.org/rights-management-models";
@@ -52,66 +51,54 @@ export class IdentityPolicyInformationSource implements IPolicyInformationSource
 	 * @param assetType The type of asset being processed.
 	 * @param action The action being performed on the asset.
 	 * @param accessMode The access mode to use for the retrieval.
-	 * @param context The context information to use in the decision making.
+	 * @param nodeIdentity The identity of the node making the request.
 	 * @param data The data to process.
 	 * @param policies The policies that apply to the data.
 	 * @returns The objects containing relevant information or undefined if nothing relevant is found.
 	 */
-	public async retrieve<C extends IPolicyContext = IPolicyContext, D = unknown>(
+	public async retrieve<D = unknown>(
 		assetType: string,
 		action: string,
 		accessMode: PolicyInformationAccessMode,
-		context: C | undefined,
+		nodeIdentity: string,
 		data: D | undefined,
 		policies: IOdrlPolicy[]
 	): Promise<IJsonLdNodeObject[] | undefined> {
 		Guards.stringValue(this.CLASS_NAME, nameof(assetType), assetType);
 		Guards.stringValue(this.CLASS_NAME, nameof(action), action);
+		Guards.stringValue(this.CLASS_NAME, nameof(nodeIdentity), nodeIdentity);
 
 		const information: IJsonLdNodeObject[] = [];
-		const userIdentity = context?.userIdentity;
-		const nodeIdentity = context?.nodeIdentity;
 
-		const lookupIdentities = [];
-		if (Is.stringValue(userIdentity)) {
-			lookupIdentities.push(userIdentity);
-		}
-		if (Is.stringValue(nodeIdentity) && userIdentity !== nodeIdentity) {
-			lookupIdentities.push(nodeIdentity);
-		}
-
-		for (const identity of lookupIdentities) {
-			if (Is.stringValue(identity)) {
-				try {
-					this._logging?.log({
-						level: "info",
-						source: this.CLASS_NAME,
-						ts: Date.now(),
-						message: "identityRetrieving",
-						data: {
-							assetType,
-							action,
-							identity
-						}
-					});
-					const userDoc = await this._identityResolver.identityResolve(identity);
-					information.push(userDoc as unknown as IJsonLdNodeObject);
-				} catch (err) {
-					this._logging?.log({
-						level: "error",
-						source: this.CLASS_NAME,
-						ts: Date.now(),
-						message: "identityRetrievalFailed",
-						data: {
-							assetType,
-							action,
-							identity
-						},
-						error: BaseError.fromError(err)
-					});
+		try {
+			this._logging?.log({
+				level: "info",
+				source: this.CLASS_NAME,
+				ts: Date.now(),
+				message: "identityRetrieving",
+				data: {
+					assetType,
+					action,
+					identity: nodeIdentity
 				}
-			}
+			});
+			const idDoc = await this._identityResolver.identityResolve(nodeIdentity);
+			information.push(idDoc as unknown as IJsonLdNodeObject);
+		} catch (err) {
+			this._logging?.log({
+				level: "error",
+				source: this.CLASS_NAME,
+				ts: Date.now(),
+				message: "identityRetrievalFailed",
+				data: {
+					assetType,
+					action,
+					identity: nodeIdentity
+				},
+				error: BaseError.fromError(err)
+			});
 		}
+
 		return information;
 	}
 }

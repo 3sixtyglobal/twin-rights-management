@@ -34,15 +34,9 @@ True if the negotiator can handle the asset type and action, false otherwise.
 
 ### negotiate()
 
-> **negotiate**\<`C`\>(`policyId`, `assetType`, `action`, `resourceId`, `context`, `requesterInformation`): `Promise`\<\{ `state`: [`IPolicyState`](IPolicyState.md); `policy?`: `IOdrlPolicy`; \}\>
+> **negotiate**(`policyId`, `assetType`, `action`, `resourceId`, `nodeIdentity`, `information`): `Promise`\<\{ `state`: [`IPolicyState`](IPolicyState.md); `policy?`: `IOdrlPolicy`; \}\>
 
 Determines if a policy can be created for the requested resource.
-
-#### Type Parameters
-
-##### C
-
-`C` *extends* [`IPolicyContext`](IPolicyContext.md) = [`IPolicyContext`](IPolicyContext.md)
 
 #### Parameters
 
@@ -70,13 +64,13 @@ The ID of the resource being requested, can be empty if asset type access reques
 
 `undefined` | `string`
 
-##### context
+##### nodeIdentity
 
-`C`
+`string`
 
-The context from the requesting node.
+The identity of the node requesting the negotiation.
 
-##### requesterInformation
+##### information
 
 Information provided by the requester to determine if a policy can be created.
 

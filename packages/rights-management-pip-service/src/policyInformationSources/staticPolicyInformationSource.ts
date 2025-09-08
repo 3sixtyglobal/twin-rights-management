@@ -5,7 +5,6 @@ import type { IJsonLdNodeObject } from "@twin.org/data-json-ld";
 import type { ILoggingComponent } from "@twin.org/logging-models";
 import { nameof } from "@twin.org/nameof";
 import {
-	type IPolicyContext,
 	type IPolicyInformationSource,
 	PolicyInformationAccessMode
 } from "@twin.org/rights-management-models";
@@ -50,16 +49,16 @@ export class StaticPolicyInformationSource implements IPolicyInformationSource, 
 	 * @param assetType The type of asset being processed.
 	 * @param action The action being performed on the asset.
 	 * @param accessMode The access mode to use for the retrieval.
-	 * @param context The context information to use in the decision making.
+	 * @param nodeIdentity The identity of the node making the request.
 	 * @param data The data to process.
 	 * @param policies The policies that apply to the data.
 	 * @returns The objects containing relevant information or undefined if nothing relevant is found.
 	 */
-	public async retrieve<C extends IPolicyContext = IPolicyContext, D = unknown>(
+	public async retrieve<D = unknown>(
 		assetType: string,
 		action: string,
 		accessMode: PolicyInformationAccessMode,
-		context: C | undefined,
+		nodeIdentity: string,
 		data: D | undefined,
 		policies: IOdrlPolicy[]
 	): Promise<IJsonLdNodeObject[] | undefined> {

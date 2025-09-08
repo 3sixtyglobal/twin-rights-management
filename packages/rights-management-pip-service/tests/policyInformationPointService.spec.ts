@@ -77,8 +77,8 @@ describe("PolicyInformationPointService", () => {
 			"document",
 			"read",
 			PolicyInformationAccessMode.Any,
-			{},
-			{ userIdentity: "user123", nodeIdentity: "node456" },
+			"node456",
+			{ foo: "bar" },
 			[]
 		);
 
@@ -86,8 +86,8 @@ describe("PolicyInformationPointService", () => {
 			"document",
 			"read",
 			PolicyInformationAccessMode.Any,
-			{},
-			{ userIdentity: "user123", nodeIdentity: "node456" },
+			"node456",
+			{ foo: "bar" },
 			[]
 		);
 		expect(information).toEqual({
@@ -116,8 +116,8 @@ describe("PolicyInformationPointService", () => {
 			"image",
 			"edit",
 			PolicyInformationAccessMode.Any,
-			{},
-			{ userIdentity: "user123", nodeIdentity: "node456" },
+			"node456",
+			{ foo: "bar" },
 			[]
 		);
 
@@ -125,16 +125,16 @@ describe("PolicyInformationPointService", () => {
 			"image",
 			"edit",
 			PolicyInformationAccessMode.Any,
-			{},
-			{ userIdentity: "user123", nodeIdentity: "node456" },
+			"node456",
+			{ foo: "bar" },
 			[]
 		);
 		expect(contextSource.retrieve).toHaveBeenCalledWith(
 			"image",
 			"edit",
 			PolicyInformationAccessMode.Any,
-			{},
-			{ userIdentity: "user123", nodeIdentity: "node456" },
+			"node456",
+			{ foo: "bar" },
 			[]
 		);
 		expect(information).toEqual({ context: contextInfo, identity: identityInfo });
@@ -150,8 +150,8 @@ describe("PolicyInformationPointService", () => {
 			"test",
 			"action",
 			PolicyInformationAccessMode.Any,
-			{},
-			{ userIdentity: "user123", nodeIdentity: "node456" },
+			"node456",
+			{ foo: "bar" },
 			[]
 		);
 
@@ -174,8 +174,8 @@ describe("PolicyInformationPointService", () => {
 			"database",
 			"query",
 			PolicyInformationAccessMode.Any,
-			{},
-			{ userIdentity: "user123", nodeIdentity: "node456" },
+			"node456",
+			{ foo: "bar" },
 			[]
 		);
 
@@ -194,7 +194,7 @@ describe("PolicyInformationPointService", () => {
 			"file",
 			"upload",
 			PolicyInformationAccessMode.Any,
-			{ userIdentity: "user123", nodeIdentity: "node456" },
+			"node456",
 			"fileNode",
 			[]
 		);

@@ -3,7 +3,6 @@
 import type { IComponent } from "@twin.org/core";
 import type { IJsonLdNodeObject } from "@twin.org/data-json-ld";
 import type { IProof } from "@twin.org/standards-w3c-did";
-import type { IPolicyContext } from "./IPolicyContext";
 import type { IPolicyNegotiator } from "./IPolicyNegotiator";
 import type { IPolicyState } from "./IPolicyState";
 
@@ -18,17 +17,17 @@ export interface IPolicyNegotiationPointComponent extends IComponent {
 	 * @param assetType The type of asset being processed.
 	 * @param action The action being performed on the asset.
 	 * @param resourceId The ID of the resource being requested, can be empty if asset type access requested.
-	 * @param context The context from the requesting node.
-	 * @param requesterInformation Information provided by the requester to determine if a policy can be created.
+	 * @param nodeIdentity The identity of the node requesting the negotiation.
+	 * @param information Information provided by the requester to determine if a policy can be created.
 	 * @param proof The proof provided by the requester to support the policy creation.
 	 * @returns The state of the policy.
 	 */
-	negotiate<C extends IPolicyContext = IPolicyContext>(
+	negotiate(
 		assetType: string,
 		action: string,
 		resourceId: string | undefined,
-		context: C,
-		requesterInformation: { [source: string]: IJsonLdNodeObject[] } | undefined,
+		nodeIdentity: string,
+		information: { [source: string]: IJsonLdNodeObject[] } | undefined,
 		proof: IProof
 	): Promise<IPolicyState>;
 

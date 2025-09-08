@@ -5,7 +5,6 @@ import {
 	generateRestRoutesPolicyAdministrationPoint,
 	papTags
 } from "./policyAdministrationPointRoutes";
-import { generateRestRoutesPolicyEnforcementPoint, pepTags } from "./policyEnforcementPointRoutes";
 import {
 	generateRestRoutesPolicyNegotiationAdminPoint,
 	pnapTags
@@ -21,12 +20,6 @@ export const restEntryPoints: IRestRouteEntryPoint[] = [
 		defaultBaseRoute: "rights-management",
 		tags: papTags,
 		generateRoutes: generateRestRoutesPolicyAdministrationPoint
-	},
-	{
-		name: "policy-enforcement-point",
-		defaultBaseRoute: "rights-management",
-		tags: pepTags,
-		generateRoutes: generateRestRoutesPolicyEnforcementPoint
 	},
 	{
 		name: "policy-negotiation-point",

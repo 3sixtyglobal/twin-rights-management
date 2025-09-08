@@ -6,15 +6,11 @@ Interface for policy enforcement processors.
 
 ### process()
 
-> **process**\<`C`, `D`, `R`\>(`assetType`, `action`, `context`, `data`, `policies`): `Promise`\<`undefined` \| `R`\>
+> **process**\<`D`, `R`\>(`assetType`, `action`, `nodeIdentity`, `data`, `policies`): `Promise`\<`undefined` \| `R`\>
 
 Process the response from the policy decision point.
 
 #### Type Parameters
-
-##### C
-
-`C` *extends* [`IPolicyContext`](IPolicyContext.md) = [`IPolicyContext`](IPolicyContext.md)
 
 ##### D
 
@@ -38,11 +34,11 @@ The type of asset being processed.
 
 The action being performed on the asset.
 
-##### context
+##### nodeIdentity
 
-The context information to use in the decision making.
+`string`
 
-`undefined` | `C`
+The identity of the node making the request.
 
 ##### data
 

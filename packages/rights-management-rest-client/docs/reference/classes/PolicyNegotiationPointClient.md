@@ -50,15 +50,9 @@ Runtime name for the class.
 
 ### negotiate()
 
-> **negotiate**\<`C`\>(`assetType`, `action`, `resourceId`, `context`, `requesterInformation`, `proof`): `Promise`\<`IPolicyState`\>
+> **negotiate**(`assetType`, `action`, `resourceId`, `nodeIdentity`, `information`, `proof`): `Promise`\<`IPolicyState`\>
 
 Negotiates the creation of a policy for the requested resource.
-
-#### Type Parameters
-
-##### C
-
-`C` *extends* `IPolicyContext` = `IPolicyContext`
 
 #### Parameters
 
@@ -80,13 +74,13 @@ The ID of the resource being requested, can be empty if asset type access reques
 
 `undefined` | `string`
 
-##### context
+##### nodeIdentity
 
-`C`
+`string`
 
-The context from the requesting node.
+The identity of the node requesting the policy.
 
-##### requesterInformation
+##### information
 
 Information provided by the requester to determine if a policy can be created.
 

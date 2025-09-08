@@ -2,7 +2,6 @@
 // SPDX-License-Identifier: Apache-2.0.
 import type { IComponent } from "@twin.org/core";
 import type { IOdrlPolicy } from "@twin.org/standards-w3c-odrl";
-import type { IPolicyContext } from "./IPolicyContext";
 
 /**
  * Interface describing a Policy Decision Point (PDP) contract.
@@ -19,15 +18,15 @@ export interface IPolicyDecisionPointComponent extends IComponent {
 	 * Executes any actions on the Policy Execution Point (PXP) when the decision is made.
 	 * @param assetType The type of asset being processed.
 	 * @param action The action being performed on the asset.
-	 * @param context The context information to use in the decision making.
+	 * @param nodeIdentity The identity of the node making the request.
 	 * @param data The data to make a decision on.
 	 * @returns Returns the policy decisions which apply to the data so that the PEP
 	 * can manipulate the data accordingly.
 	 */
-	evaluate<C extends IPolicyContext = IPolicyContext, D = unknown>(
+	evaluate<D = unknown>(
 		assetType: string,
 		action: string,
-		context: C | undefined,
+		nodeIdentity: string,
 		data: D | undefined
 	): Promise<IOdrlPolicy[]>;
 }

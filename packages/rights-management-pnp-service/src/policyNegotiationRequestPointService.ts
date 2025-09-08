@@ -6,13 +6,17 @@ import { IdentityConnectorFactory, type IIdentityConnector } from "@twin.org/ide
 import type { ILoggingComponent } from "@twin.org/logging-models";
 import { nameof } from "@twin.org/nameof";
 import {
-	PolicyInformationAccessMode,
 	type IPolicyInformationPointComponent,
 	type IPolicyNegotiationPointComponent,
+	type IPolicyNegotiationRequest,
 	type IPolicyNegotiationRequestPointComponent,
-	type IPolicyState
+	type IPolicyRequest,
+	type IPolicyState,
+	PolicyInformationAccessMode,
+	RightsManagementContexts,
+	RightsManagementTypes
 } from "@twin.org/rights-management-models";
-import { type IProof, ProofTypes } from "@twin.org/standards-w3c-did";
+import { DidContexts, type IProof, ProofTypes } from "@twin.org/standards-w3c-did";
 import type { IPolicyNegotiationRequestPointServiceConstructorOptions } from "./models/IPolicyNegotiationRequestPointServiceConstructorOptions";
 
 /**
@@ -114,18 +118,22 @@ export class PolicyNegotiationRequestPointService
 		Guards.stringValue(this.CLASS_NAME, nameof(assetType), assetType);
 		Guards.stringValue(this.CLASS_NAME, nameof(action), action);
 
+		if (!Is.stringValue(this._nodeIdentity)) {
+			throw new GeneralError(this.CLASS_NAME, "missingNodeIdentity");
+		}
+
 		const negotiationClient = await this._negotiationComponentCreator(url);
 
 		const information = await this._policyInformationPointComponent.retrieve(
 			assetType,
 			action,
 			PolicyInformationAccessMode.Public,
-			{ nodeIdentity: this._nodeIdentity },
+			this._nodeIdentity,
 			undefined,
 			[]
 		);
 
-		const proof = await this.createProofNegotiation(assetType, action);
+		const proof = await this.createProofNegotiation(assetType, action, resourceId);
 
 		this._logging?.log({
 			level: "info",
@@ -135,7 +143,8 @@ export class PolicyNegotiationRequestPointService
 			data: {
 				url,
 				assetType,
-				action
+				action,
+				resourceId: resourceId ?? ""
 			}
 		});
 
@@ -143,9 +152,7 @@ export class PolicyNegotiationRequestPointService
 			assetType,
 			action,
 			resourceId,
-			{
-				nodeIdentity: this._nodeIdentity
-			},
+			this._nodeIdentity,
 			information,
 			proof
 		);
@@ -237,11 +244,16 @@ export class PolicyNegotiationRequestPointService
 	 * Create the proof for a specific action and asset type.
 	 * @param assetType The type of the asset being accessed.
 	 * @param action The action being performed.
+	 * @param resourceId The specific resource id or can be left undefined for a whole asset class.
 	 * @returns The proof object.
 	 * @throws GeneralError is the proof creation fails.
 	 * @internal
 	 */
-	private async createProofNegotiation(assetType: string, action: string): Promise<IProof> {
+	private async createProofNegotiation(
+		assetType: string,
+		action: string,
+		resourceId?: string
+	): Promise<IProof> {
 		Guards.stringValue(this.CLASS_NAME, nameof(assetType), assetType);
 		Guards.stringValue(this.CLASS_NAME, nameof(action), action);
 
@@ -249,17 +261,20 @@ export class PolicyNegotiationRequestPointService
 			throw new GeneralError(this.CLASS_NAME, "missingNodeIdentity");
 		}
 
-		const unsecureDocument = {
+		const unsecureDocument: Omit<IPolicyNegotiationRequest, "proof"> = {
+			"@context": [RightsManagementContexts.ContextRoot, DidContexts.ContextVCv2],
+			type: RightsManagementTypes.PolicyNegotiationRequest,
 			assetType,
 			action,
+			resourceId,
 			nodeIdentity: this._nodeIdentity
-		} as unknown as IJsonLdNodeObject;
+		};
 
 		return await this._identityConnector.createProof(
 			this._nodeIdentity,
 			this._negotiationMethodId,
 			ProofTypes.DataIntegrityProof,
-			unsecureDocument
+			unsecureDocument as unknown as IJsonLdNodeObject
 		);
 	}
 
@@ -278,16 +293,18 @@ export class PolicyNegotiationRequestPointService
 			throw new GeneralError(this.CLASS_NAME, "missingNodeIdentity");
 		}
 
-		const unsecureDocument = {
-			policyId,
+		const unsecureDocument: Omit<IPolicyRequest, "proof"> = {
+			"@context": [RightsManagementContexts.ContextRoot, DidContexts.ContextVCv2],
+			type: RightsManagementTypes.PolicyRequest,
+			id: policyId,
 			nodeIdentity: this._nodeIdentity
-		} as unknown as IJsonLdNodeObject;
+		};
 
 		return await this._identityConnector.createProof(
 			this._nodeIdentity,
 			this._negotiationMethodId,
 			ProofTypes.DataIntegrityProof,
-			unsecureDocument
+			unsecureDocument as unknown as IJsonLdNodeObject
 		);
 	}
 }

@@ -42,15 +42,11 @@ The class name of the Policy Information Point Service.
 
 ### retrieve()
 
-> **retrieve**\<`C`, `D`\>(`assetType`, `action`, `accessMode`, `context`, `data`, `policies`): `Promise`\<\{\[`source`: `string`\]: `IJsonLdNodeObject`[]; \}\>
+> **retrieve**\<`D`\>(`assetType`, `action`, `accessMode`, `nodeIdentity`, `data`, `policies`): `Promise`\<\{\[`source`: `string`\]: `IJsonLdNodeObject`[]; \}\>
 
 Retrieve additional information which is relevant in the PDP decision making.
 
 #### Type Parameters
-
-##### C
-
-`C` *extends* `IPolicyContext` = `IPolicyContext`
 
 ##### D
 
@@ -76,11 +72,11 @@ The action being performed on the asset.
 
 The access mode to use for the retrieval.
 
-##### context
+##### nodeIdentity
 
-The context information to use in the decision making.
+`string`
 
-`undefined` | `C`
+The identity of the node making the request.
 
 ##### data
 

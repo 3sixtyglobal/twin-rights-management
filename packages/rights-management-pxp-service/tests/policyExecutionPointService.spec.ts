@@ -56,7 +56,7 @@ describe("PolicyExecutionPointService", () => {
 			PolicyDecisionStage.Before,
 			"assetType",
 			"action",
-			{ userIdentity: "userIdentity", nodeIdentity: "nodeIdentity" },
+			"nodeIdentity",
 			{},
 			[]
 		);
@@ -64,7 +64,7 @@ describe("PolicyExecutionPointService", () => {
 			PolicyDecisionStage.Before,
 			"assetType",
 			"action",
-			{ userIdentity: "userIdentity", nodeIdentity: "nodeIdentity" },
+			"nodeIdentity",
 			{},
 			[]
 		);
@@ -78,7 +78,7 @@ describe("PolicyExecutionPointService", () => {
 			PolicyDecisionStage.After,
 			"assetType",
 			"action",
-			{ userIdentity: "userIdentity", nodeIdentity: "nodeIdentity" },
+			"nodeIdentity",
 			{},
 			[]
 		);
@@ -86,7 +86,7 @@ describe("PolicyExecutionPointService", () => {
 			PolicyDecisionStage.After,
 			"assetType",
 			"action",
-			{ userIdentity: "userIdentity", nodeIdentity: "nodeIdentity" },
+			"nodeIdentity",
 			{},
 			[]
 		);
@@ -112,7 +112,7 @@ describe("PolicyExecutionPointService", () => {
 			PolicyDecisionStage.Before,
 			"assetType",
 			"action",
-			{ userIdentity: "userIdentity", nodeIdentity: "nodeIdentity" },
+			"nodeIdentity",
 			{},
 			[]
 		);
@@ -131,7 +131,7 @@ describe("PolicyExecutionPointService", () => {
 			PolicyDecisionStage.Before,
 			"assetType",
 			"action",
-			{ userIdentity: "userIdentity", nodeIdentity: "nodeIdentity" },
+			"nodeIdentity",
 			{},
 			[]
 		);
@@ -159,7 +159,7 @@ describe("PolicyExecutionPointService", () => {
 			PolicyDecisionStage.Before,
 			"assetType",
 			"action",
-			{ userIdentity: "userIdentity", nodeIdentity: "nodeIdentity" },
+			"nodeIdentity",
 			{},
 			[]
 		);
@@ -199,7 +199,7 @@ describe("PolicyExecutionPointService", () => {
 				PolicyDecisionStage.Before,
 				"assetType",
 				"action",
-				{ userIdentity: "userIdentity", nodeIdentity: "nodeIdentity" },
+				"nodeIdentity",
 				{},
 				[]
 			)
@@ -225,7 +225,7 @@ describe("PolicyExecutionPointService", () => {
 				PolicyDecisionStage.Before,
 				"assetType",
 				"action",
-				{ userIdentity: "userIdentity", nodeIdentity: "nodeIdentity" },
+				"nodeIdentity",
 				{},
 				[]
 			)
@@ -252,7 +252,7 @@ describe("PolicyExecutionPointService", () => {
 			PolicyDecisionStage.Before,
 			"assetType",
 			"action",
-			{ userIdentity: "userIdentity", nodeIdentity: "nodeIdentity" },
+			"nodeIdentity",
 			testData,
 			testPolicies
 		);
@@ -261,7 +261,7 @@ describe("PolicyExecutionPointService", () => {
 			PolicyDecisionStage.Before,
 			"assetType",
 			"action",
-			{ userIdentity: "userIdentity", nodeIdentity: "nodeIdentity" },
+			"nodeIdentity",
 			testData,
 			testPolicies
 		);
@@ -289,7 +289,7 @@ describe("PolicyExecutionPointService", () => {
 			PolicyDecisionStage.Before,
 			"api",
 			"call",
-			{ userIdentity: "apiUser", nodeIdentity: "apiNode" },
+			"apiNode",
 			{ endpoint: "/users" },
 			testPolicies
 		);
@@ -330,7 +330,7 @@ describe("PolicyExecutionPointService", () => {
 			PolicyDecisionStage.Before,
 			"document",
 			"read",
-			{ userIdentity: "user123", nodeIdentity: "node456" },
+			"node456",
 			testData,
 			testPolicies
 		);
@@ -345,7 +345,6 @@ describe("PolicyExecutionPointService", () => {
 		expect(policyLog?.data).toEqual({
 			assetType: "document",
 			action: "read",
-			userIdentity: "user123",
 			nodeIdentity: "node456",
 			data: "{...}",
 			stage: PolicyDecisionStage.Before,
@@ -353,7 +352,7 @@ describe("PolicyExecutionPointService", () => {
 		});
 	});
 
-	test("loggingPolicyAction handles undefined userIdentity and nodeIdentity", async () => {
+	test("loggingPolicyAction handles undefined nodeIdentity", async () => {
 		const policyExecutionPoint = new PolicyExecutionPointService();
 		const testPolicies: IOdrlPolicy[] = [
 			{ "@context": OdrlContexts.ContextRoot, "@type": PolicyType.Agreement, uid: "policy2" }
@@ -368,7 +367,7 @@ describe("PolicyExecutionPointService", () => {
 			PolicyDecisionStage.After,
 			"image",
 			"write",
-			{},
+			"nodeIdentity",
 			null,
 			testPolicies
 		);
@@ -378,8 +377,7 @@ describe("PolicyExecutionPointService", () => {
 		expect(policyLog?.data).toEqual({
 			assetType: "image",
 			action: "write",
-			userIdentity: "",
-			nodeIdentity: "",
+			nodeIdentity: "nodeIdentity",
 			stage: PolicyDecisionStage.After,
 			policies: "[...]"
 		});
@@ -397,7 +395,7 @@ describe("PolicyExecutionPointService", () => {
 			PolicyDecisionStage.Before,
 			"video",
 			"delete",
-			{ userIdentity: "admin", nodeIdentity: "mainNode" },
+			"mainNode",
 			{},
 			[]
 		);
@@ -407,7 +405,6 @@ describe("PolicyExecutionPointService", () => {
 		expect(policyLog?.data).toEqual({
 			assetType: "video",
 			action: "delete",
-			userIdentity: "admin",
 			nodeIdentity: "mainNode",
 			data: "{...}",
 			stage: PolicyDecisionStage.Before,
@@ -432,7 +429,7 @@ describe("PolicyExecutionPointService", () => {
 			PolicyDecisionStage.Before,
 			"database",
 			"query",
-			{ userIdentity: "dbUser", nodeIdentity: "dbNode" },
+			"dbNode",
 			{ table: "users" },
 			multiplePolicies
 		);
@@ -463,7 +460,7 @@ describe("PolicyExecutionPointService", () => {
 			PolicyDecisionStage.Before,
 			"file",
 			"upload",
-			{ userIdentity: "uploader", nodeIdentity: "fileNode" },
+			"fileNode",
 			{ size: 1024 },
 			testPolicies
 		);
@@ -471,7 +468,7 @@ describe("PolicyExecutionPointService", () => {
 			PolicyDecisionStage.After,
 			"file",
 			"upload",
-			{ userIdentity: "uploader", nodeIdentity: "fileNode" },
+			"fileNode",
 			{ size: 1024 },
 			testPolicies
 		);
@@ -504,7 +501,7 @@ describe("PolicyExecutionPointService", () => {
 			PolicyDecisionStage.Before,
 			"document",
 			"read",
-			{ userIdentity: "reader", nodeIdentity: "docNode" },
+			"docNode",
 			{},
 			testPolicies
 		);
@@ -512,7 +509,7 @@ describe("PolicyExecutionPointService", () => {
 			PolicyDecisionStage.Before,
 			"image",
 			"edit",
-			{ userIdentity: "editor", nodeIdentity: "imgNode" },
+			"imgNode",
 			{},
 			testPolicies
 		);
@@ -520,7 +517,7 @@ describe("PolicyExecutionPointService", () => {
 			PolicyDecisionStage.Before,
 			"video",
 			"stream",
-			{ userIdentity: "viewer", nodeIdentity: "streamNode" },
+			"streamNode",
 			{},
 			testPolicies
 		);
@@ -554,7 +551,7 @@ describe("PolicyExecutionPointService", () => {
 			PolicyDecisionStage.Before,
 			"userProfile",
 			"update",
-			{ userIdentity: "user123", nodeIdentity: "profileNode" },
+			"profileNode",
 			sensitiveData,
 			testPolicies
 		);

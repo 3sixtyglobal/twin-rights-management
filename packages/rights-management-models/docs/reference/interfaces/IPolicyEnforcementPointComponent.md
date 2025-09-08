@@ -13,15 +13,11 @@ be returned.
 
 ### intercept()
 
-> **intercept**\<`C`, `D`, `R`\>(`assetType`, `action`, `context`, `data`): `Promise`\<`undefined` \| `R`\>
+> **intercept**\<`D`, `R`\>(`assetType`, `action`, `nodeIdentity`, `data`): `Promise`\<`undefined` \| `R`\>
 
 Process the data using Policy Decision Point (PDP) and return the manipulated data.
 
 #### Type Parameters
-
-##### C
-
-`C` *extends* [`IPolicyContext`](IPolicyContext.md) = [`IPolicyContext`](IPolicyContext.md)
 
 ##### D
 
@@ -45,11 +41,11 @@ The type of asset being processed.
 
 The action being performed on the asset.
 
-##### context
+##### nodeIdentity
 
-The context information to use in the decision making.
+`string`
 
-`undefined` | `C`
+The identity of the node making the request.
 
 ##### data
 

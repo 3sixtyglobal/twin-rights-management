@@ -42,15 +42,11 @@ The class name of the Policy Enforcement Point Service.
 
 ### intercept()
 
-> **intercept**\<`C`, `D`, `R`\>(`assetType`, `action`, `context`, `data`): `Promise`\<`undefined` \| `R`\>
+> **intercept**\<`D`, `R`\>(`assetType`, `action`, `nodeIdentity`, `data`): `Promise`\<`undefined` \| `R`\>
 
 Process the data using Policy Decision Point (PDP) and return the manipulated data.
 
 #### Type Parameters
-
-##### C
-
-`C` *extends* `IPolicyContext` = `IPolicyContext`
 
 ##### D
 
@@ -74,11 +70,11 @@ The type of asset being processed.
 
 The action being performed on the asset.
 
-##### context
+##### nodeIdentity
 
-The context for the policy enforcement.
+`string`
 
-`undefined` | `C`
+The identity of the node making the request.
 
 ##### data
 

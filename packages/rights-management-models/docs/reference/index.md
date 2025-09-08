@@ -7,7 +7,6 @@
 ## Interfaces
 
 - [IPolicyAdministrationPointComponent](interfaces/IPolicyAdministrationPointComponent.md)
-- [IPolicyContext](interfaces/IPolicyContext.md)
 - [IPolicyDecisionPointComponent](interfaces/IPolicyDecisionPointComponent.md)
 - [IPolicyEnforcementPointComponent](interfaces/IPolicyEnforcementPointComponent.md)
 - [IPolicyEnforcementProcessor](interfaces/IPolicyEnforcementProcessor.md)
@@ -19,8 +18,10 @@
 - [IPolicyNegotiation](interfaces/IPolicyNegotiation.md)
 - [IPolicyNegotiationAdminPointComponent](interfaces/IPolicyNegotiationAdminPointComponent.md)
 - [IPolicyNegotiationPointComponent](interfaces/IPolicyNegotiationPointComponent.md)
+- [IPolicyNegotiationRequest](interfaces/IPolicyNegotiationRequest.md)
 - [IPolicyNegotiationRequestPointComponent](interfaces/IPolicyNegotiationRequestPointComponent.md)
 - [IPolicyNegotiator](interfaces/IPolicyNegotiator.md)
+- [IPolicyRequest](interfaces/IPolicyRequest.md)
 - [IPolicyState](interfaces/IPolicyState.md)
 - [IPapCreateRequest](interfaces/IPapCreateRequest.md)
 - [IPapGetRequest](interfaces/IPapGetRequest.md)
@@ -29,8 +30,6 @@
 - [IPapQueryResponse](interfaces/IPapQueryResponse.md)
 - [IPapRemoveRequest](interfaces/IPapRemoveRequest.md)
 - [IPapUpdateRequest](interfaces/IPapUpdateRequest.md)
-- [IPepInterceptRequest](interfaces/IPepInterceptRequest.md)
-- [IPepInterceptResponse](interfaces/IPepInterceptResponse.md)
 - [IPnapGetRequest](interfaces/IPnapGetRequest.md)
 - [IPnapGetResponse](interfaces/IPnapGetResponse.md)
 - [IPnapQueryRequest](interfaces/IPnapQueryRequest.md)
@@ -48,11 +47,15 @@
 - [PolicyDecisionStage](type-aliases/PolicyDecisionStage.md)
 - [PolicyInformationAccessMode](type-aliases/PolicyInformationAccessMode.md)
 - [PolicyNegotiationStatus](type-aliases/PolicyNegotiationStatus.md)
+- [RightsManagementContexts](type-aliases/RightsManagementContexts.md)
 - [RightsManagementNamespaces](type-aliases/RightsManagementNamespaces.md)
+- [RightsManagementTypes](type-aliases/RightsManagementTypes.md)
 
 ## Variables
 
 - [PolicyDecisionStage](variables/PolicyDecisionStage.md)
 - [PolicyInformationAccessMode](variables/PolicyInformationAccessMode.md)
 - [PolicyNegotiationStatus](variables/PolicyNegotiationStatus.md)
+- [RightsManagementContexts](variables/RightsManagementContexts.md)
 - [RightsManagementNamespaces](variables/RightsManagementNamespaces.md)
+- [RightsManagementTypes](variables/RightsManagementTypes.md)

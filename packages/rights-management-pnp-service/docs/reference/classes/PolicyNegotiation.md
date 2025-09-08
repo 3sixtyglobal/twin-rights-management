@@ -54,17 +54,17 @@ The resource id the negotiation is for.
 
 ***
 
-### context
+### nodeIdentity
 
-> **context**: `IPolicyContext`
+> **nodeIdentity**: `string`
 
-The context of the negotiation.
+The identity of the node making the request.
 
 ***
 
-### requesterInformation?
+### information?
 
-> `optional` **requesterInformation**: `object`
+> `optional` **information**: `object`
 
 The requester information.
 

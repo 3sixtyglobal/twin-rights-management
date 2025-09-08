@@ -2,7 +2,7 @@
 // SPDX-License-Identifier: Apache-2.0.
 import type { IJsonLdNodeObject } from "@twin.org/data-json-ld";
 import { entity, property } from "@twin.org/entity";
-import type { IPolicyContext, PolicyNegotiationStatus } from "@twin.org/rights-management-models";
+import type { PolicyNegotiationStatus } from "@twin.org/rights-management-models";
 
 /**
  * Class describing a rights management policy negotiation.
@@ -40,16 +40,16 @@ export class PolicyNegotiation {
 	public resourceId?: string;
 
 	/**
-	 * The context of the negotiation.
+	 * The identity of the node making the request.
 	 */
-	@property({ type: "object" })
-	public context!: IPolicyContext;
+	@property({ type: "string" })
+	public nodeIdentity!: string;
 
 	/**
 	 * The requester information.
 	 */
 	@property({ type: "object", optional: true })
-	public requesterInformation?: { [source: string]: IJsonLdNodeObject[] };
+	public information?: { [source: string]: IJsonLdNodeObject[] };
 
 	/**
 	 * The status of the negotiation.

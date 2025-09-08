@@ -120,7 +120,7 @@ describe("PolicyNegotiationRequestPointService", () => {
 			"assetA",
 			"read",
 			"res1",
-			{ nodeIdentity: "node1" },
+			"node1",
 			{ info: true },
 			{ proof: validProof }
 		);
