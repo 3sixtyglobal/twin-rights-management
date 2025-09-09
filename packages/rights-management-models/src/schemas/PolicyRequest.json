@@ -39,6 +39,12 @@
 			"description": "The proof object."
 		}
 	},
-	"required": ["@context", "type", "id", "nodeIdentity", "proof"],
+	"required": [
+		"@context",
+		"type",
+		"id",
+		"nodeIdentity",
+		"proof"
+	],
 	"additionalProperties": false
 }

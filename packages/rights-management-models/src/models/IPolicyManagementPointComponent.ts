@@ -14,12 +14,17 @@ export interface IPolicyManagementPointComponent extends IComponent {
 	 * @param action The action being performed on the asset.
 	 * @param nodeIdentity The identity of the node making the request.
 	 * @param data The data to retrieve the policies for.
+	 * @param cursor An optional cursor to continue a previous query.
 	 * @returns Returns the policies which apply to the data and identities so that the PDP can make a decision.
 	 */
 	retrieve<D = unknown>(
 		assetType: string,
 		action: string,
 		nodeIdentity: string,
-		data: D | undefined
-	): Promise<IOdrlPolicy[]>;
+		data: D | undefined,
+		cursor?: string
+	): Promise<{
+		policies: IOdrlPolicy[];
+		cursor?: string;
+	}>;
 }

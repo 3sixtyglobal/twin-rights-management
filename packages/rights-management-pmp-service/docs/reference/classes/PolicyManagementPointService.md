@@ -42,7 +42,7 @@ The class name of the Policy Management Point Service.
 
 ### retrieve()
 
-> **retrieve**\<`D`\>(`assetType`, `action`, `nodeIdentity`, `data`): `Promise`\<`IOdrlPolicy`[]\>
+> **retrieve**\<`D`\>(`assetType`, `action`, `nodeIdentity`, `data`, `cursor?`): `Promise`\<\{ `policies`: `IOdrlPolicy`[]; `cursor?`: `string`; \}\>
 
 Get the policies from a PAP based on the data and identities.
 
@@ -58,19 +58,19 @@ Get the policies from a PAP based on the data and identities.
 
 `string`
 
-The type of asset being processed.
+The type of asset being processed, wildcard * means all asset types.
 
 ##### action
 
 `string`
 
-The action being performed on the asset.
+The action being performed on the asset, wildcard * means all actions.
 
 ##### nodeIdentity
 
 `string`
 
-The identity of the node making the request.
+The identity of the node making the request, wildcard * means all node identities.
 
 ##### data
 
@@ -78,9 +78,15 @@ The data to retrieve the policies for.
 
 `undefined` | `D`
 
+##### cursor?
+
+`string`
+
+An optional cursor to continue a previous query.
+
 #### Returns
 
-`Promise`\<`IOdrlPolicy`[]\>
+`Promise`\<\{ `policies`: `IOdrlPolicy`[]; `cursor?`: `string`; \}\>
 
 Returns the policies which apply to the data and context so that the PDP can make a decision.
 

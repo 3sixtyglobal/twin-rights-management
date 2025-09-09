@@ -60,6 +60,13 @@
 			"description": "The proof object."
 		}
 	},
-	"required": ["@context", "type", "assetType", "action", "nodeIdentity", "proof"],
+	"required": [
+		"@context",
+		"type",
+		"assetType",
+		"action",
+		"nodeIdentity",
+		"proof"
+	],
 	"additionalProperties": false
 }

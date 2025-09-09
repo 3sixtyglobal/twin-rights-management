@@ -31,6 +31,11 @@
 			"description": "The expiration date of the policy created by the negotiation if it was approved, and it has an expiration date."
 		}
 	},
-	"required": ["@context", "type", "id", "status"],
+	"required": [
+		"@context",
+		"type",
+		"id",
+		"status"
+	],
 	"additionalProperties": false
 }
