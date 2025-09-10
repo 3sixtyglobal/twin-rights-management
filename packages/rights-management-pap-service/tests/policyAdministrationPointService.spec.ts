@@ -2,7 +2,7 @@
 // SPDX-License-Identifier: Apache-2.0.
 import { existsSync } from "node:fs";
 import { rm } from "node:fs/promises";
-import { ObjectHelper } from "@twin.org/core";
+import { Is, ObjectHelper } from "@twin.org/core";
 import type { EntityCondition } from "@twin.org/entity";
 import type { MemoryEntityStorageConnector } from "@twin.org/entity-storage-connector-memory";
 import { EntityStorageConnectorFactory } from "@twin.org/entity-storage-models";
@@ -64,7 +64,7 @@ describe("PolicyAdministrationPointService", () => {
 		expect(retrievedPolicy.uid).toEqual(resultUid);
 		expect(retrievedPolicy["@type"]).toEqual("Set");
 		expect(retrievedPolicy["@context"]).toBeDefined();
-		expect(Array.isArray(retrievedPolicy.permission)).toBeTruthy();
+		expect(Is.array(retrievedPolicy.permission)).toBeTruthy();
 	});
 
 	test("should retrieve a policy from entity storage", async () => {

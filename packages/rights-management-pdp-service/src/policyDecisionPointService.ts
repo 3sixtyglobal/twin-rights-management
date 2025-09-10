@@ -96,6 +96,20 @@ export class PolicyDecisionPointService implements IPolicyDecisionPointComponent
 	): Promise<IPolicyDecision[]> {
 		Guards.objectValue<IPolicyLocator>(this.CLASS_NAME, nameof(locator), locator);
 
+		const supportedArbiters = this._arbiters.filter(({ arbiter }) => {
+			const supportedPolicies = arbiter.supportedPolicies();
+			return (
+				supportedPolicies.length === 0 ||
+				LocatorHelper.findMatchingLocator(supportedPolicies, locator)
+			);
+		});
+
+		if (supportedArbiters.length === 0) {
+			throw new GeneralError(this.CLASS_NAME, "noSupportedArbiters", {
+				locator: LocatorHelper.toString(locator)
+			});
+		}
+
 		const policies: IOdrlPolicy[] = [];
 
 		let cursor;
@@ -122,14 +136,6 @@ export class PolicyDecisionPointService implements IPolicyDecisionPointComponent
 			policies,
 			data
 		);
-
-		const supportedArbiters = this._arbiters.filter(({ arbiter }) => {
-			const supportedPolicies = arbiter.supportedPolicies();
-			return (
-				supportedPolicies.length === 0 ||
-				LocatorHelper.findMatchingLocator(supportedPolicies, locator)
-			);
-		});
 
 		for (const { arbiterId, arbiter } of supportedArbiters) {
 			try {
@@ -175,7 +181,7 @@ export class PolicyDecisionPointService implements IPolicyDecisionPointComponent
 	 */
 	public async registerArbiter(arbiterId: string, arbiter: IPolicyArbiter): Promise<void> {
 		Guards.stringValue(this.CLASS_NAME, nameof(arbiterId), arbiterId);
-		Guards.objectValue<IPolicyArbiter>(this.CLASS_NAME, nameof(arbiter), arbiter);
+		Guards.object<IPolicyArbiter>(this.CLASS_NAME, nameof(arbiter), arbiter);
 
 		const currentIndex = this._arbiters.findIndex(a => a.arbiterId === arbiterId);
 		if (currentIndex !== -1) {

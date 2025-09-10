@@ -11,6 +11,8 @@ import {
 import { LoggingConnectorFactory } from "@twin.org/logging-models";
 import { LoggingService } from "@twin.org/logging-service";
 import { nameof } from "@twin.org/nameof";
+import { PolicyDecision } from "@twin.org/rights-management-models";
+import type { IPolicyArbiter } from "@twin.org/rights-management-models";
 import {
 	PolicyAdministrationPointService,
 	initSchema as initSchemaPolicyAdministrationPoint,
@@ -56,5 +58,68 @@ describe("PolicyDecisionPointService", () => {
 	test("can create the service", async () => {
 		const policyDecisionPoint = new PolicyDecisionPointService();
 		expect(policyDecisionPoint).toBeInstanceOf(PolicyDecisionPointService);
+	});
+
+	test("can register and unregister an arbiter", async () => {
+		const pdp = new PolicyDecisionPointService();
+		const mockArbiter = {
+			supportedPolicies: () => [],
+			decide: async () => [{ decision: PolicyDecision.Granted, target: "asset:1234" }]
+		};
+		await pdp.registerArbiter("arbiter1", mockArbiter);
+		await pdp.unregisterArbiter("arbiter1");
+	});
+
+	test("throws error for invalid arbiterId argument in registerArbiter", async () => {
+		const pdp = new PolicyDecisionPointService();
+		const mockArbiter = { supportedPolicies: () => [], decide: async () => [] };
+		await expect(
+			pdp.registerArbiter(undefined as unknown as string, mockArbiter)
+		).rejects.toThrow();
+	});
+
+	test("throws error for invalid arbiter argument in registerArbiter", async () => {
+		const pdp = new PolicyDecisionPointService();
+		await expect(
+			pdp.registerArbiter("arbiter1", 123 as unknown as IPolicyArbiter)
+		).rejects.toThrow();
+	});
+
+	test("throws error for invalid arbiterId argument in unregisterArbiter", async () => {
+		const pdp = new PolicyDecisionPointService();
+		await expect(pdp.unregisterArbiter(undefined as unknown as string)).rejects.toThrow();
+	});
+
+	test("evaluate returns empty array if no arbiters registered", async () => {
+		const pdp = new PolicyDecisionPointService();
+		const locator = { assetType: "asset:1234", action: "read", assignee: "node1" };
+		await expect(pdp.evaluate(locator)).rejects.toThrow("noSupportedArbiters");
+	});
+
+	test("evaluate returns decisions from registered arbiter", async () => {
+		const pdp = new PolicyDecisionPointService();
+		const mockArbiter = {
+			supportedPolicies: () => [],
+			decide: async () => [{ decision: PolicyDecision.Granted, target: "asset:1234" }]
+		};
+		await pdp.registerArbiter("arbiter1", mockArbiter);
+		const locator = { assetType: "asset:1234", action: "read", assignee: "node1" };
+		const result = await pdp.evaluate(locator);
+		expect(result).toHaveLength(1);
+		expect(result[0].decision).toBe(PolicyDecision.Granted);
+		expect(result[0].target).toBe("asset:1234");
+	});
+
+	test("evaluate throws and logs if arbiter throws", async () => {
+		const pdp = new PolicyDecisionPointService();
+		const mockArbiter = {
+			supportedPolicies: () => [],
+			decide: async () => {
+				throw new Error("fail");
+			}
+		};
+		await pdp.registerArbiter("arbiter1", mockArbiter);
+		const locator = { assetType: "asset:1234", action: "read", assignee: "node1" };
+		await expect(pdp.evaluate(locator)).rejects.toThrow("decidingFailed");
 	});
 });
