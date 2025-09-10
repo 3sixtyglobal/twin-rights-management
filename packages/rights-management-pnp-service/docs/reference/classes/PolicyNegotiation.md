@@ -30,17 +30,17 @@ The date and time when the negotiation was created.
 
 ***
 
-### assetType
+### assetType?
 
-> **assetType**: `string`
+> `optional` **assetType**: `string`
 
 The asset type the negotiation is for.
 
 ***
 
-### action
+### action?
 
-> **action**: `string`
+> `optional` **action**: `string`
 
 The action the negotiation is for.
 
@@ -54,9 +54,9 @@ The resource id the negotiation is for.
 
 ***
 
-### nodeIdentity
+### assignee?
 
-> **nodeIdentity**: `string`
+> `optional` **assignee**: `string`
 
 The identity of the node making the request.
 
@@ -64,13 +64,9 @@ The identity of the node making the request.
 
 ### information?
 
-> `optional` **information**: `object`
+> `optional` **information**: `IPolicyInformation`
 
 The requester information.
-
-#### Index Signature
-
-\[`source`: `string`\]: `IJsonLdNodeObject`[]
 
 ***
 

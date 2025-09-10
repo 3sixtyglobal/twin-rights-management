@@ -1,14 +1,15 @@
 // Copyright 2024 IOTA Stiftung.
 // SPDX-License-Identifier: Apache-2.0.
-import type { IJsonLdNodeObject } from "@twin.org/data-json-ld";
 import type { DidContexts, IProof } from "@twin.org/standards-w3c-did";
+import type { IPolicyInformation } from "./IPolicyInformation";
+import type { IPolicyLocator } from "./IPolicyLocator";
 import type { RightsManagementContexts } from "./rightsManagementContexts";
 import type { RightsManagementTypes } from "./rightsManagementTypes";
 
 /**
  * The JSON-LD definition for the policy negotiation proof.
  */
-export interface IPolicyNegotiationRequest {
+export interface IPolicyNegotiationRequest extends IPolicyLocator {
 	/**
 	 * The JSON-LD context.
 	 */
@@ -20,29 +21,9 @@ export interface IPolicyNegotiationRequest {
 	type: typeof RightsManagementTypes.PolicyNegotiationRequest;
 
 	/**
-	 * The asset type.
-	 */
-	assetType: string;
-
-	/**
-	 * The action type.
-	 */
-	action: string;
-
-	/**
-	 * The specific resource id or can be left undefined for a whole asset class.
-	 */
-	resourceId?: string;
-
-	/**
-	 * The id of the the node.
-	 */
-	nodeIdentity: string;
-
-	/**
 	 * Additional information provided by the requester to determine if a policy can be created.
 	 */
-	information?: { [source: string]: IJsonLdNodeObject[] };
+	information?: IPolicyInformation;
 
 	/**
 	 * The proof object.

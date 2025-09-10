@@ -1,12 +1,14 @@
 // Copyright 2024 IOTA Stiftung.
 // SPDX-License-Identifier: Apache-2.0.
-import { ComponentFactory, Guards } from "@twin.org/core";
+import { ComponentFactory, Guards, Is } from "@twin.org/core";
 import { ComparisonOperator, type EntityCondition } from "@twin.org/entity";
 import type { ILoggingComponent } from "@twin.org/logging-models";
 import { nameof } from "@twin.org/nameof";
-import type {
-	IPolicyAdministrationPointComponent,
-	IPolicyManagementPointComponent
+import {
+	LocatorHelper,
+	type IPolicyAdministrationPointComponent,
+	type IPolicyLocator,
+	type IPolicyManagementPointComponent
 } from "@twin.org/rights-management-models";
 import type { IOdrlPolicy } from "@twin.org/standards-w3c-odrl";
 import type { IPolicyManagementPointServiceConstructorOptions } from "./models/IPolicyManagementPointServiceConstructorOptions";
@@ -48,37 +50,39 @@ export class PolicyManagementPointService implements IPolicyManagementPointCompo
 
 	/**
 	 * Get the policies from a PAP based on the data and identities.
-	 * @param assetType The type of asset being processed, wildcard * means all asset types.
-	 * @param action The action being performed on the asset, wildcard * means all actions.
-	 * @param nodeIdentity The identity of the node making the request, wildcard * means all node identities.
+	 * @param locator The locator to find relevant policies.
 	 * @param data The data to retrieve the policies for.
 	 * @param cursor An optional cursor to continue a previous query.
 	 * @returns Returns the policies which apply to the data and context so that the PDP can make a decision.
 	 */
 	public async retrieve<D = unknown>(
-		assetType: string,
-		action: string,
-		nodeIdentity: string,
-		data: D | undefined,
+		locator: IPolicyLocator,
+		data?: D,
 		cursor?: string
 	): Promise<{
 		policies: IOdrlPolicy[];
 		cursor?: string;
 	}> {
-		Guards.stringValue(this.CLASS_NAME, nameof(assetType), assetType);
-		Guards.stringValue(this.CLASS_NAME, nameof(action), action);
-		Guards.stringValue(this.CLASS_NAME, nameof(nodeIdentity), nodeIdentity);
+		Guards.object<IPolicyLocator>(this.CLASS_NAME, nameof(locator), locator);
+		if (!Is.empty(locator.assetType)) {
+			Guards.string(this.CLASS_NAME, nameof(locator.assetType), locator.assetType);
+		}
+		if (!Is.empty(locator.action)) {
+			Guards.string(this.CLASS_NAME, nameof(locator.action), locator.action);
+		}
+		if (!Is.empty(locator.assignee)) {
+			Guards.string(this.CLASS_NAME, nameof(locator.assignee), locator.assignee);
+		}
+		if (!Is.empty(locator.resourceId)) {
+			Guards.string(this.CLASS_NAME, nameof(locator.resourceId), locator.resourceId);
+		}
 
 		this._logging?.log({
 			level: "info",
 			source: this.CLASS_NAME,
 			ts: Date.now(),
 			message: "retrieving",
-			data: {
-				assetType,
-				action,
-				nodeIdentity
-			}
+			data: { locator: LocatorHelper.toString(locator) }
 		});
 
 		const condition: EntityCondition<IOdrlPolicy> = {
@@ -86,21 +90,23 @@ export class PolicyManagementPointService implements IPolicyManagementPointCompo
 		};
 
 		condition.conditions.push({
-			property: "target",
-			comparison: ComparisonOperator.Equals,
-			value: assetType === "*" ? undefined : assetType
-		});
-
-		condition.conditions.push({
 			property: "action",
 			comparison: ComparisonOperator.Equals,
-			value: action === "*" ? undefined : action
+			value: Is.stringValue(locator.action) ? locator.action : undefined
 		});
 
 		condition.conditions.push({
 			property: "assignee",
 			comparison: ComparisonOperator.Equals,
-			value: nodeIdentity === "*" ? undefined : nodeIdentity
+			value: Is.stringValue(locator.assignee) ? locator.assignee : undefined
+		});
+
+		// TODO: Support more complex target matching (e.g. asset collections)
+		// or specific resource ids.
+		condition.conditions.push({
+			property: "target",
+			comparison: ComparisonOperator.Equals,
+			value: Is.stringValue(locator.assetType) ? locator.assetType : undefined
 		});
 
 		const result = await this._policyAdministrationPointComponent.query(condition, cursor);
@@ -111,9 +117,7 @@ export class PolicyManagementPointService implements IPolicyManagementPointCompo
 			ts: Date.now(),
 			message: "retrieved",
 			data: {
-				assetType,
-				action,
-				nodeIdentity,
+				locator: LocatorHelper.toString(locator),
 				count: result.policies.length
 			}
 		});

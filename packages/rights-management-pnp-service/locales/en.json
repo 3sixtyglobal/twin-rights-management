@@ -20,8 +20,8 @@
 			"unregisteredNegotiator": "Negotiator unregistered with id: \"{negotiatorId}\""
 		},
 		"policyNegotiationRequestPointService": {
-			"negotiationRequest": "Negotiation request sent for asset type: \"{assetType}\", action: \"{action}\", url: \"{url}\", resourceId: \"{resourceId}\"",
-			"negotiationResponse": "Negotiation response received for asset type: \"{assetType}\", action: \"{action}\", url: \"{url}\", status: \"{status}\"",
+			"negotiationRequest": "Negotiation request sent for locator: \"{locator}\", url: \"{url}\"",
+			"negotiationResponse": "Negotiation response received for locator: \"{locator}\", url: \"{url}\", status: \"{status}\"",
 			"negotiationStatus": "Negotiation status retrieved for policy with id: \"{policyId}\", status: \"{status}\", url: \"{url}\"",
 			"negotiationCancel": "Negotiation cancelled for policy with id: \"{policyId}\", url: \"{url}\""
 		}

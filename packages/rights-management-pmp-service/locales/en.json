@@ -1,8 +1,8 @@
 {
 	"info": {
 		"policyManagementPointService": {
-			"retrieving": "Retrieving policies for asset type '{assetType}', action '{action}', node identity '{nodeIdentity}'.",
-			"retrieved": "Retrieved {count} policies for asset type '{assetType}', action '{action}', node identity '{nodeIdentity}'."
+			"retrieving": "Retrieving policies for locator \"locator\"",
+			"retrieved": "Retrieved {count} policies for locator \"locator\"."
 		}
 	}
 }

@@ -4,37 +4,23 @@ Interface describing a Policy Negotiator.
 
 ## Methods
 
-### canNegotiate()
+### supportedPolicies()
 
-> **canNegotiate**(`assetType`, `action`): `boolean`
+> **supportedPolicies**(): [`IPolicyLocator`](IPolicyLocator.md)[]
 
-Determines if the negotiator can handle the specified asset type and action.
-
-#### Parameters
-
-##### assetType
-
-`string`
-
-The type of asset being processed.
-
-##### action
-
-`string`
-
-The action being performed on the asset.
+The policies supported by this negotiator.
 
 #### Returns
 
-`boolean`
+[`IPolicyLocator`](IPolicyLocator.md)[]
 
-True if the negotiator can handle the asset type and action, false otherwise.
+The supported policies, if empty can be used for all.
 
 ***
 
 ### negotiate()
 
-> **negotiate**(`policyId`, `assetType`, `action`, `resourceId`, `nodeIdentity`, `information`): `Promise`\<\{ `state`: [`IPolicyState`](IPolicyState.md); `policy?`: `IOdrlPolicy`; \}\>
+> **negotiate**(`policyId`, `locator`, `information?`): `Promise`\<\{ `state`: [`IPolicyState`](IPolicyState.md); `policy?`: `IOdrlPolicy`; \}\>
 
 Determines if a policy can be created for the requested resource.
 
@@ -46,35 +32,17 @@ Determines if a policy can be created for the requested resource.
 
 The policy id to use if creating a new policy.
 
-##### assetType
+##### locator
 
-`string`
+[`IPolicyLocator`](IPolicyLocator.md)
 
-The type of asset being processed.
+The locator to find relevant policies.
 
-##### action
+##### information?
 
-`string`
-
-The action being performed on the asset.
-
-##### resourceId
-
-The ID of the resource being requested, can be empty if asset type access requested.
-
-`undefined` | `string`
-
-##### nodeIdentity
-
-`string`
-
-The identity of the node requesting the negotiation.
-
-##### information
+[`IPolicyInformation`](IPolicyInformation.md)
 
 Information provided by the requester to determine if a policy can be created.
-
-`undefined` | \{\[`source`: `string`\]: `IJsonLdNodeObject`[]; \}
 
 #### Returns
 

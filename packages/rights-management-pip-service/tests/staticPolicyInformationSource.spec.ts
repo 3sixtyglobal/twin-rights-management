@@ -61,12 +61,14 @@ describe("StaticPolicyInformationSource", () => {
 		});
 
 		const result = await policyInformationSource.retrieve(
-			"document",
-			"read",
+			{
+				assetType: "document",
+				action: "read",
+				assignee: "node123"
+			},
 			PolicyInformationAccessMode.Any,
-			"node123",
-			{ content: "test" },
-			[]
+			[],
+			{ content: "test" }
 		);
 
 		expect(result).toEqual(staticInfo);
@@ -90,12 +92,14 @@ describe("StaticPolicyInformationSource", () => {
 		});
 
 		const result = await policyInformationSource.retrieve(
-			"document",
-			"read",
+			{
+				assetType: "document",
+				action: "read",
+				assignee: "node123"
+			},
 			PolicyInformationAccessMode.Public,
-			"node123",
-			{ content: "test" },
-			[]
+			[],
+			{ content: "test" }
 		);
 
 		expect(result).toEqual(publicInfo);
@@ -119,12 +123,10 @@ describe("StaticPolicyInformationSource", () => {
 		});
 
 		const result = await policyInformationSource.retrieve(
-			"document",
-			"read",
+			{ assetType: "document", action: "read", assignee: "node123" },
 			PolicyInformationAccessMode.Private,
-			"node123",
-			{ content: "test" },
-			[]
+			[],
+			{ content: "test" }
 		);
 
 		expect(result).toEqual(privateInfo);
@@ -140,21 +142,17 @@ describe("StaticPolicyInformationSource", () => {
 		});
 
 		const publicResult = await policyInformationSource.retrieve(
-			"document",
-			"read",
+			{ assetType: "document", action: "read", assignee: "node123" },
 			PolicyInformationAccessMode.Public,
-			"node123",
-			{ content: "test" },
-			[]
+			[],
+			{ content: "test" }
 		);
 
 		const privateResult = await policyInformationSource.retrieve(
-			"document",
-			"read",
+			{ assetType: "document", action: "read", assignee: "node123" },
 			PolicyInformationAccessMode.Private,
-			"node123",
-			{ content: "test" },
-			[]
+			[],
+			{ content: "test" }
 		);
 
 		expect(publicResult).toEqual(anyInfo);
@@ -173,12 +171,10 @@ describe("StaticPolicyInformationSource", () => {
 		});
 
 		const result = await policyInformationSource.retrieve(
-			"document",
-			"read",
+			{ assetType: "document", action: "read", assignee: "node123" },
 			PolicyInformationAccessMode.Public,
-			"node123",
-			{ content: "test" },
-			[]
+			[],
+			{ content: "test" }
 		);
 
 		expect(result).toBeUndefined();
@@ -196,12 +192,10 @@ describe("StaticPolicyInformationSource", () => {
 		});
 
 		const result = await policyInformationSource.retrieve(
-			"document",
-			"read",
+			{ assetType: "document", action: "read", assignee: "node123" },
 			PolicyInformationAccessMode.Private,
-			"node123",
-			{ content: "test" },
-			[]
+			[],
+			{ content: "test" }
 		);
 
 		expect(result).toBeUndefined();
@@ -227,30 +221,24 @@ describe("StaticPolicyInformationSource", () => {
 		});
 
 		const publicResult = await policyInformationSource.retrieve(
-			"document",
-			"read",
+			{ assetType: "document", action: "read", assignee: "node123" },
 			PolicyInformationAccessMode.Public,
-			"node123",
-			{ content: "test" },
-			[]
+			[],
+			{ content: "test" }
 		);
 
 		const privateResult = await policyInformationSource.retrieve(
-			"document",
-			"read",
+			{ assetType: "document", action: "read", assignee: "node123" },
 			PolicyInformationAccessMode.Private,
-			"node123",
-			{ content: "test" },
-			[]
+			[],
+			{ content: "test" }
 		);
 
 		const anyResult = await policyInformationSource.retrieve(
-			"document",
-			"read",
+			{ assetType: "document", action: "read", assignee: "node123" },
 			PolicyInformationAccessMode.Any,
-			"node123",
-			{ content: "test" },
-			[]
+			[],
+			{ content: "test" }
 		);
 
 		expect(publicResult).toEqual([...publicInfo, ...anyInfo]);
@@ -276,18 +264,16 @@ describe("StaticPolicyInformationSource", () => {
 		});
 
 		const result = await policyInformationSource.retrieve(
-			"document",
-			"read",
+			{ assetType: "document", action: "read", assignee: "node123" },
 			PolicyInformationAccessMode.Public,
-			"node123",
-			{ content: "test" },
-			[]
+			[],
+			{ content: "test" }
 		);
 
 		expect(result).toEqual([...anyInfo, ...publicInfo]);
 	});
 
-	test("returns information when assetTypeActions is undefined (matches all)", async () => {
+	test("returns information when matchLocators is undefined (matches all)", async () => {
 		const allInfo: IJsonLdNodeObject[] = [
 			{ "@id": "all1", "@type": "AllInfo", data: "matches everything" }
 		];
@@ -297,7 +283,7 @@ describe("StaticPolicyInformationSource", () => {
 				information: [
 					{
 						accessMode: PolicyInformationAccessMode.Any,
-						assetTypeActions: undefined,
+						matchLocators: undefined,
 						objects: allInfo
 					}
 				]
@@ -305,21 +291,17 @@ describe("StaticPolicyInformationSource", () => {
 		});
 
 		const result1 = await policyInformationSource.retrieve(
-			"document",
-			"read",
+			{ assetType: "document", action: "read", assignee: "node123" },
 			PolicyInformationAccessMode.Any,
-			"node123",
-			{ content: "test" },
-			[]
+			[],
+			{ content: "test" }
 		);
 
 		const result2 = await policyInformationSource.retrieve(
-			"image",
-			"write",
+			{ assetType: "image", action: "write", assignee: "node123" },
 			PolicyInformationAccessMode.Any,
-			"node123",
-			{ content: "test" },
-			[]
+			[],
+			{ content: "test" }
 		);
 
 		expect(result1).toEqual(allInfo);
@@ -336,7 +318,7 @@ describe("StaticPolicyInformationSource", () => {
 				information: [
 					{
 						accessMode: PolicyInformationAccessMode.Any,
-						assetTypeActions: [{ assetType: "document", action: "read" }],
+						matchLocators: [{ assetType: "document", action: "read" }],
 						objects: specificInfo
 					}
 				]
@@ -344,21 +326,17 @@ describe("StaticPolicyInformationSource", () => {
 		});
 
 		const matchingResult = await policyInformationSource.retrieve(
-			"document",
-			"read",
+			{ assetType: "document", action: "read", assignee: "node123" },
 			PolicyInformationAccessMode.Any,
-			"node123",
-			{ content: "test" },
-			[]
+			[],
+			{ content: "test" }
 		);
 
 		const nonMatchingResult = await policyInformationSource.retrieve(
-			"document",
-			"write",
+			{ assetType: "document", action: "write", assignee: "node123" },
 			PolicyInformationAccessMode.Any,
-			"node123",
-			{ content: "test" },
-			[]
+			[],
+			{ content: "test" }
 		);
 
 		expect(matchingResult).toEqual(specificInfo);
@@ -375,7 +353,7 @@ describe("StaticPolicyInformationSource", () => {
 				information: [
 					{
 						accessMode: PolicyInformationAccessMode.Any,
-						assetTypeActions: [{ assetType: undefined, action: "read" }],
+						matchLocators: [{ assetType: undefined, action: "read" }],
 						objects: readInfo
 					}
 				]
@@ -383,30 +361,24 @@ describe("StaticPolicyInformationSource", () => {
 		});
 
 		const documentReadResult = await policyInformationSource.retrieve(
-			"document",
-			"read",
+			{ assetType: "document", action: "read", assignee: "node123" },
 			PolicyInformationAccessMode.Any,
-			"node123",
-			{ content: "test" },
-			[]
+			[],
+			{ content: "test" }
 		);
 
 		const imageReadResult = await policyInformationSource.retrieve(
-			"image",
-			"read",
+			{ assetType: "image", action: "read", assignee: "node123" },
 			PolicyInformationAccessMode.Any,
-			"node123",
-			{ content: "test" },
-			[]
+			[],
+			{ content: "test" }
 		);
 
 		const documentWriteResult = await policyInformationSource.retrieve(
-			"document",
-			"write",
+			{ assetType: "document", action: "write", assignee: "node123" },
 			PolicyInformationAccessMode.Any,
-			"node123",
-			{ content: "test" },
-			[]
+			[],
+			{ content: "test" }
 		);
 
 		expect(documentReadResult).toEqual(readInfo);
@@ -424,7 +396,7 @@ describe("StaticPolicyInformationSource", () => {
 				information: [
 					{
 						accessMode: PolicyInformationAccessMode.Any,
-						assetTypeActions: [{ assetType: "document", action: undefined }],
+						matchLocators: [{ assetType: "document", action: undefined }],
 						objects: documentInfo
 					}
 				]
@@ -432,30 +404,24 @@ describe("StaticPolicyInformationSource", () => {
 		});
 
 		const documentReadResult = await policyInformationSource.retrieve(
-			"document",
-			"read",
+			{ assetType: "document", action: "read", assignee: "node123" },
 			PolicyInformationAccessMode.Any,
-			"node123",
-			{ content: "test" },
-			[]
+			[],
+			{ content: "test" }
 		);
 
 		const documentWriteResult = await policyInformationSource.retrieve(
-			"document",
-			"write",
+			{ assetType: "document", action: "write", assignee: "node123" },
 			PolicyInformationAccessMode.Any,
-			"node123",
-			{ content: "test" },
-			[]
+			[],
+			{ content: "test" }
 		);
 
 		const imageReadResult = await policyInformationSource.retrieve(
-			"image",
-			"read",
+			{ assetType: "image", action: "read", assignee: "node123" },
 			PolicyInformationAccessMode.Any,
-			"node123",
-			{ content: "test" },
-			[]
+			[],
+			{ content: "test" }
 		);
 
 		expect(documentReadResult).toEqual(documentInfo);
@@ -473,7 +439,7 @@ describe("StaticPolicyInformationSource", () => {
 				information: [
 					{
 						accessMode: PolicyInformationAccessMode.Any,
-						assetTypeActions: [{ assetType: undefined, action: undefined }],
+						matchLocators: [{ assetType: undefined, action: undefined }],
 						objects: universalInfo
 					}
 				]
@@ -481,28 +447,24 @@ describe("StaticPolicyInformationSource", () => {
 		});
 
 		const result1 = await policyInformationSource.retrieve(
-			"document",
-			"read",
+			{ assetType: "document", action: "read", assignee: "node123" },
 			PolicyInformationAccessMode.Any,
-			"node123",
-			{ content: "test" },
-			[]
+			[],
+			{ content: "test" }
 		);
 
 		const result2 = await policyInformationSource.retrieve(
-			"image",
-			"write",
+			{ assetType: "image", action: "write", assignee: "node123" },
 			PolicyInformationAccessMode.Any,
-			"node123",
-			{ content: "test" },
-			[]
+			[],
+			{ content: "test" }
 		);
 
 		expect(result1).toEqual(universalInfo);
 		expect(result2).toEqual(universalInfo);
 	});
 
-	test("handles multiple assetTypeActions combinations", async () => {
+	test("handles multiple matchLocators combinations", async () => {
 		const multiInfo: IJsonLdNodeObject[] = [
 			{ "@id": "multi1", "@type": "MultiInfo", data: "multiple combinations" }
 		];
@@ -512,7 +474,7 @@ describe("StaticPolicyInformationSource", () => {
 				information: [
 					{
 						accessMode: PolicyInformationAccessMode.Any,
-						assetTypeActions: [
+						matchLocators: [
 							{ assetType: "document", action: "read" },
 							{ assetType: "image", action: "write" },
 							{ assetType: "video", action: undefined }
@@ -524,39 +486,31 @@ describe("StaticPolicyInformationSource", () => {
 		});
 
 		const documentReadResult = await policyInformationSource.retrieve(
-			"document",
-			"read",
+			{ assetType: "document", action: "read", assignee: "node123" },
 			PolicyInformationAccessMode.Any,
-			"node123",
-			{ content: "test" },
-			[]
+			[],
+			{ content: "test" }
 		);
 
 		const imageWriteResult = await policyInformationSource.retrieve(
-			"image",
-			"write",
+			{ assetType: "image", action: "write", assignee: "node123" },
 			PolicyInformationAccessMode.Any,
-			"node123",
-			{ content: "test" },
-			[]
+			[],
+			{ content: "test" }
 		);
 
 		const videoAnyResult = await policyInformationSource.retrieve(
-			"video",
-			"stream",
+			{ assetType: "video", action: "stream", assignee: "node123" },
 			PolicyInformationAccessMode.Any,
-			"node123",
-			{ content: "test" },
-			[]
+			[],
+			{ content: "test" }
 		);
 
 		const documentWriteResult = await policyInformationSource.retrieve(
-			"document",
-			"write",
+			{ assetType: "document", action: "write", assignee: "node123" },
 			PolicyInformationAccessMode.Any,
-			"node123",
-			{ content: "test" },
-			[]
+			[],
+			{ content: "test" }
 		);
 
 		expect(documentReadResult).toEqual(multiInfo);
@@ -565,7 +519,7 @@ describe("StaticPolicyInformationSource", () => {
 		expect(documentWriteResult).toBeUndefined();
 	});
 
-	test("combines accessMode and assetTypeActions filtering", async () => {
+	test("combines accessMode and matchLocators filtering", async () => {
 		const publicDocInfo: IJsonLdNodeObject[] = [
 			{ "@id": "pubdoc1", "@type": "PublicDocInfo", data: "public document read" }
 		];
@@ -578,12 +532,12 @@ describe("StaticPolicyInformationSource", () => {
 				information: [
 					{
 						accessMode: PolicyInformationAccessMode.Public,
-						assetTypeActions: [{ assetType: "document", action: "read" }],
+						matchLocators: [{ assetType: "document", action: "read" }],
 						objects: publicDocInfo
 					},
 					{
 						accessMode: PolicyInformationAccessMode.Private,
-						assetTypeActions: [{ assetType: "image", action: "write" }],
+						matchLocators: [{ assetType: "image", action: "write" }],
 						objects: privateImageInfo
 					}
 				]
@@ -591,39 +545,31 @@ describe("StaticPolicyInformationSource", () => {
 		});
 
 		const publicDocResult = await policyInformationSource.retrieve(
-			"document",
-			"read",
+			{ assetType: "document", action: "read", assignee: "node123" },
 			PolicyInformationAccessMode.Public,
-			"node123",
-			{ content: "test" },
-			[]
+			[],
+			{ content: "test" }
 		);
 
 		const privateImageResult = await policyInformationSource.retrieve(
-			"image",
-			"write",
+			{ assetType: "image", action: "write", assignee: "node123" },
 			PolicyInformationAccessMode.Private,
-			"node123",
-			{ content: "test" },
-			[]
+			[],
+			{ content: "test" }
 		);
 
 		const wrongAccessModeResult = await policyInformationSource.retrieve(
-			"document",
-			"read",
+			{ assetType: "document", action: "read", assignee: "node123" },
 			PolicyInformationAccessMode.Private,
-			"node123",
-			{ content: "test" },
-			[]
+			[],
+			{ content: "test" }
 		);
 
 		const wrongAssetTypeResult = await policyInformationSource.retrieve(
-			"document",
-			"write",
+			{ assetType: "document", action: "write", assignee: "node123" },
 			PolicyInformationAccessMode.Public,
-			"node123",
-			{ content: "test" },
-			[]
+			[],
+			{ content: "test" }
 		);
 
 		expect(publicDocResult).toEqual(publicDocInfo);
@@ -632,7 +578,7 @@ describe("StaticPolicyInformationSource", () => {
 		expect(wrongAssetTypeResult).toBeUndefined();
 	});
 
-	test("returns all entries when assetTypeActions array is empty", async () => {
+	test("returns all entries when matchLocators array is empty", async () => {
 		const emptyMatchInfo: IJsonLdNodeObject[] = [
 			{ "@id": "empty1", "@type": "EmptyMatchInfo", data: "should never match" }
 		];
@@ -642,7 +588,7 @@ describe("StaticPolicyInformationSource", () => {
 				information: [
 					{
 						accessMode: PolicyInformationAccessMode.Any,
-						assetTypeActions: [],
+						matchLocators: [],
 						objects: emptyMatchInfo
 					}
 				]
@@ -650,12 +596,10 @@ describe("StaticPolicyInformationSource", () => {
 		});
 
 		const result = await policyInformationSource.retrieve(
-			"document",
-			"read",
+			{ assetType: "document", action: "read", assignee: "node123" },
 			PolicyInformationAccessMode.Any,
-			"node123",
-			{ content: "test" },
-			[]
+			[],
+			{ content: "test" }
 		);
 
 		expect(result).toEqual(emptyMatchInfo);

@@ -1,6 +1,7 @@
 // Copyright 2024 IOTA Stiftung.
 // SPDX-License-Identifier: Apache-2.0.
 import type { IComponent } from "@twin.org/core";
+import type { IPolicyLocator } from "./IPolicyLocator";
 import type { IPolicyState } from "./IPolicyState";
 
 /**
@@ -11,17 +12,10 @@ export interface IPolicyNegotiationRequestPointComponent extends IComponent {
 	/**
 	 * Send a negotiation request to an external node.
 	 * @param url The URL of the negotiation target.
-	 * @param assetType The type of asset being processed.
-	 * @param action The action being performed on the asset.
-	 * @param resourceId The ID of the resource being requested, can be empty if asset type access requested.
+	 * @param locator The locator to find relevant policies.
 	 * @returns The state of the policy.
 	 */
-	negotiate(
-		url: string,
-		assetType: string,
-		action: string,
-		resourceId: string | undefined
-	): Promise<IPolicyState>;
+	negotiate(url: string, locator: Omit<IPolicyLocator, "assignee">): Promise<IPolicyState>;
 
 	/**
 	 * Retrieves the current state of a policy from an external node.

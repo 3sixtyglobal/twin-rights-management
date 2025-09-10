@@ -1,6 +1,8 @@
 // Copyright 2024 IOTA Stiftung.
 // SPDX-License-Identifier: Apache-2.0.
 import type { IOdrlPolicy } from "@twin.org/standards-w3c-odrl";
+import type { IPolicyDecision } from "./IPolicyDecision";
+import type { IPolicyLocator } from "./IPolicyLocator";
 import type { PolicyDecisionStage } from "./policyDecisionStage";
 
 /**
@@ -16,19 +18,17 @@ export interface IPolicyExecutionAction {
 	/**
 	 * Execute function type for policy actions.
 	 * @param stage The stage of the policy decision.
-	 * @param assetType The type of asset being processed.
-	 * @param action The action being performed on the asset.
-	 * @param nodeIdentity The identity of the node making the request.
-	 * @param data The data to process.
+	 * @param locator The locator to find relevant policies.
 	 * @param policies The policies that apply to the data.
+	 * @param decisions The decisions made by the PDP.
+	 * @param data The data to process.
 	 * @returns A promise that resolves when the action is complete.
 	 */
 	execute<D = unknown>(
 		stage: PolicyDecisionStage,
-		assetType: string,
-		action: string,
-		nodeIdentity: string,
-		data: D | undefined,
-		policies: IOdrlPolicy[]
+		locator: IPolicyLocator,
+		policies?: IOdrlPolicy[],
+		decisions?: IPolicyDecision[],
+		data?: D
 	): Promise<void>;
 }

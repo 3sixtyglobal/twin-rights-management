@@ -11,7 +11,7 @@ Can be used to create the requests to send to other nodes.
 
 ### negotiate()
 
-> **negotiate**(`url`, `assetType`, `action`, `resourceId`): `Promise`\<[`IPolicyState`](IPolicyState.md)\>
+> **negotiate**(`url`, `locator`): `Promise`\<[`IPolicyState`](IPolicyState.md)\>
 
 Send a negotiation request to an external node.
 
@@ -23,23 +23,11 @@ Send a negotiation request to an external node.
 
 The URL of the negotiation target.
 
-##### assetType
+##### locator
 
-`string`
+`Omit`\<[`IPolicyLocator`](IPolicyLocator.md), `"assignee"`\>
 
-The type of asset being processed.
-
-##### action
-
-`string`
-
-The action being performed on the asset.
-
-##### resourceId
-
-The ID of the resource being requested, can be empty if asset type access requested.
-
-`undefined` | `string`
+The locator to find relevant policies.
 
 #### Returns
 

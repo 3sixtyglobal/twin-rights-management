@@ -30,7 +30,7 @@
 			"type": "string",
 			"description": "The id of the policy."
 		},
-		"nodeIdentity": {
+		"assignee": {
 			"type": "string",
 			"description": "The id of the the node."
 		},
@@ -43,7 +43,7 @@
 		"@context",
 		"type",
 		"id",
-		"nodeIdentity",
+		"assignee",
 		"proof"
 	],
 	"additionalProperties": false

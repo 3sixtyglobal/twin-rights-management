@@ -65,7 +65,7 @@ export function generateRestRoutesPolicyNegotiationPoint(
 							type: RightsManagementTypes.PolicyNegotiationRequest,
 							assetType: "document",
 							action: "view",
-							nodeIdentity: "urn:example:node:1",
+							assignee: "urn:example:node:1",
 							proof: {
 								created: "2024-08-22T11:56:56.272Z",
 								type: "DataIntegrityProof",
@@ -125,7 +125,7 @@ export function generateRestRoutesPolicyNegotiationPoint(
 						body: {
 							"@context": [DidContexts.ContextVCv2, RightsManagementContexts.ContextRoot],
 							type: RightsManagementTypes.PolicyRequest,
-							nodeIdentity: "urn:example:node:1",
+							assignee: "urn:example:node:1",
 							proof: {
 								created: "2024-08-22T11:56:56.272Z",
 								type: "DataIntegrityProof",
@@ -182,7 +182,7 @@ export function generateRestRoutesPolicyNegotiationPoint(
 						body: {
 							"@context": [DidContexts.ContextVCv2, RightsManagementContexts.ContextRoot],
 							type: RightsManagementTypes.PolicyRequest,
-							nodeIdentity: "urn:example:node:1",
+							assignee: "urn:example:node:1",
 							proof: {
 								created: "2024-08-22T11:56:56.272Z",
 								type: "DataIntegrityProof",
@@ -226,10 +226,12 @@ export async function pnpNegotiate(
 
 	const component = ComponentFactory.get<IPolicyNegotiationPointComponent>(componentName);
 	const result = await component.negotiate(
-		request.body.assetType,
-		request.body.action,
-		request.body.resourceId,
-		request.body.nodeIdentity,
+		{
+			assetType: request.body.assetType,
+			action: request.body.action,
+			resourceId: request.body.resourceId,
+			assignee: request.body.assignee
+		},
 		request.body.information,
 		request.body.proof
 	);
@@ -266,7 +268,7 @@ export async function pnpNegotiationState(
 	const component = ComponentFactory.get<IPolicyNegotiationPointComponent>(componentName);
 	const result = await component.negotiationState(
 		request.pathParams.policyId,
-		request.body.nodeIdentity,
+		request.body.assignee,
 		request.body.proof
 	);
 
@@ -300,7 +302,7 @@ export async function pnpNegotiationCancel(
 	const component = ComponentFactory.get<IPolicyNegotiationPointComponent>(componentName);
 	await component.negotiationCancel(
 		request.pathParams.policyId,
-		request.body.nodeIdentity,
+		request.body.assignee,
 		request.body.proof
 	);
 

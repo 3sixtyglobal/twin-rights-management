@@ -2,19 +2,24 @@
 
 ## Classes
 
+- [LocatorHelper](classes/LocatorHelper.md)
 - [OdrlPolicyHelper](classes/OdrlPolicyHelper.md)
 - [RightsManagementProofHelper](classes/RightsManagementProofHelper.md)
 
 ## Interfaces
 
 - [IPolicyAdministrationPointComponent](interfaces/IPolicyAdministrationPointComponent.md)
+- [IPolicyArbiter](interfaces/IPolicyArbiter.md)
+- [IPolicyDecision](interfaces/IPolicyDecision.md)
 - [IPolicyDecisionPointComponent](interfaces/IPolicyDecisionPointComponent.md)
 - [IPolicyEnforcementPointComponent](interfaces/IPolicyEnforcementPointComponent.md)
 - [IPolicyEnforcementProcessor](interfaces/IPolicyEnforcementProcessor.md)
 - [IPolicyExecutionAction](interfaces/IPolicyExecutionAction.md)
 - [IPolicyExecutionPointComponent](interfaces/IPolicyExecutionPointComponent.md)
+- [IPolicyInformation](interfaces/IPolicyInformation.md)
 - [IPolicyInformationPointComponent](interfaces/IPolicyInformationPointComponent.md)
 - [IPolicyInformationSource](interfaces/IPolicyInformationSource.md)
+- [IPolicyLocator](interfaces/IPolicyLocator.md)
 - [IPolicyManagementPointComponent](interfaces/IPolicyManagementPointComponent.md)
 - [IPolicyNegotiation](interfaces/IPolicyNegotiation.md)
 - [IPolicyNegotiationAdminPointComponent](interfaces/IPolicyNegotiationAdminPointComponent.md)
@@ -45,6 +50,8 @@
 
 ## Type Aliases
 
+- [IPolicyInformationItems](type-aliases/IPolicyInformationItems.md)
+- [PolicyDecision](type-aliases/PolicyDecision.md)
 - [PolicyDecisionStage](type-aliases/PolicyDecisionStage.md)
 - [PolicyInformationAccessMode](type-aliases/PolicyInformationAccessMode.md)
 - [PolicyNegotiationStatus](type-aliases/PolicyNegotiationStatus.md)
@@ -54,6 +61,7 @@
 
 ## Variables
 
+- [PolicyDecision](variables/PolicyDecision.md)
 - [PolicyDecisionStage](variables/PolicyDecisionStage.md)
 - [PolicyInformationAccessMode](variables/PolicyInformationAccessMode.md)
 - [PolicyNegotiationStatus](variables/PolicyNegotiationStatus.md)

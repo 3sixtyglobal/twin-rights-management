@@ -69,7 +69,7 @@ describe("RightsManagementProofHelper", () => {
 		verificationMethod: "did:example:123#key-1",
 		proofPurpose: "assertionMethod",
 		proofValue:
-			"z525x2V6FZwRqaXpJtFyBDRHXxHNrQ6GkkvL1igRoyMvHNfs9Vmbj5rpphtgyqeGY5saMvh9SHzfcR4rkaMEW4vCo"
+			"z5xUxFxjwnoS4RKyM421JEB5cUMDv1uU9kHQeuiokJgBzk4ZUiRkanW67HBL6q3Y3kQUrpqgc7gBw8JA3ktLxifCw"
 	};
 
 	const validPolicyIdProof: IDataIntegrityProof = {
@@ -83,22 +83,24 @@ describe("RightsManagementProofHelper", () => {
 		verificationMethod: "did:example:123#key-1",
 		proofPurpose: "assertionMethod",
 		proofValue:
-			"z3Xy1wxpVWM4A6XZgjW9cxKk9K5okyy34aagvppuiJJakF6FiZP7fXuY5vfGKxeFCPHxTLWr4zqDkJymhXY96QRqV"
+			"zwmwozUs8t63WoiUV7H5Vk9o5ovD2swNNWwWPmFJwKQr99YfwMN7H613VnETbLoboDk4y9ZZi7Z8EpapS3Fkv86p"
 	};
 
 	it("should create a negotiation proof", async () => {
 		const proof = await RightsManagementProofHelper.createProofNegotiation(
 			mockIdentityConnector,
 			"did:example:123#key-1",
-			"did:example:123",
-			"assetType",
-			"read",
-			"resource-1"
+			{
+				assignee: "did:example:123",
+				assetType: "assetType",
+				action: "read",
+				resourceId: "resource-1"
+			}
 		);
 		expect(proof).toHaveProperty("created");
 		expect(proof).toHaveProperty(
 			"proofValue",
-			"z525x2V6FZwRqaXpJtFyBDRHXxHNrQ6GkkvL1igRoyMvHNfs9Vmbj5rpphtgyqeGY5saMvh9SHzfcR4rkaMEW4vCo"
+			"z5xUxFxjwnoS4RKyM421JEB5cUMDv1uU9kHQeuiokJgBzk4ZUiRkanW67HBL6q3Y3kQUrpqgc7gBw8JA3ktLxifCw"
 		);
 		expect(mockIdentityConnector.createProof).toHaveBeenCalled();
 	});
@@ -113,7 +115,7 @@ describe("RightsManagementProofHelper", () => {
 		expect(proof).toHaveProperty("created");
 		expect(proof).toHaveProperty(
 			"proofValue",
-			"z3Xy1wxpVWM4A6XZgjW9cxKk9K5okyy34aagvppuiJJakF6FiZP7fXuY5vfGKxeFCPHxTLWr4zqDkJymhXY96QRqV"
+			"zwmwozUs8t63WoiUV7H5Vk9o5ovD2swNNWwWPmFJwKQr99YfwMN7H613VnETbLoboDk4y9ZZi7Z8EpapS3Fkv86p"
 		);
 		expect(mockIdentityConnector.createProof).toHaveBeenCalled();
 	});
@@ -122,10 +124,12 @@ describe("RightsManagementProofHelper", () => {
 		await expect(
 			RightsManagementProofHelper.verifyProofNegotiation(
 				mockIdentityConnector,
-				"did:example:123",
-				"assetType",
-				"read",
-				"resource-1",
+				{
+					assignee: "did:example:123",
+					assetType: "assetType",
+					action: "read",
+					resourceId: "resource-1"
+				},
 				validNegotiationProof,
 				60 * 60 // 1 hour TTL
 			)
@@ -141,10 +145,12 @@ describe("RightsManagementProofHelper", () => {
 		await expect(
 			RightsManagementProofHelper.verifyProofNegotiation(
 				failConnector,
-				"did:example:123",
-				"assetType",
-				"read",
-				"resource-1",
+				{
+					assignee: "did:example:123",
+					assetType: "assetType",
+					action: "read",
+					resourceId: "resource-1"
+				},
 				validNegotiationProof,
 				60 * 60
 			)

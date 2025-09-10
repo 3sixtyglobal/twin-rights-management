@@ -1,8 +1,10 @@
 // Copyright 2024 IOTA Stiftung.
 // SPDX-License-Identifier: Apache-2.0.
-import type { IJsonLdNodeObject } from "@twin.org/data-json-ld";
 import { entity, property } from "@twin.org/entity";
-import type { PolicyNegotiationStatus } from "@twin.org/rights-management-models";
+import type {
+	IPolicyInformation,
+	PolicyNegotiationStatus
+} from "@twin.org/rights-management-models";
 
 /**
  * Class describing a rights management policy negotiation.
@@ -24,14 +26,14 @@ export class PolicyNegotiation {
 	/**
 	 * The asset type the negotiation is for.
 	 */
-	@property({ type: "string" })
-	public assetType!: string;
+	@property({ type: "string", optional: true })
+	public assetType?: string;
 
 	/**
 	 * The action the negotiation is for.
 	 */
-	@property({ type: "string" })
-	public action!: string;
+	@property({ type: "string", optional: true })
+	public action?: string;
 
 	/**
 	 * The resource id the negotiation is for.
@@ -42,14 +44,14 @@ export class PolicyNegotiation {
 	/**
 	 * The identity of the node making the request.
 	 */
-	@property({ type: "string" })
-	public nodeIdentity!: string;
+	@property({ type: "string", optional: true })
+	public assignee?: string;
 
 	/**
 	 * The requester information.
 	 */
 	@property({ type: "object", optional: true })
-	public information?: { [source: string]: IJsonLdNodeObject[] };
+	public information?: IPolicyInformation;
 
 	/**
 	 * The status of the negotiation.

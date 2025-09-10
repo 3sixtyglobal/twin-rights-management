@@ -13,7 +13,7 @@ be returned.
 
 ### intercept()
 
-> **intercept**\<`D`, `R`\>(`assetType`, `action`, `nodeIdentity`, `data`): `Promise`\<`undefined` \| `R`\>
+> **intercept**\<`D`, `R`\>(`locator`, `data?`): `Promise`\<`undefined` \| `R`\>
 
 Process the data using Policy Decision Point (PDP) and return the manipulated data.
 
@@ -29,29 +29,17 @@ Process the data using Policy Decision Point (PDP) and return the manipulated da
 
 #### Parameters
 
-##### assetType
+##### locator
 
-`string`
+[`IPolicyLocator`](IPolicyLocator.md)
 
-The type of asset being processed.
+The locator to find relevant policies.
 
-##### action
+##### data?
 
-`string`
-
-The action being performed on the asset.
-
-##### nodeIdentity
-
-`string`
-
-The identity of the node making the request.
-
-##### data
+`D`
 
 The data to process.
-
-`undefined` | `D`
 
 #### Returns
 

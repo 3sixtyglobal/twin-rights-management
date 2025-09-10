@@ -2,7 +2,59 @@
 
 The JSON-LD definition for the policy negotiation proof.
 
+## Extends
+
+- [`IPolicyLocator`](IPolicyLocator.md)
+
 ## Properties
+
+### assignee?
+
+> `optional` **assignee**: `string`
+
+The assignee for the locator.
+
+#### Inherited from
+
+[`IPolicyLocator`](IPolicyLocator.md).[`assignee`](IPolicyLocator.md#assignee)
+
+***
+
+### action?
+
+> `optional` **action**: `string`
+
+The action for the locator.
+
+#### Inherited from
+
+[`IPolicyLocator`](IPolicyLocator.md).[`action`](IPolicyLocator.md#action)
+
+***
+
+### assetType?
+
+> `optional` **assetType**: `string`
+
+The asset type for the locator.
+
+#### Inherited from
+
+[`IPolicyLocator`](IPolicyLocator.md).[`assetType`](IPolicyLocator.md#assettype)
+
+***
+
+### resourceId?
+
+> `optional` **resourceId**: `string`
+
+A resource identifier for the locator.
+
+#### Inherited from
+
+[`IPolicyLocator`](IPolicyLocator.md).[`resourceId`](IPolicyLocator.md#resourceid)
+
+***
 
 ### @context
 
@@ -20,47 +72,11 @@ The type of the proof.
 
 ***
 
-### assetType
-
-> **assetType**: `string`
-
-The asset type.
-
-***
-
-### action
-
-> **action**: `string`
-
-The action type.
-
-***
-
-### resourceId?
-
-> `optional` **resourceId**: `string`
-
-The specific resource id or can be left undefined for a whole asset class.
-
-***
-
-### nodeIdentity
-
-> **nodeIdentity**: `string`
-
-The id of the the node.
-
-***
-
 ### information?
 
-> `optional` **information**: `object`
+> `optional` **information**: [`IPolicyInformation`](IPolicyInformation.md)
 
 Additional information provided by the requester to determine if a policy can be created.
-
-#### Index Signature
-
-\[`source`: `string`\]: `IJsonLdNodeObject`[]
 
 ***
 

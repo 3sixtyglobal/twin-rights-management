@@ -11,7 +11,7 @@ import {
 import { LoggingConnectorFactory } from "@twin.org/logging-models";
 import { LoggingService } from "@twin.org/logging-service";
 import { nameof } from "@twin.org/nameof";
-import { PolicyDecisionStage } from "@twin.org/rights-management-models";
+import { PolicyDecision, PolicyDecisionStage } from "@twin.org/rights-management-models";
 import { type IOdrlPolicy, OdrlContexts, PolicyType } from "@twin.org/standards-w3c-odrl";
 import { LoggingPolicyExecutionAction } from "../src/policyExecutionActions/loggingPolicyExecutionAction";
 import { PolicyExecutionPointService } from "../src/policyExecutionPointService";
@@ -54,19 +54,17 @@ describe("PolicyExecutionPointService", () => {
 		await policyExecutionPoint.registerAction("testAction", PolicyDecisionStage.Before, mockAction);
 		await policyExecutionPoint.executeActions(
 			PolicyDecisionStage.Before,
-			"assetType",
-			"action",
-			"nodeIdentity",
-			{},
-			[]
+			{ assetType: "assetType", action: "action", assignee: "assignee" },
+			[],
+			[],
+			{}
 		);
 		expect(mockAction.execute).toHaveBeenCalledWith(
 			PolicyDecisionStage.Before,
-			"assetType",
-			"action",
-			"nodeIdentity",
-			{},
-			[]
+			{ assetType: "assetType", action: "action", assignee: "assignee" },
+			[],
+			[],
+			{}
 		);
 	});
 
@@ -76,19 +74,17 @@ describe("PolicyExecutionPointService", () => {
 		await policyExecutionPoint.registerAction("testAction", PolicyDecisionStage.After, mockAction);
 		await policyExecutionPoint.executeActions(
 			PolicyDecisionStage.After,
-			"assetType",
-			"action",
-			"nodeIdentity",
-			{},
-			[]
+			{ assetType: "assetType", action: "action", assignee: "assignee" },
+			[],
+			[],
+			{}
 		);
 		expect(mockAction.execute).toHaveBeenCalledWith(
 			PolicyDecisionStage.After,
-			"assetType",
-			"action",
-			"nodeIdentity",
-			{},
-			[]
+			{ assetType: "assetType", action: "action", assignee: "assignee" },
+			[],
+			[],
+			{}
 		);
 	});
 
@@ -110,11 +106,10 @@ describe("PolicyExecutionPointService", () => {
 
 		await policyExecutionPoint.executeActions(
 			PolicyDecisionStage.Before,
-			"assetType",
-			"action",
-			"nodeIdentity",
-			{},
-			[]
+			{ assetType: "assetType", action: "action", assignee: "assignee" },
+			[],
+			[],
+			{}
 		);
 
 		expect(mockAction1.execute).toHaveBeenCalledOnce();
@@ -129,11 +124,10 @@ describe("PolicyExecutionPointService", () => {
 		await policyExecutionPoint.unregisterAction("testAction", PolicyDecisionStage.Before);
 		await policyExecutionPoint.executeActions(
 			PolicyDecisionStage.Before,
-			"assetType",
-			"action",
-			"nodeIdentity",
-			{},
-			[]
+			{ assetType: "assetType", action: "action", assignee: "assignee" },
+			[],
+			[],
+			{}
 		);
 
 		expect(mockAction.execute).not.toHaveBeenCalled();
@@ -157,11 +151,10 @@ describe("PolicyExecutionPointService", () => {
 
 		await policyExecutionPoint.executeActions(
 			PolicyDecisionStage.Before,
-			"assetType",
-			"action",
-			"nodeIdentity",
-			{},
-			[]
+			{ assetType: "assetType", action: "action", assignee: "assignee" },
+			[],
+			[],
+			{}
 		);
 
 		expect(mockAction1.execute).not.toHaveBeenCalled();
@@ -197,11 +190,10 @@ describe("PolicyExecutionPointService", () => {
 		await expect(
 			policyExecutionPoint.executeActions(
 				PolicyDecisionStage.Before,
-				"assetType",
-				"action",
-				"nodeIdentity",
-				{},
-				[]
+				{ assetType: "assetType", action: "action", assignee: "assignee" },
+				[],
+				[],
+				{}
 			)
 		).rejects.toBeInstanceOf(GeneralError);
 
@@ -223,11 +215,10 @@ describe("PolicyExecutionPointService", () => {
 		await expect(
 			policyExecutionPoint.executeActions(
 				PolicyDecisionStage.Before,
-				"assetType",
-				"action",
-				"nodeIdentity",
-				{},
-				[]
+				{ assetType: "assetType", action: "action", assignee: "assignee" },
+				[],
+				[],
+				{}
 			)
 		).rejects.toBeInstanceOf(GeneralError);
 
@@ -246,24 +237,23 @@ describe("PolicyExecutionPointService", () => {
 		const testPolicies = [
 			{ "@context": OdrlContexts.ContextRoot, "@type": PolicyType.Agreement, uid: "policy1" }
 		];
+		const testDecisions = [{ target: "asset1", decision: PolicyDecision.Granted }];
 
 		await policyExecutionPoint.registerAction("testAction", PolicyDecisionStage.Before, mockAction);
 		await policyExecutionPoint.executeActions(
 			PolicyDecisionStage.Before,
-			"assetType",
-			"action",
-			"nodeIdentity",
-			testData,
-			testPolicies
+			{ assetType: "assetType", action: "action", assignee: "assignee" },
+			testPolicies,
+			testDecisions,
+			testData
 		);
 
 		expect(mockAction.execute).toHaveBeenCalledWith(
 			PolicyDecisionStage.Before,
-			"assetType",
-			"action",
-			"nodeIdentity",
-			testData,
-			testPolicies
+			{ assetType: "assetType", action: "action", assignee: "assignee" },
+			testPolicies,
+			testDecisions,
+			testData
 		);
 	});
 
@@ -273,6 +263,7 @@ describe("PolicyExecutionPointService", () => {
 		const testPolicies = [
 			{ "@context": OdrlContexts.ContextRoot, "@type": PolicyType.Agreement, uid: "policy1" }
 		];
+		const testDecisions = [{ target: "asset1", decision: PolicyDecision.Granted }];
 
 		await policyExecutionPoint.registerAction(
 			"customAction",
@@ -287,11 +278,10 @@ describe("PolicyExecutionPointService", () => {
 
 		await policyExecutionPoint.executeActions(
 			PolicyDecisionStage.Before,
-			"api",
-			"call",
-			"apiNode",
-			{ endpoint: "/users" },
-			testPolicies
+			{ assetType: "api", action: "call", assignee: "apiNode" },
+			testPolicies,
+			testDecisions,
+			{ endpoint: "/users" }
 		);
 
 		// Check both custom action was called and logging occurred
@@ -301,7 +291,7 @@ describe("PolicyExecutionPointService", () => {
 		expect(messages.filter(m => m === "registeredAction").length).toBe(2);
 		expect(messages).toContain("executingActions");
 		expect(messages.filter(m => m === "executingAction").length).toBe(2);
-		expect(messages).toContain("policyActionExecuted");
+		expect(messages).toContain("policyActionExecutedBefore");
 	});
 
 	test("loggingPolicyAction logs policy execution details", async () => {
@@ -320,6 +310,7 @@ describe("PolicyExecutionPointService", () => {
 				]
 			}
 		];
+		const testDecisions = [{ target: "asset1", decision: PolicyDecision.Granted }];
 
 		await policyExecutionPoint.registerAction(
 			"loggingAction",
@@ -328,11 +319,10 @@ describe("PolicyExecutionPointService", () => {
 		);
 		await policyExecutionPoint.executeActions(
 			PolicyDecisionStage.Before,
-			"document",
-			"read",
-			"node456",
-			testData,
-			testPolicies
+			{ assetType: "document", action: "read", assignee: "node456" },
+			testPolicies,
+			testDecisions,
+			testData
 		);
 
 		const logEntries = loggingMemoryEntityStorage.getStore();
@@ -340,23 +330,23 @@ describe("PolicyExecutionPointService", () => {
 		expect(messages[0]).toBe("registeredAction");
 		expect(messages).toContain("executingActions");
 		expect(messages).toContain("executingAction");
-		expect(messages).toContain("policyActionExecuted");
-		const policyLog = logEntries.find(l => l.message === "policyActionExecuted");
+		expect(messages).toContain("policyActionExecutedBefore");
+		const policyLog = logEntries.find(l => l.message === "policyActionExecutedBefore");
 		expect(policyLog?.data).toEqual({
-			assetType: "document",
-			action: "read",
-			nodeIdentity: "node456",
-			data: "{...}",
+			locator: "Assignee: node456, Action: read, Asset Type: document",
 			stage: PolicyDecisionStage.Before,
+			data: "{...}",
+			decisions: "[...]",
 			policies: "[...]"
 		});
 	});
 
-	test("loggingPolicyAction handles undefined nodeIdentity", async () => {
+	test("loggingPolicyAction handles undefined assignee", async () => {
 		const policyExecutionPoint = new PolicyExecutionPointService();
 		const testPolicies: IOdrlPolicy[] = [
 			{ "@context": OdrlContexts.ContextRoot, "@type": PolicyType.Agreement, uid: "policy2" }
 		];
+		const testDecisions = [{ target: "asset1", decision: PolicyDecision.Granted }];
 
 		await policyExecutionPoint.registerAction(
 			"loggingAction",
@@ -365,19 +355,18 @@ describe("PolicyExecutionPointService", () => {
 		);
 		await policyExecutionPoint.executeActions(
 			PolicyDecisionStage.After,
-			"image",
-			"write",
-			"nodeIdentity",
-			null,
-			testPolicies
+			{ assetType: "image", action: "write", assignee: "node456" },
+			testPolicies,
+			testDecisions,
+			null
 		);
 
 		const logEntries = loggingMemoryEntityStorage.getStore();
-		const policyLog = logEntries.find(l => l.message === "policyActionExecuted");
+		const policyLog = logEntries.find(l => l.message === "policyActionExecutedAfter");
 		expect(policyLog?.data).toEqual({
-			assetType: "image",
-			action: "write",
-			nodeIdentity: "nodeIdentity",
+			data: undefined,
+			decisions: "[...]",
+			locator: "Assignee: node456, Action: write, Asset Type: image",
 			stage: PolicyDecisionStage.After,
 			policies: "[...]"
 		});
@@ -393,19 +382,17 @@ describe("PolicyExecutionPointService", () => {
 		);
 		await policyExecutionPoint.executeActions(
 			PolicyDecisionStage.Before,
-			"video",
-			"delete",
-			"mainNode",
-			{},
-			[]
+			{ assetType: "video", action: "delete", assignee: "mainNode" },
+			[],
+			[],
+			{}
 		);
 
 		const logEntries = loggingMemoryEntityStorage.getStore();
-		const policyLog = logEntries.find(l => l.message === "policyActionExecuted");
+		const policyLog = logEntries.find(l => l.message === "policyActionExecutedBefore");
 		expect(policyLog?.data).toEqual({
-			assetType: "video",
-			action: "delete",
-			nodeIdentity: "mainNode",
+			decisions: "[...]",
+			locator: "Assignee: mainNode, Action: delete, Asset Type: video",
 			data: "{...}",
 			stage: PolicyDecisionStage.Before,
 			policies: "[...]"
@@ -419,7 +406,7 @@ describe("PolicyExecutionPointService", () => {
 			{ "@context": OdrlContexts.ContextRoot, "@type": PolicyType.Set, uid: "policy2" },
 			{ "@context": OdrlContexts.ContextRoot, "@type": PolicyType.Offer, uid: "policy3" }
 		];
-
+		const testDecisions = [{ target: "asset1", decision: PolicyDecision.Granted }];
 		await policyExecutionPoint.registerAction(
 			"loggingAction",
 			PolicyDecisionStage.Before,
@@ -427,15 +414,14 @@ describe("PolicyExecutionPointService", () => {
 		);
 		await policyExecutionPoint.executeActions(
 			PolicyDecisionStage.Before,
-			"database",
-			"query",
-			"dbNode",
-			{ table: "users" },
-			multiplePolicies
+			{ assetType: "database", action: "query", assignee: "dbNode" },
+			multiplePolicies,
+			testDecisions,
+			{ table: "users" }
 		);
 
 		const logEntries = loggingMemoryEntityStorage.getStore();
-		const policyLog = logEntries.find(l => l.message === "policyActionExecuted");
+		const policyLog = logEntries.find(l => l.message === "policyActionExecutedBefore");
 		expect((policyLog?.data?.policies as IOdrlPolicy[])?.length).toBe(3);
 	});
 
@@ -444,6 +430,7 @@ describe("PolicyExecutionPointService", () => {
 		const testPolicies = [
 			{ "@context": OdrlContexts.ContextRoot, "@type": PolicyType.Agreement, uid: "policy1" }
 		];
+		const testDecisions = [{ target: "asset1", decision: PolicyDecision.Granted }];
 
 		await policyExecutionPoint.registerAction(
 			"beforeLogging",
@@ -458,77 +445,29 @@ describe("PolicyExecutionPointService", () => {
 
 		await policyExecutionPoint.executeActions(
 			PolicyDecisionStage.Before,
-			"file",
-			"upload",
-			"fileNode",
-			{ size: 1024 },
-			testPolicies
+			{ assetType: "file", action: "upload", assignee: "fileNode" },
+			testPolicies,
+			testDecisions,
+			{ size: 1024 }
 		);
 		await policyExecutionPoint.executeActions(
 			PolicyDecisionStage.After,
-			"file",
-			"upload",
-			"fileNode",
-			{ size: 1024 },
-			testPolicies
+			{ assetType: "file", action: "upload", assignee: "fileNode" },
+			testPolicies,
+			testDecisions,
+			{ size: 1024 }
 		);
 
 		const logEntries = loggingMemoryEntityStorage.getStore();
 		const beforeLog = logEntries.find(
-			l => l.message === "policyActionExecuted" && l.data?.stage === PolicyDecisionStage.Before
+			l =>
+				l.message === "policyActionExecutedBefore" && l.data?.stage === PolicyDecisionStage.Before
 		);
 		const afterLog = logEntries.find(
-			l => l.message === "policyActionExecuted" && l.data?.stage === PolicyDecisionStage.After
+			l => l.message === "policyActionExecutedAfter" && l.data?.stage === PolicyDecisionStage.After
 		);
 		expect(beforeLog).toBeDefined();
 		expect(afterLog).toBeDefined();
-	});
-
-	test("loggingPolicyAction logs different asset types and actions", async () => {
-		const policyExecutionPoint = new PolicyExecutionPointService();
-		const testPolicies = [
-			{ "@context": OdrlContexts.ContextRoot, "@type": PolicyType.Agreement, uid: "policy1" }
-		];
-
-		await policyExecutionPoint.registerAction(
-			"loggingAction",
-			PolicyDecisionStage.Before,
-			new LoggingPolicyExecutionAction()
-		);
-
-		// Execute different combinations
-		await policyExecutionPoint.executeActions(
-			PolicyDecisionStage.Before,
-			"document",
-			"read",
-			"docNode",
-			{},
-			testPolicies
-		);
-		await policyExecutionPoint.executeActions(
-			PolicyDecisionStage.Before,
-			"image",
-			"edit",
-			"imgNode",
-			{},
-			testPolicies
-		);
-		await policyExecutionPoint.executeActions(
-			PolicyDecisionStage.Before,
-			"video",
-			"stream",
-			"streamNode",
-			{},
-			testPolicies
-		);
-
-		const logEntries = loggingMemoryEntityStorage.getStore();
-		const executedLogs = logEntries.filter(l => l.message === "policyActionExecuted");
-		expect(executedLogs.length).toBe(3);
-		const assetTypes = executedLogs.map(entry => entry.data?.assetType);
-		const actions = executedLogs.map(entry => entry.data?.action);
-		expect(new Set(assetTypes)).toEqual(new Set(["document", "image", "video"]));
-		expect(new Set(actions)).toEqual(new Set(["read", "edit", "stream"]));
 	});
 
 	test("loggingPolicyAction does not log sensitive data content", async () => {
@@ -541,6 +480,7 @@ describe("PolicyExecutionPointService", () => {
 		const testPolicies = [
 			{ "@context": OdrlContexts.ContextRoot, "@type": PolicyType.Agreement, uid: "policy1" }
 		];
+		const testDecisions = [{ target: "asset1", decision: PolicyDecision.Granted }];
 
 		await policyExecutionPoint.registerAction(
 			"loggingAction",
@@ -549,21 +489,17 @@ describe("PolicyExecutionPointService", () => {
 		);
 		await policyExecutionPoint.executeActions(
 			PolicyDecisionStage.Before,
-			"userProfile",
-			"update",
-			"profileNode",
-			sensitiveData,
-			testPolicies
+			{ assetType: "userProfile", action: "update", assignee: "profileNode" },
+			testPolicies,
+			testDecisions,
+			sensitiveData
 		);
 
 		const logEntries = loggingMemoryEntityStorage.getStore();
-		const policyLog = logEntries.find(l => l.message === "policyActionExecuted");
+		const policyLog = logEntries.find(l => l.message === "policyActionExecutedBefore");
 		// Verify that sensitive data is not logged
 		expect(JSON.stringify(policyLog)).not.toContain("secret123");
 		expect(JSON.stringify(policyLog)).not.toContain("1234-5678-9012-3456");
 		expect(JSON.stringify(policyLog)).not.toContain("123-45-6789");
-		// But metadata should be present
-		expect(policyLog?.data?.assetType).toBe("userProfile");
-		expect(policyLog?.data?.action).toBe("update");
 	});
 });

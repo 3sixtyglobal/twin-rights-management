@@ -5,8 +5,10 @@ import type {
 	ActionType,
 	IOdrlAction,
 	IOdrlAsset,
+	IOdrlParty,
 	IOdrlPolicy
 } from "@twin.org/standards-w3c-odrl";
+import type { IPolicyLocator } from "../models/IPolicyLocator";
 
 /**
  * Helper methods for Odrl Policies.
@@ -29,8 +31,10 @@ export class OdrlPolicyHelper {
 				const matchesPermission = OdrlPolicyHelper.matchTargetAndAction(
 					permission.target,
 					permission.action,
-					assetType,
-					action
+					{
+						assetType,
+						action
+					}
 				);
 				if (matchesPermission && Is.arrayValue(permission.constraint)) {
 					for (const constraint of permission.constraint) {
@@ -51,11 +55,13 @@ export class OdrlPolicyHelper {
 	 * Match the target to the requested asset type.
 	 * @param target The target to match.
 	 * @param matchAssetType The asset type to match.
+	 * @param matchResourceId The resource id to match.
 	 * @returns True if the target is empty, the target matches the requested asset, false otherwise.
 	 */
 	public static matchAsset(
 		target?: string | IOdrlAsset | (string | IOdrlAsset)[],
-		matchAssetType?: string
+		matchAssetType?: string,
+		matchResourceId?: string
 	): boolean {
 		if (Is.empty(target) || Is.empty(matchAssetType)) {
 			return true;
@@ -71,6 +77,7 @@ export class OdrlPolicyHelper {
 
 		// TODO: This currently only handles the simple case of matching a single asset type.
 		// we need further processing if the target is more complex.
+		// we also need to support the resource id matching.
 		return false;
 	}
 
@@ -102,21 +109,67 @@ export class OdrlPolicyHelper {
 	}
 
 	/**
+	 * Match the assignee.
+	 * @param assignee The assignee to match.
+	 * @param matchAssignee The assignee to match.
+	 * @returns True if the assignee is empty, the assignee matches the asset type, false otherwise.
+	 */
+	public static matchAssignee(assignee?: string | IOdrlParty, matchAssignee?: string): boolean {
+		if (Is.empty(assignee) || Is.empty(matchAssignee)) {
+			return true;
+		}
+
+		if (Is.stringValue(assignee)) {
+			return assignee === matchAssignee;
+		}
+
+		// TODO: This currently only handles the simple case of matching a single assignee.
+		// we need further processing if the assignee is more complex.
+		return false;
+	}
+
+	/**
 	 * Match the target and action to the requested asset type and action.
 	 * @param target The target to match.
 	 * @param action The action to match.
-	 * @param matchAssetType The asset type to match.
-	 * @param matchAction The action to match.
+	 * @param locator The locator to match resource id if provided.
 	 * @returns True if the target and action match the requested asset type and action, false otherwise.
 	 */
 	public static matchTargetAndAction(
 		target?: string | IOdrlAsset | (string | IOdrlAsset)[],
 		action?: ActionType | IOdrlAction | (ActionType | IOdrlAction)[],
-		matchAssetType?: string,
-		matchAction?: string
+		locator?: Omit<IPolicyLocator, "assignee">
 	): boolean {
-		const assetTypeMatch = OdrlPolicyHelper.matchAsset(target, matchAssetType);
-		const actionMatch = OdrlPolicyHelper.matchAction(action, matchAction);
+		const assetTypeMatch = OdrlPolicyHelper.matchAsset(
+			target,
+			locator?.assetType,
+			locator?.resourceId
+		);
+		const actionMatch = OdrlPolicyHelper.matchAction(action, locator?.action);
 		return assetTypeMatch && actionMatch;
+	}
+
+	/**
+	 * Match the complete locator.
+	 * @param assignee The assignee to match.
+	 * @param target The target to match.
+	 * @param action The action to match.
+	 * @param locator The locator to match resource id if provided.
+	 * @returns True if the complete locator matches, false otherwise.
+	 */
+	public static matchLocator(
+		assignee?: string | IOdrlParty,
+		target?: string | IOdrlAsset | (string | IOdrlAsset)[],
+		action?: ActionType | IOdrlAction | (ActionType | IOdrlAction)[],
+		locator?: IPolicyLocator
+	): boolean {
+		const assetTypeMatch = OdrlPolicyHelper.matchAsset(
+			target,
+			locator?.assetType,
+			locator?.resourceId
+		);
+		const assigneeMatch = OdrlPolicyHelper.matchAssignee(assignee, locator?.assignee);
+		const actionMatch = OdrlPolicyHelper.matchAction(action, locator?.action);
+		return assetTypeMatch && assigneeMatch && actionMatch;
 	}
 }

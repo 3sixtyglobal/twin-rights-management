@@ -42,7 +42,7 @@ The class name of the Policy Management Point Service.
 
 ### retrieve()
 
-> **retrieve**\<`D`\>(`assetType`, `action`, `nodeIdentity`, `data`, `cursor?`): `Promise`\<\{ `policies`: `IOdrlPolicy`[]; `cursor?`: `string`; \}\>
+> **retrieve**\<`D`\>(`locator`, `data?`, `cursor?`): `Promise`\<\{ `policies`: `IOdrlPolicy`[]; `cursor?`: `string`; \}\>
 
 Get the policies from a PAP based on the data and identities.
 
@@ -54,29 +54,17 @@ Get the policies from a PAP based on the data and identities.
 
 #### Parameters
 
-##### assetType
+##### locator
 
-`string`
+`IPolicyLocator`
 
-The type of asset being processed, wildcard * means all asset types.
+The locator to find relevant policies.
 
-##### action
+##### data?
 
-`string`
-
-The action being performed on the asset, wildcard * means all actions.
-
-##### nodeIdentity
-
-`string`
-
-The identity of the node making the request, wildcard * means all node identities.
-
-##### data
+`D`
 
 The data to retrieve the policies for.
-
-`undefined` | `D`
 
 ##### cursor?
 

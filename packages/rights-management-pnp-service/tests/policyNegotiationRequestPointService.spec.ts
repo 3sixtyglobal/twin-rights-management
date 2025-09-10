@@ -115,12 +115,13 @@ describe("PolicyNegotiationRequestPointService", () => {
 
 		informationPointComponent.retrieve = vi.fn().mockResolvedValue({ info: true });
 		identityConnector.createProof = vi.fn().mockResolvedValue({ proof: validProof });
-		const result = await service.negotiate("url1", "assetA", "read", "res1");
+		const result = await service.negotiate("url1", {
+			assetType: "assetA",
+			action: "read",
+			resourceId: "res1"
+		});
 		expect(negotiateMock).toHaveBeenCalledWith(
-			"assetA",
-			"read",
-			"res1",
-			"node1",
+			{ assetType: "assetA", action: "read", resourceId: "res1", assignee: "node1" },
 			{ info: true },
 			{ proof: validProof }
 		);
@@ -138,7 +139,9 @@ describe("PolicyNegotiationRequestPointService", () => {
 		await service.start("node1", undefined);
 		informationPointComponent.retrieve = vi.fn().mockResolvedValue({ info: true });
 		identityConnector.createProof = vi.fn().mockResolvedValue({ proof: validProof });
-		await expect(service.negotiate("url1", "assetA", "read", "res1")).rejects.toThrow("fail");
+		await expect(
+			service.negotiate("url1", { assetType: "assetA", action: "read", resourceId: "res1" })
+		).rejects.toThrow("fail");
 	});
 
 	test("calls negotiationComponentCreator and retrieves negotiation state successfully", async () => {

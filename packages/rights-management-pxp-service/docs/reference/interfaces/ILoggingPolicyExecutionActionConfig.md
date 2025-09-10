@@ -37,3 +37,17 @@ Whether to include the policies in the log.
 ```ts
 false
 ```
+
+***
+
+### includeDecisions?
+
+> `optional` **includeDecisions**: `boolean`
+
+Whether to include the decisions in the log.
+
+#### Default
+
+```ts
+false
+```

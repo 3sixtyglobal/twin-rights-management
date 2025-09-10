@@ -12,22 +12,12 @@ Is the information public, if so it will be shared with negotiation requests.
 
 ***
 
-### assetTypeActions?
+### matchLocators?
 
-> `optional` **assetTypeActions**: `object`[]
+> `optional` **matchLocators**: `IPolicyLocator`[]
 
-Information is only provided for the specified asset types/action combination.
-If undefined is provided matches all asset types/actions.
-If assetType is undefined matches all asset types.
-If action is undefined matches all actions.
-
-#### assetType?
-
-> `optional` **assetType**: `string`
-
-#### action?
-
-> `optional` **action**: `string`
+Information is only provided for the specified locator combination.
+If undefined is provided matches all resources.
 
 ***
 

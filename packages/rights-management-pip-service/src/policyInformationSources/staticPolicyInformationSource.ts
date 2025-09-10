@@ -6,6 +6,8 @@ import type { ILoggingComponent } from "@twin.org/logging-models";
 import { nameof } from "@twin.org/nameof";
 import {
 	type IPolicyInformationSource,
+	type IPolicyLocator,
+	LocatorHelper,
 	PolicyInformationAccessMode
 } from "@twin.org/rights-management-models";
 import type { IOdrlPolicy } from "@twin.org/standards-w3c-odrl";
@@ -46,30 +48,26 @@ export class StaticPolicyInformationSource implements IPolicyInformationSource, 
 
 	/**
 	 * Retrieve information from the sources.
-	 * @param assetType The type of asset being processed.
-	 * @param action The action being performed on the asset.
+	 * @param locator The locator to find relevant policies.
 	 * @param accessMode The access mode to use for the retrieval.
-	 * @param nodeIdentity The identity of the node making the request.
-	 * @param data The data to process.
 	 * @param policies The policies that apply to the data.
+	 * @param data The data to process.
 	 * @returns The objects containing relevant information or undefined if nothing relevant is found.
 	 */
 	public async retrieve<D = unknown>(
-		assetType: string,
-		action: string,
+		locator: IPolicyLocator,
 		accessMode: PolicyInformationAccessMode,
-		nodeIdentity: string,
-		data: D | undefined,
-		policies: IOdrlPolicy[]
+		policies: IOdrlPolicy[],
+		data?: D
 	): Promise<IJsonLdNodeObject[] | undefined> {
-		Guards.stringValue(this.CLASS_NAME, nameof(assetType), assetType);
+		Guards.objectValue<IPolicyLocator>(this.CLASS_NAME, nameof(locator), locator);
 		Guards.arrayOneOf(
 			this.CLASS_NAME,
 			nameof(accessMode),
 			accessMode,
 			Object.values(PolicyInformationAccessMode)
 		);
-		Guards.stringValue(this.CLASS_NAME, nameof(action), action);
+		Guards.stringValue(this.CLASS_NAME, nameof(locator.assignee), locator.assignee);
 
 		const information: IJsonLdNodeObject[] = [];
 
@@ -79,8 +77,7 @@ export class StaticPolicyInformationSource implements IPolicyInformationSource, 
 			ts: Date.now(),
 			message: "staticRetrieving",
 			data: {
-				assetType,
-				action,
+				locator: LocatorHelper.toString(locator),
 				accessMode
 			}
 		});
@@ -91,18 +88,10 @@ export class StaticPolicyInformationSource implements IPolicyInformationSource, 
 				accessMode === PolicyInformationAccessMode.Any ||
 				info.accessMode === PolicyInformationAccessMode.Any
 			) {
-				let canAdd = true;
-				if (Is.arrayValue(info.assetTypeActions)) {
-					canAdd = info.assetTypeActions.some(
-						assetTypeAction =>
-							// The type assertions return boolean so don't want to use nullish coalescing
-							// eslint-disable-next-line @typescript-eslint/prefer-nullish-coalescing
-							(Is.empty(assetTypeAction.assetType) || assetTypeAction.assetType === assetType) &&
-							// eslint-disable-next-line @typescript-eslint/prefer-nullish-coalescing
-							(Is.empty(assetTypeAction.action) || assetTypeAction.action === action)
-					);
-				}
-				if (canAdd) {
+				if (
+					!Is.arrayValue(info.matchLocators) ||
+					!Is.empty(LocatorHelper.findMatchingLocator(info.matchLocators, locator))
+				) {
 					information.push(...info.objects);
 				}
 			}
@@ -114,8 +103,7 @@ export class StaticPolicyInformationSource implements IPolicyInformationSource, 
 			ts: Date.now(),
 			message: "staticRetrieved",
 			data: {
-				assetType,
-				action,
+				locator: LocatorHelper.toString(locator),
 				accessMode,
 				itemCount: information.length
 			}

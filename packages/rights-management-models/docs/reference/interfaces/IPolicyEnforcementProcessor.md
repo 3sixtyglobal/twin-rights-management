@@ -6,7 +6,7 @@ Interface for policy enforcement processors.
 
 ### process()
 
-> **process**\<`D`, `R`\>(`assetType`, `action`, `nodeIdentity`, `data`, `policies`): `Promise`\<`undefined` \| `R`\>
+> **process**\<`D`, `R`\>(`locator`, `decisions`, `data?`): `Promise`\<`undefined` \| `R`\>
 
 Process the response from the policy decision point.
 
@@ -22,35 +22,23 @@ Process the response from the policy decision point.
 
 #### Parameters
 
-##### assetType
+##### locator
 
-`string`
+[`IPolicyLocator`](IPolicyLocator.md)
 
-The type of asset being processed.
+The locator to find relevant policies.
 
-##### action
+##### decisions
 
-`string`
+[`IPolicyDecision`](IPolicyDecision.md)[]
 
-The action being performed on the asset.
+The decisions made by the policy decision point.
 
-##### nodeIdentity
+##### data?
 
-`string`
-
-The identity of the node making the request.
-
-##### data
+`D`
 
 The data to process.
-
-`undefined` | `D`
-
-##### policies
-
-`IOdrlPolicy`[]
-
-The policies that apply to the data.
 
 #### Returns
 

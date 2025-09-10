@@ -1,12 +1,14 @@
 // Copyright 2024 IOTA Stiftung.
 // SPDX-License-Identifier: Apache-2.0.
 import { BaseError, ComponentFactory, Guards, Is } from "@twin.org/core";
-import type { IJsonLdNodeObject } from "@twin.org/data-json-ld";
 import type { ILoggingComponent } from "@twin.org/logging-models";
 import { nameof } from "@twin.org/nameof";
-import type {
-	IPolicyInformationPointComponent,
-	IPolicyInformationSource,
+import {
+	type IPolicyInformation,
+	type IPolicyInformationPointComponent,
+	type IPolicyInformationSource,
+	type IPolicyLocator,
+	LocatorHelper,
 	PolicyInformationAccessMode
 } from "@twin.org/rights-management-models";
 import type { IOdrlPolicy } from "@twin.org/standards-w3c-odrl";
@@ -49,39 +51,32 @@ export class PolicyInformationPointService implements IPolicyInformationPointCom
 
 	/**
 	 * Retrieve additional information which is relevant in the PDP decision making.
-	 * @param assetType The type of asset being processed.
-	 * @param action The action being performed on the asset.
+	 * @param locator The locator to find relevant policies.
 	 * @param accessMode The access mode to use for the retrieval.
-	 * @param nodeIdentity The identity of the node making the request.
-	 * @param data The data to get any additional information for.
 	 * @param policies The policies that apply to the data.
+	 * @param data The data to get any additional information for.
 	 * @returns Returns additional information based on the data and identities.
 	 */
 	public async retrieve<D = unknown>(
-		assetType: string,
-		action: string,
+		locator: IPolicyLocator,
 		accessMode: PolicyInformationAccessMode,
-		nodeIdentity: string,
-		data: D | undefined,
-		policies: IOdrlPolicy[]
-	): Promise<{ [source: string]: IJsonLdNodeObject[] }> {
-		Guards.stringValue(this.CLASS_NAME, nameof(assetType), assetType);
-		Guards.stringValue(this.CLASS_NAME, nameof(action), action);
-		Guards.stringValue(this.CLASS_NAME, nameof(nodeIdentity), nodeIdentity);
+		policies?: IOdrlPolicy[],
+		data?: D
+	): Promise<IPolicyInformation> {
+		Guards.object<IPolicyLocator>(this.CLASS_NAME, nameof(locator), locator);
+		Guards.arrayOneOf(
+			this.CLASS_NAME,
+			nameof(accessMode),
+			accessMode,
+			Object.values(PolicyInformationAccessMode)
+		);
 
-		const information: { [source: string]: IJsonLdNodeObject[] } = {};
+		const information: IPolicyInformation = {};
 
 		await Promise.all(
 			this._sources.map(async ({ sourceId, source }) => {
 				try {
-					const result = await source.retrieve(
-						assetType,
-						action,
-						accessMode,
-						nodeIdentity,
-						data,
-						policies
-					);
+					const result = await source.retrieve(locator, accessMode, policies, data);
 
 					if (Is.arrayValue(result)) {
 						information[sourceId] = result;
@@ -94,8 +89,7 @@ export class PolicyInformationPointService implements IPolicyInformationPointCom
 						message: "sourceRetrieveFailed",
 						data: {
 							sourceId,
-							assetType,
-							action
+							locator: LocatorHelper.toString(locator)
 						},
 						error: BaseError.fromError(error)
 					});

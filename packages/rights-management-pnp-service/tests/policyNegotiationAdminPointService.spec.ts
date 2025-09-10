@@ -55,7 +55,7 @@ describe("PolicyNegotiationAdminPointService", () => {
 			dateCreated: new Date().toISOString(),
 			assetType: "asset",
 			action: "action",
-			nodeIdentity: "nodeIdentity",
+			assignee: "assignee",
 			status: PolicyNegotiationStatus.Manual
 		};
 		await service.set(negotiation);
@@ -70,7 +70,7 @@ describe("PolicyNegotiationAdminPointService", () => {
 			dateCreated: new Date().toISOString(),
 			assetType: "asset",
 			action: "action",
-			nodeIdentity: "nodeIdentity",
+			assignee: "assignee",
 			status: PolicyNegotiationStatus.Rejected
 		};
 		await service.set(negotiation);
@@ -93,7 +93,7 @@ describe("PolicyNegotiationAdminPointService", () => {
 			dateCreated: new Date().toISOString(),
 			assetType: "asset",
 			action: "action",
-			nodeIdentity: "nodeIdentity",
+			assignee: "assignee",
 			status: PolicyNegotiationStatus.Manual
 		};
 		await service.set(negotiation);
@@ -111,7 +111,7 @@ describe("PolicyNegotiationAdminPointService", () => {
 			dateCreated: new Date().toISOString(),
 			assetType: "asset",
 			action: "action",
-			nodeIdentity: "nodeIdentity",
+			assignee: "assignee",
 			status: PolicyNegotiationStatus.Rejected,
 			expires: Date.now() - 1000 // already expired
 		};
@@ -122,7 +122,7 @@ describe("PolicyNegotiationAdminPointService", () => {
 			dateCreated: new Date().toISOString(),
 			assetType: "asset",
 			action: "action",
-			nodeIdentity: "nodeIdentity",
+			assignee: "assignee",
 			status: PolicyNegotiationStatus.Rejected,
 			expires: Date.now() + 5000 // expires in the future
 		};

@@ -2,6 +2,7 @@
 // SPDX-License-Identifier: Apache-2.0.
 import type { IComponent } from "@twin.org/core";
 import type { IPolicyEnforcementProcessor } from "./IPolicyEnforcementProcessor";
+import type { IPolicyLocator } from "./IPolicyLocator";
 
 /**
  * Interface describing a Policy Enforcement Point (PEP) contract.
@@ -12,18 +13,11 @@ import type { IPolicyEnforcementProcessor } from "./IPolicyEnforcementProcessor"
 export interface IPolicyEnforcementPointComponent extends IComponent {
 	/**
 	 * Process the data using Policy Decision Point (PDP) and return the manipulated data.
-	 * @param assetType The type of asset being processed.
-	 * @param action The action being performed on the asset.
-	 * @param nodeIdentity The identity of the node making the request.
+	 * @param locator The locator to find relevant policies.
 	 * @param data The data to process.
 	 * @returns The manipulated data with any policies applied.
 	 */
-	intercept<D = unknown, R = unknown>(
-		assetType: string,
-		action: string,
-		nodeIdentity: string,
-		data: D | undefined
-	): Promise<R | undefined>;
+	intercept<D = unknown, R = unknown>(locator: IPolicyLocator, data?: D): Promise<R | undefined>;
 
 	/**
 	 * Register a processor to use for handling data.

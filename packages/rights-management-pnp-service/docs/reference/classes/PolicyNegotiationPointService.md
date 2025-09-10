@@ -42,41 +42,23 @@ The class name of the Policy Negotiation Point Service.
 
 ### negotiate()
 
-> **negotiate**(`assetType`, `action`, `resourceId`, `nodeIdentity`, `information`, `proof`): `Promise`\<`IPolicyState`\>
+> **negotiate**(`locator`, `information`, `proof`): `Promise`\<`IPolicyState`\>
 
 Processes an incoming negotiation request for the resource.
 
 #### Parameters
 
-##### assetType
+##### locator
 
-`string`
+`IPolicyLocator`
 
-The type of asset being processed.
-
-##### action
-
-`string`
-
-The action being performed on the asset.
-
-##### resourceId
-
-The ID of the resource being requested, can be empty if asset type access requested.
-
-`undefined` | `string`
-
-##### nodeIdentity
-
-`string`
-
-The identity of the node making the request.
+The locator to find relevant policies.
 
 ##### information
 
 Information provided by the requester to determine if a policy can be created.
 
-`undefined` | \{\[`source`: `string`\]: `IJsonLdNodeObject`[]; \}
+`undefined` | `IPolicyInformation`
 
 ##### proof
 
@@ -98,7 +80,7 @@ The state of the policy.
 
 ### negotiationState()
 
-> **negotiationState**(`policyId`, `nodeIdentity`, `proof`): `Promise`\<`IPolicyState`\>
+> **negotiationState**(`policyId`, `assignee`, `proof`): `Promise`\<`IPolicyState`\>
 
 Retrieves the current state of a policy negotiation.
 
@@ -110,7 +92,7 @@ Retrieves the current state of a policy negotiation.
 
 The ID of the policy to retrieve the state for.
 
-##### nodeIdentity
+##### assignee
 
 `string`
 
@@ -136,7 +118,7 @@ The current state of the policy.
 
 ### negotiationCancel()
 
-> **negotiationCancel**(`policyId`, `nodeIdentity`, `proof`): `Promise`\<`void`\>
+> **negotiationCancel**(`policyId`, `assignee`, `proof`): `Promise`\<`void`\>
 
 Cancels an ongoing negotiation for a resource.
 
@@ -148,7 +130,7 @@ Cancels an ongoing negotiation for a resource.
 
 The ID of the policy to cancel.
 
-##### nodeIdentity
+##### assignee
 
 `string`
 

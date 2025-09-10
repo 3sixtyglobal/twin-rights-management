@@ -3,10 +3,12 @@
 import { BaseError, ComponentFactory, GeneralError, Guards, ObjectHelper } from "@twin.org/core";
 import type { ILoggingComponent } from "@twin.org/logging-models";
 import { nameof } from "@twin.org/nameof";
-import type {
-	IPolicyDecisionPointComponent,
-	IPolicyEnforcementPointComponent,
-	IPolicyEnforcementProcessor
+import {
+	LocatorHelper,
+	type IPolicyDecisionPointComponent,
+	type IPolicyEnforcementPointComponent,
+	type IPolicyEnforcementProcessor,
+	type IPolicyLocator
 } from "@twin.org/rights-management-models";
 import type { IPolicyEnforcementPointServiceConstructorOptions } from "./models/IPolicyEnforcementPointServiceConstructorOptions";
 
@@ -56,21 +58,15 @@ export class PolicyEnforcementPointService implements IPolicyEnforcementPointCom
 
 	/**
 	 * Process the data using Policy Decision Point (PDP) and return the manipulated data.
-	 * @param assetType The type of asset being processed.
-	 * @param action The action being performed on the asset.
-	 * @param nodeIdentity The identity of the node making the request.
+	 * @param locator The locator to find relevant policies.
 	 * @param data The data to process.
 	 * @returns The manipulated data with any policies applied.
 	 */
 	public async intercept<D = unknown, R = unknown>(
-		assetType: string,
-		action: string,
-		nodeIdentity: string,
-		data: D | undefined
+		locator: IPolicyLocator,
+		data?: D
 	): Promise<R | undefined> {
-		Guards.stringValue(this.CLASS_NAME, nameof(assetType), assetType);
-		Guards.stringValue(this.CLASS_NAME, nameof(action), action);
-		Guards.stringValue(this.CLASS_NAME, nameof(nodeIdentity), nodeIdentity);
+		Guards.objectValue<IPolicyLocator>(this.CLASS_NAME, nameof(locator), locator);
 
 		this._logging?.log({
 			level: "info",
@@ -78,17 +74,11 @@ export class PolicyEnforcementPointService implements IPolicyEnforcementPointCom
 			ts: Date.now(),
 			message: "intercepting",
 			data: {
-				assetType,
-				action
+				locator: LocatorHelper.toString(locator)
 			}
 		});
 
-		const policies = await this._policyDecisionPointComponent.evaluate(
-			assetType,
-			action,
-			nodeIdentity,
-			data
-		);
+		const decisions = await this._policyDecisionPointComponent.evaluate(locator, data);
 
 		let processedData: unknown = ObjectHelper.clone(data);
 
@@ -100,19 +90,12 @@ export class PolicyEnforcementPointService implements IPolicyEnforcementPointCom
 					ts: Date.now(),
 					message: "processing",
 					data: {
-						assetType,
-						action,
+						locator: LocatorHelper.toString(locator),
 						processorId
 					}
 				});
 
-				processedData = await processor.process(
-					assetType,
-					action,
-					nodeIdentity,
-					processedData,
-					policies
-				);
+				processedData = await processor.process(locator, decisions, processedData);
 			} catch (error) {
 				this._logging?.log({
 					level: "error",
@@ -121,15 +104,14 @@ export class PolicyEnforcementPointService implements IPolicyEnforcementPointCom
 					message: "processingFailed",
 					data: {
 						processorId,
-						assetType,
-						action
+						locator: LocatorHelper.toString(locator)
 					},
 					error: BaseError.fromError(error)
 				});
 				throw new GeneralError(
 					this.CLASS_NAME,
 					"processingFailed",
-					{ processorId, assetType, action },
+					{ processorId, locator: LocatorHelper.toString(locator) },
 					error
 				);
 			}

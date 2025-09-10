@@ -4,8 +4,11 @@ import { BaseError, ComponentFactory, GeneralError, Guards, Is } from "@twin.org
 import type { ILoggingComponent } from "@twin.org/logging-models";
 import { nameof } from "@twin.org/nameof";
 import {
+	type IPolicyDecision,
 	type IPolicyExecutionAction,
 	type IPolicyExecutionPointComponent,
+	type IPolicyLocator,
+	LocatorHelper,
 	PolicyDecisionStage
 } from "@twin.org/rights-management-models";
 import type { IOdrlPolicy } from "@twin.org/standards-w3c-odrl";
@@ -73,25 +76,23 @@ export class PolicyExecutionPointService implements IPolicyExecutionPointCompone
 	/**
 	 * Execute actions based on the PDP's decisions.
 	 * @param stage The stage at which the PXP is executed in the PDP.
-	 * @param assetType The type of asset being processed.
-	 * @param action The action being performed on the asset.
-	 * @param nodeIdentity The identity of the node making the request.
-	 * @param data The data used in the decision by the PDP.
+	 * @param locator The locator to find relevant policies.
 	 * @param policies The policies that apply to the data.
+	 * @param decisions The decisions made by the PDP.
+	 * @param data The data used in the decision by the PDP.
 	 * @returns Nothing.
 	 */
 	public async executeActions<D = unknown>(
 		stage: PolicyDecisionStage,
-		assetType: string,
-		action: string,
-		nodeIdentity: string,
-		data: D | undefined,
-		policies: IOdrlPolicy[]
+		locator: IPolicyLocator,
+		policies?: IOdrlPolicy[],
+		decisions?: IPolicyDecision[],
+		data?: D
 	): Promise<void> {
 		Guards.arrayOneOf(this.CLASS_NAME, nameof(stage), stage, Object.values(PolicyDecisionStage));
-		Guards.stringValue(this.CLASS_NAME, nameof(assetType), assetType);
-		Guards.stringValue(this.CLASS_NAME, nameof(action), action);
-		Guards.stringValue(this.CLASS_NAME, nameof(nodeIdentity), nodeIdentity);
+		Guards.object<IPolicyLocator>(this.CLASS_NAME, nameof(locator), locator);
+
+		const locatorDetails = LocatorHelper.toString(locator);
 
 		this._logging?.log({
 			level: "info",
@@ -100,8 +101,7 @@ export class PolicyExecutionPointService implements IPolicyExecutionPointCompone
 			message: "executingActions",
 			data: {
 				stage,
-				assetType,
-				action
+				locator: locatorDetails
 			}
 		});
 
@@ -114,12 +114,10 @@ export class PolicyExecutionPointService implements IPolicyExecutionPointCompone
 					message: "executingAction",
 					data: {
 						stage,
-						assetType,
-						action,
-						actionId
+						locator: locatorDetails
 					}
 				});
-				await executionAction.execute(stage, assetType, action, nodeIdentity, data, policies);
+				await executionAction.execute(stage, locator, policies, decisions, data);
 			} catch (error) {
 				this._logging?.log({
 					level: "error",
@@ -129,8 +127,7 @@ export class PolicyExecutionPointService implements IPolicyExecutionPointCompone
 					data: {
 						actionId,
 						stage,
-						assetType,
-						action
+						locator: locatorDetails
 					},
 					error: BaseError.fromError(error)
 				});
@@ -140,8 +137,7 @@ export class PolicyExecutionPointService implements IPolicyExecutionPointCompone
 					{
 						actionId,
 						stage,
-						assetType,
-						action
+						locator: locatorDetails
 					},
 					error
 				);

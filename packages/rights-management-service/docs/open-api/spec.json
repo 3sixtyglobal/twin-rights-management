@@ -621,7 +621,7 @@
 										"type": "PolicyNegotiationRequest",
 										"assetType": "document",
 										"action": "view",
-										"nodeIdentity": "urn:example:node:1",
+										"assignee": "urn:example:node:1",
 										"proof": {
 											"created": "2024-08-22T11:56:56.272Z",
 											"type": "DataIntegrityProof",
@@ -744,7 +744,7 @@
 											"https://schema.twindev.org/rights-management"
 										],
 										"type": "PolicyRequest",
-										"nodeIdentity": "urn:example:node:1",
+										"assignee": "urn:example:node:1",
 										"proof": {
 											"created": "2024-08-22T11:56:56.272Z",
 											"type": "DataIntegrityProof",
@@ -865,7 +865,7 @@
 											"https://schema.twindev.org/rights-management"
 										],
 										"type": "PolicyRequest",
-										"nodeIdentity": "urn:example:node:1",
+										"assignee": "urn:example:node:1",
 										"proof": {
 											"created": "2024-08-22T11:56:56.272Z",
 											"type": "DataIntegrityProof",
@@ -967,7 +967,7 @@
 											"dateCreated": "2025-09-03T00:00:00.000Z",
 											"assetType": "document",
 											"action": "view",
-											"nodeIdentity": "urn:example:node:1"
+											"assignee": "urn:example:node:1"
 										}
 									}
 								}
@@ -1073,7 +1073,7 @@
 										"dateCreated": "2025-09-03T00:00:00.000Z",
 										"assetType": "document",
 										"action": "view",
-										"nodeIdentity": "urn:example:node:1"
+										"assignee": "urn:example:node:1"
 									}
 								}
 							}
@@ -1283,7 +1283,7 @@
 													"dateCreated": "2025-09-03T00:00:00.000Z",
 													"assetType": "document",
 													"action": "view",
-													"nodeIdentity": "urn:example:node:1"
+													"assignee": "urn:example:node:1"
 												}
 											],
 											"cursor": "next-cursor"
@@ -1863,9 +1863,42 @@
 				"additionalProperties": false,
 				"description": "The body of the response."
 			},
+			"PolicyInformation": {
+				"type": "object",
+				"additionalProperties": {
+					"$ref": "#/components/schemas/PolicyInformationItems"
+				},
+				"description": "Interface describing a Policy Information."
+			},
+			"PolicyInformationItems": {
+				"type": "array",
+				"items": false,
+				"description": "Interface describing a Policy Information.",
+				"prefixItems": [
+					{
+						"$ref": "https://schema.twindev.org/json-ld/JsonLdNodeObject"
+					}
+				]
+			},
 			"PolicyNegotiation": {
 				"type": "object",
 				"properties": {
+					"assignee": {
+						"type": "string",
+						"description": "The assignee for the locator."
+					},
+					"action": {
+						"type": "string",
+						"description": "The action for the locator."
+					},
+					"assetType": {
+						"type": "string",
+						"description": "The asset type for the locator."
+					},
+					"resourceId": {
+						"type": "string",
+						"description": "A resource identifier for the locator."
+					},
 					"id": {
 						"type": "string",
 						"description": "The unique identifier for the policy."
@@ -1874,34 +1907,8 @@
 						"type": "string",
 						"description": "The date and time when the negotiation was created."
 					},
-					"assetType": {
-						"type": "string",
-						"description": "The asset type the negotiation is for."
-					},
-					"action": {
-						"type": "string",
-						"description": "The action the negotiation is for."
-					},
-					"resourceId": {
-						"type": "string",
-						"description": "The resource id the negotiation is for."
-					},
-					"nodeIdentity": {
-						"type": "string",
-						"description": "The identity of the node making the request."
-					},
 					"information": {
-						"type": "object",
-						"additionalProperties": {
-							"type": "array",
-							"items": false,
-							"prefixItems": [
-								{
-									"$ref": "https://schema.twindev.org/json-ld/JsonLdNodeObject"
-								}
-							]
-						},
-						"description": "The requester information."
+						"$ref": "#/components/schemas/PolicyInformation"
 					},
 					"status": {
 						"$ref": "#/components/schemas/PolicyNegotiationStatus"
@@ -1918,9 +1925,6 @@
 				"required": [
 					"id",
 					"dateCreated",
-					"assetType",
-					"action",
-					"nodeIdentity",
 					"status"
 				],
 				"additionalProperties": false,

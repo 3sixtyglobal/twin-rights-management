@@ -1,7 +1,10 @@
 // Copyright 2024 IOTA Stiftung.
 // SPDX-License-Identifier: Apache-2.0.
 import type { IJsonLdNodeObject } from "@twin.org/data-json-ld";
-import type { PolicyInformationAccessMode } from "@twin.org/rights-management-models";
+import type {
+	IPolicyLocator,
+	PolicyInformationAccessMode
+} from "@twin.org/rights-management-models";
 
 /**
  * Configuration for the Static Policy Information Source Component.
@@ -13,12 +16,10 @@ export interface IStaticPolicyInformationSource {
 	accessMode: PolicyInformationAccessMode;
 
 	/**
-	 * Information is only provided for the specified asset types/action combination.
-	 * If undefined is provided matches all asset types/actions.
-	 * If assetType is undefined matches all asset types.
-	 * If action is undefined matches all actions.
+	 * Information is only provided for the specified locator combination.
+	 * If undefined is provided matches all resources.
 	 */
-	assetTypeActions?: { assetType?: string; action?: string }[];
+	matchLocators?: IPolicyLocator[];
 
 	/**
 	 * The objects containing the information.

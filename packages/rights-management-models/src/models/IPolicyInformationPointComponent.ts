@@ -1,9 +1,10 @@
 // Copyright 2024 IOTA Stiftung.
 // SPDX-License-Identifier: Apache-2.0.
 import type { IComponent } from "@twin.org/core";
-import type { IJsonLdNodeObject } from "@twin.org/data-json-ld";
 import type { IOdrlPolicy } from "@twin.org/standards-w3c-odrl";
+import type { IPolicyInformation } from "./IPolicyInformation";
 import type { IPolicyInformationSource } from "./IPolicyInformationSource";
+import type { IPolicyLocator } from "./IPolicyLocator";
 import type { PolicyInformationAccessMode } from "./policyInformationAccessMode";
 
 /**
@@ -14,22 +15,18 @@ import type { PolicyInformationAccessMode } from "./policyInformationAccessMode"
 export interface IPolicyInformationPointComponent extends IComponent {
 	/**
 	 * Retrieve additional information which is relevant in the PDP decision making.
-	 * @param assetType The type of asset being processed.
-	 * @param action The action being performed on the asset.
+	 * @param locator The locator to find relevant policies.
 	 * @param accessMode The access mode to use for the retrieval.
-	 * @param nodeIdentity The identity of the node making the request.
-	 * @param data The data to get any additional information for.
 	 * @param policies The policies that apply to the data.
+	 * @param data The data to get any additional information for.
 	 * @returns Returns additional information based on the data and identities.
 	 */
 	retrieve<D = unknown>(
-		assetType: string,
-		action: string,
+		locator: IPolicyLocator,
 		accessMode: PolicyInformationAccessMode,
-		nodeIdentity: string,
-		data: D | undefined,
-		policies: IOdrlPolicy[]
-	): Promise<{ [source: string]: IJsonLdNodeObject[] }>;
+		policies?: IOdrlPolicy[],
+		data?: D
+	): Promise<IPolicyInformation>;
 
 	/**
 	 * Register a source to use for retrieval.

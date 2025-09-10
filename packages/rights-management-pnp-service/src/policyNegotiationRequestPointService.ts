@@ -6,9 +6,11 @@ import type { ILoggingComponent } from "@twin.org/logging-models";
 import { nameof } from "@twin.org/nameof";
 import {
 	type IPolicyInformationPointComponent,
+	type IPolicyLocator,
 	type IPolicyNegotiationPointComponent,
 	type IPolicyNegotiationRequestPointComponent,
 	type IPolicyState,
+	LocatorHelper,
 	PolicyInformationAccessMode,
 	RightsManagementProofHelper
 } from "@twin.org/rights-management-models";
@@ -98,20 +100,15 @@ export class PolicyNegotiationRequestPointService
 	/**
 	 * Send a negotiation request to an external node.
 	 * @param url The URL of the negotiation target.
-	 * @param assetType The type of asset being processed.
-	 * @param action The action being performed on the asset.
-	 * @param resourceId The ID of the resource being requested, can be empty if asset type access requested.
+	 * @param locator The locator to find relevant policies.
 	 * @returns The state of the policy.
 	 */
 	public async negotiate(
 		url: string,
-		assetType: string,
-		action: string,
-		resourceId: string | undefined
+		locator: Omit<IPolicyLocator, "assignee">
 	): Promise<IPolicyState> {
 		Guards.stringValue(this.CLASS_NAME, nameof(url), url);
-		Guards.stringValue(this.CLASS_NAME, nameof(assetType), assetType);
-		Guards.stringValue(this.CLASS_NAME, nameof(action), action);
+		Guards.object<IPolicyLocator>(this.CLASS_NAME, nameof(locator), locator);
 
 		if (!Is.stringValue(this._nodeIdentity)) {
 			throw new GeneralError(this.CLASS_NAME, "missingNodeIdentity");
@@ -119,22 +116,20 @@ export class PolicyNegotiationRequestPointService
 
 		const negotiationClient = await this._negotiationComponentCreator(url);
 
+		const policyLocator: IPolicyLocator = {
+			...locator,
+			assignee: this._nodeIdentity
+		};
+
 		const information = await this._policyInformationPointComponent.retrieve(
-			assetType,
-			action,
-			PolicyInformationAccessMode.Public,
-			this._nodeIdentity,
-			undefined,
-			[]
+			policyLocator,
+			PolicyInformationAccessMode.Public
 		);
 
 		const proof = await RightsManagementProofHelper.createProofNegotiation(
 			this._identityConnector,
 			this._negotiationMethodId,
-			this._nodeIdentity,
-			assetType,
-			action,
-			resourceId
+			policyLocator
 		);
 
 		this._logging?.log({
@@ -144,20 +139,11 @@ export class PolicyNegotiationRequestPointService
 			message: "negotiationRequest",
 			data: {
 				url,
-				assetType,
-				action,
-				resourceId: resourceId ?? ""
+				locator: LocatorHelper.toString(policyLocator)
 			}
 		});
 
-		const result = await negotiationClient.negotiate(
-			assetType,
-			action,
-			resourceId,
-			this._nodeIdentity,
-			information,
-			proof
-		);
+		const result = await negotiationClient.negotiate(policyLocator, information, proof);
 
 		this._logging?.log({
 			level: "info",
@@ -166,8 +152,7 @@ export class PolicyNegotiationRequestPointService
 			message: "negotiationResponse",
 			data: {
 				url,
-				assetType,
-				action,
+				locator: LocatorHelper.toString(policyLocator),
 				status: result.status
 			}
 		});

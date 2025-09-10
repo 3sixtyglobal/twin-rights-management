@@ -50,7 +50,7 @@ The expiration date of the policy, or undefined if not found.
 
 ### matchAsset()
 
-> `static` **matchAsset**(`target?`, `matchAssetType?`): `boolean`
+> `static` **matchAsset**(`target?`, `matchAssetType?`, `matchResourceId?`): `boolean`
 
 Match the target to the requested asset type.
 
@@ -67,6 +67,12 @@ The target to match.
 `string`
 
 The asset type to match.
+
+##### matchResourceId?
+
+`string`
+
+The resource id to match.
 
 #### Returns
 
@@ -104,9 +110,37 @@ True if the action is empty, the action matches the asset type, false otherwise.
 
 ***
 
+### matchAssignee()
+
+> `static` **matchAssignee**(`assignee?`, `matchAssignee?`): `boolean`
+
+Match the assignee.
+
+#### Parameters
+
+##### assignee?
+
+The assignee to match.
+
+`string` | `IOdrlParty`
+
+##### matchAssignee?
+
+`string`
+
+The assignee to match.
+
+#### Returns
+
+`boolean`
+
+True if the assignee is empty, the assignee matches the asset type, false otherwise.
+
+***
+
 ### matchTargetAndAction()
 
-> `static` **matchTargetAndAction**(`target?`, `action?`, `matchAssetType?`, `matchAction?`): `boolean`
+> `static` **matchTargetAndAction**(`target?`, `action?`, `locator?`): `boolean`
 
 Match the target and action to the requested asset type and action.
 
@@ -124,20 +158,54 @@ The action to match.
 
 `ActionType` | `IOdrlAction` | ActionType \| IOdrlAction[]
 
-##### matchAssetType?
+##### locator?
 
-`string`
+`Omit`\<[`IPolicyLocator`](../interfaces/IPolicyLocator.md), `"assignee"`\>
 
-The asset type to match.
-
-##### matchAction?
-
-`string`
-
-The action to match.
+The locator to match resource id if provided.
 
 #### Returns
 
 `boolean`
 
 True if the target and action match the requested asset type and action, false otherwise.
+
+***
+
+### matchLocator()
+
+> `static` **matchLocator**(`assignee?`, `target?`, `action?`, `locator?`): `boolean`
+
+Match the complete locator.
+
+#### Parameters
+
+##### assignee?
+
+The assignee to match.
+
+`string` | `IOdrlParty`
+
+##### target?
+
+The target to match.
+
+`string` | `IOdrlAsset` | (`string` \| `IOdrlAsset`)[]
+
+##### action?
+
+The action to match.
+
+`ActionType` | `IOdrlAction` | ActionType \| IOdrlAction[]
+
+##### locator?
+
+[`IPolicyLocator`](../interfaces/IPolicyLocator.md)
+
+The locator to match resource id if provided.
+
+#### Returns
+
+`boolean`
+
+True if the complete locator matches, false otherwise.

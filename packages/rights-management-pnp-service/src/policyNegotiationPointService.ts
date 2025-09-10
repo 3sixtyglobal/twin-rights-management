@@ -9,11 +9,11 @@ import {
 	NotFoundError,
 	Urn
 } from "@twin.org/core";
-import type { IJsonLdNodeObject } from "@twin.org/data-json-ld";
 import { IdentityConnectorFactory, type IIdentityConnector } from "@twin.org/identity-models";
 import type { ILoggingComponent } from "@twin.org/logging-models";
 import { nameof } from "@twin.org/nameof";
 import {
+	type IPolicyInformation,
 	OdrlPolicyHelper,
 	PolicyNegotiationStatus,
 	RightsManagementContexts,
@@ -24,7 +24,9 @@ import {
 	type IPolicyNegotiationAdminPointComponent,
 	type IPolicyNegotiationPointComponent,
 	type IPolicyNegotiator,
-	type IPolicyState
+	type IPolicyState,
+	type IPolicyLocator,
+	LocatorHelper
 } from "@twin.org/rights-management-models";
 import type { IProof } from "@twin.org/standards-w3c-did";
 import type { PolicyNegotiation } from "./entities/policyNegotiation";
@@ -105,56 +107,46 @@ export class PolicyNegotiationPointService implements IPolicyNegotiationPointCom
 
 	/**
 	 * Processes an incoming negotiation request for the resource.
-	 * @param assetType The type of asset being processed.
-	 * @param action The action being performed on the asset.
-	 * @param resourceId The ID of the resource being requested, can be empty if asset type access requested.
-	 * @param nodeIdentity The identity of the node making the request.
+	 * @param locator The locator to find relevant policies.
 	 * @param information Information provided by the requester to determine if a policy can be created.
 	 * @param proof The proof provided by the requester to support the policy creation.
 	 * @returns The state of the policy.
 	 */
 	public async negotiate(
-		assetType: string,
-		action: string,
-		resourceId: string | undefined,
-		nodeIdentity: string,
-		information: { [source: string]: IJsonLdNodeObject[] } | undefined,
+		locator: IPolicyLocator,
+		information: IPolicyInformation | undefined,
 		proof: IProof
 	): Promise<IPolicyState> {
-		Guards.stringValue(this.CLASS_NAME, nameof(assetType), assetType);
-		Guards.stringValue(this.CLASS_NAME, nameof(action), action);
-		Guards.stringValue(this.CLASS_NAME, nameof(nodeIdentity), nodeIdentity);
+		Guards.object<IPolicyLocator>(this.CLASS_NAME, nameof(locator), locator);
 		Guards.object<IProof>(this.CLASS_NAME, nameof(proof), proof);
 
 		// First verify the proof
 		await RightsManagementProofHelper.verifyProofNegotiation(
 			this._identityConnector,
-			nodeIdentity,
-			assetType,
-			action,
-			resourceId,
+			locator,
 			proof,
 			this._proofTtlInSeconds
 		);
 
 		// Proof verified so find a negotiator for the asset type and action
-		const findResult = this._negotiators.find(n => n.negotiator.canNegotiate(assetType, action));
+		const findResult = this._negotiators.find(({ negotiator }) => {
+			const supportedPolicies = negotiator.supportedPolicies();
+			return (
+				supportedPolicies.length === 0 ||
+				LocatorHelper.findMatchingLocator(supportedPolicies, locator)
+			);
+		});
 		if (Is.empty(findResult)) {
-			throw new GeneralError(this.CLASS_NAME, "noNegotiatorFound", { assetType, action });
+			throw new GeneralError(this.CLASS_NAME, "noNegotiatorFound", {
+				locator: LocatorHelper.toString(locator)
+			});
 		}
 
 		// Allocate a new policy Id, this will be used for the actual policy later as well
 		const policyId = Urn.generateRandom(RightsManagementNamespaces.Policy).toString(false);
 
 		// Found a negotiator so use it to negotiate the policy
-		const negotiated = await findResult.negotiator.negotiate(
-			policyId,
-			assetType,
-			action,
-			resourceId,
-			nodeIdentity,
-			information
-		);
+		const negotiated = await findResult.negotiator.negotiate(policyId, locator, information);
 
 		// The only time we don't store the state is when the policy was
 		// approved, in this case the state retrieval will use the entry
@@ -165,10 +157,7 @@ export class PolicyNegotiationPointService implements IPolicyNegotiationPointCom
 			const policyNegotiation: PolicyNegotiation = {
 				id: policyId,
 				dateCreated: new Date(Date.now()).toISOString(),
-				assetType,
-				action,
-				resourceId,
-				nodeIdentity,
+				...locator,
 				information,
 				status: negotiated.state.status,
 				reason: negotiated.state.reason
@@ -189,22 +178,22 @@ export class PolicyNegotiationPointService implements IPolicyNegotiationPointCom
 	/**
 	 * Retrieves the current state of a policy negotiation.
 	 * @param policyId The ID of the policy to retrieve the state for.
-	 * @param nodeIdentity The identity of the node requesting the state retrieval.
+	 * @param assignee The identity of the node requesting the state retrieval.
 	 * @param proof The proof provided by the requester to support the policy retrieval.
 	 * @returns The current state of the policy.
 	 */
 	public async negotiationState(
 		policyId: string,
-		nodeIdentity: string,
+		assignee: string,
 		proof: IProof
 	): Promise<IPolicyState> {
 		Guards.stringValue(this.CLASS_NAME, nameof(policyId), policyId);
-		Guards.stringValue(this.CLASS_NAME, nameof(nodeIdentity), nodeIdentity);
+		Guards.stringValue(this.CLASS_NAME, nameof(assignee), assignee);
 		Guards.object<IProof>(this.CLASS_NAME, nameof(proof), proof);
 
 		await RightsManagementProofHelper.verifyProofPolicyId(
 			this._identityConnector,
-			nodeIdentity,
+			assignee,
 			policyId,
 			proof,
 			this._proofTtlInSeconds
@@ -267,22 +256,18 @@ export class PolicyNegotiationPointService implements IPolicyNegotiationPointCom
 	/**
 	 * Cancels an ongoing negotiation for a resource.
 	 * @param policyId The ID of the policy to cancel.
-	 * @param nodeIdentity The identity of the node requesting the cancellation.
+	 * @param assignee The identity of the node requesting the cancellation.
 	 * @param proof The proof provided by the requester to support the cancellation.
 	 * @returns Nothing.
 	 */
-	public async negotiationCancel(
-		policyId: string,
-		nodeIdentity: string,
-		proof: IProof
-	): Promise<void> {
+	public async negotiationCancel(policyId: string, assignee: string, proof: IProof): Promise<void> {
 		Guards.stringValue(this.CLASS_NAME, nameof(policyId), policyId);
-		Guards.stringValue(this.CLASS_NAME, nameof(nodeIdentity), nodeIdentity);
+		Guards.stringValue(this.CLASS_NAME, nameof(assignee), assignee);
 		Guards.object<IProof>(this.CLASS_NAME, nameof(proof), proof);
 
 		await RightsManagementProofHelper.verifyProofPolicyId(
 			this._identityConnector,
-			nodeIdentity,
+			assignee,
 			policyId,
 			proof,
 			this._proofTtlInSeconds

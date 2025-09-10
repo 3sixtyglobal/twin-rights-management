@@ -5,6 +5,8 @@ import type { IJsonLdNodeObject } from "@twin.org/data-json-ld";
 import type { IIdentityConnector } from "@twin.org/identity-models";
 import { nameof } from "@twin.org/nameof";
 import { DidContexts, ProofTypes, type IProof } from "@twin.org/standards-w3c-did";
+import { LocatorHelper } from "./locatorHelper";
+import type { IPolicyLocator } from "../models/IPolicyLocator";
 import type { IPolicyNegotiationRequest } from "../models/IPolicyNegotiationRequest";
 import type { IPolicyRequest } from "../models/IPolicyRequest";
 import { RightsManagementContexts } from "../models/rightsManagementContexts";
@@ -23,20 +25,14 @@ export class RightsManagementProofHelper {
 	 * Create the proof for a specific action and asset type.
 	 * @param identityConnector The identity connector to use for creating the proof.
 	 * @param verificationMethodId The verification method id to use for creating the proof.
-	 * @param nodeIdentity The identity of the node performing the action.
-	 * @param assetType The type of the asset being accessed.
-	 * @param action The action being performed.
-	 * @param resourceId The specific resource id or can be left undefined for a whole asset class.
+	 * @param locator The locator to find relevant policies.
 	 * @returns The proof object.
 	 * @throws GeneralError is the proof creation fails.
 	 */
 	public static async createProofNegotiation(
 		identityConnector: IIdentityConnector,
 		verificationMethodId: string,
-		nodeIdentity: string,
-		assetType: string,
-		action: string,
-		resourceId: string | undefined
+		locator: IPolicyLocator
 	): Promise<IProof> {
 		Guards.object<IIdentityConnector>(
 			RightsManagementProofHelper.CLASS_NAME,
@@ -48,21 +44,20 @@ export class RightsManagementProofHelper {
 			nameof(verificationMethodId),
 			verificationMethodId
 		);
-		Guards.stringValue(RightsManagementProofHelper.CLASS_NAME, nameof(nodeIdentity), nodeIdentity);
-		Guards.stringValue(RightsManagementProofHelper.CLASS_NAME, nameof(assetType), assetType);
-		Guards.stringValue(RightsManagementProofHelper.CLASS_NAME, nameof(action), action);
+		Guards.stringValue(
+			RightsManagementProofHelper.CLASS_NAME,
+			nameof(locator.assignee),
+			locator.assignee
+		);
 
 		const unsecureDocument: Omit<IPolicyNegotiationRequest, "proof"> = {
 			"@context": [DidContexts.ContextVCv2, RightsManagementContexts.ContextRoot],
 			type: RightsManagementTypes.PolicyNegotiationRequest,
-			assetType,
-			action,
-			resourceId,
-			nodeIdentity
+			...locator
 		};
 
 		return await identityConnector.createProof(
-			nodeIdentity,
+			locator.assignee,
 			verificationMethodId,
 			ProofTypes.DataIntegrityProof,
 			unsecureDocument as unknown as IJsonLdNodeObject
@@ -73,7 +68,7 @@ export class RightsManagementProofHelper {
 	 * Create the proof for a policy id.
 	 * @param identityConnector The identity connector to use for creating the proof.
 	 * @param verificationMethodId The verification method id to use for creating the proof.
-	 * @param nodeIdentity The identity of the node performing the action.
+	 * @param assignee The identity of the node performing the action.
 	 * @param policyId The id of the policy being accessed.
 	 * @returns The proof object.
 	 * @throws GeneralError is the proof creation fails.
@@ -81,7 +76,7 @@ export class RightsManagementProofHelper {
 	public static async createProofPolicyId(
 		identityConnector: IIdentityConnector,
 		verificationMethodId: string,
-		nodeIdentity: string,
+		assignee: string,
 		policyId: string
 	): Promise<IProof> {
 		Guards.object<IIdentityConnector>(
@@ -94,18 +89,18 @@ export class RightsManagementProofHelper {
 			nameof(verificationMethodId),
 			verificationMethodId
 		);
-		Guards.stringValue(RightsManagementProofHelper.CLASS_NAME, nameof(nodeIdentity), nodeIdentity);
+		Guards.stringValue(RightsManagementProofHelper.CLASS_NAME, nameof(assignee), assignee);
 		Guards.stringValue(RightsManagementProofHelper.CLASS_NAME, nameof(policyId), policyId);
 
 		const unsecureDocument: Omit<IPolicyRequest, "proof"> = {
 			"@context": [DidContexts.ContextVCv2, RightsManagementContexts.ContextRoot],
 			type: RightsManagementTypes.PolicyRequest,
 			id: policyId,
-			nodeIdentity
+			assignee
 		};
 
 		return await identityConnector.createProof(
-			nodeIdentity,
+			assignee,
 			verificationMethodId,
 			ProofTypes.DataIntegrityProof,
 			unsecureDocument as unknown as IJsonLdNodeObject
@@ -115,20 +110,14 @@ export class RightsManagementProofHelper {
 	/**
 	 * Verify the proof for a specific action and asset type.
 	 * @param identityConnector The identity connector to use for verifying the proof.
-	 * @param nodeIdentity The identity of the node performing the action.
-	 * @param assetType The type of the asset being accessed.
-	 * @param action The action being performed.
-	 * @param resourceId The specific resource id or can be left undefined for a whole asset class.
+	 * @param locator The locator to find relevant policies.
 	 * @param proof The proof object containing the necessary information.
 	 * @param proofTtlInSeconds The time-to-live (TTL) for the proof in seconds.
 	 * @throws GeneralError is the proof verification fails.
 	 */
 	public static async verifyProofNegotiation(
 		identityConnector: IIdentityConnector,
-		nodeIdentity: string,
-		assetType: string,
-		action: string,
-		resourceId: string | undefined,
+		locator: IPolicyLocator,
 		proof: IProof,
 		proofTtlInSeconds: number
 	): Promise<void> {
@@ -137,20 +126,19 @@ export class RightsManagementProofHelper {
 			nameof(identityConnector),
 			identityConnector
 		);
-		Guards.stringValue(RightsManagementProofHelper.CLASS_NAME, nameof(nodeIdentity), nodeIdentity);
-		Guards.stringValue(RightsManagementProofHelper.CLASS_NAME, nameof(assetType), assetType);
-		Guards.stringValue(RightsManagementProofHelper.CLASS_NAME, nameof(action), action);
+		Guards.stringValue(
+			RightsManagementProofHelper.CLASS_NAME,
+			nameof(locator.assignee),
+			locator.assignee
+		);
 		Guards.objectValue<IProof>(RightsManagementProofHelper.CLASS_NAME, nameof(proof), proof);
 
-		await RightsManagementProofHelper.verifyCreated(proof, nodeIdentity, proofTtlInSeconds);
+		await RightsManagementProofHelper.verifyCreated(proof, locator.assignee, proofTtlInSeconds);
 
 		const proofDocument: Omit<IPolicyNegotiationRequest, "proof"> = {
 			"@context": [DidContexts.ContextVCv2, RightsManagementContexts.ContextRoot],
 			type: RightsManagementTypes.PolicyNegotiationRequest,
-			assetType,
-			action,
-			resourceId,
-			nodeIdentity
+			...locator
 		};
 
 		const isValid = await identityConnector.verifyProof(
@@ -160,9 +148,7 @@ export class RightsManagementProofHelper {
 
 		if (!isValid) {
 			throw new GeneralError(RightsManagementProofHelper.CLASS_NAME, "proofNegotiationFailed", {
-				assetType,
-				action,
-				nodeIdentity
+				locator: LocatorHelper.toString(locator)
 			});
 		}
 	}
@@ -170,7 +156,7 @@ export class RightsManagementProofHelper {
 	/**
 	 * Verify the proof for a policy id.
 	 * @param identityConnector The identity connector to use for verifying the proof.
-	 * @param nodeIdentity The identity of the node performing the action.
+	 * @param assignee The identity of the node performing the action.
 	 * @param policyId The id of the policy being accessed.
 	 * @param proof The proof object containing the necessary information.
 	 * @param proofTtlInSeconds The time-to-live (TTL) for the proof in seconds.
@@ -178,7 +164,7 @@ export class RightsManagementProofHelper {
 	 */
 	public static async verifyProofPolicyId(
 		identityConnector: IIdentityConnector,
-		nodeIdentity: string,
+		assignee: string,
 		policyId: string,
 		proof: IProof,
 		proofTtlInSeconds: number
@@ -188,17 +174,17 @@ export class RightsManagementProofHelper {
 			nameof(identityConnector),
 			identityConnector
 		);
-		Guards.stringValue(RightsManagementProofHelper.CLASS_NAME, nameof(nodeIdentity), nodeIdentity);
+		Guards.stringValue(RightsManagementProofHelper.CLASS_NAME, nameof(assignee), assignee);
 		Guards.stringValue(RightsManagementProofHelper.CLASS_NAME, nameof(policyId), policyId);
 		Guards.objectValue<IProof>(RightsManagementProofHelper.CLASS_NAME, nameof(proof), proof);
 
-		await RightsManagementProofHelper.verifyCreated(proof, nodeIdentity, proofTtlInSeconds);
+		await RightsManagementProofHelper.verifyCreated(proof, assignee, proofTtlInSeconds);
 
 		const proofDocument: Omit<IPolicyRequest, "proof"> = {
 			"@context": [DidContexts.ContextVCv2, RightsManagementContexts.ContextRoot],
 			type: RightsManagementTypes.PolicyRequest,
 			id: policyId,
-			nodeIdentity
+			assignee
 		};
 
 		const isValid = await identityConnector.verifyProof(
@@ -209,7 +195,7 @@ export class RightsManagementProofHelper {
 		if (!isValid) {
 			throw new GeneralError(RightsManagementProofHelper.CLASS_NAME, "proofPolicyIdFailed", {
 				policyId,
-				nodeIdentity
+				assignee
 			});
 		}
 	}
@@ -217,17 +203,17 @@ export class RightsManagementProofHelper {
 	/**
 	 * Verify that the proof has a created date and that it is within the allowed time-to-live (TTL).
 	 * @param proof The proof object to verify.
-	 * @param nodeIdentity The identity of the node performing the action.
+	 * @param assignee The identity of the node performing the action.
 	 * @param proofTtlInSeconds The time-to-live (TTL) for the proof in seconds.
 	 * @throws GeneralError if the proof is missing the created date or if it has expired.
 	 */
 	public static async verifyCreated(
 		proof: IProof,
-		nodeIdentity: string,
+		assignee: string,
 		proofTtlInSeconds: number
 	): Promise<void> {
 		Guards.objectValue<IProof>(RightsManagementProofHelper.CLASS_NAME, nameof(proof), proof);
-		Guards.stringValue(RightsManagementProofHelper.CLASS_NAME, nameof(nodeIdentity), nodeIdentity);
+		Guards.stringValue(RightsManagementProofHelper.CLASS_NAME, nameof(assignee), assignee);
 		Guards.number(
 			RightsManagementProofHelper.CLASS_NAME,
 			nameof(proofTtlInSeconds),
@@ -236,7 +222,7 @@ export class RightsManagementProofHelper {
 
 		if (Is.empty(proof.created)) {
 			throw new GeneralError(RightsManagementProofHelper.CLASS_NAME, "proofMissingCreated", {
-				nodeIdentity
+				assignee
 			});
 		}
 
@@ -247,7 +233,7 @@ export class RightsManagementProofHelper {
 		// If the proof has expired then we should reject it
 		if (proofCreated.getTime() + proofTtlInMs < now) {
 			throw new GeneralError(RightsManagementProofHelper.CLASS_NAME, "proofExpired", {
-				nodeIdentity
+				assignee
 			});
 		}
 	}

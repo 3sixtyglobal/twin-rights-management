@@ -22,4 +22,10 @@ export interface ILoggingPolicyExecutionActionConfig {
 	 * @default false
 	 */
 	includePolicies?: boolean;
+
+	/**
+	 * Whether to include the decisions in the log.
+	 * @default false
+	 */
+	includeDecisions?: boolean;
 }

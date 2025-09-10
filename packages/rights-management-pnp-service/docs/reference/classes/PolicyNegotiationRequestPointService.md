@@ -74,7 +74,7 @@ Nothing.
 
 ### negotiate()
 
-> **negotiate**(`url`, `assetType`, `action`, `resourceId`): `Promise`\<`IPolicyState`\>
+> **negotiate**(`url`, `locator`): `Promise`\<`IPolicyState`\>
 
 Send a negotiation request to an external node.
 
@@ -86,23 +86,11 @@ Send a negotiation request to an external node.
 
 The URL of the negotiation target.
 
-##### assetType
+##### locator
 
-`string`
+`Omit`\<`IPolicyLocator`, `"assignee"`\>
 
-The type of asset being processed.
-
-##### action
-
-`string`
-
-The action being performed on the asset.
-
-##### resourceId
-
-The ID of the resource being requested, can be empty if asset type access requested.
-
-`undefined` | `string`
+The locator to find relevant policies.
 
 #### Returns
 

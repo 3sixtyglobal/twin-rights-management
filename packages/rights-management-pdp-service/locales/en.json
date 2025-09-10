@@ -1,5 +1,13 @@
 {
 	"error": {
-		"policyDecisionPointService": {}
+		"policyDecisionPointService": {
+			"decidingFailed": "Deciding on policies for locator \"{locator}\" failed in arbiter with id: \"{arbiterId}\""
+		}
+	},
+	"info": {
+		"policyDecisionPointService": {
+			"registeredArbiter": "Arbiter registered with id: \"{arbiterId}\"",
+			"unregisteredArbiter": "Arbiter unregistered with id: \"{arbiterId}\""
+		}
 	}
 }

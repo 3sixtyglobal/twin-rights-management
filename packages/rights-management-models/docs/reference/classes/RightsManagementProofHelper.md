@@ -24,7 +24,7 @@ The class name of the Rights Management Proof Helper.
 
 ### createProofNegotiation()
 
-> `static` **createProofNegotiation**(`identityConnector`, `verificationMethodId`, `nodeIdentity`, `assetType`, `action`, `resourceId`): `Promise`\<`IProof`\>
+> `static` **createProofNegotiation**(`identityConnector`, `verificationMethodId`, `locator`): `Promise`\<`IProof`\>
 
 Create the proof for a specific action and asset type.
 
@@ -42,29 +42,11 @@ The identity connector to use for creating the proof.
 
 The verification method id to use for creating the proof.
 
-##### nodeIdentity
+##### locator
 
-`string`
+[`IPolicyLocator`](../interfaces/IPolicyLocator.md)
 
-The identity of the node performing the action.
-
-##### assetType
-
-`string`
-
-The type of the asset being accessed.
-
-##### action
-
-`string`
-
-The action being performed.
-
-##### resourceId
-
-The specific resource id or can be left undefined for a whole asset class.
-
-`undefined` | `string`
+The locator to find relevant policies.
 
 #### Returns
 
@@ -80,7 +62,7 @@ GeneralError is the proof creation fails.
 
 ### createProofPolicyId()
 
-> `static` **createProofPolicyId**(`identityConnector`, `verificationMethodId`, `nodeIdentity`, `policyId`): `Promise`\<`IProof`\>
+> `static` **createProofPolicyId**(`identityConnector`, `verificationMethodId`, `assignee`, `policyId`): `Promise`\<`IProof`\>
 
 Create the proof for a policy id.
 
@@ -98,7 +80,7 @@ The identity connector to use for creating the proof.
 
 The verification method id to use for creating the proof.
 
-##### nodeIdentity
+##### assignee
 
 `string`
 
@@ -124,7 +106,7 @@ GeneralError is the proof creation fails.
 
 ### verifyProofNegotiation()
 
-> `static` **verifyProofNegotiation**(`identityConnector`, `nodeIdentity`, `assetType`, `action`, `resourceId`, `proof`, `proofTtlInSeconds`): `Promise`\<`void`\>
+> `static` **verifyProofNegotiation**(`identityConnector`, `locator`, `proof`, `proofTtlInSeconds`): `Promise`\<`void`\>
 
 Verify the proof for a specific action and asset type.
 
@@ -136,29 +118,11 @@ Verify the proof for a specific action and asset type.
 
 The identity connector to use for verifying the proof.
 
-##### nodeIdentity
+##### locator
 
-`string`
+[`IPolicyLocator`](../interfaces/IPolicyLocator.md)
 
-The identity of the node performing the action.
-
-##### assetType
-
-`string`
-
-The type of the asset being accessed.
-
-##### action
-
-`string`
-
-The action being performed.
-
-##### resourceId
-
-The specific resource id or can be left undefined for a whole asset class.
-
-`undefined` | `string`
+The locator to find relevant policies.
 
 ##### proof
 
@@ -184,7 +148,7 @@ GeneralError is the proof verification fails.
 
 ### verifyProofPolicyId()
 
-> `static` **verifyProofPolicyId**(`identityConnector`, `nodeIdentity`, `policyId`, `proof`, `proofTtlInSeconds`): `Promise`\<`void`\>
+> `static` **verifyProofPolicyId**(`identityConnector`, `assignee`, `policyId`, `proof`, `proofTtlInSeconds`): `Promise`\<`void`\>
 
 Verify the proof for a policy id.
 
@@ -196,7 +160,7 @@ Verify the proof for a policy id.
 
 The identity connector to use for verifying the proof.
 
-##### nodeIdentity
+##### assignee
 
 `string`
 
@@ -232,7 +196,7 @@ GeneralError is the proof verification fails.
 
 ### verifyCreated()
 
-> `static` **verifyCreated**(`proof`, `nodeIdentity`, `proofTtlInSeconds`): `Promise`\<`void`\>
+> `static` **verifyCreated**(`proof`, `assignee`, `proofTtlInSeconds`): `Promise`\<`void`\>
 
 Verify that the proof has a created date and that it is within the allowed time-to-live (TTL).
 
@@ -244,7 +208,7 @@ Verify that the proof has a created date and that it is within the allowed time-
 
 The proof object to verify.
 
-##### nodeIdentity
+##### assignee
 
 `string`
 

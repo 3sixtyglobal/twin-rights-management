@@ -74,21 +74,25 @@ describe("PolicyInformationPointService", () => {
 
 		await policyInformationPoint.registerSource("identitySource", mockSource);
 		const information = await policyInformationPoint.retrieve(
-			"document",
-			"read",
+			{
+				assetType: "document",
+				action: "read",
+				assignee: "node456"
+			},
 			PolicyInformationAccessMode.Any,
-			"node456",
-			{ foo: "bar" },
-			[]
+			[],
+			{ foo: "bar" }
 		);
 
 		expect(mockSource.retrieve).toHaveBeenCalledWith(
-			"document",
-			"read",
+			{
+				assetType: "document",
+				action: "read",
+				assignee: "node456"
+			},
 			PolicyInformationAccessMode.Any,
-			"node456",
-			{ foo: "bar" },
-			[]
+			[],
+			{ foo: "bar" }
 		);
 		expect(information).toEqual({
 			identitySource: mockInformation
@@ -113,29 +117,35 @@ describe("PolicyInformationPointService", () => {
 		await policyInformationPoint.registerSource("context", contextSource);
 
 		const information = await policyInformationPoint.retrieve(
-			"image",
-			"edit",
+			{
+				assetType: "image",
+				action: "edit",
+				assignee: "node456"
+			},
 			PolicyInformationAccessMode.Any,
-			"node456",
-			{ foo: "bar" },
-			[]
+			[],
+			{ foo: "bar" }
 		);
 
 		expect(identitySource.retrieve).toHaveBeenCalledWith(
-			"image",
-			"edit",
+			{
+				assetType: "image",
+				action: "edit",
+				assignee: "node456"
+			},
 			PolicyInformationAccessMode.Any,
-			"node456",
-			{ foo: "bar" },
-			[]
+			[],
+			{ foo: "bar" }
 		);
 		expect(contextSource.retrieve).toHaveBeenCalledWith(
-			"image",
-			"edit",
+			{
+				assetType: "image",
+				action: "edit",
+				assignee: "node456"
+			},
 			PolicyInformationAccessMode.Any,
-			"node456",
-			{ foo: "bar" },
-			[]
+			[],
+			{ foo: "bar" }
 		);
 		expect(information).toEqual({ context: contextInfo, identity: identityInfo });
 	});
@@ -147,12 +157,14 @@ describe("PolicyInformationPointService", () => {
 
 		await policyInformationPoint.registerSource("emptySource", mockSource);
 		const information = await policyInformationPoint.retrieve(
-			"test",
-			"action",
+			{
+				assetType: "test",
+				action: "action",
+				assignee: "node456"
+			},
 			PolicyInformationAccessMode.Any,
-			"node456",
-			{ foo: "bar" },
-			[]
+			[],
+			{ foo: "bar" }
 		);
 
 		expect(information).toEqual({});
@@ -171,12 +183,14 @@ describe("PolicyInformationPointService", () => {
 		await policyInformationPoint.registerSource("failing", failingSource);
 
 		const information = await policyInformationPoint.retrieve(
-			"database",
-			"query",
+			{
+				assetType: "database",
+				action: "query",
+				assignee: "node456"
+			},
 			PolicyInformationAccessMode.Any,
-			"node456",
-			{ foo: "bar" },
-			[]
+			[],
+			{ foo: "bar" }
 		);
 
 		expect(workingSource.retrieve).toHaveBeenCalled();
@@ -191,12 +205,10 @@ describe("PolicyInformationPointService", () => {
 
 		await policyInformationPoint.registerSource("failing", failingSource);
 		await policyInformationPoint.retrieve(
-			"file",
-			"upload",
+			{ assetType: "file", action: "upload", assignee: "node456" },
 			PolicyInformationAccessMode.Any,
-			"node456",
-			"fileNode",
-			[]
+			[],
+			{ foo: "bar" }
 		);
 
 		const logEntries = loggingMemoryEntityStorage.getStore();
@@ -207,8 +219,7 @@ describe("PolicyInformationPointService", () => {
 		expect(logEntries[1].message).toBe("sourceRetrieveFailed");
 		expect(logEntries[1].data).toEqual({
 			sourceId: "failing",
-			assetType: "file",
-			action: "upload"
+			locator: "Assignee: node456, Action: upload, Asset Type: file"
 		});
 	});
 });

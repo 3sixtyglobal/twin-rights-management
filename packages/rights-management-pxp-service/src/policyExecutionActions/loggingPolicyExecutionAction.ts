@@ -4,7 +4,10 @@ import { ComponentFactory, Guards, type IComponent, Is } from "@twin.org/core";
 import type { ILoggingComponent } from "@twin.org/logging-models";
 import { nameof } from "@twin.org/nameof";
 import {
+	type IPolicyDecision,
 	type IPolicyExecutionAction,
+	type IPolicyLocator,
+	LocatorHelper,
 	PolicyDecisionStage
 } from "@twin.org/rights-management-models";
 import type { IOdrlPolicy } from "@twin.org/standards-w3c-odrl";
@@ -42,6 +45,11 @@ export class LoggingPolicyExecutionAction implements IPolicyExecutionAction, ICo
 	private readonly _includePolicies: boolean;
 
 	/**
+	 * Whether to include the decisions in the log.
+	 */
+	private readonly _includeDecisions: boolean;
+
+	/**
 	 * Create a new instance of LoggingPolicyExecutionAction.
 	 * @param options The options for the logging policy execution action.
 	 */
@@ -56,6 +64,7 @@ export class LoggingPolicyExecutionAction implements IPolicyExecutionAction, ICo
 		];
 		this._includeData = options?.config?.includeData ?? false;
 		this._includePolicies = options?.config?.includePolicies ?? false;
+		this._includeDecisions = options?.config?.includeDecisions ?? false;
 	}
 
 	/**
@@ -69,25 +78,21 @@ export class LoggingPolicyExecutionAction implements IPolicyExecutionAction, ICo
 	/**
 	 * Execute function type for policy actions.
 	 * @param stage The stage of the policy decision.
-	 * @param assetType The type of asset being processed.
-	 * @param action The action being performed on the asset.
-	 * @param nodeIdentity The identity of the node making the request.
-	 * @param data The data to process.
+	 * @param locator The locator to find relevant policies.
 	 * @param policies The policies that apply to the data.
+	 * @param decisions The decisions made by the PDP.
+	 * @param data The data to process.
 	 * @returns A promise that resolves when the action is complete.
 	 */
 	public async execute<D = unknown>(
 		stage: PolicyDecisionStage,
-		assetType: string,
-		action: string,
-		nodeIdentity: string,
-		data: D | undefined,
-		policies: IOdrlPolicy[]
+		locator: IPolicyLocator,
+		policies?: IOdrlPolicy[],
+		decisions?: IPolicyDecision[],
+		data?: D
 	): Promise<void> {
 		Guards.arrayOneOf(this.CLASS_NAME, nameof(stage), stage, Object.values(PolicyDecisionStage));
-		Guards.stringValue(this.CLASS_NAME, nameof(assetType), assetType);
-		Guards.stringValue(this.CLASS_NAME, nameof(action), action);
-		Guards.stringValue(this.CLASS_NAME, nameof(nodeIdentity), nodeIdentity);
+		Guards.object<IPolicyLocator>(this.CLASS_NAME, nameof(locator), locator);
 
 		if (this._stages.includes(stage)) {
 			// Even if we don't have the options to include data or include policies we
@@ -97,18 +102,18 @@ export class LoggingPolicyExecutionAction implements IPolicyExecutionAction, ICo
 				logData = this._includeData ? data : "{...}";
 			}
 			const logPolicies = this._includePolicies ? policies : "[...]";
+			const logDecisions = this._includeDecisions ? decisions : "[...]";
 
 			this._logging.log({
 				level: "info",
 				source: this.CLASS_NAME,
 				ts: Date.now(),
-				message: "policyActionExecuted",
+				message: `policyActionExecuted${stage === PolicyDecisionStage.Before ? "Before" : "After"}`,
 				data: {
-					assetType,
-					action,
+					locator: LocatorHelper.toString(locator),
 					data: logData,
-					nodeIdentity,
 					policies: logPolicies,
+					decisions: logDecisions,
 					stage
 				}
 			});

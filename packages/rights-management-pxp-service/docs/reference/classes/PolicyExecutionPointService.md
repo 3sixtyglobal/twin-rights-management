@@ -42,7 +42,7 @@ The class name of the Policy Execution Point Service.
 
 ### executeActions()
 
-> **executeActions**\<`D`\>(`stage`, `assetType`, `action`, `nodeIdentity`, `data`, `policies`): `Promise`\<`void`\>
+> **executeActions**\<`D`\>(`stage`, `locator`, `policies?`, `decisions?`, `data?`): `Promise`\<`void`\>
 
 Execute actions based on the PDP's decisions.
 
@@ -60,35 +60,29 @@ Execute actions based on the PDP's decisions.
 
 The stage at which the PXP is executed in the PDP.
 
-##### assetType
+##### locator
 
-`string`
+`IPolicyLocator`
 
-The type of asset being processed.
+The locator to find relevant policies.
 
-##### action
-
-`string`
-
-The action being performed on the asset.
-
-##### nodeIdentity
-
-`string`
-
-The identity of the node making the request.
-
-##### data
-
-The data used in the decision by the PDP.
-
-`undefined` | `D`
-
-##### policies
+##### policies?
 
 `IOdrlPolicy`[]
 
 The policies that apply to the data.
+
+##### decisions?
+
+`IPolicyDecision`[]
+
+The decisions made by the PDP.
+
+##### data?
+
+`D`
+
+The data used in the decision by the PDP.
 
 #### Returns
 

@@ -14,12 +14,12 @@ Point (PEP) will execute any registered actions.
 
 ### evaluate()
 
-> **evaluate**\<`D`\>(`assetType`, `action`, `nodeIdentity`, `data`): `Promise`\<`IOdrlPolicy`[]\>
+> **evaluate**\<`D`\>(`locator`, `data?`): `Promise`\<[`IPolicyDecision`](IPolicyDecision.md)[]\>
 
 Evaluate requests from a Policy Enforcement Point (PEP).
 Uses the Policy Management Point (PMP) to retrieve the policies and the
 Policy Information Point (PIP) to retrieve additional information.
-Executes any actions on the Policy Execution Point (PXP) when the decision is made.
+Executes any actions on the Policy Execution Point (PXP) before and after decision is made.
 
 #### Type Parameters
 
@@ -29,33 +29,71 @@ Executes any actions on the Policy Execution Point (PXP) when the decision is ma
 
 #### Parameters
 
-##### assetType
+##### locator
 
-`string`
+[`IPolicyLocator`](IPolicyLocator.md)
 
-The type of asset being processed.
+The locator to find relevant policies.
 
-##### action
+##### data?
 
-`string`
-
-The action being performed on the asset.
-
-##### nodeIdentity
-
-`string`
-
-The identity of the node making the request.
-
-##### data
+`D`
 
 The data to make a decision on.
 
-`undefined` | `D`
-
 #### Returns
 
-`Promise`\<`IOdrlPolicy`[]\>
+`Promise`\<[`IPolicyDecision`](IPolicyDecision.md)[]\>
 
 Returns the policy decisions which apply to the data so that the PEP
 can manipulate the data accordingly.
+
+***
+
+### registerArbiter()
+
+> **registerArbiter**(`arbiterId`, `arbiter`): `Promise`\<`void`\>
+
+Register an arbiter to use for making decisions.
+
+#### Parameters
+
+##### arbiterId
+
+`string`
+
+The id of the arbiter to register.
+
+##### arbiter
+
+[`IPolicyArbiter`](IPolicyArbiter.md)
+
+The arbiter to register.
+
+#### Returns
+
+`Promise`\<`void`\>
+
+Nothing.
+
+***
+
+### unregisterArbiter()
+
+> **unregisterArbiter**(`arbiterId`): `Promise`\<`void`\>
+
+Unregister an arbiter from making decisions.
+
+#### Parameters
+
+##### arbiterId
+
+`string`
+
+The id of the arbiter to unregister.
+
+#### Returns
+
+`Promise`\<`void`\>
+
+Nothing.

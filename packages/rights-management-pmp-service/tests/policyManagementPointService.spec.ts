@@ -82,7 +82,7 @@ describe("PolicyManagementPointService", () => {
 			});
 		}
 		// Wildcard means undefined
-		const result = await policyManagementPoint.retrieve("*", "*", "node1", undefined);
+		const result = await policyManagementPoint.retrieve({ assignee: "node1" });
 		expect(result.policies).toHaveLength(5);
 		expect(result.policies.every(p => p.target === undefined && p.action === undefined)).toBe(true);
 		expect(result.cursor).toBeUndefined();
@@ -120,7 +120,10 @@ describe("PolicyManagementPointService", () => {
 			});
 		}
 		// Wildcard action means action is undefined (property present)
-		const result = await policyManagementPoint.retrieve("asset:1234", "*", "node1", undefined);
+		const result = await policyManagementPoint.retrieve({
+			assetType: "asset:1234",
+			assignee: "node1"
+		});
 		expect(result.policies).toHaveLength(5);
 		expect(
 			result.policies.every(
@@ -162,7 +165,7 @@ describe("PolicyManagementPointService", () => {
 			});
 		}
 		// Wildcard assetType means target is undefined
-		const result = await policyManagementPoint.retrieve("*", "read", "node1", undefined);
+		const result = await policyManagementPoint.retrieve({ action: "read", assignee: "node1" });
 		expect(result.policies).toHaveLength(5);
 		expect(result.policies.every(p => p.target === undefined)).toBe(true);
 		expect(result.cursor).toBeUndefined();
@@ -181,7 +184,11 @@ describe("PolicyManagementPointService", () => {
 			});
 		}
 
-		const result = await policyManagementPoint.retrieve("asset:1234", "read", "node1", undefined);
+		const result = await policyManagementPoint.retrieve({
+			assetType: "asset:1234",
+			action: "read",
+			assignee: "node1"
+		});
 		expect(result.policies).toHaveLength(40);
 		expect(result.cursor).toBeDefined();
 	});
@@ -189,12 +196,11 @@ describe("PolicyManagementPointService", () => {
 	test("returns empty array when no policies match", async () => {
 		const policyManagementPoint = new PolicyManagementPointService();
 		// No policies inserted
-		const result = await policyManagementPoint.retrieve(
-			"nonexistent-asset",
-			"nonexistent-action",
-			"nonexistent-node",
-			undefined
-		);
+		const result = await policyManagementPoint.retrieve({
+			assetType: "nonexistent-asset",
+			action: "nonexistent-action",
+			assignee: "nonexistent-node"
+		});
 		expect(result.policies).toHaveLength(0);
 		expect(result.cursor).toBeUndefined();
 	});
@@ -208,7 +214,10 @@ describe("PolicyManagementPointService", () => {
 			action: "read"
 			// assignee is undefined
 		});
-		const result = await policyManagementPoint.retrieve("asset:1234", "read", "*", undefined);
+		const result = await policyManagementPoint.retrieve({
+			assetType: "asset:1234",
+			action: "read"
+		});
 		expect(result.policies).toHaveLength(1);
 		expect(result.policies[0].assignee).toBeUndefined();
 	});
@@ -222,7 +231,7 @@ describe("PolicyManagementPointService", () => {
 			action: "read"
 			// target is undefined
 		});
-		const result = await policyManagementPoint.retrieve("*", "read", "node1", undefined);
+		const result = await policyManagementPoint.retrieve({ action: "read", assignee: "node1" });
 		expect(result.policies).toHaveLength(1);
 		expect(result.policies[0].target).toBeUndefined();
 	});
@@ -236,7 +245,10 @@ describe("PolicyManagementPointService", () => {
 			target: "asset:1234"
 			// action is undefined
 		});
-		const result = await policyManagementPoint.retrieve("asset:1234", "*", "node1", undefined);
+		const result = await policyManagementPoint.retrieve({
+			assetType: "asset:1234",
+			assignee: "node1"
+		});
 		expect(result.policies).toHaveLength(1);
 		expect(result.policies[0].action).toBeUndefined();
 	});
@@ -244,31 +256,33 @@ describe("PolicyManagementPointService", () => {
 	test("throws error for invalid assetType argument", async () => {
 		const policyManagementPoint = new PolicyManagementPointService();
 		await expect(
-			policyManagementPoint.retrieve(undefined as unknown as string, "read", "node1", undefined)
+			policyManagementPoint.retrieve({
+				action: "read",
+				assignee: "node1",
+				assetType: 1234 as unknown as string
+			})
 		).rejects.toThrow();
 	});
 
 	test("throws error for invalid action argument", async () => {
 		const policyManagementPoint = new PolicyManagementPointService();
 		await expect(
-			policyManagementPoint.retrieve(
-				"asset:1234",
-				undefined as unknown as string,
-				"node1",
-				undefined
-			)
+			policyManagementPoint.retrieve({
+				assetType: "asset:1234",
+				action: 1234 as unknown as string,
+				assignee: "node1"
+			})
 		).rejects.toThrow();
 	});
 
-	test("throws error for invalid nodeIdentity argument", async () => {
+	test("throws error for invalid assignee argument", async () => {
 		const policyManagementPoint = new PolicyManagementPointService();
 		await expect(
-			policyManagementPoint.retrieve(
-				"asset:1234",
-				"read",
-				undefined as unknown as string,
-				undefined
-			)
+			policyManagementPoint.retrieve({
+				assetType: "asset:1234",
+				action: "read",
+				assignee: 123 as unknown as string
+			})
 		).rejects.toThrow();
 	});
 });

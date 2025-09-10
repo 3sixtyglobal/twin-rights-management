@@ -482,24 +482,31 @@ describe("OdrlPolicyHelper", () => {
 
 	describe("matchTargetAndAction", () => {
 		test("returns true if both asset and action match", () => {
-			expect(OdrlPolicyHelper.matchTargetAndAction("doc", ActionType.Read, "doc", "read")).toBe(
-				true
-			);
+			expect(
+				OdrlPolicyHelper.matchTargetAndAction("doc", ActionType.Read, {
+					assetType: "doc",
+					action: "read"
+				})
+			).toBe(true);
 		});
 		test("returns false if asset does not match", () => {
-			expect(OdrlPolicyHelper.matchTargetAndAction("img", ActionType.Read, "doc", "read")).toBe(
-				false
-			);
+			expect(
+				OdrlPolicyHelper.matchTargetAndAction("img", ActionType.Read, {
+					assetType: "doc",
+					action: "read"
+				})
+			).toBe(false);
 		});
 		test("returns false if action does not match", () => {
-			expect(OdrlPolicyHelper.matchTargetAndAction("doc", ActionType.Delete, "doc", "read")).toBe(
-				false
-			);
+			expect(
+				OdrlPolicyHelper.matchTargetAndAction("doc", ActionType.Delete, {
+					assetType: "doc",
+					action: "read"
+				})
+			).toBe(false);
 		});
 		test("returns true if both are empty", () => {
-			expect(
-				OdrlPolicyHelper.matchTargetAndAction(undefined, undefined, undefined, undefined)
-			).toBe(true);
+			expect(OdrlPolicyHelper.matchTargetAndAction(undefined, undefined, undefined)).toBe(true);
 		});
 	});
 });

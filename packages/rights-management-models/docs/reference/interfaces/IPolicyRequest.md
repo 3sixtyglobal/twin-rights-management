@@ -28,9 +28,9 @@ The id of the policy.
 
 ***
 
-### nodeIdentity
+### assignee
 
-> **nodeIdentity**: `string`
+> **assignee**: `string`
 
 The id of the the node.
 

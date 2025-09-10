@@ -1,7 +1,9 @@
 // Copyright 2024 IOTA Stiftung.
 // SPDX-License-Identifier: Apache-2.0.
 import type { IComponent } from "@twin.org/core";
-import type { IOdrlPolicy } from "@twin.org/standards-w3c-odrl";
+import type { IPolicyArbiter } from "./IPolicyArbiter";
+import type { IPolicyDecision } from "./IPolicyDecision";
+import type { IPolicyLocator } from "./IPolicyLocator";
 
 /**
  * Interface describing a Policy Decision Point (PDP) contract.
@@ -15,18 +17,26 @@ export interface IPolicyDecisionPointComponent extends IComponent {
 	 * Evaluate requests from a Policy Enforcement Point (PEP).
 	 * Uses the Policy Management Point (PMP) to retrieve the policies and the
 	 * Policy Information Point (PIP) to retrieve additional information.
-	 * Executes any actions on the Policy Execution Point (PXP) when the decision is made.
-	 * @param assetType The type of asset being processed.
-	 * @param action The action being performed on the asset.
-	 * @param nodeIdentity The identity of the node making the request.
+	 * Executes any actions on the Policy Execution Point (PXP) before and after decision is made.
+	 * @param locator The locator to find relevant policies.
 	 * @param data The data to make a decision on.
 	 * @returns Returns the policy decisions which apply to the data so that the PEP
 	 * can manipulate the data accordingly.
 	 */
-	evaluate<D = unknown>(
-		assetType: string,
-		action: string,
-		nodeIdentity: string,
-		data: D | undefined
-	): Promise<IOdrlPolicy[]>;
+	evaluate<D = unknown>(locator: IPolicyLocator, data?: D): Promise<IPolicyDecision[]>;
+
+	/**
+	 * Register an arbiter to use for making decisions.
+	 * @param arbiterId The id of the arbiter to register.
+	 * @param arbiter The arbiter to register.
+	 * @returns Nothing.
+	 */
+	registerArbiter(arbiterId: string, arbiter: IPolicyArbiter): Promise<void>;
+
+	/**
+	 * Unregister an arbiter from making decisions.
+	 * @param arbiterId The id of the arbiter to unregister.
+	 * @returns Nothing.
+	 */
+	unregisterArbiter(arbiterId: string): Promise<void>;
 }

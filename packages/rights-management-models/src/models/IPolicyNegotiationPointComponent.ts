@@ -1,8 +1,9 @@
 // Copyright 2024 IOTA Stiftung.
 // SPDX-License-Identifier: Apache-2.0.
 import type { IComponent } from "@twin.org/core";
-import type { IJsonLdNodeObject } from "@twin.org/data-json-ld";
 import type { IProof } from "@twin.org/standards-w3c-did";
+import type { IPolicyInformation } from "./IPolicyInformation";
+import type { IPolicyLocator } from "./IPolicyLocator";
 import type { IPolicyNegotiator } from "./IPolicyNegotiator";
 import type { IPolicyState } from "./IPolicyState";
 
@@ -14,40 +15,34 @@ import type { IPolicyState } from "./IPolicyState";
 export interface IPolicyNegotiationPointComponent extends IComponent {
 	/**
 	 * Processes an incoming negotiation request for the resource.
-	 * @param assetType The type of asset being processed.
-	 * @param action The action being performed on the asset.
-	 * @param resourceId The ID of the resource being requested, can be empty if asset type access requested.
-	 * @param nodeIdentity The identity of the node requesting the negotiation.
+	 * @param locator The locator to find relevant policies.
 	 * @param information Information provided by the requester to determine if a policy can be created.
 	 * @param proof The proof provided by the requester to support the policy creation.
 	 * @returns The state of the policy.
 	 */
 	negotiate(
-		assetType: string,
-		action: string,
-		resourceId: string | undefined,
-		nodeIdentity: string,
-		information: { [source: string]: IJsonLdNodeObject[] } | undefined,
+		locator: IPolicyLocator,
+		information: IPolicyInformation | undefined,
 		proof: IProof
 	): Promise<IPolicyState>;
 
 	/**
 	 * Retrieves the current state of a policy.
 	 * @param policyId The ID of the policy to retrieve the state for.
-	 * @param nodeIdentity The identity of the node requesting the state retrieval.
+	 * @param assignee The identity of the node requesting the state retrieval.
 	 * @param proof The proof provided by the requester to support the state retrieval.
 	 * @returns The current state of the policy.
 	 */
-	negotiationState(policyId: string, nodeIdentity: string, proof: IProof): Promise<IPolicyState>;
+	negotiationState(policyId: string, assignee: string, proof: IProof): Promise<IPolicyState>;
 
 	/**
 	 * Cancels an ongoing negotiation for a resource.
 	 * @param policyId The ID of the policy to cancel.
-	 * @param nodeIdentity The identity of the node requesting the cancellation.
+	 * @param assignee The identity of the node requesting the cancellation.
 	 * @param proof The proof provided by the requester to support the cancellation.
 	 * @returns Nothing.
 	 */
-	negotiationCancel(policyId: string, nodeIdentity: string, proof: IProof): Promise<void>;
+	negotiationCancel(policyId: string, assignee: string, proof: IProof): Promise<void>;
 
 	/**
 	 * Register a negotiator to use for handling data.

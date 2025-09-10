@@ -131,7 +131,7 @@ describe("PolicyNegotiationPointService", () => {
 	test("can register and unregister a negotiator", async () => {
 		const service = new PolicyNegotiationPointService();
 		const negotiator = {
-			canNegotiate: () => true,
+			supportedPolicies: () => [],
 			negotiate: vi.fn().mockResolvedValue({ state: { status: "pending" } })
 		};
 		await service.registerNegotiator("neg1", negotiator);
@@ -142,24 +142,25 @@ describe("PolicyNegotiationPointService", () => {
 	test("negotiate throws if no negotiator found", async () => {
 		const service = new PolicyNegotiationPointService();
 		await expect(
-			service.negotiate("asset", "action", "resId", "nodeIdentity", {}, validProof)
+			service.negotiate(
+				{ assetType: "asset", action: "action", resourceId: "resId", assignee: "assignee" },
+				{},
+				validProof
+			)
 		).rejects.toThrow();
 	});
 
 	test("negotiate stores state if not approved", async () => {
 		const service = new PolicyNegotiationPointService();
 		const negotiator = {
-			canNegotiate: () => true,
+			supportedPolicies: () => [],
 			negotiate: vi.fn().mockResolvedValue({ state: { status: "pending", reason: "waiting" } })
 		};
 		vi.spyOn(identityConnector, "verifyProof").mockResolvedValue(true);
 
 		await service.registerNegotiator("neg1", negotiator);
 		const state = await service.negotiate(
-			"asset",
-			"action",
-			"resId",
-			"nodeIdentity",
+			{ assetType: "asset", action: "action", resourceId: "resId", assignee: "assignee" },
 			{},
 			validProof
 		);
@@ -180,7 +181,7 @@ describe("PolicyNegotiationPointService", () => {
 			dateCreated: new Date().toISOString(),
 			assetType: "asset",
 			action: "action",
-			nodeIdentity: "nid",
+			assignee: "nid",
 			status: "approved"
 		});
 		vi.spyOn(identityConnector, "verifyProof").mockResolvedValue(true);
@@ -238,8 +239,8 @@ describe("PolicyNegotiationPointService", () => {
 
 	test("registerNegotiator overwrites existing negotiator", async () => {
 		const service = new PolicyNegotiationPointService();
-		const negotiator1 = { canNegotiate: () => true, negotiate: vi.fn() };
-		const negotiator2 = { canNegotiate: () => false, negotiate: vi.fn() };
+		const negotiator1 = { supportedPolicies: () => [], negotiate: vi.fn() };
+		const negotiator2 = { supportedPolicies: () => [], negotiate: vi.fn() };
 		await service.registerNegotiator("neg1", negotiator1);
 		await service.registerNegotiator("neg1", negotiator2);
 		// eslint-disable-next-line @typescript-eslint/no-explicit-any
@@ -249,7 +250,7 @@ describe("PolicyNegotiationPointService", () => {
 	test("registerNegotiator throws if negotiatorId is empty", async () => {
 		const service = new PolicyNegotiationPointService();
 		await expect(
-			service.registerNegotiator("", { canNegotiate: () => true, negotiate: vi.fn() })
+			service.registerNegotiator("", { supportedPolicies: () => [], negotiate: vi.fn() })
 		).rejects.toThrow();
 	});
 
@@ -271,7 +272,7 @@ describe("PolicyNegotiationPointService", () => {
 	test("can register and unregister a negotiator", async () => {
 		const service = new PolicyNegotiationPointService();
 		const negotiator = {
-			canNegotiate: () => true,
+			supportedPolicies: () => [],
 			negotiate: vi.fn().mockResolvedValue({ state: { status: "pending" } })
 		};
 		await service.registerNegotiator("neg1", negotiator);
@@ -283,24 +284,25 @@ describe("PolicyNegotiationPointService", () => {
 	test("negotiate throws if no negotiator found", async () => {
 		const service = new PolicyNegotiationPointService();
 		await expect(
-			service.negotiate("asset", "action", "resId", "nodeIdentity", {}, validProof)
+			service.negotiate(
+				{ assetType: "asset", action: "action", resourceId: "resId", assignee: "assignee" },
+				{},
+				validProof
+			)
 		).rejects.toThrow();
 	});
 
 	test("negotiate stores state if not approved", async () => {
 		const service = new PolicyNegotiationPointService();
 		const negotiator = {
-			canNegotiate: () => true,
+			supportedPolicies: () => [],
 			negotiate: vi.fn().mockResolvedValue({ state: { status: "pending", reason: "waiting" } })
 		};
 		vi.spyOn(identityConnector, "verifyProof").mockResolvedValue(true);
 
 		await service.registerNegotiator("neg1", negotiator);
 		const state = await service.negotiate(
-			"asset",
-			"action",
-			"resId",
-			"nodeIdentity",
+			{ assetType: "asset", action: "action", resourceId: "resId", assignee: "assignee" },
 			{},
 			validProof
 		);
@@ -314,7 +316,7 @@ describe("PolicyNegotiationPointService", () => {
 			dateCreated: new Date().toISOString(),
 			assetType: "asset",
 			action: "action",
-			nodeIdentity: "nid",
+			assignee: "nid",
 			status: "approved"
 		});
 		vi.spyOn(identityConnector, "verifyProof").mockResolvedValue(true);
@@ -365,7 +367,7 @@ describe("PolicyNegotiationPointService", () => {
 	test("registerNegotiator throws if negotiatorId is empty", async () => {
 		const service = new PolicyNegotiationPointService();
 		await expect(
-			service.registerNegotiator("", { canNegotiate: () => true, negotiate: vi.fn() })
+			service.registerNegotiator("", { supportedPolicies: () => [], negotiate: vi.fn() })
 		).rejects.toThrow();
 	});
 

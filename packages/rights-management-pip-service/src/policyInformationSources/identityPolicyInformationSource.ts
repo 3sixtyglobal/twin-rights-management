@@ -5,8 +5,10 @@ import type { IJsonLdNodeObject } from "@twin.org/data-json-ld";
 import type { IIdentityResolverComponent } from "@twin.org/identity-models";
 import type { ILoggingComponent } from "@twin.org/logging-models";
 import { nameof } from "@twin.org/nameof";
-import type {
-	IPolicyInformationSource,
+import {
+	type IPolicyInformationSource,
+	type IPolicyLocator,
+	LocatorHelper,
 	PolicyInformationAccessMode
 } from "@twin.org/rights-management-models";
 import type { IOdrlPolicy } from "@twin.org/standards-w3c-odrl";
@@ -48,25 +50,26 @@ export class IdentityPolicyInformationSource implements IPolicyInformationSource
 
 	/**
 	 * Retrieve information from the sources.
-	 * @param assetType The type of asset being processed.
-	 * @param action The action being performed on the asset.
+	 * @param locator The locator to find relevant policies.
 	 * @param accessMode The access mode to use for the retrieval.
-	 * @param nodeIdentity The identity of the node making the request.
-	 * @param data The data to process.
 	 * @param policies The policies that apply to the data.
+	 * @param data The data to process.
 	 * @returns The objects containing relevant information or undefined if nothing relevant is found.
 	 */
 	public async retrieve<D = unknown>(
-		assetType: string,
-		action: string,
+		locator: IPolicyLocator,
 		accessMode: PolicyInformationAccessMode,
-		nodeIdentity: string,
-		data: D | undefined,
-		policies: IOdrlPolicy[]
+		policies: IOdrlPolicy[],
+		data?: D
 	): Promise<IJsonLdNodeObject[] | undefined> {
-		Guards.stringValue(this.CLASS_NAME, nameof(assetType), assetType);
-		Guards.stringValue(this.CLASS_NAME, nameof(action), action);
-		Guards.stringValue(this.CLASS_NAME, nameof(nodeIdentity), nodeIdentity);
+		Guards.objectValue<IPolicyLocator>(this.CLASS_NAME, nameof(locator), locator);
+		Guards.arrayOneOf(
+			this.CLASS_NAME,
+			nameof(accessMode),
+			accessMode,
+			Object.values(PolicyInformationAccessMode)
+		);
+		Guards.stringValue(this.CLASS_NAME, nameof(locator.assignee), locator.assignee);
 
 		const information: IJsonLdNodeObject[] = [];
 
@@ -77,12 +80,10 @@ export class IdentityPolicyInformationSource implements IPolicyInformationSource
 				ts: Date.now(),
 				message: "identityRetrieving",
 				data: {
-					assetType,
-					action,
-					identity: nodeIdentity
+					locator: LocatorHelper.toString(locator)
 				}
 			});
-			const idDoc = await this._identityResolver.identityResolve(nodeIdentity);
+			const idDoc = await this._identityResolver.identityResolve(locator.assignee);
 			information.push(idDoc as unknown as IJsonLdNodeObject);
 		} catch (err) {
 			this._logging?.log({
@@ -91,9 +92,7 @@ export class IdentityPolicyInformationSource implements IPolicyInformationSource
 				ts: Date.now(),
 				message: "identityRetrievalFailed",
 				data: {
-					assetType,
-					action,
-					identity: nodeIdentity
+					locator: LocatorHelper.toString(locator)
 				},
 				error: BaseError.fromError(err)
 			});

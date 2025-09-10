@@ -26,7 +26,7 @@ export interface IPolicyRequest {
 	/**
 	 * The id of the the node.
 	 */
-	nodeIdentity: string;
+	assignee: string;
 
 	/**
 	 * The proof object.

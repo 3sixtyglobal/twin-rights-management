@@ -43,7 +43,7 @@ The class name of the Static Policy Information Source.
 
 ### retrieve()
 
-> **retrieve**\<`D`\>(`assetType`, `action`, `accessMode`, `nodeIdentity`, `data`, `policies`): `Promise`\<`undefined` \| `IJsonLdNodeObject`[]\>
+> **retrieve**\<`D`\>(`locator`, `accessMode`, `policies`, `data?`): `Promise`\<`undefined` \| `IJsonLdNodeObject`[]\>
 
 Retrieve information from the sources.
 
@@ -55,17 +55,11 @@ Retrieve information from the sources.
 
 #### Parameters
 
-##### assetType
+##### locator
 
-`string`
+`IPolicyLocator`
 
-The type of asset being processed.
-
-##### action
-
-`string`
-
-The action being performed on the asset.
+The locator to find relevant policies.
 
 ##### accessMode
 
@@ -73,23 +67,17 @@ The action being performed on the asset.
 
 The access mode to use for the retrieval.
 
-##### nodeIdentity
-
-`string`
-
-The identity of the node making the request.
-
-##### data
-
-The data to process.
-
-`undefined` | `D`
-
 ##### policies
 
 `IOdrlPolicy`[]
 
 The policies that apply to the data.
+
+##### data?
+
+`D`
+
+The data to process.
 
 #### Returns
 

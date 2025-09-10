@@ -1,6 +1,8 @@
 {
 	"baseUrl": "https://schema.twindev.org/rights-management/",
 	"types": [
+		"./src/models/IPolicyInformation.ts",
+		"./src/models/IPolicyInformationItems.ts",
 		"./src/models/IPolicyNegotiationRequest.ts",
 		"./src/models/IPolicyRequest.ts",
 		"./src/models/IPolicyState.ts",

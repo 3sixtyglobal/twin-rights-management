@@ -1,7 +1,8 @@
 // Copyright 2024 IOTA Stiftung.
 // SPDX-License-Identifier: Apache-2.0.
-import type { IJsonLdNodeObject } from "@twin.org/data-json-ld";
 import type { IOdrlPolicy } from "@twin.org/standards-w3c-odrl";
+import type { IPolicyInformationItems } from "./IPolicyInformationItems";
+import type { IPolicyLocator } from "./IPolicyLocator";
 import type { PolicyInformationAccessMode } from "./policyInformationAccessMode";
 
 /**
@@ -10,20 +11,16 @@ import type { PolicyInformationAccessMode } from "./policyInformationAccessMode"
 export interface IPolicyInformationSource {
 	/**
 	 * Retrieve information from the sources.
-	 * @param assetType The type of asset being processed.
-	 * @param action The action being performed on the asset.
+	 * @param locator The locator to find relevant policies.
 	 * @param accessMode The access mode to use for the retrieval.
-	 * @param nodeIdentity The identity of the node making the request.
-	 * @param data The data to process.
 	 * @param policies The policies that apply to the data.
+	 * @param data The data to process.
 	 * @returns The objects containing relevant information or undefined if nothing relevant is found.
 	 */
 	retrieve<D = unknown>(
-		assetType: string,
-		action: string,
+		locator: IPolicyLocator,
 		accessMode: PolicyInformationAccessMode,
-		nodeIdentity: string,
-		data: D | undefined,
-		policies: IOdrlPolicy[]
-	): Promise<IJsonLdNodeObject[] | undefined>;
+		policies?: IOdrlPolicy[],
+		data?: D
+	): Promise<IPolicyInformationItems | undefined>;
 }

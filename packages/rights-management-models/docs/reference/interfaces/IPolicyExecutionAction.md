@@ -20,7 +20,7 @@ List of stages.
 
 ### execute()
 
-> **execute**\<`D`\>(`stage`, `assetType`, `action`, `nodeIdentity`, `data`, `policies`): `Promise`\<`void`\>
+> **execute**\<`D`\>(`stage`, `locator`, `policies?`, `decisions?`, `data?`): `Promise`\<`void`\>
 
 Execute function type for policy actions.
 
@@ -38,35 +38,29 @@ Execute function type for policy actions.
 
 The stage of the policy decision.
 
-##### assetType
+##### locator
 
-`string`
+[`IPolicyLocator`](IPolicyLocator.md)
 
-The type of asset being processed.
+The locator to find relevant policies.
 
-##### action
-
-`string`
-
-The action being performed on the asset.
-
-##### nodeIdentity
-
-`string`
-
-The identity of the node making the request.
-
-##### data
-
-The data to process.
-
-`undefined` | `D`
-
-##### policies
+##### policies?
 
 `IOdrlPolicy`[]
 
 The policies that apply to the data.
+
+##### decisions?
+
+[`IPolicyDecision`](IPolicyDecision.md)[]
+
+The decisions made by the PDP.
+
+##### data?
+
+`D`
+
+The data to process.
 
 #### Returns
 

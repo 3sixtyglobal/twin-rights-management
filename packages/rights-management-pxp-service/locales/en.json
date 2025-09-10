@@ -1,18 +1,19 @@
 {
 	"error": {
 		"policyExecutionPointService": {
-			"actionExecutionFailed": "Action execution failed for id: \"{actionId}\", at stage \"{stage}\", with asset type \"{assetType}\" and action \"{action}\""
+			"actionExecutionFailed": "Action execution failed for id: \"{actionId}\", at stage \"{stage}\", with locator: \"{locator}\""
 		}
 	},
 	"info": {
 		"loggingPolicyExecutionAction": {
-			"policyActionExecuted": "Policy executed for asset type: \"{assetType}\", action: \"{action}\", data: \"{data}\", node identity: \"{nodeIdentity}\", policies: \"{policies}\", stage: \"{stage}\""
+			"policyActionExecutedBefore": "Policy executed for locator: \"{locator}\", stage: \"{stage}\", data: \"{data}\", policies: \"{policies}\"",
+			"policyActionExecutedAfter": "Policy executed for locator: \"{locator}\", stage: \"{stage}\", data: \"{data}\", policies: \"{policies}\", decisions: \"{decisions}\""
 		},
 		"policyExecutionPointService": {
 			"registeredAction": "Action registered with id: \"{actionId}\", at stage \"{stage}\"",
 			"unregisteredAction": "Action unregistered with id: \"{actionId}\", at stage \"{stage}\"",
-			"executingActions": "Executing actions for stage: \"{stage}\", asset type: \"{assetType}\", action: \"{action}\"",
-			"executingAction": "Executing action for stage: \"{stage}\", asset type: \"{assetType}\", action: \"{action}\", action id: \"{actionId}\""
+			"executingActions": "Executing actions for stage: \"{stage}\", locator: \"{locator}\"",
+			"executingAction": "Executing action for stage: \"{stage}\", locator: \"{locator}\""
 		}
 	}
 }

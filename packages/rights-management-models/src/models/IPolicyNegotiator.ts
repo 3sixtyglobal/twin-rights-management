@@ -1,7 +1,8 @@
 // Copyright 2024 IOTA Stiftung.
 // SPDX-License-Identifier: Apache-2.0.
-import type { IJsonLdNodeObject } from "@twin.org/data-json-ld";
 import type { IOdrlPolicy } from "@twin.org/standards-w3c-odrl";
+import type { IPolicyInformation } from "./IPolicyInformation";
+import type { IPolicyLocator } from "./IPolicyLocator";
 import type { IPolicyState } from "./IPolicyState";
 
 /**
@@ -9,30 +10,22 @@ import type { IPolicyState } from "./IPolicyState";
  */
 export interface IPolicyNegotiator {
 	/**
-	 * Determines if the negotiator can handle the specified asset type and action.
-	 * @param assetType The type of asset being processed.
-	 * @param action The action being performed on the asset.
-	 * @returns True if the negotiator can handle the asset type and action, false otherwise.
+	 * The policies supported by this negotiator.
+	 * @returns The supported policies, if empty can be used for all.
 	 */
-	canNegotiate(assetType: string, action: string): boolean;
+	supportedPolicies(): IPolicyLocator[];
 
 	/**
 	 * Determines if a policy can be created for the requested resource.
 	 * @param policyId The policy id to use if creating a new policy.
-	 * @param assetType The type of asset being processed.
-	 * @param action The action being performed on the asset.
-	 * @param resourceId The ID of the resource being requested, can be empty if asset type access requested.
-	 * @param nodeIdentity The identity of the node requesting the negotiation.
+	 * @param locator The locator to find relevant policies.
 	 * @param information Information provided by the requester to determine if a policy can be created.
 	 * @returns The state of the policy and the actual policy if it was approved.
 	 */
 	negotiate(
 		policyId: string,
-		assetType: string,
-		action: string,
-		resourceId: string | undefined,
-		nodeIdentity: string,
-		information: { [source: string]: IJsonLdNodeObject[] } | undefined
+		locator: IPolicyLocator,
+		information?: IPolicyInformation
 	): Promise<{
 		state: IPolicyState;
 		policy?: IOdrlPolicy;
