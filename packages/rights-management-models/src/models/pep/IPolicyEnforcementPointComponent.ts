@@ -1,8 +1,8 @@
 // Copyright 2024 IOTA Stiftung.
 // SPDX-License-Identifier: Apache-2.0.
 import type { IComponent } from "@twin.org/core";
+import type { IPolicyLocator } from "../IPolicyLocator";
 import type { IPolicyEnforcementProcessor } from "./IPolicyEnforcementProcessor";
-import type { IPolicyLocator } from "./IPolicyLocator";
 
 /**
  * Interface describing a Policy Enforcement Point (PEP) contract.

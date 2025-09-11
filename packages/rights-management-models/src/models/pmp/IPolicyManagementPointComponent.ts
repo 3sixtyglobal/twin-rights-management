@@ -2,7 +2,7 @@
 // SPDX-License-Identifier: Apache-2.0.
 import type { IComponent } from "@twin.org/core";
 import type { IOdrlPolicy } from "@twin.org/standards-w3c-odrl";
-import type { IPolicyLocator } from "./IPolicyLocator";
+import type { IPolicyLocator } from "../IPolicyLocator";
 
 /**
  * Interface describing a Policy Management Point (PMP) contract.

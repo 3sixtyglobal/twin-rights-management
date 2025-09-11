@@ -7,8 +7,8 @@ import { nameof } from "@twin.org/nameof";
 import { DidContexts, ProofTypes, type IProof } from "@twin.org/standards-w3c-did";
 import { LocatorHelper } from "./locatorHelper";
 import type { IPolicyLocator } from "../models/IPolicyLocator";
-import type { IPolicyNegotiationRequest } from "../models/IPolicyNegotiationRequest";
-import type { IPolicyRequest } from "../models/IPolicyRequest";
+import type { IPolicyNegotiationRequest } from "../models/pnp/IPolicyNegotiationRequest";
+import type { IPolicyRequest } from "../models/pnp/IPolicyRequest";
 import { RightsManagementContexts } from "../models/rightsManagementContexts";
 import { RightsManagementTypes } from "../models/rightsManagementTypes";
 

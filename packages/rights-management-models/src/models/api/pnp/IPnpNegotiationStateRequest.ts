@@ -1,7 +1,7 @@
 // Copyright 2024 IOTA Stiftung.
 // SPDX-License-Identifier: Apache-2.0.
 import type { HeaderTypes, MimeTypes } from "@twin.org/web";
-import type { IPolicyRequest } from "../../IPolicyRequest";
+import type { IPolicyRequest } from "../../pnp/IPolicyRequest";
 
 /**
  * The request structure for negotiating a policy.

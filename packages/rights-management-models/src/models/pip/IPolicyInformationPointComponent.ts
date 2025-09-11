@@ -4,7 +4,7 @@ import type { IComponent } from "@twin.org/core";
 import type { IOdrlPolicy } from "@twin.org/standards-w3c-odrl";
 import type { IPolicyInformation } from "./IPolicyInformation";
 import type { IPolicyInformationSource } from "./IPolicyInformationSource";
-import type { IPolicyLocator } from "./IPolicyLocator";
+import type { IPolicyLocator } from "../IPolicyLocator";
 import type { PolicyInformationAccessMode } from "./policyInformationAccessMode";
 
 /**

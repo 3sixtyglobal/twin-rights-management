@@ -1,12 +1,12 @@
 {
 	"baseUrl": "https://schema.twindev.org/rights-management/",
 	"types": [
-		"./src/models/IPolicyInformation.ts",
-		"./src/models/IPolicyInformationItems.ts",
-		"./src/models/IPolicyNegotiationRequest.ts",
-		"./src/models/IPolicyRequest.ts",
-		"./src/models/IPolicyState.ts",
-		"./src/models/policyNegotiationStatus.ts"
+		"./src/models/pip/IPolicyInformation.ts",
+		"./src/models/pip/IPolicyInformationItems.ts",
+		"./src/models/pnp/IPolicyNegotiationRequest.ts",
+		"./src/models/pnp/IPolicyRequest.ts",
+		"./src/models/pnp/IPolicyState.ts",
+		"./src/models/pnp/policyNegotiationStatus.ts"
 	],
 	"externalReferences": {
 		"IJsonLd(.*)": "https://schema.twindev.org/json-ld/JsonLd$1",

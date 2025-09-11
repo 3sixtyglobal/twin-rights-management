@@ -3,7 +3,7 @@
 import type { IComponent } from "@twin.org/core";
 import type { IPolicyArbiter } from "./IPolicyArbiter";
 import type { IPolicyDecision } from "./IPolicyDecision";
-import type { IPolicyLocator } from "./IPolicyLocator";
+import type { IPolicyLocator } from "../IPolicyLocator";
 
 /**
  * Interface describing a Policy Decision Point (PDP) contract.

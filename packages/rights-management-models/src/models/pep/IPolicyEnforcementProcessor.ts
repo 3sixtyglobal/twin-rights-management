@@ -1,7 +1,7 @@
 // Copyright 2024 IOTA Stiftung.
 // SPDX-License-Identifier: Apache-2.0.
-import type { IPolicyDecision } from "./IPolicyDecision";
-import type { IPolicyLocator } from "./IPolicyLocator";
+import type { IPolicyLocator } from "../IPolicyLocator";
+import type { IPolicyDecision } from "../pdp/IPolicyDecision";
 
 /**
  * Interface for policy enforcement processors.

@@ -2,10 +2,10 @@
 // SPDX-License-Identifier: Apache-2.0.
 import type { IComponent } from "@twin.org/core";
 import type { IProof } from "@twin.org/standards-w3c-did";
-import type { IPolicyInformation } from "./IPolicyInformation";
-import type { IPolicyLocator } from "./IPolicyLocator";
+import type { IPolicyLocator } from "../IPolicyLocator";
 import type { IPolicyNegotiator } from "./IPolicyNegotiator";
 import type { IPolicyState } from "./IPolicyState";
+import type { IPolicyInformation } from "../pip/IPolicyInformation";
 
 /**
  * Interface describing a Policy Negotiation Point (PNP) contract.

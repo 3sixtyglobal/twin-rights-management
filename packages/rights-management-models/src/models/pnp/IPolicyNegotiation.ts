@@ -1,8 +1,8 @@
 // Copyright 2024 IOTA Stiftung.
 // SPDX-License-Identifier: Apache-2.0.
-import type { IPolicyInformation } from "./IPolicyInformation";
-import type { IPolicyLocator } from "./IPolicyLocator";
+import type { IPolicyLocator } from "../IPolicyLocator";
 import type { PolicyNegotiationStatus } from "./policyNegotiationStatus";
+import type { IPolicyInformation } from "../pip/IPolicyInformation";
 
 /**
  * Interface describing a rights management policy negotiation.

@@ -1,8 +1,8 @@
 // Copyright 2024 IOTA Stiftung.
 // SPDX-License-Identifier: Apache-2.0.
 import type { IProof, DidContexts } from "@twin.org/standards-w3c-did";
-import type { RightsManagementContexts } from "./rightsManagementContexts";
-import type { RightsManagementTypes } from "./rightsManagementTypes";
+import type { RightsManagementContexts } from "../rightsManagementContexts";
+import type { RightsManagementTypes } from "../rightsManagementTypes";
 
 /**
  * The JSON-LD definition for a proof request.

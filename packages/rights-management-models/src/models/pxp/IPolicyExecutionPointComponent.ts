@@ -2,10 +2,10 @@
 // SPDX-License-Identifier: Apache-2.0.
 import type { IComponent } from "@twin.org/core";
 import type { IOdrlPolicy } from "@twin.org/standards-w3c-odrl";
-import type { IPolicyDecision } from "./IPolicyDecision";
 import type { IPolicyExecutionAction } from "./IPolicyExecutionAction";
-import type { IPolicyLocator } from "./IPolicyLocator";
-import type { PolicyDecisionStage } from "./policyDecisionStage";
+import type { IPolicyLocator } from "../IPolicyLocator";
+import type { IPolicyDecision } from "../pdp/IPolicyDecision";
+import type { PolicyDecisionStage } from "../pdp/policyDecisionStage";
 
 /**
  * Interface describing a Policy Execution Point (PXP) contract.
