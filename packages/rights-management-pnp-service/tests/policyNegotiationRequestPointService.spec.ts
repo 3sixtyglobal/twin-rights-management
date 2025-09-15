@@ -1,7 +1,8 @@
 // Copyright 2024 IOTA Stiftung.
 // SPDX-License-Identifier: Apache-2.0.
 import { TaskSchedulerService } from "@twin.org/background-task-scheduler";
-import { ComponentFactory } from "@twin.org/core";
+import { ComponentFactory, RandomHelper } from "@twin.org/core";
+import { Bip39 } from "@twin.org/crypto";
 import { MemoryEntityStorageConnector } from "@twin.org/entity-storage-connector-memory";
 import { EntityStorageConnectorFactory } from "@twin.org/entity-storage-models";
 import {
@@ -20,7 +21,6 @@ import { LoggingService } from "@twin.org/logging-service";
 import { nameof } from "@twin.org/nameof";
 import type { IPolicyNegotiationPointComponent } from "@twin.org/rights-management-models";
 import { PolicyInformationPointService } from "@twin.org/rights-management-pip-service";
-import type { IProof } from "@twin.org/standards-w3c-did";
 import {
 	EntityStorageVaultConnector,
 	initSchema as initSchemaVault,
@@ -34,16 +34,10 @@ let loggingMemoryEntityStorage: MemoryEntityStorageConnector<LogEntry>;
 let identityConnector: EntityStorageIdentityConnector;
 let informationPointComponent: PolicyInformationPointService;
 let mockNegotiationComponent: IPolicyNegotiationPointComponent;
-
-const validProof: IProof = {
-	type: "DataIntegrityProof",
-	cryptosuite: "eddsa-jcs-2022",
-	proofPurpose: "assertionMethod",
-	proofValue: "p"
-};
+let testIdentity: string;
 
 describe("PolicyNegotiationRequestPointService", () => {
-	beforeEach(async () => {
+	beforeAll(async () => {
 		initSchemaLogging();
 		initSchemaVault();
 		initSchemaIdentity();
@@ -84,6 +78,27 @@ describe("PolicyNegotiationRequestPointService", () => {
 		identityConnector = new EntityStorageIdentityConnector();
 		IdentityConnectorFactory.register("identity", () => identityConnector);
 
+		let randomCounter = 0;
+		RandomHelper.generate = vi
+			.fn()
+			.mockImplementation(length => new Uint8Array(length).fill(randomCounter++));
+
+		Bip39.randomMnemonic = vi
+			.fn()
+			.mockImplementation(
+				() =>
+					"elder blur tip exact organ pipe other same minute grace conduct father brother prosper tide icon pony suggest joy provide dignity domain nominee liquid"
+			);
+
+		const doc = await identityConnector.createDocument("test-controller");
+		testIdentity = doc.id;
+		await identityConnector.addVerificationMethod(
+			"test-controller",
+			doc.id,
+			"verificationMethod",
+			"key-1"
+		);
+
 		informationPointComponent = new PolicyInformationPointService();
 		ComponentFactory.register("policy-information-point", () => informationPointComponent);
 
@@ -97,6 +112,7 @@ describe("PolicyNegotiationRequestPointService", () => {
 	test("can create the service", async () => {
 		const policyNegotiationRequestPoint = new PolicyNegotiationRequestPointService({
 			config: {
+				rightsManagementMethodId: "key-1",
 				negotiationComponentCreator: async () => Promise.resolve(mockNegotiationComponent)
 			}
 		});
@@ -108,22 +124,22 @@ describe("PolicyNegotiationRequestPointService", () => {
 		mockNegotiationComponent.negotiate = negotiateMock;
 		const service = new PolicyNegotiationRequestPointService({
 			config: {
+				rightsManagementMethodId: "key-1",
 				negotiationComponentCreator: async () => mockNegotiationComponent
 			}
 		});
-		await service.start("node1", undefined);
+		await service.start(testIdentity, undefined);
 
 		informationPointComponent.retrieve = vi.fn().mockResolvedValue({ info: true });
-		identityConnector.createProof = vi.fn().mockResolvedValue({ proof: validProof });
 		const result = await service.negotiate("url1", {
 			assetType: "assetA",
 			action: "read",
 			resourceId: "res1"
 		});
 		expect(negotiateMock).toHaveBeenCalledWith(
-			{ assetType: "assetA", action: "read", resourceId: "res1", assignee: "node1" },
+			{ assetType: "assetA", action: "read", resourceId: "res1", assignee: testIdentity },
 			{ info: true },
-			{ proof: validProof }
+			expect.any(String)
 		);
 		expect(result.status).toBe("approved");
 	});
@@ -133,12 +149,12 @@ describe("PolicyNegotiationRequestPointService", () => {
 		mockNegotiationComponent.negotiate = negotiateMock;
 		const service = new PolicyNegotiationRequestPointService({
 			config: {
+				rightsManagementMethodId: "key-1",
 				negotiationComponentCreator: async () => mockNegotiationComponent
 			}
 		});
-		await service.start("node1", undefined);
+		await service.start(testIdentity, undefined);
 		informationPointComponent.retrieve = vi.fn().mockResolvedValue({ info: true });
-		identityConnector.createProof = vi.fn().mockResolvedValue({ proof: validProof });
 		await expect(
 			service.negotiate("url1", { assetType: "assetA", action: "read", resourceId: "res1" })
 		).rejects.toThrow("fail");
@@ -149,13 +165,13 @@ describe("PolicyNegotiationRequestPointService", () => {
 		mockNegotiationComponent.negotiationState = negotiationStateMock;
 		const service = new PolicyNegotiationRequestPointService({
 			config: {
+				rightsManagementMethodId: "key-1",
 				negotiationComponentCreator: async () => mockNegotiationComponent
 			}
 		});
-		await service.start("node1", undefined);
-		identityConnector.createProof = vi.fn().mockResolvedValue({ proof: true });
+		await service.start(testIdentity, undefined);
 		const result = await service.negotiationState("url1", "pid1");
-		expect(negotiationStateMock).toHaveBeenCalledWith("pid1", "node1", { proof: true });
+		expect(negotiationStateMock).toHaveBeenCalledWith("pid1", expect.any(String));
 		expect(result.status).toBe("approved");
 	});
 
@@ -164,11 +180,11 @@ describe("PolicyNegotiationRequestPointService", () => {
 		mockNegotiationComponent.negotiationState = negotiationStateMock;
 		const service = new PolicyNegotiationRequestPointService({
 			config: {
+				rightsManagementMethodId: "key-1",
 				negotiationComponentCreator: async () => mockNegotiationComponent
 			}
 		});
-		await service.start("node1", undefined);
-		identityConnector.createProof = vi.fn().mockResolvedValue({ proof: true });
+		await service.start(testIdentity, undefined);
 		await expect(service.negotiationState("url1", "pid1")).rejects.toThrow("fail");
 	});
 
@@ -177,13 +193,13 @@ describe("PolicyNegotiationRequestPointService", () => {
 		mockNegotiationComponent.negotiationCancel = negotiationCancelMock;
 		const service = new PolicyNegotiationRequestPointService({
 			config: {
+				rightsManagementMethodId: "key-1",
 				negotiationComponentCreator: async () => mockNegotiationComponent
 			}
 		});
-		await service.start("node1", undefined);
-		identityConnector.createProof = vi.fn().mockResolvedValue({ proof: true });
+		await service.start(testIdentity, undefined);
 		await service.negotiationCancel("url1", "pid1");
-		expect(negotiationCancelMock).toHaveBeenCalledWith("pid1", "node1", { proof: true });
+		expect(negotiationCancelMock).toHaveBeenCalledWith("pid1", expect.any(String));
 	});
 
 	test("propagates errors from negotiation component negotiationCancel method", async () => {
@@ -191,11 +207,11 @@ describe("PolicyNegotiationRequestPointService", () => {
 		mockNegotiationComponent.negotiationCancel = negotiationCancelMock;
 		const service = new PolicyNegotiationRequestPointService({
 			config: {
+				rightsManagementMethodId: "key-1",
 				negotiationComponentCreator: async () => mockNegotiationComponent
 			}
 		});
-		await service.start("node1", undefined);
-		identityConnector.createProof = vi.fn().mockResolvedValue({ proof: true });
+		await service.start(testIdentity, undefined);
 		await expect(service.negotiationCancel("url1", "pid1")).rejects.toThrow("fail");
 	});
 });

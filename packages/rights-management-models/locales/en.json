@@ -1,10 +1,12 @@
 {
 	"error": {
-		"rightsManagementProofHelper": {
-			"proofNegotiationFailed": "Failed to verify proof for locator \"{locator}\"",
-			"proofPolicyIdFailed": "Failed to verify proof for policy with id: \"{policyId}\", node identity \"{assignee}\"",
-			"proofMissingCreated": "The proof is missing the 'created' field for node identity \"{assignee}\"",
-			"proofExpired": "The proof has expired for node identity \"{assignee}\""
+		"rightsManagementTokenHelper": {
+			"tokenFailed": "Failed to verify token for type \"{type}\"",
+			"tokenMissingIssuanceDate": "The token is missing the 'issuanceDate' field for assignee \"{assignee}\"",
+			"tokenNoIssuer": "The token does not contain an issuer",
+			"tokenExpired": "The token has expired for assignee \"{assignee}\"",
+			"tokenItemMismatch": "The canonical item does not match the expected item for type \"{type}\"",
+			"tokenNoCredential": "The token does not contain a credential"
 		}
 	}
 }

@@ -17,7 +17,7 @@ export interface IPolicyEnforcementPointComponent extends IComponent {
 	 * @param data The data to process.
 	 * @returns The manipulated data with any policies applied.
 	 */
-	intercept<D = unknown, R = unknown>(locator: IPolicyLocator, data?: D): Promise<R | undefined>;
+	intercept<D = unknown, R = D>(locator: IPolicyLocator, data?: D): Promise<R>;
 
 	/**
 	 * Register a processor to use for handling data.

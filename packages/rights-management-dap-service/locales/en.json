@@ -1,0 +1,17 @@
+{
+	"error": {
+		"dataAccessPointService": {
+			"noHandlerForAssetType": "No handler registered for asset type \"{assetType}\""
+		},
+		"dataAccessRequestPointService": {}
+	},
+	"info": {
+		"dataAccessPointService": {
+			"registeredHandler": "Handler registered with id: \"{handlerId}\"",
+			"unregisteredHandler": "Handler unregistered with id: \"{handlerId}\""
+		},
+		"dataAccessRequestPointService": {
+			"missingNodeIdentity": "The node identity is missing"
+		}
+	}
+}

@@ -1,8 +1,8 @@
 // Copyright 2024 IOTA Stiftung.
 // SPDX-License-Identifier: Apache-2.0.
-import type { PolicyNegotiationStatus } from "./policyNegotiationStatus";
-import type { RightsManagementContexts } from "../rightsManagementContexts";
-import type { RightsManagementTypes } from "../rightsManagementTypes";
+import type { RightsManagementContexts } from "../../rightsManagementContexts";
+import type { RightsManagementTypes } from "../../rightsManagementTypes";
+import type { PolicyNegotiationStatus } from "../policyNegotiationStatus";
 
 /**
  * The state of the policy negotiation.

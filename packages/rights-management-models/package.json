@@ -44,6 +44,8 @@
 		"@twin.org/web": "next"
 	},
 	"devDependencies": {
+		"@twin.org/entity-storage-connector-memory": "next",
+		"@twin.org/identity-connector-entity-storage": "next",
 		"@twin.org/nameof-transformer": "next",
 		"@twin.org/nameof-vitest-plugin": "next",
 		"@twin.org/ts-to-schema": "next",

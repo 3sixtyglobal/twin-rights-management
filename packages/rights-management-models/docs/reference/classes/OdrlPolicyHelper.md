@@ -94,7 +94,7 @@ Match the action to the asset type.
 
 The action to match.
 
-`ActionType` | `IOdrlAction` | ActionType \| IOdrlAction[]
+`string` | `IOdrlAction` | (`string` \| `IOdrlAction`)[]
 
 ##### matchAction?
 
@@ -156,7 +156,7 @@ The target to match.
 
 The action to match.
 
-`ActionType` | `IOdrlAction` | ActionType \| IOdrlAction[]
+`string` | `IOdrlAction` | (`string` \| `IOdrlAction`)[]
 
 ##### locator?
 
@@ -196,7 +196,7 @@ The target to match.
 
 The action to match.
 
-`ActionType` | `IOdrlAction` | ActionType \| IOdrlAction[]
+`string` | `IOdrlAction` | (`string` \| `IOdrlAction`)[]
 
 ##### locator?
 

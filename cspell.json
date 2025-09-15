@@ -23,6 +23,7 @@
 		"autorelease",
 		"bech",
 		"cryptosuite",
+		"DARP",
 		"eddsa",
 		"Faucet",
 		"ipfs",

@@ -2,7 +2,7 @@
 // SPDX-License-Identifier: Apache-2.0.
 import type { IComponent } from "@twin.org/core";
 import type { IPolicyLocator } from "../IPolicyLocator";
-import type { IPolicyState } from "./IPolicyState";
+import type { IPolicyState } from "./jsonLd/IPolicyState";
 
 /**
  * Interface describing a Policy Negotiation Request Point (PNRP) contract.

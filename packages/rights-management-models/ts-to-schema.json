@@ -3,10 +3,14 @@
 	"types": [
 		"./src/models/pip/IPolicyInformation.ts",
 		"./src/models/pip/IPolicyInformationItems.ts",
-		"./src/models/pnp/IPolicyNegotiationRequest.ts",
-		"./src/models/pnp/IPolicyRequest.ts",
-		"./src/models/pnp/IPolicyState.ts",
-		"./src/models/pnp/policyNegotiationStatus.ts"
+		"./src/models/pnp/policyNegotiationStatus.ts",
+		"./src/models/pnp/jsonLd/IPolicyNegotiationRequest.ts",
+		"./src/models/pnp/jsonLd/IPolicyRequest.ts",
+		"./src/models/pnp/jsonLd/IPolicyState.ts",
+		"./src/models/dap/jsonLd/IDataAccessRequest.ts",
+		"./src/models/dap/jsonLd/IDataAccessRequestWithObject.ts",
+		"./src/models/dap/jsonLd/IDataAccessQuery.ts",
+		"./src/models/dap/jsonLd/IDataAccessQueryResponse.ts"
 	],
 	"externalReferences": {
 		"IJsonLd(.*)": "https://schema.twindev.org/json-ld/JsonLd$1",

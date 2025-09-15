@@ -19,6 +19,7 @@ export function convertToStoragePolicy(policy: IOdrlPolicy): OdrlPolicy {
 	storagePolicy.assignee = policy.assignee;
 	storagePolicy.target = policy.target;
 	storagePolicy.action = policy.action;
+	storagePolicy.inheritFrom = policy.inheritFrom;
 	storagePolicy.conflict = policy.conflict;
 	storagePolicy.permission = policy.permission;
 	storagePolicy.prohibition = policy.prohibition;
@@ -44,6 +45,7 @@ export function convertFromStoragePolicy(storagePolicy: OdrlPolicy): IOdrlPolicy
 	policy.assignee = storagePolicy.assignee;
 	policy.target = storagePolicy.target;
 	policy.action = storagePolicy.action;
+	policy.inheritFrom = storagePolicy.inheritFrom;
 	policy.conflict = storagePolicy.conflict;
 	policy.permission = storagePolicy.permission;
 	policy.prohibition = storagePolicy.prohibition;

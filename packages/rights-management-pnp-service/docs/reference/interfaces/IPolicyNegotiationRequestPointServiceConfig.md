@@ -1,19 +1,33 @@
 # Interface: IPolicyNegotiationRequestPointServiceConfig
 
-Options for the Policy Negotiation RequestPoint Component.
+Options for the Policy Negotiation Request Point Component.
 
 ## Properties
 
-### negotiationMethodId?
+### proofTtlInSeconds?
 
-> `optional` **negotiationMethodId**: `string`
+> `optional` **proofTtlInSeconds**: `number`
 
-The id of the identity method to use when signing/verifying negotiations.
+The time-to-live (TTL) for proof in seconds.
 
 #### Default
 
 ```ts
-policy-negotiation-assertion
+300 (5 minutes)
+```
+
+***
+
+### rightsManagementMethodId?
+
+> `optional` **rightsManagementMethodId**: `string`
+
+The id of the identity method to use when signing/verifying proofs.
+
+#### Default
+
+```ts
+rights-management-assertion
 ```
 
 ***

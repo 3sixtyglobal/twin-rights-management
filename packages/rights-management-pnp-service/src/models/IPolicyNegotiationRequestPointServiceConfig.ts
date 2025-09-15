@@ -3,14 +3,20 @@
 import type { IPolicyNegotiationPointComponent } from "@twin.org/rights-management-models";
 
 /**
- * Options for the Policy Negotiation RequestPoint Component.
+ * Options for the Policy Negotiation Request Point Component.
  */
 export interface IPolicyNegotiationRequestPointServiceConfig {
 	/**
-	 * The id of the identity method to use when signing/verifying negotiations.
-	 * @default policy-negotiation-assertion
+	 * The time-to-live (TTL) for proof in seconds.
+	 * @default 300 (5 minutes)
 	 */
-	negotiationMethodId?: string;
+	proofTtlInSeconds?: number;
+
+	/**
+	 * The id of the identity method to use when signing/verifying proofs.
+	 * @default rights-management-assertion
+	 */
+	rightsManagementMethodId?: string;
 
 	/**
 	 * A method for creating a new instance of the policy negotiation point component.

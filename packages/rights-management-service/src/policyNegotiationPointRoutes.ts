@@ -18,7 +18,6 @@ import {
 	type IPnpNegotiationStateResponse,
 	type IPolicyNegotiationPointComponent
 } from "@twin.org/rights-management-models";
-import { DidContexts } from "@twin.org/standards-w3c-did";
 import { HeaderTypes, HttpStatusCode, MimeTypes } from "@twin.org/web";
 
 /**
@@ -60,22 +59,16 @@ export function generateRestRoutesPolicyNegotiationPoint(
 				{
 					id: "pnpNegotiateRequestExample",
 					request: {
+						headers: {
+							[HeaderTypes.Accept]: MimeTypes.JsonLd,
+							[HeaderTypes.Authorization]: "z3Vcuh2BP9ShC.z3Vcuh2BP9ShC.z3Vcuh2BP9ShC"
+						},
 						body: {
-							"@context": [DidContexts.ContextVCv2, RightsManagementContexts.ContextRoot],
+							"@context": RightsManagementContexts.ContextRoot,
 							type: RightsManagementTypes.PolicyNegotiationRequest,
 							assetType: "document",
 							action: "view",
-							assignee: "urn:example:node:1",
-							proof: {
-								created: "2024-08-22T11:56:56.272Z",
-								type: "DataIntegrityProof",
-								cryptosuite: "eddsa-jcs-2022",
-								proofPurpose: "assertionMethod",
-								proofValue:
-									"z3Vcuh2BP9ShC4UEJ3yRZgcTJ6gmRtydDrh6AmY1zEciQqEWTvXfBZNxxjTzdJjT44cmn9VDWbBHqxFsX9fjsfXzK",
-								verificationMethod:
-									"did:entity-storage:0x6363636363636363636363636363636363636363636363636363636363636363#assertion"
-							}
+							assignee: "urn:example:node:1"
 						}
 					}
 				}
@@ -109,7 +102,7 @@ export function generateRestRoutesPolicyNegotiationPoint(
 		operationId: "pnpNegotiationState",
 		summary: "Get the state of a policy",
 		tag: pnpTags[0].name,
-		method: "POST",
+		method: "GET",
 		path: `${baseRouteName}/pnp/:policyId`,
 		handler: async (httpRequestContext, request) =>
 			pnpNegotiationState(httpRequestContext, componentName, request),
@@ -119,23 +112,12 @@ export function generateRestRoutesPolicyNegotiationPoint(
 				{
 					id: "pnpNegotiationStateRequestExample",
 					request: {
+						headers: {
+							[HeaderTypes.Accept]: MimeTypes.JsonLd,
+							[HeaderTypes.Authorization]: "z3Vcuh2BP9ShC.z3Vcuh2BP9ShC.z3Vcuh2BP9ShC"
+						},
 						pathParams: {
 							policyId: "policy-1"
-						},
-						body: {
-							"@context": [DidContexts.ContextVCv2, RightsManagementContexts.ContextRoot],
-							type: RightsManagementTypes.PolicyRequest,
-							assignee: "urn:example:node:1",
-							proof: {
-								created: "2024-08-22T11:56:56.272Z",
-								type: "DataIntegrityProof",
-								cryptosuite: "eddsa-jcs-2022",
-								proofPurpose: "assertionMethod",
-								proofValue:
-									"z3Vcuh2BP9ShC4UEJ3yRZgcTJ6gmRtydDrh6AmY1zEciQqEWTvXfBZNxxjTzdJjT44cmn9VDWbBHqxFsX9fjsfXzK",
-								verificationMethod:
-									"did:entity-storage:0x6363636363636363636363636363636363636363636363636363636363636363#assertion"
-							}
 						}
 					}
 				}
@@ -176,23 +158,12 @@ export function generateRestRoutesPolicyNegotiationPoint(
 				{
 					id: "pnpNegotiationCancelRequestExample",
 					request: {
+						headers: {
+							[HeaderTypes.Accept]: MimeTypes.JsonLd,
+							[HeaderTypes.Authorization]: "z3Vcuh2BP9ShC.z3Vcuh2BP9ShC.z3Vcuh2BP9ShC"
+						},
 						pathParams: {
 							policyId: "policy-1"
-						},
-						body: {
-							"@context": [DidContexts.ContextVCv2, RightsManagementContexts.ContextRoot],
-							type: RightsManagementTypes.PolicyRequest,
-							assignee: "urn:example:node:1",
-							proof: {
-								created: "2024-08-22T11:56:56.272Z",
-								type: "DataIntegrityProof",
-								cryptosuite: "eddsa-jcs-2022",
-								proofPurpose: "assertionMethod",
-								proofValue:
-									"z3Vcuh2BP9ShC4UEJ3yRZgcTJ6gmRtydDrh6AmY1zEciQqEWTvXfBZNxxjTzdJjT44cmn9VDWbBHqxFsX9fjsfXzK",
-								verificationMethod:
-									"did:entity-storage:0x6363636363636363636363636363636363636363636363636363636363636363#assertion"
-							}
 						}
 					}
 				}
@@ -221,8 +192,13 @@ export async function pnpNegotiate(
 	request: IPnpNegotiateRequest
 ): Promise<IPnpNegotiateResponse> {
 	Guards.object<IPnpNegotiateRequest>(ROUTES_SOURCE, nameof(request), request);
+	Guards.object<IPnpNegotiateRequest["headers"]>(
+		ROUTES_SOURCE,
+		nameof(request.headers),
+		request.headers
+	);
 
-	const mimeType = request.headers?.[HeaderTypes.Accept] === MimeTypes.JsonLd ? "jsonld" : "json";
+	const mimeType = request.headers[HeaderTypes.Accept] === MimeTypes.JsonLd ? "jsonld" : "json";
 
 	const component = ComponentFactory.get<IPolicyNegotiationPointComponent>(componentName);
 	const result = await component.negotiate(
@@ -233,7 +209,7 @@ export async function pnpNegotiate(
 			assignee: request.body.assignee
 		},
 		request.body.information,
-		request.body.proof
+		request.headers[HeaderTypes.Authorization]
 	);
 
 	return {
@@ -257,19 +233,18 @@ export async function pnpNegotiationState(
 	request: IPnpNegotiationStateRequest
 ): Promise<IPnpNegotiationStateResponse> {
 	Guards.object<IPnpNegotiationStateRequest>(ROUTES_SOURCE, nameof(request), request);
-	Guards.object<IPnpNegotiationStateRequest["body"]>(
+	Guards.object<IPnpNegotiationStateRequest["headers"]>(
 		ROUTES_SOURCE,
-		nameof(request.body),
-		request.body
+		nameof(request.headers),
+		request.headers
 	);
 
-	const mimeType = request.headers?.[HeaderTypes.Accept] === MimeTypes.JsonLd ? "jsonld" : "json";
+	const mimeType = request.headers[HeaderTypes.Accept] === MimeTypes.JsonLd ? "jsonld" : "json";
 
 	const component = ComponentFactory.get<IPolicyNegotiationPointComponent>(componentName);
 	const result = await component.negotiationState(
 		request.pathParams.policyId,
-		request.body.assignee,
-		request.body.proof
+		request.headers[HeaderTypes.Authorization]
 	);
 
 	return {
@@ -293,17 +268,16 @@ export async function pnpNegotiationCancel(
 	request: IPnpNegotiationCancelRequest
 ): Promise<INoContentResponse> {
 	Guards.object<IPnpNegotiationCancelRequest>(ROUTES_SOURCE, nameof(request), request);
-	Guards.object<IPnpNegotiationCancelRequest["body"]>(
+	Guards.object<IPnpNegotiationCancelRequest["headers"]>(
 		ROUTES_SOURCE,
-		nameof(request.body),
-		request.body
+		nameof(request.headers),
+		request.headers
 	);
 
 	const component = ComponentFactory.get<IPolicyNegotiationPointComponent>(componentName);
 	await component.negotiationCancel(
 		request.pathParams.policyId,
-		request.body.assignee,
-		request.body.proof
+		request.headers[HeaderTypes.Authorization]
 	);
 
 	return {

@@ -1,18 +1,26 @@
 // Copyright 2024 IOTA Stiftung.
 // SPDX-License-Identifier: Apache-2.0.
 import { ComponentFactory, GeneralError, Guards, Is } from "@twin.org/core";
-import { IdentityConnectorFactory, type IIdentityConnector } from "@twin.org/identity-models";
+import {
+	DocumentHelper,
+	IdentityConnectorFactory,
+	type IIdentityConnector
+} from "@twin.org/identity-models";
 import type { ILoggingComponent } from "@twin.org/logging-models";
 import { nameof } from "@twin.org/nameof";
 import {
 	type IPolicyInformationPointComponent,
 	type IPolicyLocator,
 	type IPolicyNegotiationPointComponent,
+	type IPolicyNegotiationRequest,
 	type IPolicyNegotiationRequestPointComponent,
+	type IPolicyRequest,
 	type IPolicyState,
 	LocatorHelper,
 	PolicyInformationAccessMode,
-	RightsManagementProofHelper
+	RightsManagementContexts,
+	RightsManagementTokenHelper,
+	RightsManagementTypes
 } from "@twin.org/rights-management-models";
 import type { IPolicyNegotiationRequestPointServiceConstructorOptions } from "./models/IPolicyNegotiationRequestPointServiceConstructorOptions";
 
@@ -46,10 +54,10 @@ export class PolicyNegotiationRequestPointService
 	private readonly _policyInformationPointComponent: IPolicyInformationPointComponent;
 
 	/**
-	 * The id of the identity method to use when signing/verifying negotiations.
+	 * The id of the identity method to use when signing/verifying proofs.
 	 * @internal
 	 */
-	private readonly _negotiationMethodId: string;
+	private readonly _rightsManagementMethodId: string;
 
 	/**
 	 * A method for creating a new instance of the policy negotiation point component.
@@ -66,6 +74,12 @@ export class PolicyNegotiationRequestPointService
 	private _nodeIdentity?: string;
 
 	/**
+	 * The time-to-live (TTL) for proof in seconds.
+	 * @internal
+	 */
+	private readonly _proofTtlInSeconds: number;
+
+	/**
 	 * Create a new instance of PolicyNegotiationRequestPointService (PNRP).
 	 * @param options The options for the component.
 	 */
@@ -79,9 +93,10 @@ export class PolicyNegotiationRequestPointService
 		this._policyInformationPointComponent = ComponentFactory.get<IPolicyInformationPointComponent>(
 			options?.policyInformationPointComponentType ?? "policy-information-point"
 		);
-		this._negotiationMethodId =
-			options?.config.negotiationMethodId ?? "policy-negotiation-assertion";
+		this._rightsManagementMethodId =
+			options?.config.rightsManagementMethodId ?? "rights-management-assertion";
 		this._negotiationComponentCreator = options.config.negotiationComponentCreator;
+		this._proofTtlInSeconds = options?.config?.proofTtlInSeconds ?? 300; // Default to 5 minutes
 	}
 
 	/**
@@ -114,11 +129,15 @@ export class PolicyNegotiationRequestPointService
 			throw new GeneralError(this.CLASS_NAME, "missingNodeIdentity");
 		}
 
-		const negotiationClient = await this._negotiationComponentCreator(url);
-
 		const policyLocator: IPolicyLocator = {
 			...locator,
 			assignee: this._nodeIdentity
+		};
+
+		const policyNegotiationRequest: IPolicyNegotiationRequest = {
+			"@context": RightsManagementContexts.ContextRoot,
+			type: RightsManagementTypes.PolicyNegotiationRequest,
+			...policyLocator
 		};
 
 		const information = await this._policyInformationPointComponent.retrieve(
@@ -126,10 +145,11 @@ export class PolicyNegotiationRequestPointService
 			PolicyInformationAccessMode.Public
 		);
 
-		const proof = await RightsManagementProofHelper.createProofNegotiation(
+		const proofToken = await RightsManagementTokenHelper.createToken(
 			this._identityConnector,
-			this._negotiationMethodId,
-			policyLocator
+			DocumentHelper.joinId(this._nodeIdentity, this._rightsManagementMethodId),
+			policyNegotiationRequest,
+			this._proofTtlInSeconds
 		);
 
 		this._logging?.log({
@@ -143,7 +163,8 @@ export class PolicyNegotiationRequestPointService
 			}
 		});
 
-		const result = await negotiationClient.negotiate(policyLocator, information, proof);
+		const negotiationClient = await this._negotiationComponentCreator(url);
+		const result = await negotiationClient.negotiate(policyLocator, information, proofToken);
 
 		this._logging?.log({
 			level: "info",
@@ -174,16 +195,21 @@ export class PolicyNegotiationRequestPointService
 			throw new GeneralError(this.CLASS_NAME, "missingNodeIdentity");
 		}
 
-		const negotiationClient = await this._negotiationComponentCreator(url);
+		const policyRequest: IPolicyRequest = {
+			"@context": RightsManagementContexts.ContextRoot,
+			type: RightsManagementTypes.PolicyRequest,
+			id: policyId
+		};
 
-		const proof = await RightsManagementProofHelper.createProofPolicyId(
+		const proofToken = await RightsManagementTokenHelper.createToken(
 			this._identityConnector,
-			this._negotiationMethodId,
-			this._nodeIdentity,
-			policyId
+			DocumentHelper.joinId(this._nodeIdentity, this._rightsManagementMethodId),
+			policyRequest,
+			this._proofTtlInSeconds
 		);
 
-		const result = await negotiationClient.negotiationState(policyId, this._nodeIdentity, proof);
+		const negotiationClient = await this._negotiationComponentCreator(url);
+		const result = await negotiationClient.negotiationState(policyId, proofToken);
 
 		this._logging?.log({
 			level: "info",
@@ -225,15 +251,20 @@ export class PolicyNegotiationRequestPointService
 			}
 		});
 
-		const negotiationClient = await this._negotiationComponentCreator(url);
+		const policyRequest: IPolicyRequest = {
+			"@context": RightsManagementContexts.ContextRoot,
+			type: RightsManagementTypes.PolicyRequest,
+			id: policyId
+		};
 
-		const proof = await RightsManagementProofHelper.createProofPolicyId(
+		const proofToken = await RightsManagementTokenHelper.createToken(
 			this._identityConnector,
-			this._negotiationMethodId,
-			this._nodeIdentity,
-			policyId
+			DocumentHelper.joinId(this._nodeIdentity, this._rightsManagementMethodId),
+			policyRequest,
+			this._proofTtlInSeconds
 		);
 
-		await negotiationClient.negotiationCancel(policyId, this._nodeIdentity, proof);
+		const negotiationClient = await this._negotiationComponentCreator(url);
+		await negotiationClient.negotiationCancel(policyId, proofToken);
 	}
 }

@@ -19,7 +19,27 @@ export const RightsManagementTypes = {
 	/**
 	 * Represents policy state.
 	 */
-	PolicyState: "PolicyState"
+	PolicyState: "PolicyState",
+
+	/**
+	 * Represents data access request.
+	 */
+	DataAccessRequest: "DataAccessRequest",
+
+	/**
+	 * Represents data access request with object.
+	 */
+	DataAccessRequestWithObject: "DataAccessRequestWithObject",
+
+	/**
+	 * Represents data access request query.
+	 */
+	DataAccessQuery: "DataAccessQuery",
+
+	/**
+	 * Represents data access request query response.
+	 */
+	DataAccessQueryResponse: "DataAccessQueryResponse"
 } as const;
 
 /**

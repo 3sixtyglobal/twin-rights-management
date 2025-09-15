@@ -1,10 +1,9 @@
 // Copyright 2024 IOTA Stiftung.
 // SPDX-License-Identifier: Apache-2.0.
 import type { IComponent } from "@twin.org/core";
-import type { IProof } from "@twin.org/standards-w3c-did";
 import type { IPolicyLocator } from "../IPolicyLocator";
 import type { IPolicyNegotiator } from "./IPolicyNegotiator";
-import type { IPolicyState } from "./IPolicyState";
+import type { IPolicyState } from "./jsonLd/IPolicyState";
 import type { IPolicyInformation } from "../pip/IPolicyInformation";
 
 /**
@@ -17,32 +16,30 @@ export interface IPolicyNegotiationPointComponent extends IComponent {
 	 * Processes an incoming negotiation request for the resource.
 	 * @param locator The locator to find relevant policies.
 	 * @param information Information provided by the requester to determine if a policy can be created.
-	 * @param proof The proof provided by the requester to support the policy creation.
+	 * @param proofToken The proof provided by the requester to support the policy creation.
 	 * @returns The state of the policy.
 	 */
 	negotiate(
 		locator: IPolicyLocator,
 		information: IPolicyInformation | undefined,
-		proof: IProof
+		proofToken: string
 	): Promise<IPolicyState>;
 
 	/**
 	 * Retrieves the current state of a policy.
 	 * @param policyId The ID of the policy to retrieve the state for.
-	 * @param assignee The identity of the node requesting the state retrieval.
-	 * @param proof The proof provided by the requester to support the state retrieval.
+	 * @param proofToken The proof provided by the requester to support the state retrieval.
 	 * @returns The current state of the policy.
 	 */
-	negotiationState(policyId: string, assignee: string, proof: IProof): Promise<IPolicyState>;
+	negotiationState(policyId: string, proofToken: string): Promise<IPolicyState>;
 
 	/**
 	 * Cancels an ongoing negotiation for a resource.
 	 * @param policyId The ID of the policy to cancel.
-	 * @param assignee The identity of the node requesting the cancellation.
-	 * @param proof The proof provided by the requester to support the cancellation.
+	 * @param proofToken The proof provided by the requester to support the cancellation.
 	 * @returns Nothing.
 	 */
-	negotiationCancel(policyId: string, assignee: string, proof: IProof): Promise<void>;
+	negotiationCancel(policyId: string, proofToken: string): Promise<void>;
 
 	/**
 	 * Register a negotiator to use for handling data.

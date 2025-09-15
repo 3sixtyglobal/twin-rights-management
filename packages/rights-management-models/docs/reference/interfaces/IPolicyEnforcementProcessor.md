@@ -6,7 +6,7 @@ Interface for policy enforcement processors.
 
 ### process()
 
-> **process**\<`D`, `R`\>(`locator`, `decisions`, `data?`): `Promise`\<`undefined` \| `R`\>
+> **process**\<`D`, `R`\>(`locator`, `decisions`, `data?`): `Promise`\<`R`\>
 
 Process the response from the policy decision point.
 
@@ -18,7 +18,7 @@ Process the response from the policy decision point.
 
 ##### R
 
-`R` = `unknown`
+`R` = `D`
 
 #### Parameters
 
@@ -42,6 +42,6 @@ The data to process.
 
 #### Returns
 
-`Promise`\<`undefined` \| `R`\>
+`Promise`\<`R`\>
 
 The data after processing.

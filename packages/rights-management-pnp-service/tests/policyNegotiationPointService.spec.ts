@@ -19,12 +19,19 @@ import { LoggingConnectorFactory } from "@twin.org/logging-models";
 import { LoggingService } from "@twin.org/logging-service";
 import { nameof } from "@twin.org/nameof";
 import {
+	type IPolicyNegotiationRequest,
+	type IPolicyRequest,
+	RightsManagementContexts,
+	RightsManagementTokenHelper,
+	RightsManagementTypes,
+	type IPolicyLocator
+} from "@twin.org/rights-management-models";
+import {
 	PolicyAdministrationPointService,
 	initSchema as initSchemaPolicyAdministrationPoint,
 	type OdrlPolicy
 } from "@twin.org/rights-management-pap-service";
 import { PolicyInformationPointService } from "@twin.org/rights-management-pip-service";
-import type { IProof } from "@twin.org/standards-w3c-did";
 import {
 	EntityStorageVaultConnector,
 	initSchema as initSchemaVault,
@@ -44,17 +51,13 @@ let identityConnector: EntityStorageIdentityConnector;
 let negotiationAdminPointComponent: PolicyNegotiationAdminPointService;
 let adminPointComponent: PolicyAdministrationPointService;
 let informationPointComponent: PolicyInformationPointService;
-
-const validProof: IProof = {
-	type: "DataIntegrityProof",
-	cryptosuite: "eddsa-jcs-2022",
-	proofPurpose: "assertionMethod",
-	proofValue: "p",
-	created: new Date().toISOString()
-};
+let testIdentity: string;
+let validTokenPolicy: string;
+let validTokenRequest: string;
+let testLocator: IPolicyLocator;
 
 describe("PolicyNegotiationPointService", () => {
-	beforeEach(async () => {
+	beforeAll(async () => {
 		initSchemaLogging();
 		initSchemaPolicyAdministrationPoint();
 		initSchemaVault();
@@ -97,6 +100,15 @@ describe("PolicyNegotiationPointService", () => {
 		identityConnector = new EntityStorageIdentityConnector();
 		IdentityConnectorFactory.register("identity", () => identityConnector);
 
+		const doc = await identityConnector.createDocument("test-controller");
+		testIdentity = doc.id;
+		await identityConnector.addVerificationMethod(
+			"test-controller",
+			doc.id,
+			"verificationMethod",
+			"key-1"
+		);
+
 		odrlPolicyMemoryEntityStorage = new MemoryEntityStorageConnector<OdrlPolicy>({
 			entitySchema: nameof<OdrlPolicy>()
 		});
@@ -121,6 +133,39 @@ describe("PolicyNegotiationPointService", () => {
 
 		informationPointComponent = new PolicyInformationPointService();
 		ComponentFactory.register("policy-information-point", () => informationPointComponent);
+
+		testLocator = {
+			assetType: "asset",
+			action: "action",
+			resourceId: "resId",
+			assignee: testIdentity
+		};
+
+		const policyNegotiationRequest: IPolicyNegotiationRequest = {
+			"@context": RightsManagementContexts.ContextRoot,
+			type: RightsManagementTypes.PolicyNegotiationRequest,
+			...testLocator
+		};
+
+		validTokenPolicy = await RightsManagementTokenHelper.createToken(
+			identityConnector,
+			`${testIdentity}#key-1`,
+			policyNegotiationRequest,
+			60
+		);
+
+		const policyRequest: IPolicyRequest = {
+			"@context": RightsManagementContexts.ContextRoot,
+			type: RightsManagementTypes.PolicyRequest,
+			id: "pid"
+		};
+
+		validTokenRequest = await RightsManagementTokenHelper.createToken(
+			identityConnector,
+			`${testIdentity}#key-1`,
+			policyRequest,
+			60
+		);
 	});
 
 	test("can create the service", async () => {
@@ -141,13 +186,8 @@ describe("PolicyNegotiationPointService", () => {
 
 	test("negotiate throws if no negotiator found", async () => {
 		const service = new PolicyNegotiationPointService();
-		await expect(
-			service.negotiate(
-				{ assetType: "asset", action: "action", resourceId: "resId", assignee: "assignee" },
-				{},
-				validProof
-			)
-		).rejects.toThrow();
+
+		await expect(service.negotiate(testLocator, {}, validTokenPolicy)).rejects.toThrow();
 	});
 
 	test("negotiate stores state if not approved", async () => {
@@ -156,22 +196,15 @@ describe("PolicyNegotiationPointService", () => {
 			supportedPolicies: () => [],
 			negotiate: vi.fn().mockResolvedValue({ state: { status: "pending", reason: "waiting" } })
 		};
-		vi.spyOn(identityConnector, "verifyProof").mockResolvedValue(true);
 
 		await service.registerNegotiator("neg1", negotiator);
-		const state = await service.negotiate(
-			{ assetType: "asset", action: "action", resourceId: "resId", assignee: "assignee" },
-			{},
-			validProof
-		);
+		const state = await service.negotiate(testLocator, {}, validTokenPolicy);
 		expect(state.status).toBe("pending");
 	});
 
 	test("negotiationState throws if proof is missing", async () => {
 		const service = new PolicyNegotiationPointService();
-		await expect(
-			service.negotiationState("pid", "nid", undefined as unknown as IProof)
-		).rejects.toThrow();
+		await expect(service.negotiationState("pid", undefined as unknown as string)).rejects.toThrow();
 	});
 
 	test("negotiationState returns approved if policy exists", async () => {
@@ -181,59 +214,54 @@ describe("PolicyNegotiationPointService", () => {
 			dateCreated: new Date().toISOString(),
 			assetType: "asset",
 			action: "action",
-			assignee: "nid",
+			assignee: testIdentity,
 			status: "approved"
 		});
-		vi.spyOn(identityConnector, "verifyProof").mockResolvedValue(true);
-		const state = await service.negotiationState("pid", "nid", validProof);
+		const state = await service.negotiationState("pid", validTokenRequest);
 		expect(state.status).toBe("approved");
 	});
 
 	test("negotiationState throws NotFoundError if no policy or negotiation exists", async () => {
 		const service = new PolicyNegotiationPointService();
-		vi.spyOn(identityConnector, "verifyProof").mockResolvedValue(true);
 		vi.spyOn(adminPointComponent, "get").mockRejectedValue({ name: "NotFoundError" });
 		vi.spyOn(negotiationAdminPointComponent, "get").mockResolvedValue(
 			null as unknown as PolicyNegotiation
 		);
-		await expect(service.negotiationState("pid", "nid", validProof)).rejects.toMatchObject({
+		await expect(service.negotiationState("pid", validTokenRequest)).rejects.toMatchObject({
 			cause: { message: expect.stringMatching(/policyNotFound/) }
 		});
 	});
 
 	test("negotiationState throws GeneralError if PAP retrieve fails with other error", async () => {
 		const service = new PolicyNegotiationPointService();
-		vi.spyOn(identityConnector, "verifyProof").mockResolvedValue(true);
-		vi.spyOn(adminPointComponent, "get").mockRejectedValue(new Error("fail"));
-		await expect(service.negotiationState("pid", "nid", validProof)).rejects.toMatchObject({
+		const spy = vi.spyOn(adminPointComponent, "get").mockRejectedValue(new Error("fail"));
+		await expect(service.negotiationState("pid", validTokenRequest)).rejects.toMatchObject({
 			message: expect.stringMatching(/policyFailed/)
 		});
+		spy.mockClear();
 	});
 
 	test("negotiationCancel calls remove", async () => {
 		const service = new PolicyNegotiationPointService();
-		vi.spyOn(identityConnector, "verifyProof").mockResolvedValue(true);
 		const removeMock = vi
 			.spyOn(negotiationAdminPointComponent, "remove")
 			.mockResolvedValue(undefined);
-		await service.negotiationCancel("pid", "nid", validProof);
+		await service.negotiationCancel("pid", validTokenRequest);
 		expect(removeMock).toHaveBeenCalledWith("pid");
 	});
 
 	test("negotiationCancel resolves if negotiation does not exist", async () => {
 		const service = new PolicyNegotiationPointService();
-		vi.spyOn(identityConnector, "verifyProof").mockResolvedValue(true);
 		vi.spyOn(negotiationAdminPointComponent, "get").mockResolvedValue(
 			null as unknown as PolicyNegotiation
 		);
-		await expect(service.negotiationCancel("pid", "nid", validProof)).resolves.toBeUndefined();
+		await expect(service.negotiationCancel("pid", validTokenRequest)).resolves.toBeUndefined();
 	});
 
 	test("negotiationCancel throws if proof is invalid", async () => {
 		const service = new PolicyNegotiationPointService();
-		vi.spyOn(identityConnector, "verifyProof").mockResolvedValue(false);
-		await expect(service.negotiationCancel("pid", "nid", validProof)).rejects.toMatchObject({
-			message: expect.stringMatching(/proofPolicyIdFailed/)
+		await expect(service.negotiationCancel("pid", "aaa")).rejects.toMatchObject({
+			message: expect.stringMatching(/tokenFailed/)
 		});
 	});
 
@@ -257,118 +285,6 @@ describe("PolicyNegotiationPointService", () => {
 	test("unregisterNegotiator does nothing if id not found", async () => {
 		const service = new PolicyNegotiationPointService();
 		await expect(service.unregisterNegotiator("notfound")).resolves.toBeUndefined();
-	});
-
-	test("unregisterNegotiator throws if negotiatorId is empty", async () => {
-		const service = new PolicyNegotiationPointService();
-		await expect(service.unregisterNegotiator("")).rejects.toThrow();
-	});
-
-	test("can create the service", async () => {
-		const policyNegotiationPoint = new PolicyNegotiationPointService();
-		expect(policyNegotiationPoint).toBeInstanceOf(PolicyNegotiationPointService);
-	});
-
-	test("can register and unregister a negotiator", async () => {
-		const service = new PolicyNegotiationPointService();
-		const negotiator = {
-			supportedPolicies: () => [],
-			negotiate: vi.fn().mockResolvedValue({ state: { status: "pending" } })
-		};
-		await service.registerNegotiator("neg1", negotiator);
-		// Registering again should update
-		await service.registerNegotiator("neg1", negotiator);
-		await service.unregisterNegotiator("neg1");
-	});
-
-	test("negotiate throws if no negotiator found", async () => {
-		const service = new PolicyNegotiationPointService();
-		await expect(
-			service.negotiate(
-				{ assetType: "asset", action: "action", resourceId: "resId", assignee: "assignee" },
-				{},
-				validProof
-			)
-		).rejects.toThrow();
-	});
-
-	test("negotiate stores state if not approved", async () => {
-		const service = new PolicyNegotiationPointService();
-		const negotiator = {
-			supportedPolicies: () => [],
-			negotiate: vi.fn().mockResolvedValue({ state: { status: "pending", reason: "waiting" } })
-		};
-		vi.spyOn(identityConnector, "verifyProof").mockResolvedValue(true);
-
-		await service.registerNegotiator("neg1", negotiator);
-		const state = await service.negotiate(
-			{ assetType: "asset", action: "action", resourceId: "resId", assignee: "assignee" },
-			{},
-			validProof
-		);
-		expect(state.status).toBe("pending");
-	});
-
-	test("negotiationState returns approved if policy exists", async () => {
-		const service = new PolicyNegotiationPointService();
-		await policyNegotiationMemoryEntityStorage.set({
-			id: "pid",
-			dateCreated: new Date().toISOString(),
-			assetType: "asset",
-			action: "action",
-			assignee: "nid",
-			status: "approved"
-		});
-		vi.spyOn(identityConnector, "verifyProof").mockResolvedValue(true);
-		const state = await service.negotiationState("pid", "nid", validProof);
-		expect(state.status).toBe("approved");
-	});
-
-	test("negotiationCancel calls remove", async () => {
-		const service = new PolicyNegotiationPointService();
-		vi.spyOn(identityConnector, "verifyProof").mockResolvedValue(true);
-		const removeMock = vi
-			.spyOn(negotiationAdminPointComponent, "remove")
-			.mockResolvedValue(undefined);
-		await service.negotiationCancel("pid", "nid", validProof);
-		expect(removeMock).toHaveBeenCalledWith("pid");
-	});
-
-	test("negotiationState throws NotFoundError if no policy or negotiation exists", async () => {
-		const service = new PolicyNegotiationPointService();
-		vi.spyOn(identityConnector, "verifyProof").mockResolvedValue(true);
-		vi.spyOn(adminPointComponent, "get").mockRejectedValue({ name: "NotFoundError" });
-		vi.spyOn(negotiationAdminPointComponent, "get").mockResolvedValue(
-			null as unknown as PolicyNegotiation
-		);
-		await expect(service.negotiationState("pid", "nid", validProof)).rejects.toMatchObject({
-			cause: { message: expect.stringMatching(/policyNotFound/) }
-		});
-	});
-
-	test("negotiationState throws GeneralError if PAP retrieve fails with other error", async () => {
-		const service = new PolicyNegotiationPointService();
-		vi.spyOn(identityConnector, "verifyProof").mockResolvedValue(true);
-		vi.spyOn(adminPointComponent, "get").mockRejectedValue(new Error("fail"));
-		await expect(service.negotiationState("pid", "nid", validProof)).rejects.toMatchObject({
-			message: expect.stringMatching(/policyFailed/)
-		});
-	});
-
-	test("negotiationCancel throws if proof is invalid", async () => {
-		const service = new PolicyNegotiationPointService();
-
-		vi.spyOn(identityConnector, "verifyProof").mockResolvedValue(false);
-		await expect(service.negotiationCancel("pid", "nid", validProof)).rejects.toMatchObject({
-			message: expect.stringMatching(/proofPolicyIdFailed/)
-		});
-	});
-
-	test("registerNegotiator throws if negotiatorId is empty", async () => {
-		const service = new PolicyNegotiationPointService();
-		await expect(
-			service.registerNegotiator("", { supportedPolicies: () => [], negotiate: vi.fn() })
-		).rejects.toThrow();
 	});
 
 	test("unregisterNegotiator throws if negotiatorId is empty", async () => {

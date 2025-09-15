@@ -50,7 +50,7 @@ Runtime name for the class.
 
 ### negotiate()
 
-> **negotiate**(`locator`, `information`, `proof`): `Promise`\<`IPolicyState`\>
+> **negotiate**(`locator`, `information`, `proofToken`): `Promise`\<`IPolicyState`\>
 
 Processes an incoming negotiation request for the resource.
 
@@ -68,9 +68,9 @@ Information provided by the requester to determine if a policy can be created.
 
 `undefined` | `IPolicyInformation`
 
-##### proof
+##### proofToken
 
-`IProof`
+`string`
 
 The proof provided by the requester to support the policy creation.
 
@@ -88,7 +88,7 @@ The state of the policy.
 
 ### negotiationState()
 
-> **negotiationState**(`policyId`, `assignee`, `proof`): `Promise`\<`IPolicyState`\>
+> **negotiationState**(`policyId`, `proofToken`): `Promise`\<`IPolicyState`\>
 
 Retrieves the current state of a policy.
 
@@ -100,15 +100,9 @@ Retrieves the current state of a policy.
 
 The ID of the policy to retrieve the state for.
 
-##### assignee
+##### proofToken
 
 `string`
-
-The identity of the node requesting the state.
-
-##### proof
-
-`IProof`
 
 The proof provided by the requester.
 
@@ -126,7 +120,7 @@ The current state of the policy.
 
 ### negotiationCancel()
 
-> **negotiationCancel**(`policyId`, `assignee`, `proof`): `Promise`\<`void`\>
+> **negotiationCancel**(`policyId`, `proofToken`): `Promise`\<`void`\>
 
 Cancels an ongoing negotiation for a resource.
 
@@ -138,15 +132,9 @@ Cancels an ongoing negotiation for a resource.
 
 The ID of the policy to cancel.
 
-##### assignee
+##### proofToken
 
 `string`
-
-The identity of the node requesting the cancellation.
-
-##### proof
-
-`IProof`
 
 The proof provided by the requester.
 

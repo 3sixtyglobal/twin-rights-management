@@ -6,7 +6,7 @@ The JSON-LD definition for a proof request.
 
 ### @context
 
-> **@context**: \[`"https://www.w3.org/ns/credentials/v2"`, `"https://schema.twindev.org/rights-management"`\]
+> **@context**: `"https://schema.twindev.org/rights-management"`
 
 The JSON-LD context.
 
@@ -25,19 +25,3 @@ The type of the proof.
 > **id**: `string`
 
 The id of the policy.
-
-***
-
-### assignee
-
-> **assignee**: `string`
-
-The id of the the node.
-
-***
-
-### proof
-
-> **proof**: `IProof`
-
-The proof object.

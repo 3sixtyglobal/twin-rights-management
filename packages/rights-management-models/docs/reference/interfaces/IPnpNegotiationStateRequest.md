@@ -4,15 +4,19 @@ The request structure for negotiating a policy.
 
 ## Properties
 
-### headers?
+### headers
 
-> `optional` **headers**: `object`
+> **headers**: `object`
 
 The headers which can be used to determine the response data type.
 
-#### accept
+#### accept?
 
-> **accept**: `"application/ld+json"` \| `"application/json"`
+> `optional` **accept**: `"application/ld+json"` \| `"application/json"`
+
+#### authorization
+
+> **authorization**: `string`
 
 ***
 
@@ -27,11 +31,3 @@ The path parameters of the request.
 > **policyId**: `string`
 
 The ID of the policy being requested.
-
-***
-
-### body
-
-> **body**: `Omit`\<[`IPolicyRequest`](IPolicyRequest.md), `"id"`\>
-
-The body of the request.

@@ -21,21 +21,9 @@
 			"description": "A resource identifier for the locator."
 		},
 		"@context": {
-			"type": "array",
-			"minItems": 2,
-			"items": false,
-			"maxItems": 2,
-			"description": "The JSON-LD context.",
-			"prefixItems": [
-				{
-					"type": "string",
-					"const": "https://www.w3.org/ns/credentials/v2"
-				},
-				{
-					"type": "string",
-					"const": "https://schema.twindev.org/rights-management"
-				}
-			]
+			"type": "string",
+			"const": "https://schema.twindev.org/rights-management",
+			"description": "The JSON-LD context."
 		},
 		"type": {
 			"type": "string",
@@ -45,16 +33,11 @@
 		"information": {
 			"$ref": "https://schema.twindev.org/rights-management/PolicyInformation",
 			"description": "Additional information provided by the requester to determine if a policy can be created."
-		},
-		"proof": {
-			"$ref": "https://schema.twindev.org/w3c-did/Proof",
-			"description": "The proof object."
 		}
 	},
 	"required": [
 		"@context",
-		"type",
-		"proof"
+		"type"
 	],
 	"additionalProperties": false
 }

@@ -2,7 +2,7 @@
 // SPDX-License-Identifier: Apache-2.0.
 import type { IOdrlPolicy } from "@twin.org/standards-w3c-odrl";
 import type { IPolicyLocator } from "../IPolicyLocator";
-import type { IPolicyState } from "./IPolicyState";
+import type { IPolicyState } from "./jsonLd/IPolicyState";
 import type { IPolicyInformation } from "../pip/IPolicyInformation";
 
 /**

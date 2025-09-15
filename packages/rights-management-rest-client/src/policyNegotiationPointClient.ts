@@ -5,7 +5,6 @@ import type { IBaseRestClientConfig, INoContentResponse } from "@twin.org/api-mo
 import { Guards, NotImplementedError } from "@twin.org/core";
 import { nameof } from "@twin.org/nameof";
 import {
-	type IPolicyLocator,
 	RightsManagementContexts,
 	RightsManagementTypes,
 	type IPnpNegotiateRequest,
@@ -14,11 +13,11 @@ import {
 	type IPnpNegotiationStateRequest,
 	type IPnpNegotiationStateResponse,
 	type IPolicyInformation,
+	type IPolicyLocator,
 	type IPolicyNegotiationPointComponent,
 	type IPolicyNegotiator,
 	type IPolicyState
 } from "@twin.org/rights-management-models";
-import { DidContexts, type IProof } from "@twin.org/standards-w3c-did";
 import { HeaderTypes, MimeTypes } from "@twin.org/web";
 
 /**
@@ -45,30 +44,30 @@ export class PolicyNegotiationPointClient
 	 * Processes an incoming negotiation request for the resource.
 	 * @param locator The locator to find relevant policies.
 	 * @param information Information provided by the requester to determine if a policy can be created.
-	 * @param proof The proof provided by the requester to support the policy creation.
+	 * @param proofToken The proof provided by the requester to support the policy creation.
 	 * @returns The state of the policy.
 	 */
 	public async negotiate(
 		locator: IPolicyLocator,
 		information: IPolicyInformation | undefined,
-		proof: IProof
+		proofToken: string
 	): Promise<IPolicyState> {
 		Guards.object<IPolicyLocator>(this.CLASS_NAME, nameof(locator), locator);
-		Guards.object<IProof>(this.CLASS_NAME, nameof(proof), proof);
+		Guards.stringValue(this.CLASS_NAME, nameof(proofToken), proofToken);
 
 		const response = await this.fetch<IPnpNegotiateRequest, IPnpNegotiateResponse>(
 			"/pnp/negotiate",
 			"POST",
 			{
 				headers: {
-					[HeaderTypes.Accept]: MimeTypes.JsonLd
+					[HeaderTypes.Accept]: MimeTypes.JsonLd,
+					[HeaderTypes.Authorization]: proofToken
 				},
 				body: {
-					"@context": [DidContexts.ContextVCv2, RightsManagementContexts.ContextRoot],
+					"@context": RightsManagementContexts.ContextRoot,
 					type: RightsManagementTypes.PolicyNegotiationRequest,
 					...locator,
-					information,
-					proof
+					information
 				}
 			}
 		);
@@ -79,34 +78,23 @@ export class PolicyNegotiationPointClient
 	/**
 	 * Retrieves the current state of a policy.
 	 * @param policyId The ID of the policy to retrieve the state for.
-	 * @param assignee The identity of the node requesting the state.
-	 * @param proof The proof provided by the requester.
+	 * @param proofToken The proof provided by the requester.
 	 * @returns The current state of the policy.
 	 */
-	public async negotiationState(
-		policyId: string,
-		assignee: string,
-		proof: IProof
-	): Promise<IPolicyState> {
+	public async negotiationState(policyId: string, proofToken: string): Promise<IPolicyState> {
 		Guards.stringValue(this.CLASS_NAME, nameof(policyId), policyId);
-		Guards.stringValue(this.CLASS_NAME, nameof(assignee), assignee);
-		Guards.object<IProof>(this.CLASS_NAME, nameof(proof), proof);
+		Guards.stringValue(this.CLASS_NAME, nameof(proofToken), proofToken);
 
 		const response = await this.fetch<IPnpNegotiationStateRequest, IPnpNegotiationStateResponse>(
 			"/pnp/:policyId",
-			"POST",
+			"GET",
 			{
 				headers: {
-					[HeaderTypes.Accept]: MimeTypes.JsonLd
+					[HeaderTypes.Accept]: MimeTypes.JsonLd,
+					[HeaderTypes.Authorization]: proofToken
 				},
 				pathParams: {
 					policyId
-				},
-				body: {
-					"@context": [DidContexts.ContextVCv2, RightsManagementContexts.ContextRoot],
-					type: RightsManagementTypes.PolicyRequest,
-					assignee,
-					proof
 				}
 			}
 		);
@@ -117,27 +105,20 @@ export class PolicyNegotiationPointClient
 	/**
 	 * Cancels an ongoing negotiation for a resource.
 	 * @param policyId The ID of the policy to cancel.
-	 * @param assignee The identity of the node requesting the cancellation.
-	 * @param proof The proof provided by the requester.
+	 * @param proofToken The proof provided by the requester.
 	 * @returns Nothing.
 	 */
-	public async negotiationCancel(policyId: string, assignee: string, proof: IProof): Promise<void> {
+	public async negotiationCancel(policyId: string, proofToken: string): Promise<void> {
 		Guards.stringValue(this.CLASS_NAME, nameof(policyId), policyId);
-		Guards.stringValue(this.CLASS_NAME, nameof(assignee), assignee);
-		Guards.object<IProof>(this.CLASS_NAME, nameof(proof), proof);
+		Guards.stringValue(this.CLASS_NAME, nameof(proofToken), proofToken);
 
 		await this.fetch<IPnpNegotiationCancelRequest, INoContentResponse>("/pnp/:policyId", "DELETE", {
 			headers: {
-				[HeaderTypes.Accept]: MimeTypes.JsonLd
+				[HeaderTypes.Accept]: MimeTypes.JsonLd,
+				[HeaderTypes.Authorization]: proofToken
 			},
 			pathParams: {
 				policyId
-			},
-			body: {
-				"@context": [DidContexts.ContextVCv2, RightsManagementContexts.ContextRoot],
-				type: RightsManagementTypes.PolicyRequest,
-				assignee,
-				proof
 			}
 		});
 	}

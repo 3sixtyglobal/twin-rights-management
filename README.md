@@ -12,6 +12,7 @@ This mono-repository contains the packages to use with Rights Management in TWIN
 - [rights-management-pmp-service](packages/rights-management-pmp-service/README.md) - Policy management point implementation (PMP).
 - [rights-management-pxp-service](packages/rights-management-pxp-service/README.md) - Policy execution point implementation (PXP).
 - [rights-management-pnp-service](packages/rights-management-pnp-service/README.md) - Policy negotiation point, policy negotiation admin point, policy negotiation request point implementations (PNP, PNAP, PNRP).
+- [rights-management-dap-service](packages/rights-management-dap-service/README.md) - Data access point, data access request point implementations (DAP, DARP).
 - [rights-management-service](packages/rights-management-service/README.md) - Unified service for performing rights management operations.
 - [rights-management-rest-client](packages/rights-management-rest-client/README.md) - Rights Management implementation which can connect to REST endpoints.
 

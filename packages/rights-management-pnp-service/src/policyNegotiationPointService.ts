@@ -13,22 +13,23 @@ import { IdentityConnectorFactory, type IIdentityConnector } from "@twin.org/ide
 import type { ILoggingComponent } from "@twin.org/logging-models";
 import { nameof } from "@twin.org/nameof";
 import {
+	type IPolicyAdministrationPointComponent,
 	type IPolicyInformation,
+	type IPolicyLocator,
+	type IPolicyNegotiationAdminPointComponent,
+	type IPolicyNegotiationPointComponent,
+	type IPolicyNegotiationRequest,
+	type IPolicyNegotiator,
+	type IPolicyRequest,
+	type IPolicyState,
+	LocatorHelper,
 	OdrlPolicyHelper,
 	PolicyNegotiationStatus,
 	RightsManagementContexts,
 	RightsManagementNamespaces,
-	RightsManagementProofHelper,
-	RightsManagementTypes,
-	type IPolicyAdministrationPointComponent,
-	type IPolicyNegotiationAdminPointComponent,
-	type IPolicyNegotiationPointComponent,
-	type IPolicyNegotiator,
-	type IPolicyState,
-	type IPolicyLocator,
-	LocatorHelper
+	RightsManagementTokenHelper,
+	RightsManagementTypes
 } from "@twin.org/rights-management-models";
-import type { IProof } from "@twin.org/standards-w3c-did";
 import type { PolicyNegotiation } from "./entities/policyNegotiation";
 import type { IPolicyNegotiationPointServiceConstructorOptions } from "./models/IPolicyNegotiationPointServiceConstructorOptions";
 
@@ -109,22 +110,28 @@ export class PolicyNegotiationPointService implements IPolicyNegotiationPointCom
 	 * Processes an incoming negotiation request for the resource.
 	 * @param locator The locator to find relevant policies.
 	 * @param information Information provided by the requester to determine if a policy can be created.
-	 * @param proof The proof provided by the requester to support the policy creation.
+	 * @param proofToken The proof provided by the requester to support the policy creation.
 	 * @returns The state of the policy.
 	 */
 	public async negotiate(
 		locator: IPolicyLocator,
 		information: IPolicyInformation | undefined,
-		proof: IProof
+		proofToken: string
 	): Promise<IPolicyState> {
 		Guards.object<IPolicyLocator>(this.CLASS_NAME, nameof(locator), locator);
-		Guards.object<IProof>(this.CLASS_NAME, nameof(proof), proof);
+		Guards.stringValue(this.CLASS_NAME, nameof(proofToken), proofToken);
+
+		const policyNegotiationRequest: IPolicyNegotiationRequest = {
+			"@context": RightsManagementContexts.ContextRoot,
+			type: RightsManagementTypes.PolicyNegotiationRequest,
+			...locator
+		};
 
 		// First verify the proof
-		await RightsManagementProofHelper.verifyProofNegotiation(
+		await RightsManagementTokenHelper.verifyToken(
 			this._identityConnector,
-			locator,
-			proof,
+			policyNegotiationRequest,
+			proofToken,
 			this._proofTtlInSeconds
 		);
 
@@ -178,24 +185,23 @@ export class PolicyNegotiationPointService implements IPolicyNegotiationPointCom
 	/**
 	 * Retrieves the current state of a policy negotiation.
 	 * @param policyId The ID of the policy to retrieve the state for.
-	 * @param assignee The identity of the node requesting the state retrieval.
-	 * @param proof The proof provided by the requester to support the policy retrieval.
+	 * @param proofToken The proof provided by the requester to support the policy retrieval.
 	 * @returns The current state of the policy.
 	 */
-	public async negotiationState(
-		policyId: string,
-		assignee: string,
-		proof: IProof
-	): Promise<IPolicyState> {
+	public async negotiationState(policyId: string, proofToken: string): Promise<IPolicyState> {
 		Guards.stringValue(this.CLASS_NAME, nameof(policyId), policyId);
-		Guards.stringValue(this.CLASS_NAME, nameof(assignee), assignee);
-		Guards.object<IProof>(this.CLASS_NAME, nameof(proof), proof);
+		Guards.stringValue(this.CLASS_NAME, nameof(proofToken), proofToken);
 
-		await RightsManagementProofHelper.verifyProofPolicyId(
+		const policyRequest: IPolicyRequest = {
+			"@context": RightsManagementContexts.ContextRoot,
+			type: RightsManagementTypes.PolicyRequest,
+			id: policyId
+		};
+
+		await RightsManagementTokenHelper.verifyToken(
 			this._identityConnector,
-			assignee,
-			policyId,
-			proof,
+			policyRequest,
+			proofToken,
 			this._proofTtlInSeconds
 		);
 
@@ -256,20 +262,23 @@ export class PolicyNegotiationPointService implements IPolicyNegotiationPointCom
 	/**
 	 * Cancels an ongoing negotiation for a resource.
 	 * @param policyId The ID of the policy to cancel.
-	 * @param assignee The identity of the node requesting the cancellation.
-	 * @param proof The proof provided by the requester to support the cancellation.
+	 * @param proofToken The proof provided by the requester to support the cancellation.
 	 * @returns Nothing.
 	 */
-	public async negotiationCancel(policyId: string, assignee: string, proof: IProof): Promise<void> {
+	public async negotiationCancel(policyId: string, proofToken: string): Promise<void> {
 		Guards.stringValue(this.CLASS_NAME, nameof(policyId), policyId);
-		Guards.stringValue(this.CLASS_NAME, nameof(assignee), assignee);
-		Guards.object<IProof>(this.CLASS_NAME, nameof(proof), proof);
+		Guards.stringValue(this.CLASS_NAME, nameof(proofToken), proofToken);
 
-		await RightsManagementProofHelper.verifyProofPolicyId(
+		const policyRequest: IPolicyRequest = {
+			"@context": RightsManagementContexts.ContextRoot,
+			type: RightsManagementTypes.PolicyRequest,
+			id: policyId
+		};
+
+		await RightsManagementTokenHelper.verifyToken(
 			this._identityConnector,
-			assignee,
-			policyId,
-			proof,
+			policyRequest,
+			proofToken,
 			this._proofTtlInSeconds
 		);
 

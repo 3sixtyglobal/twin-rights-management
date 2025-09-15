@@ -14,9 +14,9 @@ export interface IPolicyEnforcementProcessor {
 	 * @param data The data to process.
 	 * @returns The data after processing.
 	 */
-	process<D = unknown, R = unknown>(
+	process<D = unknown, R = D>(
 		locator: IPolicyLocator,
 		decisions: IPolicyDecision[],
 		data?: D
-	): Promise<R | undefined>;
+	): Promise<R>;
 }

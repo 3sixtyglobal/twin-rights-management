@@ -13,7 +13,7 @@ be returned.
 
 ### intercept()
 
-> **intercept**\<`D`, `R`\>(`locator`, `data?`): `Promise`\<`undefined` \| `R`\>
+> **intercept**\<`D`, `R`\>(`locator`, `data?`): `Promise`\<`R`\>
 
 Process the data using Policy Decision Point (PDP) and return the manipulated data.
 
@@ -25,7 +25,7 @@ Process the data using Policy Decision Point (PDP) and return the manipulated da
 
 ##### R
 
-`R` = `unknown`
+`R` = `D`
 
 #### Parameters
 
@@ -43,7 +43,7 @@ The data to process.
 
 #### Returns
 
-`Promise`\<`undefined` \| `R`\>
+`Promise`\<`R`\>
 
 The manipulated data with any policies applied.
 

@@ -58,7 +58,7 @@ A resource identifier for the locator.
 
 ### @context
 
-> **@context**: \[`"https://www.w3.org/ns/credentials/v2"`, `"https://schema.twindev.org/rights-management"`\]
+> **@context**: `"https://schema.twindev.org/rights-management"`
 
 The JSON-LD context.
 
@@ -77,11 +77,3 @@ The type of the proof.
 > `optional` **information**: [`IPolicyInformation`](IPolicyInformation.md)
 
 Additional information provided by the requester to determine if a policy can be created.
-
-***
-
-### proof
-
-> **proof**: `IProof`
-
-The proof object.
