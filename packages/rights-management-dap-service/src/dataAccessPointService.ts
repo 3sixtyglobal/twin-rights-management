@@ -209,6 +209,7 @@ export class DataAccessPointService implements IDataAccessPointComponent {
 		Guards.stringValue(this.CLASS_NAME, nameof(assetType), assetType);
 		Guards.object<IJsonLdNodeObject>(this.CLASS_NAME, nameof(item), item);
 		Guards.stringValue(this.CLASS_NAME, nameof(proofToken), proofToken);
+		Guards.stringValue(this.CLASS_NAME, nameof(item.id), item.id);
 
 		const handlerEntry = this._handlers.find(p =>
 			p.handler.supportedAssetTypes().includes(assetType)
@@ -222,7 +223,7 @@ export class DataAccessPointService implements IDataAccessPointComponent {
 			"@context": RightsManagementContexts.ContextRoot,
 			type: RightsManagementTypes.DataAccessRequest,
 			assetType,
-			id: Coerce.string(item.id) ?? ""
+			id: item.id
 		};
 
 		const verifiableCredential = await RightsManagementTokenHelper.verifyToken(

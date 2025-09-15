@@ -166,7 +166,7 @@ export class RightsManagementTokenHelper {
 		);
 
 		if (Is.empty(issuanceDate)) {
-			throw new GeneralError(RightsManagementTokenHelper.CLASS_NAME, "tokenMissingIssuance", {
+			throw new GeneralError(RightsManagementTokenHelper.CLASS_NAME, "tokenMissingIssuanceDate", {
 				assignee
 			});
 		}
