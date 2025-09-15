@@ -62,7 +62,7 @@ export class PolicyEnforcementPointService implements IPolicyEnforcementPointCom
 	 * @param data The data to process.
 	 * @returns The manipulated data with any policies applied.
 	 */
-	public async intercept<D = unknown, R = unknown>(locator: IPolicyLocator, data?: D): Promise<R> {
+	public async intercept<D = unknown, R = D>(locator: IPolicyLocator, data?: D): Promise<R> {
 		Guards.objectValue<IPolicyLocator>(this.CLASS_NAME, nameof(locator), locator);
 
 		this._logging?.log({
