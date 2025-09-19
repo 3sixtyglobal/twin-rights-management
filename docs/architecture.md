@@ -28,22 +28,22 @@ Implemented architectural components:
 ```mermaid
 flowchart LR
   subgraph Authoring
-    PAP["PAP\nPolicy Administration"]
-    PMP["PMP\nPolicy Management"]
+    PAP["PAP - Policy Administration"]
+    PMP["PMP - Policy Management"]
   end
   subgraph Decision
-    PIP["PIP\nInformation"]
-    PDP["PDP\nDecision"]
-    PXP["PXP\nExecution Hooks"]
-    PEP["PEP\nEnforcement"]
+    PIP["PIP - Information"]
+    PDP["PDP - Decision"]
+    PXP["PXP - Execution Hooks"]
+    PEP["PEP - Enforcement"]
   end
   subgraph Negotiation
-    PNP["PNP\nNegotiation"]
-    PNAP["PNAP\nNegotiation Admin"]
+    PNP["PNP - Negotiation"]
+    PNAP["PNAP - Negotiation Admin"]
   end
   subgraph Data
-    DAP["DAP\nData Access"]
-    DARP["DARP\nData Access Request"]
+    DAP["DAP - Data Access"]
+    DARP["DARP - Data Access Request"]
   end
   ID["Identity Connector"]:::ext --> PAP
   ID --> PNP
