@@ -1,5 +1,12 @@
 # @twin.org/rights-management-models - Changelog
 
+## [0.0.2-next.11](https://github.com/twinfoundation/rights-management/compare/rights-management-models-v0.0.2-next.10...rights-management-models-v0.0.2-next.11) (2025-09-19)
+
+
+### Features
+
+* engine compatibility updates ([490e015](https://github.com/twinfoundation/rights-management/commit/490e015901d6a5ac6563da484a18fc5f285556b1))
+
 ## [0.0.2-next.10](https://github.com/twinfoundation/rights-management/compare/rights-management-models-v0.0.2-next.9...rights-management-models-v0.0.2-next.10) (2025-09-19)
 
 
