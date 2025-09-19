@@ -1,5 +1,24 @@
 # @twin.org/rights-management-models - Changelog
 
+## [0.0.2-next.10](https://github.com/twinfoundation/rights-management/compare/rights-management-models-v0.0.2-next.9...rights-management-models-v0.0.2-next.10) (2025-09-19)
+
+
+### Features
+
+* add DAP (Data Access Point) ([#40](https://github.com/twinfoundation/rights-management/issues/40)) ([f3e684b](https://github.com/twinfoundation/rights-management/commit/f3e684ba1f9a934394c64635f393fbb6709ff480))
+* add policy management point PMP ([#38](https://github.com/twinfoundation/rights-management/issues/38)) ([f7b55f7](https://github.com/twinfoundation/rights-management/commit/f7b55f728336a0cacb1aa0ed7866242962915d0e))
+* international dataspaces contract negotiation ([#41](https://github.com/twinfoundation/rights-management/issues/41)) ([41ed515](https://github.com/twinfoundation/rights-management/commit/41ed5154d6cef48bc99db3158dbde6ec88523a0b))
+* move create and verify proofs to helper ([a4e1f4a](https://github.com/twinfoundation/rights-management/commit/a4e1f4afe01ea12c36f29672197128e65819c875))
+* pdp add ([#39](https://github.com/twinfoundation/rights-management/issues/39)) ([68b9a8a](https://github.com/twinfoundation/rights-management/commit/68b9a8a7a3cf2902f9eecb590ca3316c6b1671f0))
+* refactor models structure ([a19faba](https://github.com/twinfoundation/rights-management/commit/a19faba2580d65a9348ae7107e3e930ec37ce48f))
+* update generated schema external references ([7069a5f](https://github.com/twinfoundation/rights-management/commit/7069a5fa517cc1161773a727131a91a79432e26c))
+* update generated schema external references ([8df169f](https://github.com/twinfoundation/rights-management/commit/8df169f7008abfd572d866f228f260344bf01a78))
+
+
+### Bug Fixes
+
+* typos ([a969249](https://github.com/twinfoundation/rights-management/commit/a969249cc3c8d9680880be4379a4bb546c48e935))
+
 ## [0.0.2-next.9](https://github.com/twinfoundation/rights-management/compare/rights-management-models-v0.0.2-next.8...rights-management-models-v0.0.2-next.9) (2025-09-08)
 
 

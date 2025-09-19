@@ -1,1 +1,25 @@
 # Changelog
+
+## [0.0.2-next.10](https://github.com/twinfoundation/rights-management/compare/rights-management-dap-service-v0.0.2-next.9...rights-management-dap-service-v0.0.2-next.10) (2025-09-19)
+
+
+### Features
+
+* add DAP (Data Access Point) ([#40](https://github.com/twinfoundation/rights-management/issues/40)) ([f3e684b](https://github.com/twinfoundation/rights-management/commit/f3e684ba1f9a934394c64635f393fbb6709ff480))
+
+
+### Bug Fixes
+
+* typos ([a969249](https://github.com/twinfoundation/rights-management/commit/a969249cc3c8d9680880be4379a4bb546c48e935))
+
+
+### Dependencies
+
+* The following workspace dependencies were updated
+  * dependencies
+    * @twin.org/rights-management-models bumped from 0.0.2-next.9 to 0.0.2-next.10
+  * devDependencies
+    * @twin.org/rights-management-pap-service bumped from 0.0.2-next.9 to 0.0.2-next.10
+    * @twin.org/rights-management-pip-service bumped from 0.0.2-next.9 to 0.0.2-next.10
+
+## Changelog

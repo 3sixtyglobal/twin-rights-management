@@ -1,5 +1,19 @@
 # Changelog
 
+## [0.0.2-next.10](https://github.com/twinfoundation/rights-management/compare/rights-management-pip-service-v0.0.2-next.9...rights-management-pip-service-v0.0.2-next.10) (2025-09-19)
+
+
+### Features
+
+* pdp add ([#39](https://github.com/twinfoundation/rights-management/issues/39)) ([68b9a8a](https://github.com/twinfoundation/rights-management/commit/68b9a8a7a3cf2902f9eecb590ca3316c6b1671f0))
+
+
+### Dependencies
+
+* The following workspace dependencies were updated
+  * dependencies
+    * @twin.org/rights-management-models bumped from 0.0.2-next.9 to 0.0.2-next.10
+
 ## [0.0.2-next.9](https://github.com/twinfoundation/rights-management/compare/rights-management-pip-service-v0.0.2-next.8...rights-management-pip-service-v0.0.2-next.9) (2025-09-08)
 
 

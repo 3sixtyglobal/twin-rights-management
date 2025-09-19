@@ -1,5 +1,21 @@
 # @twin.org/rights-management-pap-service - Changelog
 
+## [0.0.2-next.10](https://github.com/twinfoundation/rights-management/compare/rights-management-pap-service-v0.0.2-next.9...rights-management-pap-service-v0.0.2-next.10) (2025-09-19)
+
+
+### Features
+
+* add DAP (Data Access Point) ([#40](https://github.com/twinfoundation/rights-management/issues/40)) ([f3e684b](https://github.com/twinfoundation/rights-management/commit/f3e684ba1f9a934394c64635f393fbb6709ff480))
+* add pdp tests ([87a0c29](https://github.com/twinfoundation/rights-management/commit/87a0c29674ac5b97c3b2a1723d14f56a582f36c4))
+* international dataspaces contract negotiation ([#41](https://github.com/twinfoundation/rights-management/issues/41)) ([41ed515](https://github.com/twinfoundation/rights-management/commit/41ed5154d6cef48bc99db3158dbde6ec88523a0b))
+
+
+### Dependencies
+
+* The following workspace dependencies were updated
+  * dependencies
+    * @twin.org/rights-management-models bumped from 0.0.2-next.9 to 0.0.2-next.10
+
 ## [0.0.2-next.9](https://github.com/twinfoundation/rights-management/compare/rights-management-pap-service-v0.0.2-next.8...rights-management-pap-service-v0.0.2-next.9) (2025-09-08)
 
 

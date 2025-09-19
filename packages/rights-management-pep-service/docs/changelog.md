@@ -1,5 +1,32 @@
 # Changelog
 
+## [0.0.2-next.10](https://github.com/twinfoundation/rights-management/compare/rights-management-pep-service-v0.0.2-next.9...rights-management-pep-service-v0.0.2-next.10) (2025-09-19)
+
+
+### Features
+
+* add DAP (Data Access Point) ([#40](https://github.com/twinfoundation/rights-management/issues/40)) ([f3e684b](https://github.com/twinfoundation/rights-management/commit/f3e684ba1f9a934394c64635f393fbb6709ff480))
+* international dataspaces contract negotiation ([#41](https://github.com/twinfoundation/rights-management/issues/41)) ([41ed515](https://github.com/twinfoundation/rights-management/commit/41ed5154d6cef48bc99db3158dbde6ec88523a0b))
+* pdp add ([#39](https://github.com/twinfoundation/rights-management/issues/39)) ([68b9a8a](https://github.com/twinfoundation/rights-management/commit/68b9a8a7a3cf2902f9eecb590ca3316c6b1671f0))
+
+
+### Bug Fixes
+
+* update method signature ([24e6f36](https://github.com/twinfoundation/rights-management/commit/24e6f3664d860eb3baa6fb368894ffd998e4c1df))
+
+
+### Dependencies
+
+* The following workspace dependencies were updated
+  * dependencies
+    * @twin.org/rights-management-models bumped from 0.0.2-next.9 to 0.0.2-next.10
+  * devDependencies
+    * @twin.org/rights-management-pap-service bumped from 0.0.2-next.9 to 0.0.2-next.10
+    * @twin.org/rights-management-pdp-service bumped from 0.0.2-next.9 to 0.0.2-next.10
+    * @twin.org/rights-management-pip-service bumped from 0.0.2-next.9 to 0.0.2-next.10
+    * @twin.org/rights-management-pmp-service bumped from 0.0.2-next.9 to 0.0.2-next.10
+    * @twin.org/rights-management-pxp-service bumped from 0.0.2-next.9 to 0.0.2-next.10
+
 ## [0.0.2-next.9](https://github.com/twinfoundation/rights-management/compare/rights-management-pep-service-v0.0.2-next.8...rights-management-pep-service-v0.0.2-next.9) (2025-09-08)
 
 
