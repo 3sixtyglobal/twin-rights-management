@@ -1,4 +1,4 @@
-# Interface: IDataAccessPointRequestComponent
+# Interface: IDataAccessRequestPointComponent
 
 Interface describing a Data Access Request Point (DARP) contract.
 The DARP component sends requests to the DAP for data access operations,

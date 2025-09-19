@@ -21,9 +21,10 @@
 		"OperatorType": "https://schema.twindev.org/w3c-odrl/OperatorType",
 		"PolicyType": "https://schema.twindev.org/w3c-odrl/PolicyType",
 		"StatusType": "https://schema.twindev.org/w3c-odrl/StatusType",
-		"UriActionType": "https://schema.twindev.org/w3c-odrl/UriActionType",
 		"ProofTypes": "https://schema.twindev.org/w3c-did/ProofTypes",
 		"Proof": "https://schema.twindev.org/w3c-did/Proof",
-		"DataIntegrityProof": "https://schema.twindev.org/w3c-did/DataIntegrityProof"
+		"DataIntegrityProof": "https://schema.twindev.org/w3c-did/DataIntegrityProof",
+		"DataAccess(.*)": "https://schema.twindev.org/rights-management/DataAccessQuery$1",
+		"IdsContract(.*)": "https://schema.twindev.org/ids-contract-negotiation/IdsContract$1"
 	}
 }

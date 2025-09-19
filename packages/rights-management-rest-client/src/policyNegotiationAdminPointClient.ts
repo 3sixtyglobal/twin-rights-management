@@ -44,11 +44,15 @@ export class PolicyNegotiationAdminPointClient
 	public async get(policyId: string): Promise<IPolicyNegotiation> {
 		Guards.stringValue(this.CLASS_NAME, nameof(policyId), policyId);
 
-		const response = await this.fetch<IPnapGetRequest, IPnapGetResponse>("/pnap/:policyId", "GET", {
-			pathParams: {
-				policyId
+		const response = await this.fetch<IPnapGetRequest, IPnapGetResponse>(
+			"/negotiations/admin/:policyId",
+			"GET",
+			{
+				pathParams: {
+					policyId
+				}
 			}
-		});
+		);
 
 		return response.body;
 	}
@@ -61,7 +65,7 @@ export class PolicyNegotiationAdminPointClient
 	public async set(negotiation: IPolicyNegotiation): Promise<void> {
 		Guards.object<IPolicyNegotiation>(this.CLASS_NAME, nameof(negotiation), negotiation);
 
-		await this.fetch<IPnapSetRequest, INoContentResponse>("/pnap/:policyId", "PUT", {
+		await this.fetch<IPnapSetRequest, INoContentResponse>("/negotiations/admin/:policyId", "PUT", {
 			pathParams: {
 				policyId: negotiation.id
 			},
@@ -77,11 +81,15 @@ export class PolicyNegotiationAdminPointClient
 	public async remove(policyId: string): Promise<void> {
 		Guards.stringValue(this.CLASS_NAME, nameof(policyId), policyId);
 
-		await this.fetch<IPnapRemoveRequest, INoContentResponse>("/pnap/:policyId", "DELETE", {
-			pathParams: {
-				policyId
+		await this.fetch<IPnapRemoveRequest, INoContentResponse>(
+			"/negotiations/admin/:policyId",
+			"DELETE",
+			{
+				pathParams: {
+					policyId
+				}
 			}
-		});
+		);
 	}
 
 	/**
@@ -97,12 +105,16 @@ export class PolicyNegotiationAdminPointClient
 		items: IPolicyNegotiation[];
 		cursor?: string;
 	}> {
-		const response = await this.fetch<IPnapQueryRequest, IPnapQueryResponse>("/pnap", "GET", {
-			query: {
-				state,
-				cursor
+		const response = await this.fetch<IPnapQueryRequest, IPnapQueryResponse>(
+			"/negotiations/admin",
+			"GET",
+			{
+				query: {
+					state,
+					cursor
+				}
 			}
-		});
+		);
 
 		return response.body;
 	}

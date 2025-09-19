@@ -59,7 +59,7 @@ export class DataAccessPointClient extends BaseRestClient implements IDataAccess
 		Guards.stringValue(this.CLASS_NAME, nameof(proofToken), proofToken);
 
 		const response = await this.fetch<IDapCreateRequest, ICreatedResponse>(
-			"/dap/:assetType",
+			"/data/:assetType",
 			"POST",
 			{
 				headers: {
@@ -93,7 +93,7 @@ export class DataAccessPointClient extends BaseRestClient implements IDataAccess
 		Guards.stringValue(this.CLASS_NAME, nameof(proofToken), proofToken);
 
 		const response = await this.fetch<IDapGetRequest, IDapGetResponse>(
-			"/dap/:assetType/:id",
+			"/data/:assetType/:id",
 			"GET",
 			{
 				headers: {
@@ -127,7 +127,7 @@ export class DataAccessPointClient extends BaseRestClient implements IDataAccess
 		Guards.stringValue(this.CLASS_NAME, nameof(proofToken), proofToken);
 		Guards.stringValue(this.CLASS_NAME, nameof(item.id), item.id);
 
-		await this.fetch<IDapUpdateRequest, INoContentResponse>("/dap/:assetType/:id", "PUT", {
+		await this.fetch<IDapUpdateRequest, INoContentResponse>("/data/:assetType/:id", "PUT", {
 			headers: {
 				[HeaderTypes.Accept]: MimeTypes.JsonLd,
 				[HeaderTypes.Authorization]: proofToken
@@ -156,7 +156,7 @@ export class DataAccessPointClient extends BaseRestClient implements IDataAccess
 		Guards.stringValue(this.CLASS_NAME, nameof(id), id);
 		Guards.stringValue(this.CLASS_NAME, nameof(proofToken), proofToken);
 
-		await this.fetch<IDapRemoveRequest, INoContentResponse>("/dap/:assetType/:id", "DELETE", {
+		await this.fetch<IDapRemoveRequest, INoContentResponse>("/data/:assetType/:id", "DELETE", {
 			headers: {
 				[HeaderTypes.Accept]: MimeTypes.JsonLd,
 				[HeaderTypes.Authorization]: proofToken
@@ -191,7 +191,7 @@ export class DataAccessPointClient extends BaseRestClient implements IDataAccess
 		Guards.stringValue(this.CLASS_NAME, nameof(proofToken), proofToken);
 
 		const response = await this.fetch<IDapQueryRequest, IDapQueryResponse>(
-			"/dap/:assetType/query",
+			"/data/:assetType/query",
 			"POST",
 			{
 				headers: {

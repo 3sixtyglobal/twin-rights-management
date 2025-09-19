@@ -53,7 +53,7 @@ export function generateRestRoutesPolicyAdministrationPoint(
 		summary: "Create a policy",
 		tag: papTags[0].name,
 		method: "POST",
-		path: `${baseRouteName}/pap/`,
+		path: `${baseRouteName}/policy/admin`,
 		handler: async (httpRequestContext, request) =>
 			papCreate(httpRequestContext, componentName, request),
 		requestType: {
@@ -99,7 +99,7 @@ export function generateRestRoutesPolicyAdministrationPoint(
 		summary: "Update a policy",
 		tag: papTags[0].name,
 		method: "PUT",
-		path: `${baseRouteName}/pap/:id`,
+		path: `${baseRouteName}/policy/admin/:id`,
 		handler: async (httpRequestContext, request) =>
 			papUpdate(httpRequestContext, componentName, request),
 		requestType: {
@@ -138,7 +138,7 @@ export function generateRestRoutesPolicyAdministrationPoint(
 		summary: "Get a policy",
 		tag: papTags[0].name,
 		method: "GET",
-		path: `${baseRouteName}/pap/:id`,
+		path: `${baseRouteName}/policy/admin/:id`,
 		handler: async (httpRequestContext, request) =>
 			papGet(httpRequestContext, componentName, request),
 		requestType: {
@@ -184,7 +184,7 @@ export function generateRestRoutesPolicyAdministrationPoint(
 		summary: "Remove a policy",
 		tag: papTags[0].name,
 		method: "DELETE",
-		path: `${baseRouteName}/pap/:id`,
+		path: `${baseRouteName}/policy/admin/:id`,
 		handler: async (httpRequestContext, request) =>
 			papRemove(httpRequestContext, componentName, request),
 		requestType: {
@@ -212,7 +212,7 @@ export function generateRestRoutesPolicyAdministrationPoint(
 		summary: "Query policies",
 		tag: papTags[0].name,
 		method: "GET",
-		path: `${baseRouteName}/pap/query`,
+		path: `${baseRouteName}/policy/admin`,
 		handler: async (httpRequestContext, request) =>
 			papQuery(httpRequestContext, componentName, request),
 		requestType: {

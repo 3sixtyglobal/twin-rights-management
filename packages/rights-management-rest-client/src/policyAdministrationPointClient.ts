@@ -49,9 +49,13 @@ export class PolicyAdministrationPointClient
 	public async create(policy: Omit<IOdrlPolicy, "uid"> & { uid?: string }): Promise<string> {
 		Guards.object(this.CLASS_NAME, nameof(policy), policy);
 
-		const response = await this.fetch<IPapCreateRequest, ICreatedResponse>("/pap", "POST", {
-			body: policy
-		});
+		const response = await this.fetch<IPapCreateRequest, ICreatedResponse>(
+			"/policy/admin",
+			"POST",
+			{
+				body: policy
+			}
+		);
 
 		return response.headers.location;
 	}
@@ -65,7 +69,7 @@ export class PolicyAdministrationPointClient
 		Guards.object(this.CLASS_NAME, nameof(policy), policy);
 		Guards.stringValue(this.CLASS_NAME, "policy.uid", policy.uid);
 
-		await this.fetch<IPapUpdateRequest, never>("/pap/:id", "PUT", {
+		await this.fetch<IPapUpdateRequest, never>("/policy/admin/:id", "PUT", {
 			pathParams: {
 				id: policy.uid
 			},
@@ -81,7 +85,7 @@ export class PolicyAdministrationPointClient
 	public async get(policyId: string): Promise<IOdrlPolicy> {
 		Guards.stringValue(this.CLASS_NAME, nameof(policyId), policyId);
 
-		const response = await this.fetch<IPapGetRequest, IPapGetResponse>("/pap/:id", "GET", {
+		const response = await this.fetch<IPapGetRequest, IPapGetResponse>("/policy/admin/:id", "GET", {
 			pathParams: {
 				id: policyId
 			}
@@ -98,7 +102,7 @@ export class PolicyAdministrationPointClient
 	public async remove(policyId: string): Promise<void> {
 		Guards.stringValue(this.CLASS_NAME, nameof(policyId), policyId);
 
-		await this.fetch<IPapRemoveRequest, never>("/pap/:id", "DELETE", {
+		await this.fetch<IPapRemoveRequest, never>("/policy/admin/:id", "DELETE", {
 			pathParams: {
 				id: policyId
 			}
@@ -120,7 +124,7 @@ export class PolicyAdministrationPointClient
 		cursor?: string;
 		policies: IOdrlPolicy[];
 	}> {
-		const response = await this.fetch<IPapQueryRequest, IPapQueryResponse>("/pap/query", "GET", {
+		const response = await this.fetch<IPapQueryRequest, IPapQueryResponse>("/policy/admin", "GET", {
 			query: {
 				cursor,
 				conditions: HttpParameterHelper.objectToString(conditions),

@@ -40,7 +40,7 @@
 - [IPnpTerminateRequest](interfaces/IPnpTerminateRequest.md)
 - [IDataAccessHandler](interfaces/IDataAccessHandler.md)
 - [IDataAccessPointComponent](interfaces/IDataAccessPointComponent.md)
-- [IDataAccessPointRequestComponent](interfaces/IDataAccessPointRequestComponent.md)
+- [IDataAccessRequestPointComponent](interfaces/IDataAccessRequestPointComponent.md)
 - [IDataAccessQuery](interfaces/IDataAccessQuery.md)
 - [IDataAccessQueryResponse](interfaces/IDataAccessQueryResponse.md)
 - [IDataAccessRequest](interfaces/IDataAccessRequest.md)

@@ -53,7 +53,7 @@ export function generateRestRoutesDataAccessPoint(
 		summary: "Create a new item",
 		tag: dapTags[0].name,
 		method: "POST",
-		path: `${baseRouteName}/dap/:assetType`,
+		path: `${baseRouteName}/data/:assetType`,
 		handler: async (httpRequestContext, request) =>
 			dapCreate(httpRequestContext, componentName, request),
 		requestType: {
@@ -107,7 +107,7 @@ export function generateRestRoutesDataAccessPoint(
 		summary: "Get an existing item",
 		tag: dapTags[0].name,
 		method: "GET",
-		path: `${baseRouteName}/dap/:assetType/:id`,
+		path: `${baseRouteName}/data/:assetType/:id`,
 		handler: async (httpRequestContext, request) =>
 			dapGet(httpRequestContext, componentName, request),
 		requestType: {
@@ -153,7 +153,7 @@ export function generateRestRoutesDataAccessPoint(
 		summary: "Update an existing item",
 		tag: dapTags[0].name,
 		method: "PUT",
-		path: `${baseRouteName}/dap/:assetType/:id`,
+		path: `${baseRouteName}/data/:assetType/:id`,
 		handler: async (httpRequestContext, request) =>
 			dapUpdate(httpRequestContext, componentName, request),
 		requestType: {
@@ -197,7 +197,7 @@ export function generateRestRoutesDataAccessPoint(
 		summary: "Remove an existing item",
 		tag: dapTags[0].name,
 		method: "DELETE",
-		path: `${baseRouteName}/dap/:assetType/:id`,
+		path: `${baseRouteName}/data/:assetType/:id`,
 		handler: async (httpRequestContext, request) =>
 			dapRemove(httpRequestContext, componentName, request),
 		requestType: {
@@ -231,7 +231,7 @@ export function generateRestRoutesDataAccessPoint(
 		summary: "Query items",
 		tag: dapTags[0].name,
 		method: "POST",
-		path: `${baseRouteName}/dap/:assetType/query`,
+		path: `${baseRouteName}/data/:assetType/query`,
 		handler: async (httpRequestContext, request) =>
 			dapQuery(httpRequestContext, componentName, request),
 		requestType: {

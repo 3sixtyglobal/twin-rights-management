@@ -51,7 +51,7 @@ export function generateRestRoutesPolicyNegotiationAdminPoint(
 		summary: "Get a policy negotiation",
 		tag: pnapTags[0].name,
 		method: HttpMethod.GET,
-		path: `${baseRouteName}/pnap/:policyId`,
+		path: `${baseRouteName}/negotiations/admin/:policyId`,
 		handler: async (httpRequestContext, request) =>
 			pnapGet(httpRequestContext, componentName, request),
 		requestType: {
@@ -90,7 +90,7 @@ export function generateRestRoutesPolicyNegotiationAdminPoint(
 		summary: "Set a policy negotiation",
 		tag: pnapTags[0].name,
 		method: HttpMethod.PUT,
-		path: `${baseRouteName}/pnap/:policyId`,
+		path: `${baseRouteName}/negotiations/admin/:policyId`,
 		handler: async (httpRequestContext, request) =>
 			pnapSet(httpRequestContext, componentName, request),
 		requestType: {
@@ -118,7 +118,7 @@ export function generateRestRoutesPolicyNegotiationAdminPoint(
 		summary: "Remove a policy negotiation",
 		tag: pnapTags[0].name,
 		method: HttpMethod.DELETE,
-		path: `${baseRouteName}/pnap/:policyId`,
+		path: `${baseRouteName}/negotiations/admin/:policyId`,
 		handler: async (httpRequestContext, request) =>
 			pnapRemove(httpRequestContext, componentName, request),
 		requestType: {
@@ -140,7 +140,7 @@ export function generateRestRoutesPolicyNegotiationAdminPoint(
 		summary: "Query policy negotiations",
 		tag: pnapTags[0].name,
 		method: HttpMethod.GET,
-		path: `${baseRouteName}/pnap`,
+		path: `${baseRouteName}/negotiations/admin`,
 		handler: async (httpRequestContext, request) =>
 			pnapQuery(httpRequestContext, componentName, request),
 		requestType: {

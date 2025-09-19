@@ -9,7 +9,7 @@ import type { EntityCondition } from "@twin.org/entity";
  * The DARP component sends requests to the DAP for data access operations,
  * it will create proofs for the requests.
  */
-export interface IDataAccessPointRequestComponent extends IComponent {
+export interface IDataAccessRequestPointComponent extends IComponent {
 	/**
 	 * Create an item.
 	 * @param url The URL of the data access point.

@@ -33,7 +33,7 @@
 		}
 	],
 	"paths": {
-		"/rights-management/pap": {
+		"/rights-management/policy/admin": {
 			"post": {
 				"operationId": "papCreate",
 				"summary": "Create a policy",
@@ -140,9 +140,143 @@
 						}
 					}
 				}
+			},
+			"get": {
+				"operationId": "papQuery",
+				"summary": "Query policies",
+				"tags": [
+					"Policy Administration Point"
+				],
+				"parameters": [
+					{
+						"name": "conditions",
+						"description": "The condition for the query.",
+						"in": "query",
+						"required": false,
+						"schema": {
+							"type": "string"
+						}
+					},
+					{
+						"name": "pageSize",
+						"description": "The number of entries to return per page.",
+						"in": "query",
+						"required": false,
+						"schema": {
+							"type": [
+								"number",
+								"string"
+							]
+						}
+					},
+					{
+						"name": "cursor",
+						"description": "The cursor to get next chunk of data, returned in previous response.",
+						"in": "query",
+						"required": false,
+						"schema": {
+							"type": "string"
+						},
+						"example": "optional-pagination-cursor"
+					}
+				],
+				"security": [
+					{
+						"jwtBearerAuthScheme": []
+					}
+				],
+				"responses": {
+					"200": {
+						"description": "The response structure for querying policies.",
+						"content": {
+							"application/json": {
+								"schema": {
+									"$ref": "#/components/schemas/PapQueryResponse"
+								},
+								"examples": {
+									"papQueryResponseExample": {
+										"value": {
+											"cursor": "next-page-cursor",
+											"policies": [
+												{
+													"@context": "https://www.w3.org/ns/odrl/2/",
+													"@type": "Set",
+													"uid": "urn:rights-management:abc123def456",
+													"permission": [
+														{
+															"target": "http://example.com/asset/1",
+															"action": "use"
+														}
+													]
+												}
+											]
+										}
+									}
+								}
+							}
+						}
+					},
+					"400": {
+						"description": "The server cannot process the request, see the content for more details.",
+						"content": {
+							"application/json": {
+								"schema": {
+									"$ref": "#/components/schemas/Error"
+								},
+								"examples": {
+									"exampleResponse": {
+										"value": {
+											"name": "GeneralError",
+											"message": "component.error",
+											"properties": {
+												"foo": "bar"
+											}
+										}
+									}
+								}
+							}
+						}
+					},
+					"401": {
+						"description": "You are not authorized to use the API or no credentials were supplied, see the content for more details.",
+						"content": {
+							"application/json": {
+								"schema": {
+									"$ref": "#/components/schemas/Error"
+								},
+								"examples": {
+									"exampleResponse": {
+										"value": {
+											"name": "UnauthorizedError",
+											"message": "component.error"
+										}
+									}
+								}
+							}
+						}
+					},
+					"500": {
+						"description": "The server has encountered a situation it does not know how to handle, see the content for more details.",
+						"content": {
+							"application/json": {
+								"schema": {
+									"$ref": "#/components/schemas/Error"
+								},
+								"examples": {
+									"exampleResponse": {
+										"value": {
+											"name": "InternalServerError",
+											"message": "component.error"
+										}
+									}
+								}
+							}
+						}
+					}
+				}
 			}
 		},
-		"/rights-management/pap/{id}": {
+		"/rights-management/policy/admin/{id}": {
 			"put": {
 				"operationId": "papUpdate",
 				"summary": "Update a policy",
@@ -453,142 +587,6 @@
 				}
 			}
 		},
-		"/rights-management/pap/query": {
-			"get": {
-				"operationId": "papQuery",
-				"summary": "Query policies",
-				"tags": [
-					"Policy Administration Point"
-				],
-				"parameters": [
-					{
-						"name": "conditions",
-						"description": "The condition for the query.",
-						"in": "query",
-						"required": false,
-						"schema": {
-							"type": "string"
-						}
-					},
-					{
-						"name": "pageSize",
-						"description": "The number of entries to return per page.",
-						"in": "query",
-						"required": false,
-						"schema": {
-							"type": [
-								"number",
-								"string"
-							]
-						}
-					},
-					{
-						"name": "cursor",
-						"description": "The cursor to get next chunk of data, returned in previous response.",
-						"in": "query",
-						"required": false,
-						"schema": {
-							"type": "string"
-						},
-						"example": "optional-pagination-cursor"
-					}
-				],
-				"security": [
-					{
-						"jwtBearerAuthScheme": []
-					}
-				],
-				"responses": {
-					"200": {
-						"description": "The response structure for querying policies.",
-						"content": {
-							"application/json": {
-								"schema": {
-									"$ref": "#/components/schemas/PapQueryResponse"
-								},
-								"examples": {
-									"papQueryResponseExample": {
-										"value": {
-											"cursor": "next-page-cursor",
-											"policies": [
-												{
-													"@context": "https://www.w3.org/ns/odrl/2/",
-													"@type": "Set",
-													"uid": "urn:rights-management:abc123def456",
-													"permission": [
-														{
-															"target": "http://example.com/asset/1",
-															"action": "use"
-														}
-													]
-												}
-											]
-										}
-									}
-								}
-							}
-						}
-					},
-					"400": {
-						"description": "The server cannot process the request, see the content for more details.",
-						"content": {
-							"application/json": {
-								"schema": {
-									"$ref": "#/components/schemas/Error"
-								},
-								"examples": {
-									"exampleResponse": {
-										"value": {
-											"name": "GeneralError",
-											"message": "component.error",
-											"properties": {
-												"foo": "bar"
-											}
-										}
-									}
-								}
-							}
-						}
-					},
-					"401": {
-						"description": "You are not authorized to use the API or no credentials were supplied, see the content for more details.",
-						"content": {
-							"application/json": {
-								"schema": {
-									"$ref": "#/components/schemas/Error"
-								},
-								"examples": {
-									"exampleResponse": {
-										"value": {
-											"name": "UnauthorizedError",
-											"message": "component.error"
-										}
-									}
-								}
-							}
-						}
-					},
-					"500": {
-						"description": "The server has encountered a situation it does not know how to handle, see the content for more details.",
-						"content": {
-							"application/json": {
-								"schema": {
-									"$ref": "#/components/schemas/Error"
-								},
-								"examples": {
-									"exampleResponse": {
-										"value": {
-											"name": "InternalServerError",
-											"message": "component.error"
-										}
-									}
-								}
-							}
-						}
-					}
-				}
-			}
-		},
 		"/rights-management/negotiations/{id}": {
 			"get": {
 				"operationId": "pnpGetNegotiation",
@@ -728,7 +726,7 @@
 					"content": {
 						"application/json": {
 							"schema": {
-								"$ref": "#/components/schemas/IdsContractRequestMessage"
+								"$ref": "https://schema.twindev.org/ids-contract-negotiation/IdsContractRequestMessage"
 							},
 							"examples": {
 								"pnpNegotiationRequestExample": {
@@ -838,7 +836,7 @@
 					"content": {
 						"application/json": {
 							"schema": {
-								"$ref": "#/components/schemas/IdsContractRequestMessage"
+								"$ref": "https://schema.twindev.org/ids-contract-negotiation/IdsContractRequestMessage"
 							},
 							"examples": {
 								"pnpNegotiationProviderRequestExample": {
@@ -864,7 +862,7 @@
 						"content": {
 							"application/json": {
 								"schema": {
-									"$ref": "#/components/schemas/IdsContractNegotiationError"
+									"$ref": "https://schema.twindev.org/ids-contract-negotiation/IdsContractNegotiationError"
 								}
 							}
 						}
@@ -957,7 +955,7 @@
 					"content": {
 						"application/json": {
 							"schema": {
-								"$ref": "#/components/schemas/IdsContractNegotiationEventMessage"
+								"$ref": "https://schema.twindev.org/ids-contract-negotiation/IdsContractNegotiationEventMessage"
 							},
 							"examples": {
 								"pnpNegotiationEventsRequestExample": {
@@ -979,7 +977,7 @@
 						"content": {
 							"application/json": {
 								"schema": {
-									"$ref": "#/components/schemas/IdsContractNegotiationError"
+									"$ref": "https://schema.twindev.org/ids-contract-negotiation/IdsContractNegotiationError"
 								}
 							}
 						}
@@ -1072,7 +1070,7 @@
 					"content": {
 						"application/json": {
 							"schema": {
-								"$ref": "#/components/schemas/IdsContractAgreementVerificationMessage"
+								"$ref": "https://schema.twindev.org/ids-contract-negotiation/IdsContractAgreementVerificationMessage"
 							},
 							"examples": {
 								"pnpNegotiationAgreementVerificationRequestExample": {
@@ -1093,7 +1091,7 @@
 						"content": {
 							"application/json": {
 								"schema": {
-									"$ref": "#/components/schemas/IdsContractNegotiationError"
+									"$ref": "https://schema.twindev.org/ids-contract-negotiation/IdsContractNegotiationError"
 								}
 							}
 						}
@@ -1186,7 +1184,7 @@
 					"content": {
 						"application/json": {
 							"schema": {
-								"$ref": "#/components/schemas/IdsContractNegotiationTerminationMessage"
+								"$ref": "https://schema.twindev.org/ids-contract-negotiation/IdsContractNegotiationTerminationMessage"
 							},
 							"examples": {
 								"pnpNegotiationTerminationRequestExample": {
@@ -1207,7 +1205,7 @@
 						"content": {
 							"application/json": {
 								"schema": {
-									"$ref": "#/components/schemas/IdsContractNegotiationError"
+									"$ref": "https://schema.twindev.org/ids-contract-negotiation/IdsContractNegotiationError"
 								}
 							}
 						}
@@ -1289,7 +1287,7 @@
 					"content": {
 						"application/json": {
 							"schema": {
-								"$ref": "#/components/schemas/IdsContractOfferMessage"
+								"$ref": "https://schema.twindev.org/ids-contract-negotiation/IdsContractOfferMessage"
 							},
 							"examples": {
 								"pnpNegotiationOfferRequestExample": {
@@ -1316,7 +1314,7 @@
 						"content": {
 							"application/json": {
 								"schema": {
-									"$ref": "#/components/schemas/IdsContractNegotiationError"
+									"$ref": "https://schema.twindev.org/ids-contract-negotiation/IdsContractNegotiationError"
 								},
 								"examples": {
 									"pnpNegotiationOfferResponseExample": {
@@ -1399,7 +1397,7 @@
 					"content": {
 						"application/json": {
 							"schema": {
-								"$ref": "#/components/schemas/IdsContractOfferMessage"
+								"$ref": "https://schema.twindev.org/ids-contract-negotiation/IdsContractOfferMessage"
 							},
 							"examples": {
 								"pnpNegotiationConsumerOfferRequestExample": {
@@ -1426,7 +1424,7 @@
 						"content": {
 							"application/json": {
 								"schema": {
-									"$ref": "#/components/schemas/IdsContractNegotiationError"
+									"$ref": "https://schema.twindev.org/ids-contract-negotiation/IdsContractNegotiationError"
 								},
 								"examples": {
 									"pnpNegotiationConsumerOfferResponseExample": {
@@ -1529,7 +1527,7 @@
 					"content": {
 						"application/json": {
 							"schema": {
-								"$ref": "#/components/schemas/IdsContractAgreementMessage"
+								"$ref": "https://schema.twindev.org/ids-contract-negotiation/IdsContractAgreementMessage"
 							},
 							"examples": {
 								"pnpNegotiationAgreementRequestExample": {
@@ -1557,7 +1555,7 @@
 						"content": {
 							"application/json": {
 								"schema": {
-									"$ref": "#/components/schemas/IdsContractNegotiationError"
+									"$ref": "https://schema.twindev.org/ids-contract-negotiation/IdsContractNegotiationError"
 								}
 							}
 						}
@@ -1604,7 +1602,7 @@
 				}
 			}
 		},
-		"/rights-management/pnap/{policyId}": {
+		"/rights-management/negotiations/admin/{policyId}": {
 			"get": {
 				"operationId": "pnapGet",
 				"summary": "Get a policy negotiation",
@@ -1905,7 +1903,7 @@
 				}
 			}
 		},
-		"/rights-management/pnap": {
+		"/rights-management/negotiations/admin": {
 			"get": {
 				"operationId": "pnapQuery",
 				"summary": "Query policy negotiations",
@@ -1919,7 +1917,7 @@
 						"in": "query",
 						"required": false,
 						"schema": {
-							"$ref": "#/components/schemas/IdsContractNegotiationStateType"
+							"$ref": "https://schema.twindev.org/ids-contract-negotiation/IdsContractNegotiationStateType"
 						},
 						"example": "ACCEPTED"
 					},
@@ -2025,7 +2023,7 @@
 				}
 			}
 		},
-		"/rights-management/dap/{assetType}": {
+		"/rights-management/data/{assetType}": {
 			"post": {
 				"operationId": "dapCreate",
 				"summary": "Create a new item",
@@ -2071,7 +2069,7 @@
 					"content": {
 						"application/json": {
 							"schema": {
-								"$ref": "#/components/schemas/DataAccessRequestWithObject"
+								"$ref": "https://schema.twindev.org/rights-management/DataAccessQueryRequestWithObject"
 							},
 							"examples": {
 								"dapCreateRequestExample": {
@@ -2144,7 +2142,7 @@
 				}
 			}
 		},
-		"/rights-management/dap/{assetType}/{id}": {
+		"/rights-management/data/{assetType}/{id}": {
 			"get": {
 				"operationId": "dapGet",
 				"summary": "Get an existing item",
@@ -2312,7 +2310,7 @@
 					"content": {
 						"application/json": {
 							"schema": {
-								"$ref": "#/components/schemas/DataAccessRequestWithObject"
+								"$ref": "https://schema.twindev.org/rights-management/DataAccessQueryRequestWithObject"
 							},
 							"examples": {
 								"dapUpdateRequestExample": {
@@ -2472,7 +2470,7 @@
 				}
 			}
 		},
-		"/rights-management/dap/{assetType}/query": {
+		"/rights-management/data/{assetType}/query": {
 			"post": {
 				"operationId": "dapQuery",
 				"summary": "Query items",
@@ -2518,7 +2516,7 @@
 					"content": {
 						"application/json": {
 							"schema": {
-								"$ref": "#/components/schemas/DataAccessQuery"
+								"$ref": "https://schema.twindev.org/rights-management/DataAccessQueryQuery"
 							},
 							"examples": {
 								"dapQueryRequestExample": {
@@ -2698,70 +2696,6 @@
 				],
 				"description": "The types of comparisons."
 			},
-			"DataAccessQuery": {
-				"type": "object",
-				"properties": {
-					"@context": {
-						"type": "string",
-						"const": "https://schema.twindev.org/rights-management",
-						"description": "The JSON-LD context."
-					},
-					"type": {
-						"type": "string",
-						"const": "DataAccessQuery",
-						"description": "The type of the request."
-					},
-					"assetType": {
-						"type": "string",
-						"description": "The asset type being requested."
-					},
-					"conditions": {
-						"$ref": "#/components/schemas/EntityCondition<JsonLdNodeObject>"
-					},
-					"cursor": {
-						"type": "string",
-						"description": "The cursor for pagination, if any."
-					},
-					"options": {
-						"description": "Additional options which might be supported by the handler."
-					}
-				},
-				"required": [
-					"@context",
-					"type"
-				],
-				"additionalProperties": false,
-				"description": "The JSON-LD definition for the data access request."
-			},
-			"DataAccessRequestWithObject": {
-				"type": "object",
-				"properties": {
-					"@context": {
-						"type": "string",
-						"const": "https://schema.twindev.org/rights-management",
-						"description": "The JSON-LD context."
-					},
-					"type": {
-						"type": "string",
-						"const": "DataAccessRequestWithObject",
-						"description": "The type of the request."
-					},
-					"assetType": {
-						"type": "string",
-						"description": "The asset type being requested."
-					},
-					"object": {
-						"$ref": "https://schema.twindev.org/json-ld/JsonLdNodeObject"
-					}
-				},
-				"required": [
-					"@context",
-					"type",
-					"object"
-				],
-				"additionalProperties": false,
-				"description": "The JSON-LD definition for the data access request with object."
-			},
 			"EntityCondition<JsonLdNodeObject>": {
 				"anyOf": [
 					{
@@ -2807,416 +2741,6 @@
 				],
 				"additionalProperties": false,
 				"description": "Model to describe serialized error."
-			},
-			"IdsContractAgreementMessage": {
-				"type": "object",
-				"properties": {
-					"@context": {
-						"$ref": "#/components/schemas/IdsContractNegotiationContextType"
-					},
-					"@type": {
-						"type": "string",
-						"description": "The type of the message."
-					},
-					"providerPid": {
-						"type": "string",
-						"description": "The provider id for the contract."
-					},
-					"consumerPid": {
-						"type": "string",
-						"description": "The consumer id for the contract."
-					},
-					"agreement": {
-						"$ref": "https://schema.twindev.org/w3c-odrl/OdrlAgreement"
-					},
-					"callbackAddress": {
-						"type": "string",
-						"description": "The base callback address for the provider to update the consumer on the state of the negotiation."
-					}
-				},
-				"required": [
-					"@context",
-					"@type",
-					"providerPid",
-					"consumerPid",
-					"agreement"
-				],
-				"additionalProperties": false,
-				"description": "Interface for IDS Contract Agreement Messages. https://docs.internationaldataspaces.org/ids-knowledgebase/dataspace-protocol/contract-negotiation/contract.negotiation.protocol#id-2.3-contract-agreement-message"
-			},
-			"IdsContractAgreementVerificationMessage": {
-				"type": "object",
-				"properties": {
-					"@context": {
-						"$ref": "#/components/schemas/IdsContractNegotiationContextType"
-					},
-					"@type": {
-						"type": "string",
-						"description": "The type of the message."
-					},
-					"providerPid": {
-						"type": "string",
-						"description": "The provider id for the contract."
-					},
-					"consumerPid": {
-						"type": "string",
-						"description": "The consumer id for the contract."
-					}
-				},
-				"required": [
-					"@context",
-					"@type",
-					"providerPid",
-					"consumerPid"
-				],
-				"additionalProperties": false,
-				"description": "Interface for IDS Contract Agreement Verification Messages. https://docs.internationaldataspaces.org/ids-knowledgebase/dataspace-protocol/contract-negotiation/contract.negotiation.protocol#id-2.4-contract-agreement-verification-message"
-			},
-			"IdsContractNegotiation": {
-				"type": "object",
-				"properties": {
-					"@context": {
-						"$ref": "#/components/schemas/IdsContractNegotiationContextType"
-					},
-					"@type": {
-						"type": "string",
-						"description": "The type of the message."
-					},
-					"providerPid": {
-						"type": "string",
-						"description": "The provider id for the contract."
-					},
-					"consumerPid": {
-						"type": "string",
-						"description": "The consumer id for the contract."
-					},
-					"state": {
-						"$ref": "#/components/schemas/IdsContractNegotiationStateType"
-					}
-				},
-				"required": [
-					"@context",
-					"@type",
-					"providerPid",
-					"consumerPid",
-					"state"
-				],
-				"additionalProperties": false,
-				"description": "Interface for IDS Contract Agreement Messages. https://docs.internationaldataspaces.org/ids-knowledgebase/dataspace-protocol/contract-negotiation/contract.negotiation.protocol#id-3.1-ack-contract-negotiation"
-			},
-			"IdsContractNegotiationContextType": {
-				"anyOf": [
-					{
-						"type": "string",
-						"const": "https://w3id.org/dspace/2024/1/context.json"
-					},
-					{
-						"type": "array",
-						"minItems": 2,
-						"items": {
-							"$ref": "https://schema.twindev.org/json-ld/JsonLdContextDefinitionElement"
-						},
-						"prefixItems": [
-							{
-								"type": "string",
-								"const": "https://w3id.org/dspace/2024/1/context.json"
-							},
-							{
-								"$ref": "https://schema.twindev.org/json-ld/JsonLdContextDefinitionElement"
-							}
-						]
-					},
-					{
-						"type": "array",
-						"minItems": 2,
-						"items": {
-							"$ref": "https://schema.twindev.org/json-ld/JsonLdContextDefinitionElement"
-						},
-						"prefixItems": [
-							{
-								"$ref": "https://schema.twindev.org/json-ld/JsonLdContextDefinitionElement"
-							},
-							{
-								"type": "string",
-								"const": "https://w3id.org/dspace/2024/1/context.json"
-							}
-						]
-					}
-				],
-				"description": "The IDS Contract Negotiation JSON-LD context type."
-			},
-			"IdsContractNegotiationError": {
-				"type": "object",
-				"properties": {
-					"@context": {
-						"$ref": "#/components/schemas/IdsContractNegotiationContextType"
-					},
-					"@type": {
-						"type": "string",
-						"description": "The type of the message."
-					},
-					"providerPid": {
-						"type": "string",
-						"description": "The provider id for the contract."
-					},
-					"consumerPid": {
-						"type": "string",
-						"description": "The consumer id for the contract."
-					},
-					"code": {
-						"type": "string",
-						"description": "The error code."
-					},
-					"reason": {
-						"type": "array",
-						"items": false,
-						"description": "The error reason(s).",
-						"prefixItems": [
-							{
-								"type": "object",
-								"properties": {
-									"@value": {
-										"type": "string"
-									},
-									"@language": {
-										"type": "string"
-									}
-								},
-								"required": [
-									"@value"
-								],
-								"additionalProperties": false
-							}
-						]
-					},
-					"description": {
-						"type": "array",
-						"items": false,
-						"description": "The error description(s).",
-						"prefixItems": [
-							{
-								"type": "object",
-								"properties": {
-									"@value": {
-										"type": "string"
-									},
-									"@language": {
-										"type": "string"
-									}
-								},
-								"required": [
-									"@value"
-								],
-								"additionalProperties": false
-							}
-						]
-					}
-				},
-				"required": [
-					"@context",
-					"@type",
-					"providerPid",
-					"consumerPid"
-				],
-				"additionalProperties": false,
-				"description": "Interface for IDS Contract Negotiation Error Messages. https://docs.internationaldataspaces.org/ids-knowledgebase/dataspace-protocol/contract-negotiation/contract.negotiation.protocol#id-3.2-error-contract-negotiation-error"
-			},
-			"IdsContractNegotiationEventMessage": {
-				"type": "object",
-				"properties": {
-					"@context": {
-						"$ref": "#/components/schemas/IdsContractNegotiationContextType"
-					},
-					"@type": {
-						"type": "string",
-						"description": "The type of the message."
-					},
-					"providerPid": {
-						"type": "string",
-						"description": "The provider id for the contract."
-					},
-					"consumerPid": {
-						"type": "string",
-						"description": "The consumer id for the contract."
-					},
-					"event": {
-						"$ref": "#/components/schemas/IdsContractNegotiationEventType"
-					}
-				},
-				"required": [
-					"@context",
-					"@type",
-					"providerPid",
-					"consumerPid",
-					"event"
-				],
-				"additionalProperties": false,
-				"description": "Interface for IDS Contract Negotiation Event Messages. https://docs.internationaldataspaces.org/ids-knowledgebase/dataspace-protocol/contract-negotiation/contract.negotiation.protocol#id-2.5-contract-negotiation-event-message"
-			},
-			"IdsContractNegotiationEventType": {
-				"anyOf": [
-					{
-						"type": "string",
-						"const": "ACCEPTED",
-						"description": "Accepted."
-					},
-					{
-						"type": "string",
-						"const": "FINALIZED",
-						"description": "Finalized."
-					}
-				],
-				"description": "The types for IDS Contract Negotiation Events."
-			},
-			"IdsContractNegotiationStateType": {
-				"anyOf": [
-					{
-						"type": "string",
-						"const": "REQUESTED",
-						"description": "Requested."
-					},
-					{
-						"type": "string",
-						"const": "OFFERED",
-						"description": "Offered."
-					},
-					{
-						"type": "string",
-						"const": "ACCEPTED",
-						"description": "Accepted."
-					},
-					{
-						"type": "string",
-						"const": "AGREED",
-						"description": "Agreed."
-					},
-					{
-						"type": "string",
-						"const": "VERIFIED",
-						"description": "Verified."
-					},
-					{
-						"type": "string",
-						"const": "FINALIZED",
-						"description": "Finalized."
-					},
-					{
-						"type": "string",
-						"const": "TERMINATED",
-						"description": "Terminated."
-					}
-				],
-				"description": "The types for IDS Contract Negotiation States. https://docs.internationaldataspaces.org/ids-knowledgebase/dataspace-protocol/contract-negotiation/contract.negotiation.protocol#id-1.1-states   The types for IDS Contract Negotiation States."
-			},
-			"IdsContractNegotiationTerminationMessage": {
-				"type": "object",
-				"properties": {
-					"@context": {
-						"$ref": "#/components/schemas/IdsContractNegotiationContextType"
-					},
-					"@type": {
-						"type": "string",
-						"description": "The type of the message."
-					},
-					"providerPid": {
-						"type": "string",
-						"description": "The provider id for the contract."
-					},
-					"consumerPid": {
-						"type": "string",
-						"description": "The consumer id for the contract."
-					},
-					"code": {
-						"type": "string",
-						"description": "The termination code."
-					},
-					"reason": {
-						"type": "array",
-						"items": false,
-						"description": "The termination reason(s).",
-						"prefixItems": [
-							{}
-						]
-					}
-				},
-				"required": [
-					"@context",
-					"@type",
-					"providerPid",
-					"consumerPid"
-				],
-				"additionalProperties": false,
-				"description": "Interface for IDS Contract Negotiation Termination Messages. https://docs.internationaldataspaces.org/ids-knowledgebase/dataspace-protocol/contract-negotiation/contract.negotiation.protocol#id-2.6-contract-negotiation-termination-message"
-			},
-			"IdsContractOfferMessage": {
-				"type": "object",
-				"properties": {
-					"@context": {
-						"$ref": "#/components/schemas/IdsContractNegotiationContextType"
-					},
-					"@type": {
-						"type": "string",
-						"description": "The type of the message."
-					},
-					"providerPid": {
-						"type": "string",
-						"description": "The provider id for the contract."
-					},
-					"consumerPid": {
-						"type": "string",
-						"description": "The consumer id for the contract."
-					},
-					"offer": {
-						"$ref": "https://schema.twindev.org/w3c-odrl/OdrlOffer"
-					},
-					"callbackAddress": {
-						"type": "string",
-						"description": "The base callback address for the provider to update the consumer on the state of the negotiation."
-					}
-				},
-				"required": [
-					"@context",
-					"@type",
-					"providerPid",
-					"offer"
-				],
-				"additionalProperties": false,
-				"description": "Interface for IDS Contract Offer Messages. https://docs.internationaldataspaces.org/ids-knowledgebase/dataspace-protocol/contract-negotiation/contract.negotiation.protocol#id-2.2-contract-offer-message"
-			},
-			"IdsContractRequestMessage": {
-				"type": "object",
-				"properties": {
-					"@context": {
-						"$ref": "#/components/schemas/IdsContractNegotiationContextType"
-					},
-					"@type": {
-						"type": "string",
-						"description": "The type of the message."
-					},
-					"providerPid": {
-						"type": "string",
-						"description": "The provider id for the contract."
-					},
-					"consumerPid": {
-						"type": "string",
-						"description": "The consumer id for the contract."
-					},
-					"offer": {
-						"$ref": "https://schema.twindev.org/w3c-odrl/OdrlOffer"
-					},
-					"callbackAddress": {
-						"type": "string",
-						"description": "The base callback address for the provider to update the consumer on the state of the negotiation."
-					}
-				},
-				"required": [
-					"@context",
-					"@type",
-					"consumerPid",
-					"offer"
-				],
-				"additionalProperties": false,
-				"description": "Interface for IDS Contract Request Messages. https://docs.internationaldataspaces.org/ids-knowledgebase/dataspace-protocol/contract-negotiation/contract.negotiation.protocol#id-2.1-contract-request-message"
 			},
 			"LogicalOperator": {
 				"anyOf": [
@@ -3645,10 +3169,10 @@
 			"PnpContractNegotiationResponse": {
 				"anyOf": [
 					{
-						"$ref": "#/components/schemas/IdsContractNegotiation"
+						"$ref": "https://schema.twindev.org/ids-contract-negotiation/IdsContractNegotiation"
 					},
 					{
-						"$ref": "#/components/schemas/IdsContractNegotiationError"
+						"$ref": "https://schema.twindev.org/ids-contract-negotiation/IdsContractNegotiationError"
 					}
 				],
 				"description": "The state of the policy or an error."
@@ -3710,7 +3234,7 @@
 						"description": "The expiration time for the policy negotiation if it's a manual process."
 					},
 					"state": {
-						"$ref": "#/components/schemas/IdsContractNegotiationStateType"
+						"$ref": "https://schema.twindev.org/ids-contract-negotiation/IdsContractNegotiationStateType"
 					},
 					"callbackAddress": {
 						"type": "string",

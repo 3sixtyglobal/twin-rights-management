@@ -4,7 +4,7 @@ Class implementation of Data Access Request Point Component.
 
 ## Implements
 
-- `IDataAccessPointRequestComponent`
+- `IDataAccessRequestPointComponent`
 
 ## Constructors
 
@@ -36,7 +36,7 @@ The class name of the Data Access Request Point Service.
 
 #### Implementation of
 
-`IDataAccessPointRequestComponent.CLASS_NAME`
+`IDataAccessRequestPointComponent.CLASS_NAME`
 
 ## Methods
 
@@ -68,7 +68,7 @@ Nothing.
 
 #### Implementation of
 
-`IDataAccessPointRequestComponent.start`
+`IDataAccessRequestPointComponent.start`
 
 ***
 
@@ -106,7 +106,7 @@ The id of the item created, for some items this is supplied in the `item`.
 
 #### Implementation of
 
-`IDataAccessPointRequestComponent.create`
+`IDataAccessRequestPointComponent.create`
 
 ***
 
@@ -144,7 +144,7 @@ The item retrieved if the policies allow it.
 
 #### Implementation of
 
-`IDataAccessPointRequestComponent.get`
+`IDataAccessRequestPointComponent.get`
 
 ***
 
@@ -182,7 +182,7 @@ Nothing.
 
 #### Implementation of
 
-`IDataAccessPointRequestComponent.update`
+`IDataAccessRequestPointComponent.update`
 
 ***
 
@@ -220,7 +220,7 @@ Nothing.
 
 #### Implementation of
 
-`IDataAccessPointRequestComponent.remove`
+`IDataAccessRequestPointComponent.remove`
 
 ***
 
@@ -270,4 +270,4 @@ The items matching the query and cursor if there are more items.
 
 #### Implementation of
 
-`IDataAccessPointRequestComponent.query`
+`IDataAccessRequestPointComponent.query`

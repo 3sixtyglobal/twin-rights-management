@@ -15,7 +15,7 @@ import {
 	RightsManagementTokenHelper,
 	RightsManagementTypes,
 	type IDataAccessPointComponent,
-	type IDataAccessPointRequestComponent,
+	type IDataAccessRequestPointComponent,
 	type IDataAccessQuery,
 	type IDataAccessRequest,
 	type IDataAccessRequestWithObject
@@ -25,7 +25,7 @@ import type { IDataAccessRequestPointServiceConstructorOptions } from "./models/
 /**
  * Class implementation of Data Access Request Point Component.
  */
-export class DataAccessRequestPointService implements IDataAccessPointRequestComponent {
+export class DataAccessRequestPointService implements IDataAccessRequestPointComponent {
 	/**
 	 * The class name of the Data Access Request Point Service.
 	 */

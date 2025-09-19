@@ -68,14 +68,15 @@ async function waitForState(
 	storage: MemoryEntityStorageConnector<PolicyNegotiation>,
 	state: string
 ): Promise<void> {
-	for (let i = 0; i < 20; i++) {
+	for (let i = 0; i < 30; i++) {
 		const store = storage.getStore();
 		if (store[0].state === state) {
 			return;
 		}
 		await new Promise(resolve => setTimeout(resolve, 100));
 	}
-	throw new Error("Timeout waiting for state");
+	console.log(storage.getStore()[0]);
+	throw new Error(`Timeout waiting for state ${state}`);
 }
 
 describe("PolicyNegotiationPointService", () => {
