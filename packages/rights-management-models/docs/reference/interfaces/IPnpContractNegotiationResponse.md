@@ -1,4 +1,4 @@
-# Interface: IPnpNegotiateResponse
+# Interface: IPnpContractNegotiationResponse
 
 The response structure for negotiating a policy.
 
@@ -16,8 +16,16 @@ The headers which can be used to determine the response data type.
 
 ***
 
+### statusCode?
+
+> `optional` **statusCode**: `HttpStatusCode`
+
+Response status code.
+
+***
+
 ### body
 
-> **body**: [`IPolicyState`](IPolicyState.md)
+> **body**: `IIdsContractNegotiation` \| `IIdsContractNegotiationError`
 
-The state of the policy.
+The state of the policy or an error.

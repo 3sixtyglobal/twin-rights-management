@@ -38,6 +38,7 @@
 		"@twin.org/entity": "next",
 		"@twin.org/nameof": "next",
 		"@twin.org/rights-management-models": "0.0.2-next.9",
+		"@twin.org/standards-ids-contract-negotiation": "next",
 		"@twin.org/standards-w3c-did": "next",
 		"@twin.org/standards-w3c-odrl": "next",
 		"@twin.org/web": "next"

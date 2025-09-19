@@ -10,11 +10,11 @@ The request structure for querying manual policy negotiations.
 
 The query parameters of the request.
 
-#### status?
+#### state?
 
-> `optional` **status**: `string`
+> `optional` **state**: `IdsContractNegotiationStateType`
 
-The status of the policy negotiations.
+The state of the policy negotiations.
 
 #### cursor?
 

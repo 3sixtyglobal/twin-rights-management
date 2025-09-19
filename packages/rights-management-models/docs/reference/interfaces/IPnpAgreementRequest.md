@@ -1,6 +1,6 @@
-# Interface: IPnpNegotiationCancelRequest
+# Interface: IPnpAgreementRequest
 
-The request structure for cancelling a policy negotiation.
+The request structure for sending a contract negotiation agreement.
 
 ## Properties
 
@@ -26,8 +26,16 @@ The headers which can be used to determine the response data type.
 
 The path parameters of the request.
 
-#### policyId
+#### id
 
-> **policyId**: `string`
+> **id**: `string`
 
-The ID of the policy being cancelled.
+The identifier of the negotiation to target.
+
+***
+
+### body
+
+> **body**: `IIdsContractAgreementMessage`
+
+The body parameters of the request.

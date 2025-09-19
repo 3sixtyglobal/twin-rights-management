@@ -5,7 +5,6 @@ An interface for locating policies.
 ## Extended by
 
 - [`IPolicyNegotiation`](IPolicyNegotiation.md)
-- [`IPolicyNegotiationRequest`](IPolicyNegotiationRequest.md)
 
 ## Properties
 

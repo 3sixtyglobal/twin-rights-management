@@ -1,6 +1,6 @@
 # Interface: IPolicyRequest
 
-The JSON-LD definition for a proof request.
+The JSON-LD definition for a policy request.
 
 ## Properties
 
@@ -16,12 +16,28 @@ The JSON-LD context.
 
 > **type**: `"PolicyRequest"`
 
-The type of the proof.
+The type of the request.
 
 ***
 
-### id
+### providerPid?
 
-> **id**: `string`
+> `optional` **providerPid**: `string`
 
-The id of the policy.
+The provider id.
+
+***
+
+### consumerPid?
+
+> `optional` **consumerPid**: `string`
+
+The consumer id.
+
+***
+
+### information?
+
+> `optional` **information**: [`IPolicyInformation`](IPolicyInformation.md)
+
+Additional information that can be used in the request.

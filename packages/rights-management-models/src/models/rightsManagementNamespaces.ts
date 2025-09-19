@@ -9,7 +9,12 @@ export const RightsManagementNamespaces = {
 	/**
 	 * Policy.
 	 */
-	Policy: "policy"
+	Policy: "policy",
+
+	/**
+	 * Contract Negotiation.
+	 */
+	ContractNegotiation: "contract-negotiation"
 } as const;
 
 /**

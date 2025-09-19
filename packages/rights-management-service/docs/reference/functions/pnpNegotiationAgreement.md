@@ -1,8 +1,8 @@
-# Function: pnpNegotiationState()
+# Function: pnpNegotiationAgreement()
 
-> **pnpNegotiationState**(`httpRequestContext`, `componentName`, `request`): `Promise`\<`IPnpNegotiationStateResponse`\>
+> **pnpNegotiationAgreement**(`httpRequestContext`, `componentName`, `request`): `Promise`\<`IPnpContractResponse`\>
 
-PNP: Negotiation State.
+PNP: Send the agreement to the consumer.
 
 ## Parameters
 
@@ -20,12 +20,12 @@ The name of the component to use in the routes.
 
 ### request
 
-`IPnpNegotiationStateRequest`
+`IPnpAgreementRequest`
 
 The request.
 
 ## Returns
 
-`Promise`\<`IPnpNegotiationStateResponse`\>
+`Promise`\<`IPnpContractResponse`\>
 
 The response object with additional http response properties.

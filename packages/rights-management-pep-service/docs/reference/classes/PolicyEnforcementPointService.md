@@ -54,7 +54,7 @@ Process the data using Policy Decision Point (PDP) and return the manipulated da
 
 ##### R
 
-`R` = `unknown`
+`R` = `D`
 
 #### Parameters
 

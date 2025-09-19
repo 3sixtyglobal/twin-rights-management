@@ -1,6 +1,6 @@
-# Interface: IPnpNegotiationStateRequest
+# Interface: IPnpAgreementVerificationRequest
 
-The request structure for negotiating a policy.
+The request structure for sending a contract negotiation agreement verification.
 
 ## Properties
 
@@ -26,8 +26,16 @@ The headers which can be used to determine the response data type.
 
 The path parameters of the request.
 
-#### policyId
+#### id
 
-> **policyId**: `string`
+> **id**: `string`
 
-The ID of the policy being requested.
+The identifier of the contract negotiation to be retrieved.
+
+***
+
+### body
+
+> **body**: `IIdsContractAgreementVerificationMessage`
+
+The body parameters of the request.

@@ -79,7 +79,7 @@ export class PolicyAdministrationPointService implements IPolicyAdministrationPo
 			Urn.guard(this.CLASS_NAME, nameof(policy.uid), policy.uid);
 			const urnParsed = Urn.fromValidString(policy.uid);
 
-			if (urnParsed.namespaceMethod() !== RightsManagementNamespaces.Policy) {
+			if (urnParsed.namespaceIdentifier() !== RightsManagementNamespaces.Policy) {
 				throw new GeneralError(this.CLASS_NAME, "namespaceMismatch", {
 					namespace: RightsManagementNamespaces.Policy,
 					id: policy.uid

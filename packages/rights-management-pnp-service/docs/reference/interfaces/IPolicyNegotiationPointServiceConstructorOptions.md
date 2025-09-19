@@ -74,8 +74,8 @@ policy-information-point
 
 ***
 
-### config?
+### config
 
-> `optional` **config**: [`IPolicyNegotiationPointServiceConfig`](IPolicyNegotiationPointServiceConfig.md)
+> **config**: [`IPolicyNegotiationPointServiceConfig`](IPolicyNegotiationPointServiceConfig.md)
 
 Configuration options for the policy negotiation point service.

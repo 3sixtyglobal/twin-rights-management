@@ -12,16 +12,6 @@ export const RightsManagementTypes = {
 	PolicyRequest: "PolicyRequest",
 
 	/**
-	 * Represents policy negotiation request.
-	 */
-	PolicyNegotiationRequest: "PolicyNegotiationRequest",
-
-	/**
-	 * Represents policy state.
-	 */
-	PolicyState: "PolicyState",
-
-	/**
 	 * Represents data access request.
 	 */
 	DataAccessRequest: "DataAccessRequest",

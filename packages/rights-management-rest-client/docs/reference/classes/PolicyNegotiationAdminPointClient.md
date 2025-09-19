@@ -128,15 +128,15 @@ Nothing.
 
 ### query()
 
-> **query**(`status?`, `cursor?`): `Promise`\<\{ `items`: `IPolicyNegotiation`[]; `cursor?`: `string`; \}\>
+> **query**(`state?`, `cursor?`): `Promise`\<\{ `items`: `IPolicyNegotiation`[]; `cursor?`: `string`; \}\>
 
 Get a list of the negotiations.
 
 #### Parameters
 
-##### status?
+##### state?
 
-`PolicyNegotiationStatus`
+`IdsContractNegotiationStateType`
 
 The state of the negotiations to retrieve.
 

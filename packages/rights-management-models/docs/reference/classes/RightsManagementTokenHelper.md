@@ -74,15 +74,9 @@ GeneralError is the token creation fails.
 
 ### verifyToken()
 
-> `static` **verifyToken**\<`T`\>(`identityConnector`, `item`, `token`, `tokenTtlInSeconds`): `Promise`\<`Omit`\<`IDidVerifiableCredential`, `"issuer"`\> & `object`\>
+> `static` **verifyToken**(`identityConnector`, `checkProperties`, `token`, `tokenTtlInSeconds`): `Promise`\<`Omit`\<`IDidVerifiableCredential`, `"issuer"`\> & `object`\>
 
 Verify the token.
-
-#### Type Parameters
-
-##### T
-
-`T` *extends* `object`
 
 #### Parameters
 
@@ -92,11 +86,11 @@ Verify the token.
 
 The identity connector to use for verifying the token.
 
-##### item
+##### checkProperties
 
-`T`
+`object`
 
-The item being verified.
+Properties to compare against the subject to see if they match.
 
 ##### token
 

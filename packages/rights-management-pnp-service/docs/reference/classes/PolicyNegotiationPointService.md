@@ -10,13 +10,13 @@ Class implementation of Policy Negotiation Point Component.
 
 ### Constructor
 
-> **new PolicyNegotiationPointService**(`options?`): `PolicyNegotiationPointService`
+> **new PolicyNegotiationPointService**(`options`): `PolicyNegotiationPointService`
 
 Create a new instance of PolicyNegotiationPointService (PNP).
 
 #### Parameters
 
-##### options?
+##### options
 
 [`IPolicyNegotiationPointServiceConstructorOptions`](../interfaces/IPolicyNegotiationPointServiceConstructorOptions.md)
 
@@ -40,95 +40,25 @@ The class name of the Policy Negotiation Point Service.
 
 ## Methods
 
-### negotiate()
+### start()
 
-> **negotiate**(`locator`, `information`, `proofToken`): `Promise`\<`IPolicyState`\>
+> **start**(`nodeIdentity`, `nodeLoggingComponentType`): `Promise`\<`void`\>
 
-Processes an incoming negotiation request for the resource.
-
-#### Parameters
-
-##### locator
-
-`IPolicyLocator`
-
-The locator to find relevant policies.
-
-##### information
-
-Information provided by the requester to determine if a policy can be created.
-
-`undefined` | `IPolicyInformation`
-
-##### proofToken
-
-`string`
-
-The proof provided by the requester to support the policy creation.
-
-#### Returns
-
-`Promise`\<`IPolicyState`\>
-
-The state of the policy.
-
-#### Implementation of
-
-`IPolicyNegotiationPointComponent.negotiate`
-
-***
-
-### negotiationState()
-
-> **negotiationState**(`policyId`, `proofToken`): `Promise`\<`IPolicyState`\>
-
-Retrieves the current state of a policy negotiation.
+The component needs to be started when the node is initialized.
 
 #### Parameters
 
-##### policyId
+##### nodeIdentity
 
 `string`
 
-The ID of the policy to retrieve the state for.
+The identity of the node starting the component.
 
-##### proofToken
+##### nodeLoggingComponentType
 
-`string`
+The node logging component type.
 
-The proof provided by the requester to support the policy retrieval.
-
-#### Returns
-
-`Promise`\<`IPolicyState`\>
-
-The current state of the policy.
-
-#### Implementation of
-
-`IPolicyNegotiationPointComponent.negotiationState`
-
-***
-
-### negotiationCancel()
-
-> **negotiationCancel**(`policyId`, `proofToken`): `Promise`\<`void`\>
-
-Cancels an ongoing negotiation for a resource.
-
-#### Parameters
-
-##### policyId
-
-`string`
-
-The ID of the policy to cancel.
-
-##### proofToken
-
-`string`
-
-The proof provided by the requester to support the cancellation.
+`undefined` | `string`
 
 #### Returns
 
@@ -138,7 +68,282 @@ Nothing.
 
 #### Implementation of
 
-`IPolicyNegotiationPointComponent.negotiationCancel`
+`IPolicyNegotiationPointComponent.start`
+
+***
+
+### getNegotiation()
+
+> **getNegotiation**(`id`, `proofToken`): `Promise`\<`IIdsContractNegotiation` \| `IIdsContractNegotiationError`\>
+
+Get the current state of the negotiation.
+
+#### Parameters
+
+##### id
+
+`string`
+
+The id of the negotiation to retrieve.
+
+##### proofToken
+
+`string`
+
+The proof provided by the requester to support the get.
+
+#### Returns
+
+`Promise`\<`IIdsContractNegotiation` \| `IIdsContractNegotiationError`\>
+
+The current state of the negotiation or an error.
+
+#### Implementation of
+
+`IPolicyNegotiationPointComponent.getNegotiation`
+
+***
+
+### sendRequestToProvider()
+
+> **sendRequestToProvider**(`url`, `requesterId`, `odrlOfferId`): `Promise`\<`string`\>
+
+Send a request to a provider.
+
+#### Parameters
+
+##### url
+
+`string`
+
+The url of the provider to send the request to.
+
+##### requesterId
+
+`string`
+
+The id of the requester to use for the request, will use the registered requester to provide update.
+
+##### odrlOfferId
+
+`string`
+
+The id of the offer to request.
+
+#### Returns
+
+`Promise`\<`string`\>
+
+The negotiation id.
+
+#### Implementation of
+
+`IPolicyNegotiationPointComponent.sendRequestToProvider`
+
+***
+
+### requestFromConsumer()
+
+> **requestFromConsumer**(`message`, `proofToken`): `Promise`\<`IIdsContractNegotiation` \| `IIdsContractNegotiationError`\>
+
+Processes an incoming request on a provider from a consumer.
+https://docs.internationaldataspaces.org/ids-knowledgebase/dataspace-protocol/contract-negotiation/contract.negotiation.protocol#id-2.1-contract-request-message.
+
+#### Parameters
+
+##### message
+
+`IIdsContractRequestMessage`
+
+The negotiation request.
+
+##### proofToken
+
+`string`
+
+The proof provided by the requester to support the policy creation.
+
+#### Returns
+
+`Promise`\<`IIdsContractNegotiation` \| `IIdsContractNegotiationError`\>
+
+The current state of the contract negotiation or an error.
+
+#### Implementation of
+
+`IPolicyNegotiationPointComponent.requestFromConsumer`
+
+***
+
+### offerFromProvider()
+
+> **offerFromProvider**(`message`, `proofToken`): `Promise`\<`IIdsContractNegotiation` \| `IIdsContractNegotiationError`\>
+
+An offer has been received by a consumer.
+
+#### Parameters
+
+##### message
+
+`IIdsContractOfferMessage`
+
+The offer being received by the consumer.
+
+##### proofToken
+
+`string`
+
+The proof provided by the requester to support the offer.
+
+#### Returns
+
+`Promise`\<`IIdsContractNegotiation` \| `IIdsContractNegotiationError`\>
+
+The current state of the contract negotiation or an error.
+
+#### Implementation of
+
+`IPolicyNegotiationPointComponent.offerFromProvider`
+
+***
+
+### agreementFromProvider()
+
+> **agreementFromProvider**(`message`, `proofToken`): `Promise`\<`undefined` \| `IIdsContractNegotiationError`\>
+
+An agreement has been received by a consumer.
+
+#### Parameters
+
+##### message
+
+`IIdsContractAgreementMessage`
+
+The agreement message to send.
+
+##### proofToken
+
+`string`
+
+The proof provided by the requester to support the agreement.
+
+#### Returns
+
+`Promise`\<`undefined` \| `IIdsContractNegotiationError`\>
+
+The error if there is one.
+
+#### Implementation of
+
+`IPolicyNegotiationPointComponent.agreementFromProvider`
+
+***
+
+### agreementVerificationFromConsumer()
+
+> **agreementVerificationFromConsumer**(`message`, `proofToken`): `Promise`\<`undefined` \| `IIdsContractNegotiationError`\>
+
+An agreement verification has been received by a provider.
+
+#### Parameters
+
+##### message
+
+`IIdsContractAgreementVerificationMessage`
+
+The agreement message to send.
+
+##### proofToken
+
+`string`
+
+The proof provided by the requester to support the agreement verification.
+
+#### Returns
+
+`Promise`\<`undefined` \| `IIdsContractNegotiationError`\>
+
+The error if there is one.
+
+#### Implementation of
+
+`IPolicyNegotiationPointComponent.agreementVerificationFromConsumer`
+
+***
+
+### event()
+
+> **event**(`message`, `destination`, `proofToken`): `Promise`\<`undefined` \| `IIdsContractNegotiationError`\>
+
+An event has been received by the provider or consumer.
+
+#### Parameters
+
+##### message
+
+`IIdsContractNegotiationEventMessage`
+
+The event message to send.
+
+##### destination
+
+The destination is provider or consumer.
+
+`"provider"` | `"consumer"`
+
+##### proofToken
+
+`string`
+
+The proof provided by the requester to support the event.
+
+#### Returns
+
+`Promise`\<`undefined` \| `IIdsContractNegotiationError`\>
+
+The error if there is one.
+
+#### Implementation of
+
+`IPolicyNegotiationPointComponent.event`
+
+***
+
+### terminate()
+
+> **terminate**(`message`, `destination`, `proofToken`): `Promise`\<`undefined` \| `IIdsContractNegotiationError`\>
+
+A termination message has been received by the consumer.
+
+#### Parameters
+
+##### message
+
+`IIdsContractNegotiationTerminationMessage`
+
+The termination message to send.
+
+##### destination
+
+The destination is provider or consumer.
+
+`"provider"` | `"consumer"`
+
+##### proofToken
+
+`string`
+
+The proof provided by the requester to support the termination.
+
+#### Returns
+
+`Promise`\<`undefined` \| `IIdsContractNegotiationError`\>
+
+The error if there is one.
+
+#### Implementation of
+
+`IPolicyNegotiationPointComponent.terminate`
 
 ***
 
@@ -197,3 +402,113 @@ Nothing.
 #### Implementation of
 
 `IPolicyNegotiationPointComponent.unregisterNegotiator`
+
+***
+
+### registerRequester()
+
+> **registerRequester**(`requesterId`, `requester`): `Promise`\<`void`\>
+
+Register a requester to use for handle returning offers.
+
+#### Parameters
+
+##### requesterId
+
+`string`
+
+The id of the requester to register.
+
+##### requester
+
+`IPolicyRequester`
+
+The requester to register.
+
+#### Returns
+
+`Promise`\<`void`\>
+
+Nothing.
+
+#### Implementation of
+
+`IPolicyNegotiationPointComponent.registerRequester`
+
+***
+
+### unregisterRequester()
+
+> **unregisterRequester**(`requesterId`): `Promise`\<`void`\>
+
+Unregister a requester from the handling.
+
+#### Parameters
+
+##### requesterId
+
+`string`
+
+The id of the requester to unregister.
+
+#### Returns
+
+`Promise`\<`void`\>
+
+Nothing.
+
+#### Implementation of
+
+`IPolicyNegotiationPointComponent.unregisterRequester`
+
+***
+
+### registerOffer()
+
+> **registerOffer**(`offer`): `Promise`\<`void`\>
+
+Register an offer available for negotiation.
+
+#### Parameters
+
+##### offer
+
+`IOdrlOffer`
+
+The offer to register.
+
+#### Returns
+
+`Promise`\<`void`\>
+
+Nothing.
+
+#### Implementation of
+
+`IPolicyNegotiationPointComponent.registerOffer`
+
+***
+
+### unregisterOffer()
+
+> **unregisterOffer**(`offerId`): `Promise`\<`void`\>
+
+Unregister an offer.
+
+#### Parameters
+
+##### offerId
+
+`string`
+
+The id of the offer to unregister.
+
+#### Returns
+
+`Promise`\<`void`\>
+
+Nothing.
+
+#### Implementation of
+
+`IPolicyNegotiationPointComponent.unregisterOffer`

@@ -15,9 +15,9 @@ import type {
 	IPnapQueryResponse,
 	IPnapRemoveRequest,
 	IPnapSetRequest,
-	IPolicyNegotiationAdminPointComponent,
-	PolicyNegotiationStatus
+	IPolicyNegotiationAdminPointComponent
 } from "@twin.org/rights-management-models";
+import { IdsContractNegotiationStateType } from "@twin.org/standards-ids-contract-negotiation";
 import { HttpMethod, HttpStatusCode } from "@twin.org/web";
 
 /**
@@ -73,12 +73,10 @@ export function generateRestRoutesPolicyNegotiationAdminPoint(
 						id: "pnapGetResponseExample",
 						response: {
 							body: {
-								id: "policy-1",
-								status: "manual",
+								id: "pid",
+								correlationId: "cid",
 								dateCreated: "2025-09-03T00:00:00.000Z",
-								assetType: "document",
-								action: "view",
-								assignee: "urn:example:node:1"
+								state: IdsContractNegotiationStateType.REQUESTED
 							}
 						}
 					}
@@ -103,12 +101,10 @@ export function generateRestRoutesPolicyNegotiationAdminPoint(
 					request: {
 						pathParams: { policyId: "policy-1" },
 						body: {
-							id: "policy-1",
-							status: "approved",
+							id: "pid",
+							correlationId: "cid",
 							dateCreated: "2025-09-03T00:00:00.000Z",
-							assetType: "document",
-							action: "view",
-							assignee: "urn:example:node:1"
+							state: IdsContractNegotiationStateType.REQUESTED
 						}
 					}
 				}
@@ -153,7 +149,7 @@ export function generateRestRoutesPolicyNegotiationAdminPoint(
 				{
 					id: "pnapQueryRequestExample",
 					request: {
-						query: { status: "manual", cursor: "next-cursor" }
+						query: { state: IdsContractNegotiationStateType.ACCEPTED, cursor: "next-cursor" }
 					}
 				}
 			]
@@ -168,12 +164,10 @@ export function generateRestRoutesPolicyNegotiationAdminPoint(
 							body: {
 								items: [
 									{
-										id: "policy-1",
-										status: "manual",
+										id: "pid",
+										correlationId: "cid",
 										dateCreated: "2025-09-03T00:00:00.000Z",
-										assetType: "document",
-										action: "view",
-										assignee: "urn:example:node:1"
+										state: IdsContractNegotiationStateType.REQUESTED
 									}
 								],
 								cursor: "next-cursor"
@@ -289,7 +283,7 @@ export async function pnapQuery(
 
 	const component = ComponentFactory.get<IPolicyNegotiationAdminPointComponent>(componentName);
 	const result = await component.query(
-		request.query?.status as PolicyNegotiationStatus,
+		request.query?.state as IdsContractNegotiationStateType,
 		request.query?.cursor
 	);
 

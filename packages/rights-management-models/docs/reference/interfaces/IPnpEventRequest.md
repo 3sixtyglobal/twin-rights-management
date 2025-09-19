@@ -1,6 +1,6 @@
-# Interface: IPnpNegotiateRequest
+# Interface: IPnpEventRequest
 
-The request structure for requesting a contract negotiation.
+The request structure for requesting a contract negotiation event.
 
 ## Properties
 
@@ -20,22 +20,22 @@ The headers which can be used to determine the response data type.
 
 ***
 
-### pathParams?
+### pathParams
 
-> `optional` **pathParams**: `object`
+> **pathParams**: `object`
 
 The path parameters of the request.
 
-#### id?
+#### id
 
-> `optional` **id**: `string`
+> **id**: `string`
 
-The identifier of the contract negotiation to be retrieved, can be undefined.
+The identifier of the negotiation to target.
 
 ***
 
 ### body
 
-> **body**: `IIdsContractRequestMessage`
+> **body**: `IIdsContractNegotiationEventMessage`
 
 The body parameters of the request.

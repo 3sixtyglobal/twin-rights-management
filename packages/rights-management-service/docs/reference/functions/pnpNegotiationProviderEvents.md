@@ -1,8 +1,8 @@
-# Function: pnpNegotiationCancel()
+# Function: pnpNegotiationProviderEvents()
 
-> **pnpNegotiationCancel**(`httpRequestContext`, `componentName`, `request`): `Promise`\<`INoContentResponse`\>
+> **pnpNegotiationProviderEvents**(`httpRequestContext`, `componentName`, `request`): `Promise`\<`IPnpContractResponse`\>
 
-PNP: Negotiation Cancel.
+PNP: Update state of negotiation.
 
 ## Parameters
 
@@ -20,12 +20,12 @@ The name of the component to use in the routes.
 
 ### request
 
-`IPnpNegotiationCancelRequest`
+`IPnpEventRequest`
 
 The request.
 
 ## Returns
 
-`Promise`\<`INoContentResponse`\>
+`Promise`\<`IPnpContractResponse`\>
 
 The response object with additional http response properties.

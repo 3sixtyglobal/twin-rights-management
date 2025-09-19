@@ -12,9 +12,9 @@ import type {
 	IPnapRemoveRequest,
 	IPnapSetRequest,
 	IPolicyNegotiation,
-	IPolicyNegotiationAdminPointComponent,
-	PolicyNegotiationStatus
+	IPolicyNegotiationAdminPointComponent
 } from "@twin.org/rights-management-models";
+import type { IdsContractNegotiationStateType } from "@twin.org/standards-ids-contract-negotiation";
 
 /**
  * Client for performing Rights Management Policy Negotiation Admin through to REST endpoints.
@@ -86,12 +86,12 @@ export class PolicyNegotiationAdminPointClient
 
 	/**
 	 * Get a list of the negotiations.
-	 * @param status The state of the negotiations to retrieve.
+	 * @param state The state of the negotiations to retrieve.
 	 * @param cursor The cursor to use for pagination.
 	 * @returns A list of negotiations and cursor if there are more entries.
 	 */
 	public async query(
-		status?: PolicyNegotiationStatus,
+		state?: IdsContractNegotiationStateType,
 		cursor?: string
 	): Promise<{
 		items: IPolicyNegotiation[];
@@ -99,7 +99,7 @@ export class PolicyNegotiationAdminPointClient
 	}> {
 		const response = await this.fetch<IPnapQueryRequest, IPnapQueryResponse>("/pnap", "GET", {
 			query: {
-				status,
+				state,
 				cursor
 			}
 		});

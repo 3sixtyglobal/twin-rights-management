@@ -1,12 +1,11 @@
 // Copyright 2024 IOTA Stiftung.
 // SPDX-License-Identifier: Apache-2.0.
-import type { IIdsContractRequestMessage } from "@twin.org/standards-ids-contract-negotiation";
 import type { HeaderTypes, MimeTypes } from "@twin.org/web";
 
 /**
  * The request structure for requesting a contract negotiation.
  */
-export interface IPnpNegotiateRequest {
+export interface IPnpNegotiationGetRequest {
 	/**
 	 * The headers which can be used to determine the response data type.
 	 */
@@ -18,15 +17,10 @@ export interface IPnpNegotiateRequest {
 	/**
 	 * The path parameters of the request.
 	 */
-	pathParams?: {
+	pathParams: {
 		/**
-		 * The identifier of the contract negotiation to be retrieved, can be undefined.
+		 * The identifier of the contract negotiation to be retrieved.
 		 */
-		id?: string;
+		id: string;
 	};
-
-	/**
-	 * The body parameters of the request.
-	 */
-	body: IIdsContractRequestMessage;
 }

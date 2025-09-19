@@ -12,18 +12,6 @@ The types of Rights Management data.
 
 Represents policy request.
 
-### PolicyNegotiationRequest
-
-> `readonly` **PolicyNegotiationRequest**: `"PolicyNegotiationRequest"` = `"PolicyNegotiationRequest"`
-
-Represents policy negotiation request.
-
-### PolicyState
-
-> `readonly` **PolicyState**: `"PolicyState"` = `"PolicyState"`
-
-Represents policy state.
-
 ### DataAccessRequest
 
 > `readonly` **DataAccessRequest**: `"DataAccessRequest"` = `"DataAccessRequest"`

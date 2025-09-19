@@ -2,18 +2,18 @@
 // SPDX-License-Identifier: Apache-2.0.
 import type { ITaskSchedulerComponent } from "@twin.org/background-task-models";
 import { ComponentFactory, Guards, Is, NotFoundError } from "@twin.org/core";
-import { ComparisonOperator, SortDirection } from "@twin.org/entity";
+import { ComparisonOperator, LogicalOperator, SortDirection } from "@twin.org/entity";
 import {
 	EntityStorageConnectorFactory,
 	type IEntityStorageConnector
 } from "@twin.org/entity-storage-models";
 import type { ILoggingComponent } from "@twin.org/logging-models";
 import { nameof } from "@twin.org/nameof";
-import {
-	PolicyNegotiationStatus,
-	type IPolicyNegotiation,
-	type IPolicyNegotiationAdminPointComponent
+import type {
+	IPolicyNegotiation,
+	IPolicyNegotiationAdminPointComponent
 } from "@twin.org/rights-management-models";
+import { IdsContractNegotiationStateType } from "@twin.org/standards-ids-contract-negotiation";
 import type { PolicyNegotiation } from "./entities/policyNegotiation";
 import type { IPolicyNegotiationAdminPointServiceConstructorOptions } from "./models/IPolicyNegotiationAdminPointServiceConstructorOptions";
 
@@ -25,7 +25,7 @@ export class PolicyNegotiationAdminPointService implements IPolicyNegotiationAdm
 	 * The default time-to-live (TTL) for negotiation states in minutes.
 	 * @default 1440
 	 */
-	private static readonly _DEFAULT_NEGOTIATION_STATE_TTL_DEFAULT_MINUTES = 1440;
+	private static readonly _DEFAULT_NEGOTIATION_STATE_TTL_DEFAULT_MINUTES = 1440; // One Day
 
 	/**
 	 * The class name of the Policy Negotiation Admin Point Service.
@@ -117,14 +117,15 @@ export class PolicyNegotiationAdminPointService implements IPolicyNegotiationAdm
 
 	/**
 	 * Retrieves a policy negotiation.
-	 * @param policyId The ID of the policy to retrieve the negotiation for.
+	 * @param id The ID of the policy to retrieve the negotiation for.
 	 * @returns The policy negotiation.
 	 */
-	public async get(policyId: string): Promise<IPolicyNegotiation> {
-		Guards.stringValue(this.CLASS_NAME, nameof(policyId), policyId);
-		const entity = await this._policyNegotiationEntityStorage.get(policyId);
+	public async get(id: string): Promise<IPolicyNegotiation> {
+		Guards.stringValue(this.CLASS_NAME, nameof(id), id);
+
+		const entity = await this._policyNegotiationEntityStorage.get(id);
 		if (Is.empty(entity)) {
-			throw new NotFoundError(this.CLASS_NAME, "policyNotFound", policyId);
+			throw new NotFoundError(this.CLASS_NAME, "policyNotFound", id);
 		}
 		return this.entityToModel(entity);
 	}
@@ -138,8 +139,12 @@ export class PolicyNegotiationAdminPointService implements IPolicyNegotiationAdm
 		Guards.object<IPolicyNegotiation>(this.CLASS_NAME, nameof(negotiation), negotiation);
 		const entity = this.modelToEntity(negotiation);
 
-		// If this is a rejected negotiation, set the expiration
-		if (Is.empty(entity.expires) && entity.status === PolicyNegotiationStatus.Rejected) {
+		// Every time the negotiation is updated, extend the expiry time
+		// unless intervention is required then we don't want it to expire
+		// and we want it to be handled manually
+		if (entity.interventionRequired) {
+			entity.expires = undefined;
+		} else {
 			entity.expires = Date.now() + this._negotiationStateTtlMs;
 		}
 
@@ -163,7 +168,7 @@ export class PolicyNegotiationAdminPointService implements IPolicyNegotiationAdm
 	 * @returns A list of negotiations and cursor if there are more entries.
 	 */
 	public async query(
-		status?: PolicyNegotiationStatus,
+		status?: IdsContractNegotiationStateType,
 		cursor?: string
 	): Promise<{
 		items: IPolicyNegotiation[];
@@ -171,7 +176,7 @@ export class PolicyNegotiationAdminPointService implements IPolicyNegotiationAdm
 	}> {
 		let condition;
 
-		if (Is.arrayOneOf(status, Object.values(PolicyNegotiationStatus))) {
+		if (Is.arrayOneOf(status, Object.values(IdsContractNegotiationStateType))) {
 			condition = {
 				conditions: [
 					{
@@ -212,17 +217,13 @@ export class PolicyNegotiationAdminPointService implements IPolicyNegotiationAdm
 						comparison: ComparisonOperator.LessThan,
 						value: now
 					},
-					// States for cleanup
-					// approved are not added to the storage
-					// manual still need processing
-					// in progress still need processing
-					// rejected can be cleaned up
 					{
-						property: "status",
-						comparison: ComparisonOperator.Equals,
-						value: PolicyNegotiationStatus.Rejected
+						property: "expires",
+						comparison: ComparisonOperator.NotEquals,
+						value: undefined
 					}
-				]
+				],
+				logicalOperator: LogicalOperator.And
 			});
 			if (Is.arrayValue(result.entities)) {
 				for (const item of result.entities) {
@@ -246,15 +247,20 @@ export class PolicyNegotiationAdminPointService implements IPolicyNegotiationAdm
 	private entityToModel(entity: PolicyNegotiation): IPolicyNegotiation {
 		return {
 			id: entity.id,
+			correlationId: entity.correlationId,
+			policyId: entity.policyId,
 			dateCreated: entity.dateCreated,
-			assetType: entity.assetType,
-			action: entity.action,
-			resourceId: entity.resourceId,
-			assignee: entity.assignee,
+			expires: entity.expires,
+			state: entity.state,
+			callbackAddress: entity.callbackAddress,
+			offer: entity.offer,
+			agreement: entity.agreement,
 			information: entity.information,
-			status: entity.status,
+			code: entity.code,
 			reason: entity.reason,
-			expires: entity.expires
+			description: entity.description,
+			handlerId: entity.handlerId,
+			interventionRequired: entity.interventionRequired
 		};
 	}
 
@@ -267,15 +273,20 @@ export class PolicyNegotiationAdminPointService implements IPolicyNegotiationAdm
 	private modelToEntity(model: IPolicyNegotiation): PolicyNegotiation {
 		return {
 			id: model.id,
+			correlationId: model.correlationId,
+			policyId: model.policyId,
 			dateCreated: model.dateCreated,
-			assetType: model.assetType,
-			action: model.action,
-			resourceId: model.resourceId,
-			assignee: model.assignee,
+			expires: model.expires,
+			state: model.state,
+			callbackAddress: model.callbackAddress,
+			offer: model.offer,
+			agreement: model.agreement,
 			information: model.information,
-			status: model.status,
+			code: model.code,
 			reason: model.reason,
-			expires: model.expires
+			description: model.description,
+			handlerId: model.handlerId,
+			interventionRequired: model.interventionRequired
 		};
 	}
 }

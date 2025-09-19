@@ -1,14 +1,22 @@
 {
 	"error": {
 		"policyNegotiationPointService": {
-			"negotiationFailed": "Failed to negotiate using negotiator with id: \"{negotiatorId}\", for asset type \"{assetType}\", action \"{action}\"",
-			"stateFailed": "Failed to retrieve state for policy with id: \"{policyId}\"",
-			"policyFailed": "Failed to retrieve policy for policy with id: \"{policyId}\"",
-			"policyNotFound": "Policy with id: \"{policyId}\" not found",
-			"noNegotiatorFound": "No negotiator found for asset type \"{assetType}\" and action \"{action}\""
+			"noOfferFound": "No offer found with id: \"{offerId}\"",
+			"noNegotiatorFound": "No negotiator found which support offer id: \"{offerId}\"",
+			"noRequesterFound": "No requester found with id: \"{requesterId}\"",
+			"negotiationFailed": "Negotiation failed for offer id: \"{offerId}\"",
+			"missingNodeIdentity": "The node identity is missing",
+			"requesterIdMissing": "The requester id is missing",
+			"agreementMissing": "The agreement is missing",
+			"negotiationNotFound": "No negotiation found with id: \"{notFoundId}\"",
+			"requesterNotFound": "No requester found with id: \"{requesterId}\"",
+			"invalidState": "The negotiation is in an incorrect state \"{toState}\" for negotiation with id: \"{negotiationId}\"",
+			"offerNotAccepted": "Offer with id: \"{offerId}\" was not accepted by the requester",
+			"agreementNotAccepted": "Agreement with id: \"{agreementId}\" was not accepted by the requester",
+			"noAgreementCreated": "No agreement was created for offer with id: \"{offerId}\""
 		},
 		"policyNegotiationAdminPointService": {
-			"policyNotFound": "Policy with id: \"{policyId}\" not found"
+			"policyNotFound": "Policy with id: \"{notFoundId}\" not found"
 		},
 		"policyNegotiationRequestPointService": {
 			"missingNodeIdentity": "The node identity is missing"
@@ -17,7 +25,11 @@
 	"info": {
 		"policyNegotiationPointService": {
 			"registeredNegotiator": "Negotiator registered with id: \"{negotiatorId}\"",
-			"unregisteredNegotiator": "Negotiator unregistered with id: \"{negotiatorId}\""
+			"unregisteredNegotiator": "Negotiator unregistered with id: \"{negotiatorId}\"",
+			"registeredRequester": "Requester registered with id: \"{requesterId}\"",
+			"unregisteredRequester": "Requester unregistered with id: \"{requesterId}\"",
+			"registeredOffer": "Offer registered with id: \"{offerId}\"",
+			"unregisteredOffer": "Offer unregistered with id: \"{offerId}\""
 		},
 		"policyNegotiationRequestPointService": {
 			"negotiationRequest": "Negotiation request sent for locator: \"{locator}\", url: \"{url}\"",

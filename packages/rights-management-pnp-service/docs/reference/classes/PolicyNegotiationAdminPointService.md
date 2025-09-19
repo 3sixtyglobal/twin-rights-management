@@ -106,13 +106,13 @@ Nothing.
 
 ### get()
 
-> **get**(`policyId`): `Promise`\<`IPolicyNegotiation`\>
+> **get**(`id`): `Promise`\<`IPolicyNegotiation`\>
 
 Retrieves a policy negotiation.
 
 #### Parameters
 
-##### policyId
+##### id
 
 `string`
 
@@ -192,7 +192,7 @@ Get a list of the negotiations.
 
 ##### status?
 
-`PolicyNegotiationStatus`
+`IdsContractNegotiationStateType`
 
 The status of the negotiations to retrieve.
 

@@ -1,6 +1,6 @@
 // Copyright 2024 IOTA Stiftung.
 // SPDX-License-Identifier: Apache-2.0.
-import { GeneralError, Guards, Is, JsonHelper, ObjectHelper } from "@twin.org/core";
+import { GeneralError, Guards, Is, ObjectHelper } from "@twin.org/core";
 import type { IJsonLdNodeObject } from "@twin.org/data-json-ld";
 import { DocumentHelper, type IIdentityConnector } from "@twin.org/identity-models";
 import { nameof } from "@twin.org/nameof";
@@ -8,8 +8,6 @@ import {
 	type IDidVerifiableCredential,
 	VerifiableCredentialHelper
 } from "@twin.org/standards-w3c-did";
-import type { RightsManagementContexts } from "../models/rightsManagementContexts";
-import type { RightsManagementTypes } from "../models/rightsManagementTypes";
 
 /**
  * Helper methods for creating and verifying rights managements requests.
@@ -31,8 +29,7 @@ export class RightsManagementTokenHelper {
 	 */
 	public static async createToken<
 		T extends {
-			"@context": typeof RightsManagementContexts.ContextRoot;
-			type: keyof typeof RightsManagementTypes;
+			"@context": unknown;
 		}
 	>(
 		identityConnector: IIdentityConnector,
@@ -76,20 +73,15 @@ export class RightsManagementTokenHelper {
 	/**
 	 * Verify the token.
 	 * @param identityConnector The identity connector to use for verifying the token.
-	 * @param item The item being verified.
+	 * @param checkProperties Properties to compare against the subject to see if they match.
 	 * @param token The token containing the necessary information.
 	 * @param tokenTtlInSeconds The time-to-live (TTL) for the token in seconds.
 	 * @returns The verifiable credential if the token is valid.
 	 * @throws GeneralError is the token verification fails.
 	 */
-	public static async verifyToken<
-		T extends {
-			"@context": typeof RightsManagementContexts.ContextRoot;
-			type: keyof typeof RightsManagementTypes;
-		}
-	>(
+	public static async verifyToken(
 		identityConnector: IIdentityConnector,
-		item: T,
+		checkProperties: object,
 		token: string,
 		tokenTtlInSeconds: number
 	): Promise<Omit<IDidVerifiableCredential, "issuer"> & { issuer: string }> {
@@ -115,13 +107,15 @@ export class RightsManagementTokenHelper {
 				throw new GeneralError(RightsManagementTokenHelper.CLASS_NAME, "tokenNoIssuer");
 			}
 
-			if (
-				JsonHelper.canonicalize(ObjectHelper.omit(item, ["@context", "type"])) !==
-				JsonHelper.canonicalize(verifiableCredential.credentialSubject)
-			) {
-				throw new GeneralError(RightsManagementTokenHelper.CLASS_NAME, "tokenItemMismatch", {
-					type: item.type
-				});
+			for (const checkProperty of Object.keys(checkProperties)) {
+				if (
+					ObjectHelper.propertyGet(checkProperties, checkProperty) !==
+					ObjectHelper.propertyGet(verifiableCredential.credentialSubject, checkProperty)
+				) {
+					throw new GeneralError(RightsManagementTokenHelper.CLASS_NAME, "tokenItemMismatch", {
+						property: checkProperty
+					});
+				}
 			}
 
 			await RightsManagementTokenHelper.verifyIssuanceDate(
@@ -135,14 +129,7 @@ export class RightsManagementTokenHelper {
 				issuer
 			};
 		} catch (err) {
-			throw new GeneralError(
-				RightsManagementTokenHelper.CLASS_NAME,
-				"tokenFailed",
-				{
-					type: item.type
-				},
-				err
-			);
+			throw new GeneralError(RightsManagementTokenHelper.CLASS_NAME, "tokenFailed", undefined, err);
 		}
 	}
 

@@ -12,7 +12,7 @@ import {
 import { LoggingConnectorFactory } from "@twin.org/logging-models";
 import { LoggingService } from "@twin.org/logging-service";
 import { nameof } from "@twin.org/nameof";
-import { PolicyNegotiationStatus } from "@twin.org/rights-management-models";
+import { IdsContractNegotiationStateType } from "@twin.org/standards-ids-contract-negotiation";
 import type { PolicyNegotiation } from "../src/entities/policyNegotiation";
 import { PolicyNegotiationAdminPointService } from "../src/policyNegotiationAdminPointService";
 import { initSchema } from "../src/schema";
@@ -52,31 +52,29 @@ describe("PolicyNegotiationAdminPointService", () => {
 		const service = new PolicyNegotiationAdminPointService();
 		const negotiation: PolicyNegotiation = {
 			id: "pid",
+			correlationId: "cid",
 			dateCreated: new Date().toISOString(),
-			assetType: "asset",
-			action: "action",
-			assignee: "assignee",
-			status: PolicyNegotiationStatus.Manual
+			state: IdsContractNegotiationStateType.REQUESTED
 		};
 		await service.set(negotiation);
 		const result = await service.get("pid");
-		expect(result).toEqual(negotiation);
+		expect(result).toMatchObject(negotiation);
+		expect(result.expires).toBeDefined();
 	});
 
-	test("set negotiation with rejected status sets expires property", async () => {
+	test("set negotiation with interventionRequired set", async () => {
 		const service = new PolicyNegotiationAdminPointService();
 		const negotiation: PolicyNegotiation = {
-			id: "rejected1",
+			id: "pid",
+			correlationId: "cid",
 			dateCreated: new Date().toISOString(),
-			assetType: "asset",
-			action: "action",
-			assignee: "assignee",
-			status: PolicyNegotiationStatus.Rejected
+			state: IdsContractNegotiationStateType.REQUESTED,
+			interventionRequired: true
 		};
 		await service.set(negotiation);
-		const result = await service.get("rejected1");
-		expect(result?.status).toBe("rejected");
-		expect(result?.expires).toBeDefined();
+		const result = await service.get("pid");
+		expect(result).toMatchObject(negotiation);
+		expect(result.expires).toBeUndefined();
 	});
 
 	test("get returns undefined for missing negotiation", async () => {
@@ -89,45 +87,45 @@ describe("PolicyNegotiationAdminPointService", () => {
 	test("can remove a negotiation", async () => {
 		const service = new PolicyNegotiationAdminPointService();
 		const negotiation: PolicyNegotiation = {
-			id: "pid2",
+			id: "pid",
+			correlationId: "cid",
 			dateCreated: new Date().toISOString(),
-			assetType: "asset",
-			action: "action",
-			assignee: "assignee",
-			status: PolicyNegotiationStatus.Manual
+			state: IdsContractNegotiationStateType.REQUESTED
 		};
 		await service.set(negotiation);
-		await service.remove("pid2");
+		await service.remove("pid");
 
-		await expect(service.get("pid2")).rejects.toMatchObject({
+		await expect(service.get("pid")).rejects.toMatchObject({
 			name: expect.stringMatching("NotFoundError")
 		});
 	});
 
 	test("can cleanup old requests", async () => {
 		const service = new PolicyNegotiationAdminPointService();
+
+		const now = Date.now();
+		const msInDay = 1440 * 60 * 1000;
 		const negotiation: PolicyNegotiation = {
 			id: "pid",
+			correlationId: "cid",
 			dateCreated: new Date().toISOString(),
-			assetType: "asset",
-			action: "action",
-			assignee: "assignee",
-			status: PolicyNegotiationStatus.Rejected,
-			expires: Date.now() - 1000 // already expired
+			state: IdsContractNegotiationStateType.REQUESTED
 		};
+
+		Date.now = vi.fn().mockImplementation(() => now - msInDay);
 		await service.set(negotiation);
 
 		const negotiation2: PolicyNegotiation = {
 			id: "pid2",
+			correlationId: "cid2",
 			dateCreated: new Date().toISOString(),
-			assetType: "asset",
-			action: "action",
-			assignee: "assignee",
-			status: PolicyNegotiationStatus.Rejected,
-			expires: Date.now() + 5000 // expires in the future
+			state: IdsContractNegotiationStateType.REQUESTED
 		};
-		await service.set(negotiation);
+
+		Date.now = vi.fn().mockImplementation(() => now + msInDay);
 		await service.set(negotiation2);
+
+		vi.clearAllMocks();
 		await service.start("nid", undefined);
 
 		await expect(service.get("pid")).rejects.toMatchObject({

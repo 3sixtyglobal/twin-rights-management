@@ -4,39 +4,41 @@ Interface describing a Policy Negotiator.
 
 ## Methods
 
-### supportedPolicies()
+### supportsOffer()
 
-> **supportedPolicies**(): [`IPolicyLocator`](IPolicyLocator.md)[]
+> **supportsOffer**(`offer`): `Promise`\<`boolean`\>
 
-The policies supported by this negotiator.
-
-#### Returns
-
-[`IPolicyLocator`](IPolicyLocator.md)[]
-
-The supported policies, if empty can be used for all.
-
-***
-
-### negotiate()
-
-> **negotiate**(`policyId`, `locator`, `information?`): `Promise`\<\{ `state`: [`IPolicyState`](IPolicyState.md); `policy?`: `IOdrlPolicy`; \}\>
-
-Determines if a policy can be created for the requested resource.
+Determines if the negotiator supports the given offer.
 
 #### Parameters
 
-##### policyId
+##### offer
 
-`string`
+`IOdrlOffer`
 
-The policy id to use if creating a new policy.
+The offer to check.
 
-##### locator
+#### Returns
 
-[`IPolicyLocator`](IPolicyLocator.md)
+`Promise`\<`boolean`\>
 
-The locator to find relevant policies.
+Sets the supports flag if it can be offered, and the interventionRequired flag if manual agreement is needed.
+
+***
+
+### handleOffer()
+
+> **handleOffer**(`offer`, `information?`): `Promise`\<\{ `accepted`: `boolean`; `interventionRequired`: `boolean`; \}\>
+
+Handle the offer.
+
+#### Parameters
+
+##### offer
+
+`IOdrlOffer`
+
+The offer to check.
 
 ##### information?
 
@@ -46,6 +48,34 @@ Information provided by the requester to determine if a policy can be created.
 
 #### Returns
 
-`Promise`\<\{ `state`: [`IPolicyState`](IPolicyState.md); `policy?`: `IOdrlPolicy`; \}\>
+`Promise`\<\{ `accepted`: `boolean`; `interventionRequired`: `boolean`; \}\>
 
-The state of the policy and the actual policy if it was approved.
+Sets the accepted flag if it can be offered, and the interventionRequired flag if manual agreement is needed.
+
+***
+
+### createAgreement()
+
+> **createAgreement**(`offer`, `information?`): `Promise`\<`undefined` \| `IOdrlAgreement`\>
+
+Create an agreement based on the offer.
+
+#### Parameters
+
+##### offer
+
+`IOdrlOffer`
+
+The offer to create the agreement from.
+
+##### information?
+
+[`IPolicyInformation`](IPolicyInformation.md)
+
+Information provided by the requester to aid in the creation of the agreement.
+
+#### Returns
+
+`Promise`\<`undefined` \| `IOdrlAgreement`\>
+
+The agreement created from the offer or undefined if an agreement could not be created.

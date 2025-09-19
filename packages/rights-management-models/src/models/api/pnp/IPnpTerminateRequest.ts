@@ -1,11 +1,12 @@
 // Copyright 2024 IOTA Stiftung.
 // SPDX-License-Identifier: Apache-2.0.
+import type { IIdsContractNegotiationTerminationMessage } from "@twin.org/standards-ids-contract-negotiation";
 import type { HeaderTypes, MimeTypes } from "@twin.org/web";
 
 /**
- * The request structure for negotiating a policy.
+ * The request structure for requesting a contract negotiation termination.
  */
-export interface IPnpNegotiationStateRequest {
+export interface IPnpTerminateRequest {
 	/**
 	 * The headers which can be used to determine the response data type.
 	 */
@@ -19,8 +20,13 @@ export interface IPnpNegotiationStateRequest {
 	 */
 	pathParams: {
 		/**
-		 * The ID of the policy being requested.
+		 * The identifier of the negotiation to target.
 		 */
-		policyId: string;
+		id: string;
 	};
+
+	/**
+	 * The body parameters of the request.
+	 */
+	body: IIdsContractNegotiationTerminationMessage;
 }

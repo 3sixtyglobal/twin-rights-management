@@ -1,6 +1,6 @@
-# Interface: IPnpNegotiateRequest
+# Interface: IPnpOfferRequest
 
-The request structure for requesting a contract negotiation.
+The request structure for sending a contract negotiation offer.
 
 ## Properties
 
@@ -30,12 +30,12 @@ The path parameters of the request.
 
 > `optional` **id**: `string`
 
-The identifier of the contract negotiation to be retrieved, can be undefined.
+The identifier of the consumer being offered, this can be undefined.
 
 ***
 
 ### body
 
-> **body**: `IIdsContractRequestMessage`
+> **body**: `IIdsContractOfferMessage`
 
 The body parameters of the request.

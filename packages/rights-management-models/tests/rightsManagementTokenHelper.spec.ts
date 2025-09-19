@@ -16,7 +16,6 @@ import {
 	type VaultSecret
 } from "@twin.org/vault-connector-entity-storage";
 import { VaultConnectorFactory } from "@twin.org/vault-models";
-import type { IPolicyNegotiationRequest } from "../src/models/pnp/jsonLd/IPolicyNegotiationRequest";
 import type { IPolicyRequest } from "../src/models/pnp/jsonLd/IPolicyRequest";
 import { RightsManagementContexts } from "../src/models/rightsManagementContexts";
 import { RightsManagementTypes } from "../src/models/rightsManagementTypes";
@@ -69,37 +68,12 @@ describe("RightsManagementTokenHelper", () => {
 		);
 	});
 
-	it("should create and verify negotiation proof", async () => {
-		const policyNegotiationRequest: IPolicyNegotiationRequest = {
-			"@context": RightsManagementContexts.ContextRoot,
-			type: RightsManagementTypes.PolicyNegotiationRequest,
-			assignee: testIdentity,
-			assetType: "assetType",
-			action: "read",
-			resourceId: "resource-1"
-		};
-		const proof = await RightsManagementTokenHelper.createToken(
-			identityConnector,
-			`${testIdentity}#key-1`,
-			policyNegotiationRequest,
-			60
-		);
-		expect(proof.split(".").length).toEqual(3);
-
-		const vc = await RightsManagementTokenHelper.verifyToken(
-			identityConnector,
-			policyNegotiationRequest,
-			proof,
-			60 * 60
-		);
-		expect(vc?.issuer).toEqual(testIdentity);
-	});
-
-	it("should create and verify policy id", async () => {
+	it("should create and verify a proof for a policy request object", async () => {
 		const policyRequest: IPolicyRequest = {
 			"@context": RightsManagementContexts.ContextRoot,
 			type: RightsManagementTypes.PolicyRequest,
-			id: "policy-1"
+			providerPid: "urn:provider:provider-1",
+			consumerPid: testIdentity
 		};
 		const proof = await RightsManagementTokenHelper.createToken(
 			identityConnector,
@@ -111,39 +85,10 @@ describe("RightsManagementTokenHelper", () => {
 
 		const vc = await RightsManagementTokenHelper.verifyToken(
 			identityConnector,
-			policyRequest,
+			{ providerPid: policyRequest.providerPid, consumerPid: policyRequest.consumerPid },
 			proof,
 			60 * 60
 		);
 		expect(vc?.issuer).toEqual(testIdentity);
-	});
-
-	it("should fail verification for expired proof", async () => {
-		const policyNegotiationRequest: IPolicyNegotiationRequest = {
-			"@context": RightsManagementContexts.ContextRoot,
-			type: RightsManagementTypes.PolicyNegotiationRequest,
-			assignee: testIdentity,
-			assetType: "assetType",
-			action: "read",
-			resourceId: "resource-1"
-		};
-		const proof = await RightsManagementTokenHelper.createToken(
-			identityConnector,
-			`${testIdentity}#key-1`,
-			policyNegotiationRequest,
-			60
-		);
-
-		await expect(
-			RightsManagementTokenHelper.verifyToken(
-				identityConnector,
-				policyNegotiationRequest,
-				proof,
-				-1
-			)
-		).rejects.toMatchObject({
-			message: "rightsManagementTokenHelper.tokenFailed",
-			cause: { message: "rightsManagementTokenHelper.tokenExpired" }
-		});
 	});
 });

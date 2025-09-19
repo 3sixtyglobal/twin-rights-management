@@ -60,6 +60,22 @@ A resource identifier for the locator.
 
 > **id**: `string`
 
+The primary id used by the provider.
+
+***
+
+### correlationId
+
+> **correlationId**: `string`
+
+This is used by the other side of the negotiation.
+
+***
+
+### policyId?
+
+> `optional` **policyId**: `string`
+
 The unique identifier for the policy.
 
 ***
@@ -72,32 +88,104 @@ The date and time when the negotiation was created.
 
 ***
 
-### information?
+### expires?
 
-> `optional` **information**: [`IPolicyInformation`](IPolicyInformation.md)
+> `optional` **expires**: `number`
 
-The requester information.
+The expiration time for the policy negotiation if it's a manual process.
 
 ***
 
-### status
+### state
 
-> **status**: [`PolicyNegotiationStatus`](../type-aliases/PolicyNegotiationStatus.md)
+> **state**: `IdsContractNegotiationStateType`
 
 The status of the negotiation.
 
 ***
 
-### reason?
+### callbackAddress?
 
-> `optional` **reason**: `string`
+> `optional` **callbackAddress**: `string`
 
-A reason which might be provided if the negotiation status is not approved.
+The callback address to send updates to the requester.
 
 ***
 
-### expires?
+### offer?
 
-> `optional` **expires**: `number`
+> `optional` **offer**: `IOdrlOffer`
 
-The expiration time for the policy negotiation.
+The offer being requested.
+
+***
+
+### agreement?
+
+> `optional` **agreement**: `IOdrlAgreement`
+
+The agreement being established if the negotiation was successful.
+
+***
+
+### information?
+
+> `optional` **information**: [`IPolicyInformation`](IPolicyInformation.md)
+
+Additional information supplied by the consumer to help with negotiation.
+
+***
+
+### code?
+
+> `optional` **code**: `string`
+
+A reason code for when the negotiation errors.
+
+***
+
+### reason?
+
+> `optional` **reason**: `object`[]
+
+A more detailed reason for the negotiation error.
+
+#### @value
+
+> **@value**: `string`
+
+#### @language?
+
+> `optional` **@language**: `string`
+
+***
+
+### description?
+
+> `optional` **description**: `object`[]
+
+A more detailed reason for the negotiation error.
+
+#### @value
+
+> **@value**: `string`
+
+#### @language?
+
+> `optional` **@language**: `string`
+
+***
+
+### handlerId?
+
+> `optional` **handlerId**: `string`
+
+The id of the handler, on provider side this is the negotiator, on consumer side this is the requester.
+
+***
+
+### interventionRequired?
+
+> `optional` **interventionRequired**: `boolean`
+
+Is manual intervention required to complete the negotiation?

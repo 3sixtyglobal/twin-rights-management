@@ -5,7 +5,6 @@
 - [PolicyNegotiation](classes/PolicyNegotiation.md)
 - [PolicyNegotiationAdminPointService](classes/PolicyNegotiationAdminPointService.md)
 - [PolicyNegotiationPointService](classes/PolicyNegotiationPointService.md)
-- [PolicyNegotiationRequestPointService](classes/PolicyNegotiationRequestPointService.md)
 
 ## Interfaces
 
@@ -13,8 +12,6 @@
 - [IPolicyNegotiationAdminPointServiceConstructorOptions](interfaces/IPolicyNegotiationAdminPointServiceConstructorOptions.md)
 - [IPolicyNegotiationPointServiceConfig](interfaces/IPolicyNegotiationPointServiceConfig.md)
 - [IPolicyNegotiationPointServiceConstructorOptions](interfaces/IPolicyNegotiationPointServiceConstructorOptions.md)
-- [IPolicyNegotiationRequestPointServiceConfig](interfaces/IPolicyNegotiationRequestPointServiceConfig.md)
-- [IPolicyNegotiationRequestPointServiceConstructorOptions](interfaces/IPolicyNegotiationRequestPointServiceConstructorOptions.md)
 
 ## Functions
 

@@ -2,6 +2,7 @@
 
 Interface describing a Policy Negotiation Admin Point (PNAP) contract.
 Components performs administration tasks on the policy negotiations.
+https://docs.internationaldataspaces.org/ids-knowledgebase/dataspace-protocol/contract-negotiation/contract.negotiation.protocol
 
 ## Extends
 
@@ -11,13 +12,13 @@ Components performs administration tasks on the policy negotiations.
 
 ### get()
 
-> **get**(`policyId`): `Promise`\<[`IPolicyNegotiation`](IPolicyNegotiation.md)\>
+> **get**(`id`): `Promise`\<[`IPolicyNegotiation`](IPolicyNegotiation.md)\>
 
 Retrieves a policy negotiation.
 
 #### Parameters
 
-##### policyId
+##### id
 
 `string`
 
@@ -85,7 +86,7 @@ Get a list of the negotiations.
 
 ##### status?
 
-[`PolicyNegotiationStatus`](../type-aliases/PolicyNegotiationStatus.md)
+`IdsContractNegotiationStateType`
 
 The state of the negotiations to retrieve.
 

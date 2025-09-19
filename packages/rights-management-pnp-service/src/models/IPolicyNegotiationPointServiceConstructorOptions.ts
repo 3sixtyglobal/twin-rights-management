@@ -39,5 +39,5 @@ export interface IPolicyNegotiationPointServiceConstructorOptions {
 	/**
 	 * Configuration options for the policy negotiation point service.
 	 */
-	config?: IPolicyNegotiationPointServiceConfig;
+	config: IPolicyNegotiationPointServiceConfig;
 }

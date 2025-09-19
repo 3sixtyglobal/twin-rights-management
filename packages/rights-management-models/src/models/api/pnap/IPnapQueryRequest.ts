@@ -1,5 +1,6 @@
 // Copyright 2024 IOTA Stiftung.
 // SPDX-License-Identifier: Apache-2.0.
+import type { IdsContractNegotiationStateType } from "@twin.org/standards-ids-contract-negotiation";
 
 /**
  * The request structure for querying manual policy negotiations.
@@ -10,9 +11,9 @@ export interface IPnapQueryRequest {
 	 */
 	query?: {
 		/**
-		 * The status of the policy negotiations.
+		 * The state of the policy negotiations.
 		 */
-		status?: string;
+		state?: IdsContractNegotiationStateType;
 
 		/**
 		 * The cursor for pagination.

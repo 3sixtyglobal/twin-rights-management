@@ -18,6 +18,22 @@ Class describing a rights management policy negotiation.
 
 > **id**: `string`
 
+An id to help identify the negotiation on the provider's side.
+
+***
+
+### correlationId
+
+> **correlationId**: `string`
+
+This is used by the other side of the negotiation.
+
+***
+
+### policyId?
+
+> `optional` **policyId**: `string`
+
 The unique identifier for the policy.
 
 ***
@@ -30,35 +46,43 @@ The date and time when the negotiation was created.
 
 ***
 
-### assetType?
+### expires?
 
-> `optional` **assetType**: `string`
+> `optional` **expires**: `number`
 
-The asset type the negotiation is for.
-
-***
-
-### action?
-
-> `optional` **action**: `string`
-
-The action the negotiation is for.
+The expiration time for the policy negotiation.
 
 ***
 
-### resourceId?
+### state
 
-> `optional` **resourceId**: `string`
+> **state**: `IdsContractNegotiationStateType`
 
-The resource id the negotiation is for.
+The status of the negotiation.
 
 ***
 
-### assignee?
+### callbackAddress?
 
-> `optional` **assignee**: `string`
+> `optional` **callbackAddress**: `string`
 
-The identity of the node making the request.
+The callback address to send updates to the requester.
+
+***
+
+### offer?
+
+> `optional` **offer**: `IOdrlOffer`
+
+The offer being requested.
+
+***
+
+### agreement?
+
+> `optional` **agreement**: `IOdrlAgreement`
+
+The agreement being established if the negotiation was successful.
 
 ***
 
@@ -66,28 +90,60 @@ The identity of the node making the request.
 
 > `optional` **information**: `IPolicyInformation`
 
-The requester information.
+Additional information supplied by the consumer to help with negotiation.
 
 ***
 
-### status
+### code?
 
-> **status**: `PolicyNegotiationStatus`
+> `optional` **code**: `string`
 
-The status of the negotiation.
+A reason code for when the negotiation errors.
 
 ***
 
 ### reason?
 
-> `optional` **reason**: `string`
+> `optional` **reason**: `object`[]
 
-A reason which might be provided if the negotiation status is not approved.
+A more detailed reason for the negotiation error reason.
+
+#### @value
+
+> **@value**: `string`
+
+#### @language?
+
+> `optional` **@language**: `string`
 
 ***
 
-### expires?
+### description?
 
-> `optional` **expires**: `number`
+> `optional` **description**: `object`[]
 
-The expiration time for the policy negotiation.
+A more detailed reason for the negotiation error description.
+
+#### @value
+
+> **@value**: `string`
+
+#### @language?
+
+> `optional` **@language**: `string`
+
+***
+
+### handlerId?
+
+> `optional` **handlerId**: `string`
+
+The id of the handler, on provider side this is the negotiator, on consumer side this is the requester.
+
+***
+
+### interventionRequired?
+
+> `optional` **interventionRequired**: `boolean`
+
+Is manual intervention required to complete the negotiation?

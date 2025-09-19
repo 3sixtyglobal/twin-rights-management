@@ -589,14 +589,25 @@
 				}
 			}
 		},
-		"/rights-management/pnp/negotiate": {
-			"post": {
-				"operationId": "pnpNegotiate",
-				"summary": "Negotiate a policy",
+		"/rights-management/negotiations/{id}": {
+			"get": {
+				"operationId": "pnpGetNegotiation",
+				"summary": "Get a negotiation",
 				"tags": [
 					"Policy Negotiation Point"
 				],
 				"parameters": [
+					{
+						"name": "id",
+						"description": "The identifier of the contract negotiation to be retrieved.",
+						"in": "path",
+						"required": true,
+						"schema": {
+							"type": "string"
+						},
+						"style": "simple",
+						"example": "urn:contract-negotiation:00aa11bb.......ffff"
+					},
 					{
 						"name": "accept",
 						"in": "header",
@@ -618,43 +629,22 @@
 						"example": "z3Vcuh2BP9ShC.z3Vcuh2BP9ShC.z3Vcuh2BP9ShC"
 					}
 				],
-				"requestBody": {
-					"description": "The request structure for negotiating a policy.",
-					"required": true,
-					"content": {
-						"application/json": {
-							"schema": {
-								"$ref": "#/components/schemas/PolicyNegotiationRequest"
-							},
-							"examples": {
-								"pnpNegotiateRequestExample": {
-									"value": {
-										"@context": "https://schema.twindev.org/rights-management",
-										"type": "PolicyNegotiationRequest",
-										"assetType": "document",
-										"action": "view",
-										"assignee": "urn:example:node:1"
-									}
-								}
-							}
-						}
-					}
-				},
 				"responses": {
 					"200": {
 						"description": "The response structure for negotiating a policy.",
 						"content": {
 							"application/json": {
 								"schema": {
-									"$ref": "#/components/schemas/PolicyState"
+									"$ref": "#/components/schemas/PnpContractNegotiationResponse"
 								},
 								"examples": {
-									"IPnpNegotiateResponseExample": {
+									"pnpGetNegotiationResponseExample": {
 										"value": {
-											"@context": "https://schema.twindev.org/rights-management",
-											"type": "PolicyState",
-											"id": "policy-1",
-											"status": "approved"
+											"@context": "https://w3id.org/dspace/2024/1/context.json",
+											"@type": "ContractNegotiation",
+											"providerPid": "urn:contract-negotiation:002aa11bb.......ffff",
+											"consumerPid": "urn:contract-negotiation:22aa11bb.......ffff",
+											"state": "REQUESTED"
 										}
 									}
 								}
@@ -703,25 +693,14 @@
 				}
 			}
 		},
-		"/rights-management/pnp/{policyId}": {
-			"get": {
-				"operationId": "pnpNegotiationState",
-				"summary": "Get the state of a policy",
+		"/rights-management/negotiations/request": {
+			"post": {
+				"operationId": "pnpNegotiationRequest",
+				"summary": "Negotiate a policy",
 				"tags": [
 					"Policy Negotiation Point"
 				],
 				"parameters": [
-					{
-						"name": "policyId",
-						"description": "The ID of the policy being requested.",
-						"in": "path",
-						"required": true,
-						"schema": {
-							"type": "string"
-						},
-						"style": "simple",
-						"example": "policy-1"
-					},
 					{
 						"name": "accept",
 						"in": "header",
@@ -743,21 +722,48 @@
 						"example": "z3Vcuh2BP9ShC.z3Vcuh2BP9ShC.z3Vcuh2BP9ShC"
 					}
 				],
+				"requestBody": {
+					"description": "The request structure for requesting a contract negotiation.",
+					"required": true,
+					"content": {
+						"application/json": {
+							"schema": {
+								"$ref": "#/components/schemas/IdsContractRequestMessage"
+							},
+							"examples": {
+								"pnpNegotiationRequestExample": {
+									"value": {
+										"@context": "https://w3id.org/dspace/2024/1/context.json",
+										"@type": "ContractRequestMessage",
+										"consumerPid": "urn:contract-negotiation:22aa11bb.......ffff",
+										"offer": {
+											"@context": "https://www.w3.org/ns/odrl/2/",
+											"@type": "Offer",
+											"uid": "urn:offer-1",
+											"assigner": "urn:provider:node:1"
+										}
+									}
+								}
+							}
+						}
+					}
+				},
 				"responses": {
 					"200": {
-						"description": "The response structure for negotiation state request.",
+						"description": "The response structure for negotiating a policy.",
 						"content": {
 							"application/json": {
 								"schema": {
-									"$ref": "#/components/schemas/PolicyState"
+									"$ref": "#/components/schemas/PnpContractNegotiationResponse"
 								},
 								"examples": {
-									"IPnpNegotiationStateResponseExample": {
+									"IPnpNegotiationRequestResponseExample": {
 										"value": {
-											"@context": "https://schema.twindev.org/rights-management",
-											"type": "PolicyState",
-											"id": "policy-1",
-											"status": "approved"
+											"@context": "https://w3id.org/dspace/2024/1/context.json",
+											"@type": "ContractNegotiation",
+											"providerPid": "urn:contract-negotiation:00aa11bb.......ffff",
+											"consumerPid": "urn:contract-negotiation:22aa11bb.......ffff",
+											"state": "REQUESTED"
 										}
 									}
 								}
@@ -804,24 +810,125 @@
 						}
 					}
 				}
-			},
-			"delete": {
-				"operationId": "pnpCancel",
-				"summary": "Cancel a policy negotiation",
+			}
+		},
+		"/rights-management/negotiations/{id}/request": {
+			"post": {
+				"operationId": "pnpNegotiationProviderRequest",
+				"summary": "Negotiate a policy with an existing provider id",
 				"tags": [
 					"Policy Negotiation Point"
 				],
 				"parameters": [
 					{
-						"name": "policyId",
-						"description": "The ID of the policy being cancelled.",
+						"name": "id",
+						"description": "",
 						"in": "path",
 						"required": true,
 						"schema": {
 							"type": "string"
 						},
 						"style": "simple",
-						"example": "policy-1"
+						"example": "urn:contract-negotiation:00aa11bb.......ffff"
+					}
+				],
+				"requestBody": {
+					"description": "The request structure for requesting a contract negotiation.",
+					"required": true,
+					"content": {
+						"application/json": {
+							"schema": {
+								"$ref": "#/components/schemas/IdsContractRequestMessage"
+							},
+							"examples": {
+								"pnpNegotiationProviderRequestExample": {
+									"value": {
+										"@context": "https://w3id.org/dspace/2024/1/context.json",
+										"@type": "ContractRequestMessage",
+										"consumerPid": "urn:contract-negotiation:22aa11bb.......ffff",
+										"offer": {
+											"@context": "https://www.w3.org/ns/odrl/2/",
+											"@type": "Offer",
+											"uid": "urn:offer-1",
+											"assigner": "urn:provider:node:1"
+										}
+									}
+								}
+							}
+						}
+					}
+				},
+				"responses": {
+					"200": {
+						"description": "The response structure for negotiating a policy.",
+						"content": {
+							"application/json": {
+								"schema": {
+									"$ref": "#/components/schemas/IdsContractNegotiationError"
+								}
+							}
+						}
+					},
+					"400": {
+						"description": "The server cannot process the request, see the content for more details.",
+						"content": {
+							"application/json": {
+								"schema": {
+									"$ref": "#/components/schemas/Error"
+								},
+								"examples": {
+									"exampleResponse": {
+										"value": {
+											"name": "GeneralError",
+											"message": "component.error",
+											"properties": {
+												"foo": "bar"
+											}
+										}
+									}
+								}
+							}
+						}
+					},
+					"500": {
+						"description": "The server has encountered a situation it does not know how to handle, see the content for more details.",
+						"content": {
+							"application/json": {
+								"schema": {
+									"$ref": "#/components/schemas/Error"
+								},
+								"examples": {
+									"exampleResponse": {
+										"value": {
+											"name": "InternalServerError",
+											"message": "component.error"
+										}
+									}
+								}
+							}
+						}
+					}
+				}
+			}
+		},
+		"/rights-management/negotiations/{id}/events": {
+			"post": {
+				"operationId": "pnpNegotiationEvents",
+				"summary": "Update the state of the negotiation",
+				"tags": [
+					"Policy Negotiation Point"
+				],
+				"parameters": [
+					{
+						"name": "id",
+						"description": "The identifier of the negotiation to target.",
+						"in": "path",
+						"required": true,
+						"schema": {
+							"type": "string"
+						},
+						"style": "simple",
+						"example": "urn:contract-negotiation:00aa11bb.......ffff"
 					},
 					{
 						"name": "accept",
@@ -844,9 +951,616 @@
 						"example": "z3Vcuh2BP9ShC.z3Vcuh2BP9ShC.z3Vcuh2BP9ShC"
 					}
 				],
+				"requestBody": {
+					"description": "The request structure for requesting a contract negotiation event.",
+					"required": true,
+					"content": {
+						"application/json": {
+							"schema": {
+								"$ref": "#/components/schemas/IdsContractNegotiationEventMessage"
+							},
+							"examples": {
+								"pnpNegotiationEventsRequestExample": {
+									"value": {
+										"@context": "https://w3id.org/dspace/2024/1/context.json",
+										"@type": "ContractRequestMessage",
+										"providerPid": "urn:contract-negotiation:00aa11bb.......ffff",
+										"consumerPid": "urn:contract-negotiation:22aa11bb.......ffff",
+										"event": "ACCEPTED"
+									}
+								}
+							}
+						}
+					}
+				},
 				"responses": {
-					"204": {
-						"description": "The rest request ended in success with no data."
+					"200": {
+						"description": "The response structure for negotiating a policy.",
+						"content": {
+							"application/json": {
+								"schema": {
+									"$ref": "#/components/schemas/IdsContractNegotiationError"
+								}
+							}
+						}
+					},
+					"400": {
+						"description": "The server cannot process the request, see the content for more details.",
+						"content": {
+							"application/json": {
+								"schema": {
+									"$ref": "#/components/schemas/Error"
+								},
+								"examples": {
+									"exampleResponse": {
+										"value": {
+											"name": "GeneralError",
+											"message": "component.error",
+											"properties": {
+												"foo": "bar"
+											}
+										}
+									}
+								}
+							}
+						}
+					},
+					"500": {
+						"description": "The server has encountered a situation it does not know how to handle, see the content for more details.",
+						"content": {
+							"application/json": {
+								"schema": {
+									"$ref": "#/components/schemas/Error"
+								},
+								"examples": {
+									"exampleResponse": {
+										"value": {
+											"name": "InternalServerError",
+											"message": "component.error"
+										}
+									}
+								}
+							}
+						}
+					}
+				}
+			}
+		},
+		"/rights-management/negotiations/{id}/agreement/verification": {
+			"post": {
+				"operationId": "pnpNegotiationAgreementVerification",
+				"summary": "Set the agreement to verified",
+				"tags": [
+					"Policy Negotiation Point"
+				],
+				"parameters": [
+					{
+						"name": "id",
+						"description": "The identifier of the contract negotiation to be retrieved.",
+						"in": "path",
+						"required": true,
+						"schema": {
+							"type": "string"
+						},
+						"style": "simple",
+						"example": "urn:contract-negotiation:00aa11bb.......ffff"
+					},
+					{
+						"name": "accept",
+						"in": "header",
+						"required": true,
+						"schema": {
+							"type": "string"
+						},
+						"style": "simple",
+						"example": "application/ld+json"
+					},
+					{
+						"name": "authorization",
+						"in": "header",
+						"required": true,
+						"schema": {
+							"type": "string"
+						},
+						"style": "simple",
+						"example": "z3Vcuh2BP9ShC.z3Vcuh2BP9ShC.z3Vcuh2BP9ShC"
+					}
+				],
+				"requestBody": {
+					"description": "The request structure for sending a contract negotiation agreement verification.",
+					"required": true,
+					"content": {
+						"application/json": {
+							"schema": {
+								"$ref": "#/components/schemas/IdsContractAgreementVerificationMessage"
+							},
+							"examples": {
+								"pnpNegotiationAgreementVerificationRequestExample": {
+									"value": {
+										"@context": "https://w3id.org/dspace/2024/1/context.json",
+										"@type": "ContractRequestMessage",
+										"providerPid": "urn:contract-negotiation:00aa11bb.......ffff",
+										"consumerPid": "urn:contract-negotiation:22aa11bb.......ffff"
+									}
+								}
+							}
+						}
+					}
+				},
+				"responses": {
+					"200": {
+						"description": "The response structure for negotiating a policy.",
+						"content": {
+							"application/json": {
+								"schema": {
+									"$ref": "#/components/schemas/IdsContractNegotiationError"
+								}
+							}
+						}
+					},
+					"400": {
+						"description": "The server cannot process the request, see the content for more details.",
+						"content": {
+							"application/json": {
+								"schema": {
+									"$ref": "#/components/schemas/Error"
+								},
+								"examples": {
+									"exampleResponse": {
+										"value": {
+											"name": "GeneralError",
+											"message": "component.error",
+											"properties": {
+												"foo": "bar"
+											}
+										}
+									}
+								}
+							}
+						}
+					},
+					"500": {
+						"description": "The server has encountered a situation it does not know how to handle, see the content for more details.",
+						"content": {
+							"application/json": {
+								"schema": {
+									"$ref": "#/components/schemas/Error"
+								},
+								"examples": {
+									"exampleResponse": {
+										"value": {
+											"name": "InternalServerError",
+											"message": "component.error"
+										}
+									}
+								}
+							}
+						}
+					}
+				}
+			}
+		},
+		"/rights-management/negotiations/{id}/termination": {
+			"post": {
+				"operationId": "pnpNegotiationTermination",
+				"summary": "Set the agreement to terminated",
+				"tags": [
+					"Policy Negotiation Point"
+				],
+				"parameters": [
+					{
+						"name": "id",
+						"description": "The identifier of the negotiation to target.",
+						"in": "path",
+						"required": true,
+						"schema": {
+							"type": "string"
+						},
+						"style": "simple",
+						"example": "urn:contract-negotiation:00aa11bb.......ffff"
+					},
+					{
+						"name": "accept",
+						"in": "header",
+						"required": true,
+						"schema": {
+							"type": "string"
+						},
+						"style": "simple",
+						"example": "application/ld+json"
+					},
+					{
+						"name": "authorization",
+						"in": "header",
+						"required": true,
+						"schema": {
+							"type": "string"
+						},
+						"style": "simple",
+						"example": "z3Vcuh2BP9ShC.z3Vcuh2BP9ShC.z3Vcuh2BP9ShC"
+					}
+				],
+				"requestBody": {
+					"description": "The request structure for requesting a contract negotiation termination.",
+					"required": true,
+					"content": {
+						"application/json": {
+							"schema": {
+								"$ref": "#/components/schemas/IdsContractNegotiationTerminationMessage"
+							},
+							"examples": {
+								"pnpNegotiationTerminationRequestExample": {
+									"value": {
+										"@context": "https://w3id.org/dspace/2024/1/context.json",
+										"@type": "ContractRequestMessage",
+										"providerPid": "urn:contract-negotiation:00aa11bb.......ffff",
+										"consumerPid": "urn:contract-negotiation:22aa11bb.......ffff"
+									}
+								}
+							}
+						}
+					}
+				},
+				"responses": {
+					"200": {
+						"description": "The response structure for negotiating a policy.",
+						"content": {
+							"application/json": {
+								"schema": {
+									"$ref": "#/components/schemas/IdsContractNegotiationError"
+								}
+							}
+						}
+					},
+					"400": {
+						"description": "The server cannot process the request, see the content for more details.",
+						"content": {
+							"application/json": {
+								"schema": {
+									"$ref": "#/components/schemas/Error"
+								},
+								"examples": {
+									"exampleResponse": {
+										"value": {
+											"name": "GeneralError",
+											"message": "component.error",
+											"properties": {
+												"foo": "bar"
+											}
+										}
+									}
+								}
+							}
+						}
+					},
+					"500": {
+						"description": "The server has encountered a situation it does not know how to handle, see the content for more details.",
+						"content": {
+							"application/json": {
+								"schema": {
+									"$ref": "#/components/schemas/Error"
+								},
+								"examples": {
+									"exampleResponse": {
+										"value": {
+											"name": "InternalServerError",
+											"message": "component.error"
+										}
+									}
+								}
+							}
+						}
+					}
+				}
+			}
+		},
+		"/rights-management/negotiations/offers": {
+			"post": {
+				"operationId": "pnpNegotiationOffer",
+				"summary": "Send the offer to the consumer",
+				"tags": [
+					"Policy Negotiation Point"
+				],
+				"parameters": [
+					{
+						"name": "accept",
+						"in": "header",
+						"required": true,
+						"schema": {
+							"type": "string"
+						},
+						"style": "simple",
+						"example": "application/ld+json"
+					},
+					{
+						"name": "authorization",
+						"in": "header",
+						"required": true,
+						"schema": {
+							"type": "string"
+						},
+						"style": "simple",
+						"example": "z3Vcuh2BP9ShC.z3Vcuh2BP9ShC.z3Vcuh2BP9ShC"
+					}
+				],
+				"requestBody": {
+					"description": "The request structure for sending a contract negotiation offer.",
+					"required": true,
+					"content": {
+						"application/json": {
+							"schema": {
+								"$ref": "#/components/schemas/IdsContractOfferMessage"
+							},
+							"examples": {
+								"pnpNegotiationOfferRequestExample": {
+									"value": {
+										"@context": "https://w3id.org/dspace/2024/1/context.json",
+										"@type": "ContractRequestMessage",
+										"providerPid": "urn:contract-negotiation:00aa11bb.......ffff",
+										"consumerPid": "urn:contract-negotiation:22aa11bb.......ffff",
+										"offer": {
+											"@context": "https://www.w3.org/ns/odrl/2/",
+											"@type": "Offer",
+											"uid": "urn:offer-1",
+											"assigner": "urn:provider:node:1"
+										}
+									}
+								}
+							}
+						}
+					}
+				},
+				"responses": {
+					"200": {
+						"description": "The response structure for negotiating a policy.",
+						"content": {
+							"application/json": {
+								"schema": {
+									"$ref": "#/components/schemas/IdsContractNegotiationError"
+								},
+								"examples": {
+									"pnpNegotiationOfferResponseExample": {
+										"value": {
+											"@context": "https://w3id.org/dspace/2024/1/context.json",
+											"@type": "ContractRequestMessage",
+											"providerPid": "urn:contract-negotiation:00aa11bb.......ffff",
+											"consumerPid": "urn:contract-negotiation:22aa11bb.......ffff"
+										}
+									}
+								}
+							}
+						}
+					},
+					"400": {
+						"description": "The server cannot process the request, see the content for more details.",
+						"content": {
+							"application/json": {
+								"schema": {
+									"$ref": "#/components/schemas/Error"
+								},
+								"examples": {
+									"exampleResponse": {
+										"value": {
+											"name": "GeneralError",
+											"message": "component.error",
+											"properties": {
+												"foo": "bar"
+											}
+										}
+									}
+								}
+							}
+						}
+					},
+					"500": {
+						"description": "The server has encountered a situation it does not know how to handle, see the content for more details.",
+						"content": {
+							"application/json": {
+								"schema": {
+									"$ref": "#/components/schemas/Error"
+								},
+								"examples": {
+									"exampleResponse": {
+										"value": {
+											"name": "InternalServerError",
+											"message": "component.error"
+										}
+									}
+								}
+							}
+						}
+					}
+				}
+			}
+		},
+		"/rights-management/negotiations/{id}/offers": {
+			"post": {
+				"operationId": "pnpNegotiationConsumerOffer",
+				"summary": "Send the offer to the consumer with existing id",
+				"tags": [
+					"Policy Negotiation Point"
+				],
+				"parameters": [
+					{
+						"name": "id",
+						"description": "",
+						"in": "path",
+						"required": true,
+						"schema": {
+							"type": "string"
+						},
+						"style": "simple",
+						"example": "urn:contract-negotiation:22aa11bb.......ffff"
+					}
+				],
+				"requestBody": {
+					"description": "The request structure for sending a contract negotiation offer.",
+					"required": true,
+					"content": {
+						"application/json": {
+							"schema": {
+								"$ref": "#/components/schemas/IdsContractOfferMessage"
+							},
+							"examples": {
+								"pnpNegotiationConsumerOfferRequestExample": {
+									"value": {
+										"@context": "https://w3id.org/dspace/2024/1/context.json",
+										"@type": "ContractRequestMessage",
+										"providerPid": "urn:contract-negotiation:00aa11bb.......ffff",
+										"consumerPid": "urn:contract-negotiation:22aa11bb.......ffff",
+										"offer": {
+											"@context": "https://www.w3.org/ns/odrl/2/",
+											"@type": "Offer",
+											"uid": "urn:offer-1",
+											"assigner": "urn:provider:node:1"
+										}
+									}
+								}
+							}
+						}
+					}
+				},
+				"responses": {
+					"200": {
+						"description": "The response structure for negotiating a policy.",
+						"content": {
+							"application/json": {
+								"schema": {
+									"$ref": "#/components/schemas/IdsContractNegotiationError"
+								},
+								"examples": {
+									"pnpNegotiationConsumerOfferResponseExample": {
+										"value": {
+											"@context": "https://w3id.org/dspace/2024/1/context.json",
+											"@type": "ContractNegotiation",
+											"providerPid": "urn:contract-negotiation:00aa11bb.......ffff",
+											"consumerPid": "urn:contract-negotiation:22aa11bb.......ffff"
+										}
+									}
+								}
+							}
+						}
+					},
+					"400": {
+						"description": "The server cannot process the request, see the content for more details.",
+						"content": {
+							"application/json": {
+								"schema": {
+									"$ref": "#/components/schemas/Error"
+								},
+								"examples": {
+									"exampleResponse": {
+										"value": {
+											"name": "GeneralError",
+											"message": "component.error",
+											"properties": {
+												"foo": "bar"
+											}
+										}
+									}
+								}
+							}
+						}
+					},
+					"500": {
+						"description": "The server has encountered a situation it does not know how to handle, see the content for more details.",
+						"content": {
+							"application/json": {
+								"schema": {
+									"$ref": "#/components/schemas/Error"
+								},
+								"examples": {
+									"exampleResponse": {
+										"value": {
+											"name": "InternalServerError",
+											"message": "component.error"
+										}
+									}
+								}
+							}
+						}
+					}
+				}
+			}
+		},
+		"/rights-management/negotiations/{id}/agreement": {
+			"post": {
+				"operationId": "pnpNegotiationAgreement",
+				"summary": "Send the agreement to the consumer",
+				"tags": [
+					"Policy Negotiation Point"
+				],
+				"parameters": [
+					{
+						"name": "id",
+						"description": "The identifier of the negotiation to target.",
+						"in": "path",
+						"required": true,
+						"schema": {
+							"type": "string"
+						},
+						"style": "simple",
+						"example": "urn:contract-negotiation:22aa11bb.......ffff"
+					},
+					{
+						"name": "accept",
+						"in": "header",
+						"required": true,
+						"schema": {
+							"type": "string"
+						},
+						"style": "simple",
+						"example": "application/ld+json"
+					},
+					{
+						"name": "authorization",
+						"in": "header",
+						"required": true,
+						"schema": {
+							"type": "string"
+						},
+						"style": "simple",
+						"example": "z3Vcuh2BP9ShC.z3Vcuh2BP9ShC.z3Vcuh2BP9ShC"
+					}
+				],
+				"requestBody": {
+					"description": "The request structure for sending a contract negotiation agreement.",
+					"required": true,
+					"content": {
+						"application/json": {
+							"schema": {
+								"$ref": "#/components/schemas/IdsContractAgreementMessage"
+							},
+							"examples": {
+								"pnpNegotiationAgreementRequestExample": {
+									"value": {
+										"@context": "https://w3id.org/dspace/2024/1/context.json",
+										"@type": "ContractRequestMessage",
+										"providerPid": "urn:contract-negotiation:00aa11bb.......ffff",
+										"consumerPid": "urn:contract-negotiation:22aa11bb.......ffff",
+										"agreement": {
+											"@context": "https://www.w3.org/ns/odrl/2/",
+											"@type": "Agreement",
+											"uid": "urn:offer-1",
+											"assigner": "urn:provider:node:1",
+											"assignee": "urn:consumer:node:1"
+										}
+									}
+								}
+							}
+						}
+					}
+				},
+				"responses": {
+					"200": {
+						"description": "The response structure for negotiating a policy.",
+						"content": {
+							"application/json": {
+								"schema": {
+									"$ref": "#/components/schemas/IdsContractNegotiationError"
+								}
+							}
+						}
 					},
 					"400": {
 						"description": "The server cannot process the request, see the content for more details.",
@@ -926,12 +1640,10 @@
 								"examples": {
 									"pnapGetResponseExample": {
 										"value": {
-											"id": "policy-1",
-											"status": "manual",
+											"id": "pid",
+											"correlationId": "cid",
 											"dateCreated": "2025-09-03T00:00:00.000Z",
-											"assetType": "document",
-											"action": "view",
-											"assignee": "urn:example:node:1"
+											"state": "REQUESTED"
 										}
 									}
 								}
@@ -1032,12 +1744,10 @@
 							"examples": {
 								"pnapSetRequestExample": {
 									"value": {
-										"id": "policy-1",
-										"status": "approved",
+										"id": "pid",
+										"correlationId": "cid",
 										"dateCreated": "2025-09-03T00:00:00.000Z",
-										"assetType": "document",
-										"action": "view",
-										"assignee": "urn:example:node:1"
+										"state": "REQUESTED"
 									}
 								}
 							}
@@ -1204,14 +1914,14 @@
 				],
 				"parameters": [
 					{
-						"name": "status",
-						"description": "The status of the policy negotiations.",
+						"name": "state",
+						"description": "The state of the policy negotiations.",
 						"in": "query",
 						"required": false,
 						"schema": {
-							"type": "string"
+							"$ref": "#/components/schemas/IdsContractNegotiationStateType"
 						},
-						"example": "manual"
+						"example": "ACCEPTED"
 					},
 					{
 						"name": "cursor",
@@ -1242,12 +1952,10 @@
 										"value": {
 											"items": [
 												{
-													"id": "policy-1",
-													"status": "manual",
+													"id": "pid",
+													"correlationId": "cid",
 													"dateCreated": "2025-09-03T00:00:00.000Z",
-													"assetType": "document",
-													"action": "view",
-													"assignee": "urn:example:node:1"
+													"state": "REQUESTED"
 												}
 											],
 											"cursor": "next-cursor"
@@ -2100,6 +2808,416 @@
 				"additionalProperties": false,
 				"description": "Model to describe serialized error."
 			},
+			"IdsContractAgreementMessage": {
+				"type": "object",
+				"properties": {
+					"@context": {
+						"$ref": "#/components/schemas/IdsContractNegotiationContextType"
+					},
+					"@type": {
+						"type": "string",
+						"description": "The type of the message."
+					},
+					"providerPid": {
+						"type": "string",
+						"description": "The provider id for the contract."
+					},
+					"consumerPid": {
+						"type": "string",
+						"description": "The consumer id for the contract."
+					},
+					"agreement": {
+						"$ref": "https://schema.twindev.org/w3c-odrl/OdrlAgreement"
+					},
+					"callbackAddress": {
+						"type": "string",
+						"description": "The base callback address for the provider to update the consumer on the state of the negotiation."
+					}
+				},
+				"required": [
+					"@context",
+					"@type",
+					"providerPid",
+					"consumerPid",
+					"agreement"
+				],
+				"additionalProperties": false,
+				"description": "Interface for IDS Contract Agreement Messages. https://docs.internationaldataspaces.org/ids-knowledgebase/dataspace-protocol/contract-negotiation/contract.negotiation.protocol#id-2.3-contract-agreement-message"
+			},
+			"IdsContractAgreementVerificationMessage": {
+				"type": "object",
+				"properties": {
+					"@context": {
+						"$ref": "#/components/schemas/IdsContractNegotiationContextType"
+					},
+					"@type": {
+						"type": "string",
+						"description": "The type of the message."
+					},
+					"providerPid": {
+						"type": "string",
+						"description": "The provider id for the contract."
+					},
+					"consumerPid": {
+						"type": "string",
+						"description": "The consumer id for the contract."
+					}
+				},
+				"required": [
+					"@context",
+					"@type",
+					"providerPid",
+					"consumerPid"
+				],
+				"additionalProperties": false,
+				"description": "Interface for IDS Contract Agreement Verification Messages. https://docs.internationaldataspaces.org/ids-knowledgebase/dataspace-protocol/contract-negotiation/contract.negotiation.protocol#id-2.4-contract-agreement-verification-message"
+			},
+			"IdsContractNegotiation": {
+				"type": "object",
+				"properties": {
+					"@context": {
+						"$ref": "#/components/schemas/IdsContractNegotiationContextType"
+					},
+					"@type": {
+						"type": "string",
+						"description": "The type of the message."
+					},
+					"providerPid": {
+						"type": "string",
+						"description": "The provider id for the contract."
+					},
+					"consumerPid": {
+						"type": "string",
+						"description": "The consumer id for the contract."
+					},
+					"state": {
+						"$ref": "#/components/schemas/IdsContractNegotiationStateType"
+					}
+				},
+				"required": [
+					"@context",
+					"@type",
+					"providerPid",
+					"consumerPid",
+					"state"
+				],
+				"additionalProperties": false,
+				"description": "Interface for IDS Contract Agreement Messages. https://docs.internationaldataspaces.org/ids-knowledgebase/dataspace-protocol/contract-negotiation/contract.negotiation.protocol#id-3.1-ack-contract-negotiation"
+			},
+			"IdsContractNegotiationContextType": {
+				"anyOf": [
+					{
+						"type": "string",
+						"const": "https://w3id.org/dspace/2024/1/context.json"
+					},
+					{
+						"type": "array",
+						"minItems": 2,
+						"items": {
+							"$ref": "https://schema.twindev.org/json-ld/JsonLdContextDefinitionElement"
+						},
+						"prefixItems": [
+							{
+								"type": "string",
+								"const": "https://w3id.org/dspace/2024/1/context.json"
+							},
+							{
+								"$ref": "https://schema.twindev.org/json-ld/JsonLdContextDefinitionElement"
+							}
+						]
+					},
+					{
+						"type": "array",
+						"minItems": 2,
+						"items": {
+							"$ref": "https://schema.twindev.org/json-ld/JsonLdContextDefinitionElement"
+						},
+						"prefixItems": [
+							{
+								"$ref": "https://schema.twindev.org/json-ld/JsonLdContextDefinitionElement"
+							},
+							{
+								"type": "string",
+								"const": "https://w3id.org/dspace/2024/1/context.json"
+							}
+						]
+					}
+				],
+				"description": "The IDS Contract Negotiation JSON-LD context type."
+			},
+			"IdsContractNegotiationError": {
+				"type": "object",
+				"properties": {
+					"@context": {
+						"$ref": "#/components/schemas/IdsContractNegotiationContextType"
+					},
+					"@type": {
+						"type": "string",
+						"description": "The type of the message."
+					},
+					"providerPid": {
+						"type": "string",
+						"description": "The provider id for the contract."
+					},
+					"consumerPid": {
+						"type": "string",
+						"description": "The consumer id for the contract."
+					},
+					"code": {
+						"type": "string",
+						"description": "The error code."
+					},
+					"reason": {
+						"type": "array",
+						"items": false,
+						"description": "The error reason(s).",
+						"prefixItems": [
+							{
+								"type": "object",
+								"properties": {
+									"@value": {
+										"type": "string"
+									},
+									"@language": {
+										"type": "string"
+									}
+								},
+								"required": [
+									"@value"
+								],
+								"additionalProperties": false
+							}
+						]
+					},
+					"description": {
+						"type": "array",
+						"items": false,
+						"description": "The error description(s).",
+						"prefixItems": [
+							{
+								"type": "object",
+								"properties": {
+									"@value": {
+										"type": "string"
+									},
+									"@language": {
+										"type": "string"
+									}
+								},
+								"required": [
+									"@value"
+								],
+								"additionalProperties": false
+							}
+						]
+					}
+				},
+				"required": [
+					"@context",
+					"@type",
+					"providerPid",
+					"consumerPid"
+				],
+				"additionalProperties": false,
+				"description": "Interface for IDS Contract Negotiation Error Messages. https://docs.internationaldataspaces.org/ids-knowledgebase/dataspace-protocol/contract-negotiation/contract.negotiation.protocol#id-3.2-error-contract-negotiation-error"
+			},
+			"IdsContractNegotiationEventMessage": {
+				"type": "object",
+				"properties": {
+					"@context": {
+						"$ref": "#/components/schemas/IdsContractNegotiationContextType"
+					},
+					"@type": {
+						"type": "string",
+						"description": "The type of the message."
+					},
+					"providerPid": {
+						"type": "string",
+						"description": "The provider id for the contract."
+					},
+					"consumerPid": {
+						"type": "string",
+						"description": "The consumer id for the contract."
+					},
+					"event": {
+						"$ref": "#/components/schemas/IdsContractNegotiationEventType"
+					}
+				},
+				"required": [
+					"@context",
+					"@type",
+					"providerPid",
+					"consumerPid",
+					"event"
+				],
+				"additionalProperties": false,
+				"description": "Interface for IDS Contract Negotiation Event Messages. https://docs.internationaldataspaces.org/ids-knowledgebase/dataspace-protocol/contract-negotiation/contract.negotiation.protocol#id-2.5-contract-negotiation-event-message"
+			},
+			"IdsContractNegotiationEventType": {
+				"anyOf": [
+					{
+						"type": "string",
+						"const": "ACCEPTED",
+						"description": "Accepted."
+					},
+					{
+						"type": "string",
+						"const": "FINALIZED",
+						"description": "Finalized."
+					}
+				],
+				"description": "The types for IDS Contract Negotiation Events."
+			},
+			"IdsContractNegotiationStateType": {
+				"anyOf": [
+					{
+						"type": "string",
+						"const": "REQUESTED",
+						"description": "Requested."
+					},
+					{
+						"type": "string",
+						"const": "OFFERED",
+						"description": "Offered."
+					},
+					{
+						"type": "string",
+						"const": "ACCEPTED",
+						"description": "Accepted."
+					},
+					{
+						"type": "string",
+						"const": "AGREED",
+						"description": "Agreed."
+					},
+					{
+						"type": "string",
+						"const": "VERIFIED",
+						"description": "Verified."
+					},
+					{
+						"type": "string",
+						"const": "FINALIZED",
+						"description": "Finalized."
+					},
+					{
+						"type": "string",
+						"const": "TERMINATED",
+						"description": "Terminated."
+					}
+				],
+				"description": "The types for IDS Contract Negotiation States. https://docs.internationaldataspaces.org/ids-knowledgebase/dataspace-protocol/contract-negotiation/contract.negotiation.protocol#id-1.1-states   The types for IDS Contract Negotiation States."
+			},
+			"IdsContractNegotiationTerminationMessage": {
+				"type": "object",
+				"properties": {
+					"@context": {
+						"$ref": "#/components/schemas/IdsContractNegotiationContextType"
+					},
+					"@type": {
+						"type": "string",
+						"description": "The type of the message."
+					},
+					"providerPid": {
+						"type": "string",
+						"description": "The provider id for the contract."
+					},
+					"consumerPid": {
+						"type": "string",
+						"description": "The consumer id for the contract."
+					},
+					"code": {
+						"type": "string",
+						"description": "The termination code."
+					},
+					"reason": {
+						"type": "array",
+						"items": false,
+						"description": "The termination reason(s).",
+						"prefixItems": [
+							{}
+						]
+					}
+				},
+				"required": [
+					"@context",
+					"@type",
+					"providerPid",
+					"consumerPid"
+				],
+				"additionalProperties": false,
+				"description": "Interface for IDS Contract Negotiation Termination Messages. https://docs.internationaldataspaces.org/ids-knowledgebase/dataspace-protocol/contract-negotiation/contract.negotiation.protocol#id-2.6-contract-negotiation-termination-message"
+			},
+			"IdsContractOfferMessage": {
+				"type": "object",
+				"properties": {
+					"@context": {
+						"$ref": "#/components/schemas/IdsContractNegotiationContextType"
+					},
+					"@type": {
+						"type": "string",
+						"description": "The type of the message."
+					},
+					"providerPid": {
+						"type": "string",
+						"description": "The provider id for the contract."
+					},
+					"consumerPid": {
+						"type": "string",
+						"description": "The consumer id for the contract."
+					},
+					"offer": {
+						"$ref": "https://schema.twindev.org/w3c-odrl/OdrlOffer"
+					},
+					"callbackAddress": {
+						"type": "string",
+						"description": "The base callback address for the provider to update the consumer on the state of the negotiation."
+					}
+				},
+				"required": [
+					"@context",
+					"@type",
+					"providerPid",
+					"offer"
+				],
+				"additionalProperties": false,
+				"description": "Interface for IDS Contract Offer Messages. https://docs.internationaldataspaces.org/ids-knowledgebase/dataspace-protocol/contract-negotiation/contract.negotiation.protocol#id-2.2-contract-offer-message"
+			},
+			"IdsContractRequestMessage": {
+				"type": "object",
+				"properties": {
+					"@context": {
+						"$ref": "#/components/schemas/IdsContractNegotiationContextType"
+					},
+					"@type": {
+						"type": "string",
+						"description": "The type of the message."
+					},
+					"providerPid": {
+						"type": "string",
+						"description": "The provider id for the contract."
+					},
+					"consumerPid": {
+						"type": "string",
+						"description": "The consumer id for the contract."
+					},
+					"offer": {
+						"$ref": "https://schema.twindev.org/w3c-odrl/OdrlOffer"
+					},
+					"callbackAddress": {
+						"type": "string",
+						"description": "The base callback address for the provider to update the consumer on the state of the negotiation."
+					}
+				},
+				"required": [
+					"@context",
+					"@type",
+					"consumerPid",
+					"offer"
+				],
+				"additionalProperties": false,
+				"description": "Interface for IDS Contract Request Messages. https://docs.internationaldataspaces.org/ids-knowledgebase/dataspace-protocol/contract-negotiation/contract.negotiation.protocol#id-2.1-contract-request-message"
+			},
 			"LogicalOperator": {
 				"anyOf": [
 					{
@@ -2524,6 +3642,17 @@
 				"additionalProperties": false,
 				"description": "The body of the response."
 			},
+			"PnpContractNegotiationResponse": {
+				"anyOf": [
+					{
+						"$ref": "#/components/schemas/IdsContractNegotiation"
+					},
+					{
+						"$ref": "#/components/schemas/IdsContractNegotiationError"
+					}
+				],
+				"description": "The state of the policy or an error."
+			},
 			"PolicyInformation": {
 				"type": "object",
 				"additionalProperties": {
@@ -2562,92 +3691,105 @@
 					},
 					"id": {
 						"type": "string",
+						"description": "The primary id used by the provider."
+					},
+					"correlationId": {
+						"type": "string",
+						"description": "This is used by the other side of the negotiation."
+					},
+					"policyId": {
+						"type": "string",
 						"description": "The unique identifier for the policy."
 					},
 					"dateCreated": {
 						"type": "string",
 						"description": "The date and time when the negotiation was created."
 					},
+					"expires": {
+						"type": "number",
+						"description": "The expiration time for the policy negotiation if it's a manual process."
+					},
+					"state": {
+						"$ref": "#/components/schemas/IdsContractNegotiationStateType"
+					},
+					"callbackAddress": {
+						"type": "string",
+						"description": "The callback address to send updates to the requester."
+					},
+					"offer": {
+						"$ref": "https://schema.twindev.org/w3c-odrl/OdrlOffer"
+					},
+					"agreement": {
+						"$ref": "https://schema.twindev.org/w3c-odrl/OdrlAgreement"
+					},
 					"information": {
 						"$ref": "#/components/schemas/PolicyInformation"
 					},
-					"status": {
-						"$ref": "#/components/schemas/PolicyNegotiationStatus"
+					"code": {
+						"type": "string",
+						"description": "A reason code for when the negotiation errors."
 					},
 					"reason": {
-						"type": "string",
-						"description": "A reason which might be provided if the negotiation status is not approved."
+						"type": "array",
+						"items": false,
+						"description": "A more detailed reason for the negotiation error.",
+						"prefixItems": [
+							{
+								"type": "object",
+								"properties": {
+									"@value": {
+										"type": "string"
+									},
+									"@language": {
+										"type": "string"
+									}
+								},
+								"required": [
+									"@value"
+								],
+								"additionalProperties": false
+							}
+						]
 					},
-					"expires": {
-						"type": "number",
-						"description": "The expiration time for the policy negotiation."
+					"description": {
+						"type": "array",
+						"items": false,
+						"description": "A more detailed reason for the negotiation error.",
+						"prefixItems": [
+							{
+								"type": "object",
+								"properties": {
+									"@value": {
+										"type": "string"
+									},
+									"@language": {
+										"type": "string"
+									}
+								},
+								"required": [
+									"@value"
+								],
+								"additionalProperties": false
+							}
+						]
+					},
+					"handlerId": {
+						"type": "string",
+						"description": "The id of the handler, on provider side this is the negotiator, on consumer side this is the requester."
+					},
+					"interventionRequired": {
+						"type": "boolean",
+						"description": "Is manual intervention required to complete the negotiation?"
 					}
 				},
 				"required": [
 					"id",
+					"correlationId",
 					"dateCreated",
-					"status"
+					"state"
 				],
 				"additionalProperties": false,
 				"description": "Interface describing a rights management policy negotiation."
-			},
-			"PolicyNegotiationStatus": {
-				"anyOf": [
-					{
-						"type": "string",
-						"const": "manual",
-						"description": "Manual - manual approval is required."
-					},
-					{
-						"type": "string",
-						"const": "approved",
-						"description": "Approved - the negotiation has been approved."
-					},
-					{
-						"type": "string",
-						"const": "rejected",
-						"description": "Rejected - the negotiation has been rejected."
-					}
-				],
-				"description": "The status of the negotiation in the Policy Negotiation Point (PNP)."
-			},
-			"PolicyState": {
-				"type": "object",
-				"properties": {
-					"@context": {
-						"type": "string",
-						"const": "https://schema.twindev.org/rights-management",
-						"description": "The JSON-LD context."
-					},
-					"type": {
-						"type": "string",
-						"const": "PolicyState",
-						"description": "The type of the proof."
-					},
-					"id": {
-						"type": "string",
-						"description": "The id of the policy."
-					},
-					"status": {
-						"$ref": "#/components/schemas/PolicyNegotiationStatus"
-					},
-					"reason": {
-						"type": "string",
-						"description": "A reason which might be provided if the negotiation status is not approved."
-					},
-					"expires": {
-						"type": "string",
-						"description": "The expiration date of the policy created by the negotiation if it was approved, and it has an expiration date."
-					}
-				},
-				"required": [
-					"@context",
-					"type",
-					"id",
-					"status"
-				],
-				"additionalProperties": false,
-				"description": "The state of the policy negotiation."
 			}
 		},
 		"securitySchemes": {

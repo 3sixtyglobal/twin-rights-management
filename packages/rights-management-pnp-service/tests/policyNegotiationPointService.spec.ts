@@ -1,7 +1,8 @@
 // Copyright 2024 IOTA Stiftung.
 // SPDX-License-Identifier: Apache-2.0.
 import { TaskSchedulerService } from "@twin.org/background-task-scheduler";
-import { ComponentFactory } from "@twin.org/core";
+import { ComponentFactory, I18n } from "@twin.org/core";
+import { JsonLdHelper } from "@twin.org/data-json-ld";
 import { MemoryEntityStorageConnector } from "@twin.org/entity-storage-connector-memory";
 import { EntityStorageConnectorFactory } from "@twin.org/entity-storage-models";
 import {
@@ -18,13 +19,11 @@ import {
 import { LoggingConnectorFactory } from "@twin.org/logging-models";
 import { LoggingService } from "@twin.org/logging-service";
 import { nameof } from "@twin.org/nameof";
-import {
-	type IPolicyNegotiationRequest,
-	type IPolicyRequest,
-	RightsManagementContexts,
-	RightsManagementTokenHelper,
-	RightsManagementTypes,
-	type IPolicyLocator
+import type {
+	IPolicyInformation,
+	IPolicyNegotiationPointComponent,
+	IPolicyNegotiator,
+	IPolicyRequester
 } from "@twin.org/rights-management-models";
 import {
 	PolicyAdministrationPointService,
@@ -32,6 +31,7 @@ import {
 	type OdrlPolicy
 } from "@twin.org/rights-management-pap-service";
 import { PolicyInformationPointService } from "@twin.org/rights-management-pip-service";
+import { OdrlContexts, OdrlTypes, type IOdrlOffer } from "@twin.org/standards-w3c-odrl";
 import {
 	EntityStorageVaultConnector,
 	initSchema as initSchemaVault,
@@ -46,15 +46,37 @@ import { initSchema } from "../src/schema";
 
 let loggingMemoryEntityStorage: MemoryEntityStorageConnector<LogEntry>;
 let odrlPolicyMemoryEntityStorage: MemoryEntityStorageConnector<OdrlPolicy>;
-let policyNegotiationMemoryEntityStorage: MemoryEntityStorageConnector<PolicyNegotiation>;
+let policyNegotiationProviderMemoryEntityStorage: MemoryEntityStorageConnector<PolicyNegotiation>;
+let policyNegotiationConsumerMemoryEntityStorage: MemoryEntityStorageConnector<PolicyNegotiation>;
 let identityConnector: EntityStorageIdentityConnector;
-let negotiationAdminPointComponent: PolicyNegotiationAdminPointService;
+let negotiationProviderAdminPointComponent: PolicyNegotiationAdminPointService;
+let negotiationConsumerAdminPointComponent: PolicyNegotiationAdminPointService;
 let adminPointComponent: PolicyAdministrationPointService;
 let informationPointComponent: PolicyInformationPointService;
-let testIdentity: string;
-let validTokenPolicy: string;
-let validTokenRequest: string;
-let testLocator: IPolicyLocator;
+let testIdentityProvider: string;
+let testIdentityConsumer: string;
+let mockOffer: IOdrlOffer;
+let mockNegotiator: IPolicyNegotiator;
+let mockPolicyRequester: IPolicyRequester;
+
+/**
+ * Helper to wait for a negotiation to reach a specific state.
+ * @param storage The storage connector for the negotiation
+ * @param state The state to wait for
+ */
+async function waitForState(
+	storage: MemoryEntityStorageConnector<PolicyNegotiation>,
+	state: string
+): Promise<void> {
+	for (let i = 0; i < 20; i++) {
+		const store = storage.getStore();
+		if (store[0].state === state) {
+			return;
+		}
+		await new Promise(resolve => setTimeout(resolve, 100));
+	}
+	throw new Error("Timeout waiting for state");
+}
 
 describe("PolicyNegotiationPointService", () => {
 	beforeAll(async () => {
@@ -64,6 +86,10 @@ describe("PolicyNegotiationPointService", () => {
 		initSchemaIdentity();
 		initSchema();
 
+		I18n.addDictionary("en", await import("../locales/en.json"));
+	});
+
+	beforeEach(async () => {
 		loggingMemoryEntityStorage = new MemoryEntityStorageConnector<LogEntry>({
 			entitySchema: nameof<LogEntry>()
 		});
@@ -100,32 +126,68 @@ describe("PolicyNegotiationPointService", () => {
 		identityConnector = new EntityStorageIdentityConnector();
 		IdentityConnectorFactory.register("identity", () => identityConnector);
 
-		const doc = await identityConnector.createDocument("test-controller");
-		testIdentity = doc.id;
+		const docProvider = await identityConnector.createDocument("test-controller");
+		testIdentityProvider = docProvider.id;
 		await identityConnector.addVerificationMethod(
 			"test-controller",
-			doc.id,
+			docProvider.id,
 			"verificationMethod",
-			"key-1"
+			"rights-management-assertion"
 		);
+
+		const docConsumer = await identityConnector.createDocument("test-controller");
+		testIdentityConsumer = docConsumer.id;
+		await identityConnector.addVerificationMethod(
+			"test-controller",
+			docConsumer.id,
+			"verificationMethod",
+			"rights-management-assertion"
+		);
+
+		mockOffer = {
+			"@context": OdrlContexts.ContextRoot,
+			"@type": OdrlTypes.Offer,
+			uid: "offer-1",
+			assigner: testIdentityProvider
+		};
 
 		odrlPolicyMemoryEntityStorage = new MemoryEntityStorageConnector<OdrlPolicy>({
 			entitySchema: nameof<OdrlPolicy>()
 		});
 		EntityStorageConnectorFactory.register("odrl-policy", () => odrlPolicyMemoryEntityStorage);
 
-		policyNegotiationMemoryEntityStorage = new MemoryEntityStorageConnector<PolicyNegotiation>({
-			entitySchema: nameof<PolicyNegotiation>()
-		});
+		policyNegotiationProviderMemoryEntityStorage =
+			new MemoryEntityStorageConnector<PolicyNegotiation>({
+				entitySchema: nameof<PolicyNegotiation>()
+			});
 		EntityStorageConnectorFactory.register(
-			"policy-negotiation",
-			() => policyNegotiationMemoryEntityStorage
+			"policy-negotiation-provider",
+			() => policyNegotiationProviderMemoryEntityStorage
 		);
 
-		negotiationAdminPointComponent = new PolicyNegotiationAdminPointService();
+		policyNegotiationConsumerMemoryEntityStorage =
+			new MemoryEntityStorageConnector<PolicyNegotiation>({
+				entitySchema: nameof<PolicyNegotiation>()
+			});
+		EntityStorageConnectorFactory.register(
+			"policy-negotiation-consumer",
+			() => policyNegotiationConsumerMemoryEntityStorage
+		);
+
+		negotiationProviderAdminPointComponent = new PolicyNegotiationAdminPointService({
+			policyNegotiationEntityStorageType: "policy-negotiation-provider"
+		});
 		ComponentFactory.register(
-			"policy-negotiation-admin-point",
-			() => negotiationAdminPointComponent
+			"policy-negotiation-provider-admin-point",
+			() => negotiationProviderAdminPointComponent
+		);
+
+		negotiationConsumerAdminPointComponent = new PolicyNegotiationAdminPointService({
+			policyNegotiationEntityStorageType: "policy-negotiation-consumer"
+		});
+		ComponentFactory.register(
+			"policy-negotiation-consumer-admin-point",
+			() => negotiationConsumerAdminPointComponent
 		);
 
 		adminPointComponent = new PolicyAdministrationPointService();
@@ -134,161 +196,551 @@ describe("PolicyNegotiationPointService", () => {
 		informationPointComponent = new PolicyInformationPointService();
 		ComponentFactory.register("policy-information-point", () => informationPointComponent);
 
-		testLocator = {
-			assetType: "asset",
-			action: "action",
-			resourceId: "resId",
-			assignee: testIdentity
+		mockPolicyRequester = {
+			offer: vi.fn(async (negotiationId, offer) => true),
+			agreement: vi.fn(async (negotiationId, agreement) => true),
+			finalised: vi.fn(async negotiationId => {}),
+			terminated: vi.fn(async negotiationId => {})
 		};
 
-		const policyNegotiationRequest: IPolicyNegotiationRequest = {
-			"@context": RightsManagementContexts.ContextRoot,
-			type: RightsManagementTypes.PolicyNegotiationRequest,
-			...testLocator
+		mockNegotiator = {
+			supportsOffer: vi.fn(async (offer: IOdrlOffer) => true),
+			handleOffer: vi.fn(async (offer: IOdrlOffer, information?: IPolicyInformation) => ({
+				accepted: true,
+				interventionRequired: false
+			})),
+			createAgreement: vi.fn(async (offer: IOdrlOffer, information?: IPolicyInformation) => ({
+				"@context": OdrlContexts.ContextRoot,
+				"@type": OdrlTypes.Agreement,
+				uid: "urn:policy:agreement-1",
+				assigner: testIdentityProvider,
+				assignee: testIdentityConsumer
+			}))
 		};
+	});
 
-		validTokenPolicy = await RightsManagementTokenHelper.createToken(
-			identityConnector,
-			`${testIdentity}#key-1`,
-			policyNegotiationRequest,
-			60
-		);
-
-		const policyRequest: IPolicyRequest = {
-			"@context": RightsManagementContexts.ContextRoot,
-			type: RightsManagementTypes.PolicyRequest,
-			id: "pid"
-		};
-
-		validTokenRequest = await RightsManagementTokenHelper.createToken(
-			identityConnector,
-			`${testIdentity}#key-1`,
-			policyRequest,
-			60
-		);
+	afterEach(() => {
+		vi.restoreAllMocks();
 	});
 
 	test("can create the service", async () => {
-		const policyNegotiationPoint = new PolicyNegotiationPointService();
+		const policyNegotiationPoint = new PolicyNegotiationPointService({
+			policyNegotiationAdministrationPointComponentType: "policy-negotiation-provider-admin-point",
+			config: {
+				baseCallbackUrl: "http://localhost:3000",
+				negotiationComponentCreator: async () => ({}) as IPolicyNegotiationPointComponent
+			}
+		});
 		expect(policyNegotiationPoint).toBeInstanceOf(PolicyNegotiationPointService);
 	});
 
-	test("can register and unregister a negotiator", async () => {
-		const service = new PolicyNegotiationPointService();
-		const negotiator = {
-			supportedPolicies: () => [],
-			negotiate: vi.fn().mockResolvedValue({ state: { status: "pending" } })
-		};
-		await service.registerNegotiator("neg1", negotiator);
-		await service.registerNegotiator("neg1", negotiator);
-		await service.unregisterNegotiator("neg1");
-	});
+	test("can request a new negotiation and fail with no available requester", async () => {
+		const providerPoints: { [id: string]: PolicyNegotiationPointService } = {};
 
-	test("negotiate throws if no negotiator found", async () => {
-		const service = new PolicyNegotiationPointService();
-
-		await expect(service.negotiate(testLocator, {}, validTokenPolicy)).rejects.toThrow();
-	});
-
-	test("negotiate stores state if not approved", async () => {
-		const service = new PolicyNegotiationPointService();
-		const negotiator = {
-			supportedPolicies: () => [],
-			negotiate: vi.fn().mockResolvedValue({ state: { status: "pending", reason: "waiting" } })
-		};
-
-		await service.registerNegotiator("neg1", negotiator);
-		const state = await service.negotiate(testLocator, {}, validTokenPolicy);
-		expect(state.status).toBe("pending");
-	});
-
-	test("negotiationState throws if proof is missing", async () => {
-		const service = new PolicyNegotiationPointService();
-		await expect(service.negotiationState("pid", undefined as unknown as string)).rejects.toThrow();
-	});
-
-	test("negotiationState returns approved if policy exists", async () => {
-		const service = new PolicyNegotiationPointService();
-		await policyNegotiationMemoryEntityStorage.set({
-			id: "pid",
-			dateCreated: new Date().toISOString(),
-			assetType: "asset",
-			action: "action",
-			assignee: testIdentity,
-			status: "approved"
+		const policyNegotiationConsumerPoint = new PolicyNegotiationPointService({
+			policyNegotiationAdministrationPointComponentType: "policy-negotiation-consumer-admin-point",
+			config: {
+				baseCallbackUrl: "http://localhost:3000",
+				negotiationComponentCreator: async () => providerPoints.provider
+			}
 		});
-		const state = await service.negotiationState("pid", validTokenRequest);
-		expect(state.status).toBe("approved");
-	});
 
-	test("negotiationState throws NotFoundError if no policy or negotiation exists", async () => {
-		const service = new PolicyNegotiationPointService();
-		vi.spyOn(adminPointComponent, "get").mockRejectedValue({ name: "NotFoundError" });
-		vi.spyOn(negotiationAdminPointComponent, "get").mockResolvedValue(
-			null as unknown as PolicyNegotiation
-		);
-		await expect(service.negotiationState("pid", validTokenRequest)).rejects.toMatchObject({
-			cause: { message: expect.stringMatching(/policyNotFound/) }
+		const policyNegotiationProviderPoint = new PolicyNegotiationPointService({
+			policyNegotiationAdministrationPointComponentType: "policy-negotiation-provider-admin-point",
+			config: {
+				baseCallbackUrl: "http://localhost:4000",
+				negotiationComponentCreator: async () => providerPoints.consumer
+			}
 		});
-	});
+		providerPoints.provider = policyNegotiationProviderPoint;
+		providerPoints.consumer = policyNegotiationConsumerPoint;
 
-	test("negotiationState throws GeneralError if PAP retrieve fails with other error", async () => {
-		const service = new PolicyNegotiationPointService();
-		const spy = vi.spyOn(adminPointComponent, "get").mockRejectedValue(new Error("fail"));
-		await expect(service.negotiationState("pid", validTokenRequest)).rejects.toMatchObject({
-			message: expect.stringMatching(/policyFailed/)
-		});
-		spy.mockClear();
-	});
+		await policyNegotiationConsumerPoint.start(testIdentityConsumer, undefined);
+		await policyNegotiationProviderPoint.start(testIdentityProvider, undefined);
 
-	test("negotiationCancel calls remove", async () => {
-		const service = new PolicyNegotiationPointService();
-		const removeMock = vi
-			.spyOn(negotiationAdminPointComponent, "remove")
-			.mockResolvedValue(undefined);
-		await service.negotiationCancel("pid", validTokenRequest);
-		expect(removeMock).toHaveBeenCalledWith("pid");
-	});
-
-	test("negotiationCancel resolves if negotiation does not exist", async () => {
-		const service = new PolicyNegotiationPointService();
-		vi.spyOn(negotiationAdminPointComponent, "get").mockResolvedValue(
-			null as unknown as PolicyNegotiation
-		);
-		await expect(service.negotiationCancel("pid", validTokenRequest)).resolves.toBeUndefined();
-	});
-
-	test("negotiationCancel throws if proof is invalid", async () => {
-		const service = new PolicyNegotiationPointService();
-		await expect(service.negotiationCancel("pid", "aaa")).rejects.toMatchObject({
-			message: expect.stringMatching(/tokenFailed/)
-		});
-	});
-
-	test("registerNegotiator overwrites existing negotiator", async () => {
-		const service = new PolicyNegotiationPointService();
-		const negotiator1 = { supportedPolicies: () => [], negotiate: vi.fn() };
-		const negotiator2 = { supportedPolicies: () => [], negotiate: vi.fn() };
-		await service.registerNegotiator("neg1", negotiator1);
-		await service.registerNegotiator("neg1", negotiator2);
-		// eslint-disable-next-line @typescript-eslint/no-explicit-any
-		expect((service as any)._negotiators[0].negotiator).toBe(negotiator2);
-	});
-
-	test("registerNegotiator throws if negotiatorId is empty", async () => {
-		const service = new PolicyNegotiationPointService();
 		await expect(
-			service.registerNegotiator("", { supportedPolicies: () => [], negotiate: vi.fn() })
-		).rejects.toThrow();
+			policyNegotiationConsumerPoint.sendRequestToProvider(
+				"http://localhost:3000",
+				"requester-1",
+				"offer-1"
+			)
+		).rejects.toMatchObject({
+			name: "GeneralError",
+			message: "policyNegotiationPointService.noRequesterFound"
+		});
 	});
 
-	test("unregisterNegotiator does nothing if id not found", async () => {
-		const service = new PolicyNegotiationPointService();
-		await expect(service.unregisterNegotiator("notfound")).resolves.toBeUndefined();
+	test("can request a new negotiation and fail with no available offer", async () => {
+		const providerPoints: { [id: string]: PolicyNegotiationPointService } = {};
+
+		const policyNegotiationConsumerPoint = new PolicyNegotiationPointService({
+			policyNegotiationAdministrationPointComponentType: "policy-negotiation-consumer-admin-point",
+			config: {
+				baseCallbackUrl: "http://localhost:3000",
+				negotiationComponentCreator: async () => providerPoints.provider
+			}
+		});
+
+		const policyNegotiationProviderPoint = new PolicyNegotiationPointService({
+			policyNegotiationAdministrationPointComponentType: "policy-negotiation-provider-admin-point",
+			config: {
+				baseCallbackUrl: "http://localhost:4000",
+				negotiationComponentCreator: async () => providerPoints.consumer
+			}
+		});
+		providerPoints.provider = policyNegotiationProviderPoint;
+		providerPoints.consumer = policyNegotiationConsumerPoint;
+
+		await policyNegotiationConsumerPoint.start(testIdentityConsumer, undefined);
+		await policyNegotiationProviderPoint.start(testIdentityProvider, undefined);
+
+		await policyNegotiationConsumerPoint.registerRequester("requester-1", mockPolicyRequester);
+
+		await expect(
+			policyNegotiationConsumerPoint.sendRequestToProvider(
+				"http://localhost:3000",
+				"requester-1",
+				"offer-1"
+			)
+		).rejects.toMatchObject({
+			name: "GeneralError",
+			message: "policyNegotiationPointService.noOfferFound"
+		});
 	});
 
-	test("unregisterNegotiator throws if negotiatorId is empty", async () => {
-		const service = new PolicyNegotiationPointService();
-		await expect(service.unregisterNegotiator("")).rejects.toThrow();
+	test("can request a new negotiation and fail with no available negotiator", async () => {
+		const providerPoints: { [id: string]: PolicyNegotiationPointService } = {};
+
+		const policyNegotiationConsumerPoint = new PolicyNegotiationPointService({
+			policyNegotiationAdministrationPointComponentType: "policy-negotiation-consumer-admin-point",
+			config: {
+				baseCallbackUrl: "http://localhost:3000",
+				negotiationComponentCreator: async () => providerPoints.provider
+			}
+		});
+
+		const policyNegotiationProviderPoint = new PolicyNegotiationPointService({
+			policyNegotiationAdministrationPointComponentType: "policy-negotiation-provider-admin-point",
+			config: {
+				baseCallbackUrl: "http://localhost:4000",
+				negotiationComponentCreator: async () => providerPoints.consumer
+			}
+		});
+		providerPoints.provider = policyNegotiationProviderPoint;
+		providerPoints.consumer = policyNegotiationConsumerPoint;
+
+		await policyNegotiationConsumerPoint.start(testIdentityConsumer, undefined);
+		await policyNegotiationProviderPoint.start(testIdentityProvider, undefined);
+
+		await policyNegotiationConsumerPoint.registerRequester("requester-1", mockPolicyRequester);
+
+		await policyNegotiationProviderPoint.registerOffer(mockOffer);
+
+		await expect(
+			policyNegotiationConsumerPoint.sendRequestToProvider(
+				"http://localhost:3000",
+				"requester-1",
+				"offer-1"
+			)
+		).rejects.toMatchObject({
+			name: "GeneralError",
+			message: "policyNegotiationPointService.noNegotiatorFound"
+		});
+	});
+
+	test("can request a new negotiation", async () => {
+		const providerPoints: { [id: string]: PolicyNegotiationPointService } = {};
+
+		const policyNegotiationConsumerPoint = new PolicyNegotiationPointService({
+			policyNegotiationAdministrationPointComponentType: "policy-negotiation-consumer-admin-point",
+			config: {
+				baseCallbackUrl: "http://localhost:3000",
+				negotiationComponentCreator: async () => providerPoints.provider
+			}
+		});
+
+		const policyNegotiationProviderPoint = new PolicyNegotiationPointService({
+			policyNegotiationAdministrationPointComponentType: "policy-negotiation-provider-admin-point",
+			config: {
+				baseCallbackUrl: "http://localhost:4000",
+				negotiationComponentCreator: async () => providerPoints.consumer
+			}
+		});
+		providerPoints.provider = policyNegotiationProviderPoint;
+		providerPoints.consumer = policyNegotiationConsumerPoint;
+
+		await policyNegotiationConsumerPoint.start(testIdentityConsumer, undefined);
+		await policyNegotiationProviderPoint.start(testIdentityProvider, undefined);
+
+		await policyNegotiationConsumerPoint.registerRequester("requester-1", mockPolicyRequester);
+		await policyNegotiationProviderPoint.registerOffer(mockOffer);
+		await policyNegotiationProviderPoint.registerNegotiator("negotiator-1", mockNegotiator);
+
+		const consumerPid = await policyNegotiationConsumerPoint.sendRequestToProvider(
+			"http://localhost:3000",
+			"requester-1",
+			"offer-1"
+		);
+
+		const consumerStore = policyNegotiationConsumerMemoryEntityStorage.getStore();
+		expect(consumerStore).toHaveLength(1);
+		const providerStore = policyNegotiationProviderMemoryEntityStorage.getStore();
+		expect(providerStore).toHaveLength(1);
+
+		expect(consumerStore[0]).toMatchObject({
+			id: consumerPid,
+			correlationId: providerStore[0].id,
+			dateCreated: expect.any(String),
+			expires: expect.any(Number),
+			handlerId: "requester-1",
+			information: {},
+			offer: undefined,
+			state: "REQUESTED"
+		});
+
+		expect(providerStore[0]).toMatchObject({
+			id: consumerStore[0].correlationId,
+			correlationId: consumerPid,
+			dateCreated: expect.any(String),
+			expires: expect.any(Number),
+			handlerId: "negotiator-1",
+			information: {},
+			offer: {
+				"@context": "https://www.w3.org/ns/odrl/2/",
+				"@type": "Offer",
+				assigner: testIdentityProvider,
+				uid: "offer-1"
+			},
+			state: "REQUESTED"
+		});
+	});
+
+	test("can perform the whole negotiation lifecycle", async () => {
+		const providerPoints: { [id: string]: PolicyNegotiationPointService } = {};
+
+		const policyNegotiationConsumerPoint = new PolicyNegotiationPointService({
+			policyNegotiationAdministrationPointComponentType: "policy-negotiation-consumer-admin-point",
+			config: {
+				baseCallbackUrl: "http://localhost:3000",
+				negotiationComponentCreator: async () => providerPoints.provider
+			}
+		});
+
+		const policyNegotiationProviderPoint = new PolicyNegotiationPointService({
+			policyNegotiationAdministrationPointComponentType: "policy-negotiation-provider-admin-point",
+			config: {
+				baseCallbackUrl: "http://localhost:4000",
+				negotiationComponentCreator: async () => providerPoints.consumer
+			}
+		});
+		providerPoints.provider = policyNegotiationProviderPoint;
+		providerPoints.consumer = policyNegotiationConsumerPoint;
+
+		await policyNegotiationConsumerPoint.start(testIdentityConsumer, undefined);
+		await policyNegotiationProviderPoint.start(testIdentityProvider, undefined);
+
+		await policyNegotiationConsumerPoint.registerRequester("requester-1", mockPolicyRequester);
+		await policyNegotiationProviderPoint.registerOffer(mockOffer);
+		await policyNegotiationProviderPoint.registerNegotiator("negotiator-1", mockNegotiator);
+
+		const consumerPid = await policyNegotiationConsumerPoint.sendRequestToProvider(
+			"http://localhost:3000",
+			"requester-1",
+			"offer-1"
+		);
+
+		const consumerStore = policyNegotiationConsumerMemoryEntityStorage.getStore();
+		expect(consumerStore).toHaveLength(1);
+		const providerStore = policyNegotiationProviderMemoryEntityStorage.getStore();
+		expect(providerStore).toHaveLength(1);
+
+		await waitForState(policyNegotiationConsumerMemoryEntityStorage, "ACCEPTED");
+
+		// The consumer has ACCEPTED the offer
+		expect(consumerStore[0]).toMatchObject({
+			id: consumerPid,
+			correlationId: providerStore[0].id,
+			dateCreated: expect.any(String),
+			expires: expect.any(Number),
+			handlerId: "requester-1",
+			information: {},
+			offer: {
+				"@context": "https://www.w3.org/ns/odrl/2/",
+				"@type": "Offer",
+				assigner: testIdentityProvider,
+				uid: "offer-1"
+			},
+			state: "ACCEPTED"
+		});
+
+		await waitForState(policyNegotiationProviderMemoryEntityStorage, "OFFERED");
+
+		// The provider has not yet received the ACCEPTED state, so is still in OFFERED state
+		expect(providerStore[0]).toMatchObject({
+			id: consumerStore[0].correlationId,
+			correlationId: consumerPid,
+			dateCreated: expect.any(String),
+			expires: expect.any(Number),
+			handlerId: "negotiator-1",
+			information: {},
+			offer: {
+				"@context": "https://www.w3.org/ns/odrl/2/",
+				"@type": "Offer",
+				assigner: testIdentityProvider,
+				uid: "offer-1"
+			},
+			state: "OFFERED"
+		});
+
+		// We wait for the consumer to respond with the ACCEPTED state
+		await waitForState(policyNegotiationProviderMemoryEntityStorage, "ACCEPTED");
+
+		// Now the provider should also have the ACCEPTED state
+		expect(providerStore[0]).toMatchObject({
+			id: consumerStore[0].correlationId,
+			correlationId: consumerPid,
+			dateCreated: expect.any(String),
+			expires: expect.any(Number),
+			handlerId: "negotiator-1",
+			information: {},
+			offer: {
+				"@context": "https://www.w3.org/ns/odrl/2/",
+				"@type": "Offer",
+				assigner: testIdentityProvider,
+				uid: "offer-1"
+			},
+			state: "ACCEPTED"
+		});
+
+		// Now we wait for the provider to send the AGREED state
+		await waitForState(policyNegotiationConsumerMemoryEntityStorage, "AGREED");
+
+		// The consumer has now received the AGREED state
+		expect(consumerStore[0]).toMatchObject({
+			id: consumerPid,
+			correlationId: providerStore[0].id,
+			dateCreated: expect.any(String),
+			expires: expect.any(Number),
+			handlerId: "requester-1",
+			information: {},
+			offer: {
+				"@context": "https://www.w3.org/ns/odrl/2/",
+				"@type": "Offer",
+				assigner: testIdentityProvider,
+				uid: "offer-1"
+			},
+			agreement: {
+				"@context": "https://www.w3.org/ns/odrl/2/",
+				"@type": "Agreement",
+				uid: "urn:policy:agreement-1",
+				assigner: testIdentityProvider,
+				assignee: testIdentityConsumer
+			},
+			state: "AGREED"
+		});
+
+		await waitForState(policyNegotiationProviderMemoryEntityStorage, "AGREED");
+
+		// The provider has now also set the AGREED state
+		expect(providerStore[0]).toMatchObject({
+			id: consumerStore[0].correlationId,
+			correlationId: consumerPid,
+			dateCreated: expect.any(String),
+			expires: expect.any(Number),
+			handlerId: "negotiator-1",
+			information: {},
+			offer: {
+				"@context": "https://www.w3.org/ns/odrl/2/",
+				"@type": "Offer",
+				assigner: testIdentityProvider,
+				uid: "offer-1"
+			},
+			agreement: {
+				"@context": "https://www.w3.org/ns/odrl/2/",
+				"@type": "Agreement",
+				uid: "urn:policy:agreement-1",
+				assigner: testIdentityProvider,
+				assignee: testIdentityConsumer
+			},
+			state: "AGREED"
+		});
+
+		// Now we wait for the consumer to VERIFIED the agreement
+		await waitForState(policyNegotiationConsumerMemoryEntityStorage, "VERIFIED");
+
+		// The consumer has now VERIFIED the agreement
+		expect(consumerStore[0]).toMatchObject({
+			id: consumerPid,
+			correlationId: providerStore[0].id,
+			dateCreated: expect.any(String),
+			expires: expect.any(Number),
+			handlerId: "requester-1",
+			information: {},
+			offer: {
+				"@context": "https://www.w3.org/ns/odrl/2/",
+				"@type": "Offer",
+				assigner: testIdentityProvider,
+				uid: "offer-1"
+			},
+			agreement: {
+				"@context": "https://www.w3.org/ns/odrl/2/",
+				"@type": "Agreement",
+				uid: "urn:policy:agreement-1",
+				assigner: testIdentityProvider,
+				assignee: testIdentityConsumer
+			},
+			state: "VERIFIED"
+		});
+
+		await waitForState(policyNegotiationProviderMemoryEntityStorage, "FINALIZED");
+
+		expect(providerStore[0]).toMatchObject({
+			id: consumerStore[0].correlationId,
+			correlationId: consumerPid,
+			dateCreated: expect.any(String),
+			expires: expect.any(Number),
+			handlerId: "negotiator-1",
+			information: {},
+			offer: {
+				"@context": "https://www.w3.org/ns/odrl/2/",
+				"@type": "Offer",
+				assigner: testIdentityProvider,
+				uid: "offer-1"
+			},
+			agreement: {
+				"@context": "https://www.w3.org/ns/odrl/2/",
+				"@type": "Agreement",
+				uid: "urn:policy:agreement-1",
+				assigner: testIdentityProvider,
+				assignee: testIdentityConsumer
+			},
+			state: "FINALIZED"
+		});
+
+		// We mock the validation as we are not testing the PAP here
+		// and it introduces a delay in the JSON-LD initialisation
+		vi.spyOn(JsonLdHelper, "validate").mockResolvedValue(true);
+
+		// Now we wait for the consumer to received the FINALIZED state
+		await waitForState(policyNegotiationConsumerMemoryEntityStorage, "FINALIZED");
+
+		expect(consumerStore[0]).toMatchObject({
+			id: consumerPid,
+			correlationId: providerStore[0].id,
+			dateCreated: expect.any(String),
+			expires: expect.any(Number),
+			handlerId: "requester-1",
+			information: {},
+			offer: {
+				"@context": "https://www.w3.org/ns/odrl/2/",
+				"@type": "Offer",
+				assigner: testIdentityProvider,
+				uid: "offer-1"
+			},
+			agreement: {
+				"@context": "https://www.w3.org/ns/odrl/2/",
+				"@type": "Agreement",
+				uid: "urn:policy:agreement-1",
+				assigner: testIdentityProvider,
+				assignee: testIdentityConsumer
+			},
+			state: "FINALIZED"
+		});
+
+		await waitForState(policyNegotiationProviderMemoryEntityStorage, "FINALIZED");
+
+		expect(providerStore[0]).toMatchObject({
+			id: consumerStore[0].correlationId,
+			correlationId: consumerPid,
+			dateCreated: expect.any(String),
+			expires: expect.any(Number),
+			handlerId: "negotiator-1",
+			information: {},
+			offer: {
+				"@context": "https://www.w3.org/ns/odrl/2/",
+				"@type": "Offer",
+				assigner: testIdentityProvider,
+				uid: "offer-1"
+			},
+			agreement: {
+				"@context": "https://www.w3.org/ns/odrl/2/",
+				"@type": "Agreement",
+				uid: "urn:policy:agreement-1",
+				assigner: testIdentityProvider,
+				assignee: testIdentityConsumer
+			},
+			state: "FINALIZED"
+		});
+
+		expect(mockNegotiator.supportsOffer).toHaveBeenCalledTimes(2);
+		expect(mockNegotiator.createAgreement).toHaveBeenCalledTimes(1);
+		expect(mockNegotiator.handleOffer).toHaveBeenCalledTimes(1);
+
+		expect(mockPolicyRequester.offer).toHaveBeenCalledTimes(1);
+		expect(mockPolicyRequester.agreement).toHaveBeenCalledTimes(1);
+		expect(mockPolicyRequester.finalised).toHaveBeenCalledTimes(1);
+		expect(mockPolicyRequester.terminated).toHaveBeenCalledTimes(0);
+	});
+
+	test("should register a requester without error", async () => {
+		const service = new PolicyNegotiationPointService({
+			policyNegotiationAdministrationPointComponentType: "policy-negotiation-provider-admin-point",
+			config: {
+				baseCallbackUrl: "http://localhost:4000",
+				negotiationComponentCreator: async () => ({}) as IPolicyNegotiationPointComponent
+			}
+		});
+		await service.start(testIdentityProvider, undefined);
+		await expect(
+			service.registerRequester("requester-1", mockPolicyRequester)
+		).resolves.not.toThrow();
+	});
+
+	test("should register a negotiator without error", async () => {
+		const service = new PolicyNegotiationPointService({
+			policyNegotiationAdministrationPointComponentType: "policy-negotiation-provider-admin-point",
+			config: {
+				baseCallbackUrl: "http://localhost:4000",
+				negotiationComponentCreator: async () => ({}) as IPolicyNegotiationPointComponent
+			}
+		});
+		await service.start(testIdentityProvider, undefined);
+		await expect(service.registerNegotiator("negotiator-1", mockNegotiator)).resolves.not.toThrow();
+	});
+
+	test("should unregister negotiator and be idempotent", async () => {
+		const service = new PolicyNegotiationPointService({
+			policyNegotiationAdministrationPointComponentType: "policy-negotiation-provider-admin-point",
+			config: {
+				baseCallbackUrl: "http://localhost:4000",
+				negotiationComponentCreator: async () => ({}) as IPolicyNegotiationPointComponent
+			}
+		});
+		await service.start(testIdentityProvider, undefined);
+		await service.registerNegotiator("negotiator-1", mockNegotiator);
+		await expect(service.unregisterNegotiator("negotiator-1")).resolves.not.toThrow();
+		// Second call should also not throw
+		await expect(service.unregisterNegotiator("negotiator-1")).resolves.not.toThrow();
+		// Try registering again to ensure clean state
+		await expect(service.registerNegotiator("negotiator-1", mockNegotiator)).resolves.not.toThrow();
+	});
+
+	test("should unregister requester and be idempotent", async () => {
+		const service = new PolicyNegotiationPointService({
+			policyNegotiationAdministrationPointComponentType: "policy-negotiation-provider-admin-point",
+			config: {
+				baseCallbackUrl: "http://localhost:4000",
+				negotiationComponentCreator: async () => ({}) as IPolicyNegotiationPointComponent
+			}
+		});
+		await service.start(testIdentityProvider, undefined);
+		await service.registerRequester("requester-1", mockPolicyRequester);
+		await expect(service.unregisterRequester("requester-1")).resolves.not.toThrow();
+		// Second call should also not throw
+		await expect(service.unregisterRequester("requester-1")).resolves.not.toThrow();
+		// Try registering again to ensure clean state
+		await expect(
+			service.registerRequester("requester-1", mockPolicyRequester)
+		).resolves.not.toThrow();
 	});
 });
