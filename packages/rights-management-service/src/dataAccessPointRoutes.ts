@@ -21,7 +21,7 @@ import {
 	type IDapUpdateRequest,
 	type IDataAccessPointComponent
 } from "@twin.org/rights-management-models";
-import { HeaderTypes, HttpStatusCode, MimeTypes } from "@twin.org/web";
+import { HeaderHelper, HeaderTypes, HttpStatusCode, MimeTypes } from "@twin.org/web";
 
 /**
  * The source used when communicating about these routes.
@@ -314,7 +314,7 @@ export async function dapCreate(
 	const result = await component.create(
 		request.pathParams.assetType,
 		request.body.object,
-		request.headers[HeaderTypes.Authorization]
+		HeaderHelper.extractBearer(request.headers[HeaderTypes.Authorization])
 	);
 
 	return {
@@ -351,7 +351,7 @@ export async function dapGet(
 	const result = await component.get(
 		request.pathParams.assetType,
 		request.pathParams.id,
-		request.headers[HeaderTypes.Authorization]
+		HeaderHelper.extractBearer(request.headers[HeaderTypes.Authorization])
 	);
 
 	return {
@@ -387,7 +387,7 @@ export async function dapUpdate(
 	await component.update(
 		request.pathParams.assetType,
 		request.body.object,
-		request.headers[HeaderTypes.Authorization]
+		HeaderHelper.extractBearer(request.headers[HeaderTypes.Authorization])
 	);
 
 	return {
@@ -423,7 +423,7 @@ export async function dapRemove(
 	await component.remove(
 		request.pathParams.assetType,
 		request.pathParams.id,
-		request.headers[HeaderTypes.Authorization]
+		HeaderHelper.extractBearer(request.headers[HeaderTypes.Authorization])
 	);
 
 	return {
@@ -464,7 +464,7 @@ export async function dapQuery(
 		request.body.conditions,
 		request.body.cursor,
 		request.body.options,
-		request.headers[HeaderTypes.Authorization]
+		HeaderHelper.extractBearer(request.headers[HeaderTypes.Authorization])
 	);
 
 	return {

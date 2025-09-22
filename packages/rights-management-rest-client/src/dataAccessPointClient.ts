@@ -6,7 +6,7 @@ import type {
 	ICreatedResponse,
 	INoContentResponse
 } from "@twin.org/api-models";
-import { Guards, NotImplementedError } from "@twin.org/core";
+import { Guards, NotSupportedError } from "@twin.org/core";
 import type { IJsonLdNodeObject } from "@twin.org/data-json-ld";
 import type { EntityCondition } from "@twin.org/entity";
 import { nameof } from "@twin.org/nameof";
@@ -23,7 +23,7 @@ import {
 	type IDataAccessHandler,
 	type IDataAccessPointComponent
 } from "@twin.org/rights-management-models";
-import { HeaderTypes, MimeTypes } from "@twin.org/web";
+import { HeaderHelper, HeaderTypes, MimeTypes } from "@twin.org/web";
 
 /**
  * Client for performing Rights Management Data Access through to REST endpoints.
@@ -64,7 +64,7 @@ export class DataAccessPointClient extends BaseRestClient implements IDataAccess
 			{
 				headers: {
 					[HeaderTypes.Accept]: MimeTypes.JsonLd,
-					[HeaderTypes.Authorization]: proofToken
+					[HeaderTypes.Authorization]: HeaderHelper.createBearer(proofToken)
 				},
 				pathParams: {
 					assetType
@@ -98,7 +98,7 @@ export class DataAccessPointClient extends BaseRestClient implements IDataAccess
 			{
 				headers: {
 					[HeaderTypes.Accept]: MimeTypes.JsonLd,
-					[HeaderTypes.Authorization]: proofToken
+					[HeaderTypes.Authorization]: HeaderHelper.createBearer(proofToken)
 				},
 				pathParams: {
 					assetType,
@@ -130,7 +130,7 @@ export class DataAccessPointClient extends BaseRestClient implements IDataAccess
 		await this.fetch<IDapUpdateRequest, INoContentResponse>("/data/:assetType/:id", "PUT", {
 			headers: {
 				[HeaderTypes.Accept]: MimeTypes.JsonLd,
-				[HeaderTypes.Authorization]: proofToken
+				[HeaderTypes.Authorization]: HeaderHelper.createBearer(proofToken)
 			},
 			pathParams: {
 				assetType,
@@ -159,7 +159,7 @@ export class DataAccessPointClient extends BaseRestClient implements IDataAccess
 		await this.fetch<IDapRemoveRequest, INoContentResponse>("/data/:assetType/:id", "DELETE", {
 			headers: {
 				[HeaderTypes.Accept]: MimeTypes.JsonLd,
-				[HeaderTypes.Authorization]: proofToken
+				[HeaderTypes.Authorization]: HeaderHelper.createBearer(proofToken)
 			},
 			pathParams: {
 				assetType,
@@ -196,7 +196,7 @@ export class DataAccessPointClient extends BaseRestClient implements IDataAccess
 			{
 				headers: {
 					[HeaderTypes.Accept]: MimeTypes.JsonLd,
-					[HeaderTypes.Authorization]: proofToken
+					[HeaderTypes.Authorization]: HeaderHelper.createBearer(proofToken)
 				},
 				pathParams: {
 					assetType
@@ -221,7 +221,9 @@ export class DataAccessPointClient extends BaseRestClient implements IDataAccess
 	 * @returns Nothing.
 	 */
 	public async registerHandler(handlerId: string, handler: IDataAccessHandler): Promise<void> {
-		throw new NotImplementedError(this.CLASS_NAME, "registerHandler");
+		throw new NotSupportedError(this.CLASS_NAME, "notSupportedOnClient", {
+			method: "registerHandler"
+		});
 	}
 
 	/**
@@ -230,6 +232,8 @@ export class DataAccessPointClient extends BaseRestClient implements IDataAccess
 	 * @returns Nothing.
 	 */
 	public async unregisterHandler(handlerId: string): Promise<void> {
-		throw new NotImplementedError(this.CLASS_NAME, "unregisterHandler");
+		throw new NotSupportedError(this.CLASS_NAME, "notSupportedOnClient", {
+			method: "unregisterHandler"
+		});
 	}
 }

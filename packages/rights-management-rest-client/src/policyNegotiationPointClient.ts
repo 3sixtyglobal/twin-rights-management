@@ -2,7 +2,7 @@
 // SPDX-License-Identifier: Apache-2.0.
 import { BaseRestClient } from "@twin.org/api-core";
 import type { IBaseRestClientConfig } from "@twin.org/api-models";
-import { Guards, Is, NotImplementedError, Url } from "@twin.org/core";
+import { Guards, Is, NotSupportedError, Url } from "@twin.org/core";
 import { nameof } from "@twin.org/nameof";
 import type {
 	IPnpAgreementRequest,
@@ -29,7 +29,7 @@ import type {
 	IIdsContractRequestMessage
 } from "@twin.org/standards-ids-contract-negotiation";
 import type { IOdrlOffer } from "@twin.org/standards-w3c-odrl";
-import { HeaderTypes, MimeTypes } from "@twin.org/web";
+import { HeaderHelper, HeaderTypes, MimeTypes } from "@twin.org/web";
 
 /**
  * Client for performing Rights Management Policy Negotiation through to REST endpoints.
@@ -70,7 +70,7 @@ export class PolicyNegotiationPointClient
 			{
 				headers: {
 					[HeaderTypes.Accept]: MimeTypes.JsonLd,
-					[HeaderTypes.Authorization]: proofToken
+					[HeaderTypes.Authorization]: HeaderHelper.createBearer(proofToken)
 				},
 				pathParams: {
 					id
@@ -93,7 +93,9 @@ export class PolicyNegotiationPointClient
 		requesterId: string,
 		odrlOfferId: string
 	): Promise<string> {
-		throw new NotImplementedError(this.CLASS_NAME, "sendRequestToProvider");
+		throw new NotSupportedError(this.CLASS_NAME, "notSupportedOnClient", {
+			method: "sendRequestToProvider"
+		});
 	}
 
 	/**
@@ -121,7 +123,7 @@ export class PolicyNegotiationPointClient
 			{
 				headers: {
 					[HeaderTypes.Accept]: MimeTypes.JsonLd,
-					[HeaderTypes.Authorization]: proofToken
+					[HeaderTypes.Authorization]: HeaderHelper.createBearer(proofToken)
 				},
 				pathParams: {
 					id: message.providerPid
@@ -155,7 +157,7 @@ export class PolicyNegotiationPointClient
 			{
 				headers: {
 					[HeaderTypes.Accept]: MimeTypes.JsonLd,
-					[HeaderTypes.Authorization]: proofToken
+					[HeaderTypes.Authorization]: HeaderHelper.createBearer(proofToken)
 				},
 				pathParams: {
 					id: message.consumerPid
@@ -189,7 +191,7 @@ export class PolicyNegotiationPointClient
 			{
 				headers: {
 					[HeaderTypes.Accept]: MimeTypes.JsonLd,
-					[HeaderTypes.Authorization]: proofToken
+					[HeaderTypes.Authorization]: HeaderHelper.createBearer(proofToken)
 				},
 				pathParams: {
 					id: message.consumerPid
@@ -222,7 +224,7 @@ export class PolicyNegotiationPointClient
 			{
 				headers: {
 					[HeaderTypes.Accept]: MimeTypes.JsonLd,
-					[HeaderTypes.Authorization]: proofToken
+					[HeaderTypes.Authorization]: HeaderHelper.createBearer(proofToken)
 				},
 				pathParams: {
 					id: message.providerPid
@@ -258,7 +260,7 @@ export class PolicyNegotiationPointClient
 			{
 				headers: {
 					[HeaderTypes.Accept]: MimeTypes.JsonLd,
-					[HeaderTypes.Authorization]: proofToken
+					[HeaderTypes.Authorization]: HeaderHelper.createBearer(proofToken)
 				},
 				pathParams: {
 					id: destination === "provider" ? message.providerPid : message.consumerPid
@@ -298,7 +300,7 @@ export class PolicyNegotiationPointClient
 			{
 				headers: {
 					[HeaderTypes.Accept]: MimeTypes.JsonLd,
-					[HeaderTypes.Authorization]: proofToken
+					[HeaderTypes.Authorization]: HeaderHelper.createBearer(proofToken)
 				},
 				pathParams: {
 					id: destination === "provider" ? message.providerPid : message.consumerPid
@@ -320,7 +322,9 @@ export class PolicyNegotiationPointClient
 		negotiatorId: string,
 		negotiator: IPolicyNegotiator
 	): Promise<void> {
-		throw new NotImplementedError(this.CLASS_NAME, "registerNegotiator");
+		throw new NotSupportedError(this.CLASS_NAME, "notSupportedOnClient", {
+			method: "registerNegotiator"
+		});
 	}
 
 	/**
@@ -329,7 +333,9 @@ export class PolicyNegotiationPointClient
 	 * @returns Nothing.
 	 */
 	public async unregisterNegotiator(negotiatorId: string): Promise<void> {
-		throw new NotImplementedError(this.CLASS_NAME, "unregisterNegotiator");
+		throw new NotSupportedError(this.CLASS_NAME, "notSupportedOnClient", {
+			method: "unregisterNegotiator"
+		});
 	}
 
 	/**
@@ -339,7 +345,9 @@ export class PolicyNegotiationPointClient
 	 * @returns Nothing.
 	 */
 	public async registerRequester(requesterId: string, requester: IPolicyRequester): Promise<void> {
-		throw new NotImplementedError(this.CLASS_NAME, "registerRequester");
+		throw new NotSupportedError(this.CLASS_NAME, "notSupportedOnClient", {
+			method: "registerRequester"
+		});
 	}
 
 	/**
@@ -348,7 +356,9 @@ export class PolicyNegotiationPointClient
 	 * @returns Nothing.
 	 */
 	public async unregisterRequester(requesterId: string): Promise<void> {
-		throw new NotImplementedError(this.CLASS_NAME, "unregisterRequester");
+		throw new NotSupportedError(this.CLASS_NAME, "notSupportedOnClient", {
+			method: "unregisterRequester"
+		});
 	}
 
 	/**
@@ -357,7 +367,9 @@ export class PolicyNegotiationPointClient
 	 * @returns Nothing.
 	 */
 	public async registerOffer(offer: IOdrlOffer): Promise<void> {
-		throw new NotImplementedError(this.CLASS_NAME, "registerOffer");
+		throw new NotSupportedError(this.CLASS_NAME, "notSupportedOnClient", {
+			method: "registerOffer"
+		});
 	}
 
 	/**
@@ -366,6 +378,8 @@ export class PolicyNegotiationPointClient
 	 * @returns Nothing.
 	 */
 	public async unregisterOffer(offerId: string): Promise<void> {
-		throw new NotImplementedError(this.CLASS_NAME, "unregisterOffer");
+		throw new NotSupportedError(this.CLASS_NAME, "notSupportedOnClient", {
+			method: "unregisterOffer"
+		});
 	}
 }
