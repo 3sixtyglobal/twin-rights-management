@@ -1,5 +1,27 @@
 # @twin.org/rights-management-pap-service - Changelog
 
+## [0.0.2-next.12](https://github.com/twinfoundation/rights-management/compare/rights-management-service-v0.0.2-next.11...rights-management-service-v0.0.2-next.12) (2025-09-22)
+
+
+### Features
+
+* use Bearer format for token headers ([74d7d7c](https://github.com/twinfoundation/rights-management/commit/74d7d7cc59906c78798f78c5ed9211a3ee8dcd10))
+
+
+### Dependencies
+
+* The following workspace dependencies were updated
+  * dependencies
+    * @twin.org/rights-management-models bumped from 0.0.2-next.11 to 0.0.2-next.12
+  * devDependencies
+    * @twin.org/rights-management-pap-service bumped from 0.0.2-next.11 to 0.0.2-next.12
+    * @twin.org/rights-management-pdp-service bumped from 0.0.2-next.11 to 0.0.2-next.12
+    * @twin.org/rights-management-pep-service bumped from 0.0.2-next.11 to 0.0.2-next.12
+    * @twin.org/rights-management-pip-service bumped from 0.0.2-next.11 to 0.0.2-next.12
+    * @twin.org/rights-management-pmp-service bumped from 0.0.2-next.11 to 0.0.2-next.12
+    * @twin.org/rights-management-pnp-service bumped from 0.0.2-next.11 to 0.0.2-next.12
+    * @twin.org/rights-management-pxp-service bumped from 0.0.2-next.11 to 0.0.2-next.12
+
 ## [0.0.2-next.11](https://github.com/twinfoundation/rights-management/compare/rights-management-service-v0.0.2-next.10...rights-management-service-v0.0.2-next.11) (2025-09-19)
 
 
