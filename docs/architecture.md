@@ -214,7 +214,9 @@ const processedAigDocument = await pep.intercept({
 });
 ```
 
-For broader external exposure of a component's data without modifying its internal implementation, prefer the [DAP](#data-access-point-dap) integration: register a handler and allow the DAP → PEP pipeline to perform enforcement prior to handler invocation.
+Embedding the PEP directly inside component‑specific REST endpoints constrains cross‑node interoperability: authorization remains bound to the nodes internal credential domain, preventing external nodes from invoking those endpoints via standardized rights‑management tokens.
+
+For broader external exposure of a component's data without modifying its internal implementation, prefer the [DAP](#data-access-point-dap) which provides a method for registering a handler for a services asset classes.
 
 ## Policy Negotiation Point (PNP)
 
