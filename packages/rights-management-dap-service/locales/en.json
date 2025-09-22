@@ -1,7 +1,9 @@
 {
 	"error": {
 		"dataAccessPointService": {
-			"noHandlerForAssetType": "No handler registered for asset type \"{assetType}\""
+			"noHandlerForAssetType": "No handler registered for asset type \"{assetType}\"",
+			"notAuthorizedToQuery": "Not authorized to query asset type \"{assetType}\"",
+			"notAuthorizedToGet": "Not authorized to get asset type \"{assetType}\" with id \"{id}\""
 		},
 		"dataAccessRequestPointService": {}
 	},

@@ -119,12 +119,6 @@ export class DataAccessPointService implements IDataAccessPointComponent {
 			this._proofTtlInSeconds
 		);
 
-		await this._policyEnforcementPointComponent.intercept({
-			assignee: verifiableCredential.issuer,
-			action: ActionType.Use,
-			assetType
-		});
-
 		const manipulatedItem =
 			await this._policyEnforcementPointComponent.intercept<IJsonLdNodeObject>({
 				assignee: verifiableCredential.issuer,
@@ -169,12 +163,16 @@ export class DataAccessPointService implements IDataAccessPointComponent {
 			this._proofTtlInSeconds
 		);
 
-		await this._policyEnforcementPointComponent.intercept({
+		const isAllowed = await this._policyEnforcementPointComponent.intercept({
 			assignee: verifiableCredential.issuer,
 			action: ActionType.Use,
 			assetType,
 			resourceId: id
 		});
+
+		if (!(Coerce.boolean(isAllowed) ?? false)) {
+			throw new GeneralError(this.CLASS_NAME, "notAuthorizedToGet", { assetType, id });
+		}
 
 		const item = await handlerEntry.handler.get(assetType, id);
 
@@ -233,13 +231,6 @@ export class DataAccessPointService implements IDataAccessPointComponent {
 			this._proofTtlInSeconds
 		);
 
-		await this._policyEnforcementPointComponent.intercept({
-			assignee: verifiableCredential.issuer,
-			action: ActionType.Use,
-			assetType,
-			resourceId: dataAccessRequest.id
-		});
-
 		const manipulatedItem =
 			await this._policyEnforcementPointComponent.intercept<IJsonLdNodeObject>({
 				assignee: verifiableCredential.issuer,
@@ -284,13 +275,6 @@ export class DataAccessPointService implements IDataAccessPointComponent {
 			proofToken,
 			this._proofTtlInSeconds
 		);
-
-		await this._policyEnforcementPointComponent.intercept({
-			assignee: verifiableCredential.issuer,
-			action: ActionType.Use,
-			assetType,
-			resourceId: dataAccessRequest.id
-		});
 
 		await this._policyEnforcementPointComponent.intercept({
 			assignee: verifiableCredential.issuer,
@@ -345,11 +329,15 @@ export class DataAccessPointService implements IDataAccessPointComponent {
 			this._proofTtlInSeconds
 		);
 
-		await this._policyEnforcementPointComponent.intercept({
+		const isAllowed = await this._policyEnforcementPointComponent.intercept({
 			assignee: verifiableCredential.issuer,
 			action: ActionType.Use,
 			assetType
 		});
+
+		if (!(Coerce.boolean(isAllowed) ?? false)) {
+			throw new GeneralError(this.CLASS_NAME, "notAuthorizedToQuery", { assetType });
+		}
 
 		const result = await handlerEntry.handler.query(assetType, conditions, cursor, options);
 

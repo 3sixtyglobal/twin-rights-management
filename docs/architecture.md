@@ -2,6 +2,8 @@
 
 This document defines the architecture of the TWIN Foundation Rights Management subsystem. It specifies the responsibility boundaries of core components, the policy and negotiation lifecycle, extensibility contracts, and interaction flows (including integration with IDS Contract Negotiation and ODRL policy semantics). The intent is to precise describe the runtime model so that new extensions can be implemented without ambiguity.
 
+A majority of the modules form part of the specification [International Data Spaces Architecture Model - Policy Enforcement](https://docs.internationaldataspaces.org/ids-knowledgebase/ids-ram-4/layers-of-the-reference-architecture-model/3-layers-of-the-reference-architecture-model/3_4_process_layer/3_4_6_policy_enforcement)
+
 Core domain concepts:
 
 - [Policy](#policy)
@@ -95,7 +97,9 @@ Cross-node invocations are authenticated using a detached trust mechanism rather
 Authorization: Bearer <jwt>
 ```
 
-The JWT MUST be signed with the private key corresponding to the caller Node's DID verification method `rights-management-assertion`. Verification steps:
+The JWT MUST be signed with the private key corresponding to the caller Node's DID verification method `rights-management-assertion`.
+
+Verification steps:
 
 1. Resolve caller DID document.
 2. Extract `rights-management-assertion` public key material.
@@ -104,7 +108,9 @@ The JWT MUST be signed with the private key corresponding to the caller Node's D
 
 ## Policy Administration Point (PAP)
 
-The PAP provides authoritative persistence for Policy entities. Capabilities:
+The PAP provides authoritative persistence for Policy entities.
+
+Capabilities:
 
 - Create / update / soft delete (revocation) / read by identifier.
 - Query by indexed fields aligned with Policy Locator discriminators.
@@ -114,7 +120,9 @@ The PAP MUST NOT implement evaluation semantics; it is intentionally passive.
 
 ## Policy Management Point (PMP)
 
-The PMP resolves candidate Policies relevant to an access evaluation or negotiation request. Responsibilities:
+The PMP resolves candidate Policies relevant to an access evaluation or negotiation request.
+
+Responsibilities:
 
 - Translate a Policy Locator into one or more PAP queries (including wildcard = missing field logic).
 - Apply in-memory filtering for secondary criteria not indexed in storage.
@@ -164,7 +172,9 @@ Arbiters SHOULD be deterministic for identical inputs and MUST NOT mutate shared
 
 ## Policy Enforcement Point (PEP)
 
-The PEP applies PDP decisions to a candidate data set. Process:
+The PEP applies PDP decisions to a candidate data set.
+
+Process:
 
 1. Submit locator + data to PDP.
 2. Receive decision set (permits, denies, obligations, transformations hints).
@@ -172,6 +182,39 @@ The PEP applies PDP decisions to a candidate data set. Process:
 4. Return the final (potentially redacted or transformed) data or raise an enforcement exception.
 
 Ordering is deterministic by registration sequence.
+
+### Applying Enforcement
+
+Any in-process component can invoke policy enforcement directly by resolving the PEP component and calling `intercept()`.
+
+This provides:
+
+1. Inline authorization (permit / deny) for a single piece of JSON-LD data or collection.
+2. Declarative transformation (redaction, augmentation, obligation-driven adjustments) applied consistently with the rest of the platform.
+
+Illustrative usage:
+
+```ts
+// No input data, just trying to see if data is accessible
+// the return type is determined by the PEP
+const response = await pep.intercept({
+  locator: { assetType: 'aig:AuditableItemGraphVertex', action: 'use' }
+});
+
+const isAllowed = Coerce.boolean(response);
+console.log('Access is allowed', isAllowed);
+```
+
+```ts
+// JSON-LD document from regular data processing is handed
+// to the PEP to transform the data
+const processedAigDocument = await pep.intercept({
+  locator: { assetType: 'aig:AuditableItemGraphVertex', action: 'read' },
+  data: aigDocument
+});
+```
+
+For broader external exposure of a component's data without modifying its internal implementation, prefer the [DAP](#data-access-point-dap) integration: register a handler and allow the DAP → PEP pipeline to perform enforcement prior to handler invocation.
 
 ## Policy Negotiation Point (PNP)
 
@@ -191,11 +234,15 @@ Extensibility:
 - Negotiators implement Offer evaluation, counter-offer generation, and potential obligation insertion.
 - Requesters receive lifecycle callbacks: offer, agreement, finalised, terminated (names normative).
 
-Manual Intervention: A Negotiator MAY request a pause requiring administrative action. Such negotiations enter a managed state handled through PNAP operations before resumption.
+### Manual Intervention
+
+A Negotiator MAY request a pause requiring administrative action. Such negotiations enter a managed state handled through PNAP operations before resumption.
 
 ## Policy Negotiation Admin Point (PNAP)
 
-PNAP exposes administrative CRUD + query over negotiation instances. Functions:
+PNAP exposes administrative CRUD + query over negotiation instances.
+
+Functions:
 
 - Query stalled / intervention-required negotiations.
 - Apply administrative decisions (approve, reject, inject amended terms).
@@ -203,11 +250,49 @@ PNAP exposes administrative CRUD + query over negotiation instances. Functions:
 
 ## Data Access Point (DAP)
 
-DAP mediates data asset CRUD + query operations and integrates PEP enforcement. Responsibilities:
+DAP mediates data asset CRUD + query operations and integrates PEP enforcement.
+
+Responsibilities:
 
 - Register asset-type specific `Handlers` implementing canonical CRUD + query contract.
 - Authorize inbound operations by invoking PEP (which cascades to PDP) prior to handler execution (except where explicitly marked public).
 - Propagate enforcement-modified data (e.g. redactions) back to the caller.
+
+e.g. Auditable Item Graph (AIG)
+
+The AIG registers an asset-type specific `Handler` via the DAP to expose its data through the unified rights-management enforcement pipeline.
+
+Benefits:
+
+1. External (cross-node) consumers cannot rely on the AIG's internal/auth-local routes; instead they traverse a path protected by standardized authorization + PDP/PEP evaluation.
+2. Enforcement (permit/deny, redaction, obligation-triggered transformations) is applied centrally by the DAP/PEP chain without invasive modifications to existing AIG domain logic.
+
+Illustrative registration:
+
+```ts
+dap.registerHandler({
+  supportedAssetTypes(): ["aig:AuditableItemGraphVertex"],
+  async create(assetType: string, item: IJsonLdNodeObject): Promise<string>,
+  async read(assetType: string, id: string): Promise<IJsonLdNodeObject>,
+  async update(assetType: string, item: IJsonLdNodeObject): Promise<void>),
+  async remove(assetType: string, id: string),
+  async query(assetType: string, conditions, cursor?: string, options?: unknown): Promise<{items: IJsonLdNodeObject[], cursor?: string}>
+});
+```
+
+The query method has an `options` parameter which can be handler specific, for example the AIG can accept include `id` and `idMode` in a query.
+
+## DAP Runtime Enforcement
+
+At runtime the DAP invokes enforcement at the following points:
+
+| Operation | ODRL Pre Action | ODRL Post Action | Enforcement Effect                                                              |
+| --------- | --------------- | ---------------- | ------------------------------------------------------------------------------- |
+| Create    | `write`         | -                | Policy may transform or validate input prior to persistence.                    |
+| Read      | `use`           | `read`           | Authorization; response may be filtered, redacted or augmented.                 |
+| Update    | `modify`        | -                | Policy may constrain or transform the updated content.                          |
+| Remove    | `delete`        | -                | Authorization check permits deletion.                                           |
+| Query     | `use`           | `read`           | Authorization; per-item filtering/redaction/augmentation applied to result set. |
 
 ## Data Access Request Point (DARP)
 
