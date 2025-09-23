@@ -1,5 +1,20 @@
 # @twin.org/rights-management-pap-service - Changelog
 
+## [0.0.2-next.13](https://github.com/twinfoundation/rights-management/compare/rights-management-pap-service-v0.0.2-next.12...rights-management-pap-service-v0.0.2-next.13) (2025-09-23)
+
+
+### Features
+
+* update to use built in vc authentication ([e34995a](https://github.com/twinfoundation/rights-management/commit/e34995aaea89eb7840d7e647d1cbb2544ebe4e32))
+* update to use built in vc authentication ([f982b86](https://github.com/twinfoundation/rights-management/commit/f982b8676a7d21add85195c73558ef4f0fd9be29))
+
+
+### Dependencies
+
+* The following workspace dependencies were updated
+  * dependencies
+    * @twin.org/rights-management-models bumped from 0.0.2-next.12 to 0.0.2-next.13
+
 ## [0.0.2-next.12](https://github.com/twinfoundation/rights-management/compare/rights-management-pap-service-v0.0.2-next.11...rights-management-pap-service-v0.0.2-next.12) (2025-09-22)
 
 

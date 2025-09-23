@@ -1,6 +1,6 @@
 {
 	"name": "@twin.org/rights-management-pep-service",
-	"version": "0.0.2-next.12",
+	"version": "0.0.2-next.13",
 	"description": "Policy enforcement point implementation",
 	"repository": {
 		"type": "git",
@@ -33,7 +33,7 @@
 	},
 	"dependencies": {
 		"@twin.org/core": "next",
-		"@twin.org/rights-management-models": "0.0.2-next.12",
+		"@twin.org/rights-management-models": "0.0.2-next.13",
 		"@twin.org/logging-models": "next",
 		"@twin.org/nameof": "next"
 	},
@@ -43,11 +43,11 @@
 		"@twin.org/logging-service": "next",
 		"@twin.org/nameof-transformer": "next",
 		"@twin.org/nameof-vitest-plugin": "next",
-		"@twin.org/rights-management-pap-service": "0.0.2-next.12",
-		"@twin.org/rights-management-pdp-service": "0.0.2-next.12",
-		"@twin.org/rights-management-pip-service": "0.0.2-next.12",
-		"@twin.org/rights-management-pmp-service": "0.0.2-next.12",
-		"@twin.org/rights-management-pxp-service": "0.0.2-next.12",
+		"@twin.org/rights-management-pap-service": "0.0.2-next.13",
+		"@twin.org/rights-management-pdp-service": "0.0.2-next.13",
+		"@twin.org/rights-management-pip-service": "0.0.2-next.13",
+		"@twin.org/rights-management-pmp-service": "0.0.2-next.13",
+		"@twin.org/rights-management-pxp-service": "0.0.2-next.13",
 		"@types/node": "24.3.0",
 		"@rollup/plugin-json": "6.1.0",
 		"@vitest/coverage-v8": "3.2.4",

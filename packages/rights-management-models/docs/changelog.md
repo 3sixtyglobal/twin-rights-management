@@ -1,5 +1,12 @@
 # @twin.org/rights-management-models - Changelog
 
+## [0.0.2-next.13](https://github.com/twinfoundation/rights-management/compare/rights-management-models-v0.0.2-next.12...rights-management-models-v0.0.2-next.13) (2025-09-23)
+
+
+### Features
+
+* update to use built in vc authentication ([f982b86](https://github.com/twinfoundation/rights-management/commit/f982b8676a7d21add85195c73558ef4f0fd9be29))
+
 ## [0.0.2-next.12](https://github.com/twinfoundation/rights-management/compare/rights-management-models-v0.0.2-next.11...rights-management-models-v0.0.2-next.12) (2025-09-22)
 
 

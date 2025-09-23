@@ -1,6 +1,6 @@
 {
 	"name": "@twin.org/rights-management-pxp-service",
-	"version": "0.0.2-next.12",
+	"version": "0.0.2-next.13",
 	"description": "Policy execution point implementation",
 	"repository": {
 		"type": "git",
@@ -33,7 +33,7 @@
 	},
 	"dependencies": {
 		"@twin.org/core": "next",
-		"@twin.org/rights-management-models": "0.0.2-next.12",
+		"@twin.org/rights-management-models": "0.0.2-next.13",
 		"@twin.org/logging-models": "next",
 		"@twin.org/nameof": "next",
 		"@twin.org/standards-w3c-odrl": "next"
