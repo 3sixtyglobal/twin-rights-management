@@ -8,6 +8,11 @@ import type {
 	ITag
 } from "@twin.org/api-models";
 import { ComponentFactory, Guards } from "@twin.org/core";
+import {
+	IdentityAuthenticationContexts,
+	IdentityAuthenticationTypes,
+	type IIdentityAuthenticationActionRequest
+} from "@twin.org/identity-authentication";
 import { nameof } from "@twin.org/nameof";
 import {
 	RightsManagementContexts,
@@ -21,7 +26,7 @@ import {
 	type IDapUpdateRequest,
 	type IDataAccessPointComponent
 } from "@twin.org/rights-management-models";
-import { HeaderHelper, HeaderTypes, HttpStatusCode, MimeTypes } from "@twin.org/web";
+import { HeaderTypes, HttpStatusCode, MimeTypes } from "@twin.org/web";
 
 /**
  * The source used when communicating about these routes.
@@ -78,6 +83,12 @@ export function generateRestRoutesDataAccessPoint(
 								type: "Person",
 								name: "Jane Doe"
 							}
+						},
+						authentication: {
+							"@context": IdentityAuthenticationContexts.ContextRoot,
+							type: IdentityAuthenticationTypes.ActionRequest,
+							requester: "did:node-1",
+							action: "create"
 						}
 					}
 				}
@@ -99,7 +110,8 @@ export function generateRestRoutesDataAccessPoint(
 				]
 			}
 		],
-		skipAuth: true
+		skipAuth: true,
+		processorFeatures: ["verifiableCredential"]
 	};
 
 	const dapGetRoute: IRestRoute<IDapGetRequest, IDapGetResponse> = {
@@ -123,6 +135,12 @@ export function generateRestRoutesDataAccessPoint(
 						pathParams: {
 							assetType: "contacts",
 							id: "urn:contacts:abc123def456"
+						},
+						authentication: {
+							"@context": IdentityAuthenticationContexts.ContextRoot,
+							type: IdentityAuthenticationTypes.ActionRequest,
+							requester: "did:node-1",
+							action: "get"
 						}
 					}
 				}
@@ -145,7 +163,8 @@ export function generateRestRoutesDataAccessPoint(
 				]
 			}
 		],
-		skipAuth: true
+		skipAuth: true,
+		processorFeatures: ["verifiableCredential"]
 	};
 
 	const dapUpdateRoute: IRestRoute<IDapUpdateRequest, INoContentResponse> = {
@@ -179,6 +198,12 @@ export function generateRestRoutesDataAccessPoint(
 								type: "Person",
 								name: "Jane Doe"
 							}
+						},
+						authentication: {
+							"@context": IdentityAuthenticationContexts.ContextRoot,
+							type: IdentityAuthenticationTypes.ActionRequest,
+							requester: "did:node-1",
+							action: "update"
 						}
 					}
 				}
@@ -189,7 +214,8 @@ export function generateRestRoutesDataAccessPoint(
 				type: nameof<INoContentResponse>()
 			}
 		],
-		skipAuth: true
+		skipAuth: true,
+		processorFeatures: ["verifiableCredential"]
 	};
 
 	const dapRemoveRoute: IRestRoute<IDapRemoveRequest, INoContentResponse> = {
@@ -213,6 +239,12 @@ export function generateRestRoutesDataAccessPoint(
 						pathParams: {
 							assetType: "contacts",
 							id: "urn:contacts:abc123def456"
+						},
+						authentication: {
+							"@context": IdentityAuthenticationContexts.ContextRoot,
+							type: IdentityAuthenticationTypes.ActionRequest,
+							requester: "did:node-1",
+							action: "remove"
 						}
 					}
 				}
@@ -223,7 +255,8 @@ export function generateRestRoutesDataAccessPoint(
 				type: nameof<INoContentResponse>()
 			}
 		],
-		skipAuth: true
+		skipAuth: true,
+		processorFeatures: ["verifiableCredential"]
 	};
 
 	const dapQueryRoute: IRestRoute<IDapQueryRequest, IDapQueryResponse> = {
@@ -251,6 +284,12 @@ export function generateRestRoutesDataAccessPoint(
 							"@context": RightsManagementContexts.ContextRoot,
 							type: RightsManagementTypes.DataAccessQuery,
 							assetType: "contacts"
+						},
+						authentication: {
+							"@context": IdentityAuthenticationContexts.ContextRoot,
+							type: IdentityAuthenticationTypes.ActionRequest,
+							requester: "did:node-1",
+							action: "query"
 						}
 					}
 				}
@@ -279,7 +318,8 @@ export function generateRestRoutesDataAccessPoint(
 				]
 			}
 		],
-		skipAuth: true
+		skipAuth: true,
+		processorFeatures: ["verifiableCredential"]
 	};
 
 	return [dapCreateRoute, dapGetRoute, dapUpdateRoute, dapRemoveRoute, dapQueryRoute];
@@ -314,7 +354,8 @@ export async function dapCreate(
 	const result = await component.create(
 		request.pathParams.assetType,
 		request.body.object,
-		HeaderHelper.extractBearer(request.headers[HeaderTypes.Authorization])
+		httpRequestContext.processorState
+			.verifiableCredentialSubject as IIdentityAuthenticationActionRequest
 	);
 
 	return {
@@ -351,7 +392,8 @@ export async function dapGet(
 	const result = await component.get(
 		request.pathParams.assetType,
 		request.pathParams.id,
-		HeaderHelper.extractBearer(request.headers[HeaderTypes.Authorization])
+		httpRequestContext.processorState
+			.verifiableCredentialSubject as IIdentityAuthenticationActionRequest
 	);
 
 	return {
@@ -387,7 +429,8 @@ export async function dapUpdate(
 	await component.update(
 		request.pathParams.assetType,
 		request.body.object,
-		HeaderHelper.extractBearer(request.headers[HeaderTypes.Authorization])
+		httpRequestContext.processorState
+			.verifiableCredentialSubject as IIdentityAuthenticationActionRequest
 	);
 
 	return {
@@ -423,7 +466,8 @@ export async function dapRemove(
 	await component.remove(
 		request.pathParams.assetType,
 		request.pathParams.id,
-		HeaderHelper.extractBearer(request.headers[HeaderTypes.Authorization])
+		httpRequestContext.processorState
+			.verifiableCredentialSubject as IIdentityAuthenticationActionRequest
 	);
 
 	return {
@@ -464,7 +508,8 @@ export async function dapQuery(
 		request.body.conditions,
 		request.body.cursor,
 		request.body.options,
-		HeaderHelper.extractBearer(request.headers[HeaderTypes.Authorization])
+		httpRequestContext.processorState
+			.verifiableCredentialSubject as IIdentityAuthenticationActionRequest
 	);
 
 	return {

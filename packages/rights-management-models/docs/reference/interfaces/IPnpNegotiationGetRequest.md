@@ -14,9 +14,9 @@ The headers which can be used to determine the response data type.
 
 > `optional` **accept**: `"application/ld+json"` \| `"application/json"`
 
-#### authorization
+#### authorization?
 
-> **authorization**: `string`
+> `optional` **authorization**: `string`
 
 ***
 
@@ -31,3 +31,11 @@ The path parameters of the request.
 > **id**: `string`
 
 The identifier of the contract negotiation to be retrieved.
+
+***
+
+### authentication
+
+> **authentication**: `IIdentityAuthenticationActionRequest`
+
+The action request used in the verifiable credential.

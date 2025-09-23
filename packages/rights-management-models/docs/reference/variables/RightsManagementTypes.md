@@ -6,12 +6,6 @@ The types of Rights Management data.
 
 ## Type Declaration
 
-### PolicyRequest
-
-> `readonly` **PolicyRequest**: `"PolicyRequest"` = `"PolicyRequest"`
-
-Represents policy request.
-
 ### DataAccessRequest
 
 > `readonly` **DataAccessRequest**: `"DataAccessRequest"` = `"DataAccessRequest"`

@@ -1,6 +1,7 @@
 // Copyright 2024 IOTA Stiftung.
 // SPDX-License-Identifier: Apache-2.0.
 import type { IComponent } from "@twin.org/core";
+import type { IIdentityAuthenticationActionRequest } from "@twin.org/identity-authentication";
 import type {
 	IIdsContractAgreementMessage,
 	IIdsContractAgreementVerificationMessage,
@@ -25,12 +26,12 @@ export interface IPolicyNegotiationPointComponent extends IComponent {
 	/**
 	 * Get the current state of the negotiation.
 	 * @param id The id of the negotiation to retrieve.
-	 * @param proofToken The proof provided by the requester to support the get.
+	 * @param actionRequest The action request used in the verifiable credential.
 	 * @returns The current state of the negotiation or an error.
 	 */
 	getNegotiation(
 		id: string,
-		proofToken: string
+		actionRequest: IIdentityAuthenticationActionRequest
 	): Promise<IIdsContractNegotiation | IIdsContractNegotiationError>;
 
 	/**
@@ -45,71 +46,71 @@ export interface IPolicyNegotiationPointComponent extends IComponent {
 	/**
 	 * Processes an incoming request on a provider from a consumer.
 	 * @param message The negotiation request.
-	 * @param proofToken The proof provided by the requester to support the policy creation.
+	 * @param actionRequest The action request used in the verifiable credential.
 	 * @returns The current state of the contract negotiation or an error.
 	 */
 	requestFromConsumer(
 		message: IIdsContractRequestMessage,
-		proofToken: string
+		actionRequest: IIdentityAuthenticationActionRequest
 	): Promise<IIdsContractNegotiation | IIdsContractNegotiationError>;
 
 	/**
 	 * An offer has been received by a consumer.
 	 * @param message The offer being received by the consumer.
-	 * @param proofToken The proof provided by the requester to support the offer.
+	 * @param actionRequest The action request used in the verifiable credential.
 	 * @returns The current state of the contract negotiation or an error.
 	 */
 	offerFromProvider(
 		message: IIdsContractOfferMessage,
-		proofToken: string
+		actionRequest: IIdentityAuthenticationActionRequest
 	): Promise<IIdsContractNegotiation | IIdsContractNegotiationError>;
 
 	/**
 	 * An agreement has been received by a consumer.
 	 * @param message The agreement message to send.
-	 * @param proofToken The proof provided by the requester to support the agreement.
+	 * @param actionRequest The action request used in the verifiable credential.
 	 * @returns The error if there is one.
 	 */
 	agreementFromProvider(
 		message: IIdsContractAgreementMessage,
-		proofToken: string
+		actionRequest: IIdentityAuthenticationActionRequest
 	): Promise<IIdsContractNegotiationError | undefined>;
 
 	/**
 	 * An agreement verification has been received by a provider.
 	 * @param message The agreement verification message to send.
-	 * @param proofToken The proof provided by the requester to support the agreement.
+	 * @param actionRequest The action request used in the verifiable credential.
 	 * @returns The error if there is one.
 	 */
 	agreementVerificationFromConsumer(
 		message: IIdsContractAgreementVerificationMessage,
-		proofToken: string
+		actionRequest: IIdentityAuthenticationActionRequest
 	): Promise<IIdsContractNegotiationError | undefined>;
 
 	/**
 	 * An event has been received by the provider or consumer.
 	 * @param message The event message to send.
 	 * @param destination The destination is provider or consumer.
-	 * @param proofToken The proof provided by the requester to support the event.
+	 * @param actionRequest The action request used in the verifiable credential.
 	 * @returns The error if there is one.
 	 */
 	event(
 		message: IIdsContractNegotiationEventMessage,
 		destination: "provider" | "consumer",
-		proofToken: string
+		actionRequest: IIdentityAuthenticationActionRequest
 	): Promise<IIdsContractNegotiationError | undefined>;
 
 	/**
 	 * A termination message has been received by the provider or consumer.
 	 * @param message The termination message to send.
 	 * @param destination The destination is provider or consumer.
-	 * @param proofToken The proof provided by the requester to support the termination.
+	 * @param actionRequest The action request used in the verifiable credential.
 	 * @returns The error if there is one.
 	 */
 	terminate(
 		message: IIdsContractNegotiationTerminationMessage,
 		destination: "provider" | "consumer",
-		proofToken: string
+		actionRequest: IIdentityAuthenticationActionRequest
 	): Promise<IIdsContractNegotiationError | undefined>;
 
 	/**

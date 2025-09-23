@@ -3,6 +3,7 @@
 import { BaseRestClient } from "@twin.org/api-core";
 import type { IBaseRestClientConfig } from "@twin.org/api-models";
 import { Guards, Is, NotSupportedError, Url } from "@twin.org/core";
+import type { IIdentityAuthenticationActionRequest } from "@twin.org/identity-authentication";
 import { nameof } from "@twin.org/nameof";
 import type {
 	IPnpAgreementRequest,
@@ -29,7 +30,7 @@ import type {
 	IIdsContractRequestMessage
 } from "@twin.org/standards-ids-contract-negotiation";
 import type { IOdrlOffer } from "@twin.org/standards-w3c-odrl";
-import { HeaderHelper, HeaderTypes, MimeTypes } from "@twin.org/web";
+import { HeaderTypes, MimeTypes } from "@twin.org/web";
 
 /**
  * Client for performing Rights Management Policy Negotiation through to REST endpoints.
@@ -48,33 +49,44 @@ export class PolicyNegotiationPointClient
 	 * @param config The configuration for the client.
 	 */
 	constructor(config: IBaseRestClientConfig) {
-		super(nameof<PolicyNegotiationPointClient>(), config, "rights-management");
+		super(
+			nameof<PolicyNegotiationPointClient>(),
+			{
+				...config,
+				authenticationGeneratorType: config.authenticationGeneratorType ?? "verifiable-credential"
+			},
+			"rights-management"
+		);
 	}
 
 	/**
 	 * Get the current state of the negotiation.
 	 * @param id The id of the negotiation to retrieve.
-	 * @param proofToken The proof provided by the requester to support the get.
+	 * @param actionRequest The action request used in the verifiable credential.
 	 * @returns The current state of the negotiation or an error.
 	 */
 	public async getNegotiation(
 		id: string,
-		proofToken: string
+		actionRequest: IIdentityAuthenticationActionRequest
 	): Promise<IIdsContractNegotiation | IIdsContractNegotiationError> {
 		Guards.stringValue(this.CLASS_NAME, nameof(id), id);
-		Guards.stringValue(this.CLASS_NAME, nameof(proofToken), proofToken);
+		Guards.objectValue<IIdentityAuthenticationActionRequest>(
+			this.CLASS_NAME,
+			nameof(actionRequest),
+			actionRequest
+		);
 
 		const response = await this.fetch<IPnpNegotiationGetRequest, IPnpContractNegotiationResponse>(
 			"/pnp/negotiations/:id",
 			"GET",
 			{
 				headers: {
-					[HeaderTypes.Accept]: MimeTypes.JsonLd,
-					[HeaderTypes.Authorization]: HeaderHelper.createBearer(proofToken)
+					[HeaderTypes.Accept]: MimeTypes.JsonLd
 				},
 				pathParams: {
 					id
-				}
+				},
+				authentication: actionRequest
 			}
 		);
 
@@ -101,18 +113,22 @@ export class PolicyNegotiationPointClient
 	/**
 	 * Processes an incoming request on a provider from a consumer.
 	 * @param message The negotiation request.
-	 * @param proofToken The proof provided by the requester to support the policy creation.
+	 * @param actionRequest The action request used in the verifiable credential.
 	 * @returns The current state of the contract negotiation or an error.
 	 */
 	public async requestFromConsumer(
 		message: IIdsContractRequestMessage,
-		proofToken: string
+		actionRequest: IIdentityAuthenticationActionRequest
 	): Promise<IIdsContractNegotiation | IIdsContractNegotiationError> {
 		Guards.object<IIdsContractRequestMessage>(this.CLASS_NAME, nameof(message), message);
 		Guards.stringValue(this.CLASS_NAME, nameof(message.consumerPid), message.consumerPid);
 		Guards.object<IOdrlOffer["offer"]>(this.CLASS_NAME, nameof(message.offer), message.offer);
 		Guards.stringValue(this.CLASS_NAME, nameof(message.offer.uid), message.offer.uid);
-		Guards.stringValue(this.CLASS_NAME, nameof(proofToken), proofToken);
+		Guards.objectValue<IIdentityAuthenticationActionRequest>(
+			this.CLASS_NAME,
+			nameof(actionRequest),
+			actionRequest
+		);
 		Url.guard(this.CLASS_NAME, nameof(message.callbackAddress), message.callbackAddress);
 
 		const response = await this.fetch<IPnpNegotiateRequest, IPnpContractNegotiationResponse>(
@@ -122,13 +138,13 @@ export class PolicyNegotiationPointClient
 			"POST",
 			{
 				headers: {
-					[HeaderTypes.Accept]: MimeTypes.JsonLd,
-					[HeaderTypes.Authorization]: HeaderHelper.createBearer(proofToken)
+					[HeaderTypes.Accept]: MimeTypes.JsonLd
 				},
 				pathParams: {
 					id: message.providerPid
 				},
-				body: message
+				body: message,
+				authentication: actionRequest
 			}
 		);
 
@@ -138,15 +154,19 @@ export class PolicyNegotiationPointClient
 	/**
 	 * An offer has been received by a consumer.
 	 * @param message The offer being received by the consumer.
-	 * @param proofToken The proof provided by the requester to support the offer.
+	 * @param actionRequest The action request used in the verifiable credential.
 	 * @returns The current state of the contract negotiation or an error.
 	 */
 	public async offerFromProvider(
 		message: IIdsContractOfferMessage,
-		proofToken: string
+		actionRequest: IIdentityAuthenticationActionRequest
 	): Promise<IIdsContractNegotiation | IIdsContractNegotiationError> {
 		Guards.object<IIdsContractOfferMessage>(this.CLASS_NAME, nameof(message), message);
-		Guards.stringValue(this.CLASS_NAME, nameof(proofToken), proofToken);
+		Guards.objectValue<IIdentityAuthenticationActionRequest>(
+			this.CLASS_NAME,
+			nameof(actionRequest),
+			actionRequest
+		);
 		Guards.stringValue(this.CLASS_NAME, nameof(message.providerPid), message.providerPid);
 
 		const response = await this.fetch<IPnpOfferRequest, IPnpContractNegotiationResponse>(
@@ -156,13 +176,13 @@ export class PolicyNegotiationPointClient
 			"POST",
 			{
 				headers: {
-					[HeaderTypes.Accept]: MimeTypes.JsonLd,
-					[HeaderTypes.Authorization]: HeaderHelper.createBearer(proofToken)
+					[HeaderTypes.Accept]: MimeTypes.JsonLd
 				},
 				pathParams: {
 					id: message.consumerPid
 				},
-				body: message
+				body: message,
+				authentication: actionRequest
 			}
 		);
 
@@ -172,15 +192,19 @@ export class PolicyNegotiationPointClient
 	/**
 	 * An agreement has been received by a consumer.
 	 * @param message The agreement message to send.
-	 * @param proofToken The proof provided by the requester to support the agreement.
+	 * @param actionRequest The action request used in the verifiable credential.
 	 * @returns The error if there is one.
 	 */
 	public async agreementFromProvider(
 		message: IIdsContractAgreementMessage,
-		proofToken: string
+		actionRequest: IIdentityAuthenticationActionRequest
 	): Promise<IIdsContractNegotiationError | undefined> {
 		Guards.object<IIdsContractAgreementMessage>(this.CLASS_NAME, nameof(message), message);
-		Guards.stringValue(this.CLASS_NAME, nameof(proofToken), proofToken);
+		Guards.objectValue<IIdentityAuthenticationActionRequest>(
+			this.CLASS_NAME,
+			nameof(actionRequest),
+			actionRequest
+		);
 		Guards.stringValue(this.CLASS_NAME, nameof(message.providerPid), message.providerPid);
 		Guards.stringValue(this.CLASS_NAME, nameof(message.consumerPid), message.consumerPid);
 		Url.guard(this.CLASS_NAME, nameof(message.callbackAddress), message.callbackAddress);
@@ -190,13 +214,13 @@ export class PolicyNegotiationPointClient
 			"POST",
 			{
 				headers: {
-					[HeaderTypes.Accept]: MimeTypes.JsonLd,
-					[HeaderTypes.Authorization]: HeaderHelper.createBearer(proofToken)
+					[HeaderTypes.Accept]: MimeTypes.JsonLd
 				},
 				pathParams: {
 					id: message.consumerPid
 				},
-				body: message
+				body: message,
+				authentication: actionRequest
 			}
 		);
 
@@ -206,15 +230,19 @@ export class PolicyNegotiationPointClient
 	/**
 	 * An agreement verification has been received by a provider.
 	 * @param message The agreement verification message to send.
-	 * @param proofToken The proof provided by the requester to support the agreement.
+	 * @param actionRequest The action request used in the verifiable credential.
 	 * @returns The error if there is one.
 	 */
 	public async agreementVerificationFromConsumer(
 		message: IIdsContractAgreementVerificationMessage,
-		proofToken: string
+		actionRequest: IIdentityAuthenticationActionRequest
 	): Promise<IIdsContractNegotiationError | undefined> {
 		Guards.object<IIdsContractAgreementMessage>(this.CLASS_NAME, nameof(message), message);
-		Guards.stringValue(this.CLASS_NAME, nameof(proofToken), proofToken);
+		Guards.objectValue<IIdentityAuthenticationActionRequest>(
+			this.CLASS_NAME,
+			nameof(actionRequest),
+			actionRequest
+		);
 		Guards.stringValue(this.CLASS_NAME, nameof(message.providerPid), message.providerPid);
 		Guards.stringValue(this.CLASS_NAME, nameof(message.consumerPid), message.consumerPid);
 
@@ -223,13 +251,13 @@ export class PolicyNegotiationPointClient
 			"POST",
 			{
 				headers: {
-					[HeaderTypes.Accept]: MimeTypes.JsonLd,
-					[HeaderTypes.Authorization]: HeaderHelper.createBearer(proofToken)
+					[HeaderTypes.Accept]: MimeTypes.JsonLd
 				},
 				pathParams: {
 					id: message.providerPid
 				},
-				body: message
+				body: message,
+				authentication: actionRequest
 			}
 		);
 
@@ -240,17 +268,21 @@ export class PolicyNegotiationPointClient
 	 * An event has been received by the provider or consumer.
 	 * @param message The event message to send.
 	 * @param destination The destination is provider or consumer.
-	 * @param proofToken The proof provided by the requester to support the event.
+	 * @param actionRequest The action request used in the verifiable credential.
 	 * @returns The error if there is one.
 	 */
 	public async event(
 		message: IIdsContractNegotiationEventMessage,
 		destination: "provider" | "consumer",
-		proofToken: string
+		actionRequest: IIdentityAuthenticationActionRequest
 	): Promise<IIdsContractNegotiationError | undefined> {
 		Guards.object<IIdsContractNegotiationEventMessage>(this.CLASS_NAME, nameof(message), message);
 		Guards.arrayOneOf(this.CLASS_NAME, nameof(destination), destination, ["provider", "consumer"]);
-		Guards.stringValue(this.CLASS_NAME, nameof(proofToken), proofToken);
+		Guards.objectValue<IIdentityAuthenticationActionRequest>(
+			this.CLASS_NAME,
+			nameof(actionRequest),
+			actionRequest
+		);
 		Guards.stringValue(this.CLASS_NAME, nameof(message.providerPid), message.providerPid);
 		Guards.stringValue(this.CLASS_NAME, nameof(message.consumerPid), message.consumerPid);
 
@@ -259,13 +291,13 @@ export class PolicyNegotiationPointClient
 			"POST",
 			{
 				headers: {
-					[HeaderTypes.Accept]: MimeTypes.JsonLd,
-					[HeaderTypes.Authorization]: HeaderHelper.createBearer(proofToken)
+					[HeaderTypes.Accept]: MimeTypes.JsonLd
 				},
 				pathParams: {
 					id: destination === "provider" ? message.providerPid : message.consumerPid
 				},
-				body: message
+				body: message,
+				authentication: actionRequest
 			}
 		);
 
@@ -276,13 +308,13 @@ export class PolicyNegotiationPointClient
 	 * A termination message has been received by the provider or consumer.
 	 * @param message The termination message to send.
 	 * @param destination The destination is provider or consumer.
-	 * @param proofToken The proof provided by the requester to support the termination.
+	 * @param actionRequest The action request used in the verifiable credential.
 	 * @returns The error if there is one.
 	 */
 	public async terminate(
 		message: IIdsContractNegotiationTerminationMessage,
 		destination: "provider" | "consumer",
-		proofToken: string
+		actionRequest: IIdentityAuthenticationActionRequest
 	): Promise<IIdsContractNegotiationError | undefined> {
 		Guards.object<IIdsContractNegotiationTerminationMessage>(
 			this.CLASS_NAME,
@@ -290,7 +322,11 @@ export class PolicyNegotiationPointClient
 			message
 		);
 		Guards.arrayOneOf(this.CLASS_NAME, nameof(destination), destination, ["provider", "consumer"]);
-		Guards.stringValue(this.CLASS_NAME, nameof(proofToken), proofToken);
+		Guards.objectValue<IIdentityAuthenticationActionRequest>(
+			this.CLASS_NAME,
+			nameof(actionRequest),
+			actionRequest
+		);
 		Guards.stringValue(this.CLASS_NAME, nameof(message.providerPid), message.providerPid);
 		Guards.stringValue(this.CLASS_NAME, nameof(message.consumerPid), message.consumerPid);
 
@@ -299,13 +335,13 @@ export class PolicyNegotiationPointClient
 			"POST",
 			{
 				headers: {
-					[HeaderTypes.Accept]: MimeTypes.JsonLd,
-					[HeaderTypes.Authorization]: HeaderHelper.createBearer(proofToken)
+					[HeaderTypes.Accept]: MimeTypes.JsonLd
 				},
 				pathParams: {
 					id: destination === "provider" ? message.providerPid : message.consumerPid
 				},
-				body: message
+				body: message,
+				authentication: actionRequest
 			}
 		);
 

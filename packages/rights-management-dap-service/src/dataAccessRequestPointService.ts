@@ -1,24 +1,18 @@
 // Copyright 2024 IOTA Stiftung.
 // SPDX-License-Identifier: Apache-2.0.
-import { Coerce, ComponentFactory, GeneralError, Guards, Is } from "@twin.org/core";
+import { ComponentFactory, GeneralError, Guards, Is } from "@twin.org/core";
 import type { IJsonLdNodeObject } from "@twin.org/data-json-ld";
 import type { EntityCondition } from "@twin.org/entity";
 import {
-	DocumentHelper,
-	IdentityConnectorFactory,
-	type IIdentityConnector
-} from "@twin.org/identity-models";
+	IdentityAuthenticationContexts,
+	IdentityAuthenticationTypes,
+	type IIdentityAuthenticationActionRequest
+} from "@twin.org/identity-authentication";
 import type { ILoggingComponent } from "@twin.org/logging-models";
 import { nameof } from "@twin.org/nameof";
-import {
-	RightsManagementContexts,
-	RightsManagementTokenHelper,
-	RightsManagementTypes,
-	type IDataAccessPointComponent,
-	type IDataAccessRequestPointComponent,
-	type IDataAccessQuery,
-	type IDataAccessRequest,
-	type IDataAccessRequestWithObject
+import type {
+	IDataAccessPointComponent,
+	IDataAccessRequestPointComponent
 } from "@twin.org/rights-management-models";
 import type { IDataAccessRequestPointServiceConstructorOptions } from "./models/IDataAccessRequestPointServiceConstructorOptions";
 
@@ -38,18 +32,6 @@ export class DataAccessRequestPointService implements IDataAccessRequestPointCom
 	private readonly _logging?: ILoggingComponent;
 
 	/**
-	 * The identity connector to use for signing/verifying negotiation requests.
-	 * @internal
-	 */
-	private readonly _identityConnector: IIdentityConnector;
-
-	/**
-	 * The id of the identity method to use when signing/verifying proofs.
-	 * @internal
-	 */
-	private readonly _rightsManagementMethodId: string;
-
-	/**
 	 * A method for creating a new instance of the policy negotiation point component.
 	 * @internal
 	 */
@@ -62,12 +44,6 @@ export class DataAccessRequestPointService implements IDataAccessRequestPointCom
 	private _nodeIdentity?: string;
 
 	/**
-	 * The time-to-live (TTL) for proof in seconds.
-	 * @internal
-	 */
-	private readonly _proofTtlInSeconds: number;
-
-	/**
 	 * Create a new instance of DataAccessRequestPointService (DARP).
 	 * @param options The options for the component.
 	 */
@@ -75,13 +51,7 @@ export class DataAccessRequestPointService implements IDataAccessRequestPointCom
 		this._logging = ComponentFactory.getIfExists<ILoggingComponent>(
 			options?.loggingComponentType ?? "logging"
 		);
-		this._identityConnector = IdentityConnectorFactory.get(
-			options?.identityConnectorType ?? "identity"
-		);
-		this._rightsManagementMethodId =
-			options?.config.rightsManagementMethodId ?? "rights-management-assertion";
 		this._dataAccessComponentCreator = options.config.dataAccessComponentCreator;
-		this._proofTtlInSeconds = options?.config?.proofTtlInSeconds ?? 300; // Default to 5 minutes
 	}
 
 	/**
@@ -113,22 +83,15 @@ export class DataAccessRequestPointService implements IDataAccessRequestPointCom
 			throw new GeneralError(this.CLASS_NAME, "missingNodeIdentity");
 		}
 
-		const dataAccessRequestWithObject: IDataAccessRequestWithObject = {
-			"@context": RightsManagementContexts.ContextRoot,
-			type: RightsManagementTypes.DataAccessRequestWithObject,
-			assetType,
-			object: item
+		const actionRequest: IIdentityAuthenticationActionRequest = {
+			"@context": IdentityAuthenticationContexts.ContextRoot,
+			type: IdentityAuthenticationTypes.ActionRequest,
+			action: "create",
+			requester: this._nodeIdentity
 		};
 
-		const proofToken = await RightsManagementTokenHelper.createToken(
-			this._identityConnector,
-			DocumentHelper.joinId(this._nodeIdentity, this._rightsManagementMethodId),
-			dataAccessRequestWithObject,
-			this._proofTtlInSeconds
-		);
-
 		const dataAccessClient = await this._dataAccessComponentCreator(url);
-		return dataAccessClient.create(assetType, item, proofToken);
+		return dataAccessClient.create(assetType, item, actionRequest);
 	}
 
 	/**
@@ -147,22 +110,15 @@ export class DataAccessRequestPointService implements IDataAccessRequestPointCom
 			throw new GeneralError(this.CLASS_NAME, "missingNodeIdentity");
 		}
 
-		const dataAccessRequest: IDataAccessRequest = {
-			"@context": RightsManagementContexts.ContextRoot,
-			type: RightsManagementTypes.DataAccessRequest,
-			assetType,
-			id
+		const actionRequest: IIdentityAuthenticationActionRequest = {
+			"@context": IdentityAuthenticationContexts.ContextRoot,
+			type: IdentityAuthenticationTypes.ActionRequest,
+			action: "get",
+			requester: this._nodeIdentity
 		};
 
-		const proofToken = await RightsManagementTokenHelper.createToken(
-			this._identityConnector,
-			DocumentHelper.joinId(this._nodeIdentity, this._rightsManagementMethodId),
-			dataAccessRequest,
-			this._proofTtlInSeconds
-		);
-
 		const dataAccessClient = await this._dataAccessComponentCreator(url);
-		return dataAccessClient.get(assetType, id, proofToken);
+		return dataAccessClient.get(assetType, id, actionRequest);
 	}
 
 	/**
@@ -181,22 +137,15 @@ export class DataAccessRequestPointService implements IDataAccessRequestPointCom
 			throw new GeneralError(this.CLASS_NAME, "missingNodeIdentity");
 		}
 
-		const dataAccessRequest: IDataAccessRequest = {
-			"@context": RightsManagementContexts.ContextRoot,
-			type: RightsManagementTypes.DataAccessRequest,
-			assetType,
-			id: Coerce.string(item.id) ?? ""
+		const actionRequest: IIdentityAuthenticationActionRequest = {
+			"@context": IdentityAuthenticationContexts.ContextRoot,
+			type: IdentityAuthenticationTypes.ActionRequest,
+			action: "update",
+			requester: this._nodeIdentity
 		};
 
-		const proofToken = await RightsManagementTokenHelper.createToken(
-			this._identityConnector,
-			DocumentHelper.joinId(this._nodeIdentity, this._rightsManagementMethodId),
-			dataAccessRequest,
-			this._proofTtlInSeconds
-		);
-
 		const dataAccessClient = await this._dataAccessComponentCreator(url);
-		return dataAccessClient.update(assetType, item, proofToken);
+		return dataAccessClient.update(assetType, item, actionRequest);
 	}
 
 	/**
@@ -215,22 +164,15 @@ export class DataAccessRequestPointService implements IDataAccessRequestPointCom
 			throw new GeneralError(this.CLASS_NAME, "missingNodeIdentity");
 		}
 
-		const dataAccessRequest: IDataAccessRequest = {
-			"@context": RightsManagementContexts.ContextRoot,
-			type: RightsManagementTypes.DataAccessRequest,
-			assetType,
-			id
+		const actionRequest: IIdentityAuthenticationActionRequest = {
+			"@context": IdentityAuthenticationContexts.ContextRoot,
+			type: IdentityAuthenticationTypes.ActionRequest,
+			action: "remove",
+			requester: this._nodeIdentity
 		};
 
-		const proofToken = await RightsManagementTokenHelper.createToken(
-			this._identityConnector,
-			DocumentHelper.joinId(this._nodeIdentity, this._rightsManagementMethodId),
-			dataAccessRequest,
-			this._proofTtlInSeconds
-		);
-
 		const dataAccessClient = await this._dataAccessComponentCreator(url);
-		await dataAccessClient.remove(assetType, id, proofToken);
+		await dataAccessClient.remove(assetType, id, actionRequest);
 	}
 
 	/**
@@ -259,20 +201,14 @@ export class DataAccessRequestPointService implements IDataAccessRequestPointCom
 			throw new GeneralError(this.CLASS_NAME, "missingNodeIdentity");
 		}
 
-		const dataAccessQuery: IDataAccessQuery = {
-			"@context": RightsManagementContexts.ContextRoot,
-			type: RightsManagementTypes.DataAccessQuery,
-			assetType
+		const actionRequest: IIdentityAuthenticationActionRequest = {
+			"@context": IdentityAuthenticationContexts.ContextRoot,
+			type: IdentityAuthenticationTypes.ActionRequest,
+			action: "query",
+			requester: this._nodeIdentity
 		};
 
-		const proofToken = await RightsManagementTokenHelper.createToken(
-			this._identityConnector,
-			DocumentHelper.joinId(this._nodeIdentity, this._rightsManagementMethodId),
-			dataAccessQuery,
-			this._proofTtlInSeconds
-		);
-
 		const dataAccessClient = await this._dataAccessComponentCreator(url);
-		return dataAccessClient.query(assetType, conditions, cursor, options, proofToken);
+		return dataAccessClient.query(assetType, conditions, cursor, options, actionRequest);
 	}
 }

@@ -13,12 +13,6 @@ export interface IDataAccessRequestPointServiceConstructorOptions {
 	loggingComponentType?: string;
 
 	/**
-	 * The identity connector component for managing identities.
-	 * @default identity
-	 */
-	identityConnectorType?: string;
-
-	/**
 	 * Configuration options for the data access request point service.
 	 */
 	config: IDataAccessRequestPointServiceConfig;

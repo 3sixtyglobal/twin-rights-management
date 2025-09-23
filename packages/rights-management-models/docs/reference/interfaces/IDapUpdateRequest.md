@@ -14,9 +14,9 @@ The headers which can be used to determine the response data type.
 
 > `optional` **accept**: `"application/ld+json"` \| `"application/json"`
 
-#### authorization
+#### authorization?
 
-> **authorization**: `string`
+> `optional` **authorization**: `string`
 
 ***
 
@@ -45,3 +45,11 @@ The id of the item being updated.
 > **body**: [`IDataAccessRequestWithObject`](IDataAccessRequestWithObject.md)
 
 The body parameters of the updated.
+
+***
+
+### authentication
+
+> **authentication**: `IIdentityAuthenticationActionRequest`
+
+The action request used in the verifiable credential.

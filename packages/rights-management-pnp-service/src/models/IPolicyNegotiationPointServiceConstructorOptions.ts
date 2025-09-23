@@ -13,12 +13,6 @@ export interface IPolicyNegotiationPointServiceConstructorOptions {
 	loggingComponentType?: string;
 
 	/**
-	 * The identity connector component for managing identities.
-	 * @default identity
-	 */
-	identityConnectorType?: string;
-
-	/**
 	 * The type of the policy negotiation administration point component.
 	 * @default policy-negotiation-admin-point
 	 */

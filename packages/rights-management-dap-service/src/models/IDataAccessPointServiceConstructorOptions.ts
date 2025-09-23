@@ -13,12 +13,6 @@ export interface IDataAccessPointServiceConstructorOptions {
 	loggingComponentType?: string;
 
 	/**
-	 * The identity connector component for managing identities.
-	 * @default identity
-	 */
-	identityConnectorType?: string;
-
-	/**
 	 * The type of the policy enforcement point component.
 	 * @default policy-enforcement-point
 	 */

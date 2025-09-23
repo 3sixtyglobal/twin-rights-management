@@ -18,18 +18,6 @@ export interface IPolicyNegotiationPointServiceConfig {
 	baseCallbackUrl: string;
 
 	/**
-	 * The id of the identity method to use when creating/verifying tokens.
-	 * @default rights-management-assertion
-	 */
-	rightsManagementMethodId?: string;
-
-	/**
-	 * The time-to-live (TTL) for proof in seconds.
-	 * @default 300 (5 minutes)
-	 */
-	proofTtlInSeconds?: number;
-
-	/**
 	 * A method for creating a new instance of the policy negotiation point component.
 	 * To be used when sending request remotely to another node.
 	 */

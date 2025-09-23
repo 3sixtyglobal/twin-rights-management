@@ -1,12 +1,1 @@
-{
-	"error": {
-		"rightsManagementTokenHelper": {
-			"tokenFailed": "Failed to verify token",
-			"tokenMissingIssuanceDate": "The token is missing the 'issuanceDate' field for assignee \"{assignee}\"",
-			"tokenNoIssuer": "The token does not contain an issuer",
-			"tokenExpired": "The token has expired for assignee \"{assignee}\"",
-			"tokenItemMismatch": "The canonical item does not match the expected item for property \"{property}\"",
-			"tokenNoCredential": "The token does not contain a credential"
-		}
-	}
-}
+{}

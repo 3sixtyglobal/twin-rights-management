@@ -42,7 +42,7 @@ The class name of the Data Access Point Service.
 
 ### create()
 
-> **create**(`assetType`, `item`, `proofToken`): `Promise`\<`string`\>
+> **create**(`assetType`, `item`, `actionRequest`): `Promise`\<`string`\>
 
 Create an item.
 
@@ -60,11 +60,11 @@ The type of the item to create.
 
 The item to create.
 
-##### proofToken
+##### actionRequest
 
-`string`
+`IIdentityAuthenticationActionRequest`
 
-The proof provided by the requester to support the creation.
+The action request used in the verifiable credential.
 
 #### Returns
 
@@ -80,7 +80,7 @@ The id of the item created, for some items this is supplied in the `item`.
 
 ### get()
 
-> **get**(`assetType`, `id`, `proofToken`): `Promise`\<`IJsonLdNodeObject`\>
+> **get**(`assetType`, `id`, `actionRequest`): `Promise`\<`IJsonLdNodeObject`\>
 
 Get an item.
 
@@ -98,11 +98,11 @@ The type of the item to retrieve.
 
 The ID of the item to retrieve.
 
-##### proofToken
+##### actionRequest
 
-`string`
+`IIdentityAuthenticationActionRequest`
 
-The proof provided by the requester to support the lookup.
+The action request used in the verifiable credential.
 
 #### Returns
 
@@ -118,7 +118,7 @@ The item retrieved if the policies allow it.
 
 ### update()
 
-> **update**(`assetType`, `item`, `proofToken`): `Promise`\<`void`\>
+> **update**(`assetType`, `item`, `actionRequest`): `Promise`\<`void`\>
 
 Update an item.
 
@@ -136,11 +136,11 @@ The type of the item to update.
 
 The item to update.
 
-##### proofToken
+##### actionRequest
 
-`string`
+`IIdentityAuthenticationActionRequest`
 
-The proof provided by the requester to support the update.
+The action request used in the verifiable credential.
 
 #### Returns
 
@@ -156,7 +156,7 @@ Nothing.
 
 ### remove()
 
-> **remove**(`assetType`, `id`, `proofToken`): `Promise`\<`void`\>
+> **remove**(`assetType`, `id`, `actionRequest`): `Promise`\<`void`\>
 
 Remove an item.
 
@@ -174,11 +174,11 @@ The type of the item to remove.
 
 The id of the item to remove.
 
-##### proofToken
+##### actionRequest
 
-`string`
+`IIdentityAuthenticationActionRequest`
 
-The proof provided by the requester to support the update.
+The action request used in the verifiable credential.
 
 #### Returns
 
@@ -194,7 +194,7 @@ Nothing.
 
 ### query()
 
-> **query**(`assetType`, `conditions`, `cursor`, `options`, `proofToken`): `Promise`\<\{ `items`: `IJsonLdNodeObject`[]; `cursor?`: `string`; \}\>
+> **query**(`assetType`, `conditions`, `cursor`, `options`, `actionRequest`): `Promise`\<\{ `items`: `IJsonLdNodeObject`[]; `cursor?`: `string`; \}\>
 
 Query for items.
 
@@ -224,11 +224,11 @@ The cursor for pagination.
 
 Additional options which might be supported by the handler.
 
-##### proofToken
+##### actionRequest
 
-`string`
+`IIdentityAuthenticationActionRequest`
 
-The proof provided by the requester to support the update.
+The action request used in the verifiable credential.
 
 #### Returns
 

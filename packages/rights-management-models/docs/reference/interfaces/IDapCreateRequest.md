@@ -14,9 +14,9 @@ The headers which can be used to determine the response data type.
 
 > `optional` **accept**: `"application/ld+json"` \| `"application/json"`
 
-#### authorization
+#### authorization?
 
-> **authorization**: `string`
+> `optional` **authorization**: `string`
 
 ***
 
@@ -39,3 +39,11 @@ The type of the item being created.
 > **body**: [`IDataAccessRequestWithObject`](IDataAccessRequestWithObject.md)
 
 The body parameters of the request.
+
+***
+
+### authentication
+
+> **authentication**: `IIdentityAuthenticationActionRequest`
+
+The action request used in the verifiable credential.

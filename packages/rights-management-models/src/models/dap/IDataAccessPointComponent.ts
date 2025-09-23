@@ -3,6 +3,7 @@
 import type { IComponent } from "@twin.org/core";
 import type { IJsonLdNodeObject } from "@twin.org/data-json-ld";
 import type { EntityCondition } from "@twin.org/entity";
+import type { IIdentityAuthenticationActionRequest } from "@twin.org/identity-authentication";
 import type { IDataAccessHandler } from "./IDataAccessHandler";
 
 /**
@@ -16,37 +17,53 @@ export interface IDataAccessPointComponent extends IComponent {
 	 * Create an item.
 	 * @param assetType The type of the item to create.
 	 * @param item The item to create.
-	 * @param proofToken The proof provided by the requester to support the creation.
+	 * @param actionRequest The action request used in the verifiable credential.
 	 * @returns The id of the item created, for some items this is supplied in the `item`.
 	 */
-	create(assetType: string, item: IJsonLdNodeObject, proofToken: string): Promise<string>;
+	create(
+		assetType: string,
+		item: IJsonLdNodeObject,
+		actionRequest: IIdentityAuthenticationActionRequest
+	): Promise<string>;
 
 	/**
 	 * Get an item.
 	 * @param assetType The type of the item to retrieve.
 	 * @param id The ID of the item to retrieve.
-	 * @param proofToken The proof provided by the requester to support the lookup.
+	 * @param actionRequest The action request used in the verifiable credential.
 	 * @returns The item retrieved if the policies allow it.
 	 */
-	get(assetType: string, id: string, proofToken: string): Promise<IJsonLdNodeObject>;
+	get(
+		assetType: string,
+		id: string,
+		actionRequest: IIdentityAuthenticationActionRequest
+	): Promise<IJsonLdNodeObject>;
 
 	/**
 	 * Update an item.
 	 * @param assetType The type of the item to update.
 	 * @param item The item to update.
-	 * @param proofToken The proof provided by the requester to support the update.
+	 * @param actionRequest The action request used in the verifiable credential.
 	 * @returns Nothing.
 	 */
-	update(assetType: string, item: IJsonLdNodeObject, proofToken: string): Promise<void>;
+	update(
+		assetType: string,
+		item: IJsonLdNodeObject,
+		actionRequest: IIdentityAuthenticationActionRequest
+	): Promise<void>;
 
 	/**
 	 * Remove an item.
 	 * @param assetType The type of the item to remove.
 	 * @param id The id of the item to remove.
-	 * @param proofToken The proof provided by the requester to support the removal.
+	 * @param actionRequest The action request used in the verifiable credential.
 	 * @returns Nothing.
 	 */
-	remove(assetType: string, id: string, proofToken: string): Promise<void>;
+	remove(
+		assetType: string,
+		id: string,
+		actionRequest: IIdentityAuthenticationActionRequest
+	): Promise<void>;
 
 	/**
 	 * Query for items.
@@ -54,7 +71,7 @@ export interface IDataAccessPointComponent extends IComponent {
 	 * @param conditions The conditions to apply to the query.
 	 * @param cursor The cursor for pagination.
 	 * @param options Additional options which might be supported by the handler.
-	 * @param proofToken The proof provided by the requester to support the query.
+	 * @param actionRequest The action request used in the verifiable credential.
 	 * @returns The items matching the query and cursor if there are more items.
 	 */
 	query(
@@ -62,7 +79,7 @@ export interface IDataAccessPointComponent extends IComponent {
 		conditions: EntityCondition<IJsonLdNodeObject> | undefined,
 		cursor: string | undefined,
 		options: unknown | undefined,
-		proofToken: string
+		actionRequest: IIdentityAuthenticationActionRequest
 	): Promise<{
 		items: IJsonLdNodeObject[];
 		cursor?: string;

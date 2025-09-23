@@ -74,7 +74,7 @@ Nothing.
 
 ### getNegotiation()
 
-> **getNegotiation**(`id`, `proofToken`): `Promise`\<`IIdsContractNegotiation` \| `IIdsContractNegotiationError`\>
+> **getNegotiation**(`id`, `actionRequest`): `Promise`\<`IIdsContractNegotiation` \| `IIdsContractNegotiationError`\>
 
 Get the current state of the negotiation.
 
@@ -86,11 +86,11 @@ Get the current state of the negotiation.
 
 The id of the negotiation to retrieve.
 
-##### proofToken
+##### actionRequest
 
-`string`
+`IIdentityAuthenticationActionRequest`
 
-The proof provided by the requester to support the get.
+The action request used in the verifiable credential.
 
 #### Returns
 
@@ -144,7 +144,7 @@ The negotiation id.
 
 ### requestFromConsumer()
 
-> **requestFromConsumer**(`message`, `proofToken`): `Promise`\<`IIdsContractNegotiation` \| `IIdsContractNegotiationError`\>
+> **requestFromConsumer**(`message`, `actionRequest`): `Promise`\<`IIdsContractNegotiation` \| `IIdsContractNegotiationError`\>
 
 Processes an incoming request on a provider from a consumer.
 https://docs.internationaldataspaces.org/ids-knowledgebase/dataspace-protocol/contract-negotiation/contract.negotiation.protocol#id-2.1-contract-request-message.
@@ -157,11 +157,11 @@ https://docs.internationaldataspaces.org/ids-knowledgebase/dataspace-protocol/co
 
 The negotiation request.
 
-##### proofToken
+##### actionRequest
 
-`string`
+`IIdentityAuthenticationActionRequest`
 
-The proof provided by the requester to support the policy creation.
+The action request used in the verifiable credential.
 
 #### Returns
 
@@ -177,7 +177,7 @@ The current state of the contract negotiation or an error.
 
 ### offerFromProvider()
 
-> **offerFromProvider**(`message`, `proofToken`): `Promise`\<`IIdsContractNegotiation` \| `IIdsContractNegotiationError`\>
+> **offerFromProvider**(`message`, `actionRequest`): `Promise`\<`IIdsContractNegotiation` \| `IIdsContractNegotiationError`\>
 
 An offer has been received by a consumer.
 
@@ -189,11 +189,11 @@ An offer has been received by a consumer.
 
 The offer being received by the consumer.
 
-##### proofToken
+##### actionRequest
 
-`string`
+`IIdentityAuthenticationActionRequest`
 
-The proof provided by the requester to support the offer.
+The action request used in the verifiable credential.
 
 #### Returns
 
@@ -209,7 +209,7 @@ The current state of the contract negotiation or an error.
 
 ### agreementFromProvider()
 
-> **agreementFromProvider**(`message`, `proofToken`): `Promise`\<`undefined` \| `IIdsContractNegotiationError`\>
+> **agreementFromProvider**(`message`, `actionRequest`): `Promise`\<`undefined` \| `IIdsContractNegotiationError`\>
 
 An agreement has been received by a consumer.
 
@@ -221,11 +221,11 @@ An agreement has been received by a consumer.
 
 The agreement message to send.
 
-##### proofToken
+##### actionRequest
 
-`string`
+`IIdentityAuthenticationActionRequest`
 
-The proof provided by the requester to support the agreement.
+The action request used in the verifiable credential.
 
 #### Returns
 
@@ -241,7 +241,7 @@ The error if there is one.
 
 ### agreementVerificationFromConsumer()
 
-> **agreementVerificationFromConsumer**(`message`, `proofToken`): `Promise`\<`undefined` \| `IIdsContractNegotiationError`\>
+> **agreementVerificationFromConsumer**(`message`, `actionRequest`): `Promise`\<`undefined` \| `IIdsContractNegotiationError`\>
 
 An agreement verification has been received by a provider.
 
@@ -253,11 +253,11 @@ An agreement verification has been received by a provider.
 
 The agreement message to send.
 
-##### proofToken
+##### actionRequest
 
-`string`
+`IIdentityAuthenticationActionRequest`
 
-The proof provided by the requester to support the agreement verification.
+The action request used in the verifiable credential.
 
 #### Returns
 
@@ -273,7 +273,7 @@ The error if there is one.
 
 ### event()
 
-> **event**(`message`, `destination`, `proofToken`): `Promise`\<`undefined` \| `IIdsContractNegotiationError`\>
+> **event**(`message`, `destination`, `actionRequest`): `Promise`\<`undefined` \| `IIdsContractNegotiationError`\>
 
 An event has been received by the provider or consumer.
 
@@ -291,11 +291,11 @@ The destination is provider or consumer.
 
 `"provider"` | `"consumer"`
 
-##### proofToken
+##### actionRequest
 
-`string`
+`IIdentityAuthenticationActionRequest`
 
-The proof provided by the requester to support the event.
+The action request used in the verifiable credential.
 
 #### Returns
 
@@ -311,7 +311,7 @@ The error if there is one.
 
 ### terminate()
 
-> **terminate**(`message`, `destination`, `proofToken`): `Promise`\<`undefined` \| `IIdsContractNegotiationError`\>
+> **terminate**(`message`, `destination`, `actionRequest`): `Promise`\<`undefined` \| `IIdsContractNegotiationError`\>
 
 A termination message has been received by the consumer.
 
@@ -329,11 +329,11 @@ The destination is provider or consumer.
 
 `"provider"` | `"consumer"`
 
-##### proofToken
+##### actionRequest
 
-`string`
+`IIdentityAuthenticationActionRequest`
 
-The proof provided by the requester to support the termination.
+The action request used in the verifiable credential.
 
 #### Returns
 

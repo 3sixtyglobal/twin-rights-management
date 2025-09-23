@@ -7,11 +7,6 @@
 // eslint-disable-next-line @typescript-eslint/naming-convention
 export const RightsManagementTypes = {
 	/**
-	 * Represents policy request.
-	 */
-	PolicyRequest: "PolicyRequest",
-
-	/**
 	 * Represents data access request.
 	 */
 	DataAccessRequest: "DataAccessRequest",

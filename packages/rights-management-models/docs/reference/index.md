@@ -4,7 +4,6 @@
 
 - [LocatorHelper](classes/LocatorHelper.md)
 - [OdrlPolicyHelper](classes/OdrlPolicyHelper.md)
-- [RightsManagementTokenHelper](classes/RightsManagementTokenHelper.md)
 
 ## Interfaces
 
@@ -60,7 +59,6 @@
 - [IPolicyNegotiationPointComponent](interfaces/IPolicyNegotiationPointComponent.md)
 - [IPolicyNegotiator](interfaces/IPolicyNegotiator.md)
 - [IPolicyRequester](interfaces/IPolicyRequester.md)
-- [IPolicyRequest](interfaces/IPolicyRequest.md)
 - [IPolicyExecutionAction](interfaces/IPolicyExecutionAction.md)
 - [IPolicyExecutionPointComponent](interfaces/IPolicyExecutionPointComponent.md)
 

@@ -12,13 +12,15 @@ import {
 	Urn
 } from "@twin.org/core";
 import {
-	DocumentHelper,
-	IdentityConnectorFactory,
-	type IIdentityConnector
-} from "@twin.org/identity-models";
+	IdentityAuthenticationContexts,
+	IdentityAuthenticationTypes,
+	type IIdentityAuthenticationActionRequest
+} from "@twin.org/identity-authentication";
 import type { ILoggingComponent } from "@twin.org/logging-models";
 import { nameof } from "@twin.org/nameof";
 import {
+	PolicyInformationAccessMode,
+	RightsManagementNamespaces,
 	type IPolicyAdministrationPointComponent,
 	type IPolicyInformation,
 	type IPolicyInformationPointComponent,
@@ -26,21 +28,15 @@ import {
 	type IPolicyNegotiationAdminPointComponent,
 	type IPolicyNegotiationPointComponent,
 	type IPolicyNegotiator,
-	type IPolicyRequest,
-	type IPolicyRequester,
-	PolicyInformationAccessMode,
-	RightsManagementContexts,
-	RightsManagementNamespaces,
-	RightsManagementTokenHelper,
-	RightsManagementTypes
+	type IPolicyRequester
 } from "@twin.org/rights-management-models";
 import {
 	IdsContractNegotiationContexts,
 	IdsContractNegotiationEventType,
 	IdsContractNegotiationStateType,
 	IdsContractNegotiationTypes,
-	type IIdsContractAgreementVerificationMessage,
 	type IIdsContractAgreementMessage,
+	type IIdsContractAgreementVerificationMessage,
 	type IIdsContractNegotiation,
 	type IIdsContractNegotiationError,
 	type IIdsContractNegotiationEventMessage,
@@ -68,12 +64,6 @@ export class PolicyNegotiationPointService implements IPolicyNegotiationPointCom
 	private readonly _logging?: ILoggingComponent;
 
 	/**
-	 * The identity connector to use for signing/verifying negotiation requests.
-	 * @internal
-	 */
-	private readonly _identityConnector: IIdentityConnector;
-
-	/**
 	 * The entity storage component for storing policy state.
 	 * @internal
 	 */
@@ -97,18 +87,6 @@ export class PolicyNegotiationPointService implements IPolicyNegotiationPointCom
 	 * @internal
 	 */
 	private readonly _baseCallbackUrl: string;
-
-	/**
-	 * The id of the identity method to use when signing/verifying proofs.
-	 * @internal
-	 */
-	private readonly _rightsManagementMethodId: string;
-
-	/**
-	 * The time-to-live (TTL) for proof in seconds.
-	 * @internal
-	 */
-	private readonly _proofTtlInSeconds: number;
 
 	/**
 	 * A method for creating a new instance of the policy negotiation point component.
@@ -177,9 +155,6 @@ export class PolicyNegotiationPointService implements IPolicyNegotiationPointCom
 		this._logging = ComponentFactory.getIfExists<ILoggingComponent>(
 			options.loggingComponentType ?? "logging"
 		);
-		this._identityConnector = IdentityConnectorFactory.get(
-			options.identityConnectorType ?? "identity"
-		);
 		this._policyNegotiationAdminPointComponent =
 			ComponentFactory.get<IPolicyNegotiationAdminPointComponent>(
 				options.policyNegotiationAdministrationPointComponentType ??
@@ -193,9 +168,6 @@ export class PolicyNegotiationPointService implements IPolicyNegotiationPointCom
 			options?.policyInformationPointComponentType ?? "policy-information-point"
 		);
 		this._baseCallbackUrl = options.config.baseCallbackUrl;
-		this._rightsManagementMethodId =
-			options.config.rightsManagementMethodId ?? "rights-management-assertion";
-		this._proofTtlInSeconds = options.config.proofTtlInSeconds ?? 300; // Default to 5 minutes
 		this._negotiationComponentCreator = options.config.negotiationComponentCreator;
 		this._negotiators = options.config.negotiators ?? [];
 		this._requesters = options.config.requesters ?? [];
@@ -218,25 +190,27 @@ export class PolicyNegotiationPointService implements IPolicyNegotiationPointCom
 	/**
 	 * Get the current state of the negotiation.
 	 * @param id The id of the negotiation to retrieve.
-	 * @param proofToken The proof provided by the requester to support the get.
+	 * @param actionRequest The action request used in the verifiable credential.
 	 * @returns The current state of the negotiation or an error.
 	 */
 	public async getNegotiation(
 		id: string,
-		proofToken: string
+		actionRequest: IIdentityAuthenticationActionRequest
 	): Promise<IIdsContractNegotiation | IIdsContractNegotiationError> {
 		Guards.stringValue(this.CLASS_NAME, nameof(id), id);
-		Guards.stringValue(this.CLASS_NAME, nameof(proofToken), proofToken);
+		Guards.objectValue<IIdentityAuthenticationActionRequest>(
+			this.CLASS_NAME,
+			nameof(actionRequest),
+			actionRequest
+		);
 
 		try {
-			await RightsManagementTokenHelper.verifyToken(
-				this._identityConnector,
-				{
-					providerPid: id
-				},
-				proofToken,
-				this._proofTtlInSeconds
-			);
+			if (actionRequest.action !== "get-negotiation") {
+				throw new GeneralError(this.CLASS_NAME, "incorrectActionType", {
+					action: actionRequest.action,
+					expecting: "get-negotiation"
+				});
+			}
 
 			const negotiation = await this._policyNegotiationAdminPointComponent.get(id);
 			if (Is.empty(negotiation)) {
@@ -289,19 +263,13 @@ export class PolicyNegotiationPointService implements IPolicyNegotiationPointCom
 			PolicyInformationAccessMode.Public
 		);
 
-		const policyRequest: IPolicyRequest = {
-			"@context": RightsManagementContexts.ContextRoot,
-			type: RightsManagementTypes.PolicyRequest,
-			consumerPid,
-			information: policyInformation
+		const actionRequest: IIdentityAuthenticationActionRequest = {
+			"@context": IdentityAuthenticationContexts.ContextRoot,
+			type: IdentityAuthenticationTypes.ActionRequest,
+			action: "request",
+			requester: this._nodeIdentity,
+			data: policyInformation
 		};
-
-		const proofToken = await RightsManagementTokenHelper.createToken(
-			this._identityConnector,
-			DocumentHelper.joinId(this._nodeIdentity, this._rightsManagementMethodId),
-			policyRequest,
-			this._proofTtlInSeconds
-		);
 
 		const negotiationComponent = await this._negotiationComponentCreator(url);
 
@@ -317,7 +285,7 @@ export class PolicyNegotiationPointService implements IPolicyNegotiationPointCom
 			},
 			callbackAddress: this._baseCallbackUrl
 		};
-		const response = await negotiationComponent.requestFromConsumer(requestMessage, proofToken);
+		const response = await negotiationComponent.requestFromConsumer(requestMessage, actionRequest);
 
 		if (
 			response["@type"] === IdsContractNegotiationTypes.ContractNegotiationError &&
@@ -346,18 +314,22 @@ export class PolicyNegotiationPointService implements IPolicyNegotiationPointCom
 	 * Processes an incoming request on a provider from a consumer.
 	 * https://docs.internationaldataspaces.org/ids-knowledgebase/dataspace-protocol/contract-negotiation/contract.negotiation.protocol#id-2.1-contract-request-message.
 	 * @param message The negotiation request.
-	 * @param proofToken The proof provided by the requester to support the policy creation.
+	 * @param actionRequest The action request used in the verifiable credential.
 	 * @returns The current state of the contract negotiation or an error.
 	 */
 	public async requestFromConsumer(
 		message: IIdsContractRequestMessage,
-		proofToken: string
+		actionRequest: IIdentityAuthenticationActionRequest
 	): Promise<IIdsContractNegotiation | IIdsContractNegotiationError> {
 		Guards.object<IIdsContractRequestMessage>(this.CLASS_NAME, nameof(message), message);
 		Guards.stringValue(this.CLASS_NAME, nameof(message.consumerPid), message.consumerPid);
 		Guards.object<IOdrlOffer["offer"]>(this.CLASS_NAME, nameof(message.offer), message.offer);
 		Guards.stringValue(this.CLASS_NAME, nameof(message.offer.uid), message.offer.uid);
-		Guards.stringValue(this.CLASS_NAME, nameof(proofToken), proofToken);
+		Guards.objectValue<IIdentityAuthenticationActionRequest>(
+			this.CLASS_NAME,
+			nameof(actionRequest),
+			actionRequest
+		);
 		Url.guard(this.CLASS_NAME, nameof(message.callbackAddress), message.callbackAddress);
 
 		// Use the provided provider pid or generate a new one
@@ -368,21 +340,11 @@ export class PolicyNegotiationPointService implements IPolicyNegotiationPointCom
 		let policyNegotiation: IPolicyNegotiation | undefined;
 
 		try {
-			// Verify the request from the consumer
-			const verifiableCredential = await RightsManagementTokenHelper.verifyToken(
-				this._identityConnector,
-				{
-					consumerPid: message.consumerPid
-				},
-				proofToken,
-				this._proofTtlInSeconds
-			);
-
-			// On an initial request a consumer can send additional information to support the negotiation
-			// this could include information such as the geography of the consumer
-			let policyInformation: IPolicyInformation | undefined;
-			if (Is.object<IPolicyRequest>(verifiableCredential.credentialSubject)) {
-				policyInformation = verifiableCredential.credentialSubject.information;
+			if (actionRequest.action !== "request") {
+				throw new GeneralError(this.CLASS_NAME, "incorrectActionType", {
+					action: actionRequest.action,
+					expecting: "request"
+				});
 			}
 
 			// Now lookup the offer being requested
@@ -416,6 +378,10 @@ export class PolicyNegotiationPointService implements IPolicyNegotiationPointCom
 				);
 				return err;
 			}
+
+			// On an initial request a consumer can send additional information to support the negotiation
+			// this could include information such as the geography of the consumer
+			const policyInformation = actionRequest.data as IPolicyInformation;
 
 			// Construct a new negotiation or update an existing one
 			if (Is.stringValue(message.providerPid)) {
@@ -518,20 +484,31 @@ export class PolicyNegotiationPointService implements IPolicyNegotiationPointCom
 	/**
 	 * An offer has been received by a consumer.
 	 * @param message The offer being received by the consumer.
-	 * @param proofToken The proof provided by the requester to support the offer.
+	 * @param actionRequest The action request used in the verifiable credential.
 	 * @returns The current state of the contract negotiation or an error.
 	 */
 	public async offerFromProvider(
 		message: IIdsContractOfferMessage,
-		proofToken: string
+		actionRequest: IIdentityAuthenticationActionRequest
 	): Promise<IIdsContractNegotiation | IIdsContractNegotiationError> {
 		Guards.object<IIdsContractOfferMessage>(this.CLASS_NAME, nameof(message), message);
-		Guards.stringValue(this.CLASS_NAME, nameof(proofToken), proofToken);
+		Guards.objectValue<IIdentityAuthenticationActionRequest>(
+			this.CLASS_NAME,
+			nameof(actionRequest),
+			actionRequest
+		);
 		Guards.stringValue(this.CLASS_NAME, nameof(message.providerPid), message.providerPid);
 
 		let consumerPid;
 		let policyNegotiation: IPolicyNegotiation | undefined;
 		try {
+			if (actionRequest.action !== "offer") {
+				throw new GeneralError(this.CLASS_NAME, "incorrectActionType", {
+					action: actionRequest.action,
+					expecting: "offer"
+				});
+			}
+
 			// If the consumer id is set then we load an existing negotiation
 			// if it is not set then we need to create a new negotiation
 			if (Is.stringValue(message.consumerPid)) {
@@ -643,21 +620,31 @@ export class PolicyNegotiationPointService implements IPolicyNegotiationPointCom
 	/**
 	 * An agreement has been received by a consumer.
 	 * @param message The agreement message to send.
-	 * @param proofToken The proof provided by the requester to support the agreement.
+	 * @param actionRequest The action request used in the verifiable credential.
 	 * @returns The error if there is one.
 	 */
 	public async agreementFromProvider(
 		message: IIdsContractAgreementMessage,
-		proofToken: string
+		actionRequest: IIdentityAuthenticationActionRequest
 	): Promise<IIdsContractNegotiationError | undefined> {
 		Guards.object<IIdsContractAgreementMessage>(this.CLASS_NAME, nameof(message), message);
-		Guards.stringValue(this.CLASS_NAME, nameof(proofToken), proofToken);
+		Guards.objectValue<IIdentityAuthenticationActionRequest>(
+			this.CLASS_NAME,
+			nameof(actionRequest),
+			actionRequest
+		);
 		Guards.stringValue(this.CLASS_NAME, nameof(message.providerPid), message.providerPid);
 		Guards.stringValue(this.CLASS_NAME, nameof(message.consumerPid), message.consumerPid);
 		Url.guard(this.CLASS_NAME, nameof(message.callbackAddress), message.callbackAddress);
 
 		let policyNegotiation: IPolicyNegotiation | undefined;
 		try {
+			if (actionRequest.action !== "agreement") {
+				throw new GeneralError(this.CLASS_NAME, "incorrectActionType", {
+					action: actionRequest.action,
+					expecting: "agreement"
+				});
+			}
 			// Load the negotiation if there is one
 			try {
 				policyNegotiation = await this._policyNegotiationAdminPointComponent.get(
@@ -748,20 +735,30 @@ export class PolicyNegotiationPointService implements IPolicyNegotiationPointCom
 	/**
 	 * An agreement verification has been received by a provider.
 	 * @param message The agreement message to send.
-	 * @param proofToken The proof provided by the requester to support the agreement verification.
+	 * @param actionRequest The action request used in the verifiable credential.
 	 * @returns The error if there is one.
 	 */
 	public async agreementVerificationFromConsumer(
 		message: IIdsContractAgreementVerificationMessage,
-		proofToken: string
+		actionRequest: IIdentityAuthenticationActionRequest
 	): Promise<IIdsContractNegotiationError | undefined> {
 		Guards.object<IIdsContractAgreementMessage>(this.CLASS_NAME, nameof(message), message);
-		Guards.stringValue(this.CLASS_NAME, nameof(proofToken), proofToken);
+		Guards.objectValue<IIdentityAuthenticationActionRequest>(
+			this.CLASS_NAME,
+			nameof(actionRequest),
+			actionRequest
+		);
 		Guards.stringValue(this.CLASS_NAME, nameof(message.providerPid), message.providerPid);
 		Guards.stringValue(this.CLASS_NAME, nameof(message.consumerPid), message.consumerPid);
 
 		let policyNegotiation: IPolicyNegotiation | undefined;
 		try {
+			if (actionRequest.action !== "agreement-verification") {
+				throw new GeneralError(this.CLASS_NAME, "incorrectActionType", {
+					action: actionRequest.action,
+					expecting: "agreement-verification"
+				});
+			}
 			// Load the negotiation if there is one
 			try {
 				policyNegotiation = await this._policyNegotiationAdminPointComponent.get(
@@ -803,12 +800,12 @@ export class PolicyNegotiationPointService implements IPolicyNegotiationPointCom
 				return err;
 			}
 
-			// The agreement was verified by the consumer, so update the state
-			policyNegotiation.state = IdsContractNegotiationStateType.FINALIZED;
-			await this._policyNegotiationAdminPointComponent.set(policyNegotiation);
-
 			// Now that the agreement is finalised create the policy in the PAP
 			await this._policyAdministrationPointComponent.create(policyNegotiation.agreement);
+
+			// The agreement was created, so update the state to finalized
+			policyNegotiation.state = IdsContractNegotiationStateType.FINALIZED;
+			await this._policyNegotiationAdminPointComponent.set(policyNegotiation);
 
 			// Send the finalisation on the next cycle so we don't delay the current response
 			// Verification message doesn't have a callback address, so use the one
@@ -839,22 +836,32 @@ export class PolicyNegotiationPointService implements IPolicyNegotiationPointCom
 	 * An event has been received by the provider or consumer.
 	 * @param message The event message to send.
 	 * @param destination The destination is provider or consumer.
-	 * @param proofToken The proof provided by the requester to support the event.
+	 * @param actionRequest The action request used in the verifiable credential.
 	 * @returns The error if there is one.
 	 */
 	public async event(
 		message: IIdsContractNegotiationEventMessage,
 		destination: "provider" | "consumer",
-		proofToken: string
+		actionRequest: IIdentityAuthenticationActionRequest
 	): Promise<IIdsContractNegotiationError | undefined> {
 		Guards.object<IIdsContractNegotiationEventMessage>(this.CLASS_NAME, nameof(message), message);
 		Guards.arrayOneOf(this.CLASS_NAME, nameof(destination), destination, ["provider", "consumer"]);
-		Guards.stringValue(this.CLASS_NAME, nameof(proofToken), proofToken);
+		Guards.objectValue<IIdentityAuthenticationActionRequest>(
+			this.CLASS_NAME,
+			nameof(actionRequest),
+			actionRequest
+		);
 		Guards.stringValue(this.CLASS_NAME, nameof(message.providerPid), message.providerPid);
 		Guards.stringValue(this.CLASS_NAME, nameof(message.consumerPid), message.consumerPid);
 
 		let policyNegotiation: IPolicyNegotiation | undefined;
 		try {
+			if (actionRequest.action !== "event") {
+				throw new GeneralError(this.CLASS_NAME, "incorrectActionType", {
+					action: actionRequest.action,
+					expecting: "event"
+				});
+			}
 			// Load the negotiation if there is one, use either the provider or consumer pid based on destination
 			const policyId = destination === "provider" ? message.providerPid : message.consumerPid;
 			try {
@@ -949,13 +956,13 @@ export class PolicyNegotiationPointService implements IPolicyNegotiationPointCom
 	 * A termination message has been received by the consumer.
 	 * @param message The termination message to send.
 	 * @param destination The destination is provider or consumer.
-	 * @param proofToken The proof provided by the requester to support the termination.
+	 * @param actionRequest The action request used in the verifiable credential.
 	 * @returns The error if there is one.
 	 */
 	public async terminate(
 		message: IIdsContractNegotiationTerminationMessage,
 		destination: "provider" | "consumer",
-		proofToken: string
+		actionRequest: IIdentityAuthenticationActionRequest
 	): Promise<IIdsContractNegotiationError | undefined> {
 		Guards.object<IIdsContractNegotiationTerminationMessage>(
 			this.CLASS_NAME,
@@ -963,12 +970,22 @@ export class PolicyNegotiationPointService implements IPolicyNegotiationPointCom
 			message
 		);
 		Guards.arrayOneOf(this.CLASS_NAME, nameof(destination), destination, ["provider", "consumer"]);
-		Guards.stringValue(this.CLASS_NAME, nameof(proofToken), proofToken);
+		Guards.objectValue<IIdentityAuthenticationActionRequest>(
+			this.CLASS_NAME,
+			nameof(actionRequest),
+			actionRequest
+		);
 		Guards.stringValue(this.CLASS_NAME, nameof(message.providerPid), message.providerPid);
 		Guards.stringValue(this.CLASS_NAME, nameof(message.consumerPid), message.consumerPid);
 
 		let policyNegotiation: IPolicyNegotiation | undefined;
 		try {
+			if (actionRequest.action !== "terminate") {
+				throw new GeneralError(this.CLASS_NAME, "incorrectActionType", {
+					action: actionRequest.action,
+					expecting: "terminate"
+				});
+			}
 			// Load the negotiation if there is one, use either the provider or consumer pid based on destination
 			const policyId = destination === "provider" ? message.providerPid : message.consumerPid;
 			try {
@@ -1281,25 +1298,18 @@ export class PolicyNegotiationPointService implements IPolicyNegotiationPointCom
 				callbackAddress: this._baseCallbackUrl
 			};
 
-			const policyRequest: IPolicyRequest = {
-				"@context": RightsManagementContexts.ContextRoot,
-				type: RightsManagementTypes.PolicyRequest,
-				providerPid: policyNegotiation.id,
-				consumerPid: policyNegotiation.correlationId
+			const actionRequest: IIdentityAuthenticationActionRequest = {
+				"@context": IdentityAuthenticationContexts.ContextRoot,
+				type: IdentityAuthenticationTypes.ActionRequest,
+				action: "offer",
+				requester: this._nodeIdentity
 			};
-
-			const sendProofToken = await RightsManagementTokenHelper.createToken(
-				this._identityConnector,
-				DocumentHelper.joinId(this._nodeIdentity, this._rightsManagementMethodId),
-				policyRequest,
-				this._proofTtlInSeconds
-			);
 
 			policyNegotiation.state = IdsContractNegotiationStateType.OFFERED;
 			await this._policyNegotiationAdminPointComponent.set(policyNegotiation);
 
 			const negotiationComponent = await this._negotiationComponentCreator(callbackAddress);
-			const response = await negotiationComponent.offerFromProvider(offerMessage, sendProofToken);
+			const response = await negotiationComponent.offerFromProvider(offerMessage, actionRequest);
 
 			// If there was no error then the consumer will now send an event if they accepted the offer
 			await this.terminateIfResponseError(response, policyNegotiation);
@@ -1354,27 +1364,18 @@ export class PolicyNegotiationPointService implements IPolicyNegotiationPointCom
 				event
 			};
 
-			const policyRequest: IPolicyRequest = {
-				"@context": RightsManagementContexts.ContextRoot,
-				type: RightsManagementTypes.PolicyRequest,
-				providerPid:
-					destination === "consumer" ? policyNegotiation.id : policyNegotiation.correlationId,
-				consumerPid:
-					destination === "provider" ? policyNegotiation.id : policyNegotiation.correlationId
+			const actionRequest: IIdentityAuthenticationActionRequest = {
+				"@context": IdentityAuthenticationContexts.ContextRoot,
+				type: IdentityAuthenticationTypes.ActionRequest,
+				action: "event",
+				requester: this._nodeIdentity
 			};
-
-			const sendProofToken = await RightsManagementTokenHelper.createToken(
-				this._identityConnector,
-				DocumentHelper.joinId(this._nodeIdentity, this._rightsManagementMethodId),
-				policyRequest,
-				this._proofTtlInSeconds
-			);
 
 			policyNegotiation.state = event;
 			await this._policyNegotiationAdminPointComponent.set(policyNegotiation);
 
 			const negotiationComponent = await this._negotiationComponentCreator(callbackAddress);
-			const response = await negotiationComponent.event(eventMessage, destination, sendProofToken);
+			const response = await negotiationComponent.event(eventMessage, destination, actionRequest);
 
 			await this.terminateIfResponseError(response, policyNegotiation);
 		} catch (error) {
@@ -1452,19 +1453,12 @@ export class PolicyNegotiationPointService implements IPolicyNegotiationPointCom
 						callbackAddress: this._baseCallbackUrl
 					};
 
-					const policyRequest: IPolicyRequest = {
-						"@context": RightsManagementContexts.ContextRoot,
-						type: RightsManagementTypes.PolicyRequest,
-						providerPid: policyNegotiation.id,
-						consumerPid: policyNegotiation.correlationId
+					const actionRequest: IIdentityAuthenticationActionRequest = {
+						"@context": IdentityAuthenticationContexts.ContextRoot,
+						type: IdentityAuthenticationTypes.ActionRequest,
+						action: "agreement",
+						requester: this._nodeIdentity
 					};
-
-					const sendProofToken = await RightsManagementTokenHelper.createToken(
-						this._identityConnector,
-						DocumentHelper.joinId(this._nodeIdentity, this._rightsManagementMethodId),
-						policyRequest,
-						this._proofTtlInSeconds
-					);
 
 					policyNegotiation.state = IdsContractNegotiationStateType.AGREED;
 					policyNegotiation.agreement = agreement;
@@ -1473,7 +1467,7 @@ export class PolicyNegotiationPointService implements IPolicyNegotiationPointCom
 					const negotiationComponent = await this._negotiationComponentCreator(callbackAddress);
 					const response = await negotiationComponent.agreementFromProvider(
 						agreementMessage,
-						sendProofToken
+						actionRequest
 					);
 
 					// If there was no error then the consumer will now send an agreement verification
@@ -1521,19 +1515,12 @@ export class PolicyNegotiationPointService implements IPolicyNegotiationPointCom
 				consumerPid: policyNegotiation.id
 			};
 
-			const policyRequest: IPolicyRequest = {
-				"@context": RightsManagementContexts.ContextRoot,
-				type: RightsManagementTypes.PolicyRequest,
-				providerPid: policyNegotiation.correlationId,
-				consumerPid: policyNegotiation.id
+			const actionRequest: IIdentityAuthenticationActionRequest = {
+				"@context": IdentityAuthenticationContexts.ContextRoot,
+				type: IdentityAuthenticationTypes.ActionRequest,
+				action: "agreement-verification",
+				requester: this._nodeIdentity
 			};
-
-			const sendProofToken = await RightsManagementTokenHelper.createToken(
-				this._identityConnector,
-				DocumentHelper.joinId(this._nodeIdentity, this._rightsManagementMethodId),
-				policyRequest,
-				this._proofTtlInSeconds
-			);
 
 			policyNegotiation.state = IdsContractNegotiationStateType.VERIFIED;
 			await this._policyNegotiationAdminPointComponent.set(policyNegotiation);
@@ -1541,7 +1528,7 @@ export class PolicyNegotiationPointService implements IPolicyNegotiationPointCom
 			const negotiationComponent = await this._negotiationComponentCreator(callbackAddress);
 			const response = await negotiationComponent.agreementVerificationFromConsumer(
 				agreementVerificationMessage,
-				sendProofToken
+				actionRequest
 			);
 
 			await this.terminateIfResponseError(response, policyNegotiation);

@@ -2,7 +2,6 @@
 // SPDX-License-Identifier: Apache-2.0.
 import { TaskSchedulerService } from "@twin.org/background-task-scheduler";
 import { ComponentFactory, I18n } from "@twin.org/core";
-import { JsonLdHelper } from "@twin.org/data-json-ld";
 import { MemoryEntityStorageConnector } from "@twin.org/entity-storage-connector-memory";
 import { EntityStorageConnectorFactory } from "@twin.org/entity-storage-models";
 import {
@@ -63,10 +62,12 @@ let mockPolicyRequester: IPolicyRequester;
  * Helper to wait for a negotiation to reach a specific state.
  * @param storage The storage connector for the negotiation
  * @param state The state to wait for
+ * @param entity The entity type, either "consumer" or "provider"
  */
 async function waitForState(
 	storage: MemoryEntityStorageConnector<PolicyNegotiation>,
-	state: string
+	state: string,
+	entity: "consumer" | "provider"
 ): Promise<void> {
 	for (let i = 0; i < 30; i++) {
 		const store = storage.getStore();
@@ -76,7 +77,7 @@ async function waitForState(
 		await new Promise(resolve => setTimeout(resolve, 100));
 	}
 	console.log(storage.getStore()[0]);
-	throw new Error(`Timeout waiting for state ${state}`);
+	throw new Error(`Timeout waiting for state ${state} for ${entity}`);
 }
 
 describe("PolicyNegotiationPointService", () => {
@@ -192,6 +193,8 @@ describe("PolicyNegotiationPointService", () => {
 		);
 
 		adminPointComponent = new PolicyAdministrationPointService();
+		// We mock the create call to the PAP to return a fixed policy ID
+		adminPointComponent.create = vi.fn().mockResolvedValue("123");
 		ComponentFactory.register("policy-administration-point", () => adminPointComponent);
 
 		informationPointComponent = new PolicyInformationPointService();
@@ -455,7 +458,7 @@ describe("PolicyNegotiationPointService", () => {
 		const providerStore = policyNegotiationProviderMemoryEntityStorage.getStore();
 		expect(providerStore).toHaveLength(1);
 
-		await waitForState(policyNegotiationConsumerMemoryEntityStorage, "ACCEPTED");
+		await waitForState(policyNegotiationConsumerMemoryEntityStorage, "ACCEPTED", "consumer");
 
 		// The consumer has ACCEPTED the offer
 		expect(consumerStore[0]).toMatchObject({
@@ -474,7 +477,7 @@ describe("PolicyNegotiationPointService", () => {
 			state: "ACCEPTED"
 		});
 
-		await waitForState(policyNegotiationProviderMemoryEntityStorage, "OFFERED");
+		await waitForState(policyNegotiationProviderMemoryEntityStorage, "OFFERED", "provider");
 
 		// The provider has not yet received the ACCEPTED state, so is still in OFFERED state
 		expect(providerStore[0]).toMatchObject({
@@ -494,7 +497,7 @@ describe("PolicyNegotiationPointService", () => {
 		});
 
 		// We wait for the consumer to respond with the ACCEPTED state
-		await waitForState(policyNegotiationProviderMemoryEntityStorage, "ACCEPTED");
+		await waitForState(policyNegotiationProviderMemoryEntityStorage, "ACCEPTED", "provider");
 
 		// Now the provider should also have the ACCEPTED state
 		expect(providerStore[0]).toMatchObject({
@@ -514,7 +517,7 @@ describe("PolicyNegotiationPointService", () => {
 		});
 
 		// Now we wait for the provider to send the AGREED state
-		await waitForState(policyNegotiationConsumerMemoryEntityStorage, "AGREED");
+		await waitForState(policyNegotiationConsumerMemoryEntityStorage, "AGREED", "consumer");
 
 		// The consumer has now received the AGREED state
 		expect(consumerStore[0]).toMatchObject({
@@ -540,7 +543,7 @@ describe("PolicyNegotiationPointService", () => {
 			state: "AGREED"
 		});
 
-		await waitForState(policyNegotiationProviderMemoryEntityStorage, "AGREED");
+		await waitForState(policyNegotiationProviderMemoryEntityStorage, "AGREED", "provider");
 
 		// The provider has now also set the AGREED state
 		expect(providerStore[0]).toMatchObject({
@@ -567,7 +570,7 @@ describe("PolicyNegotiationPointService", () => {
 		});
 
 		// Now we wait for the consumer to VERIFIED the agreement
-		await waitForState(policyNegotiationConsumerMemoryEntityStorage, "VERIFIED");
+		await waitForState(policyNegotiationConsumerMemoryEntityStorage, "VERIFIED", "consumer");
 
 		// The consumer has now VERIFIED the agreement
 		expect(consumerStore[0]).toMatchObject({
@@ -593,7 +596,7 @@ describe("PolicyNegotiationPointService", () => {
 			state: "VERIFIED"
 		});
 
-		await waitForState(policyNegotiationProviderMemoryEntityStorage, "FINALIZED");
+		await waitForState(policyNegotiationProviderMemoryEntityStorage, "FINALIZED", "provider");
 
 		expect(providerStore[0]).toMatchObject({
 			id: consumerStore[0].correlationId,
@@ -618,12 +621,8 @@ describe("PolicyNegotiationPointService", () => {
 			state: "FINALIZED"
 		});
 
-		// We mock the validation as we are not testing the PAP here
-		// and it introduces a delay in the JSON-LD initialisation
-		vi.spyOn(JsonLdHelper, "validate").mockResolvedValue(true);
-
 		// Now we wait for the consumer to received the FINALIZED state
-		await waitForState(policyNegotiationConsumerMemoryEntityStorage, "FINALIZED");
+		await waitForState(policyNegotiationConsumerMemoryEntityStorage, "FINALIZED", "consumer");
 
 		expect(consumerStore[0]).toMatchObject({
 			id: consumerPid,
@@ -648,7 +647,7 @@ describe("PolicyNegotiationPointService", () => {
 			state: "FINALIZED"
 		});
 
-		await waitForState(policyNegotiationProviderMemoryEntityStorage, "FINALIZED");
+		await waitForState(policyNegotiationProviderMemoryEntityStorage, "FINALIZED", "provider");
 
 		expect(providerStore[0]).toMatchObject({
 			id: consumerStore[0].correlationId,

@@ -3,7 +3,8 @@
 		"dataAccessPointService": {
 			"noHandlerForAssetType": "No handler registered for asset type \"{assetType}\"",
 			"notAuthorizedToQuery": "Not authorized to query asset type \"{assetType}\"",
-			"notAuthorizedToGet": "Not authorized to get asset type \"{assetType}\" with id \"{id}\""
+			"notAuthorizedToGet": "Not authorized to get asset type \"{assetType}\" with id \"{id}\"",
+			"incorrectActionType": "Incorrect action in credential \"{action}\", expecting \"{expecting}\""
 		},
 		"dataAccessRequestPointService": {}
 	},

@@ -18,20 +18,6 @@ logging
 
 ***
 
-### identityConnectorType?
-
-> `optional` **identityConnectorType**: `string`
-
-The identity connector component for managing identities.
-
-#### Default
-
-```ts
-identity
-```
-
-***
-
 ### policyNegotiationAdministrationPointComponentType?
 
 > `optional` **policyNegotiationAdministrationPointComponentType**: `string`

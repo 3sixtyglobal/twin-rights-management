@@ -3,19 +3,13 @@
 import { Coerce, ComponentFactory, GeneralError, Guards, Is } from "@twin.org/core";
 import type { IJsonLdNodeObject } from "@twin.org/data-json-ld";
 import type { EntityCondition } from "@twin.org/entity";
-import { IdentityConnectorFactory, type IIdentityConnector } from "@twin.org/identity-models";
+import type { IIdentityAuthenticationActionRequest } from "@twin.org/identity-authentication";
 import type { ILoggingComponent } from "@twin.org/logging-models";
 import { nameof } from "@twin.org/nameof";
-import {
-	RightsManagementContexts,
-	RightsManagementTokenHelper,
-	RightsManagementTypes,
-	type IDataAccessHandler,
-	type IDataAccessPointComponent,
-	type IDataAccessQuery,
-	type IDataAccessRequest,
-	type IDataAccessRequestWithObject,
-	type IPolicyEnforcementPointComponent
+import type {
+	IDataAccessHandler,
+	IDataAccessPointComponent,
+	IPolicyEnforcementPointComponent
 } from "@twin.org/rights-management-models";
 import { ActionType } from "@twin.org/standards-w3c-odrl";
 import type { IDataAccessPointServiceConstructorOptions } from "./models/IDataAccessPointServiceConstructorOptions";
@@ -36,22 +30,10 @@ export class DataAccessPointService implements IDataAccessPointComponent {
 	private readonly _logging?: ILoggingComponent;
 
 	/**
-	 * The identity connector to use for signing/verifying negotiation requests.
-	 * @internal
-	 */
-	private readonly _identityConnector: IIdentityConnector;
-
-	/**
 	 * The policy enforcement point component.
 	 * @internal
 	 */
 	private readonly _policyEnforcementPointComponent: IPolicyEnforcementPointComponent;
-
-	/**
-	 * The time-to-live (TTL) for proof in seconds.
-	 * @internal
-	 */
-	private readonly _proofTtlInSeconds: number;
 
 	/**
 	 * These handlers can be registered to handle specific asset types.
@@ -70,14 +52,10 @@ export class DataAccessPointService implements IDataAccessPointComponent {
 		this._logging = ComponentFactory.getIfExists<ILoggingComponent>(
 			options?.loggingComponentType ?? "logging"
 		);
-		this._identityConnector = IdentityConnectorFactory.get(
-			options?.identityConnectorType ?? "identity"
-		);
 		this._policyEnforcementPointComponent = ComponentFactory.get<IPolicyEnforcementPointComponent>(
 			options?.policyEnforcementPointComponentType ?? "policy-enforcement-point"
 		);
 
-		this._proofTtlInSeconds = options?.config?.proofTtlInSeconds ?? 300; // Default to 5 minutes
 		this._handlers = options?.config?.handlers ?? [];
 	}
 
@@ -85,17 +63,21 @@ export class DataAccessPointService implements IDataAccessPointComponent {
 	 * Create an item.
 	 * @param assetType The type of the item to create.
 	 * @param item The item to create.
-	 * @param proofToken The proof provided by the requester to support the creation.
+	 * @param actionRequest The action request used in the verifiable credential.
 	 * @returns The id of the item created, for some items this is supplied in the `item`.
 	 */
 	public async create(
 		assetType: string,
 		item: IJsonLdNodeObject,
-		proofToken: string
+		actionRequest: IIdentityAuthenticationActionRequest
 	): Promise<string> {
 		Guards.stringValue(this.CLASS_NAME, nameof(assetType), assetType);
 		Guards.object<IJsonLdNodeObject>(this.CLASS_NAME, nameof(item), item);
-		Guards.stringValue(this.CLASS_NAME, nameof(proofToken), proofToken);
+		Guards.objectValue<IIdentityAuthenticationActionRequest>(
+			this.CLASS_NAME,
+			nameof(actionRequest),
+			actionRequest
+		);
 
 		const handlerEntry = this._handlers.find(p =>
 			p.handler.supportedAssetTypes().includes(assetType)
@@ -105,23 +87,16 @@ export class DataAccessPointService implements IDataAccessPointComponent {
 			throw new GeneralError(this.CLASS_NAME, "noHandlerForAssetType", { assetType });
 		}
 
-		const dataAccessRequestWithObject: IDataAccessRequestWithObject = {
-			"@context": RightsManagementContexts.ContextRoot,
-			type: RightsManagementTypes.DataAccessRequestWithObject,
-			assetType,
-			object: item
-		};
-
-		const verifiableCredential = await RightsManagementTokenHelper.verifyToken(
-			this._identityConnector,
-			dataAccessRequestWithObject,
-			proofToken,
-			this._proofTtlInSeconds
-		);
+		if (actionRequest.action !== "create") {
+			throw new GeneralError(this.CLASS_NAME, "incorrectActionType", {
+				action: actionRequest.action,
+				expecting: "create"
+			});
+		}
 
 		const manipulatedItem =
 			await this._policyEnforcementPointComponent.intercept<IJsonLdNodeObject>({
-				assignee: verifiableCredential.issuer,
+				assignee: actionRequest.requester,
 				action: ActionType.Write,
 				assetType
 			});
@@ -133,13 +108,21 @@ export class DataAccessPointService implements IDataAccessPointComponent {
 	 * Get an item.
 	 * @param assetType The type of the item to retrieve.
 	 * @param id The ID of the item to retrieve.
-	 * @param proofToken The proof provided by the requester to support the lookup.
+	 * @param actionRequest The action request used in the verifiable credential.
 	 * @returns The item retrieved if the policies allow it.
 	 */
-	public async get(assetType: string, id: string, proofToken: string): Promise<IJsonLdNodeObject> {
+	public async get(
+		assetType: string,
+		id: string,
+		actionRequest: IIdentityAuthenticationActionRequest
+	): Promise<IJsonLdNodeObject> {
 		Guards.stringValue(this.CLASS_NAME, nameof(assetType), assetType);
 		Guards.stringValue(this.CLASS_NAME, nameof(id), id);
-		Guards.stringValue(this.CLASS_NAME, nameof(proofToken), proofToken);
+		Guards.objectValue<IIdentityAuthenticationActionRequest>(
+			this.CLASS_NAME,
+			nameof(actionRequest),
+			actionRequest
+		);
 
 		const handlerEntry = this._handlers.find(p =>
 			p.handler.supportedAssetTypes().includes(assetType)
@@ -149,22 +132,15 @@ export class DataAccessPointService implements IDataAccessPointComponent {
 			throw new GeneralError(this.CLASS_NAME, "noHandlerForAssetType", { assetType });
 		}
 
-		const dataAccessRequest: IDataAccessRequest = {
-			"@context": RightsManagementContexts.ContextRoot,
-			type: RightsManagementTypes.DataAccessRequest,
-			assetType,
-			id
-		};
-
-		const verifiableCredential = await RightsManagementTokenHelper.verifyToken(
-			this._identityConnector,
-			dataAccessRequest,
-			proofToken,
-			this._proofTtlInSeconds
-		);
+		if (actionRequest.action !== "get") {
+			throw new GeneralError(this.CLASS_NAME, "incorrectActionType", {
+				action: actionRequest.action,
+				expecting: "get"
+			});
+		}
 
 		const isAllowed = await this._policyEnforcementPointComponent.intercept({
-			assignee: verifiableCredential.issuer,
+			assignee: actionRequest.requester,
 			action: ActionType.Use,
 			assetType,
 			resourceId: id
@@ -181,7 +157,7 @@ export class DataAccessPointService implements IDataAccessPointComponent {
 			IJsonLdNodeObject
 		>(
 			{
-				assignee: verifiableCredential.issuer,
+				assignee: actionRequest.requester,
 				action: ActionType.Read,
 				assetType,
 				resourceId: id
@@ -196,17 +172,21 @@ export class DataAccessPointService implements IDataAccessPointComponent {
 	 * Update an item.
 	 * @param assetType The type of the item to update.
 	 * @param item The item to update.
-	 * @param proofToken The proof provided by the requester to support the update.
+	 * @param actionRequest The action request used in the verifiable credential.
 	 * @returns Nothing.
 	 */
 	public async update(
 		assetType: string,
 		item: IJsonLdNodeObject,
-		proofToken: string
+		actionRequest: IIdentityAuthenticationActionRequest
 	): Promise<void> {
 		Guards.stringValue(this.CLASS_NAME, nameof(assetType), assetType);
 		Guards.object<IJsonLdNodeObject>(this.CLASS_NAME, nameof(item), item);
-		Guards.stringValue(this.CLASS_NAME, nameof(proofToken), proofToken);
+		Guards.objectValue<IIdentityAuthenticationActionRequest>(
+			this.CLASS_NAME,
+			nameof(actionRequest),
+			actionRequest
+		);
 		Guards.stringValue(this.CLASS_NAME, nameof(item.id), item.id);
 
 		const handlerEntry = this._handlers.find(p =>
@@ -217,26 +197,19 @@ export class DataAccessPointService implements IDataAccessPointComponent {
 			throw new GeneralError(this.CLASS_NAME, "noHandlerForAssetType", { assetType });
 		}
 
-		const dataAccessRequest: IDataAccessRequest = {
-			"@context": RightsManagementContexts.ContextRoot,
-			type: RightsManagementTypes.DataAccessRequest,
-			assetType,
-			id: item.id
-		};
-
-		const verifiableCredential = await RightsManagementTokenHelper.verifyToken(
-			this._identityConnector,
-			dataAccessRequest,
-			proofToken,
-			this._proofTtlInSeconds
-		);
+		if (actionRequest.action !== "update") {
+			throw new GeneralError(this.CLASS_NAME, "incorrectActionType", {
+				action: actionRequest.action,
+				expecting: "update"
+			});
+		}
 
 		const manipulatedItem =
 			await this._policyEnforcementPointComponent.intercept<IJsonLdNodeObject>({
-				assignee: verifiableCredential.issuer,
+				assignee: actionRequest.requester,
 				action: ActionType.Modify,
 				assetType,
-				resourceId: dataAccessRequest.id
+				resourceId: item.id
 			});
 
 		return handlerEntry.handler.update(assetType, manipulatedItem);
@@ -246,13 +219,21 @@ export class DataAccessPointService implements IDataAccessPointComponent {
 	 * Remove an item.
 	 * @param assetType The type of the item to remove.
 	 * @param id The id of the item to remove.
-	 * @param proofToken The proof provided by the requester to support the update.
+	 * @param actionRequest The action request used in the verifiable credential.
 	 * @returns Nothing.
 	 */
-	public async remove(assetType: string, id: string, proofToken: string): Promise<void> {
+	public async remove(
+		assetType: string,
+		id: string,
+		actionRequest: IIdentityAuthenticationActionRequest
+	): Promise<void> {
 		Guards.stringValue(this.CLASS_NAME, nameof(assetType), assetType);
 		Guards.stringValue(this.CLASS_NAME, nameof(id), id);
-		Guards.stringValue(this.CLASS_NAME, nameof(proofToken), proofToken);
+		Guards.objectValue<IIdentityAuthenticationActionRequest>(
+			this.CLASS_NAME,
+			nameof(actionRequest),
+			actionRequest
+		);
 
 		const handlerEntry = this._handlers.find(p =>
 			p.handler.supportedAssetTypes().includes(assetType)
@@ -262,25 +243,18 @@ export class DataAccessPointService implements IDataAccessPointComponent {
 			throw new GeneralError(this.CLASS_NAME, "noHandlerForAssetType", { assetType });
 		}
 
-		const dataAccessRequest: IDataAccessRequest = {
-			"@context": RightsManagementContexts.ContextRoot,
-			type: RightsManagementTypes.DataAccessRequest,
-			assetType,
-			id
-		};
-
-		const verifiableCredential = await RightsManagementTokenHelper.verifyToken(
-			this._identityConnector,
-			dataAccessRequest,
-			proofToken,
-			this._proofTtlInSeconds
-		);
+		if (actionRequest.action !== "remove") {
+			throw new GeneralError(this.CLASS_NAME, "incorrectActionType", {
+				action: actionRequest.action,
+				expecting: "remove"
+			});
+		}
 
 		await this._policyEnforcementPointComponent.intercept({
-			assignee: verifiableCredential.issuer,
+			assignee: actionRequest.requester,
 			action: ActionType.Delete,
 			assetType,
-			resourceId: dataAccessRequest.id
+			resourceId: id
 		});
 
 		return handlerEntry.handler.remove(assetType, id);
@@ -292,7 +266,7 @@ export class DataAccessPointService implements IDataAccessPointComponent {
 	 * @param conditions The conditions to apply to the query.
 	 * @param cursor The cursor for pagination.
 	 * @param options Additional options which might be supported by the handler.
-	 * @param proofToken The proof provided by the requester to support the update.
+	 * @param actionRequest The action request used in the verifiable credential.
 	 * @returns The items matching the query and cursor if there are more items.
 	 */
 	public async query(
@@ -300,13 +274,17 @@ export class DataAccessPointService implements IDataAccessPointComponent {
 		conditions: EntityCondition<IJsonLdNodeObject> | undefined,
 		cursor: string | undefined,
 		options: unknown | undefined,
-		proofToken: string
+		actionRequest: IIdentityAuthenticationActionRequest
 	): Promise<{
 		items: IJsonLdNodeObject[];
 		cursor?: string;
 	}> {
 		Guards.stringValue(this.CLASS_NAME, nameof(assetType), assetType);
-		Guards.stringValue(this.CLASS_NAME, nameof(proofToken), proofToken);
+		Guards.objectValue<IIdentityAuthenticationActionRequest>(
+			this.CLASS_NAME,
+			nameof(actionRequest),
+			actionRequest
+		);
 
 		const handlerEntry = this._handlers.find(p =>
 			p.handler.supportedAssetTypes().includes(assetType)
@@ -316,21 +294,15 @@ export class DataAccessPointService implements IDataAccessPointComponent {
 			throw new GeneralError(this.CLASS_NAME, "noHandlerForAssetType", { assetType });
 		}
 
-		const dataAccessQuery: IDataAccessQuery = {
-			"@context": RightsManagementContexts.ContextRoot,
-			type: RightsManagementTypes.DataAccessQuery,
-			assetType
-		};
-
-		const verifiableCredential = await RightsManagementTokenHelper.verifyToken(
-			this._identityConnector,
-			dataAccessQuery,
-			proofToken,
-			this._proofTtlInSeconds
-		);
+		if (actionRequest.action !== "query") {
+			throw new GeneralError(this.CLASS_NAME, "incorrectActionType", {
+				action: actionRequest.action,
+				expecting: "query"
+			});
+		}
 
 		const isAllowed = await this._policyEnforcementPointComponent.intercept({
-			assignee: verifiableCredential.issuer,
+			assignee: actionRequest.requester,
 			action: ActionType.Use,
 			assetType
 		});
@@ -343,7 +315,7 @@ export class DataAccessPointService implements IDataAccessPointComponent {
 
 		const manipulatedItems = result.items.map(item =>
 			this._policyEnforcementPointComponent.intercept<IJsonLdNodeObject>({
-				assignee: verifiableCredential.issuer,
+				assignee: actionRequest.requester,
 				action: ActionType.Read,
 				assetType,
 				resourceId: Coerce.string(item.id)

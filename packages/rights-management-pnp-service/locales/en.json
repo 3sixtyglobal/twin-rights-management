@@ -13,7 +13,8 @@
 			"invalidState": "The negotiation is in an incorrect state \"{toState}\" for negotiation with id: \"{negotiationId}\"",
 			"offerNotAccepted": "Offer with id: \"{offerId}\" was not accepted by the requester",
 			"agreementNotAccepted": "Agreement with id: \"{agreementId}\" was not accepted by the requester",
-			"noAgreementCreated": "No agreement was created for offer with id: \"{offerId}\""
+			"noAgreementCreated": "No agreement was created for offer with id: \"{offerId}\"",
+			"incorrectActionType": "Incorrect action in credential \"{action}\", expecting \"{expecting}\""
 		},
 		"policyNegotiationAdminPointService": {
 			"policyNotFound": "Policy with id: \"{notFoundId}\" not found"

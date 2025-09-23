@@ -7,12 +7,6 @@ import type { IDataAccessHandler } from "@twin.org/rights-management-models";
  */
 export interface IDataAccessPointServiceConfig {
 	/**
-	 * The time-to-live (TTL) for proof in seconds.
-	 * @default 300 (5 minutes)
-	 */
-	proofTtlInSeconds?: number;
-
-	/**
 	 * Initial handler to register with the DAP.
 	 */
 	handlers?: {

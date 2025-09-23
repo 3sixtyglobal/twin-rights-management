@@ -13,34 +13,6 @@ This should be the externally reachable url of this PNP service.
 
 ***
 
-### rightsManagementMethodId?
-
-> `optional` **rightsManagementMethodId**: `string`
-
-The id of the identity method to use when creating/verifying tokens.
-
-#### Default
-
-```ts
-rights-management-assertion
-```
-
-***
-
-### proofTtlInSeconds?
-
-> `optional` **proofTtlInSeconds**: `number`
-
-The time-to-live (TTL) for proof in seconds.
-
-#### Default
-
-```ts
-300 (5 minutes)
-```
-
-***
-
 ### negotiationComponentCreator()
 
 > **negotiationComponentCreator**: (`url`) => `Promise`\<`IPolicyNegotiationPointComponent`\>

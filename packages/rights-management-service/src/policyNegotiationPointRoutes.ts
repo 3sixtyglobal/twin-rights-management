@@ -2,6 +2,11 @@
 // SPDX-License-Identifier: Apache-2.0.
 import type { IHttpRequestContext, IRestRoute, ITag } from "@twin.org/api-models";
 import { ComponentFactory, Guards, Is } from "@twin.org/core";
+import {
+	IdentityAuthenticationContexts,
+	IdentityAuthenticationTypes,
+	type IIdentityAuthenticationActionRequest
+} from "@twin.org/identity-authentication";
 import { nameof } from "@twin.org/nameof";
 import type {
 	IPnpAgreementRequest,
@@ -24,7 +29,7 @@ import {
 	type IIdsContractNegotiationError
 } from "@twin.org/standards-ids-contract-negotiation";
 import { OdrlContexts, OdrlTypes } from "@twin.org/standards-w3c-odrl";
-import { HeaderHelper, HeaderTypes, HttpStatusCode, MimeTypes } from "@twin.org/web";
+import { HeaderTypes, HttpStatusCode, MimeTypes } from "@twin.org/web";
 
 /**
  * The source used when communicating about these routes.
@@ -75,6 +80,12 @@ export function generateRestRoutesPolicyNegotiationPoint(
 						},
 						pathParams: {
 							id: "urn:contract-negotiation:00aa11bb.......ffff"
+						},
+						authentication: {
+							"@context": IdentityAuthenticationContexts.ContextRoot,
+							type: IdentityAuthenticationTypes.ActionRequest,
+							requester: "did:node-1",
+							action: "get-negotiation"
 						}
 					}
 				}
@@ -99,7 +110,8 @@ export function generateRestRoutesPolicyNegotiationPoint(
 				]
 			}
 		],
-		skipAuth: true
+		skipAuth: true,
+		processorFeatures: ["verifiableCredential"]
 	};
 
 	// https://docs.internationaldataspaces.org/ids-knowledgebase/dataspace-protocol/contract-negotiation/contract.negotiation.binding.https#id-2.2-the-negotiations-request-endpoint-provider-side
@@ -134,6 +146,12 @@ export function generateRestRoutesPolicyNegotiationPoint(
 								uid: "urn:offer-1",
 								assigner: "urn:provider:node:1"
 							}
+						},
+						authentication: {
+							"@context": IdentityAuthenticationContexts.ContextRoot,
+							type: IdentityAuthenticationTypes.ActionRequest,
+							requester: "did:node-1",
+							action: "request"
 						}
 					}
 				}
@@ -158,7 +176,8 @@ export function generateRestRoutesPolicyNegotiationPoint(
 				]
 			}
 		],
-		skipAuth: true
+		skipAuth: true,
+		processorFeatures: ["verifiableCredential"]
 	};
 
 	// https://docs.internationaldataspaces.org/ids-knowledgebase/dataspace-protocol/contract-negotiation/contract.negotiation.binding.https#id-2.3-the-negotiations-providerpid-request-endpoint-provider-side
@@ -194,6 +213,12 @@ export function generateRestRoutesPolicyNegotiationPoint(
 									uid: "urn:offer-1",
 									assigner: "urn:provider:node:1"
 								}
+							},
+							authentication: {
+								"@context": IdentityAuthenticationContexts.ContextRoot,
+								type: IdentityAuthenticationTypes.ActionRequest,
+								requester: "did:node-1",
+								action: "request"
 							}
 						}
 					}
@@ -212,7 +237,8 @@ export function generateRestRoutesPolicyNegotiationPoint(
 					]
 				}
 			],
-			skipAuth: true
+			skipAuth: true,
+			processorFeatures: ["verifiableCredential"]
 		};
 
 	// https://docs.internationaldataspaces.org/ids-knowledgebase/dataspace-protocol/contract-negotiation/contract.negotiation.binding.https#id-2.4-the-negotiations-providerpid-events-endpoint-provider-side
@@ -243,6 +269,12 @@ export function generateRestRoutesPolicyNegotiationPoint(
 							providerPid: "urn:contract-negotiation:00aa11bb.......ffff",
 							consumerPid: "urn:contract-negotiation:22aa11bb.......ffff",
 							event: IdsContractNegotiationEventType.ACCEPTED
+						},
+						authentication: {
+							"@context": IdentityAuthenticationContexts.ContextRoot,
+							type: IdentityAuthenticationTypes.ActionRequest,
+							requester: "did:node-1",
+							action: "event"
 						}
 					}
 				}
@@ -261,7 +293,8 @@ export function generateRestRoutesPolicyNegotiationPoint(
 				]
 			}
 		],
-		skipAuth: true
+		skipAuth: true,
+		processorFeatures: ["verifiableCredential"]
 	};
 
 	// https://docs.internationaldataspaces.org/ids-knowledgebase/dataspace-protocol/contract-negotiation/contract.negotiation.binding.https#id-2.5-the-negotiations-providerpid-agreement-verification-endpoint-provider-side
@@ -294,6 +327,12 @@ export function generateRestRoutesPolicyNegotiationPoint(
 							"@type": IdsContractNegotiationTypes.ContractRequestMessage,
 							providerPid: "urn:contract-negotiation:00aa11bb.......ffff",
 							consumerPid: "urn:contract-negotiation:22aa11bb.......ffff"
+						},
+						authentication: {
+							"@context": IdentityAuthenticationContexts.ContextRoot,
+							type: IdentityAuthenticationTypes.ActionRequest,
+							requester: "did:node-1",
+							action: "agreement-verification"
 						}
 					}
 				}
@@ -312,7 +351,8 @@ export function generateRestRoutesPolicyNegotiationPoint(
 				]
 			}
 		],
-		skipAuth: true
+		skipAuth: true,
+		processorFeatures: ["verifiableCredential"]
 	};
 
 	// https://docs.internationaldataspaces.org/ids-knowledgebase/dataspace-protocol/contract-negotiation/contract.negotiation.binding.https#id-2.6-the-negotiations-providerpid-termination-endpoint-provider-side
@@ -342,6 +382,12 @@ export function generateRestRoutesPolicyNegotiationPoint(
 							"@type": IdsContractNegotiationTypes.ContractRequestMessage,
 							providerPid: "urn:contract-negotiation:00aa11bb.......ffff",
 							consumerPid: "urn:contract-negotiation:22aa11bb.......ffff"
+						},
+						authentication: {
+							"@context": IdentityAuthenticationContexts.ContextRoot,
+							type: IdentityAuthenticationTypes.ActionRequest,
+							requester: "did:node-1",
+							action: "terminate"
 						}
 					}
 				}
@@ -360,7 +406,8 @@ export function generateRestRoutesPolicyNegotiationPoint(
 				]
 			}
 		],
-		skipAuth: true
+		skipAuth: true,
+		processorFeatures: ["verifiableCredential"]
 	};
 
 	// https://docs.internationaldataspaces.org/ids-knowledgebase/dataspace-protocol/contract-negotiation/contract.negotiation.binding.https#id-3.2-the-negotiations-offers-endpoint-consumer-side
@@ -396,6 +443,12 @@ export function generateRestRoutesPolicyNegotiationPoint(
 								uid: "urn:offer-1",
 								assigner: "urn:provider:node:1"
 							}
+						},
+						authentication: {
+							"@context": IdentityAuthenticationContexts.ContextRoot,
+							type: IdentityAuthenticationTypes.ActionRequest,
+							requester: "did:node-1",
+							action: "offer"
 						}
 					}
 				}
@@ -419,7 +472,8 @@ export function generateRestRoutesPolicyNegotiationPoint(
 				]
 			}
 		],
-		skipAuth: true
+		skipAuth: true,
+		processorFeatures: ["verifiableCredential"]
 	};
 
 	// https://docs.internationaldataspaces.org/ids-knowledgebase/dataspace-protocol/contract-negotiation/contract.negotiation.binding.https#id-3.3-the-negotiations-consumerpid-offers-endpoint-consumer-side
@@ -455,6 +509,12 @@ export function generateRestRoutesPolicyNegotiationPoint(
 								uid: "urn:offer-1",
 								assigner: "urn:provider:node:1"
 							}
+						},
+						authentication: {
+							"@context": IdentityAuthenticationContexts.ContextRoot,
+							type: IdentityAuthenticationTypes.ActionRequest,
+							requester: "did:node-1",
+							action: "offer"
 						}
 					}
 				}
@@ -478,7 +538,8 @@ export function generateRestRoutesPolicyNegotiationPoint(
 				]
 			}
 		],
-		skipAuth: true
+		skipAuth: true,
+		processorFeatures: ["verifiableCredential"]
 	};
 
 	// https://docs.internationaldataspaces.org/ids-knowledgebase/dataspace-protocol/contract-negotiation/contract.negotiation.binding.https#id-3.4-the-negotiations-consumerpid-agreement-endpoint-consumer-side
@@ -515,6 +576,12 @@ export function generateRestRoutesPolicyNegotiationPoint(
 								assigner: "urn:provider:node:1",
 								assignee: "urn:consumer:node:1"
 							}
+						},
+						authentication: {
+							"@context": IdentityAuthenticationContexts.ContextRoot,
+							type: IdentityAuthenticationTypes.ActionRequest,
+							requester: "did:node-1",
+							action: "agreement"
 						}
 					}
 				}
@@ -533,7 +600,8 @@ export function generateRestRoutesPolicyNegotiationPoint(
 				]
 			}
 		],
-		skipAuth: true
+		skipAuth: true,
+		processorFeatures: ["verifiableCredential"]
 	};
 
 	// The consumer event and terminate routes are exactly the same as the pnpNegotiationEventsRoute and pnpNegotiationTerminationRoute
@@ -603,7 +671,8 @@ export async function pnpGetNegotiation(
 	const component = ComponentFactory.get<IPolicyNegotiationPointComponent>(componentName);
 	const result = await component.getNegotiation(
 		request.pathParams.id,
-		HeaderHelper.extractBearer(request.headers[HeaderTypes.Authorization])
+		httpRequestContext.processorState
+			.verifiableCredentialSubject as IIdentityAuthenticationActionRequest
 	);
 
 	return {
@@ -640,7 +709,8 @@ export async function pnpNegotiationRequest(
 	const component = ComponentFactory.get<IPolicyNegotiationPointComponent>(componentName);
 	const result = await component.requestFromConsumer(
 		request.body,
-		HeaderHelper.extractBearer(request.headers[HeaderTypes.Authorization])
+		httpRequestContext.processorState
+			.verifiableCredentialSubject as IIdentityAuthenticationActionRequest
 	);
 
 	const isUpdate = Is.stringValue(request.pathParams?.id);
@@ -693,7 +763,8 @@ export async function pnpNegotiationProviderEvents(
 	const result = await component.event(
 		request.body,
 		request.pathParams.id === request.body.providerPid ? "provider" : "consumer",
-		HeaderHelper.extractBearer(request.headers[HeaderTypes.Authorization])
+		httpRequestContext.processorState
+			.verifiableCredentialSubject as IIdentityAuthenticationActionRequest
 	);
 
 	return {
@@ -739,7 +810,8 @@ export async function pnpNegotiationAgreementVerification(
 	const component = ComponentFactory.get<IPolicyNegotiationPointComponent>(componentName);
 	const result = await component.agreementVerificationFromConsumer(
 		request.body,
-		HeaderHelper.extractBearer(request.headers[HeaderTypes.Authorization])
+		httpRequestContext.processorState
+			.verifiableCredentialSubject as IIdentityAuthenticationActionRequest
 	);
 
 	return {
@@ -782,7 +854,8 @@ export async function pnpNegotiationTermination(
 	const result = await component.terminate(
 		request.body,
 		request.pathParams.id === request.body.providerPid ? "provider" : "consumer",
-		HeaderHelper.extractBearer(request.headers[HeaderTypes.Authorization])
+		httpRequestContext.processorState
+			.verifiableCredentialSubject as IIdentityAuthenticationActionRequest
 	);
 
 	return {
@@ -819,7 +892,8 @@ export async function pnpNegotiationOffer(
 	const component = ComponentFactory.get<IPolicyNegotiationPointComponent>(componentName);
 	const result = await component.offerFromProvider(
 		request.body,
-		HeaderHelper.extractBearer(request.headers[HeaderTypes.Authorization])
+		httpRequestContext.processorState
+			.verifiableCredentialSubject as IIdentityAuthenticationActionRequest
 	);
 
 	const isUpdate = Is.stringValue(request.pathParams?.id);
@@ -871,7 +945,8 @@ export async function pnpNegotiationAgreement(
 	const component = ComponentFactory.get<IPolicyNegotiationPointComponent>(componentName);
 	const result = await component.agreementFromProvider(
 		request.body,
-		HeaderHelper.extractBearer(request.headers[HeaderTypes.Authorization])
+		httpRequestContext.processorState
+			.verifiableCredentialSubject as IIdentityAuthenticationActionRequest
 	);
 
 	return {
