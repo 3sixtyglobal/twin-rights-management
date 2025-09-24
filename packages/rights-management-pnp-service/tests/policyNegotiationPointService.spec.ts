@@ -134,7 +134,7 @@ describe("PolicyNegotiationPointService", () => {
 			"test-controller",
 			docProvider.id,
 			"verificationMethod",
-			"rights-management-assertion"
+			"node-authentication-assertion"
 		);
 
 		const docConsumer = await identityConnector.createDocument("test-controller");
@@ -143,7 +143,7 @@ describe("PolicyNegotiationPointService", () => {
 			"test-controller",
 			docConsumer.id,
 			"verificationMethod",
-			"rights-management-assertion"
+			"node-authentication-assertion"
 		);
 
 		mockOffer = {

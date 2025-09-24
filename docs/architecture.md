@@ -87,7 +87,7 @@ An Agreement is a Policy containing both mandatory `assigner` and `assignee`. It
 
 ### Node
 
-A Node is an independently deployable TWIN runtime instance that can both publish Offers and acquire Agreements for remote data assets. Each Node exposes a DID document containing a verification method named (by convention) `rights-management-assertion` used for cross-node authorization tokens.
+A Node is an independently deployable TWIN runtime instance that can both publish Offers and acquire Agreements for remote data assets. Each Node exposes a DID document containing a verification method named (by convention) `node-authentication-assertion` used for cross-node authorization tokens.
 
 ## Authorization
 
@@ -97,12 +97,12 @@ Cross-node invocations are authenticated using a detached trust mechanism rather
 Authorization: Bearer <jwt>
 ```
 
-The JWT MUST be signed with the private key corresponding to the caller Node's DID verification method `rights-management-assertion`.
+The JWT MUST be signed with the private key corresponding to the caller Node's DID verification method `node-authentication-assertion`.
 
 Verification steps:
 
 1. Resolve caller DID document.
-2. Extract `rights-management-assertion` public key material.
+2. Extract `node-authentication-assertion` public key material.
 3. Verify signature and standard claims (iat/exp/nbf) plus domain-specific claims (e.g. requesting node id, audience).
 4. Reject if expired, malformed, unsupported algorithm, or key mismatch.
 
