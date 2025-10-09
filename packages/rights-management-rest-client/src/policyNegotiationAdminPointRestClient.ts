@@ -19,21 +19,21 @@ import type { IdsContractNegotiationStateType } from "@twin.org/standards-ids-co
 /**
  * Client for performing Rights Management Policy Negotiation Admin through to REST endpoints.
  */
-export class PolicyNegotiationAdminPointClient
+export class PolicyNegotiationAdminPointRestClient
 	extends BaseRestClient
 	implements IPolicyNegotiationAdminPointComponent
 {
 	/**
 	 * Runtime name for the class.
 	 */
-	public readonly CLASS_NAME: string = nameof<PolicyNegotiationAdminPointClient>();
+	public static readonly CLASS_NAME: string = nameof<PolicyNegotiationAdminPointRestClient>();
 
 	/**
 	 * Create a new instance of PolicyNegotiationAdminPointClient.
 	 * @param config The configuration for the client.
 	 */
 	constructor(config: IBaseRestClientConfig) {
-		super(nameof<PolicyNegotiationAdminPointClient>(), config, "rights-management");
+		super(nameof<PolicyNegotiationAdminPointRestClient>(), config, "rights-management");
 	}
 
 	/**
@@ -42,7 +42,7 @@ export class PolicyNegotiationAdminPointClient
 	 * @returns The policy negotiation.
 	 */
 	public async get(policyId: string): Promise<IPolicyNegotiation> {
-		Guards.stringValue(this.CLASS_NAME, nameof(policyId), policyId);
+		Guards.stringValue(PolicyNegotiationAdminPointRestClient.CLASS_NAME, nameof(policyId), policyId);
 
 		const response = await this.fetch<IPnapGetRequest, IPnapGetResponse>(
 			"/negotiations/admin/:policyId",
@@ -63,7 +63,11 @@ export class PolicyNegotiationAdminPointClient
 	 * @returns Nothing.
 	 */
 	public async set(negotiation: IPolicyNegotiation): Promise<void> {
-		Guards.object<IPolicyNegotiation>(this.CLASS_NAME, nameof(negotiation), negotiation);
+		Guards.object<IPolicyNegotiation>(
+			PolicyNegotiationAdminPointRestClient.CLASS_NAME,
+			nameof(negotiation),
+			negotiation
+		);
 
 		await this.fetch<IPnapSetRequest, INoContentResponse>("/negotiations/admin/:policyId", "PUT", {
 			pathParams: {
@@ -79,7 +83,7 @@ export class PolicyNegotiationAdminPointClient
 	 * @returns Nothing.
 	 */
 	public async remove(policyId: string): Promise<void> {
-		Guards.stringValue(this.CLASS_NAME, nameof(policyId), policyId);
+		Guards.stringValue(PolicyNegotiationAdminPointRestClient.CLASS_NAME, nameof(policyId), policyId);
 
 		await this.fetch<IPnapRemoveRequest, INoContentResponse>(
 			"/negotiations/admin/:policyId",

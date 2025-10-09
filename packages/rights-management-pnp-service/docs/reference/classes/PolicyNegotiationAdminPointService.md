@@ -30,13 +30,9 @@ The options for the component.
 
 ### CLASS\_NAME
 
-> `readonly` **CLASS\_NAME**: `string`
+> `readonly` `static` **CLASS\_NAME**: `string`
 
 The class name of the Policy Negotiation Admin Point Service.
-
-#### Implementation of
-
-`IPolicyNegotiationAdminPointComponent.CLASS_NAME`
 
 ## Methods
 

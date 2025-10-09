@@ -24,21 +24,21 @@ import type { IOdrlPolicy } from "@twin.org/standards-w3c-odrl";
 /**
  * Client for performing Rights Management Policy Administration through to REST endpoints.
  */
-export class PolicyAdministrationPointClient
+export class PolicyAdministrationPointRestClient
 	extends BaseRestClient
 	implements IPolicyAdministrationPointComponent
 {
 	/**
 	 * Runtime name for the class.
 	 */
-	public readonly CLASS_NAME: string = nameof<PolicyAdministrationPointClient>();
+	public static readonly CLASS_NAME: string = nameof<PolicyAdministrationPointRestClient>();
 
 	/**
 	 * Create a new instance of PolicyAdministrationPointClient.
 	 * @param config The configuration for the client.
 	 */
 	constructor(config: IBaseRestClientConfig) {
-		super(nameof<PolicyAdministrationPointClient>(), config, "rights-management");
+		super(nameof<PolicyAdministrationPointRestClient>(), config, "rights-management");
 	}
 
 	/**
@@ -47,7 +47,7 @@ export class PolicyAdministrationPointClient
 	 * @returns The UID of the created policy.
 	 */
 	public async create(policy: Omit<IOdrlPolicy, "uid"> & { uid?: string }): Promise<string> {
-		Guards.object(this.CLASS_NAME, nameof(policy), policy);
+		Guards.object(PolicyAdministrationPointRestClient.CLASS_NAME, nameof(policy), policy);
 
 		const response = await this.fetch<IPapCreateRequest, ICreatedResponse>(
 			"/policy/admin",
@@ -66,8 +66,8 @@ export class PolicyAdministrationPointClient
 	 * @returns Nothing.
 	 */
 	public async update(policy: IOdrlPolicy): Promise<void> {
-		Guards.object(this.CLASS_NAME, nameof(policy), policy);
-		Guards.stringValue(this.CLASS_NAME, "policy.uid", policy.uid);
+		Guards.object(PolicyAdministrationPointRestClient.CLASS_NAME, nameof(policy), policy);
+		Guards.stringValue(PolicyAdministrationPointRestClient.CLASS_NAME, nameof(policy.uid), policy.uid);
 
 		await this.fetch<IPapUpdateRequest, never>("/policy/admin/:id", "PUT", {
 			pathParams: {
@@ -83,7 +83,7 @@ export class PolicyAdministrationPointClient
 	 * @returns The policy.
 	 */
 	public async get(policyId: string): Promise<IOdrlPolicy> {
-		Guards.stringValue(this.CLASS_NAME, nameof(policyId), policyId);
+		Guards.stringValue(PolicyAdministrationPointRestClient.CLASS_NAME, nameof(policyId), policyId);
 
 		const response = await this.fetch<IPapGetRequest, IPapGetResponse>("/policy/admin/:id", "GET", {
 			pathParams: {
@@ -100,7 +100,7 @@ export class PolicyAdministrationPointClient
 	 * @returns Nothing.
 	 */
 	public async remove(policyId: string): Promise<void> {
-		Guards.stringValue(this.CLASS_NAME, nameof(policyId), policyId);
+		Guards.stringValue(PolicyAdministrationPointRestClient.CLASS_NAME, nameof(policyId), policyId);
 
 		await this.fetch<IPapRemoveRequest, never>("/policy/admin/:id", "DELETE", {
 			pathParams: {
@@ -113,13 +113,13 @@ export class PolicyAdministrationPointClient
 	 * Query the policies using the specified conditions.
 	 * @param conditions The conditions to use for the query.
 	 * @param cursor The cursor to use for pagination.
-	 * @param pageSize The number of results to return per page.
+	 * @param limit The number of results to return per page.
 	 * @returns Cursor for next page of results and the policies matching the query.
 	 */
 	public async query(
 		conditions?: EntityCondition<IOdrlPolicy>,
 		cursor?: string,
-		pageSize?: number
+		limit?: number
 	): Promise<{
 		cursor?: string;
 		policies: IOdrlPolicy[];
@@ -128,7 +128,7 @@ export class PolicyAdministrationPointClient
 			query: {
 				cursor,
 				conditions: HttpParameterHelper.objectToString(conditions),
-				pageSize: Coerce.string(pageSize)
+				limit: Coerce.string(limit)
 			}
 		});
 

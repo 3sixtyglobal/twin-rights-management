@@ -25,7 +25,7 @@ export class PolicyDecisionPointService implements IPolicyDecisionPointComponent
 	/**
 	 * The class name of the Policy Decision Point Service.
 	 */
-	public readonly CLASS_NAME: string = nameof<PolicyDecisionPointService>();
+	public static readonly CLASS_NAME: string = nameof<PolicyDecisionPointService>();
 
 	/**
 	 * The logging component.
@@ -94,7 +94,11 @@ export class PolicyDecisionPointService implements IPolicyDecisionPointComponent
 		locator: IPolicyLocator,
 		data?: D
 	): Promise<IPolicyDecision[]> {
-		Guards.objectValue<IPolicyLocator>(this.CLASS_NAME, nameof(locator), locator);
+		Guards.objectValue<IPolicyLocator>(
+			PolicyDecisionPointService.CLASS_NAME,
+			nameof(locator),
+			locator
+		);
 
 		const supportedArbiters = this._arbiters.filter(({ arbiter }) => {
 			const supportedPolicies = arbiter.supportedPolicies();
@@ -105,7 +109,7 @@ export class PolicyDecisionPointService implements IPolicyDecisionPointComponent
 		});
 
 		if (supportedArbiters.length === 0) {
-			throw new GeneralError(this.CLASS_NAME, "noSupportedArbiters", {
+			throw new GeneralError(PolicyDecisionPointService.CLASS_NAME, "noSupportedArbiters", {
 				locator: LocatorHelper.toString(locator)
 			});
 		}
@@ -144,7 +148,7 @@ export class PolicyDecisionPointService implements IPolicyDecisionPointComponent
 			} catch (error) {
 				this._logging?.log({
 					level: "error",
-					source: this.CLASS_NAME,
+					source: PolicyDecisionPointService.CLASS_NAME,
 					ts: Date.now(),
 					message: "decidingFailed",
 					data: {
@@ -154,7 +158,7 @@ export class PolicyDecisionPointService implements IPolicyDecisionPointComponent
 					error: BaseError.fromError(error)
 				});
 				throw new GeneralError(
-					this.CLASS_NAME,
+					PolicyDecisionPointService.CLASS_NAME,
 					"decidingFailed",
 					{ arbiterId, locator: LocatorHelper.toString(locator) },
 					error
@@ -180,8 +184,8 @@ export class PolicyDecisionPointService implements IPolicyDecisionPointComponent
 	 * @returns Nothing.
 	 */
 	public async registerArbiter(arbiterId: string, arbiter: IPolicyArbiter): Promise<void> {
-		Guards.stringValue(this.CLASS_NAME, nameof(arbiterId), arbiterId);
-		Guards.object<IPolicyArbiter>(this.CLASS_NAME, nameof(arbiter), arbiter);
+		Guards.stringValue(PolicyDecisionPointService.CLASS_NAME, nameof(arbiterId), arbiterId);
+		Guards.object<IPolicyArbiter>(PolicyDecisionPointService.CLASS_NAME, nameof(arbiter), arbiter);
 
 		const currentIndex = this._arbiters.findIndex(a => a.arbiterId === arbiterId);
 		if (currentIndex !== -1) {
@@ -192,7 +196,7 @@ export class PolicyDecisionPointService implements IPolicyDecisionPointComponent
 
 		this._logging?.log({
 			level: "info",
-			source: this.CLASS_NAME,
+			source: PolicyDecisionPointService.CLASS_NAME,
 			ts: Date.now(),
 			message: "registeredArbiter",
 			data: {
@@ -207,7 +211,7 @@ export class PolicyDecisionPointService implements IPolicyDecisionPointComponent
 	 * @returns Nothing.
 	 */
 	public async unregisterArbiter(arbiterId: string): Promise<void> {
-		Guards.stringValue(this.CLASS_NAME, nameof(arbiterId), arbiterId);
+		Guards.stringValue(PolicyDecisionPointService.CLASS_NAME, nameof(arbiterId), arbiterId);
 
 		const currentIndex = this._arbiters.findIndex(a => a.arbiterId === arbiterId);
 		if (currentIndex !== -1) {
@@ -216,7 +220,7 @@ export class PolicyDecisionPointService implements IPolicyDecisionPointComponent
 
 		this._logging?.log({
 			level: "info",
-			source: this.CLASS_NAME,
+			source: PolicyDecisionPointService.CLASS_NAME,
 			ts: Date.now(),
 			message: "unregisteredArbiter",
 			data: {

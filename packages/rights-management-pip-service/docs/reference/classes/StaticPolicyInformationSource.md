@@ -31,13 +31,9 @@ The options for the logging policy source.
 
 ### CLASS\_NAME
 
-> `readonly` **CLASS\_NAME**: `string`
+> `readonly` `static` **CLASS\_NAME**: `string`
 
 The class name of the Static Policy Information Source.
-
-#### Implementation of
-
-`IComponent.CLASS_NAME`
 
 ## Methods
 

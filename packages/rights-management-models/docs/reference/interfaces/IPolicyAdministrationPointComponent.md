@@ -6,6 +6,14 @@ Interface describing a Policy Administration Point (PAP) component that manages 
 
 - `IComponent`
 
+## Indexable
+
+\[`key`: `string`\]: `any`
+
+All methods are optional, so we introduce an index signature to allow
+any additional properties or methods, which removes the TypeScript error where
+the class has no properties in common with the type.
+
 ## Methods
 
 ### create()
@@ -98,7 +106,7 @@ Nothing.
 
 ### query()
 
-> **query**(`conditions?`, `cursor?`, `pageSize?`): `Promise`\<\{ `cursor?`: `string`; `policies`: `IOdrlPolicy`[]; \}\>
+> **query**(`conditions?`, `cursor?`, `limit?`): `Promise`\<\{ `cursor?`: `string`; `policies`: `IOdrlPolicy`[]; \}\>
 
 Query the policies using the specified conditions.
 
@@ -116,7 +124,7 @@ The conditions to use for the query.
 
 The cursor to use for pagination.
 
-##### pageSize?
+##### limit?
 
 `number`
 

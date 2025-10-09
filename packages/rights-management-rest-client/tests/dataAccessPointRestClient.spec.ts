@@ -4,16 +4,16 @@ import {
 	AuthenticationGeneratorFactory,
 	type IAuthenticationGenerator
 } from "@twin.org/api-models";
-import { PolicyNegotiationPointClient } from "../src/policyNegotiationPointClient";
+import { DataAccessPointRestClient } from "../src/dataAccessPointRestClient";
 
-describe("PolicyNegotiationPointClient", () => {
+describe("DataAccessPointRestClient", () => {
 	test("Can create an instance", async () => {
 		AuthenticationGeneratorFactory.register(
 			"verifiable-credential",
 			() => ({}) as IAuthenticationGenerator
 		);
 
-		const client = new PolicyNegotiationPointClient({ endpoint: "http://localhost:8080" });
+		const client = new DataAccessPointRestClient({ endpoint: "http://localhost:8080" });
 		expect(client).toBeDefined();
 	});
 });

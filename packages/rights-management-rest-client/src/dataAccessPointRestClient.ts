@@ -29,11 +29,11 @@ import { HeaderTypes, MimeTypes } from "@twin.org/web";
 /**
  * Client for performing Rights Management Data Access through to REST endpoints.
  */
-export class DataAccessPointClient extends BaseRestClient implements IDataAccessPointComponent {
+export class DataAccessPointRestClient extends BaseRestClient implements IDataAccessPointComponent {
 	/**
 	 * Runtime name for the class.
 	 */
-	public readonly CLASS_NAME: string = nameof<DataAccessPointClient>();
+	public static readonly CLASS_NAME: string = nameof<DataAccessPointRestClient>();
 
 	/**
 	 * Create a new instance of DataAccessPointClient.
@@ -41,7 +41,7 @@ export class DataAccessPointClient extends BaseRestClient implements IDataAccess
 	 */
 	constructor(config: IBaseRestClientConfig) {
 		super(
-			nameof<DataAccessPointClient>(),
+			nameof<DataAccessPointRestClient>(),
 			{
 				...config,
 				authenticationGeneratorType: config.authenticationGeneratorType ?? "verifiable-credential"
@@ -62,10 +62,10 @@ export class DataAccessPointClient extends BaseRestClient implements IDataAccess
 		item: IJsonLdNodeObject,
 		actionRequest: IIdentityAuthenticationActionRequest
 	): Promise<string> {
-		Guards.stringValue(this.CLASS_NAME, nameof(assetType), assetType);
-		Guards.object<IJsonLdNodeObject>(this.CLASS_NAME, nameof(item), item);
+		Guards.stringValue(DataAccessPointRestClient.CLASS_NAME, nameof(assetType), assetType);
+		Guards.object<IJsonLdNodeObject>(DataAccessPointRestClient.CLASS_NAME, nameof(item), item);
 		Guards.objectValue<IIdentityAuthenticationActionRequest>(
-			this.CLASS_NAME,
+			DataAccessPointRestClient.CLASS_NAME,
 			nameof(actionRequest),
 			actionRequest
 		);
@@ -104,10 +104,10 @@ export class DataAccessPointClient extends BaseRestClient implements IDataAccess
 		id: string,
 		actionRequest: IIdentityAuthenticationActionRequest
 	): Promise<IJsonLdNodeObject> {
-		Guards.stringValue(this.CLASS_NAME, nameof(assetType), assetType);
-		Guards.stringValue(this.CLASS_NAME, nameof(id), id);
+		Guards.stringValue(DataAccessPointRestClient.CLASS_NAME, nameof(assetType), assetType);
+		Guards.stringValue(DataAccessPointRestClient.CLASS_NAME, nameof(id), id);
 		Guards.objectValue<IIdentityAuthenticationActionRequest>(
-			this.CLASS_NAME,
+			DataAccessPointRestClient.CLASS_NAME,
 			nameof(actionRequest),
 			actionRequest
 		);
@@ -142,14 +142,14 @@ export class DataAccessPointClient extends BaseRestClient implements IDataAccess
 		item: IJsonLdNodeObject,
 		actionRequest: IIdentityAuthenticationActionRequest
 	): Promise<void> {
-		Guards.stringValue(this.CLASS_NAME, nameof(assetType), assetType);
-		Guards.object<IJsonLdNodeObject>(this.CLASS_NAME, nameof(item), item);
+		Guards.stringValue(DataAccessPointRestClient.CLASS_NAME, nameof(assetType), assetType);
+		Guards.object<IJsonLdNodeObject>(DataAccessPointRestClient.CLASS_NAME, nameof(item), item);
 		Guards.objectValue<IIdentityAuthenticationActionRequest>(
-			this.CLASS_NAME,
+			DataAccessPointRestClient.CLASS_NAME,
 			nameof(actionRequest),
 			actionRequest
 		);
-		Guards.stringValue(this.CLASS_NAME, nameof(item.id), item.id);
+		Guards.stringValue(DataAccessPointRestClient.CLASS_NAME, nameof(item.id), item.id);
 
 		await this.fetch<IDapUpdateRequest, INoContentResponse>("/data/:assetType/:id", "PUT", {
 			headers: {
@@ -180,10 +180,10 @@ export class DataAccessPointClient extends BaseRestClient implements IDataAccess
 		id: string,
 		actionRequest: IIdentityAuthenticationActionRequest
 	): Promise<void> {
-		Guards.stringValue(this.CLASS_NAME, nameof(assetType), assetType);
-		Guards.stringValue(this.CLASS_NAME, nameof(id), id);
+		Guards.stringValue(DataAccessPointRestClient.CLASS_NAME, nameof(assetType), assetType);
+		Guards.stringValue(DataAccessPointRestClient.CLASS_NAME, nameof(id), id);
 		Guards.objectValue<IIdentityAuthenticationActionRequest>(
-			this.CLASS_NAME,
+			DataAccessPointRestClient.CLASS_NAME,
 			nameof(actionRequest),
 			actionRequest
 		);
@@ -219,9 +219,9 @@ export class DataAccessPointClient extends BaseRestClient implements IDataAccess
 		items: IJsonLdNodeObject[];
 		cursor?: string;
 	}> {
-		Guards.stringValue(this.CLASS_NAME, nameof(assetType), assetType);
+		Guards.stringValue(DataAccessPointRestClient.CLASS_NAME, nameof(assetType), assetType);
 		Guards.objectValue<IIdentityAuthenticationActionRequest>(
-			this.CLASS_NAME,
+			DataAccessPointRestClient.CLASS_NAME,
 			nameof(actionRequest),
 			actionRequest
 		);
@@ -257,7 +257,7 @@ export class DataAccessPointClient extends BaseRestClient implements IDataAccess
 	 * @returns Nothing.
 	 */
 	public async registerHandler(handlerId: string, handler: IDataAccessHandler): Promise<void> {
-		throw new NotSupportedError(this.CLASS_NAME, "notSupportedOnClient", {
+		throw new NotSupportedError(DataAccessPointRestClient.CLASS_NAME, "notSupportedOnClient", {
 			method: "registerHandler"
 		});
 	}
@@ -268,7 +268,7 @@ export class DataAccessPointClient extends BaseRestClient implements IDataAccess
 	 * @returns Nothing.
 	 */
 	public async unregisterHandler(handlerId: string): Promise<void> {
-		throw new NotSupportedError(this.CLASS_NAME, "notSupportedOnClient", {
+		throw new NotSupportedError(DataAccessPointRestClient.CLASS_NAME, "notSupportedOnClient", {
 			method: "unregisterHandler"
 		});
 	}

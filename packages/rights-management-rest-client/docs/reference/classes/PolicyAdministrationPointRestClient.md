@@ -1,4 +1,4 @@
-# Class: PolicyAdministrationPointClient
+# Class: PolicyAdministrationPointRestClient
 
 Client for performing Rights Management Policy Administration through to REST endpoints.
 
@@ -14,7 +14,7 @@ Client for performing Rights Management Policy Administration through to REST en
 
 ### Constructor
 
-> **new PolicyAdministrationPointClient**(`config`): `PolicyAdministrationPointClient`
+> **new PolicyAdministrationPointRestClient**(`config`): `PolicyAdministrationPointRestClient`
 
 Create a new instance of PolicyAdministrationPointClient.
 
@@ -28,7 +28,7 @@ The configuration for the client.
 
 #### Returns
 
-`PolicyAdministrationPointClient`
+`PolicyAdministrationPointRestClient`
 
 #### Overrides
 
@@ -38,13 +38,9 @@ The configuration for the client.
 
 ### CLASS\_NAME
 
-> `readonly` **CLASS\_NAME**: `string`
+> `readonly` `static` **CLASS\_NAME**: `string`
 
 Runtime name for the class.
-
-#### Implementation of
-
-`IPolicyAdministrationPointComponent.CLASS_NAME`
 
 ## Methods
 
@@ -154,7 +150,7 @@ Nothing.
 
 ### query()
 
-> **query**(`conditions?`, `cursor?`, `pageSize?`): `Promise`\<\{ `cursor?`: `string`; `policies`: `IOdrlPolicy`[]; \}\>
+> **query**(`conditions?`, `cursor?`, `limit?`): `Promise`\<\{ `cursor?`: `string`; `policies`: `IOdrlPolicy`[]; \}\>
 
 Query the policies using the specified conditions.
 
@@ -172,7 +168,7 @@ The conditions to use for the query.
 
 The cursor to use for pagination.
 
-##### pageSize?
+##### limit?
 
 `number`
 

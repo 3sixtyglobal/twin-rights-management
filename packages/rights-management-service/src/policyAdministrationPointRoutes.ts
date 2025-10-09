@@ -388,7 +388,7 @@ export async function papQuery(
 	const result = await component.query(
 		HttpParameterHelper.objectFromString(request.query?.conditions),
 		request.query?.cursor,
-		Coerce.integer(request.query?.pageSize)
+		Coerce.integer(request.query?.limit)
 	);
 
 	return {

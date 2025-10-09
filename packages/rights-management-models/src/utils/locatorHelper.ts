@@ -64,6 +64,6 @@ export class LocatorHelper {
 		if (!Is.arrayValue(locators)) {
 			return undefined;
 		}
-		return locators.find(locator => this.matches(locator, targetLocator));
+		return locators.find(locator => LocatorHelper.matches(locator, targetLocator));
 	}
 }

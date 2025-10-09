@@ -20,7 +20,7 @@ export class LoggingPolicyExecutionAction implements IPolicyExecutionAction, ICo
 	/**
 	 * The class name of the Policy Execution Point Service.
 	 */
-	public readonly CLASS_NAME: string = nameof<LoggingPolicyExecutionAction>();
+	public static readonly CLASS_NAME: string = nameof<LoggingPolicyExecutionAction>();
 
 	/**
 	 * The logging component.
@@ -91,8 +91,17 @@ export class LoggingPolicyExecutionAction implements IPolicyExecutionAction, ICo
 		decisions?: IPolicyDecision[],
 		data?: D
 	): Promise<void> {
-		Guards.arrayOneOf(this.CLASS_NAME, nameof(stage), stage, Object.values(PolicyDecisionStage));
-		Guards.object<IPolicyLocator>(this.CLASS_NAME, nameof(locator), locator);
+		Guards.arrayOneOf(
+			LoggingPolicyExecutionAction.CLASS_NAME,
+			nameof(stage),
+			stage,
+			Object.values(PolicyDecisionStage)
+		);
+		Guards.object<IPolicyLocator>(
+			LoggingPolicyExecutionAction.CLASS_NAME,
+			nameof(locator),
+			locator
+		);
 
 		if (this._stages.includes(stage)) {
 			// Even if we don't have the options to include data or include policies we
@@ -104,19 +113,35 @@ export class LoggingPolicyExecutionAction implements IPolicyExecutionAction, ICo
 			const logPolicies = this._includePolicies ? policies : "[...]";
 			const logDecisions = this._includeDecisions ? decisions : "[...]";
 
-			this._logging.log({
-				level: "info",
-				source: this.CLASS_NAME,
-				ts: Date.now(),
-				message: `policyActionExecuted${stage === PolicyDecisionStage.Before ? "Before" : "After"}`,
-				data: {
-					locator: LocatorHelper.toString(locator),
-					data: logData,
-					policies: logPolicies,
-					decisions: logDecisions,
-					stage
-				}
-			});
+			if (stage === PolicyDecisionStage.Before) {
+				this._logging.log({
+					level: "info",
+					source: LoggingPolicyExecutionAction.CLASS_NAME,
+					ts: Date.now(),
+					message: "policyActionExecutedBefore",
+					data: {
+						locator: LocatorHelper.toString(locator),
+						data: logData,
+						policies: logPolicies,
+						decisions: logDecisions,
+						stage
+					}
+				});
+			} else {
+				this._logging.log({
+					level: "info",
+					source: LoggingPolicyExecutionAction.CLASS_NAME,
+					ts: Date.now(),
+					message: "policyActionExecutedAfter",
+					data: {
+						locator: LocatorHelper.toString(locator),
+						data: logData,
+						policies: logPolicies,
+						decisions: logDecisions,
+						stage
+					}
+				});
+			}
 		}
 	}
 }

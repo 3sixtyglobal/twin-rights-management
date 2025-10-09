@@ -1,4 +1,4 @@
-# Class: PolicyNegotiationPointClient
+# Class: PolicyNegotiationPointRestClient
 
 Client for performing Rights Management Policy Negotiation through to REST endpoints.
 
@@ -14,7 +14,7 @@ Client for performing Rights Management Policy Negotiation through to REST endpo
 
 ### Constructor
 
-> **new PolicyNegotiationPointClient**(`config`): `PolicyNegotiationPointClient`
+> **new PolicyNegotiationPointRestClient**(`config`): `PolicyNegotiationPointRestClient`
 
 Create a new instance of PolicyNegotiationPointClient.
 
@@ -28,7 +28,7 @@ The configuration for the client.
 
 #### Returns
 
-`PolicyNegotiationPointClient`
+`PolicyNegotiationPointRestClient`
 
 #### Overrides
 
@@ -38,13 +38,9 @@ The configuration for the client.
 
 ### CLASS\_NAME
 
-> `readonly` **CLASS\_NAME**: `string`
+> `readonly` `static` **CLASS\_NAME**: `string`
 
 Runtime name for the class.
-
-#### Implementation of
-
-`IPolicyNegotiationPointComponent.CLASS_NAME`
 
 ## Methods
 

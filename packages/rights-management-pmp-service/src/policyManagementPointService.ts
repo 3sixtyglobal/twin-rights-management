@@ -20,7 +20,7 @@ export class PolicyManagementPointService implements IPolicyManagementPointCompo
 	/**
 	 * The class name of the Policy Management Point Service.
 	 */
-	public readonly CLASS_NAME: string = nameof<PolicyManagementPointService>();
+	public static readonly CLASS_NAME: string = nameof<PolicyManagementPointService>();
 
 	/**
 	 * The logging component.
@@ -63,23 +63,43 @@ export class PolicyManagementPointService implements IPolicyManagementPointCompo
 		policies: IOdrlPolicy[];
 		cursor?: string;
 	}> {
-		Guards.object<IPolicyLocator>(this.CLASS_NAME, nameof(locator), locator);
+		Guards.object<IPolicyLocator>(
+			PolicyManagementPointService.CLASS_NAME,
+			nameof(locator),
+			locator
+		);
 		if (!Is.empty(locator.assetType)) {
-			Guards.string(this.CLASS_NAME, nameof(locator.assetType), locator.assetType);
+			Guards.string(
+				PolicyManagementPointService.CLASS_NAME,
+				nameof(locator.assetType),
+				locator.assetType
+			);
 		}
 		if (!Is.empty(locator.action)) {
-			Guards.string(this.CLASS_NAME, nameof(locator.action), locator.action);
+			Guards.string(
+				PolicyManagementPointService.CLASS_NAME,
+				nameof(locator.action),
+				locator.action
+			);
 		}
 		if (!Is.empty(locator.assignee)) {
-			Guards.string(this.CLASS_NAME, nameof(locator.assignee), locator.assignee);
+			Guards.string(
+				PolicyManagementPointService.CLASS_NAME,
+				nameof(locator.assignee),
+				locator.assignee
+			);
 		}
 		if (!Is.empty(locator.resourceId)) {
-			Guards.string(this.CLASS_NAME, nameof(locator.resourceId), locator.resourceId);
+			Guards.string(
+				PolicyManagementPointService.CLASS_NAME,
+				nameof(locator.resourceId),
+				locator.resourceId
+			);
 		}
 
 		this._logging?.log({
 			level: "info",
-			source: this.CLASS_NAME,
+			source: PolicyManagementPointService.CLASS_NAME,
 			ts: Date.now(),
 			message: "retrieving",
 			data: { locator: LocatorHelper.toString(locator) }
@@ -113,7 +133,7 @@ export class PolicyManagementPointService implements IPolicyManagementPointCompo
 
 		this._logging?.log({
 			level: "info",
-			source: this.CLASS_NAME,
+			source: PolicyManagementPointService.CLASS_NAME,
 			ts: Date.now(),
 			message: "retrieved",
 			data: {

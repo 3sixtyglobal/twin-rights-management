@@ -30,13 +30,9 @@ The options for the component.
 
 ### CLASS\_NAME
 
-> `readonly` **CLASS\_NAME**: `string`
+> `readonly` `static` **CLASS\_NAME**: `string`
 
 The class name of the Policy Decision Point Service.
-
-#### Implementation of
-
-`IPolicyDecisionPointComponent.CLASS_NAME`
 
 ## Methods
 

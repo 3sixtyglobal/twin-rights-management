@@ -21,7 +21,7 @@ export class PolicyInformationPointService implements IPolicyInformationPointCom
 	/**
 	 * The class name of the Policy Information Point Service.
 	 */
-	public readonly CLASS_NAME: string = nameof<PolicyInformationPointService>();
+	public static readonly CLASS_NAME: string = nameof<PolicyInformationPointService>();
 
 	/**
 	 * The logging component.
@@ -63,9 +63,13 @@ export class PolicyInformationPointService implements IPolicyInformationPointCom
 		policies?: IOdrlPolicy[],
 		data?: D
 	): Promise<IPolicyInformation> {
-		Guards.object<IPolicyLocator>(this.CLASS_NAME, nameof(locator), locator);
+		Guards.object<IPolicyLocator>(
+			PolicyInformationPointService.CLASS_NAME,
+			nameof(locator),
+			locator
+		);
 		Guards.arrayOneOf(
-			this.CLASS_NAME,
+			PolicyInformationPointService.CLASS_NAME,
 			nameof(accessMode),
 			accessMode,
 			Object.values(PolicyInformationAccessMode)
@@ -84,7 +88,7 @@ export class PolicyInformationPointService implements IPolicyInformationPointCom
 				} catch (error) {
 					this._logging?.log({
 						level: "error",
-						source: this.CLASS_NAME,
+						source: PolicyInformationPointService.CLASS_NAME,
 						ts: Date.now(),
 						message: "sourceRetrieveFailed",
 						data: {
@@ -107,8 +111,12 @@ export class PolicyInformationPointService implements IPolicyInformationPointCom
 	 * @returns Nothing.
 	 */
 	public async registerSource(sourceId: string, source: IPolicyInformationSource): Promise<void> {
-		Guards.stringValue(this.CLASS_NAME, nameof(sourceId), sourceId);
-		Guards.objectValue<IPolicyInformationSource>(this.CLASS_NAME, nameof(source), source);
+		Guards.stringValue(PolicyInformationPointService.CLASS_NAME, nameof(sourceId), sourceId);
+		Guards.objectValue<IPolicyInformationSource>(
+			PolicyInformationPointService.CLASS_NAME,
+			nameof(source),
+			source
+		);
 
 		const currentIndex = this._sources.findIndex(s => s.sourceId === sourceId);
 		if (currentIndex !== -1) {
@@ -119,7 +127,7 @@ export class PolicyInformationPointService implements IPolicyInformationPointCom
 
 		this._logging?.log({
 			level: "info",
-			source: this.CLASS_NAME,
+			source: PolicyInformationPointService.CLASS_NAME,
 			ts: Date.now(),
 			message: "registeredSource",
 			data: {
@@ -134,7 +142,7 @@ export class PolicyInformationPointService implements IPolicyInformationPointCom
 	 * @returns Nothing.
 	 */
 	public async unregisterSource(sourceId: string): Promise<void> {
-		Guards.stringValue(this.CLASS_NAME, nameof(sourceId), sourceId);
+		Guards.stringValue(PolicyInformationPointService.CLASS_NAME, nameof(sourceId), sourceId);
 
 		const currentIndex = this._sources.findIndex(s => s.sourceId === sourceId);
 		if (currentIndex !== -1) {
@@ -143,7 +151,7 @@ export class PolicyInformationPointService implements IPolicyInformationPointCom
 
 		this._logging?.log({
 			level: "info",
-			source: this.CLASS_NAME,
+			source: PolicyInformationPointService.CLASS_NAME,
 			ts: Date.now(),
 			message: "unregisteredSource",
 			data: {

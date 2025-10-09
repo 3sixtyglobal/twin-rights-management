@@ -22,15 +22,15 @@ import type { IPolicyNegotiationAdminPointServiceConstructorOptions } from "./mo
  */
 export class PolicyNegotiationAdminPointService implements IPolicyNegotiationAdminPointComponent {
 	/**
+	 * The class name of the Policy Negotiation Admin Point Service.
+	 */
+	public static readonly CLASS_NAME: string = nameof<PolicyNegotiationAdminPointService>();
+
+	/**
 	 * The default time-to-live (TTL) for negotiation states in minutes.
 	 * @default 1440
 	 */
 	private static readonly _DEFAULT_NEGOTIATION_STATE_TTL_DEFAULT_MINUTES = 1440; // One Day
-
-	/**
-	 * The class name of the Policy Negotiation Admin Point Service.
-	 */
-	public readonly CLASS_NAME: string = nameof<PolicyNegotiationAdminPointService>();
 
 	/**
 	 * The logging component.
@@ -121,11 +121,11 @@ export class PolicyNegotiationAdminPointService implements IPolicyNegotiationAdm
 	 * @returns The policy negotiation.
 	 */
 	public async get(id: string): Promise<IPolicyNegotiation> {
-		Guards.stringValue(this.CLASS_NAME, nameof(id), id);
+		Guards.stringValue(PolicyNegotiationAdminPointService.CLASS_NAME, nameof(id), id);
 
 		const entity = await this._policyNegotiationEntityStorage.get(id);
 		if (Is.empty(entity)) {
-			throw new NotFoundError(this.CLASS_NAME, "policyNotFound", id);
+			throw new NotFoundError(PolicyNegotiationAdminPointService.CLASS_NAME, "policyNotFound", id);
 		}
 		return this.entityToModel(entity);
 	}
@@ -136,7 +136,11 @@ export class PolicyNegotiationAdminPointService implements IPolicyNegotiationAdm
 	 * @returns Nothing.
 	 */
 	public async set(negotiation: IPolicyNegotiation): Promise<void> {
-		Guards.object<IPolicyNegotiation>(this.CLASS_NAME, nameof(negotiation), negotiation);
+		Guards.object<IPolicyNegotiation>(
+			PolicyNegotiationAdminPointService.CLASS_NAME,
+			nameof(negotiation),
+			negotiation
+		);
 		const entity = this.modelToEntity(negotiation);
 
 		// Every time the negotiation is updated, extend the expiry time
@@ -157,7 +161,7 @@ export class PolicyNegotiationAdminPointService implements IPolicyNegotiationAdm
 	 * @returns Nothing.
 	 */
 	public async remove(policyId: string): Promise<void> {
-		Guards.stringValue(this.CLASS_NAME, nameof(policyId), policyId);
+		Guards.stringValue(PolicyNegotiationAdminPointService.CLASS_NAME, nameof(policyId), policyId);
 		await this._policyNegotiationEntityStorage.remove(policyId);
 	}
 

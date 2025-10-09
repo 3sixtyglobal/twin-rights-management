@@ -21,7 +21,7 @@ export class PolicyExecutionPointService implements IPolicyExecutionPointCompone
 	/**
 	 * The class name of the Policy Execution Point Service.
 	 */
-	public readonly CLASS_NAME: string = nameof<PolicyExecutionPointService>();
+	public static readonly CLASS_NAME: string = nameof<PolicyExecutionPointService>();
 
 	/**
 	 * The logging component.
@@ -89,14 +89,19 @@ export class PolicyExecutionPointService implements IPolicyExecutionPointCompone
 		decisions?: IPolicyDecision[],
 		data?: D
 	): Promise<void> {
-		Guards.arrayOneOf(this.CLASS_NAME, nameof(stage), stage, Object.values(PolicyDecisionStage));
-		Guards.object<IPolicyLocator>(this.CLASS_NAME, nameof(locator), locator);
+		Guards.arrayOneOf(
+			PolicyExecutionPointService.CLASS_NAME,
+			nameof(stage),
+			stage,
+			Object.values(PolicyDecisionStage)
+		);
+		Guards.object<IPolicyLocator>(PolicyExecutionPointService.CLASS_NAME, nameof(locator), locator);
 
 		const locatorDetails = LocatorHelper.toString(locator);
 
 		this._logging?.log({
 			level: "info",
-			source: this.CLASS_NAME,
+			source: PolicyExecutionPointService.CLASS_NAME,
 			ts: Date.now(),
 			message: "executingActions",
 			data: {
@@ -109,7 +114,7 @@ export class PolicyExecutionPointService implements IPolicyExecutionPointCompone
 			try {
 				this._logging?.log({
 					level: "info",
-					source: this.CLASS_NAME,
+					source: PolicyExecutionPointService.CLASS_NAME,
 					ts: Date.now(),
 					message: "executingAction",
 					data: {
@@ -121,7 +126,7 @@ export class PolicyExecutionPointService implements IPolicyExecutionPointCompone
 			} catch (error) {
 				this._logging?.log({
 					level: "error",
-					source: this.CLASS_NAME,
+					source: PolicyExecutionPointService.CLASS_NAME,
 					ts: Date.now(),
 					message: "actionExecutionFailed",
 					data: {
@@ -132,7 +137,7 @@ export class PolicyExecutionPointService implements IPolicyExecutionPointCompone
 					error: BaseError.fromError(error)
 				});
 				throw new GeneralError(
-					this.CLASS_NAME,
+					PolicyExecutionPointService.CLASS_NAME,
 					"actionExecutionFailed",
 					{
 						actionId,
@@ -157,9 +162,18 @@ export class PolicyExecutionPointService implements IPolicyExecutionPointCompone
 		stage: PolicyDecisionStage,
 		action: IPolicyExecutionAction
 	): Promise<void> {
-		Guards.stringValue(this.CLASS_NAME, nameof(actionId), actionId);
-		Guards.arrayOneOf(this.CLASS_NAME, nameof(stage), stage, Object.values(PolicyDecisionStage));
-		Guards.object<IPolicyExecutionAction>(this.CLASS_NAME, nameof(action), action);
+		Guards.stringValue(PolicyExecutionPointService.CLASS_NAME, nameof(actionId), actionId);
+		Guards.arrayOneOf(
+			PolicyExecutionPointService.CLASS_NAME,
+			nameof(stage),
+			stage,
+			Object.values(PolicyDecisionStage)
+		);
+		Guards.object<IPolicyExecutionAction>(
+			PolicyExecutionPointService.CLASS_NAME,
+			nameof(action),
+			action
+		);
 
 		const currentIndex = this._executionActions[stage].findIndex(a => a.actionId === actionId);
 		if (currentIndex !== -1) {
@@ -173,7 +187,7 @@ export class PolicyExecutionPointService implements IPolicyExecutionPointCompone
 
 		this._logging?.log({
 			level: "info",
-			source: this.CLASS_NAME,
+			source: PolicyExecutionPointService.CLASS_NAME,
 			ts: Date.now(),
 			message: "registeredAction",
 			data: {
@@ -190,8 +204,13 @@ export class PolicyExecutionPointService implements IPolicyExecutionPointCompone
 	 * @returns Nothing.
 	 */
 	public async unregisterAction(actionId: string, stage: PolicyDecisionStage): Promise<void> {
-		Guards.stringValue(this.CLASS_NAME, nameof(actionId), actionId);
-		Guards.arrayOneOf(this.CLASS_NAME, nameof(stage), stage, Object.values(PolicyDecisionStage));
+		Guards.stringValue(PolicyExecutionPointService.CLASS_NAME, nameof(actionId), actionId);
+		Guards.arrayOneOf(
+			PolicyExecutionPointService.CLASS_NAME,
+			nameof(stage),
+			stage,
+			Object.values(PolicyDecisionStage)
+		);
 
 		const currentIndex = this._executionActions[stage].findIndex(a => a.actionId === actionId);
 		if (currentIndex !== -1) {
@@ -200,7 +219,7 @@ export class PolicyExecutionPointService implements IPolicyExecutionPointCompone
 
 		this._logging?.log({
 			level: "info",
-			source: this.CLASS_NAME,
+			source: PolicyExecutionPointService.CLASS_NAME,
 			ts: Date.now(),
 			message: "unregisteredAction",
 			data: {

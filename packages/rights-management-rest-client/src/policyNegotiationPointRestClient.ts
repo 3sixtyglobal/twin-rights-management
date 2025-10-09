@@ -35,14 +35,14 @@ import { HeaderTypes, MimeTypes } from "@twin.org/web";
 /**
  * Client for performing Rights Management Policy Negotiation through to REST endpoints.
  */
-export class PolicyNegotiationPointClient
+export class PolicyNegotiationPointRestClient
 	extends BaseRestClient
 	implements IPolicyNegotiationPointComponent
 {
 	/**
 	 * Runtime name for the class.
 	 */
-	public readonly CLASS_NAME: string = nameof<PolicyNegotiationPointClient>();
+	public static readonly CLASS_NAME: string = nameof<PolicyNegotiationPointRestClient>();
 
 	/**
 	 * Create a new instance of PolicyNegotiationPointClient.
@@ -50,7 +50,7 @@ export class PolicyNegotiationPointClient
 	 */
 	constructor(config: IBaseRestClientConfig) {
 		super(
-			nameof<PolicyNegotiationPointClient>(),
+			nameof<PolicyNegotiationPointRestClient>(),
 			{
 				...config,
 				authenticationGeneratorType: config.authenticationGeneratorType ?? "verifiable-credential"
@@ -69,9 +69,9 @@ export class PolicyNegotiationPointClient
 		id: string,
 		actionRequest: IIdentityAuthenticationActionRequest
 	): Promise<IIdsContractNegotiation | IIdsContractNegotiationError> {
-		Guards.stringValue(this.CLASS_NAME, nameof(id), id);
+		Guards.stringValue(PolicyNegotiationPointRestClient.CLASS_NAME, nameof(id), id);
 		Guards.objectValue<IIdentityAuthenticationActionRequest>(
-			this.CLASS_NAME,
+			PolicyNegotiationPointRestClient.CLASS_NAME,
 			nameof(actionRequest),
 			actionRequest
 		);
@@ -105,7 +105,7 @@ export class PolicyNegotiationPointClient
 		requesterId: string,
 		odrlOfferId: string
 	): Promise<string> {
-		throw new NotSupportedError(this.CLASS_NAME, "notSupportedOnClient", {
+		throw new NotSupportedError(PolicyNegotiationPointRestClient.CLASS_NAME, "notSupportedOnClient", {
 			method: "sendRequestToProvider"
 		});
 	}
@@ -120,16 +120,36 @@ export class PolicyNegotiationPointClient
 		message: IIdsContractRequestMessage,
 		actionRequest: IIdentityAuthenticationActionRequest
 	): Promise<IIdsContractNegotiation | IIdsContractNegotiationError> {
-		Guards.object<IIdsContractRequestMessage>(this.CLASS_NAME, nameof(message), message);
-		Guards.stringValue(this.CLASS_NAME, nameof(message.consumerPid), message.consumerPid);
-		Guards.object<IOdrlOffer["offer"]>(this.CLASS_NAME, nameof(message.offer), message.offer);
-		Guards.stringValue(this.CLASS_NAME, nameof(message.offer.uid), message.offer.uid);
+		Guards.object<IIdsContractRequestMessage>(
+			PolicyNegotiationPointRestClient.CLASS_NAME,
+			nameof(message),
+			message
+		);
+		Guards.stringValue(
+			PolicyNegotiationPointRestClient.CLASS_NAME,
+			nameof(message.consumerPid),
+			message.consumerPid
+		);
+		Guards.object<IOdrlOffer["offer"]>(
+			PolicyNegotiationPointRestClient.CLASS_NAME,
+			nameof(message.offer),
+			message.offer
+		);
+		Guards.stringValue(
+			PolicyNegotiationPointRestClient.CLASS_NAME,
+			nameof(message.offer.uid),
+			message.offer.uid
+		);
 		Guards.objectValue<IIdentityAuthenticationActionRequest>(
-			this.CLASS_NAME,
+			PolicyNegotiationPointRestClient.CLASS_NAME,
 			nameof(actionRequest),
 			actionRequest
 		);
-		Url.guard(this.CLASS_NAME, nameof(message.callbackAddress), message.callbackAddress);
+		Url.guard(
+			PolicyNegotiationPointRestClient.CLASS_NAME,
+			nameof(message.callbackAddress),
+			message.callbackAddress
+		);
 
 		const response = await this.fetch<IPnpNegotiateRequest, IPnpContractNegotiationResponse>(
 			Is.stringValue(message.providerPid)
@@ -161,13 +181,21 @@ export class PolicyNegotiationPointClient
 		message: IIdsContractOfferMessage,
 		actionRequest: IIdentityAuthenticationActionRequest
 	): Promise<IIdsContractNegotiation | IIdsContractNegotiationError> {
-		Guards.object<IIdsContractOfferMessage>(this.CLASS_NAME, nameof(message), message);
+		Guards.object<IIdsContractOfferMessage>(
+			PolicyNegotiationPointRestClient.CLASS_NAME,
+			nameof(message),
+			message
+		);
 		Guards.objectValue<IIdentityAuthenticationActionRequest>(
-			this.CLASS_NAME,
+			PolicyNegotiationPointRestClient.CLASS_NAME,
 			nameof(actionRequest),
 			actionRequest
 		);
-		Guards.stringValue(this.CLASS_NAME, nameof(message.providerPid), message.providerPid);
+		Guards.stringValue(
+			PolicyNegotiationPointRestClient.CLASS_NAME,
+			nameof(message.providerPid),
+			message.providerPid
+		);
 
 		const response = await this.fetch<IPnpOfferRequest, IPnpContractNegotiationResponse>(
 			Is.stringValue(message.consumerPid)
@@ -199,15 +227,31 @@ export class PolicyNegotiationPointClient
 		message: IIdsContractAgreementMessage,
 		actionRequest: IIdentityAuthenticationActionRequest
 	): Promise<IIdsContractNegotiationError | undefined> {
-		Guards.object<IIdsContractAgreementMessage>(this.CLASS_NAME, nameof(message), message);
+		Guards.object<IIdsContractAgreementMessage>(
+			PolicyNegotiationPointRestClient.CLASS_NAME,
+			nameof(message),
+			message
+		);
 		Guards.objectValue<IIdentityAuthenticationActionRequest>(
-			this.CLASS_NAME,
+			PolicyNegotiationPointRestClient.CLASS_NAME,
 			nameof(actionRequest),
 			actionRequest
 		);
-		Guards.stringValue(this.CLASS_NAME, nameof(message.providerPid), message.providerPid);
-		Guards.stringValue(this.CLASS_NAME, nameof(message.consumerPid), message.consumerPid);
-		Url.guard(this.CLASS_NAME, nameof(message.callbackAddress), message.callbackAddress);
+		Guards.stringValue(
+			PolicyNegotiationPointRestClient.CLASS_NAME,
+			nameof(message.providerPid),
+			message.providerPid
+		);
+		Guards.stringValue(
+			PolicyNegotiationPointRestClient.CLASS_NAME,
+			nameof(message.consumerPid),
+			message.consumerPid
+		);
+		Url.guard(
+			PolicyNegotiationPointRestClient.CLASS_NAME,
+			nameof(message.callbackAddress),
+			message.callbackAddress
+		);
 
 		const response = await this.fetch<IPnpAgreementRequest, IPnpContractResponse>(
 			"/pnp/negotiations/:id/agreement",
@@ -237,14 +281,26 @@ export class PolicyNegotiationPointClient
 		message: IIdsContractAgreementVerificationMessage,
 		actionRequest: IIdentityAuthenticationActionRequest
 	): Promise<IIdsContractNegotiationError | undefined> {
-		Guards.object<IIdsContractAgreementMessage>(this.CLASS_NAME, nameof(message), message);
+		Guards.object<IIdsContractAgreementMessage>(
+			PolicyNegotiationPointRestClient.CLASS_NAME,
+			nameof(message),
+			message
+		);
 		Guards.objectValue<IIdentityAuthenticationActionRequest>(
-			this.CLASS_NAME,
+			PolicyNegotiationPointRestClient.CLASS_NAME,
 			nameof(actionRequest),
 			actionRequest
 		);
-		Guards.stringValue(this.CLASS_NAME, nameof(message.providerPid), message.providerPid);
-		Guards.stringValue(this.CLASS_NAME, nameof(message.consumerPid), message.consumerPid);
+		Guards.stringValue(
+			PolicyNegotiationPointRestClient.CLASS_NAME,
+			nameof(message.providerPid),
+			message.providerPid
+		);
+		Guards.stringValue(
+			PolicyNegotiationPointRestClient.CLASS_NAME,
+			nameof(message.consumerPid),
+			message.consumerPid
+		);
 
 		const response = await this.fetch<IPnpAgreementVerificationRequest, IPnpContractResponse>(
 			"/pnp/negotiations/:id/agreement/verification",
@@ -276,15 +332,30 @@ export class PolicyNegotiationPointClient
 		destination: "provider" | "consumer",
 		actionRequest: IIdentityAuthenticationActionRequest
 	): Promise<IIdsContractNegotiationError | undefined> {
-		Guards.object<IIdsContractNegotiationEventMessage>(this.CLASS_NAME, nameof(message), message);
-		Guards.arrayOneOf(this.CLASS_NAME, nameof(destination), destination, ["provider", "consumer"]);
+		Guards.object<IIdsContractNegotiationEventMessage>(
+			PolicyNegotiationPointRestClient.CLASS_NAME,
+			nameof(message),
+			message
+		);
+		Guards.arrayOneOf(PolicyNegotiationPointRestClient.CLASS_NAME, nameof(destination), destination, [
+			"provider",
+			"consumer"
+		]);
 		Guards.objectValue<IIdentityAuthenticationActionRequest>(
-			this.CLASS_NAME,
+			PolicyNegotiationPointRestClient.CLASS_NAME,
 			nameof(actionRequest),
 			actionRequest
 		);
-		Guards.stringValue(this.CLASS_NAME, nameof(message.providerPid), message.providerPid);
-		Guards.stringValue(this.CLASS_NAME, nameof(message.consumerPid), message.consumerPid);
+		Guards.stringValue(
+			PolicyNegotiationPointRestClient.CLASS_NAME,
+			nameof(message.providerPid),
+			message.providerPid
+		);
+		Guards.stringValue(
+			PolicyNegotiationPointRestClient.CLASS_NAME,
+			nameof(message.consumerPid),
+			message.consumerPid
+		);
 
 		const response = await this.fetch<IPnpEventRequest, IPnpContractResponse>(
 			"/pnp/negotiations/:id/events",
@@ -317,18 +388,29 @@ export class PolicyNegotiationPointClient
 		actionRequest: IIdentityAuthenticationActionRequest
 	): Promise<IIdsContractNegotiationError | undefined> {
 		Guards.object<IIdsContractNegotiationTerminationMessage>(
-			this.CLASS_NAME,
+			PolicyNegotiationPointRestClient.CLASS_NAME,
 			nameof(message),
 			message
 		);
-		Guards.arrayOneOf(this.CLASS_NAME, nameof(destination), destination, ["provider", "consumer"]);
+		Guards.arrayOneOf(PolicyNegotiationPointRestClient.CLASS_NAME, nameof(destination), destination, [
+			"provider",
+			"consumer"
+		]);
 		Guards.objectValue<IIdentityAuthenticationActionRequest>(
-			this.CLASS_NAME,
+			PolicyNegotiationPointRestClient.CLASS_NAME,
 			nameof(actionRequest),
 			actionRequest
 		);
-		Guards.stringValue(this.CLASS_NAME, nameof(message.providerPid), message.providerPid);
-		Guards.stringValue(this.CLASS_NAME, nameof(message.consumerPid), message.consumerPid);
+		Guards.stringValue(
+			PolicyNegotiationPointRestClient.CLASS_NAME,
+			nameof(message.providerPid),
+			message.providerPid
+		);
+		Guards.stringValue(
+			PolicyNegotiationPointRestClient.CLASS_NAME,
+			nameof(message.consumerPid),
+			message.consumerPid
+		);
 
 		const response = await this.fetch<IPnpTerminateRequest, IPnpContractResponse>(
 			"/pnp/negotiations/:id/termination",
@@ -358,7 +440,7 @@ export class PolicyNegotiationPointClient
 		negotiatorId: string,
 		negotiator: IPolicyNegotiator
 	): Promise<void> {
-		throw new NotSupportedError(this.CLASS_NAME, "notSupportedOnClient", {
+		throw new NotSupportedError(PolicyNegotiationPointRestClient.CLASS_NAME, "notSupportedOnClient", {
 			method: "registerNegotiator"
 		});
 	}
@@ -369,7 +451,7 @@ export class PolicyNegotiationPointClient
 	 * @returns Nothing.
 	 */
 	public async unregisterNegotiator(negotiatorId: string): Promise<void> {
-		throw new NotSupportedError(this.CLASS_NAME, "notSupportedOnClient", {
+		throw new NotSupportedError(PolicyNegotiationPointRestClient.CLASS_NAME, "notSupportedOnClient", {
 			method: "unregisterNegotiator"
 		});
 	}
@@ -381,7 +463,7 @@ export class PolicyNegotiationPointClient
 	 * @returns Nothing.
 	 */
 	public async registerRequester(requesterId: string, requester: IPolicyRequester): Promise<void> {
-		throw new NotSupportedError(this.CLASS_NAME, "notSupportedOnClient", {
+		throw new NotSupportedError(PolicyNegotiationPointRestClient.CLASS_NAME, "notSupportedOnClient", {
 			method: "registerRequester"
 		});
 	}
@@ -392,7 +474,7 @@ export class PolicyNegotiationPointClient
 	 * @returns Nothing.
 	 */
 	public async unregisterRequester(requesterId: string): Promise<void> {
-		throw new NotSupportedError(this.CLASS_NAME, "notSupportedOnClient", {
+		throw new NotSupportedError(PolicyNegotiationPointRestClient.CLASS_NAME, "notSupportedOnClient", {
 			method: "unregisterRequester"
 		});
 	}
@@ -403,7 +485,7 @@ export class PolicyNegotiationPointClient
 	 * @returns Nothing.
 	 */
 	public async registerOffer(offer: IOdrlOffer): Promise<void> {
-		throw new NotSupportedError(this.CLASS_NAME, "notSupportedOnClient", {
+		throw new NotSupportedError(PolicyNegotiationPointRestClient.CLASS_NAME, "notSupportedOnClient", {
 			method: "registerOffer"
 		});
 	}
@@ -414,7 +496,7 @@ export class PolicyNegotiationPointClient
 	 * @returns Nothing.
 	 */
 	public async unregisterOffer(offerId: string): Promise<void> {
-		throw new NotSupportedError(this.CLASS_NAME, "notSupportedOnClient", {
+		throw new NotSupportedError(PolicyNegotiationPointRestClient.CLASS_NAME, "notSupportedOnClient", {
 			method: "unregisterOffer"
 		});
 	}

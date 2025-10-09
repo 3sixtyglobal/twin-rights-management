@@ -21,7 +21,7 @@ export class StaticPolicyInformationSource implements IPolicyInformationSource, 
 	/**
 	 * The class name of the Static Policy Information Source.
 	 */
-	public readonly CLASS_NAME: string = nameof<StaticPolicyInformationSource>();
+	public static readonly CLASS_NAME: string = nameof<StaticPolicyInformationSource>();
 
 	/**
 	 * The logging component.
@@ -60,20 +60,28 @@ export class StaticPolicyInformationSource implements IPolicyInformationSource, 
 		policies: IOdrlPolicy[],
 		data?: D
 	): Promise<IJsonLdNodeObject[] | undefined> {
-		Guards.objectValue<IPolicyLocator>(this.CLASS_NAME, nameof(locator), locator);
+		Guards.objectValue<IPolicyLocator>(
+			StaticPolicyInformationSource.CLASS_NAME,
+			nameof(locator),
+			locator
+		);
 		Guards.arrayOneOf(
-			this.CLASS_NAME,
+			StaticPolicyInformationSource.CLASS_NAME,
 			nameof(accessMode),
 			accessMode,
 			Object.values(PolicyInformationAccessMode)
 		);
-		Guards.stringValue(this.CLASS_NAME, nameof(locator.assignee), locator.assignee);
+		Guards.stringValue(
+			StaticPolicyInformationSource.CLASS_NAME,
+			nameof(locator.assignee),
+			locator.assignee
+		);
 
 		const information: IJsonLdNodeObject[] = [];
 
 		this._logging?.log({
 			level: "info",
-			source: this.CLASS_NAME,
+			source: StaticPolicyInformationSource.CLASS_NAME,
 			ts: Date.now(),
 			message: "staticRetrieving",
 			data: {
@@ -99,7 +107,7 @@ export class StaticPolicyInformationSource implements IPolicyInformationSource, 
 
 		this._logging?.log({
 			level: "info",
-			source: this.CLASS_NAME,
+			source: StaticPolicyInformationSource.CLASS_NAME,
 			ts: Date.now(),
 			message: "staticRetrieved",
 			data: {
@@ -118,12 +126,16 @@ export class StaticPolicyInformationSource implements IPolicyInformationSource, 
 	 */
 	public addInformation(info: IStaticPolicyInformationSource): void {
 		Guards.arrayOneOf<string>(
-			this.CLASS_NAME,
+			StaticPolicyInformationSource.CLASS_NAME,
 			nameof(info.accessMode),
 			info.accessMode,
 			Object.values(PolicyInformationAccessMode)
 		);
-		Guards.arrayValue<IJsonLdNodeObject>(this.CLASS_NAME, nameof(info.objects), info.objects);
+		Guards.arrayValue<IJsonLdNodeObject>(
+			StaticPolicyInformationSource.CLASS_NAME,
+			nameof(info.objects),
+			info.objects
+		);
 		this._information.push(info);
 	}
 }

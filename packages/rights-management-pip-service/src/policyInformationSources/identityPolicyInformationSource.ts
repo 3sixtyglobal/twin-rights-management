@@ -21,7 +21,7 @@ export class IdentityPolicyInformationSource implements IPolicyInformationSource
 	/**
 	 * The class name of the Identity Policy Information Source.
 	 */
-	public readonly CLASS_NAME: string = nameof<IdentityPolicyInformationSource>();
+	public static readonly CLASS_NAME: string = nameof<IdentityPolicyInformationSource>();
 
 	/**
 	 * The logging component.
@@ -62,21 +62,29 @@ export class IdentityPolicyInformationSource implements IPolicyInformationSource
 		policies: IOdrlPolicy[],
 		data?: D
 	): Promise<IJsonLdNodeObject[] | undefined> {
-		Guards.objectValue<IPolicyLocator>(this.CLASS_NAME, nameof(locator), locator);
+		Guards.objectValue<IPolicyLocator>(
+			IdentityPolicyInformationSource.CLASS_NAME,
+			nameof(locator),
+			locator
+		);
 		Guards.arrayOneOf(
-			this.CLASS_NAME,
+			IdentityPolicyInformationSource.CLASS_NAME,
 			nameof(accessMode),
 			accessMode,
 			Object.values(PolicyInformationAccessMode)
 		);
-		Guards.stringValue(this.CLASS_NAME, nameof(locator.assignee), locator.assignee);
+		Guards.stringValue(
+			IdentityPolicyInformationSource.CLASS_NAME,
+			nameof(locator.assignee),
+			locator.assignee
+		);
 
 		const information: IJsonLdNodeObject[] = [];
 
 		try {
 			this._logging?.log({
 				level: "info",
-				source: this.CLASS_NAME,
+				source: IdentityPolicyInformationSource.CLASS_NAME,
 				ts: Date.now(),
 				message: "identityRetrieving",
 				data: {
@@ -88,7 +96,7 @@ export class IdentityPolicyInformationSource implements IPolicyInformationSource
 		} catch (err) {
 			this._logging?.log({
 				level: "error",
-				source: this.CLASS_NAME,
+				source: IdentityPolicyInformationSource.CLASS_NAME,
 				ts: Date.now(),
 				message: "identityRetrievalFailed",
 				data: {

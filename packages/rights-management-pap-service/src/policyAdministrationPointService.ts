@@ -34,7 +34,7 @@ export class PolicyAdministrationPointService implements IPolicyAdministrationPo
 	/**
 	 * The class name of the Policy Administration Point Service.
 	 */
-	public readonly CLASS_NAME: string = nameof<PolicyAdministrationPointService>();
+	public static readonly CLASS_NAME: string = nameof<PolicyAdministrationPointService>();
 
 	/**
 	 * The logging component.
@@ -71,16 +71,16 @@ export class PolicyAdministrationPointService implements IPolicyAdministrationPo
 	 * @returns The UID of the created policy.
 	 */
 	public async create(policy: Omit<IOdrlPolicy, "uid"> & { uid?: string }): Promise<string> {
-		Guards.object<IOdrlPolicy>(this.CLASS_NAME, nameof(policy), policy);
+		Guards.object<IOdrlPolicy>(PolicyAdministrationPointService.CLASS_NAME, nameof(policy), policy);
 
 		// We allow the caller to provide a uid, but if they don't we generate one for them.
 		// if they provide one, we still validate it is a proper URN with the correct namespace.
 		if (Is.string(policy.uid)) {
-			Urn.guard(this.CLASS_NAME, nameof(policy.uid), policy.uid);
+			Urn.guard(PolicyAdministrationPointService.CLASS_NAME, nameof(policy.uid), policy.uid);
 			const urnParsed = Urn.fromValidString(policy.uid);
 
 			if (urnParsed.namespaceIdentifier() !== RightsManagementNamespaces.Policy) {
-				throw new GeneralError(this.CLASS_NAME, "namespaceMismatch", {
+				throw new GeneralError(PolicyAdministrationPointService.CLASS_NAME, "namespaceMismatch", {
 					namespace: RightsManagementNamespaces.Policy,
 					id: policy.uid
 				});
@@ -96,7 +96,11 @@ export class PolicyAdministrationPointService implements IPolicyAdministrationPo
 
 		const validationFailures: IValidationFailure[] = [];
 		await JsonLdHelper.validate(completePolicy, validationFailures);
-		Validation.asValidationError(this.CLASS_NAME, nameof(completePolicy), validationFailures);
+		Validation.asValidationError(
+			PolicyAdministrationPointService.CLASS_NAME,
+			nameof(completePolicy),
+			validationFailures
+		);
 
 		const storagePolicy = convertToStoragePolicy(completePolicy);
 		await this._odrlPolicyEntityStorage.set(storagePolicy);
@@ -110,18 +114,26 @@ export class PolicyAdministrationPointService implements IPolicyAdministrationPo
 	 * @returns Nothing.
 	 */
 	public async update(policy: IOdrlPolicy): Promise<void> {
-		Guards.object(this.CLASS_NAME, nameof(policy), policy);
-		Guards.stringValue(this.CLASS_NAME, "policy.uid", policy.uid);
+		Guards.object(PolicyAdministrationPointService.CLASS_NAME, nameof(policy), policy);
+		Guards.stringValue(PolicyAdministrationPointService.CLASS_NAME, nameof(policy.uid), policy.uid);
 
 		const policyId = policy.uid;
 		const existingStoragePolicy = await this._odrlPolicyEntityStorage.get(policyId);
 		if (!existingStoragePolicy) {
-			throw new NotFoundError(this.CLASS_NAME, "policyNotFound", policyId);
+			throw new NotFoundError(
+				PolicyAdministrationPointService.CLASS_NAME,
+				"policyNotFound",
+				policyId
+			);
 		}
 
 		const validationFailures: IValidationFailure[] = [];
 		await JsonLdHelper.validate(policy, validationFailures);
-		Validation.asValidationError(this.CLASS_NAME, nameof(policy), validationFailures);
+		Validation.asValidationError(
+			PolicyAdministrationPointService.CLASS_NAME,
+			nameof(policy),
+			validationFailures
+		);
 
 		const storagePolicy = convertToStoragePolicy(policy);
 		await this._odrlPolicyEntityStorage.set(storagePolicy);
@@ -133,11 +145,15 @@ export class PolicyAdministrationPointService implements IPolicyAdministrationPo
 	 * @returns The policy.
 	 */
 	public async get(policyId: string): Promise<IOdrlPolicy> {
-		Guards.stringValue(this.CLASS_NAME, nameof(policyId), policyId);
+		Guards.stringValue(PolicyAdministrationPointService.CLASS_NAME, nameof(policyId), policyId);
 
 		const storagePolicy = await this._odrlPolicyEntityStorage.get(policyId);
 		if (!storagePolicy) {
-			throw new NotFoundError(this.CLASS_NAME, "policyNotFound", policyId);
+			throw new NotFoundError(
+				PolicyAdministrationPointService.CLASS_NAME,
+				"policyNotFound",
+				policyId
+			);
 		}
 		return convertFromStoragePolicy(storagePolicy);
 	}
@@ -147,7 +163,7 @@ export class PolicyAdministrationPointService implements IPolicyAdministrationPo
 	 * @param policyId The ID of the policy to remove.
 	 */
 	public async remove(policyId: string): Promise<void> {
-		Guards.stringValue(this.CLASS_NAME, nameof(policyId), policyId);
+		Guards.stringValue(PolicyAdministrationPointService.CLASS_NAME, nameof(policyId), policyId);
 
 		await this._odrlPolicyEntityStorage.remove(policyId);
 	}
@@ -156,25 +172,25 @@ export class PolicyAdministrationPointService implements IPolicyAdministrationPo
 	 * Query the entity storage for policies.
 	 * @param conditions The conditions to query the entity storage with.
 	 * @param cursor The cursor to use for pagination.
-	 * @param pageSize The number of results to return per page.
+	 * @param limit The number of results to return per page.
 	 * @returns The policies.
 	 */
 	public async query(
 		conditions?: EntityCondition<IOdrlPolicy>,
 		cursor?: string,
-		pageSize?: number
+		limit?: number
 	): Promise<{
 		cursor?: string;
 		policies: IOdrlPolicy[];
 	}> {
 		if (!Is.empty(conditions)) {
-			Guards.object(this.CLASS_NAME, nameof(conditions), conditions);
+			Guards.object(PolicyAdministrationPointService.CLASS_NAME, nameof(conditions), conditions);
 		}
 		if (!Is.empty(cursor)) {
-			Guards.stringValue(this.CLASS_NAME, nameof(cursor), cursor);
+			Guards.stringValue(PolicyAdministrationPointService.CLASS_NAME, nameof(cursor), cursor);
 		}
-		if (!Is.empty(pageSize)) {
-			Guards.integer(this.CLASS_NAME, nameof(pageSize), pageSize);
+		if (!Is.empty(limit)) {
+			Guards.integer(PolicyAdministrationPointService.CLASS_NAME, nameof(limit), limit);
 		}
 
 		const result = await this._odrlPolicyEntityStorage.query(
@@ -182,7 +198,7 @@ export class PolicyAdministrationPointService implements IPolicyAdministrationPo
 			undefined,
 			undefined,
 			cursor,
-			pageSize
+			limit
 		);
 		return {
 			cursor: result.cursor,

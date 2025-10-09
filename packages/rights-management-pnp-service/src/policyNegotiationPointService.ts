@@ -55,7 +55,7 @@ export class PolicyNegotiationPointService implements IPolicyNegotiationPointCom
 	/**
 	 * The class name of the Policy Negotiation Point Service.
 	 */
-	public readonly CLASS_NAME: string = nameof<PolicyNegotiationPointService>();
+	public static readonly CLASS_NAME: string = nameof<PolicyNegotiationPointService>();
 
 	/**
 	 * The logging component.
@@ -132,22 +132,22 @@ export class PolicyNegotiationPointService implements IPolicyNegotiationPointCom
 	 */
 	constructor(options: IPolicyNegotiationPointServiceConstructorOptions) {
 		Guards.object<IPolicyNegotiationPointServiceConstructorOptions>(
-			this.CLASS_NAME,
+			PolicyNegotiationPointService.CLASS_NAME,
 			nameof(options),
 			options
 		);
 		Guards.object<IPolicyNegotiationPointServiceConfig>(
-			this.CLASS_NAME,
+			PolicyNegotiationPointService.CLASS_NAME,
 			nameof(options.config),
 			options.config
 		);
 		Guards.stringValue(
-			this.CLASS_NAME,
+			PolicyNegotiationPointService.CLASS_NAME,
 			nameof(options.config.baseCallbackUrl),
 			options.config.baseCallbackUrl
 		);
 		Guards.function(
-			this.CLASS_NAME,
+			PolicyNegotiationPointService.CLASS_NAME,
 			nameof(options.config.negotiationComponentCreator),
 			options.config.negotiationComponentCreator
 		);
@@ -197,16 +197,16 @@ export class PolicyNegotiationPointService implements IPolicyNegotiationPointCom
 		id: string,
 		actionRequest: IIdentityAuthenticationActionRequest
 	): Promise<IIdsContractNegotiation | IIdsContractNegotiationError> {
-		Guards.stringValue(this.CLASS_NAME, nameof(id), id);
+		Guards.stringValue(PolicyNegotiationPointService.CLASS_NAME, nameof(id), id);
 		Guards.objectValue<IIdentityAuthenticationActionRequest>(
-			this.CLASS_NAME,
+			PolicyNegotiationPointService.CLASS_NAME,
 			nameof(actionRequest),
 			actionRequest
 		);
 
 		try {
 			if (actionRequest.action !== "get-negotiation") {
-				throw new GeneralError(this.CLASS_NAME, "incorrectActionType", {
+				throw new GeneralError(PolicyNegotiationPointService.CLASS_NAME, "incorrectActionType", {
 					action: actionRequest.action,
 					expecting: "get-negotiation"
 				});
@@ -214,7 +214,11 @@ export class PolicyNegotiationPointService implements IPolicyNegotiationPointCom
 
 			const negotiation = await this._policyNegotiationAdminPointComponent.get(id);
 			if (Is.empty(negotiation)) {
-				throw new NotFoundError(this.CLASS_NAME, "negotiationNotFound", id);
+				throw new NotFoundError(
+					PolicyNegotiationPointService.CLASS_NAME,
+					"negotiationNotFound",
+					id
+				);
 			}
 
 			return this.constructNegotiationMessage(
@@ -239,17 +243,17 @@ export class PolicyNegotiationPointService implements IPolicyNegotiationPointCom
 		requesterId: string,
 		odrlOfferId: string
 	): Promise<string> {
-		Url.guard(this.CLASS_NAME, nameof(url), url);
-		Guards.stringValue(this.CLASS_NAME, nameof(requesterId), requesterId);
-		Guards.stringValue(this.CLASS_NAME, nameof(odrlOfferId), odrlOfferId);
+		Url.guard(PolicyNegotiationPointService.CLASS_NAME, nameof(url), url);
+		Guards.stringValue(PolicyNegotiationPointService.CLASS_NAME, nameof(requesterId), requesterId);
+		Guards.stringValue(PolicyNegotiationPointService.CLASS_NAME, nameof(odrlOfferId), odrlOfferId);
 
 		if (!Is.stringValue(this._nodeIdentity)) {
-			throw new GeneralError(this.CLASS_NAME, "missingNodeIdentity");
+			throw new GeneralError(PolicyNegotiationPointService.CLASS_NAME, "missingNodeIdentity");
 		}
 
 		const policyRequester = this._requesters.find(r => r.requesterId === requesterId)?.requester;
 		if (Is.empty(policyRequester)) {
-			throw new GeneralError(this.CLASS_NAME, "noRequesterFound", {
+			throw new GeneralError(PolicyNegotiationPointService.CLASS_NAME, "noRequesterFound", {
 				requesterId
 			});
 		}
@@ -291,9 +295,13 @@ export class PolicyNegotiationPointService implements IPolicyNegotiationPointCom
 			response["@type"] === IdsContractNegotiationTypes.ContractNegotiationError &&
 			Is.object<IIdsContractNegotiationError>(response)
 		) {
-			throw new GeneralError(this.CLASS_NAME, response.code ?? "negotiationFailed", {
-				offerId: odrlOfferId
-			});
+			throw new GeneralError(
+				PolicyNegotiationPointService.CLASS_NAME,
+				response.code ?? "negotiationFailed",
+				{
+					offerId: odrlOfferId
+				}
+			);
 		}
 
 		const policyNegotiation: IPolicyNegotiation = {
@@ -321,16 +329,36 @@ export class PolicyNegotiationPointService implements IPolicyNegotiationPointCom
 		message: IIdsContractRequestMessage,
 		actionRequest: IIdentityAuthenticationActionRequest
 	): Promise<IIdsContractNegotiation | IIdsContractNegotiationError> {
-		Guards.object<IIdsContractRequestMessage>(this.CLASS_NAME, nameof(message), message);
-		Guards.stringValue(this.CLASS_NAME, nameof(message.consumerPid), message.consumerPid);
-		Guards.object<IOdrlOffer["offer"]>(this.CLASS_NAME, nameof(message.offer), message.offer);
-		Guards.stringValue(this.CLASS_NAME, nameof(message.offer.uid), message.offer.uid);
+		Guards.object<IIdsContractRequestMessage>(
+			PolicyNegotiationPointService.CLASS_NAME,
+			nameof(message),
+			message
+		);
+		Guards.stringValue(
+			PolicyNegotiationPointService.CLASS_NAME,
+			nameof(message.consumerPid),
+			message.consumerPid
+		);
+		Guards.object<IOdrlOffer["offer"]>(
+			PolicyNegotiationPointService.CLASS_NAME,
+			nameof(message.offer),
+			message.offer
+		);
+		Guards.stringValue(
+			PolicyNegotiationPointService.CLASS_NAME,
+			nameof(message.offer.uid),
+			message.offer.uid
+		);
 		Guards.objectValue<IIdentityAuthenticationActionRequest>(
-			this.CLASS_NAME,
+			PolicyNegotiationPointService.CLASS_NAME,
 			nameof(actionRequest),
 			actionRequest
 		);
-		Url.guard(this.CLASS_NAME, nameof(message.callbackAddress), message.callbackAddress);
+		Url.guard(
+			PolicyNegotiationPointService.CLASS_NAME,
+			nameof(message.callbackAddress),
+			message.callbackAddress
+		);
 
 		// Use the provided provider pid or generate a new one
 		const providerPid =
@@ -341,7 +369,7 @@ export class PolicyNegotiationPointService implements IPolicyNegotiationPointCom
 
 		try {
 			if (actionRequest.action !== "request") {
-				throw new GeneralError(this.CLASS_NAME, "incorrectActionType", {
+				throw new GeneralError(PolicyNegotiationPointService.CLASS_NAME, "incorrectActionType", {
 					action: actionRequest.action,
 					expecting: "request"
 				});
@@ -355,7 +383,7 @@ export class PolicyNegotiationPointService implements IPolicyNegotiationPointCom
 					providerPid,
 					message.consumerPid,
 					undefined,
-					new GeneralError(this.CLASS_NAME, "noOfferFound", {
+					new GeneralError(PolicyNegotiationPointService.CLASS_NAME, "noOfferFound", {
 						offerId: message.offer.uid
 					})
 				);
@@ -372,7 +400,7 @@ export class PolicyNegotiationPointService implements IPolicyNegotiationPointCom
 					providerPid,
 					message.consumerPid,
 					undefined,
-					new GeneralError(this.CLASS_NAME, "noNegotiatorFound", {
+					new GeneralError(PolicyNegotiationPointService.CLASS_NAME, "noNegotiatorFound", {
 						offerId: message.offer.uid
 					})
 				);
@@ -395,7 +423,11 @@ export class PolicyNegotiationPointService implements IPolicyNegotiationPointCom
 							message.providerPid,
 							message.consumerPid,
 							undefined,
-							new NotFoundError(this.CLASS_NAME, "negotiationNotFound", message.providerPid)
+							new NotFoundError(
+								PolicyNegotiationPointService.CLASS_NAME,
+								"negotiationNotFound",
+								message.providerPid
+							)
 						);
 						return err;
 					}
@@ -408,8 +440,9 @@ export class PolicyNegotiationPointService implements IPolicyNegotiationPointCom
 						message.providerPid,
 						policyNegotiation.correlationId,
 						undefined,
-						new GeneralError(this.CLASS_NAME, "invalidState", {
-							state: policyNegotiation.state
+						new GeneralError(PolicyNegotiationPointService.CLASS_NAME, "invalidState", {
+							state: policyNegotiation.state,
+							negotiationId: message.consumerPid
 						})
 					);
 					return err;
@@ -466,7 +499,7 @@ export class PolicyNegotiationPointService implements IPolicyNegotiationPointCom
 				providerPid,
 				message.consumerPid,
 				policyNegotiation,
-				new GeneralError(this.CLASS_NAME, "negotiationFailed", {
+				new GeneralError(PolicyNegotiationPointService.CLASS_NAME, "negotiationFailed", {
 					offerId: providerOffer.uid
 				})
 			);
@@ -491,19 +524,27 @@ export class PolicyNegotiationPointService implements IPolicyNegotiationPointCom
 		message: IIdsContractOfferMessage,
 		actionRequest: IIdentityAuthenticationActionRequest
 	): Promise<IIdsContractNegotiation | IIdsContractNegotiationError> {
-		Guards.object<IIdsContractOfferMessage>(this.CLASS_NAME, nameof(message), message);
+		Guards.object<IIdsContractOfferMessage>(
+			PolicyNegotiationPointService.CLASS_NAME,
+			nameof(message),
+			message
+		);
 		Guards.objectValue<IIdentityAuthenticationActionRequest>(
-			this.CLASS_NAME,
+			PolicyNegotiationPointService.CLASS_NAME,
 			nameof(actionRequest),
 			actionRequest
 		);
-		Guards.stringValue(this.CLASS_NAME, nameof(message.providerPid), message.providerPid);
+		Guards.stringValue(
+			PolicyNegotiationPointService.CLASS_NAME,
+			nameof(message.providerPid),
+			message.providerPid
+		);
 
 		let consumerPid;
 		let policyNegotiation: IPolicyNegotiation | undefined;
 		try {
 			if (actionRequest.action !== "offer") {
-				throw new GeneralError(this.CLASS_NAME, "incorrectActionType", {
+				throw new GeneralError(PolicyNegotiationPointService.CLASS_NAME, "incorrectActionType", {
 					action: actionRequest.action,
 					expecting: "offer"
 				});
@@ -521,7 +562,11 @@ export class PolicyNegotiationPointService implements IPolicyNegotiationPointCom
 							message.providerPid,
 							message.consumerPid,
 							undefined,
-							new NotFoundError(this.CLASS_NAME, "negotiationNotFound", consumerPid)
+							new NotFoundError(
+								PolicyNegotiationPointService.CLASS_NAME,
+								"negotiationNotFound",
+								consumerPid
+							)
 						);
 						return err;
 					}
@@ -534,8 +579,9 @@ export class PolicyNegotiationPointService implements IPolicyNegotiationPointCom
 						message.providerPid,
 						message.consumerPid,
 						undefined,
-						new GeneralError(this.CLASS_NAME, "invalidState", {
-							state: policyNegotiation.state
+						new GeneralError(PolicyNegotiationPointService.CLASS_NAME, "invalidState", {
+							state: policyNegotiation.state,
+							negotiationId: message.providerPid
 						})
 					);
 					return err;
@@ -563,7 +609,11 @@ export class PolicyNegotiationPointService implements IPolicyNegotiationPointCom
 						message.providerPid,
 						consumerPid,
 						policyNegotiation,
-						new NotFoundError(this.CLASS_NAME, "requesterNotFound", requesterId)
+						new NotFoundError(
+							PolicyNegotiationPointService.CLASS_NAME,
+							"requesterNotFound",
+							requesterId
+						)
 					);
 					return err;
 				}
@@ -576,7 +626,9 @@ export class PolicyNegotiationPointService implements IPolicyNegotiationPointCom
 						message.providerPid,
 						consumerPid,
 						policyNegotiation,
-						new GeneralError(this.CLASS_NAME, "offerNotAccepted", { offerId: message.offer.uid })
+						new GeneralError(PolicyNegotiationPointService.CLASS_NAME, "offerNotAccepted", {
+							offerId: message.offer.uid
+						})
 					);
 					return err;
 				}
@@ -627,20 +679,36 @@ export class PolicyNegotiationPointService implements IPolicyNegotiationPointCom
 		message: IIdsContractAgreementMessage,
 		actionRequest: IIdentityAuthenticationActionRequest
 	): Promise<IIdsContractNegotiationError | undefined> {
-		Guards.object<IIdsContractAgreementMessage>(this.CLASS_NAME, nameof(message), message);
+		Guards.object<IIdsContractAgreementMessage>(
+			PolicyNegotiationPointService.CLASS_NAME,
+			nameof(message),
+			message
+		);
 		Guards.objectValue<IIdentityAuthenticationActionRequest>(
-			this.CLASS_NAME,
+			PolicyNegotiationPointService.CLASS_NAME,
 			nameof(actionRequest),
 			actionRequest
 		);
-		Guards.stringValue(this.CLASS_NAME, nameof(message.providerPid), message.providerPid);
-		Guards.stringValue(this.CLASS_NAME, nameof(message.consumerPid), message.consumerPid);
-		Url.guard(this.CLASS_NAME, nameof(message.callbackAddress), message.callbackAddress);
+		Guards.stringValue(
+			PolicyNegotiationPointService.CLASS_NAME,
+			nameof(message.providerPid),
+			message.providerPid
+		);
+		Guards.stringValue(
+			PolicyNegotiationPointService.CLASS_NAME,
+			nameof(message.consumerPid),
+			message.consumerPid
+		);
+		Url.guard(
+			PolicyNegotiationPointService.CLASS_NAME,
+			nameof(message.callbackAddress),
+			message.callbackAddress
+		);
 
 		let policyNegotiation: IPolicyNegotiation | undefined;
 		try {
 			if (actionRequest.action !== "agreement") {
-				throw new GeneralError(this.CLASS_NAME, "incorrectActionType", {
+				throw new GeneralError(PolicyNegotiationPointService.CLASS_NAME, "incorrectActionType", {
 					action: actionRequest.action,
 					expecting: "agreement"
 				});
@@ -656,7 +724,11 @@ export class PolicyNegotiationPointService implements IPolicyNegotiationPointCom
 						message.providerPid,
 						message.consumerPid,
 						undefined,
-						new NotFoundError(this.CLASS_NAME, "negotiationNotFound", message.consumerPid)
+						new NotFoundError(
+							PolicyNegotiationPointService.CLASS_NAME,
+							"negotiationNotFound",
+							message.consumerPid
+						)
 					);
 					return err;
 				}
@@ -669,8 +741,9 @@ export class PolicyNegotiationPointService implements IPolicyNegotiationPointCom
 					message.providerPid,
 					message.consumerPid,
 					undefined,
-					new GeneralError(this.CLASS_NAME, "invalidState", {
-						state: policyNegotiation.state
+					new GeneralError(PolicyNegotiationPointService.CLASS_NAME, "invalidState", {
+						state: policyNegotiation.state,
+						negotiationId: message.providerPid
 					})
 				);
 				return err;
@@ -688,7 +761,11 @@ export class PolicyNegotiationPointService implements IPolicyNegotiationPointCom
 						message.providerPid,
 						message.consumerPid,
 						policyNegotiation,
-						new NotFoundError(this.CLASS_NAME, "requesterNotFound", requesterId)
+						new NotFoundError(
+							PolicyNegotiationPointService.CLASS_NAME,
+							"requesterNotFound",
+							requesterId
+						)
 					);
 					return err;
 				}
@@ -701,7 +778,7 @@ export class PolicyNegotiationPointService implements IPolicyNegotiationPointCom
 						message.providerPid,
 						message.consumerPid,
 						policyNegotiation,
-						new GeneralError(this.CLASS_NAME, "agreementNotAccepted", {
+						new GeneralError(PolicyNegotiationPointService.CLASS_NAME, "agreementNotAccepted", {
 							agreementId: message.agreement.uid
 						})
 					);
@@ -742,19 +819,31 @@ export class PolicyNegotiationPointService implements IPolicyNegotiationPointCom
 		message: IIdsContractAgreementVerificationMessage,
 		actionRequest: IIdentityAuthenticationActionRequest
 	): Promise<IIdsContractNegotiationError | undefined> {
-		Guards.object<IIdsContractAgreementMessage>(this.CLASS_NAME, nameof(message), message);
+		Guards.object<IIdsContractAgreementMessage>(
+			PolicyNegotiationPointService.CLASS_NAME,
+			nameof(message),
+			message
+		);
 		Guards.objectValue<IIdentityAuthenticationActionRequest>(
-			this.CLASS_NAME,
+			PolicyNegotiationPointService.CLASS_NAME,
 			nameof(actionRequest),
 			actionRequest
 		);
-		Guards.stringValue(this.CLASS_NAME, nameof(message.providerPid), message.providerPid);
-		Guards.stringValue(this.CLASS_NAME, nameof(message.consumerPid), message.consumerPid);
+		Guards.stringValue(
+			PolicyNegotiationPointService.CLASS_NAME,
+			nameof(message.providerPid),
+			message.providerPid
+		);
+		Guards.stringValue(
+			PolicyNegotiationPointService.CLASS_NAME,
+			nameof(message.consumerPid),
+			message.consumerPid
+		);
 
 		let policyNegotiation: IPolicyNegotiation | undefined;
 		try {
 			if (actionRequest.action !== "agreement-verification") {
-				throw new GeneralError(this.CLASS_NAME, "incorrectActionType", {
+				throw new GeneralError(PolicyNegotiationPointService.CLASS_NAME, "incorrectActionType", {
 					action: actionRequest.action,
 					expecting: "agreement-verification"
 				});
@@ -770,7 +859,11 @@ export class PolicyNegotiationPointService implements IPolicyNegotiationPointCom
 						message.providerPid,
 						message.consumerPid,
 						undefined,
-						new NotFoundError(this.CLASS_NAME, "negotiationNotFound", message.providerPid)
+						new NotFoundError(
+							PolicyNegotiationPointService.CLASS_NAME,
+							"negotiationNotFound",
+							message.providerPid
+						)
 					);
 					return err;
 				}
@@ -783,8 +876,9 @@ export class PolicyNegotiationPointService implements IPolicyNegotiationPointCom
 					message.providerPid,
 					message.consumerPid,
 					undefined,
-					new GeneralError(this.CLASS_NAME, "invalidState", {
-						state: policyNegotiation.state
+					new GeneralError(PolicyNegotiationPointService.CLASS_NAME, "invalidState", {
+						state: policyNegotiation.state,
+						negotiationId: message.consumerPid
 					})
 				);
 				return err;
@@ -795,7 +889,7 @@ export class PolicyNegotiationPointService implements IPolicyNegotiationPointCom
 					message.providerPid,
 					message.consumerPid,
 					policyNegotiation,
-					new GeneralError(this.CLASS_NAME, "agreementMissing")
+					new GeneralError(PolicyNegotiationPointService.CLASS_NAME, "agreementMissing")
 				);
 				return err;
 			}
@@ -844,20 +938,35 @@ export class PolicyNegotiationPointService implements IPolicyNegotiationPointCom
 		destination: "provider" | "consumer",
 		actionRequest: IIdentityAuthenticationActionRequest
 	): Promise<IIdsContractNegotiationError | undefined> {
-		Guards.object<IIdsContractNegotiationEventMessage>(this.CLASS_NAME, nameof(message), message);
-		Guards.arrayOneOf(this.CLASS_NAME, nameof(destination), destination, ["provider", "consumer"]);
+		Guards.object<IIdsContractNegotiationEventMessage>(
+			PolicyNegotiationPointService.CLASS_NAME,
+			nameof(message),
+			message
+		);
+		Guards.arrayOneOf(PolicyNegotiationPointService.CLASS_NAME, nameof(destination), destination, [
+			"provider",
+			"consumer"
+		]);
 		Guards.objectValue<IIdentityAuthenticationActionRequest>(
-			this.CLASS_NAME,
+			PolicyNegotiationPointService.CLASS_NAME,
 			nameof(actionRequest),
 			actionRequest
 		);
-		Guards.stringValue(this.CLASS_NAME, nameof(message.providerPid), message.providerPid);
-		Guards.stringValue(this.CLASS_NAME, nameof(message.consumerPid), message.consumerPid);
+		Guards.stringValue(
+			PolicyNegotiationPointService.CLASS_NAME,
+			nameof(message.providerPid),
+			message.providerPid
+		);
+		Guards.stringValue(
+			PolicyNegotiationPointService.CLASS_NAME,
+			nameof(message.consumerPid),
+			message.consumerPid
+		);
 
 		let policyNegotiation: IPolicyNegotiation | undefined;
 		try {
 			if (actionRequest.action !== "event") {
-				throw new GeneralError(this.CLASS_NAME, "incorrectActionType", {
+				throw new GeneralError(PolicyNegotiationPointService.CLASS_NAME, "incorrectActionType", {
 					action: actionRequest.action,
 					expecting: "event"
 				});
@@ -872,7 +981,11 @@ export class PolicyNegotiationPointService implements IPolicyNegotiationPointCom
 						message.providerPid,
 						message.consumerPid,
 						undefined,
-						new NotFoundError(this.CLASS_NAME, "negotiationNotFound", policyId)
+						new NotFoundError(
+							PolicyNegotiationPointService.CLASS_NAME,
+							"negotiationNotFound",
+							policyId
+						)
 					);
 					return err;
 				}
@@ -893,8 +1006,9 @@ export class PolicyNegotiationPointService implements IPolicyNegotiationPointCom
 					message.providerPid,
 					message.consumerPid,
 					undefined,
-					new GeneralError(this.CLASS_NAME, "invalidState", {
-						state: policyNegotiation.state
+					new GeneralError(PolicyNegotiationPointService.CLASS_NAME, "invalidState", {
+						state: policyNegotiation.state,
+						negotiationId: policyId
 					})
 				);
 				return err;
@@ -920,7 +1034,11 @@ export class PolicyNegotiationPointService implements IPolicyNegotiationPointCom
 							message.providerPid,
 							message.consumerPid,
 							policyNegotiation,
-							new NotFoundError(this.CLASS_NAME, "requesterNotFound", requesterId)
+							new NotFoundError(
+								PolicyNegotiationPointService.CLASS_NAME,
+								"requesterNotFound",
+								requesterId
+							)
 						);
 						return err;
 					}
@@ -965,23 +1083,34 @@ export class PolicyNegotiationPointService implements IPolicyNegotiationPointCom
 		actionRequest: IIdentityAuthenticationActionRequest
 	): Promise<IIdsContractNegotiationError | undefined> {
 		Guards.object<IIdsContractNegotiationTerminationMessage>(
-			this.CLASS_NAME,
+			PolicyNegotiationPointService.CLASS_NAME,
 			nameof(message),
 			message
 		);
-		Guards.arrayOneOf(this.CLASS_NAME, nameof(destination), destination, ["provider", "consumer"]);
+		Guards.arrayOneOf(PolicyNegotiationPointService.CLASS_NAME, nameof(destination), destination, [
+			"provider",
+			"consumer"
+		]);
 		Guards.objectValue<IIdentityAuthenticationActionRequest>(
-			this.CLASS_NAME,
+			PolicyNegotiationPointService.CLASS_NAME,
 			nameof(actionRequest),
 			actionRequest
 		);
-		Guards.stringValue(this.CLASS_NAME, nameof(message.providerPid), message.providerPid);
-		Guards.stringValue(this.CLASS_NAME, nameof(message.consumerPid), message.consumerPid);
+		Guards.stringValue(
+			PolicyNegotiationPointService.CLASS_NAME,
+			nameof(message.providerPid),
+			message.providerPid
+		);
+		Guards.stringValue(
+			PolicyNegotiationPointService.CLASS_NAME,
+			nameof(message.consumerPid),
+			message.consumerPid
+		);
 
 		let policyNegotiation: IPolicyNegotiation | undefined;
 		try {
 			if (actionRequest.action !== "terminate") {
-				throw new GeneralError(this.CLASS_NAME, "incorrectActionType", {
+				throw new GeneralError(PolicyNegotiationPointService.CLASS_NAME, "incorrectActionType", {
 					action: actionRequest.action,
 					expecting: "terminate"
 				});
@@ -996,7 +1125,11 @@ export class PolicyNegotiationPointService implements IPolicyNegotiationPointCom
 						message.providerPid,
 						message.consumerPid,
 						undefined,
-						new NotFoundError(this.CLASS_NAME, "negotiationNotFound", policyId)
+						new NotFoundError(
+							PolicyNegotiationPointService.CLASS_NAME,
+							"negotiationNotFound",
+							policyId
+						)
 					);
 					return err;
 				}
@@ -1017,7 +1150,11 @@ export class PolicyNegotiationPointService implements IPolicyNegotiationPointCom
 							message.providerPid,
 							message.consumerPid,
 							policyNegotiation,
-							new NotFoundError(this.CLASS_NAME, "requesterNotFound", requesterId)
+							new NotFoundError(
+								PolicyNegotiationPointService.CLASS_NAME,
+								"requesterNotFound",
+								requesterId
+							)
 						);
 						return err;
 					}
@@ -1050,8 +1187,16 @@ export class PolicyNegotiationPointService implements IPolicyNegotiationPointCom
 		negotiatorId: string,
 		negotiator: IPolicyNegotiator
 	): Promise<void> {
-		Guards.stringValue(this.CLASS_NAME, nameof(negotiatorId), negotiatorId);
-		Guards.objectValue<IPolicyNegotiator>(this.CLASS_NAME, nameof(negotiator), negotiator);
+		Guards.stringValue(
+			PolicyNegotiationPointService.CLASS_NAME,
+			nameof(negotiatorId),
+			negotiatorId
+		);
+		Guards.objectValue<IPolicyNegotiator>(
+			PolicyNegotiationPointService.CLASS_NAME,
+			nameof(negotiator),
+			negotiator
+		);
 
 		const currentIndex = this._negotiators.findIndex(p => p.negotiatorId === negotiatorId);
 		if (currentIndex !== -1) {
@@ -1062,7 +1207,7 @@ export class PolicyNegotiationPointService implements IPolicyNegotiationPointCom
 
 		this._logging?.log({
 			level: "info",
-			source: this.CLASS_NAME,
+			source: PolicyNegotiationPointService.CLASS_NAME,
 			ts: Date.now(),
 			message: "registeredNegotiator",
 			data: {
@@ -1077,7 +1222,11 @@ export class PolicyNegotiationPointService implements IPolicyNegotiationPointCom
 	 * @returns Nothing.
 	 */
 	public async unregisterNegotiator(negotiatorId: string): Promise<void> {
-		Guards.stringValue(this.CLASS_NAME, nameof(negotiatorId), negotiatorId);
+		Guards.stringValue(
+			PolicyNegotiationPointService.CLASS_NAME,
+			nameof(negotiatorId),
+			negotiatorId
+		);
 
 		const currentIndex = this._negotiators.findIndex(p => p.negotiatorId === negotiatorId);
 		if (currentIndex !== -1) {
@@ -1086,7 +1235,7 @@ export class PolicyNegotiationPointService implements IPolicyNegotiationPointCom
 
 		this._logging?.log({
 			level: "info",
-			source: this.CLASS_NAME,
+			source: PolicyNegotiationPointService.CLASS_NAME,
 			ts: Date.now(),
 			message: "unregisteredNegotiator",
 			data: {
@@ -1102,8 +1251,12 @@ export class PolicyNegotiationPointService implements IPolicyNegotiationPointCom
 	 * @returns Nothing.
 	 */
 	public async registerRequester(requesterId: string, requester: IPolicyRequester): Promise<void> {
-		Guards.stringValue(this.CLASS_NAME, nameof(requesterId), requesterId);
-		Guards.objectValue<IPolicyRequester>(this.CLASS_NAME, nameof(requester), requester);
+		Guards.stringValue(PolicyNegotiationPointService.CLASS_NAME, nameof(requesterId), requesterId);
+		Guards.objectValue<IPolicyRequester>(
+			PolicyNegotiationPointService.CLASS_NAME,
+			nameof(requester),
+			requester
+		);
 
 		const currentIndex = this._requesters.findIndex(p => p.requesterId === requesterId);
 		if (currentIndex !== -1) {
@@ -1114,7 +1267,7 @@ export class PolicyNegotiationPointService implements IPolicyNegotiationPointCom
 
 		this._logging?.log({
 			level: "info",
-			source: this.CLASS_NAME,
+			source: PolicyNegotiationPointService.CLASS_NAME,
 			ts: Date.now(),
 			message: "registeredRequester",
 			data: {
@@ -1129,7 +1282,7 @@ export class PolicyNegotiationPointService implements IPolicyNegotiationPointCom
 	 * @returns Nothing.
 	 */
 	public async unregisterRequester(requesterId: string): Promise<void> {
-		Guards.stringValue(this.CLASS_NAME, nameof(requesterId), requesterId);
+		Guards.stringValue(PolicyNegotiationPointService.CLASS_NAME, nameof(requesterId), requesterId);
 
 		const currentIndex = this._requesters.findIndex(p => p.requesterId === requesterId);
 		if (currentIndex !== -1) {
@@ -1138,7 +1291,7 @@ export class PolicyNegotiationPointService implements IPolicyNegotiationPointCom
 
 		this._logging?.log({
 			level: "info",
-			source: this.CLASS_NAME,
+			source: PolicyNegotiationPointService.CLASS_NAME,
 			ts: Date.now(),
 			message: "unregisteredRequester",
 			data: {
@@ -1153,8 +1306,8 @@ export class PolicyNegotiationPointService implements IPolicyNegotiationPointCom
 	 * @returns Nothing.
 	 */
 	public async registerOffer(offer: IOdrlOffer): Promise<void> {
-		Guards.objectValue<IOdrlOffer>(this.CLASS_NAME, nameof(offer), offer);
-		Guards.stringValue(this.CLASS_NAME, nameof(offer.uid), offer.uid);
+		Guards.objectValue<IOdrlOffer>(PolicyNegotiationPointService.CLASS_NAME, nameof(offer), offer);
+		Guards.stringValue(PolicyNegotiationPointService.CLASS_NAME, nameof(offer.uid), offer.uid);
 
 		const index = this._offers.findIndex(o => o.uid === offer.uid);
 		if (index !== -1) {
@@ -1165,7 +1318,7 @@ export class PolicyNegotiationPointService implements IPolicyNegotiationPointCom
 
 		this._logging?.log({
 			level: "info",
-			source: this.CLASS_NAME,
+			source: PolicyNegotiationPointService.CLASS_NAME,
 			ts: Date.now(),
 			message: "registeredOffer",
 			data: {
@@ -1180,7 +1333,7 @@ export class PolicyNegotiationPointService implements IPolicyNegotiationPointCom
 	 * @returns Nothing.
 	 */
 	public async unregisterOffer(offerId: string): Promise<void> {
-		Guards.stringValue(this.CLASS_NAME, nameof(offerId), offerId);
+		Guards.stringValue(PolicyNegotiationPointService.CLASS_NAME, nameof(offerId), offerId);
 
 		const index = this._offers.findIndex(o => o.uid === offerId);
 		if (index !== -1) {
@@ -1189,7 +1342,7 @@ export class PolicyNegotiationPointService implements IPolicyNegotiationPointCom
 
 		this._logging?.log({
 			level: "info",
-			source: this.CLASS_NAME,
+			source: PolicyNegotiationPointService.CLASS_NAME,
 			ts: Date.now(),
 			message: "unregisteredOffer",
 			data: {
@@ -1273,20 +1426,24 @@ export class PolicyNegotiationPointService implements IPolicyNegotiationPointCom
 		policyNegotiation: IPolicyNegotiation
 	): Promise<void> {
 		try {
-			Guards.stringValue(this.CLASS_NAME, nameof(callbackAddress), callbackAddress);
+			Guards.stringValue(
+				PolicyNegotiationPointService.CLASS_NAME,
+				nameof(callbackAddress),
+				callbackAddress
+			);
 			Guards.object<IPolicyNegotiation>(
-				this.CLASS_NAME,
+				PolicyNegotiationPointService.CLASS_NAME,
 				nameof(policyNegotiation),
 				policyNegotiation
 			);
 			Guards.object<IOdrlOffer>(
-				this.CLASS_NAME,
+				PolicyNegotiationPointService.CLASS_NAME,
 				nameof(policyNegotiation.offer),
 				policyNegotiation.offer
 			);
 
 			if (!Is.stringValue(this._nodeIdentity)) {
-				throw new GeneralError(this.CLASS_NAME, "missingNodeIdentity");
+				throw new GeneralError(PolicyNegotiationPointService.CLASS_NAME, "missingNodeIdentity");
 			}
 
 			const offerMessage: IIdsContractOfferMessage = {
@@ -1340,17 +1497,21 @@ export class PolicyNegotiationPointService implements IPolicyNegotiationPointCom
 		destination: "provider" | "consumer"
 	): Promise<void> {
 		try {
-			Guards.stringValue(this.CLASS_NAME, nameof(callbackAddress), callbackAddress);
+			Guards.stringValue(
+				PolicyNegotiationPointService.CLASS_NAME,
+				nameof(callbackAddress),
+				callbackAddress
+			);
 			Guards.object<IPolicyNegotiation>(
-				this.CLASS_NAME,
+				PolicyNegotiationPointService.CLASS_NAME,
 				nameof(policyNegotiation),
 				policyNegotiation
 			);
 			const offer = policyNegotiation.offer;
-			Guards.object<IOdrlOffer>(this.CLASS_NAME, nameof(offer), offer);
+			Guards.object<IOdrlOffer>(PolicyNegotiationPointService.CLASS_NAME, nameof(offer), offer);
 
 			if (!Is.stringValue(this._nodeIdentity)) {
-				throw new GeneralError(this.CLASS_NAME, "missingNodeIdentity");
+				throw new GeneralError(PolicyNegotiationPointService.CLASS_NAME, "missingNodeIdentity");
 			}
 
 			// Create the finalisation message
@@ -1401,17 +1562,21 @@ export class PolicyNegotiationPointService implements IPolicyNegotiationPointCom
 		policyNegotiation: IPolicyNegotiation
 	): Promise<void> {
 		try {
-			Guards.stringValue(this.CLASS_NAME, nameof(callbackAddress), callbackAddress);
+			Guards.stringValue(
+				PolicyNegotiationPointService.CLASS_NAME,
+				nameof(callbackAddress),
+				callbackAddress
+			);
 			Guards.object<IPolicyNegotiation>(
-				this.CLASS_NAME,
+				PolicyNegotiationPointService.CLASS_NAME,
 				nameof(policyNegotiation),
 				policyNegotiation
 			);
 			const offer = policyNegotiation.offer;
-			Guards.object<IOdrlOffer>(this.CLASS_NAME, nameof(offer), offer);
+			Guards.object<IOdrlOffer>(PolicyNegotiationPointService.CLASS_NAME, nameof(offer), offer);
 
 			if (!Is.stringValue(this._nodeIdentity)) {
-				throw new GeneralError(this.CLASS_NAME, "missingNodeIdentity");
+				throw new GeneralError(PolicyNegotiationPointService.CLASS_NAME, "missingNodeIdentity");
 			}
 
 			const found = this._negotiators.find(n => n.negotiator.supportsOffer(offer));
@@ -1421,7 +1586,7 @@ export class PolicyNegotiationPointService implements IPolicyNegotiationPointCom
 					policyNegotiation.id,
 					policyNegotiation.correlationId,
 					policyNegotiation,
-					new GeneralError(this.CLASS_NAME, "noNegotiatorFound", {
+					new GeneralError(PolicyNegotiationPointService.CLASS_NAME, "noNegotiatorFound", {
 						offerId: offer.uid
 					})
 				);
@@ -1438,7 +1603,7 @@ export class PolicyNegotiationPointService implements IPolicyNegotiationPointCom
 						policyNegotiation.id,
 						policyNegotiation.correlationId,
 						policyNegotiation,
-						new GeneralError(this.CLASS_NAME, "noAgreementCreated", {
+						new GeneralError(PolicyNegotiationPointService.CLASS_NAME, "noAgreementCreated", {
 							offerId: offer.uid
 						})
 					);
@@ -1497,15 +1662,19 @@ export class PolicyNegotiationPointService implements IPolicyNegotiationPointCom
 		policyNegotiation: IPolicyNegotiation
 	): Promise<void> {
 		try {
-			Guards.stringValue(this.CLASS_NAME, nameof(callbackAddress), callbackAddress);
+			Guards.stringValue(
+				PolicyNegotiationPointService.CLASS_NAME,
+				nameof(callbackAddress),
+				callbackAddress
+			);
 			Guards.object<IPolicyNegotiation>(
-				this.CLASS_NAME,
+				PolicyNegotiationPointService.CLASS_NAME,
 				nameof(policyNegotiation),
 				policyNegotiation
 			);
 
 			if (!Is.stringValue(this._nodeIdentity)) {
-				throw new GeneralError(this.CLASS_NAME, "missingNodeIdentity");
+				throw new GeneralError(PolicyNegotiationPointService.CLASS_NAME, "missingNodeIdentity");
 			}
 
 			const agreementVerificationMessage: IIdsContractAgreementVerificationMessage = {

@@ -19,7 +19,7 @@ export class PolicyEnforcementPointService implements IPolicyEnforcementPointCom
 	/**
 	 * The class name of the Policy Enforcement Point Service.
 	 */
-	public readonly CLASS_NAME: string = nameof<PolicyEnforcementPointService>();
+	public static readonly CLASS_NAME: string = nameof<PolicyEnforcementPointService>();
 
 	/**
 	 * The logging component.
@@ -63,11 +63,15 @@ export class PolicyEnforcementPointService implements IPolicyEnforcementPointCom
 	 * @returns The manipulated data with any policies applied.
 	 */
 	public async intercept<D = unknown, R = D>(locator: IPolicyLocator, data?: D): Promise<R> {
-		Guards.objectValue<IPolicyLocator>(this.CLASS_NAME, nameof(locator), locator);
+		Guards.objectValue<IPolicyLocator>(
+			PolicyEnforcementPointService.CLASS_NAME,
+			nameof(locator),
+			locator
+		);
 
 		this._logging?.log({
 			level: "info",
-			source: this.CLASS_NAME,
+			source: PolicyEnforcementPointService.CLASS_NAME,
 			ts: Date.now(),
 			message: "intercepting",
 			data: {
@@ -83,7 +87,7 @@ export class PolicyEnforcementPointService implements IPolicyEnforcementPointCom
 			try {
 				this._logging?.log({
 					level: "info",
-					source: this.CLASS_NAME,
+					source: PolicyEnforcementPointService.CLASS_NAME,
 					ts: Date.now(),
 					message: "processing",
 					data: {
@@ -96,7 +100,7 @@ export class PolicyEnforcementPointService implements IPolicyEnforcementPointCom
 			} catch (error) {
 				this._logging?.log({
 					level: "error",
-					source: this.CLASS_NAME,
+					source: PolicyEnforcementPointService.CLASS_NAME,
 					ts: Date.now(),
 					message: "processingFailed",
 					data: {
@@ -106,7 +110,7 @@ export class PolicyEnforcementPointService implements IPolicyEnforcementPointCom
 					error: BaseError.fromError(error)
 				});
 				throw new GeneralError(
-					this.CLASS_NAME,
+					PolicyEnforcementPointService.CLASS_NAME,
 					"processingFailed",
 					{ processorId, locator: LocatorHelper.toString(locator) },
 					error
@@ -127,8 +131,12 @@ export class PolicyEnforcementPointService implements IPolicyEnforcementPointCom
 		processorId: string,
 		processor: IPolicyEnforcementProcessor
 	): Promise<void> {
-		Guards.stringValue(this.CLASS_NAME, nameof(processorId), processorId);
-		Guards.objectValue<IPolicyEnforcementProcessor>(this.CLASS_NAME, nameof(processor), processor);
+		Guards.stringValue(PolicyEnforcementPointService.CLASS_NAME, nameof(processorId), processorId);
+		Guards.objectValue<IPolicyEnforcementProcessor>(
+			PolicyEnforcementPointService.CLASS_NAME,
+			nameof(processor),
+			processor
+		);
 
 		const currentIndex = this._processors.findIndex(p => p.processorId === processorId);
 		if (currentIndex !== -1) {
@@ -139,7 +147,7 @@ export class PolicyEnforcementPointService implements IPolicyEnforcementPointCom
 
 		this._logging?.log({
 			level: "info",
-			source: this.CLASS_NAME,
+			source: PolicyEnforcementPointService.CLASS_NAME,
 			ts: Date.now(),
 			message: "registeredProcessor",
 			data: {
@@ -154,7 +162,7 @@ export class PolicyEnforcementPointService implements IPolicyEnforcementPointCom
 	 * @returns Nothing.
 	 */
 	public async unregisterProcessor(processorId: string): Promise<void> {
-		Guards.stringValue(this.CLASS_NAME, nameof(processorId), processorId);
+		Guards.stringValue(PolicyEnforcementPointService.CLASS_NAME, nameof(processorId), processorId);
 
 		const currentIndex = this._processors.findIndex(p => p.processorId === processorId);
 		if (currentIndex !== -1) {
@@ -163,7 +171,7 @@ export class PolicyEnforcementPointService implements IPolicyEnforcementPointCom
 
 		this._logging?.log({
 			level: "info",
-			source: this.CLASS_NAME,
+			source: PolicyEnforcementPointService.CLASS_NAME,
 			ts: Date.now(),
 			message: "unregisteredProcessor",
 			data: {

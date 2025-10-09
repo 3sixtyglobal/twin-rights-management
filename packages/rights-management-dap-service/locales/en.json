@@ -6,15 +6,14 @@
 			"notAuthorizedToGet": "Not authorized to get asset type \"{assetType}\" with id \"{id}\"",
 			"incorrectActionType": "Incorrect action in credential \"{action}\", expecting \"{expecting}\""
 		},
-		"dataAccessRequestPointService": {}
+		"dataAccessRequestPointService": {
+			"missingNodeIdentity": "The node identity is missing"
+		}
 	},
 	"info": {
 		"dataAccessPointService": {
 			"registeredHandler": "Handler registered with id: \"{handlerId}\"",
 			"unregisteredHandler": "Handler unregistered with id: \"{handlerId}\""
-		},
-		"dataAccessRequestPointService": {
-			"missingNodeIdentity": "The node identity is missing"
 		}
 	}
 }

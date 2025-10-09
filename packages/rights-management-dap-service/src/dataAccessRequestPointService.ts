@@ -23,7 +23,7 @@ export class DataAccessRequestPointService implements IDataAccessRequestPointCom
 	/**
 	 * The class name of the Data Access Request Point Service.
 	 */
-	public readonly CLASS_NAME: string = nameof<DataAccessRequestPointService>();
+	public static readonly CLASS_NAME: string = nameof<DataAccessRequestPointService>();
 
 	/**
 	 * The logging component.
@@ -75,12 +75,12 @@ export class DataAccessRequestPointService implements IDataAccessRequestPointCom
 	 * @returns The id of the item created, for some items this is supplied in the `item`.
 	 */
 	public async create(url: string, assetType: string, item: IJsonLdNodeObject): Promise<string> {
-		Guards.stringValue(this.CLASS_NAME, nameof(url), url);
-		Guards.stringValue(this.CLASS_NAME, nameof(assetType), assetType);
-		Guards.object<IJsonLdNodeObject>(this.CLASS_NAME, nameof(item), item);
+		Guards.stringValue(DataAccessRequestPointService.CLASS_NAME, nameof(url), url);
+		Guards.stringValue(DataAccessRequestPointService.CLASS_NAME, nameof(assetType), assetType);
+		Guards.object<IJsonLdNodeObject>(DataAccessRequestPointService.CLASS_NAME, nameof(item), item);
 
 		if (!Is.stringValue(this._nodeIdentity)) {
-			throw new GeneralError(this.CLASS_NAME, "missingNodeIdentity");
+			throw new GeneralError(DataAccessRequestPointService.CLASS_NAME, "missingNodeIdentity");
 		}
 
 		const actionRequest: IIdentityAuthenticationActionRequest = {
@@ -102,12 +102,12 @@ export class DataAccessRequestPointService implements IDataAccessRequestPointCom
 	 * @returns The item retrieved if the policies allow it.
 	 */
 	public async get(url: string, assetType: string, id: string): Promise<IJsonLdNodeObject> {
-		Guards.stringValue(this.CLASS_NAME, nameof(url), url);
-		Guards.stringValue(this.CLASS_NAME, nameof(assetType), assetType);
-		Guards.stringValue(this.CLASS_NAME, nameof(id), id);
+		Guards.stringValue(DataAccessRequestPointService.CLASS_NAME, nameof(url), url);
+		Guards.stringValue(DataAccessRequestPointService.CLASS_NAME, nameof(assetType), assetType);
+		Guards.stringValue(DataAccessRequestPointService.CLASS_NAME, nameof(id), id);
 
 		if (!Is.stringValue(this._nodeIdentity)) {
-			throw new GeneralError(this.CLASS_NAME, "missingNodeIdentity");
+			throw new GeneralError(DataAccessRequestPointService.CLASS_NAME, "missingNodeIdentity");
 		}
 
 		const actionRequest: IIdentityAuthenticationActionRequest = {
@@ -129,12 +129,12 @@ export class DataAccessRequestPointService implements IDataAccessRequestPointCom
 	 * @returns Nothing.
 	 */
 	public async update(url: string, assetType: string, item: IJsonLdNodeObject): Promise<void> {
-		Guards.stringValue(this.CLASS_NAME, nameof(url), url);
-		Guards.stringValue(this.CLASS_NAME, nameof(assetType), assetType);
-		Guards.object<IJsonLdNodeObject>(this.CLASS_NAME, nameof(item), item);
+		Guards.stringValue(DataAccessRequestPointService.CLASS_NAME, nameof(url), url);
+		Guards.stringValue(DataAccessRequestPointService.CLASS_NAME, nameof(assetType), assetType);
+		Guards.object<IJsonLdNodeObject>(DataAccessRequestPointService.CLASS_NAME, nameof(item), item);
 
 		if (!Is.stringValue(this._nodeIdentity)) {
-			throw new GeneralError(this.CLASS_NAME, "missingNodeIdentity");
+			throw new GeneralError(DataAccessRequestPointService.CLASS_NAME, "missingNodeIdentity");
 		}
 
 		const actionRequest: IIdentityAuthenticationActionRequest = {
@@ -156,12 +156,12 @@ export class DataAccessRequestPointService implements IDataAccessRequestPointCom
 	 * @returns Nothing.
 	 */
 	public async remove(url: string, assetType: string, id: string): Promise<void> {
-		Guards.stringValue(this.CLASS_NAME, nameof(url), url);
-		Guards.stringValue(this.CLASS_NAME, nameof(assetType), assetType);
-		Guards.stringValue(this.CLASS_NAME, nameof(id), id);
+		Guards.stringValue(DataAccessRequestPointService.CLASS_NAME, nameof(url), url);
+		Guards.stringValue(DataAccessRequestPointService.CLASS_NAME, nameof(assetType), assetType);
+		Guards.stringValue(DataAccessRequestPointService.CLASS_NAME, nameof(id), id);
 
 		if (!Is.stringValue(this._nodeIdentity)) {
-			throw new GeneralError(this.CLASS_NAME, "missingNodeIdentity");
+			throw new GeneralError(DataAccessRequestPointService.CLASS_NAME, "missingNodeIdentity");
 		}
 
 		const actionRequest: IIdentityAuthenticationActionRequest = {
@@ -194,11 +194,11 @@ export class DataAccessRequestPointService implements IDataAccessRequestPointCom
 		items: IJsonLdNodeObject[];
 		cursor?: string;
 	}> {
-		Guards.stringValue(this.CLASS_NAME, nameof(url), url);
-		Guards.stringValue(this.CLASS_NAME, nameof(assetType), assetType);
+		Guards.stringValue(DataAccessRequestPointService.CLASS_NAME, nameof(url), url);
+		Guards.stringValue(DataAccessRequestPointService.CLASS_NAME, nameof(assetType), assetType);
 
 		if (!Is.stringValue(this._nodeIdentity)) {
-			throw new GeneralError(this.CLASS_NAME, "missingNodeIdentity");
+			throw new GeneralError(DataAccessRequestPointService.CLASS_NAME, "missingNodeIdentity");
 		}
 
 		const actionRequest: IIdentityAuthenticationActionRequest = {

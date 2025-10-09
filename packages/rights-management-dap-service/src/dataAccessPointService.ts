@@ -21,7 +21,7 @@ export class DataAccessPointService implements IDataAccessPointComponent {
 	/**
 	 * The class name of the Data Access Point Service.
 	 */
-	public readonly CLASS_NAME: string = nameof<DataAccessPointService>();
+	public static readonly CLASS_NAME: string = nameof<DataAccessPointService>();
 
 	/**
 	 * The logging component.
@@ -71,10 +71,10 @@ export class DataAccessPointService implements IDataAccessPointComponent {
 		item: IJsonLdNodeObject,
 		actionRequest: IIdentityAuthenticationActionRequest
 	): Promise<string> {
-		Guards.stringValue(this.CLASS_NAME, nameof(assetType), assetType);
-		Guards.object<IJsonLdNodeObject>(this.CLASS_NAME, nameof(item), item);
+		Guards.stringValue(DataAccessPointService.CLASS_NAME, nameof(assetType), assetType);
+		Guards.object<IJsonLdNodeObject>(DataAccessPointService.CLASS_NAME, nameof(item), item);
 		Guards.objectValue<IIdentityAuthenticationActionRequest>(
-			this.CLASS_NAME,
+			DataAccessPointService.CLASS_NAME,
 			nameof(actionRequest),
 			actionRequest
 		);
@@ -84,11 +84,13 @@ export class DataAccessPointService implements IDataAccessPointComponent {
 		);
 
 		if (Is.empty(handlerEntry)) {
-			throw new GeneralError(this.CLASS_NAME, "noHandlerForAssetType", { assetType });
+			throw new GeneralError(DataAccessPointService.CLASS_NAME, "noHandlerForAssetType", {
+				assetType
+			});
 		}
 
 		if (actionRequest.action !== "create") {
-			throw new GeneralError(this.CLASS_NAME, "incorrectActionType", {
+			throw new GeneralError(DataAccessPointService.CLASS_NAME, "incorrectActionType", {
 				action: actionRequest.action,
 				expecting: "create"
 			});
@@ -116,10 +118,10 @@ export class DataAccessPointService implements IDataAccessPointComponent {
 		id: string,
 		actionRequest: IIdentityAuthenticationActionRequest
 	): Promise<IJsonLdNodeObject> {
-		Guards.stringValue(this.CLASS_NAME, nameof(assetType), assetType);
-		Guards.stringValue(this.CLASS_NAME, nameof(id), id);
+		Guards.stringValue(DataAccessPointService.CLASS_NAME, nameof(assetType), assetType);
+		Guards.stringValue(DataAccessPointService.CLASS_NAME, nameof(id), id);
 		Guards.objectValue<IIdentityAuthenticationActionRequest>(
-			this.CLASS_NAME,
+			DataAccessPointService.CLASS_NAME,
 			nameof(actionRequest),
 			actionRequest
 		);
@@ -129,11 +131,13 @@ export class DataAccessPointService implements IDataAccessPointComponent {
 		);
 
 		if (Is.empty(handlerEntry)) {
-			throw new GeneralError(this.CLASS_NAME, "noHandlerForAssetType", { assetType });
+			throw new GeneralError(DataAccessPointService.CLASS_NAME, "noHandlerForAssetType", {
+				assetType
+			});
 		}
 
 		if (actionRequest.action !== "get") {
-			throw new GeneralError(this.CLASS_NAME, "incorrectActionType", {
+			throw new GeneralError(DataAccessPointService.CLASS_NAME, "incorrectActionType", {
 				action: actionRequest.action,
 				expecting: "get"
 			});
@@ -147,7 +151,10 @@ export class DataAccessPointService implements IDataAccessPointComponent {
 		});
 
 		if (!(Coerce.boolean(isAllowed) ?? false)) {
-			throw new GeneralError(this.CLASS_NAME, "notAuthorizedToGet", { assetType, id });
+			throw new GeneralError(DataAccessPointService.CLASS_NAME, "notAuthorizedToGet", {
+				assetType,
+				id
+			});
 		}
 
 		const item = await handlerEntry.handler.get(assetType, id);
@@ -180,25 +187,27 @@ export class DataAccessPointService implements IDataAccessPointComponent {
 		item: IJsonLdNodeObject,
 		actionRequest: IIdentityAuthenticationActionRequest
 	): Promise<void> {
-		Guards.stringValue(this.CLASS_NAME, nameof(assetType), assetType);
-		Guards.object<IJsonLdNodeObject>(this.CLASS_NAME, nameof(item), item);
+		Guards.stringValue(DataAccessPointService.CLASS_NAME, nameof(assetType), assetType);
+		Guards.object<IJsonLdNodeObject>(DataAccessPointService.CLASS_NAME, nameof(item), item);
 		Guards.objectValue<IIdentityAuthenticationActionRequest>(
-			this.CLASS_NAME,
+			DataAccessPointService.CLASS_NAME,
 			nameof(actionRequest),
 			actionRequest
 		);
-		Guards.stringValue(this.CLASS_NAME, nameof(item.id), item.id);
+		Guards.stringValue(DataAccessPointService.CLASS_NAME, nameof(item.id), item.id);
 
 		const handlerEntry = this._handlers.find(p =>
 			p.handler.supportedAssetTypes().includes(assetType)
 		);
 
 		if (Is.empty(handlerEntry)) {
-			throw new GeneralError(this.CLASS_NAME, "noHandlerForAssetType", { assetType });
+			throw new GeneralError(DataAccessPointService.CLASS_NAME, "noHandlerForAssetType", {
+				assetType
+			});
 		}
 
 		if (actionRequest.action !== "update") {
-			throw new GeneralError(this.CLASS_NAME, "incorrectActionType", {
+			throw new GeneralError(DataAccessPointService.CLASS_NAME, "incorrectActionType", {
 				action: actionRequest.action,
 				expecting: "update"
 			});
@@ -227,10 +236,10 @@ export class DataAccessPointService implements IDataAccessPointComponent {
 		id: string,
 		actionRequest: IIdentityAuthenticationActionRequest
 	): Promise<void> {
-		Guards.stringValue(this.CLASS_NAME, nameof(assetType), assetType);
-		Guards.stringValue(this.CLASS_NAME, nameof(id), id);
+		Guards.stringValue(DataAccessPointService.CLASS_NAME, nameof(assetType), assetType);
+		Guards.stringValue(DataAccessPointService.CLASS_NAME, nameof(id), id);
 		Guards.objectValue<IIdentityAuthenticationActionRequest>(
-			this.CLASS_NAME,
+			DataAccessPointService.CLASS_NAME,
 			nameof(actionRequest),
 			actionRequest
 		);
@@ -240,11 +249,13 @@ export class DataAccessPointService implements IDataAccessPointComponent {
 		);
 
 		if (Is.empty(handlerEntry)) {
-			throw new GeneralError(this.CLASS_NAME, "noHandlerForAssetType", { assetType });
+			throw new GeneralError(DataAccessPointService.CLASS_NAME, "noHandlerForAssetType", {
+				assetType
+			});
 		}
 
 		if (actionRequest.action !== "remove") {
-			throw new GeneralError(this.CLASS_NAME, "incorrectActionType", {
+			throw new GeneralError(DataAccessPointService.CLASS_NAME, "incorrectActionType", {
 				action: actionRequest.action,
 				expecting: "remove"
 			});
@@ -279,9 +290,9 @@ export class DataAccessPointService implements IDataAccessPointComponent {
 		items: IJsonLdNodeObject[];
 		cursor?: string;
 	}> {
-		Guards.stringValue(this.CLASS_NAME, nameof(assetType), assetType);
+		Guards.stringValue(DataAccessPointService.CLASS_NAME, nameof(assetType), assetType);
 		Guards.objectValue<IIdentityAuthenticationActionRequest>(
-			this.CLASS_NAME,
+			DataAccessPointService.CLASS_NAME,
 			nameof(actionRequest),
 			actionRequest
 		);
@@ -291,11 +302,13 @@ export class DataAccessPointService implements IDataAccessPointComponent {
 		);
 
 		if (Is.empty(handlerEntry)) {
-			throw new GeneralError(this.CLASS_NAME, "noHandlerForAssetType", { assetType });
+			throw new GeneralError(DataAccessPointService.CLASS_NAME, "noHandlerForAssetType", {
+				assetType
+			});
 		}
 
 		if (actionRequest.action !== "query") {
-			throw new GeneralError(this.CLASS_NAME, "incorrectActionType", {
+			throw new GeneralError(DataAccessPointService.CLASS_NAME, "incorrectActionType", {
 				action: actionRequest.action,
 				expecting: "query"
 			});
@@ -308,7 +321,9 @@ export class DataAccessPointService implements IDataAccessPointComponent {
 		});
 
 		if (!(Coerce.boolean(isAllowed) ?? false)) {
-			throw new GeneralError(this.CLASS_NAME, "notAuthorizedToQuery", { assetType });
+			throw new GeneralError(DataAccessPointService.CLASS_NAME, "notAuthorizedToQuery", {
+				assetType
+			});
 		}
 
 		const result = await handlerEntry.handler.query(assetType, conditions, cursor, options);
@@ -332,8 +347,12 @@ export class DataAccessPointService implements IDataAccessPointComponent {
 	 * @returns Nothing.
 	 */
 	public async registerHandler(handlerId: string, handler: IDataAccessHandler): Promise<void> {
-		Guards.stringValue(this.CLASS_NAME, nameof(handlerId), handlerId);
-		Guards.objectValue<IDataAccessHandler>(this.CLASS_NAME, nameof(handler), handler);
+		Guards.stringValue(DataAccessPointService.CLASS_NAME, nameof(handlerId), handlerId);
+		Guards.objectValue<IDataAccessHandler>(
+			DataAccessPointService.CLASS_NAME,
+			nameof(handler),
+			handler
+		);
 
 		const currentIndex = this._handlers.findIndex(p => p.handlerId === handlerId);
 		if (currentIndex !== -1) {
@@ -344,7 +363,7 @@ export class DataAccessPointService implements IDataAccessPointComponent {
 
 		this._logging?.log({
 			level: "info",
-			source: this.CLASS_NAME,
+			source: DataAccessPointService.CLASS_NAME,
 			ts: Date.now(),
 			message: "registeredHandler",
 			data: {
@@ -359,7 +378,7 @@ export class DataAccessPointService implements IDataAccessPointComponent {
 	 * @returns Nothing.
 	 */
 	public async unregisterHandler(handlerId: string): Promise<void> {
-		Guards.stringValue(this.CLASS_NAME, nameof(handlerId), handlerId);
+		Guards.stringValue(DataAccessPointService.CLASS_NAME, nameof(handlerId), handlerId);
 
 		const currentIndex = this._handlers.findIndex(p => p.handlerId === handlerId);
 		if (currentIndex !== -1) {
@@ -368,7 +387,7 @@ export class DataAccessPointService implements IDataAccessPointComponent {
 
 		this._logging?.log({
 			level: "info",
-			source: this.CLASS_NAME,
+			source: DataAccessPointService.CLASS_NAME,
 			ts: Date.now(),
 			message: "unregisteredHandler",
 			data: {

@@ -1,4 +1,4 @@
-# Class: DataAccessPointClient
+# Class: DataAccessPointRestClient
 
 Client for performing Rights Management Data Access through to REST endpoints.
 
@@ -14,7 +14,7 @@ Client for performing Rights Management Data Access through to REST endpoints.
 
 ### Constructor
 
-> **new DataAccessPointClient**(`config`): `DataAccessPointClient`
+> **new DataAccessPointRestClient**(`config`): `DataAccessPointRestClient`
 
 Create a new instance of DataAccessPointClient.
 
@@ -28,7 +28,7 @@ The configuration for the client.
 
 #### Returns
 
-`DataAccessPointClient`
+`DataAccessPointRestClient`
 
 #### Overrides
 
@@ -38,13 +38,9 @@ The configuration for the client.
 
 ### CLASS\_NAME
 
-> `readonly` **CLASS\_NAME**: `string`
+> `readonly` `static` **CLASS\_NAME**: `string`
 
 Runtime name for the class.
-
-#### Implementation of
-
-`IDataAccessPointComponent.CLASS_NAME`
 
 ## Methods
 

@@ -30,13 +30,9 @@ The options for the component.
 
 ### CLASS\_NAME
 
-> `readonly` **CLASS\_NAME**: `string`
+> `readonly` `static` **CLASS\_NAME**: `string`
 
 The class name of the Data Access Request Point Service.
-
-#### Implementation of
-
-`IDataAccessRequestPointComponent.CLASS_NAME`
 
 ## Methods
 
