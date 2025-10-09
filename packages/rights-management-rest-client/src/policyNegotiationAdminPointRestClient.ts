@@ -42,7 +42,11 @@ export class PolicyNegotiationAdminPointRestClient
 	 * @returns The policy negotiation.
 	 */
 	public async get(policyId: string): Promise<IPolicyNegotiation> {
-		Guards.stringValue(PolicyNegotiationAdminPointRestClient.CLASS_NAME, nameof(policyId), policyId);
+		Guards.stringValue(
+			PolicyNegotiationAdminPointRestClient.CLASS_NAME,
+			nameof(policyId),
+			policyId
+		);
 
 		const response = await this.fetch<IPnapGetRequest, IPnapGetResponse>(
 			"/negotiations/admin/:policyId",
@@ -83,7 +87,11 @@ export class PolicyNegotiationAdminPointRestClient
 	 * @returns Nothing.
 	 */
 	public async remove(policyId: string): Promise<void> {
-		Guards.stringValue(PolicyNegotiationAdminPointRestClient.CLASS_NAME, nameof(policyId), policyId);
+		Guards.stringValue(
+			PolicyNegotiationAdminPointRestClient.CLASS_NAME,
+			nameof(policyId),
+			policyId
+		);
 
 		await this.fetch<IPnapRemoveRequest, INoContentResponse>(
 			"/negotiations/admin/:policyId",

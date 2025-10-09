@@ -105,9 +105,13 @@ export class PolicyNegotiationPointRestClient
 		requesterId: string,
 		odrlOfferId: string
 	): Promise<string> {
-		throw new NotSupportedError(PolicyNegotiationPointRestClient.CLASS_NAME, "notSupportedOnClient", {
-			method: "sendRequestToProvider"
-		});
+		throw new NotSupportedError(
+			PolicyNegotiationPointRestClient.CLASS_NAME,
+			"notSupportedOnClient",
+			{
+				method: "sendRequestToProvider"
+			}
+		);
 	}
 
 	/**
@@ -337,10 +341,12 @@ export class PolicyNegotiationPointRestClient
 			nameof(message),
 			message
 		);
-		Guards.arrayOneOf(PolicyNegotiationPointRestClient.CLASS_NAME, nameof(destination), destination, [
-			"provider",
-			"consumer"
-		]);
+		Guards.arrayOneOf(
+			PolicyNegotiationPointRestClient.CLASS_NAME,
+			nameof(destination),
+			destination,
+			["provider", "consumer"]
+		);
 		Guards.objectValue<IIdentityAuthenticationActionRequest>(
 			PolicyNegotiationPointRestClient.CLASS_NAME,
 			nameof(actionRequest),
@@ -392,10 +398,12 @@ export class PolicyNegotiationPointRestClient
 			nameof(message),
 			message
 		);
-		Guards.arrayOneOf(PolicyNegotiationPointRestClient.CLASS_NAME, nameof(destination), destination, [
-			"provider",
-			"consumer"
-		]);
+		Guards.arrayOneOf(
+			PolicyNegotiationPointRestClient.CLASS_NAME,
+			nameof(destination),
+			destination,
+			["provider", "consumer"]
+		);
 		Guards.objectValue<IIdentityAuthenticationActionRequest>(
 			PolicyNegotiationPointRestClient.CLASS_NAME,
 			nameof(actionRequest),
@@ -440,9 +448,13 @@ export class PolicyNegotiationPointRestClient
 		negotiatorId: string,
 		negotiator: IPolicyNegotiator
 	): Promise<void> {
-		throw new NotSupportedError(PolicyNegotiationPointRestClient.CLASS_NAME, "notSupportedOnClient", {
-			method: "registerNegotiator"
-		});
+		throw new NotSupportedError(
+			PolicyNegotiationPointRestClient.CLASS_NAME,
+			"notSupportedOnClient",
+			{
+				method: "registerNegotiator"
+			}
+		);
 	}
 
 	/**
@@ -451,9 +463,13 @@ export class PolicyNegotiationPointRestClient
 	 * @returns Nothing.
 	 */
 	public async unregisterNegotiator(negotiatorId: string): Promise<void> {
-		throw new NotSupportedError(PolicyNegotiationPointRestClient.CLASS_NAME, "notSupportedOnClient", {
-			method: "unregisterNegotiator"
-		});
+		throw new NotSupportedError(
+			PolicyNegotiationPointRestClient.CLASS_NAME,
+			"notSupportedOnClient",
+			{
+				method: "unregisterNegotiator"
+			}
+		);
 	}
 
 	/**
@@ -463,9 +479,13 @@ export class PolicyNegotiationPointRestClient
 	 * @returns Nothing.
 	 */
 	public async registerRequester(requesterId: string, requester: IPolicyRequester): Promise<void> {
-		throw new NotSupportedError(PolicyNegotiationPointRestClient.CLASS_NAME, "notSupportedOnClient", {
-			method: "registerRequester"
-		});
+		throw new NotSupportedError(
+			PolicyNegotiationPointRestClient.CLASS_NAME,
+			"notSupportedOnClient",
+			{
+				method: "registerRequester"
+			}
+		);
 	}
 
 	/**
@@ -474,9 +494,13 @@ export class PolicyNegotiationPointRestClient
 	 * @returns Nothing.
 	 */
 	public async unregisterRequester(requesterId: string): Promise<void> {
-		throw new NotSupportedError(PolicyNegotiationPointRestClient.CLASS_NAME, "notSupportedOnClient", {
-			method: "unregisterRequester"
-		});
+		throw new NotSupportedError(
+			PolicyNegotiationPointRestClient.CLASS_NAME,
+			"notSupportedOnClient",
+			{
+				method: "unregisterRequester"
+			}
+		);
 	}
 
 	/**
@@ -485,9 +509,13 @@ export class PolicyNegotiationPointRestClient
 	 * @returns Nothing.
 	 */
 	public async registerOffer(offer: IOdrlOffer): Promise<void> {
-		throw new NotSupportedError(PolicyNegotiationPointRestClient.CLASS_NAME, "notSupportedOnClient", {
-			method: "registerOffer"
-		});
+		throw new NotSupportedError(
+			PolicyNegotiationPointRestClient.CLASS_NAME,
+			"notSupportedOnClient",
+			{
+				method: "registerOffer"
+			}
+		);
 	}
 
 	/**
@@ -496,8 +524,12 @@ export class PolicyNegotiationPointRestClient
 	 * @returns Nothing.
 	 */
 	public async unregisterOffer(offerId: string): Promise<void> {
-		throw new NotSupportedError(PolicyNegotiationPointRestClient.CLASS_NAME, "notSupportedOnClient", {
-			method: "unregisterOffer"
-		});
+		throw new NotSupportedError(
+			PolicyNegotiationPointRestClient.CLASS_NAME,
+			"notSupportedOnClient",
+			{
+				method: "unregisterOffer"
+			}
+		);
 	}
 }

@@ -67,7 +67,11 @@ export class PolicyAdministrationPointRestClient
 	 */
 	public async update(policy: IOdrlPolicy): Promise<void> {
 		Guards.object(PolicyAdministrationPointRestClient.CLASS_NAME, nameof(policy), policy);
-		Guards.stringValue(PolicyAdministrationPointRestClient.CLASS_NAME, nameof(policy.uid), policy.uid);
+		Guards.stringValue(
+			PolicyAdministrationPointRestClient.CLASS_NAME,
+			nameof(policy.uid),
+			policy.uid
+		);
 
 		await this.fetch<IPapUpdateRequest, never>("/policy/admin/:id", "PUT", {
 			pathParams: {
