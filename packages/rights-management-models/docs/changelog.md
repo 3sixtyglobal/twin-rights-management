@@ -1,5 +1,12 @@
 # @twin.org/rights-management-models - Changelog
 
+## [0.0.2-next.14](https://github.com/twinfoundation/rights-management/compare/rights-management-models-v0.0.2-next.13...rights-management-models-v0.0.2-next.14) (2025-10-09)
+
+
+### Features
+
+* add validate-locales ([78f30cf](https://github.com/twinfoundation/rights-management/commit/78f30cf61054655c815e5fc42972ee39502e3687))
+
 ## [0.0.2-next.13](https://github.com/twinfoundation/rights-management/compare/rights-management-models-v0.0.2-next.12...rights-management-models-v0.0.2-next.13) (2025-09-23)
 
 

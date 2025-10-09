@@ -1,5 +1,19 @@
 # @twin.org/rights-management-rest-client - Changelog
 
+## [0.0.2-next.14](https://github.com/twinfoundation/rights-management/compare/rights-management-rest-client-v0.0.2-next.13...rights-management-rest-client-v0.0.2-next.14) (2025-10-09)
+
+
+### Features
+
+* add validate-locales ([78f30cf](https://github.com/twinfoundation/rights-management/commit/78f30cf61054655c815e5fc42972ee39502e3687))
+
+
+### Dependencies
+
+* The following workspace dependencies were updated
+  * dependencies
+    * @twin.org/rights-management-models bumped from 0.0.2-next.13 to 0.0.2-next.14
+
 ## [0.0.2-next.13](https://github.com/twinfoundation/rights-management/compare/rights-management-rest-client-v0.0.2-next.12...rights-management-rest-client-v0.0.2-next.13) (2025-09-23)
 
 
