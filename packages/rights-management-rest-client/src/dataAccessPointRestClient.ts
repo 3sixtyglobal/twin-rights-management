@@ -36,7 +36,7 @@ export class DataAccessPointRestClient extends BaseRestClient implements IDataAc
 	public static readonly CLASS_NAME: string = nameof<DataAccessPointRestClient>();
 
 	/**
-	 * Create a new instance of DataAccessPointClient.
+	 * Create a new instance of DataAccessPointRestClient.
 	 * @param config The configuration for the client.
 	 */
 	constructor(config: IBaseRestClientConfig) {

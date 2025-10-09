@@ -34,7 +34,7 @@ export class PolicyAdministrationPointRestClient
 	public static readonly CLASS_NAME: string = nameof<PolicyAdministrationPointRestClient>();
 
 	/**
-	 * Create a new instance of PolicyAdministrationPointClient.
+	 * Create a new instance of PolicyAdministrationPointRestClient.
 	 * @param config The configuration for the client.
 	 */
 	constructor(config: IBaseRestClientConfig) {

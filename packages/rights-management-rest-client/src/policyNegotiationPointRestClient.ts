@@ -45,7 +45,7 @@ export class PolicyNegotiationPointRestClient
 	public static readonly CLASS_NAME: string = nameof<PolicyNegotiationPointRestClient>();
 
 	/**
-	 * Create a new instance of PolicyNegotiationPointClient.
+	 * Create a new instance of PolicyNegotiationPointRestClient.
 	 * @param config The configuration for the client.
 	 */
 	constructor(config: IBaseRestClientConfig) {
