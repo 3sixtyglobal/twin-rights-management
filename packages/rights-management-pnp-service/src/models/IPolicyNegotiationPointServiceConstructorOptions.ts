@@ -1,6 +1,6 @@
-// Copyright 2024 IOTA Stiftung.
+// Copyright 2025 IOTA Stiftung.
 // SPDX-License-Identifier: Apache-2.0.
-import type { IPolicyNegotiationPointServiceConfig } from "./IPolicyNegotiationPointServiceConfig";
+import type { IPolicyNegotiationPointServiceConfig } from "./IPolicyNegotiationPointServiceConfig.js";
 
 /**
  * Options for the Policy Negotiation Point Component.

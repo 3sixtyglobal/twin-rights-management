@@ -1,4 +1,4 @@
-// Copyright 2024 IOTA Stiftung.
+// Copyright 2025 IOTA Stiftung.
 // SPDX-License-Identifier: Apache-2.0.
 import { BaseRestClient } from "@twin.org/api-core";
 import type {
@@ -6,6 +6,7 @@ import type {
 	ICreatedResponse,
 	INoContentResponse
 } from "@twin.org/api-models";
+import { ContextIdKeys } from "@twin.org/context";
 import { Guards, NotSupportedError } from "@twin.org/core";
 import type { IJsonLdNodeObject } from "@twin.org/data-json-ld";
 import type { EntityCondition } from "@twin.org/entity";
@@ -40,14 +41,15 @@ export class DataAccessPointRestClient extends BaseRestClient implements IDataAc
 	 * @param config The configuration for the client.
 	 */
 	constructor(config: IBaseRestClientConfig) {
-		super(
-			nameof<DataAccessPointRestClient>(),
-			{
-				...config,
-				authenticationGeneratorType: config.authenticationGeneratorType ?? "verifiable-credential"
-			},
-			"rights-management"
-		);
+		super(nameof<DataAccessPointRestClient>(), config, "rights-management");
+	}
+
+	/**
+	 * Returns the class name of the component.
+	 * @returns The class name of the component.
+	 */
+	public className(): string {
+		return DataAccessPointRestClient.CLASS_NAME;
 	}
 
 	/**
@@ -84,8 +86,14 @@ export class DataAccessPointRestClient extends BaseRestClient implements IDataAc
 					"@context": RightsManagementContexts.ContextRoot,
 					type: RightsManagementTypes.DataAccessRequestWithObject,
 					object: item
-				},
-				authentication: actionRequest
+				}
+			},
+			{
+				authenticationGeneratorType: "verifiable-credential",
+				authenticationData: {
+					contextId: ContextIdKeys.Organization,
+					subject: actionRequest
+				}
 			}
 		);
 
@@ -122,8 +130,14 @@ export class DataAccessPointRestClient extends BaseRestClient implements IDataAc
 				pathParams: {
 					assetType,
 					id
-				},
-				authentication: actionRequest
+				}
+			},
+			{
+				authenticationGeneratorType: "verifiable-credential",
+				authenticationData: {
+					contextId: ContextIdKeys.Organization,
+					subject: actionRequest
+				}
 			}
 		);
 
@@ -151,21 +165,31 @@ export class DataAccessPointRestClient extends BaseRestClient implements IDataAc
 		);
 		Guards.stringValue(DataAccessPointRestClient.CLASS_NAME, nameof(item.id), item.id);
 
-		await this.fetch<IDapUpdateRequest, INoContentResponse>("/data/:assetType/:id", "PUT", {
-			headers: {
-				[HeaderTypes.Accept]: MimeTypes.JsonLd
+		await this.fetch<IDapUpdateRequest, INoContentResponse>(
+			"/data/:assetType/:id",
+			"PUT",
+			{
+				headers: {
+					[HeaderTypes.Accept]: MimeTypes.JsonLd
+				},
+				pathParams: {
+					assetType,
+					id: item.id
+				},
+				body: {
+					"@context": RightsManagementContexts.ContextRoot,
+					type: RightsManagementTypes.DataAccessRequestWithObject,
+					object: item
+				}
 			},
-			pathParams: {
-				assetType,
-				id: item.id
-			},
-			body: {
-				"@context": RightsManagementContexts.ContextRoot,
-				type: RightsManagementTypes.DataAccessRequestWithObject,
-				object: item
-			},
-			authentication: actionRequest
-		});
+			{
+				authenticationGeneratorType: "verifiable-credential",
+				authenticationData: {
+					contextId: ContextIdKeys.Organization,
+					subject: actionRequest
+				}
+			}
+		);
 	}
 
 	/**
@@ -188,16 +212,26 @@ export class DataAccessPointRestClient extends BaseRestClient implements IDataAc
 			actionRequest
 		);
 
-		await this.fetch<IDapRemoveRequest, INoContentResponse>("/data/:assetType/:id", "DELETE", {
-			headers: {
-				[HeaderTypes.Accept]: MimeTypes.JsonLd
+		await this.fetch<IDapRemoveRequest, INoContentResponse>(
+			"/data/:assetType/:id",
+			"DELETE",
+			{
+				headers: {
+					[HeaderTypes.Accept]: MimeTypes.JsonLd
+				},
+				pathParams: {
+					assetType,
+					id
+				}
 			},
-			pathParams: {
-				assetType,
-				id
-			},
-			authentication: actionRequest
-		});
+			{
+				authenticationGeneratorType: "verifiable-credential",
+				authenticationData: {
+					contextId: ContextIdKeys.Organization,
+					subject: actionRequest
+				}
+			}
+		);
 	}
 
 	/**
@@ -242,8 +276,14 @@ export class DataAccessPointRestClient extends BaseRestClient implements IDataAc
 					conditions,
 					cursor,
 					options
-				},
-				authentication: actionRequest
+				}
+			},
+			{
+				authenticationGeneratorType: "verifiable-credential",
+				authenticationData: {
+					contextId: ContextIdKeys.Organization,
+					subject: actionRequest
+				}
 			}
 		);
 

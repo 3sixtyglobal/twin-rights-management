@@ -1,6 +1,6 @@
-// Copyright 2024 IOTA Stiftung.
+// Copyright 2025 IOTA Stiftung.
 // SPDX-License-Identifier: Apache-2.0.
-import type { IDataAccessRequestPointServiceConfig } from "./IDataAccessRequestPointServiceConfig";
+import type { IDataAccessRequestPointServiceConfig } from "./IDataAccessRequestPointServiceConfig.js";
 
 /**
  * Options for the Data Access Request Point Component.

@@ -1,6 +1,6 @@
-// Copyright 2024 IOTA Stiftung.
+// Copyright 2025 IOTA Stiftung.
 // SPDX-License-Identifier: Apache-2.0.
-import { PolicyNegotiationAdminPointRestClient } from "../src/policyNegotiationAdminPointRestClient";
+import { PolicyNegotiationAdminPointRestClient } from "../src/policyNegotiationAdminPointRestClient.js";
 
 describe("PolicyNegotiationAdminPointRestClient", () => {
 	test("Can create an instance", async () => {

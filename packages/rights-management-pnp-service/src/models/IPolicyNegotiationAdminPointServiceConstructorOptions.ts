@@ -1,6 +1,6 @@
-// Copyright 2024 IOTA Stiftung.
+// Copyright 2025 IOTA Stiftung.
 // SPDX-License-Identifier: Apache-2.0.
-import type { IPolicyNegotiationAdminPointServiceConfig } from "./IPolicyNegotiationAdminPointServiceConfig";
+import type { IPolicyNegotiationAdminPointServiceConfig } from "./IPolicyNegotiationAdminPointServiceConfig.js";
 
 /**
  * Options for the Policy Negotiation Admin Point Component.
@@ -29,6 +29,11 @@ export interface IPolicyNegotiationAdminPointServiceConstructorOptions {
 	 * @default policy-information-point
 	 */
 	policyInformationPointComponentType?: string;
+
+	/**
+	 * The keys to use from the context ids to cleanup partitions.
+	 */
+	partitionContextIds?: string[];
 
 	/**
 	 * Configuration options for the policy negotiation point service.

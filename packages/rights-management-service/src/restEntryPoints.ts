@@ -1,16 +1,19 @@
-// Copyright 2024 IOTA Stiftung.
+// Copyright 2025 IOTA Stiftung.
 // SPDX-License-Identifier: Apache-2.0.
 import type { IRestRouteEntryPoint } from "@twin.org/api-models";
-import { dapTags, generateRestRoutesDataAccessPoint } from "./dataAccessPointRoutes";
+import { dapTags, generateRestRoutesDataAccessPoint } from "./dataAccessPointRoutes.js";
 import {
 	generateRestRoutesPolicyAdministrationPoint,
 	papTags
-} from "./policyAdministrationPointRoutes";
+} from "./policyAdministrationPointRoutes.js";
 import {
 	generateRestRoutesPolicyNegotiationAdminPoint,
 	pnapTags
-} from "./policyNegotiationAdminPointRoutes";
-import { generateRestRoutesPolicyNegotiationPoint, pnpTags } from "./policyNegotiationPointRoutes";
+} from "./policyNegotiationAdminPointRoutes.js";
+import {
+	generateRestRoutesPolicyNegotiationPoint,
+	pnpTags
+} from "./policyNegotiationPointRoutes.js";
 
 /**
  * Entry points for the REST API.

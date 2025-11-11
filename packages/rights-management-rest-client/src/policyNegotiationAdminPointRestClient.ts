@@ -1,4 +1,4 @@
-// Copyright 2024 IOTA Stiftung.
+// Copyright 2025 IOTA Stiftung.
 // SPDX-License-Identifier: Apache-2.0.
 import { BaseRestClient } from "@twin.org/api-core";
 import type { IBaseRestClientConfig, INoContentResponse } from "@twin.org/api-models";
@@ -14,7 +14,7 @@ import type {
 	IPolicyNegotiation,
 	IPolicyNegotiationAdminPointComponent
 } from "@twin.org/rights-management-models";
-import type { IdsContractNegotiationStateType } from "@twin.org/standards-ids-contract-negotiation";
+import type { ContractNegotiationStateType } from "@twin.org/standards-dataspace-protocol";
 
 /**
  * Client for performing Rights Management Policy Negotiation Admin through to REST endpoints.
@@ -34,6 +34,14 @@ export class PolicyNegotiationAdminPointRestClient
 	 */
 	constructor(config: IBaseRestClientConfig) {
 		super(nameof<PolicyNegotiationAdminPointRestClient>(), config, "rights-management");
+	}
+
+	/**
+	 * Returns the class name of the component.
+	 * @returns The class name of the component.
+	 */
+	public className(): string {
+		return PolicyNegotiationAdminPointRestClient.CLASS_NAME;
 	}
 
 	/**
@@ -111,7 +119,7 @@ export class PolicyNegotiationAdminPointRestClient
 	 * @returns A list of negotiations and cursor if there are more entries.
 	 */
 	public async query(
-		state?: IdsContractNegotiationStateType,
+		state?: ContractNegotiationStateType,
 		cursor?: string
 	): Promise<{
 		items: IPolicyNegotiation[];

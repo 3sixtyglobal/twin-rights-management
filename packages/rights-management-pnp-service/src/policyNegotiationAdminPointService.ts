@@ -1,6 +1,7 @@
-// Copyright 2024 IOTA Stiftung.
+// Copyright 2025 IOTA Stiftung.
 // SPDX-License-Identifier: Apache-2.0.
 import type { ITaskSchedulerComponent } from "@twin.org/background-task-models";
+import { ContextIdKeys, ContextIdStore } from "@twin.org/context";
 import { ComponentFactory, Guards, Is, NotFoundError } from "@twin.org/core";
 import { ComparisonOperator, LogicalOperator, SortDirection } from "@twin.org/entity";
 import {
@@ -13,9 +14,9 @@ import type {
 	IPolicyNegotiation,
 	IPolicyNegotiationAdminPointComponent
 } from "@twin.org/rights-management-models";
-import { IdsContractNegotiationStateType } from "@twin.org/standards-ids-contract-negotiation";
-import type { PolicyNegotiation } from "./entities/policyNegotiation";
-import type { IPolicyNegotiationAdminPointServiceConstructorOptions } from "./models/IPolicyNegotiationAdminPointServiceConstructorOptions";
+import { ContractNegotiationStateType } from "@twin.org/standards-dataspace-protocol";
+import type { PolicyNegotiation } from "./entities/policyNegotiation.js";
+import type { IPolicyNegotiationAdminPointServiceConstructorOptions } from "./models/IPolicyNegotiationAdminPointServiceConstructorOptions.js";
 
 /**
  * Class implementation of Policy Negotiation Admin Point Component.
@@ -57,6 +58,18 @@ export class PolicyNegotiationAdminPointService implements IPolicyNegotiationAdm
 	private readonly _negotiationStateTtlMs: number;
 
 	/**
+	 * The list of active tenants required for task cleanup.
+	 * @internal
+	 */
+	private readonly _activeTenants: string[];
+
+	/**
+	 * The keys to use from the context ids to create partitions.
+	 * @internal
+	 */
+	private readonly _partitionContextIds?: string[];
+
+	/**
 	 * Create a new instance of PolicyNegotiationPointService (PNP).
 	 * @param options The options for the component.
 	 */
@@ -75,18 +88,24 @@ export class PolicyNegotiationAdminPointService implements IPolicyNegotiationAdm
 				PolicyNegotiationAdminPointService._DEFAULT_NEGOTIATION_STATE_TTL_DEFAULT_MINUTES) *
 			60 *
 			1000;
+		this._activeTenants = [];
+		this._partitionContextIds = options?.partitionContextIds;
+	}
+
+	/**
+	 * Returns the class name of the component.
+	 * @returns The class name of the component.
+	 */
+	public className(): string {
+		return PolicyNegotiationAdminPointService.CLASS_NAME;
 	}
 
 	/**
 	 * The component needs to be started when the node is initialized.
-	 * @param nodeIdentity The identity of the node starting the component.
 	 * @param nodeLoggingComponentType The node logging component type.
 	 * @returns Nothing.
 	 */
-	public async start(
-		nodeIdentity: string,
-		nodeLoggingComponentType: string | undefined
-	): Promise<void> {
+	public async start(nodeLoggingComponentType?: string): Promise<void> {
 		await this._taskScheduler.addTask(
 			"policy-negotiation",
 			[
@@ -104,14 +123,10 @@ export class PolicyNegotiationAdminPointService implements IPolicyNegotiationAdm
 
 	/**
 	 * The component needs to be stopped when the node is closed.
-	 * @param nodeIdentity The identity of the node stopping the component.
 	 * @param nodeLoggingComponentType The node logging component type.
 	 * @returns Nothing.
 	 */
-	public async stop(
-		nodeIdentity: string,
-		nodeLoggingComponentType: string | undefined
-	): Promise<void> {
+	public async stop(nodeLoggingComponentType?: string): Promise<void> {
 		await this._taskScheduler.removeTask("policy-negotiation");
 	}
 
@@ -127,6 +142,9 @@ export class PolicyNegotiationAdminPointService implements IPolicyNegotiationAdm
 		if (Is.empty(entity)) {
 			throw new NotFoundError(PolicyNegotiationAdminPointService.CLASS_NAME, "policyNotFound", id);
 		}
+
+		await this.updateActiveTenants();
+
 		return this.entityToModel(entity);
 	}
 
@@ -153,6 +171,8 @@ export class PolicyNegotiationAdminPointService implements IPolicyNegotiationAdm
 		}
 
 		await this._policyNegotiationEntityStorage.set(entity);
+
+		await this.updateActiveTenants();
 	}
 
 	/**
@@ -163,6 +183,7 @@ export class PolicyNegotiationAdminPointService implements IPolicyNegotiationAdm
 	public async remove(policyId: string): Promise<void> {
 		Guards.stringValue(PolicyNegotiationAdminPointService.CLASS_NAME, nameof(policyId), policyId);
 		await this._policyNegotiationEntityStorage.remove(policyId);
+		await this.updateActiveTenants();
 	}
 
 	/**
@@ -172,7 +193,7 @@ export class PolicyNegotiationAdminPointService implements IPolicyNegotiationAdm
 	 * @returns A list of negotiations and cursor if there are more entries.
 	 */
 	public async query(
-		status?: IdsContractNegotiationStateType,
+		status?: ContractNegotiationStateType,
 		cursor?: string
 	): Promise<{
 		items: IPolicyNegotiation[];
@@ -180,7 +201,7 @@ export class PolicyNegotiationAdminPointService implements IPolicyNegotiationAdm
 	}> {
 		let condition;
 
-		if (Is.arrayOneOf(status, Object.values(IdsContractNegotiationStateType))) {
+		if (Is.arrayOneOf(status, Object.values(ContractNegotiationStateType))) {
 			condition = {
 				conditions: [
 					{
@@ -198,6 +219,8 @@ export class PolicyNegotiationAdminPointService implements IPolicyNegotiationAdm
 			cursor
 		);
 
+		await this.updateActiveTenants();
+
 		return {
 			items: (result.entities as PolicyNegotiation[]).map(entity => this.entityToModel(entity)),
 			cursor: result.cursor
@@ -205,12 +228,49 @@ export class PolicyNegotiationAdminPointService implements IPolicyNegotiationAdm
 	}
 
 	/**
+	 * Updates the list of active tenants for cleanup tasks.
+	 * @internal
+	 */
+	private async updateActiveTenants(): Promise<void> {
+		const contextIds = await ContextIdStore.getContextIds();
+		const tenantId = contextIds?.[ContextIdKeys.Tenant];
+		if (Is.stringValue(tenantId) && !this._activeTenants.includes(tenantId)) {
+			this._activeTenants.push(tenantId);
+		}
+	}
+
+	/**
 	 * Clean up old negotiation states.
 	 * @internal
 	 */
 	private async cleanupOldStates(): Promise<void> {
-		let cursor: string | undefined;
+		// Since we might have many expired negotiations, we need to page through them
+		// and delete them in batches, but they might be partitioned by tenant
+		// in the storage, so the current context id is not sufficient
+		// use the list of tracked tenants to iterate through
+		if (this._partitionContextIds?.includes(ContextIdKeys.Tenant)) {
+			for (const tenantId of this._activeTenants) {
+				const localContextIds = (await ContextIdStore.getContextIds()) ?? {};
+				localContextIds[ContextIdKeys.Tenant] = tenantId;
 
+				await ContextIdStore.run(localContextIds, async () => {
+					await this.cleanupOldStatesPartition();
+				});
+			}
+		} else {
+			await this.cleanupOldStatesPartition();
+		}
+	}
+
+	/**
+	 * Cleans up old negotiation states for a specific partition (tenant).
+	 * @param now The current timestamp.
+	 * @param cursor The pagination cursor.
+	 * @returns Nothing.
+	 * @internal
+	 */
+	private async cleanupOldStatesPartition(): Promise<void> {
+		let cursor: string | undefined;
 		const now = Date.now();
 
 		do {

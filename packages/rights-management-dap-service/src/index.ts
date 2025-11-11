@@ -1,8 +1,8 @@
-// Copyright 2024 IOTA Stiftung.
+// Copyright 2025 IOTA Stiftung.
 // SPDX-License-Identifier: Apache-2.0.
-export * from "./dataAccessPointService";
-export * from "./dataAccessRequestPointService";
-export * from "./models/IDataAccessPointServiceConfig";
-export * from "./models/IDataAccessPointServiceConstructorOptions";
-export * from "./models/IDataAccessRequestPointServiceConfig";
-export * from "./models/IDataAccessRequestPointServiceConstructorOptions";
+export * from "./dataAccessPointService.js";
+export * from "./dataAccessRequestPointService.js";
+export * from "./models/IDataAccessPointServiceConfig.js";
+export * from "./models/IDataAccessPointServiceConstructorOptions.js";
+export * from "./models/IDataAccessRequestPointServiceConfig.js";
+export * from "./models/IDataAccessRequestPointServiceConstructorOptions.js";

@@ -1,4 +1,4 @@
-// Copyright 2024 IOTA Stiftung.
+// Copyright 2025 IOTA Stiftung.
 // SPDX-License-Identifier: Apache-2.0.
 import { ComponentFactory, Guards, Is } from "@twin.org/core";
 import { ComparisonOperator, type EntityCondition } from "@twin.org/entity";
@@ -11,7 +11,7 @@ import {
 	type IPolicyManagementPointComponent
 } from "@twin.org/rights-management-models";
 import type { IOdrlPolicy } from "@twin.org/standards-w3c-odrl";
-import type { IPolicyManagementPointServiceConstructorOptions } from "./models/IPolicyManagementPointServiceConstructorOptions";
+import type { IPolicyManagementPointServiceConstructorOptions } from "./models/IPolicyManagementPointServiceConstructorOptions.js";
 
 /**
  * Class implementation of Policy Management Point Component.
@@ -46,6 +46,14 @@ export class PolicyManagementPointService implements IPolicyManagementPointCompo
 			ComponentFactory.get<IPolicyAdministrationPointComponent>(
 				options?.policyAdministrationPointComponentType ?? "policy-administration-point"
 			);
+	}
+
+	/**
+	 * Returns the class name of the component.
+	 * @returns The class name of the component.
+	 */
+	public className(): string {
+		return PolicyManagementPointService.CLASS_NAME;
 	}
 
 	/**
@@ -97,7 +105,7 @@ export class PolicyManagementPointService implements IPolicyManagementPointCompo
 			);
 		}
 
-		this._logging?.log({
+		await this._logging?.log({
 			level: "info",
 			source: PolicyManagementPointService.CLASS_NAME,
 			ts: Date.now(),
@@ -131,7 +139,7 @@ export class PolicyManagementPointService implements IPolicyManagementPointCompo
 
 		const result = await this._policyAdministrationPointComponent.query(condition, cursor);
 
-		this._logging?.log({
+		await this._logging?.log({
 			level: "info",
 			source: PolicyManagementPointService.CLASS_NAME,
 			ts: Date.now(),

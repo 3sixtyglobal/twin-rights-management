@@ -1,6 +1,6 @@
-// Copyright 2024 IOTA Stiftung.
+// Copyright 2025 IOTA Stiftung.
 // SPDX-License-Identifier: Apache-2.0.
-import type { IPolicyEnforcementPointServiceConfig } from "./IPolicyEnforcementPointServiceConfig";
+import type { IPolicyEnforcementPointServiceConfig } from "./IPolicyEnforcementPointServiceConfig.js";
 
 /**
  * Options for the Policy Enforcement Point Component.

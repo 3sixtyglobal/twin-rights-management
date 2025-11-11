@@ -1,8 +1,8 @@
-// Copyright 2024 IOTA Stiftung.
+// Copyright 2025 IOTA Stiftung.
 // SPDX-License-Identifier: Apache-2.0.
 import { entity, property } from "@twin.org/entity";
 import type { IPolicyInformation } from "@twin.org/rights-management-models";
-import type { IdsContractNegotiationStateType } from "@twin.org/standards-ids-contract-negotiation";
+import type { ContractNegotiationStateType } from "@twin.org/standards-dataspace-protocol";
 import type { IOdrlAgreement, IOdrlOffer } from "@twin.org/standards-w3c-odrl";
 
 /**
@@ -44,7 +44,7 @@ export class PolicyNegotiation {
 	 * The status of the negotiation.
 	 */
 	@property({ type: "string" })
-	public state!: IdsContractNegotiationStateType;
+	public state!: ContractNegotiationStateType;
 
 	/**
 	 * The callback address to send updates to the requester.

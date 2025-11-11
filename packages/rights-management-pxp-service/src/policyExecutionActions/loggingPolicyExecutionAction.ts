@@ -1,4 +1,4 @@
-// Copyright 2024 IOTA Stiftung.
+// Copyright 2025 IOTA Stiftung.
 // SPDX-License-Identifier: Apache-2.0.
 import { ComponentFactory, Guards, type IComponent, Is } from "@twin.org/core";
 import type { ILoggingComponent } from "@twin.org/logging-models";
@@ -11,7 +11,7 @@ import {
 	PolicyDecisionStage
 } from "@twin.org/rights-management-models";
 import type { IOdrlPolicy } from "@twin.org/standards-w3c-odrl";
-import type { ILoggingPolicyExecutionActionConstructorOptions } from "../models/ILoggingPolicyExecutionActionConstructorOptions";
+import type { ILoggingPolicyExecutionActionConstructorOptions } from "../models/ILoggingPolicyExecutionActionConstructorOptions.js";
 
 /**
  * Logging Policy Execution Action to send decisions to logging.
@@ -68,6 +68,14 @@ export class LoggingPolicyExecutionAction implements IPolicyExecutionAction, ICo
 	}
 
 	/**
+	 * Returns the class name of the component.
+	 * @returns The class name of the component.
+	 */
+	public className(): string {
+		return LoggingPolicyExecutionAction.CLASS_NAME;
+	}
+
+	/**
 	 * Which stages should the action be executed at.
 	 * @returns List of stages.
 	 */
@@ -114,7 +122,7 @@ export class LoggingPolicyExecutionAction implements IPolicyExecutionAction, ICo
 			const logDecisions = this._includeDecisions ? decisions : "[...]";
 
 			if (stage === PolicyDecisionStage.Before) {
-				this._logging.log({
+				await this._logging.log({
 					level: "info",
 					source: LoggingPolicyExecutionAction.CLASS_NAME,
 					ts: Date.now(),
@@ -128,7 +136,7 @@ export class LoggingPolicyExecutionAction implements IPolicyExecutionAction, ICo
 					}
 				});
 			} else {
-				this._logging.log({
+				await this._logging.log({
 					level: "info",
 					source: LoggingPolicyExecutionAction.CLASS_NAME,
 					ts: Date.now(),

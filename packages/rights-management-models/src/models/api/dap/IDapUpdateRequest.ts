@@ -1,8 +1,7 @@
-// Copyright 2024 IOTA Stiftung.
+// Copyright 2025 IOTA Stiftung.
 // SPDX-License-Identifier: Apache-2.0.
-import type { IIdentityAuthenticationActionRequest } from "@twin.org/identity-authentication";
 import type { HeaderTypes, MimeTypes } from "@twin.org/web";
-import type { IDataAccessRequestWithObject } from "../../dap/jsonLd/IDataAccessRequestWithObject";
+import type { IDataAccessRequestWithObject } from "../../dap/jsonLd/IDataAccessRequestWithObject.js";
 
 /**
  * The request structure for updating an item with the DAP.
@@ -35,9 +34,4 @@ export interface IDapUpdateRequest {
 	 * The body parameters of the updated.
 	 */
 	body: IDataAccessRequestWithObject;
-
-	/**
-	 * The action request used in the verifiable credential.
-	 */
-	authentication: IIdentityAuthenticationActionRequest;
 }

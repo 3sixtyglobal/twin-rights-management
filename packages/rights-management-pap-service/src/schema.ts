@@ -1,8 +1,8 @@
-// Copyright 2024 IOTA Stiftung.
+// Copyright 2025 IOTA Stiftung.
 // SPDX-License-Identifier: Apache-2.0.
 import { EntitySchemaFactory, EntitySchemaHelper } from "@twin.org/entity";
 import { nameof } from "@twin.org/nameof";
-import { OdrlPolicy } from "./entities/odrlPolicy";
+import { OdrlPolicy } from "./entities/odrlPolicy.js";
 
 /**
  * Initialize the schema for the rights management policy administration point.

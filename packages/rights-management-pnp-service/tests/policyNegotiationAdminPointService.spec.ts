@@ -1,6 +1,7 @@
-// Copyright 2024 IOTA Stiftung.
+// Copyright 2025 IOTA Stiftung.
 // SPDX-License-Identifier: Apache-2.0.
 import { TaskSchedulerService } from "@twin.org/background-task-scheduler";
+import { ContextIdStore } from "@twin.org/context";
 import { ComponentFactory } from "@twin.org/core";
 import { MemoryEntityStorageConnector } from "@twin.org/entity-storage-connector-memory";
 import { EntityStorageConnectorFactory } from "@twin.org/entity-storage-models";
@@ -12,10 +13,10 @@ import {
 import { LoggingConnectorFactory } from "@twin.org/logging-models";
 import { LoggingService } from "@twin.org/logging-service";
 import { nameof } from "@twin.org/nameof";
-import { IdsContractNegotiationStateType } from "@twin.org/standards-ids-contract-negotiation";
-import type { PolicyNegotiation } from "../src/entities/policyNegotiation";
-import { PolicyNegotiationAdminPointService } from "../src/policyNegotiationAdminPointService";
-import { initSchema } from "../src/schema";
+import { ContractNegotiationStateType } from "@twin.org/standards-dataspace-protocol";
+import type { PolicyNegotiation } from "../src/entities/policyNegotiation.js";
+import { PolicyNegotiationAdminPointService } from "../src/policyNegotiationAdminPointService.js";
+import { initSchema } from "../src/schema.js";
 
 let loggingMemoryEntityStorage: MemoryEntityStorageConnector<LogEntry>;
 let policyNegotiationMemoryEntityStorage: MemoryEntityStorageConnector<PolicyNegotiation>;
@@ -41,6 +42,9 @@ describe("PolicyNegotiationAdminPointService", () => {
 			"policy-negotiation",
 			() => policyNegotiationMemoryEntityStorage
 		);
+		ContextIdStore.getContextIds = vi.fn().mockImplementation(() => ({
+			organization: "org"
+		}));
 	});
 
 	test("can create the service", async () => {
@@ -54,7 +58,7 @@ describe("PolicyNegotiationAdminPointService", () => {
 			id: "pid",
 			correlationId: "cid",
 			dateCreated: new Date().toISOString(),
-			state: IdsContractNegotiationStateType.REQUESTED
+			state: ContractNegotiationStateType.REQUESTED
 		};
 		await service.set(negotiation);
 		const result = await service.get("pid");
@@ -68,7 +72,7 @@ describe("PolicyNegotiationAdminPointService", () => {
 			id: "pid",
 			correlationId: "cid",
 			dateCreated: new Date().toISOString(),
-			state: IdsContractNegotiationStateType.REQUESTED,
+			state: ContractNegotiationStateType.REQUESTED,
 			interventionRequired: true
 		};
 		await service.set(negotiation);
@@ -90,7 +94,7 @@ describe("PolicyNegotiationAdminPointService", () => {
 			id: "pid",
 			correlationId: "cid",
 			dateCreated: new Date().toISOString(),
-			state: IdsContractNegotiationStateType.REQUESTED
+			state: ContractNegotiationStateType.REQUESTED
 		};
 		await service.set(negotiation);
 		await service.remove("pid");
@@ -109,7 +113,7 @@ describe("PolicyNegotiationAdminPointService", () => {
 			id: "pid",
 			correlationId: "cid",
 			dateCreated: new Date().toISOString(),
-			state: IdsContractNegotiationStateType.REQUESTED
+			state: ContractNegotiationStateType.REQUESTED
 		};
 
 		Date.now = vi.fn().mockImplementation(() => now - msInDay);
@@ -119,14 +123,14 @@ describe("PolicyNegotiationAdminPointService", () => {
 			id: "pid2",
 			correlationId: "cid2",
 			dateCreated: new Date().toISOString(),
-			state: IdsContractNegotiationStateType.REQUESTED
+			state: ContractNegotiationStateType.REQUESTED
 		};
 
 		Date.now = vi.fn().mockImplementation(() => now + msInDay);
 		await service.set(negotiation2);
 
 		vi.clearAllMocks();
-		await service.start("nid", undefined);
+		await service.start();
 
 		await expect(service.get("pid")).rejects.toMatchObject({
 			name: expect.stringMatching("NotFoundError")

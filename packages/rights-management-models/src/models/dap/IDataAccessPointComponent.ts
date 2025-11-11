@@ -1,10 +1,10 @@
-// Copyright 2024 IOTA Stiftung.
+// Copyright 2025 IOTA Stiftung.
 // SPDX-License-Identifier: Apache-2.0.
 import type { IComponent } from "@twin.org/core";
 import type { IJsonLdNodeObject } from "@twin.org/data-json-ld";
 import type { EntityCondition } from "@twin.org/entity";
 import type { IIdentityAuthenticationActionRequest } from "@twin.org/identity-authentication";
-import type { IDataAccessHandler } from "./IDataAccessHandler";
+import type { IDataAccessHandler } from "./IDataAccessHandler.js";
 
 /**
  * Interface describing a Data Access Point (DAP) contract.

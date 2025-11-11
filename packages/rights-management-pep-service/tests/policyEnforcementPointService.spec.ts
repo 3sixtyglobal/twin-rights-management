@@ -1,6 +1,5 @@
-// Copyright 2024 IOTA Stiftung.
+// Copyright 2025 IOTA Stiftung.
 // SPDX-License-Identifier: Apache-2.0.
-/* eslint-disable max-classes-per-file */
 import { ComponentFactory, GeneralError } from "@twin.org/core";
 import { MemoryEntityStorageConnector } from "@twin.org/entity-storage-connector-memory";
 import { EntityStorageConnectorFactory } from "@twin.org/entity-storage-models";
@@ -26,7 +25,7 @@ import {
 import { PolicyInformationPointService } from "@twin.org/rights-management-pip-service";
 import { PolicyManagementPointService } from "@twin.org/rights-management-pmp-service";
 import { PolicyExecutionPointService } from "@twin.org/rights-management-pxp-service";
-import { PolicyEnforcementPointService } from "../src/policyEnforcementPointService";
+import { PolicyEnforcementPointService } from "../src/policyEnforcementPointService.js";
 
 /**
  * Mock Policy Decision Point Component
@@ -42,6 +41,14 @@ class MockPolicyDecisionPointComponent implements IPolicyDecisionPointComponent 
 
 	// eslint-disable-next-line no-restricted-syntax
 	public unregisterArbiter = vi.fn();
+
+	/**
+	 * Returns the class name of the component.
+	 * @returns The class name of the component.
+	 */
+	public className(): string {
+		return "MockPolicyDecisionPointComponent";
+	}
 }
 
 /**

@@ -37,9 +37,27 @@ The class name of the Static Policy Information Source.
 
 ## Methods
 
+### className()
+
+> **className**(): `string`
+
+Returns the class name of the component.
+
+#### Returns
+
+`string`
+
+The class name of the component.
+
+#### Implementation of
+
+`IComponent.className`
+
+***
+
 ### retrieve()
 
-> **retrieve**\<`D`\>(`locator`, `accessMode`, `policies`, `data?`): `Promise`\<`undefined` \| `IJsonLdNodeObject`[]\>
+> **retrieve**\<`D`\>(`locator`, `accessMode`, `policies`, `data?`): `Promise`\<`IJsonLdNodeObject`[] \| `undefined`\>
 
 Retrieve information from the sources.
 
@@ -77,7 +95,7 @@ The data to process.
 
 #### Returns
 
-`Promise`\<`undefined` \| `IJsonLdNodeObject`[]\>
+`Promise`\<`IJsonLdNodeObject`[] \| `undefined`\>
 
 The objects containing relevant information or undefined if nothing relevant is found.
 

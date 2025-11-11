@@ -1,10 +1,10 @@
-// Copyright 2024 IOTA Stiftung.
+// Copyright 2025 IOTA Stiftung.
 // SPDX-License-Identifier: Apache-2.0.
 import {
 	AuthenticationGeneratorFactory,
 	type IAuthenticationGenerator
 } from "@twin.org/api-models";
-import { DataAccessPointRestClient } from "../src/dataAccessPointRestClient";
+import { DataAccessPointRestClient } from "../src/dataAccessPointRestClient.js";
 
 describe("DataAccessPointRestClient", () => {
 	test("Can create an instance", async () => {

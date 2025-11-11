@@ -36,25 +36,37 @@ The class name of the Policy Negotiation Admin Point Service.
 
 ## Methods
 
+### className()
+
+> **className**(): `string`
+
+Returns the class name of the component.
+
+#### Returns
+
+`string`
+
+The class name of the component.
+
+#### Implementation of
+
+`IPolicyNegotiationAdminPointComponent.className`
+
+***
+
 ### start()
 
-> **start**(`nodeIdentity`, `nodeLoggingComponentType`): `Promise`\<`void`\>
+> **start**(`nodeLoggingComponentType?`): `Promise`\<`void`\>
 
 The component needs to be started when the node is initialized.
 
 #### Parameters
 
-##### nodeIdentity
+##### nodeLoggingComponentType?
 
 `string`
 
-The identity of the node starting the component.
-
-##### nodeLoggingComponentType
-
 The node logging component type.
-
-`undefined` | `string`
 
 #### Returns
 
@@ -70,23 +82,17 @@ Nothing.
 
 ### stop()
 
-> **stop**(`nodeIdentity`, `nodeLoggingComponentType`): `Promise`\<`void`\>
+> **stop**(`nodeLoggingComponentType?`): `Promise`\<`void`\>
 
 The component needs to be stopped when the node is closed.
 
 #### Parameters
 
-##### nodeIdentity
+##### nodeLoggingComponentType?
 
 `string`
 
-The identity of the node stopping the component.
-
-##### nodeLoggingComponentType
-
 The node logging component type.
-
-`undefined` | `string`
 
 #### Returns
 
@@ -188,7 +194,7 @@ Get a list of the negotiations.
 
 ##### status?
 
-`IdsContractNegotiationStateType`
+`ContractNegotiationStateType`
 
 The status of the negotiations to retrieve.
 

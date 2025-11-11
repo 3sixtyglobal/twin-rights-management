@@ -71,71 +71,21 @@
 					}
 				},
 				"responses": {
-					"201": {
+					"200": {
 						"description": "The rest request ended in created response.",
+						"content": {
+							"text/plain": {
+								"schema": {
+									"$ref": "#/components/schemas/CreatedResponse"
+								}
+							}
+						},
 						"headers": {
 							"location": {
 								"schema": {
 									"type": "string"
 								},
 								"description": "e.g. urn:rights-management:abc123def456"
-							}
-						}
-					},
-					"400": {
-						"description": "The server cannot process the request, see the content for more details.",
-						"content": {
-							"application/json": {
-								"schema": {
-									"$ref": "#/components/schemas/Error"
-								},
-								"examples": {
-									"exampleResponse": {
-										"value": {
-											"name": "GeneralError",
-											"message": "errorMessage",
-											"properties": {
-												"foo": "bar"
-											}
-										}
-									}
-								}
-							}
-						}
-					},
-					"401": {
-						"description": "You are not authorized to use the API or no credentials were supplied, see the content for more details.",
-						"content": {
-							"application/json": {
-								"schema": {
-									"$ref": "#/components/schemas/Error"
-								},
-								"examples": {
-									"exampleResponse": {
-										"value": {
-											"name": "UnauthorizedError",
-											"message": "errorMessage"
-										}
-									}
-								}
-							}
-						}
-					},
-					"500": {
-						"description": "The server has encountered a situation it does not know how to handle, see the content for more details.",
-						"content": {
-							"application/json": {
-								"schema": {
-									"$ref": "#/components/schemas/Error"
-								},
-								"examples": {
-									"exampleResponse": {
-										"value": {
-											"name": "InternalServerError",
-											"message": "errorMessage"
-										}
-									}
-								}
 							}
 						}
 					}
@@ -212,63 +162,6 @@
 								}
 							}
 						}
-					},
-					"400": {
-						"description": "The server cannot process the request, see the content for more details.",
-						"content": {
-							"application/json": {
-								"schema": {
-									"$ref": "#/components/schemas/Error"
-								},
-								"examples": {
-									"exampleResponse": {
-										"value": {
-											"name": "GeneralError",
-											"message": "errorMessage",
-											"properties": {
-												"foo": "bar"
-											}
-										}
-									}
-								}
-							}
-						}
-					},
-					"401": {
-						"description": "You are not authorized to use the API or no credentials were supplied, see the content for more details.",
-						"content": {
-							"application/json": {
-								"schema": {
-									"$ref": "#/components/schemas/Error"
-								},
-								"examples": {
-									"exampleResponse": {
-										"value": {
-											"name": "UnauthorizedError",
-											"message": "errorMessage"
-										}
-									}
-								}
-							}
-						}
-					},
-					"500": {
-						"description": "The server has encountered a situation it does not know how to handle, see the content for more details.",
-						"content": {
-							"application/json": {
-								"schema": {
-									"$ref": "#/components/schemas/Error"
-								},
-								"examples": {
-									"exampleResponse": {
-										"value": {
-											"name": "InternalServerError",
-											"message": "errorMessage"
-										}
-									}
-								}
-							}
-						}
 					}
 				}
 			}
@@ -325,62 +218,12 @@
 					}
 				},
 				"responses": {
-					"204": {
-						"description": "The rest request ended in success with no data."
-					},
-					"400": {
-						"description": "The server cannot process the request, see the content for more details.",
+					"200": {
+						"description": "The rest request ended in success with no data.",
 						"content": {
-							"application/json": {
+							"text/plain": {
 								"schema": {
-									"$ref": "#/components/schemas/Error"
-								},
-								"examples": {
-									"exampleResponse": {
-										"value": {
-											"name": "GeneralError",
-											"message": "errorMessage",
-											"properties": {
-												"foo": "bar"
-											}
-										}
-									}
-								}
-							}
-						}
-					},
-					"401": {
-						"description": "You are not authorized to use the API or no credentials were supplied, see the content for more details.",
-						"content": {
-							"application/json": {
-								"schema": {
-									"$ref": "#/components/schemas/Error"
-								},
-								"examples": {
-									"exampleResponse": {
-										"value": {
-											"name": "UnauthorizedError",
-											"message": "errorMessage"
-										}
-									}
-								}
-							}
-						}
-					},
-					"500": {
-						"description": "The server has encountered a situation it does not know how to handle, see the content for more details.",
-						"content": {
-							"application/json": {
-								"schema": {
-									"$ref": "#/components/schemas/Error"
-								},
-								"examples": {
-									"exampleResponse": {
-										"value": {
-											"name": "InternalServerError",
-											"message": "errorMessage"
-										}
-									}
+									"$ref": "#/components/schemas/NoContentResponse"
 								}
 							}
 						}
@@ -436,63 +279,6 @@
 								}
 							}
 						}
-					},
-					"400": {
-						"description": "The server cannot process the request, see the content for more details.",
-						"content": {
-							"application/json": {
-								"schema": {
-									"$ref": "#/components/schemas/Error"
-								},
-								"examples": {
-									"exampleResponse": {
-										"value": {
-											"name": "GeneralError",
-											"message": "errorMessage",
-											"properties": {
-												"foo": "bar"
-											}
-										}
-									}
-								}
-							}
-						}
-					},
-					"401": {
-						"description": "You are not authorized to use the API or no credentials were supplied, see the content for more details.",
-						"content": {
-							"application/json": {
-								"schema": {
-									"$ref": "#/components/schemas/Error"
-								},
-								"examples": {
-									"exampleResponse": {
-										"value": {
-											"name": "UnauthorizedError",
-											"message": "errorMessage"
-										}
-									}
-								}
-							}
-						}
-					},
-					"500": {
-						"description": "The server has encountered a situation it does not know how to handle, see the content for more details.",
-						"content": {
-							"application/json": {
-								"schema": {
-									"$ref": "#/components/schemas/Error"
-								},
-								"examples": {
-									"exampleResponse": {
-										"value": {
-											"name": "InternalServerError",
-											"message": "errorMessage"
-										}
-									}
-								}
-							}
-						}
 					}
 				}
 			},
@@ -521,62 +307,12 @@
 					}
 				],
 				"responses": {
-					"204": {
-						"description": "The rest request ended in success with no data."
-					},
-					"400": {
-						"description": "The server cannot process the request, see the content for more details.",
+					"200": {
+						"description": "The rest request ended in success with no data.",
 						"content": {
-							"application/json": {
+							"text/plain": {
 								"schema": {
-									"$ref": "#/components/schemas/Error"
-								},
-								"examples": {
-									"exampleResponse": {
-										"value": {
-											"name": "GeneralError",
-											"message": "errorMessage",
-											"properties": {
-												"foo": "bar"
-											}
-										}
-									}
-								}
-							}
-						}
-					},
-					"401": {
-						"description": "You are not authorized to use the API or no credentials were supplied, see the content for more details.",
-						"content": {
-							"application/json": {
-								"schema": {
-									"$ref": "#/components/schemas/Error"
-								},
-								"examples": {
-									"exampleResponse": {
-										"value": {
-											"name": "UnauthorizedError",
-											"message": "errorMessage"
-										}
-									}
-								}
-							}
-						}
-					},
-					"500": {
-						"description": "The server has encountered a situation it does not know how to handle, see the content for more details.",
-						"content": {
-							"application/json": {
-								"schema": {
-									"$ref": "#/components/schemas/Error"
-								},
-								"examples": {
-									"exampleResponse": {
-										"value": {
-											"name": "InternalServerError",
-											"message": "errorMessage"
-										}
-									}
+									"$ref": "#/components/schemas/NoContentResponse"
 								}
 							}
 						}
@@ -645,45 +381,6 @@
 								}
 							}
 						}
-					},
-					"400": {
-						"description": "The server cannot process the request, see the content for more details.",
-						"content": {
-							"application/json": {
-								"schema": {
-									"$ref": "#/components/schemas/Error"
-								},
-								"examples": {
-									"exampleResponse": {
-										"value": {
-											"name": "GeneralError",
-											"message": "errorMessage",
-											"properties": {
-												"foo": "bar"
-											}
-										}
-									}
-								}
-							}
-						}
-					},
-					"500": {
-						"description": "The server has encountered a situation it does not know how to handle, see the content for more details.",
-						"content": {
-							"application/json": {
-								"schema": {
-									"$ref": "#/components/schemas/Error"
-								},
-								"examples": {
-									"exampleResponse": {
-										"value": {
-											"name": "InternalServerError",
-											"message": "errorMessage"
-										}
-									}
-								}
-							}
-						}
 					}
 				}
 			}
@@ -723,7 +420,7 @@
 					"content": {
 						"application/json": {
 							"schema": {
-								"$ref": "https://schema.twindev.org/ids-contract-negotiation/IdsContractRequestMessage"
+								"$ref": "https://schema.twindev.org/ids-contract-negotiation/ContractRequestMessage"
 							},
 							"examples": {
 								"pnpNegotiationRequestExample": {
@@ -764,45 +461,6 @@
 								}
 							}
 						}
-					},
-					"400": {
-						"description": "The server cannot process the request, see the content for more details.",
-						"content": {
-							"application/json": {
-								"schema": {
-									"$ref": "#/components/schemas/Error"
-								},
-								"examples": {
-									"exampleResponse": {
-										"value": {
-											"name": "GeneralError",
-											"message": "errorMessage",
-											"properties": {
-												"foo": "bar"
-											}
-										}
-									}
-								}
-							}
-						}
-					},
-					"500": {
-						"description": "The server has encountered a situation it does not know how to handle, see the content for more details.",
-						"content": {
-							"application/json": {
-								"schema": {
-									"$ref": "#/components/schemas/Error"
-								},
-								"examples": {
-									"exampleResponse": {
-										"value": {
-											"name": "InternalServerError",
-											"message": "errorMessage"
-										}
-									}
-								}
-							}
-						}
 					}
 				}
 			}
@@ -833,7 +491,7 @@
 					"content": {
 						"application/json": {
 							"schema": {
-								"$ref": "https://schema.twindev.org/ids-contract-negotiation/IdsContractRequestMessage"
+								"$ref": "https://schema.twindev.org/ids-contract-negotiation/ContractRequestMessage"
 							},
 							"examples": {
 								"pnpNegotiationProviderRequestExample": {
@@ -859,46 +517,7 @@
 						"content": {
 							"application/json": {
 								"schema": {
-									"$ref": "https://schema.twindev.org/ids-contract-negotiation/IdsContractNegotiationError"
-								}
-							}
-						}
-					},
-					"400": {
-						"description": "The server cannot process the request, see the content for more details.",
-						"content": {
-							"application/json": {
-								"schema": {
-									"$ref": "#/components/schemas/Error"
-								},
-								"examples": {
-									"exampleResponse": {
-										"value": {
-											"name": "GeneralError",
-											"message": "errorMessage",
-											"properties": {
-												"foo": "bar"
-											}
-										}
-									}
-								}
-							}
-						}
-					},
-					"500": {
-						"description": "The server has encountered a situation it does not know how to handle, see the content for more details.",
-						"content": {
-							"application/json": {
-								"schema": {
-									"$ref": "#/components/schemas/Error"
-								},
-								"examples": {
-									"exampleResponse": {
-										"value": {
-											"name": "InternalServerError",
-											"message": "errorMessage"
-										}
-									}
+									"$ref": "https://schema.twindev.org/ids-contract-negotiation/ContractNegotiationError"
 								}
 							}
 						}
@@ -952,7 +571,7 @@
 					"content": {
 						"application/json": {
 							"schema": {
-								"$ref": "https://schema.twindev.org/ids-contract-negotiation/IdsContractNegotiationEventMessage"
+								"$ref": "https://schema.twindev.org/ids-contract-negotiation/ContractNegotiationEventMessage"
 							},
 							"examples": {
 								"pnpNegotiationEventsRequestExample": {
@@ -974,46 +593,7 @@
 						"content": {
 							"application/json": {
 								"schema": {
-									"$ref": "https://schema.twindev.org/ids-contract-negotiation/IdsContractNegotiationError"
-								}
-							}
-						}
-					},
-					"400": {
-						"description": "The server cannot process the request, see the content for more details.",
-						"content": {
-							"application/json": {
-								"schema": {
-									"$ref": "#/components/schemas/Error"
-								},
-								"examples": {
-									"exampleResponse": {
-										"value": {
-											"name": "GeneralError",
-											"message": "errorMessage",
-											"properties": {
-												"foo": "bar"
-											}
-										}
-									}
-								}
-							}
-						}
-					},
-					"500": {
-						"description": "The server has encountered a situation it does not know how to handle, see the content for more details.",
-						"content": {
-							"application/json": {
-								"schema": {
-									"$ref": "#/components/schemas/Error"
-								},
-								"examples": {
-									"exampleResponse": {
-										"value": {
-											"name": "InternalServerError",
-											"message": "errorMessage"
-										}
-									}
+									"$ref": "https://schema.twindev.org/ids-contract-negotiation/ContractNegotiationError"
 								}
 							}
 						}
@@ -1067,7 +647,7 @@
 					"content": {
 						"application/json": {
 							"schema": {
-								"$ref": "https://schema.twindev.org/ids-contract-negotiation/IdsContractAgreementVerificationMessage"
+								"$ref": "https://schema.twindev.org/ids-contract-negotiation/ContractAgreementVerificationMessage"
 							},
 							"examples": {
 								"pnpNegotiationAgreementVerificationRequestExample": {
@@ -1088,46 +668,7 @@
 						"content": {
 							"application/json": {
 								"schema": {
-									"$ref": "https://schema.twindev.org/ids-contract-negotiation/IdsContractNegotiationError"
-								}
-							}
-						}
-					},
-					"400": {
-						"description": "The server cannot process the request, see the content for more details.",
-						"content": {
-							"application/json": {
-								"schema": {
-									"$ref": "#/components/schemas/Error"
-								},
-								"examples": {
-									"exampleResponse": {
-										"value": {
-											"name": "GeneralError",
-											"message": "errorMessage",
-											"properties": {
-												"foo": "bar"
-											}
-										}
-									}
-								}
-							}
-						}
-					},
-					"500": {
-						"description": "The server has encountered a situation it does not know how to handle, see the content for more details.",
-						"content": {
-							"application/json": {
-								"schema": {
-									"$ref": "#/components/schemas/Error"
-								},
-								"examples": {
-									"exampleResponse": {
-										"value": {
-											"name": "InternalServerError",
-											"message": "errorMessage"
-										}
-									}
+									"$ref": "https://schema.twindev.org/ids-contract-negotiation/ContractNegotiationError"
 								}
 							}
 						}
@@ -1181,7 +722,7 @@
 					"content": {
 						"application/json": {
 							"schema": {
-								"$ref": "https://schema.twindev.org/ids-contract-negotiation/IdsContractNegotiationTerminationMessage"
+								"$ref": "https://schema.twindev.org/ids-contract-negotiation/ContractNegotiationTerminationMessage"
 							},
 							"examples": {
 								"pnpNegotiationTerminationRequestExample": {
@@ -1202,46 +743,7 @@
 						"content": {
 							"application/json": {
 								"schema": {
-									"$ref": "https://schema.twindev.org/ids-contract-negotiation/IdsContractNegotiationError"
-								}
-							}
-						}
-					},
-					"400": {
-						"description": "The server cannot process the request, see the content for more details.",
-						"content": {
-							"application/json": {
-								"schema": {
-									"$ref": "#/components/schemas/Error"
-								},
-								"examples": {
-									"exampleResponse": {
-										"value": {
-											"name": "GeneralError",
-											"message": "errorMessage",
-											"properties": {
-												"foo": "bar"
-											}
-										}
-									}
-								}
-							}
-						}
-					},
-					"500": {
-						"description": "The server has encountered a situation it does not know how to handle, see the content for more details.",
-						"content": {
-							"application/json": {
-								"schema": {
-									"$ref": "#/components/schemas/Error"
-								},
-								"examples": {
-									"exampleResponse": {
-										"value": {
-											"name": "InternalServerError",
-											"message": "errorMessage"
-										}
-									}
+									"$ref": "https://schema.twindev.org/ids-contract-negotiation/ContractNegotiationError"
 								}
 							}
 						}
@@ -1284,7 +786,7 @@
 					"content": {
 						"application/json": {
 							"schema": {
-								"$ref": "https://schema.twindev.org/ids-contract-negotiation/IdsContractOfferMessage"
+								"$ref": "https://schema.twindev.org/ids-contract-negotiation/ContractOfferMessage"
 							},
 							"examples": {
 								"pnpNegotiationOfferRequestExample": {
@@ -1311,7 +813,7 @@
 						"content": {
 							"application/json": {
 								"schema": {
-									"$ref": "https://schema.twindev.org/ids-contract-negotiation/IdsContractNegotiationError"
+									"$ref": "https://schema.twindev.org/ids-contract-negotiation/ContractNegotiationError"
 								},
 								"examples": {
 									"pnpNegotiationOfferResponseExample": {
@@ -1320,45 +822,6 @@
 											"@type": "ContractRequestMessage",
 											"providerPid": "urn:contract-negotiation:00aa11bb.......ffff",
 											"consumerPid": "urn:contract-negotiation:22aa11bb.......ffff"
-										}
-									}
-								}
-							}
-						}
-					},
-					"400": {
-						"description": "The server cannot process the request, see the content for more details.",
-						"content": {
-							"application/json": {
-								"schema": {
-									"$ref": "#/components/schemas/Error"
-								},
-								"examples": {
-									"exampleResponse": {
-										"value": {
-											"name": "GeneralError",
-											"message": "errorMessage",
-											"properties": {
-												"foo": "bar"
-											}
-										}
-									}
-								}
-							}
-						}
-					},
-					"500": {
-						"description": "The server has encountered a situation it does not know how to handle, see the content for more details.",
-						"content": {
-							"application/json": {
-								"schema": {
-									"$ref": "#/components/schemas/Error"
-								},
-								"examples": {
-									"exampleResponse": {
-										"value": {
-											"name": "InternalServerError",
-											"message": "errorMessage"
 										}
 									}
 								}
@@ -1394,7 +857,7 @@
 					"content": {
 						"application/json": {
 							"schema": {
-								"$ref": "https://schema.twindev.org/ids-contract-negotiation/IdsContractOfferMessage"
+								"$ref": "https://schema.twindev.org/ids-contract-negotiation/ContractOfferMessage"
 							},
 							"examples": {
 								"pnpNegotiationConsumerOfferRequestExample": {
@@ -1421,7 +884,7 @@
 						"content": {
 							"application/json": {
 								"schema": {
-									"$ref": "https://schema.twindev.org/ids-contract-negotiation/IdsContractNegotiationError"
+									"$ref": "https://schema.twindev.org/ids-contract-negotiation/ContractNegotiationError"
 								},
 								"examples": {
 									"pnpNegotiationConsumerOfferResponseExample": {
@@ -1430,45 +893,6 @@
 											"@type": "ContractNegotiation",
 											"providerPid": "urn:contract-negotiation:00aa11bb.......ffff",
 											"consumerPid": "urn:contract-negotiation:22aa11bb.......ffff"
-										}
-									}
-								}
-							}
-						}
-					},
-					"400": {
-						"description": "The server cannot process the request, see the content for more details.",
-						"content": {
-							"application/json": {
-								"schema": {
-									"$ref": "#/components/schemas/Error"
-								},
-								"examples": {
-									"exampleResponse": {
-										"value": {
-											"name": "GeneralError",
-											"message": "errorMessage",
-											"properties": {
-												"foo": "bar"
-											}
-										}
-									}
-								}
-							}
-						}
-					},
-					"500": {
-						"description": "The server has encountered a situation it does not know how to handle, see the content for more details.",
-						"content": {
-							"application/json": {
-								"schema": {
-									"$ref": "#/components/schemas/Error"
-								},
-								"examples": {
-									"exampleResponse": {
-										"value": {
-											"name": "InternalServerError",
-											"message": "errorMessage"
 										}
 									}
 								}
@@ -1524,7 +948,7 @@
 					"content": {
 						"application/json": {
 							"schema": {
-								"$ref": "https://schema.twindev.org/ids-contract-negotiation/IdsContractAgreementMessage"
+								"$ref": "https://schema.twindev.org/ids-contract-negotiation/ContractAgreementMessage"
 							},
 							"examples": {
 								"pnpNegotiationAgreementRequestExample": {
@@ -1552,46 +976,7 @@
 						"content": {
 							"application/json": {
 								"schema": {
-									"$ref": "https://schema.twindev.org/ids-contract-negotiation/IdsContractNegotiationError"
-								}
-							}
-						}
-					},
-					"400": {
-						"description": "The server cannot process the request, see the content for more details.",
-						"content": {
-							"application/json": {
-								"schema": {
-									"$ref": "#/components/schemas/Error"
-								},
-								"examples": {
-									"exampleResponse": {
-										"value": {
-											"name": "GeneralError",
-											"message": "errorMessage",
-											"properties": {
-												"foo": "bar"
-											}
-										}
-									}
-								}
-							}
-						}
-					},
-					"500": {
-						"description": "The server has encountered a situation it does not know how to handle, see the content for more details.",
-						"content": {
-							"application/json": {
-								"schema": {
-									"$ref": "#/components/schemas/Error"
-								},
-								"examples": {
-									"exampleResponse": {
-										"value": {
-											"name": "InternalServerError",
-											"message": "errorMessage"
-										}
-									}
+									"$ref": "https://schema.twindev.org/ids-contract-negotiation/ContractNegotiationError"
 								}
 							}
 						}
@@ -1639,63 +1024,6 @@
 											"correlationId": "cid",
 											"dateCreated": "2025-09-03T00:00:00.000Z",
 											"state": "REQUESTED"
-										}
-									}
-								}
-							}
-						}
-					},
-					"400": {
-						"description": "The server cannot process the request, see the content for more details.",
-						"content": {
-							"application/json": {
-								"schema": {
-									"$ref": "#/components/schemas/Error"
-								},
-								"examples": {
-									"exampleResponse": {
-										"value": {
-											"name": "GeneralError",
-											"message": "errorMessage",
-											"properties": {
-												"foo": "bar"
-											}
-										}
-									}
-								}
-							}
-						}
-					},
-					"401": {
-						"description": "You are not authorized to use the API or no credentials were supplied, see the content for more details.",
-						"content": {
-							"application/json": {
-								"schema": {
-									"$ref": "#/components/schemas/Error"
-								},
-								"examples": {
-									"exampleResponse": {
-										"value": {
-											"name": "UnauthorizedError",
-											"message": "errorMessage"
-										}
-									}
-								}
-							}
-						}
-					},
-					"500": {
-						"description": "The server has encountered a situation it does not know how to handle, see the content for more details.",
-						"content": {
-							"application/json": {
-								"schema": {
-									"$ref": "#/components/schemas/Error"
-								},
-								"examples": {
-									"exampleResponse": {
-										"value": {
-											"name": "InternalServerError",
-											"message": "errorMessage"
 										}
 									}
 								}
@@ -1750,62 +1078,12 @@
 					}
 				},
 				"responses": {
-					"204": {
-						"description": "The rest request ended in success with no data."
-					},
-					"400": {
-						"description": "The server cannot process the request, see the content for more details.",
+					"200": {
+						"description": "The rest request ended in success with no data.",
 						"content": {
-							"application/json": {
+							"text/plain": {
 								"schema": {
-									"$ref": "#/components/schemas/Error"
-								},
-								"examples": {
-									"exampleResponse": {
-										"value": {
-											"name": "GeneralError",
-											"message": "errorMessage",
-											"properties": {
-												"foo": "bar"
-											}
-										}
-									}
-								}
-							}
-						}
-					},
-					"401": {
-						"description": "You are not authorized to use the API or no credentials were supplied, see the content for more details.",
-						"content": {
-							"application/json": {
-								"schema": {
-									"$ref": "#/components/schemas/Error"
-								},
-								"examples": {
-									"exampleResponse": {
-										"value": {
-											"name": "UnauthorizedError",
-											"message": "errorMessage"
-										}
-									}
-								}
-							}
-						}
-					},
-					"500": {
-						"description": "The server has encountered a situation it does not know how to handle, see the content for more details.",
-						"content": {
-							"application/json": {
-								"schema": {
-									"$ref": "#/components/schemas/Error"
-								},
-								"examples": {
-									"exampleResponse": {
-										"value": {
-											"name": "InternalServerError",
-											"message": "errorMessage"
-										}
-									}
+									"$ref": "#/components/schemas/NoContentResponse"
 								}
 							}
 						}
@@ -1837,62 +1115,12 @@
 					}
 				],
 				"responses": {
-					"204": {
-						"description": "The rest request ended in success with no data."
-					},
-					"400": {
-						"description": "The server cannot process the request, see the content for more details.",
+					"200": {
+						"description": "The rest request ended in success with no data.",
 						"content": {
-							"application/json": {
+							"text/plain": {
 								"schema": {
-									"$ref": "#/components/schemas/Error"
-								},
-								"examples": {
-									"exampleResponse": {
-										"value": {
-											"name": "GeneralError",
-											"message": "errorMessage",
-											"properties": {
-												"foo": "bar"
-											}
-										}
-									}
-								}
-							}
-						}
-					},
-					"401": {
-						"description": "You are not authorized to use the API or no credentials were supplied, see the content for more details.",
-						"content": {
-							"application/json": {
-								"schema": {
-									"$ref": "#/components/schemas/Error"
-								},
-								"examples": {
-									"exampleResponse": {
-										"value": {
-											"name": "UnauthorizedError",
-											"message": "errorMessage"
-										}
-									}
-								}
-							}
-						}
-					},
-					"500": {
-						"description": "The server has encountered a situation it does not know how to handle, see the content for more details.",
-						"content": {
-							"application/json": {
-								"schema": {
-									"$ref": "#/components/schemas/Error"
-								},
-								"examples": {
-									"exampleResponse": {
-										"value": {
-											"name": "InternalServerError",
-											"message": "errorMessage"
-										}
-									}
+									"$ref": "#/components/schemas/NoContentResponse"
 								}
 							}
 						}
@@ -1914,7 +1142,7 @@
 						"in": "query",
 						"required": false,
 						"schema": {
-							"$ref": "https://schema.twindev.org/ids-contract-negotiation/IdsContractNegotiationStateType"
+							"$ref": "https://schema.twindev.org/ids-contract-negotiation/ContractNegotiationStateType"
 						},
 						"example": "ACCEPTED"
 					},
@@ -1954,63 +1182,6 @@
 												}
 											],
 											"cursor": "next-cursor"
-										}
-									}
-								}
-							}
-						}
-					},
-					"400": {
-						"description": "The server cannot process the request, see the content for more details.",
-						"content": {
-							"application/json": {
-								"schema": {
-									"$ref": "#/components/schemas/Error"
-								},
-								"examples": {
-									"exampleResponse": {
-										"value": {
-											"name": "GeneralError",
-											"message": "errorMessage",
-											"properties": {
-												"foo": "bar"
-											}
-										}
-									}
-								}
-							}
-						}
-					},
-					"401": {
-						"description": "You are not authorized to use the API or no credentials were supplied, see the content for more details.",
-						"content": {
-							"application/json": {
-								"schema": {
-									"$ref": "#/components/schemas/Error"
-								},
-								"examples": {
-									"exampleResponse": {
-										"value": {
-											"name": "UnauthorizedError",
-											"message": "errorMessage"
-										}
-									}
-								}
-							}
-						}
-					},
-					"500": {
-						"description": "The server has encountered a situation it does not know how to handle, see the content for more details.",
-						"content": {
-							"application/json": {
-								"schema": {
-									"$ref": "#/components/schemas/Error"
-								},
-								"examples": {
-									"exampleResponse": {
-										"value": {
-											"name": "InternalServerError",
-											"message": "errorMessage"
 										}
 									}
 								}
@@ -2086,53 +1257,21 @@
 					}
 				},
 				"responses": {
-					"201": {
+					"200": {
 						"description": "The rest request ended in created response.",
+						"content": {
+							"text/plain": {
+								"schema": {
+									"$ref": "#/components/schemas/CreatedResponse"
+								}
+							}
+						},
 						"headers": {
 							"location": {
 								"schema": {
 									"type": "string"
 								},
 								"description": "e.g. urn:contacts:abc123def456"
-							}
-						}
-					},
-					"400": {
-						"description": "The server cannot process the request, see the content for more details.",
-						"content": {
-							"application/json": {
-								"schema": {
-									"$ref": "#/components/schemas/Error"
-								},
-								"examples": {
-									"exampleResponse": {
-										"value": {
-											"name": "GeneralError",
-											"message": "errorMessage",
-											"properties": {
-												"foo": "bar"
-											}
-										}
-									}
-								}
-							}
-						}
-					},
-					"500": {
-						"description": "The server has encountered a situation it does not know how to handle, see the content for more details.",
-						"content": {
-							"application/json": {
-								"schema": {
-									"$ref": "#/components/schemas/Error"
-								},
-								"examples": {
-									"exampleResponse": {
-										"value": {
-											"name": "InternalServerError",
-											"message": "errorMessage"
-										}
-									}
-								}
 							}
 						}
 					}
@@ -2204,45 +1343,6 @@
 											"@context": "https://schema.org",
 											"type": "Person",
 											"name": "Jane Doe"
-										}
-									}
-								}
-							}
-						}
-					},
-					"400": {
-						"description": "The server cannot process the request, see the content for more details.",
-						"content": {
-							"application/json": {
-								"schema": {
-									"$ref": "#/components/schemas/Error"
-								},
-								"examples": {
-									"exampleResponse": {
-										"value": {
-											"name": "GeneralError",
-											"message": "errorMessage",
-											"properties": {
-												"foo": "bar"
-											}
-										}
-									}
-								}
-							}
-						}
-					},
-					"500": {
-						"description": "The server has encountered a situation it does not know how to handle, see the content for more details.",
-						"content": {
-							"application/json": {
-								"schema": {
-									"$ref": "#/components/schemas/Error"
-								},
-								"examples": {
-									"exampleResponse": {
-										"value": {
-											"name": "InternalServerError",
-											"message": "errorMessage"
 										}
 									}
 								}
@@ -2327,44 +1427,12 @@
 					}
 				},
 				"responses": {
-					"204": {
-						"description": "The rest request ended in success with no data."
-					},
-					"400": {
-						"description": "The server cannot process the request, see the content for more details.",
+					"200": {
+						"description": "The rest request ended in success with no data.",
 						"content": {
-							"application/json": {
+							"text/plain": {
 								"schema": {
-									"$ref": "#/components/schemas/Error"
-								},
-								"examples": {
-									"exampleResponse": {
-										"value": {
-											"name": "GeneralError",
-											"message": "errorMessage",
-											"properties": {
-												"foo": "bar"
-											}
-										}
-									}
-								}
-							}
-						}
-					},
-					"500": {
-						"description": "The server has encountered a situation it does not know how to handle, see the content for more details.",
-						"content": {
-							"application/json": {
-								"schema": {
-									"$ref": "#/components/schemas/Error"
-								},
-								"examples": {
-									"exampleResponse": {
-										"value": {
-											"name": "InternalServerError",
-											"message": "errorMessage"
-										}
-									}
+									"$ref": "#/components/schemas/NoContentResponse"
 								}
 							}
 						}
@@ -2422,44 +1490,12 @@
 					}
 				],
 				"responses": {
-					"204": {
-						"description": "The rest request ended in success with no data."
-					},
-					"400": {
-						"description": "The server cannot process the request, see the content for more details.",
+					"200": {
+						"description": "The rest request ended in success with no data.",
 						"content": {
-							"application/json": {
+							"text/plain": {
 								"schema": {
-									"$ref": "#/components/schemas/Error"
-								},
-								"examples": {
-									"exampleResponse": {
-										"value": {
-											"name": "GeneralError",
-											"message": "errorMessage",
-											"properties": {
-												"foo": "bar"
-											}
-										}
-									}
-								}
-							}
-						}
-					},
-					"500": {
-						"description": "The server has encountered a situation it does not know how to handle, see the content for more details.",
-						"content": {
-							"application/json": {
-								"schema": {
-									"$ref": "#/components/schemas/Error"
-								},
-								"examples": {
-									"exampleResponse": {
-										"value": {
-											"name": "InternalServerError",
-											"message": "errorMessage"
-										}
-									}
+									"$ref": "#/components/schemas/NoContentResponse"
 								}
 							}
 						}
@@ -2552,45 +1588,6 @@
 								}
 							}
 						}
-					},
-					"400": {
-						"description": "The server cannot process the request, see the content for more details.",
-						"content": {
-							"application/json": {
-								"schema": {
-									"$ref": "#/components/schemas/Error"
-								},
-								"examples": {
-									"exampleResponse": {
-										"value": {
-											"name": "GeneralError",
-											"message": "errorMessage",
-											"properties": {
-												"foo": "bar"
-											}
-										}
-									}
-								}
-							}
-						}
-					},
-					"500": {
-						"description": "The server has encountered a situation it does not know how to handle, see the content for more details.",
-						"content": {
-							"application/json": {
-								"schema": {
-									"$ref": "#/components/schemas/Error"
-								},
-								"examples": {
-									"exampleResponse": {
-										"value": {
-											"name": "InternalServerError",
-											"message": "errorMessage"
-										}
-									}
-								}
-							}
-						}
 					}
 				}
 			}
@@ -2625,13 +1622,10 @@
 				"properties": {
 					"conditions": {
 						"type": "array",
-						"items": false,
-						"description": "The conditions to join in a group.",
-						"prefixItems": [
-							{
-								"$ref": "#/components/schemas/EntityCondition<JsonLdNodeObject>"
-							}
-						]
+						"items": {
+							"$ref": "#/components/schemas/EntityCondition<JsonLdNodeObject>"
+						},
+						"description": "The conditions to join in a group."
 					},
 					"logicalOperator": {
 						"$ref": "#/components/schemas/LogicalOperator"
@@ -2704,41 +1698,6 @@
 				],
 				"description": "Type defining condition for entities filtering."
 			},
-			"Error": {
-				"type": "object",
-				"properties": {
-					"name": {
-						"type": "string",
-						"description": "The name for the error."
-					},
-					"message": {
-						"type": "string",
-						"description": "The message for the error."
-					},
-					"source": {
-						"type": "string",
-						"description": "The source of the error."
-					},
-					"properties": {
-						"type": "object",
-						"additionalProperties": {},
-						"description": "Any additional information for the error."
-					},
-					"stack": {
-						"type": "string",
-						"description": "The stack trace for the error."
-					},
-					"cause": {
-						"$ref": "#/components/schemas/Error"
-					}
-				},
-				"required": [
-					"name",
-					"message"
-				],
-				"additionalProperties": false,
-				"description": "Model to describe serialized error."
-			},
 			"LogicalOperator": {
 				"anyOf": [
 					{
@@ -2774,12 +1733,9 @@
 							},
 							{
 								"type": "array",
-								"items": false,
-								"prefixItems": [
-									{
-										"type": "string"
-									}
-								]
+								"items": {
+									"type": "string"
+								}
 							}
 						],
 						"description": "The profile(s) this policy conforms to. IRIs identifying the ODRL Profile(s)."
@@ -2816,19 +1772,16 @@
 							},
 							{
 								"type": "array",
-								"items": false,
-								"prefixItems": [
-									{
-										"anyOf": [
-											{
-												"type": "string"
-											},
-											{
-												"$ref": "https://schema.twindev.org/w3c-odrl/OdrlAsset"
-											}
-										]
-									}
-								]
+								"items": {
+									"anyOf": [
+										{
+											"type": "string"
+										},
+										{
+											"$ref": "https://schema.twindev.org/w3c-odrl/OdrlAsset"
+										}
+									]
+								}
 							}
 						],
 						"description": "The target asset for the rule."
@@ -2846,22 +1799,19 @@
 							},
 							{
 								"type": "array",
-								"items": false,
-								"prefixItems": [
-									{
-										"anyOf": [
-											{
-												"$ref": "https://schema.twindev.org/w3c-odrl/ActionType"
-											},
-											{
-												"type": "string"
-											},
-											{
-												"$ref": "https://schema.twindev.org/w3c-odrl/OdrlAction"
-											}
-										]
-									}
-								]
+								"items": {
+									"anyOf": [
+										{
+											"$ref": "https://schema.twindev.org/w3c-odrl/ActionType"
+										},
+										{
+											"type": "string"
+										},
+										{
+											"$ref": "https://schema.twindev.org/w3c-odrl/OdrlAction"
+										}
+									]
+								}
 							}
 						],
 						"description": "The action associated with the rule."
@@ -2873,12 +1823,9 @@
 							},
 							{
 								"type": "array",
-								"items": false,
-								"prefixItems": [
-									{
-										"type": "string"
-									}
-								]
+								"items": {
+									"type": "string"
+								}
 							}
 						],
 						"description": "The parent policy(ies) this policy inherits from. IRIs identifying the parent Policy(ies)."
@@ -2888,33 +1835,24 @@
 					},
 					"permission": {
 						"type": "array",
-						"items": false,
-						"description": "The permissions in the policy. At least one of permission, prohibition, or obligation must be present.",
-						"prefixItems": [
-							{
-								"$ref": "https://schema.twindev.org/w3c-odrl/OdrlPermission"
-							}
-						]
+						"items": {
+							"$ref": "https://schema.twindev.org/w3c-odrl/OdrlPermission"
+						},
+						"description": "The permissions in the policy. At least one of permission, prohibition, or obligation must be present."
 					},
 					"prohibition": {
 						"type": "array",
-						"items": false,
-						"description": "The prohibitions in the policy. At least one of permission, prohibition, or obligation must be present.",
-						"prefixItems": [
-							{
-								"$ref": "https://schema.twindev.org/w3c-odrl/OdrlProhibition"
-							}
-						]
+						"items": {
+							"$ref": "https://schema.twindev.org/w3c-odrl/OdrlProhibition"
+						},
+						"description": "The prohibitions in the policy. At least one of permission, prohibition, or obligation must be present."
 					},
 					"obligation": {
 						"type": "array",
-						"items": false,
-						"description": "The obligations in the policy. At least one of permission, prohibition, or obligation must be present.",
-						"prefixItems": [
-							{
-								"$ref": "https://schema.twindev.org/w3c-odrl/OdrlDuty"
-							}
-						]
+						"items": {
+							"$ref": "https://schema.twindev.org/w3c-odrl/OdrlDuty"
+						},
+						"description": "The obligations in the policy. At least one of permission, prohibition, or obligation must be present."
 					},
 					"@id": {
 						"anyOf": [
@@ -2923,12 +1861,9 @@
 							},
 							{
 								"type": "array",
-								"items": false,
-								"prefixItems": [
-									{
-										"$ref": "https://schema.twindev.org/json-ld/JsonLdNodePrimitive"
-									}
-								]
+								"items": {
+									"$ref": "https://schema.twindev.org/json-ld/JsonLdNodePrimitive"
+								}
 							},
 							{
 								"$ref": "https://schema.twindev.org/json-ld/JsonLdLanguageMap"
@@ -2954,12 +1889,9 @@
 							},
 							{
 								"type": "array",
-								"items": false,
-								"prefixItems": [
-									{
-										"$ref": "https://schema.twindev.org/json-ld/JsonLdNodePrimitive"
-									}
-								]
+								"items": {
+									"$ref": "https://schema.twindev.org/json-ld/JsonLdNodePrimitive"
+								}
 							},
 							{
 								"$ref": "https://schema.twindev.org/json-ld/JsonLdLanguageMap"
@@ -2985,12 +1917,9 @@
 							},
 							{
 								"type": "array",
-								"items": false,
-								"prefixItems": [
-									{
-										"$ref": "https://schema.twindev.org/json-ld/JsonLdNodePrimitive"
-									}
-								]
+								"items": {
+									"$ref": "https://schema.twindev.org/json-ld/JsonLdNodePrimitive"
+								}
 							},
 							{
 								"$ref": "https://schema.twindev.org/json-ld/JsonLdLanguageMap"
@@ -3016,12 +1945,9 @@
 							},
 							{
 								"type": "array",
-								"items": false,
-								"prefixItems": [
-									{
-										"$ref": "https://schema.twindev.org/json-ld/JsonLdNodePrimitive"
-									}
-								]
+								"items": {
+									"$ref": "https://schema.twindev.org/json-ld/JsonLdNodePrimitive"
+								}
 							},
 							{
 								"$ref": "https://schema.twindev.org/json-ld/JsonLdLanguageMap"
@@ -3047,12 +1973,9 @@
 							},
 							{
 								"type": "array",
-								"items": false,
-								"prefixItems": [
-									{
-										"$ref": "https://schema.twindev.org/json-ld/JsonLdNodePrimitive"
-									}
-								]
+								"items": {
+									"$ref": "https://schema.twindev.org/json-ld/JsonLdNodePrimitive"
+								}
 							},
 							{
 								"$ref": "https://schema.twindev.org/json-ld/JsonLdLanguageMap"
@@ -3078,12 +2001,9 @@
 							},
 							{
 								"type": "array",
-								"items": false,
-								"prefixItems": [
-									{
-										"$ref": "https://schema.twindev.org/json-ld/JsonLdNodePrimitive"
-									}
-								]
+								"items": {
+									"$ref": "https://schema.twindev.org/json-ld/JsonLdNodePrimitive"
+								}
 							},
 							{
 								"$ref": "https://schema.twindev.org/json-ld/JsonLdLanguageMap"
@@ -3124,13 +2044,10 @@
 					},
 					"policies": {
 						"type": "array",
-						"items": false,
-						"description": "The policies matching the query.",
-						"prefixItems": [
-							{
-								"$ref": "https://schema.twindev.org/w3c-odrl/OdrlPolicy"
-							}
-						]
+						"items": {
+							"$ref": "https://schema.twindev.org/w3c-odrl/OdrlPolicy"
+						},
+						"description": "The policies matching the query."
 					}
 				},
 				"required": [
@@ -3144,13 +2061,10 @@
 				"properties": {
 					"items": {
 						"type": "array",
-						"items": false,
-						"description": "The list of policy negotiations.",
-						"prefixItems": [
-							{
-								"$ref": "#/components/schemas/PolicyNegotiation"
-							}
-						]
+						"items": {
+							"$ref": "#/components/schemas/PolicyNegotiation"
+						},
+						"description": "The list of policy negotiations."
 					},
 					"cursor": {
 						"type": "string",
@@ -3166,10 +2080,10 @@
 			"PnpContractNegotiationResponse": {
 				"anyOf": [
 					{
-						"$ref": "https://schema.twindev.org/ids-contract-negotiation/IdsContractNegotiation"
+						"$ref": "https://schema.twindev.org/ids-contract-negotiation/ContractNegotiation"
 					},
 					{
-						"$ref": "https://schema.twindev.org/ids-contract-negotiation/IdsContractNegotiationError"
+						"$ref": "https://schema.twindev.org/ids-contract-negotiation/ContractNegotiationError"
 					}
 				],
 				"description": "The state of the policy or an error."
@@ -3183,13 +2097,10 @@
 			},
 			"PolicyInformationItems": {
 				"type": "array",
-				"items": false,
-				"description": "Interface describing a Policy Information.",
-				"prefixItems": [
-					{
-						"$ref": "https://schema.twindev.org/json-ld/JsonLdNodeObject"
-					}
-				]
+				"items": {
+					"$ref": "https://schema.twindev.org/json-ld/JsonLdNodeObject"
+				},
+				"description": "Interface describing a Policy Information."
 			},
 			"PolicyNegotiation": {
 				"type": "object",
@@ -3231,7 +2142,7 @@
 						"description": "The expiration time for the policy negotiation if it's a manual process."
 					},
 					"state": {
-						"$ref": "https://schema.twindev.org/ids-contract-negotiation/IdsContractNegotiationStateType"
+						"$ref": "https://schema.twindev.org/ids-contract-negotiation/ContractNegotiationStateType"
 					},
 					"callbackAddress": {
 						"type": "string",
@@ -3252,47 +2163,41 @@
 					},
 					"reason": {
 						"type": "array",
-						"items": false,
-						"description": "A more detailed reason for the negotiation error.",
-						"prefixItems": [
-							{
-								"type": "object",
-								"properties": {
-									"@value": {
-										"type": "string"
-									},
-									"@language": {
-										"type": "string"
-									}
+						"items": {
+							"type": "object",
+							"properties": {
+								"@value": {
+									"type": "string"
 								},
-								"required": [
-									"@value"
-								],
-								"additionalProperties": false
-							}
-						]
+								"@language": {
+									"type": "string"
+								}
+							},
+							"required": [
+								"@value"
+							],
+							"additionalProperties": false
+						},
+						"description": "A more detailed reason for the negotiation error."
 					},
 					"description": {
 						"type": "array",
-						"items": false,
-						"description": "A more detailed reason for the negotiation error.",
-						"prefixItems": [
-							{
-								"type": "object",
-								"properties": {
-									"@value": {
-										"type": "string"
-									},
-									"@language": {
-										"type": "string"
-									}
+						"items": {
+							"type": "object",
+							"properties": {
+								"@value": {
+									"type": "string"
 								},
-								"required": [
-									"@value"
-								],
-								"additionalProperties": false
-							}
-						]
+								"@language": {
+									"type": "string"
+								}
+							},
+							"required": [
+								"@value"
+							],
+							"additionalProperties": false
+						},
+						"description": "A more detailed reason for the negotiation error."
 					},
 					"handlerId": {
 						"type": "string",

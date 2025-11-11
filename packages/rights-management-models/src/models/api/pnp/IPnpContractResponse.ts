@@ -1,6 +1,6 @@
-// Copyright 2024 IOTA Stiftung.
+// Copyright 2025 IOTA Stiftung.
 // SPDX-License-Identifier: Apache-2.0.
-import type { IIdsContractNegotiationError } from "@twin.org/standards-ids-contract-negotiation";
+import type { IContractNegotiationError } from "@twin.org/standards-dataspace-protocol";
 import type { HeaderTypes, HttpStatusCode, MimeTypes } from "@twin.org/web";
 
 /**
@@ -22,5 +22,5 @@ export interface IPnpContractResponse {
 	/**
 	 * The error if there was one.
 	 */
-	body?: IIdsContractNegotiationError;
+	body?: IContractNegotiationError;
 }

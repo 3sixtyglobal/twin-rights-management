@@ -1,4 +1,4 @@
-// Copyright 2024 IOTA Stiftung.
+// Copyright 2025 IOTA Stiftung.
 // SPDX-License-Identifier: Apache-2.0.
 import { ComponentFactory, Guards, Is, type IComponent } from "@twin.org/core";
 import type { IJsonLdNodeObject } from "@twin.org/data-json-ld";
@@ -11,8 +11,8 @@ import {
 	PolicyInformationAccessMode
 } from "@twin.org/rights-management-models";
 import type { IOdrlPolicy } from "@twin.org/standards-w3c-odrl";
-import type { IStaticPolicyInformationSource } from "../models/IStaticPolicyInformationSource";
-import type { IStaticPolicyInformationSourceConstructorOptions } from "../models/IStaticPolicyInformationSourceConstructorOptions";
+import type { IStaticPolicyInformationSource } from "../models/IStaticPolicyInformationSource.js";
+import type { IStaticPolicyInformationSourceConstructorOptions } from "../models/IStaticPolicyInformationSourceConstructorOptions.js";
 
 /**
  * Policy information source which retrieves static information.
@@ -44,6 +44,14 @@ export class StaticPolicyInformationSource implements IPolicyInformationSource, 
 			options?.loggingComponentType ?? "logging"
 		);
 		this._information = options?.config?.information ?? [];
+	}
+
+	/**
+	 * Returns the class name of the component.
+	 * @returns The class name of the component.
+	 */
+	public className(): string {
+		return StaticPolicyInformationSource.CLASS_NAME;
 	}
 
 	/**
@@ -79,7 +87,7 @@ export class StaticPolicyInformationSource implements IPolicyInformationSource, 
 
 		const information: IJsonLdNodeObject[] = [];
 
-		this._logging?.log({
+		await this._logging?.log({
 			level: "info",
 			source: StaticPolicyInformationSource.CLASS_NAME,
 			ts: Date.now(),
@@ -105,7 +113,7 @@ export class StaticPolicyInformationSource implements IPolicyInformationSource, 
 			}
 		}
 
-		this._logging?.log({
+		await this._logging?.log({
 			level: "info",
 			source: StaticPolicyInformationSource.CLASS_NAME,
 			ts: Date.now(),

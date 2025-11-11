@@ -1,7 +1,8 @@
-// Copyright 2024 IOTA Stiftung.
+// Copyright 2025 IOTA Stiftung.
 // SPDX-License-Identifier: Apache-2.0.
 import { BaseRestClient } from "@twin.org/api-core";
 import type { IBaseRestClientConfig } from "@twin.org/api-models";
+import { ContextIdKeys } from "@twin.org/context";
 import { Guards, Is, NotSupportedError, Url } from "@twin.org/core";
 import type { IIdentityAuthenticationActionRequest } from "@twin.org/identity-authentication";
 import { nameof } from "@twin.org/nameof";
@@ -20,15 +21,15 @@ import type {
 	IPolicyRequester
 } from "@twin.org/rights-management-models";
 import type {
-	IIdsContractAgreementMessage,
-	IIdsContractAgreementVerificationMessage,
-	IIdsContractNegotiation,
-	IIdsContractNegotiationError,
-	IIdsContractNegotiationEventMessage,
-	IIdsContractNegotiationTerminationMessage,
-	IIdsContractOfferMessage,
-	IIdsContractRequestMessage
-} from "@twin.org/standards-ids-contract-negotiation";
+	IContractAgreementMessage,
+	IContractAgreementVerificationMessage,
+	IContractNegotiation,
+	IContractNegotiationError,
+	IContractNegotiationEventMessage,
+	IContractNegotiationTerminationMessage,
+	IContractOfferMessage,
+	IContractRequestMessage
+} from "@twin.org/standards-dataspace-protocol";
 import type { IOdrlOffer } from "@twin.org/standards-w3c-odrl";
 import { HeaderTypes, MimeTypes } from "@twin.org/web";
 
@@ -49,14 +50,15 @@ export class PolicyNegotiationPointRestClient
 	 * @param config The configuration for the client.
 	 */
 	constructor(config: IBaseRestClientConfig) {
-		super(
-			nameof<PolicyNegotiationPointRestClient>(),
-			{
-				...config,
-				authenticationGeneratorType: config.authenticationGeneratorType ?? "verifiable-credential"
-			},
-			"rights-management"
-		);
+		super(nameof<PolicyNegotiationPointRestClient>(), config, "rights-management");
+	}
+
+	/**
+	 * Returns the class name of the component.
+	 * @returns The class name of the component.
+	 */
+	public className(): string {
+		return PolicyNegotiationPointRestClient.CLASS_NAME;
 	}
 
 	/**
@@ -68,7 +70,7 @@ export class PolicyNegotiationPointRestClient
 	public async getNegotiation(
 		id: string,
 		actionRequest: IIdentityAuthenticationActionRequest
-	): Promise<IIdsContractNegotiation | IIdsContractNegotiationError> {
+	): Promise<IContractNegotiation | IContractNegotiationError> {
 		Guards.stringValue(PolicyNegotiationPointRestClient.CLASS_NAME, nameof(id), id);
 		Guards.objectValue<IIdentityAuthenticationActionRequest>(
 			PolicyNegotiationPointRestClient.CLASS_NAME,
@@ -85,8 +87,14 @@ export class PolicyNegotiationPointRestClient
 				},
 				pathParams: {
 					id
-				},
-				authentication: actionRequest
+				}
+			},
+			{
+				authenticationGeneratorType: "verifiable-credential",
+				authenticationData: {
+					contextId: ContextIdKeys.Organization,
+					subject: actionRequest
+				}
 			}
 		);
 
@@ -121,10 +129,10 @@ export class PolicyNegotiationPointRestClient
 	 * @returns The current state of the contract negotiation or an error.
 	 */
 	public async requestFromConsumer(
-		message: IIdsContractRequestMessage,
+		message: IContractRequestMessage,
 		actionRequest: IIdentityAuthenticationActionRequest
-	): Promise<IIdsContractNegotiation | IIdsContractNegotiationError> {
-		Guards.object<IIdsContractRequestMessage>(
+	): Promise<IContractNegotiation | IContractNegotiationError> {
+		Guards.object<IContractRequestMessage>(
 			PolicyNegotiationPointRestClient.CLASS_NAME,
 			nameof(message),
 			message
@@ -167,8 +175,14 @@ export class PolicyNegotiationPointRestClient
 				pathParams: {
 					id: message.providerPid
 				},
-				body: message,
-				authentication: actionRequest
+				body: message
+			},
+			{
+				authenticationGeneratorType: "verifiable-credential",
+				authenticationData: {
+					contextId: ContextIdKeys.Organization,
+					subject: actionRequest
+				}
 			}
 		);
 
@@ -182,10 +196,10 @@ export class PolicyNegotiationPointRestClient
 	 * @returns The current state of the contract negotiation or an error.
 	 */
 	public async offerFromProvider(
-		message: IIdsContractOfferMessage,
+		message: IContractOfferMessage,
 		actionRequest: IIdentityAuthenticationActionRequest
-	): Promise<IIdsContractNegotiation | IIdsContractNegotiationError> {
-		Guards.object<IIdsContractOfferMessage>(
+	): Promise<IContractNegotiation | IContractNegotiationError> {
+		Guards.object<IContractOfferMessage>(
 			PolicyNegotiationPointRestClient.CLASS_NAME,
 			nameof(message),
 			message
@@ -213,8 +227,14 @@ export class PolicyNegotiationPointRestClient
 				pathParams: {
 					id: message.consumerPid
 				},
-				body: message,
-				authentication: actionRequest
+				body: message
+			},
+			{
+				authenticationGeneratorType: "verifiable-credential",
+				authenticationData: {
+					contextId: ContextIdKeys.Organization,
+					subject: actionRequest
+				}
 			}
 		);
 
@@ -228,10 +248,10 @@ export class PolicyNegotiationPointRestClient
 	 * @returns The error if there is one.
 	 */
 	public async agreementFromProvider(
-		message: IIdsContractAgreementMessage,
+		message: IContractAgreementMessage,
 		actionRequest: IIdentityAuthenticationActionRequest
-	): Promise<IIdsContractNegotiationError | undefined> {
-		Guards.object<IIdsContractAgreementMessage>(
+	): Promise<IContractNegotiationError | undefined> {
+		Guards.object<IContractAgreementMessage>(
 			PolicyNegotiationPointRestClient.CLASS_NAME,
 			nameof(message),
 			message
@@ -267,8 +287,14 @@ export class PolicyNegotiationPointRestClient
 				pathParams: {
 					id: message.consumerPid
 				},
-				body: message,
-				authentication: actionRequest
+				body: message
+			},
+			{
+				authenticationGeneratorType: "verifiable-credential",
+				authenticationData: {
+					contextId: ContextIdKeys.Organization,
+					subject: actionRequest
+				}
 			}
 		);
 
@@ -282,10 +308,10 @@ export class PolicyNegotiationPointRestClient
 	 * @returns The error if there is one.
 	 */
 	public async agreementVerificationFromConsumer(
-		message: IIdsContractAgreementVerificationMessage,
+		message: IContractAgreementVerificationMessage,
 		actionRequest: IIdentityAuthenticationActionRequest
-	): Promise<IIdsContractNegotiationError | undefined> {
-		Guards.object<IIdsContractAgreementMessage>(
+	): Promise<IContractNegotiationError | undefined> {
+		Guards.object<IContractAgreementMessage>(
 			PolicyNegotiationPointRestClient.CLASS_NAME,
 			nameof(message),
 			message
@@ -316,8 +342,14 @@ export class PolicyNegotiationPointRestClient
 				pathParams: {
 					id: message.providerPid
 				},
-				body: message,
-				authentication: actionRequest
+				body: message
+			},
+			{
+				authenticationGeneratorType: "verifiable-credential",
+				authenticationData: {
+					contextId: ContextIdKeys.Organization,
+					subject: actionRequest
+				}
 			}
 		);
 
@@ -332,11 +364,11 @@ export class PolicyNegotiationPointRestClient
 	 * @returns The error if there is one.
 	 */
 	public async event(
-		message: IIdsContractNegotiationEventMessage,
+		message: IContractNegotiationEventMessage,
 		destination: "provider" | "consumer",
 		actionRequest: IIdentityAuthenticationActionRequest
-	): Promise<IIdsContractNegotiationError | undefined> {
-		Guards.object<IIdsContractNegotiationEventMessage>(
+	): Promise<IContractNegotiationError | undefined> {
+		Guards.object<IContractNegotiationEventMessage>(
 			PolicyNegotiationPointRestClient.CLASS_NAME,
 			nameof(message),
 			message
@@ -373,8 +405,14 @@ export class PolicyNegotiationPointRestClient
 				pathParams: {
 					id: destination === "provider" ? message.providerPid : message.consumerPid
 				},
-				body: message,
-				authentication: actionRequest
+				body: message
+			},
+			{
+				authenticationGeneratorType: "verifiable-credential",
+				authenticationData: {
+					contextId: ContextIdKeys.Organization,
+					subject: actionRequest
+				}
 			}
 		);
 
@@ -389,11 +427,11 @@ export class PolicyNegotiationPointRestClient
 	 * @returns The error if there is one.
 	 */
 	public async terminate(
-		message: IIdsContractNegotiationTerminationMessage,
+		message: IContractNegotiationTerminationMessage,
 		destination: "provider" | "consumer",
 		actionRequest: IIdentityAuthenticationActionRequest
-	): Promise<IIdsContractNegotiationError | undefined> {
-		Guards.object<IIdsContractNegotiationTerminationMessage>(
+	): Promise<IContractNegotiationError | undefined> {
+		Guards.object<IContractNegotiationTerminationMessage>(
 			PolicyNegotiationPointRestClient.CLASS_NAME,
 			nameof(message),
 			message
@@ -430,8 +468,14 @@ export class PolicyNegotiationPointRestClient
 				pathParams: {
 					id: destination === "provider" ? message.providerPid : message.consumerPid
 				},
-				body: message,
-				authentication: actionRequest
+				body: message
+			},
+			{
+				authenticationGeneratorType: "verifiable-credential",
+				authenticationData: {
+					contextId: ContextIdKeys.Organization,
+					subject: actionRequest
+				}
 			}
 		);
 

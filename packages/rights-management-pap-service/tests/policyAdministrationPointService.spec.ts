@@ -1,4 +1,4 @@
-// Copyright 2024 IOTA Stiftung.
+// Copyright 2025 IOTA Stiftung.
 // SPDX-License-Identifier: Apache-2.0.
 import { existsSync } from "node:fs";
 import { rm } from "node:fs/promises";
@@ -12,9 +12,9 @@ import {
 	SAMPLE_POLICY,
 	TEST_DIRECTORY_ROOT,
 	testPolicyMapping
-} from "./setupTestEnv";
-import type { OdrlPolicy } from "../src/entities/odrlPolicy";
-import { PolicyAdministrationPointService } from "../src/policyAdministrationPointService";
+} from "./setupTestEnv.js";
+import type { OdrlPolicy } from "../src/entities/odrlPolicy.js";
+import { PolicyAdministrationPointService } from "../src/policyAdministrationPointService.js";
 
 describe("PolicyAdministrationPointService", () => {
 	let policyAdminPoint: PolicyAdministrationPointService;

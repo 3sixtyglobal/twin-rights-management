@@ -1,7 +1,6 @@
-// Copyright 2024 IOTA Stiftung.
+// Copyright 2025 IOTA Stiftung.
 // SPDX-License-Identifier: Apache-2.0.
-import type { IIdentityAuthenticationActionRequest } from "@twin.org/identity-authentication";
-import type { IIdsContractNegotiationEventMessage } from "@twin.org/standards-ids-contract-negotiation";
+import type { IContractNegotiationEventMessage } from "@twin.org/standards-dataspace-protocol";
 import type { HeaderTypes, MimeTypes } from "@twin.org/web";
 
 /**
@@ -29,10 +28,5 @@ export interface IPnpEventRequest {
 	/**
 	 * The body parameters of the request.
 	 */
-	body: IIdsContractNegotiationEventMessage;
-
-	/**
-	 * The action request used in the verifiable credential.
-	 */
-	authentication: IIdentityAuthenticationActionRequest;
+	body: IContractNegotiationEventMessage;
 }

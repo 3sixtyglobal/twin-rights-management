@@ -1,4 +1,4 @@
-// Copyright 2024 IOTA Stiftung.
+// Copyright 2025 IOTA Stiftung.
 // SPDX-License-Identifier: Apache-2.0.
 import {
 	ComponentFactory,
@@ -23,9 +23,9 @@ import {
 	type IPolicyAdministrationPointComponent
 } from "@twin.org/rights-management-models";
 import { OdrlDataTypes, type IOdrlPolicy } from "@twin.org/standards-w3c-odrl";
-import type { OdrlPolicy } from "./entities/odrlPolicy";
-import type { IPolicyAdministrationPointServiceConstructorOptions } from "./models/IPolicyAdministrationPointServiceConstructorOptions";
-import { convertFromStoragePolicy, convertToStoragePolicy } from "./utils/odrlPolicyConverters";
+import type { OdrlPolicy } from "./entities/odrlPolicy.js";
+import type { IPolicyAdministrationPointServiceConstructorOptions } from "./models/IPolicyAdministrationPointServiceConstructorOptions.js";
+import { convertFromStoragePolicy, convertToStoragePolicy } from "./utils/odrlPolicyConverters.js";
 
 /**
  * Class implementation of Policy Administration Point Component.
@@ -63,6 +63,14 @@ export class PolicyAdministrationPointService implements IPolicyAdministrationPo
 		this._odrlPolicyEntityStorage = EntityStorageConnectorFactory.get(
 			options?.odrlPolicyEntityStorageType ?? "odrl-policy"
 		);
+	}
+
+	/**
+	 * Returns the class name of the component.
+	 * @returns The class name of the component.
+	 */
+	public className(): string {
+		return PolicyAdministrationPointService.CLASS_NAME;
 	}
 
 	/**

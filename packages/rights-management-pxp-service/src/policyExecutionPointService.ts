@@ -1,4 +1,4 @@
-// Copyright 2024 IOTA Stiftung.
+// Copyright 2025 IOTA Stiftung.
 // SPDX-License-Identifier: Apache-2.0.
 import { BaseError, ComponentFactory, GeneralError, Guards, Is } from "@twin.org/core";
 import type { ILoggingComponent } from "@twin.org/logging-models";
@@ -12,7 +12,7 @@ import {
 	PolicyDecisionStage
 } from "@twin.org/rights-management-models";
 import type { IOdrlPolicy } from "@twin.org/standards-w3c-odrl";
-import type { IPolicyExecutionPointServiceConstructorOptions } from "./models/IPolicyExecutionPointServiceConstructorOptions";
+import type { IPolicyExecutionPointServiceConstructorOptions } from "./models/IPolicyExecutionPointServiceConstructorOptions.js";
 
 /**
  * Class implementation of Policy Execution Point Component.
@@ -74,6 +74,14 @@ export class PolicyExecutionPointService implements IPolicyExecutionPointCompone
 	}
 
 	/**
+	 * Returns the class name of the component.
+	 * @returns The class name of the component.
+	 */
+	public className(): string {
+		return PolicyExecutionPointService.CLASS_NAME;
+	}
+
+	/**
 	 * Execute actions based on the PDP's decisions.
 	 * @param stage The stage at which the PXP is executed in the PDP.
 	 * @param locator The locator to find relevant policies.
@@ -99,7 +107,7 @@ export class PolicyExecutionPointService implements IPolicyExecutionPointCompone
 
 		const locatorDetails = LocatorHelper.toString(locator);
 
-		this._logging?.log({
+		await this._logging?.log({
 			level: "info",
 			source: PolicyExecutionPointService.CLASS_NAME,
 			ts: Date.now(),
@@ -112,7 +120,7 @@ export class PolicyExecutionPointService implements IPolicyExecutionPointCompone
 
 		for (const { actionId, action: executionAction } of this._executionActions[stage]) {
 			try {
-				this._logging?.log({
+				await this._logging?.log({
 					level: "info",
 					source: PolicyExecutionPointService.CLASS_NAME,
 					ts: Date.now(),
@@ -124,7 +132,7 @@ export class PolicyExecutionPointService implements IPolicyExecutionPointCompone
 				});
 				await executionAction.execute(stage, locator, policies, decisions, data);
 			} catch (error) {
-				this._logging?.log({
+				await this._logging?.log({
 					level: "error",
 					source: PolicyExecutionPointService.CLASS_NAME,
 					ts: Date.now(),
@@ -185,7 +193,7 @@ export class PolicyExecutionPointService implements IPolicyExecutionPointCompone
 			});
 		}
 
-		this._logging?.log({
+		await this._logging?.log({
 			level: "info",
 			source: PolicyExecutionPointService.CLASS_NAME,
 			ts: Date.now(),
@@ -217,7 +225,7 @@ export class PolicyExecutionPointService implements IPolicyExecutionPointCompone
 			this._executionActions[stage].splice(currentIndex, 1);
 		}
 
-		this._logging?.log({
+		await this._logging?.log({
 			level: "info",
 			source: PolicyExecutionPointService.CLASS_NAME,
 			ts: Date.now(),

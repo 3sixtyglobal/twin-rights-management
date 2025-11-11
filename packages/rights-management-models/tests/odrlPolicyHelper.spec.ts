@@ -1,7 +1,7 @@
-// Copyright 2024 IOTA Stiftung.
+// Copyright 2025 IOTA Stiftung.
 // SPDX-License-Identifier: Apache-2.0.
 import { OdrlContexts, type IOdrlPolicy, ActionType } from "@twin.org/standards-w3c-odrl";
-import { OdrlPolicyHelper } from "../src/utils/odrlPolicyHelper";
+import { OdrlPolicyHelper } from "../src/utils/odrlPolicyHelper.js";
 
 describe("OdrlPolicyHelper", () => {
 	describe("findExpirationDate", () => {

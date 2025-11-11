@@ -1,7 +1,8 @@
-// Copyright 2024 IOTA Stiftung.
+// Copyright 2025 IOTA Stiftung.
 // SPDX-License-Identifier: Apache-2.0.
 import { TaskSchedulerService } from "@twin.org/background-task-scheduler";
-import { ComponentFactory, I18n } from "@twin.org/core";
+import { ContextIdStore } from "@twin.org/context";
+import { ComponentFactory } from "@twin.org/core";
 import { MemoryEntityStorageConnector } from "@twin.org/entity-storage-connector-memory";
 import { EntityStorageConnectorFactory } from "@twin.org/entity-storage-models";
 import {
@@ -38,10 +39,10 @@ import {
 	type VaultSecret
 } from "@twin.org/vault-connector-entity-storage";
 import { VaultConnectorFactory } from "@twin.org/vault-models";
-import type { PolicyNegotiation } from "../src/entities/policyNegotiation";
-import { PolicyNegotiationAdminPointService } from "../src/policyNegotiationAdminPointService";
-import { PolicyNegotiationPointService } from "../src/policyNegotiationPointService";
-import { initSchema } from "../src/schema";
+import type { PolicyNegotiation } from "../src/entities/policyNegotiation.js";
+import { PolicyNegotiationAdminPointService } from "../src/policyNegotiationAdminPointService.js";
+import { PolicyNegotiationPointService } from "../src/policyNegotiationPointService.js";
+import { initSchema } from "../src/schema.js";
 
 let loggingMemoryEntityStorage: MemoryEntityStorageConnector<LogEntry>;
 let odrlPolicyMemoryEntityStorage: MemoryEntityStorageConnector<OdrlPolicy>;
@@ -80,6 +81,8 @@ async function waitForState(
 	throw new Error(`Timeout waiting for state ${state} for ${entity}`);
 }
 
+let testNodeId: string;
+
 describe("PolicyNegotiationPointService", () => {
 	beforeAll(async () => {
 		initSchemaLogging();
@@ -87,8 +90,6 @@ describe("PolicyNegotiationPointService", () => {
 		initSchemaVault();
 		initSchemaIdentity();
 		initSchema();
-
-		I18n.addDictionary("en", await import("../locales/en.json"));
 	});
 
 	beforeEach(async () => {
@@ -208,7 +209,7 @@ describe("PolicyNegotiationPointService", () => {
 		};
 
 		mockNegotiator = {
-			supportsOffer: vi.fn(async (offer: IOdrlOffer) => true),
+			supportsOffer: vi.fn((offer: IOdrlOffer) => true),
 			handleOffer: vi.fn(async (offer: IOdrlOffer, information?: IPolicyInformation) => ({
 				accepted: true,
 				interventionRequired: false
@@ -221,6 +222,9 @@ describe("PolicyNegotiationPointService", () => {
 				assignee: testIdentityConsumer
 			}))
 		};
+
+		testNodeId = testIdentityConsumer;
+		ContextIdStore.getContextIds = vi.fn().mockImplementation(() => ({ node: testNodeId }));
 	});
 
 	afterEach(() => {
@@ -259,8 +263,11 @@ describe("PolicyNegotiationPointService", () => {
 		providerPoints.provider = policyNegotiationProviderPoint;
 		providerPoints.consumer = policyNegotiationConsumerPoint;
 
-		await policyNegotiationConsumerPoint.start(testIdentityConsumer, undefined);
-		await policyNegotiationProviderPoint.start(testIdentityProvider, undefined);
+		testNodeId = testIdentityConsumer;
+		await policyNegotiationConsumerPoint.start();
+
+		testNodeId = testIdentityProvider;
+		await policyNegotiationProviderPoint.start();
 
 		await expect(
 			policyNegotiationConsumerPoint.sendRequestToProvider(
@@ -295,8 +302,10 @@ describe("PolicyNegotiationPointService", () => {
 		providerPoints.provider = policyNegotiationProviderPoint;
 		providerPoints.consumer = policyNegotiationConsumerPoint;
 
-		await policyNegotiationConsumerPoint.start(testIdentityConsumer, undefined);
-		await policyNegotiationProviderPoint.start(testIdentityProvider, undefined);
+		testNodeId = testIdentityConsumer;
+		await policyNegotiationConsumerPoint.start();
+		testNodeId = testIdentityProvider;
+		await policyNegotiationProviderPoint.start();
 
 		await policyNegotiationConsumerPoint.registerRequester("requester-1", mockPolicyRequester);
 
@@ -333,8 +342,10 @@ describe("PolicyNegotiationPointService", () => {
 		providerPoints.provider = policyNegotiationProviderPoint;
 		providerPoints.consumer = policyNegotiationConsumerPoint;
 
-		await policyNegotiationConsumerPoint.start(testIdentityConsumer, undefined);
-		await policyNegotiationProviderPoint.start(testIdentityProvider, undefined);
+		testNodeId = testIdentityConsumer;
+		await policyNegotiationConsumerPoint.start();
+		testNodeId = testIdentityProvider;
+		await policyNegotiationProviderPoint.start();
 
 		await policyNegotiationConsumerPoint.registerRequester("requester-1", mockPolicyRequester);
 
@@ -373,8 +384,10 @@ describe("PolicyNegotiationPointService", () => {
 		providerPoints.provider = policyNegotiationProviderPoint;
 		providerPoints.consumer = policyNegotiationConsumerPoint;
 
-		await policyNegotiationConsumerPoint.start(testIdentityConsumer, undefined);
-		await policyNegotiationProviderPoint.start(testIdentityProvider, undefined);
+		testNodeId = testIdentityConsumer;
+		await policyNegotiationConsumerPoint.start();
+		testNodeId = testIdentityProvider;
+		await policyNegotiationProviderPoint.start();
 
 		await policyNegotiationConsumerPoint.registerRequester("requester-1", mockPolicyRequester);
 		await policyNegotiationProviderPoint.registerOffer(mockOffer);
@@ -440,8 +453,10 @@ describe("PolicyNegotiationPointService", () => {
 		providerPoints.provider = policyNegotiationProviderPoint;
 		providerPoints.consumer = policyNegotiationConsumerPoint;
 
-		await policyNegotiationConsumerPoint.start(testIdentityConsumer, undefined);
-		await policyNegotiationProviderPoint.start(testIdentityProvider, undefined);
+		testNodeId = testIdentityConsumer;
+		await policyNegotiationConsumerPoint.start();
+		testNodeId = testIdentityProvider;
+		await policyNegotiationProviderPoint.start();
 
 		await policyNegotiationConsumerPoint.registerRequester("requester-1", mockPolicyRequester);
 		await policyNegotiationProviderPoint.registerOffer(mockOffer);
@@ -690,7 +705,8 @@ describe("PolicyNegotiationPointService", () => {
 				negotiationComponentCreator: async () => ({}) as IPolicyNegotiationPointComponent
 			}
 		});
-		await service.start(testIdentityProvider, undefined);
+		testNodeId = testIdentityProvider;
+		await service.start();
 		await expect(
 			service.registerRequester("requester-1", mockPolicyRequester)
 		).resolves.not.toThrow();
@@ -704,7 +720,8 @@ describe("PolicyNegotiationPointService", () => {
 				negotiationComponentCreator: async () => ({}) as IPolicyNegotiationPointComponent
 			}
 		});
-		await service.start(testIdentityProvider, undefined);
+		testNodeId = testIdentityProvider;
+		await service.start();
 		await expect(service.registerNegotiator("negotiator-1", mockNegotiator)).resolves.not.toThrow();
 	});
 
@@ -716,7 +733,8 @@ describe("PolicyNegotiationPointService", () => {
 				negotiationComponentCreator: async () => ({}) as IPolicyNegotiationPointComponent
 			}
 		});
-		await service.start(testIdentityProvider, undefined);
+		testNodeId = testIdentityProvider;
+		await service.start();
 		await service.registerNegotiator("negotiator-1", mockNegotiator);
 		await expect(service.unregisterNegotiator("negotiator-1")).resolves.not.toThrow();
 		// Second call should also not throw
@@ -733,7 +751,8 @@ describe("PolicyNegotiationPointService", () => {
 				negotiationComponentCreator: async () => ({}) as IPolicyNegotiationPointComponent
 			}
 		});
-		await service.start(testIdentityProvider, undefined);
+		testNodeId = testIdentityProvider;
+		await service.start();
 		await service.registerRequester("requester-1", mockPolicyRequester);
 		await expect(service.unregisterRequester("requester-1")).resolves.not.toThrow();
 		// Second call should also not throw

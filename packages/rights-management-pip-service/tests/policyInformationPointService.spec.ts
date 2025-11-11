@@ -1,4 +1,4 @@
-// Copyright 2024 IOTA Stiftung.
+// Copyright 2025 IOTA Stiftung.
 // SPDX-License-Identifier: Apache-2.0.
 import { ComponentFactory } from "@twin.org/core";
 import type { IJsonLdNodeObject } from "@twin.org/data-json-ld";
@@ -16,7 +16,7 @@ import {
 	PolicyInformationAccessMode,
 	type IPolicyInformationSource
 } from "@twin.org/rights-management-models";
-import { PolicyInformationPointService } from "../src/policyInformationPointService";
+import { PolicyInformationPointService } from "../src/policyInformationPointService.js";
 
 /**
  * Mock Policy Information Source class

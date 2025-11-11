@@ -13,7 +13,7 @@
 			"agreementNotAccepted": "Agreement with id: \"{agreementId}\" was not accepted by the requester",
 			"noAgreementCreated": "No agreement was created for offer with id: \"{offerId}\"",
 			"incorrectActionType": "Incorrect action in credential \"{action}\", expecting \"{expecting}\"",
-			"missingNodeIdentity": "The node identity is missing"
+			"missingNodeId": "The node identity is missing"
 		},
 		"policyNegotiationAdminPointService": {
 			"policyNotFound": "Policy with id: \"{notFoundId}\" not found"

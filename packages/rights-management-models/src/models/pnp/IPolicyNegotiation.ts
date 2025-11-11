@@ -1,9 +1,9 @@
-// Copyright 2024 IOTA Stiftung.
+// Copyright 2025 IOTA Stiftung.
 // SPDX-License-Identifier: Apache-2.0.
-import type { IdsContractNegotiationStateType } from "@twin.org/standards-ids-contract-negotiation";
+import type { ContractNegotiationStateType } from "@twin.org/standards-dataspace-protocol";
 import type { IOdrlAgreement, IOdrlOffer } from "@twin.org/standards-w3c-odrl";
-import type { IPolicyLocator } from "../IPolicyLocator";
-import type { IPolicyInformation } from "../pip/IPolicyInformation";
+import type { IPolicyLocator } from "../IPolicyLocator.js";
+import type { IPolicyInformation } from "../pip/IPolicyInformation.js";
 
 /**
  * Interface describing a rights management policy negotiation.
@@ -37,7 +37,7 @@ export interface IPolicyNegotiation extends IPolicyLocator {
 	/**
 	 * The status of the negotiation.
 	 */
-	state: IdsContractNegotiationStateType;
+	state: ContractNegotiationStateType;
 
 	/**
 	 * The callback address to send updates to the requester.

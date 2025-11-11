@@ -1,4 +1,4 @@
-// Copyright 2024 IOTA Stiftung.
+// Copyright 2025 IOTA Stiftung.
 // SPDX-License-Identifier: Apache-2.0.
 import path from "node:path";
 import { Converter, RandomHelper } from "@twin.org/core";
@@ -12,9 +12,9 @@ import {
 	type IOdrlPolicy
 } from "@twin.org/standards-w3c-odrl";
 import * as dotenv from "dotenv";
-import type { OdrlPolicy } from "../src/entities/odrlPolicy";
-import type { PolicyAdministrationPointService } from "../src/policyAdministrationPointService";
-import { initSchema } from "../src/schema";
+import type { OdrlPolicy } from "../src/entities/odrlPolicy.js";
+import type { PolicyAdministrationPointService } from "../src/policyAdministrationPointService.js";
+import { initSchema } from "../src/schema.js";
 
 console.debug("Setting up test environment from .env and .env.dev files");
 

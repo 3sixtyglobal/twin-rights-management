@@ -2,19 +2,11 @@
 
 Interface describing a Policy Negotiation Admin Point (PNAP) contract.
 Components performs administration tasks on the policy negotiations.
-https://docs.internationaldataspaces.org/ids-knowledgebase/dataspace-protocol/contract-negotiation/contract.negotiation.protocol
+https://eclipse-dataspace-protocol-base.github.io/DataspaceProtocol/2025-1/#negotiation-protocol
 
 ## Extends
 
 - `IComponent`
-
-## Indexable
-
-\[`key`: `string`\]: `any`
-
-All methods are optional, so we introduce an index signature to allow
-any additional properties or methods, which removes the TypeScript error where
-the class has no properties in common with the type.
 
 ## Methods
 
@@ -94,7 +86,7 @@ Get a list of the negotiations.
 
 ##### status?
 
-`IdsContractNegotiationStateType`
+`ContractNegotiationStateType`
 
 The state of the negotiations to retrieve.
 

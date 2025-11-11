@@ -36,6 +36,24 @@ The class name of the Policy Decision Point Service.
 
 ## Methods
 
+### className()
+
+> **className**(): `string`
+
+Returns the class name of the component.
+
+#### Returns
+
+`string`
+
+The class name of the component.
+
+#### Implementation of
+
+`IPolicyDecisionPointComponent.className`
+
+***
+
 ### evaluate()
 
 > **evaluate**\<`D`\>(`locator`, `data?`): `Promise`\<`IPolicyDecision`[]\>

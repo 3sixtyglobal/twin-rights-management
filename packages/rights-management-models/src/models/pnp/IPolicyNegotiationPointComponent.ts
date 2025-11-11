@@ -1,26 +1,26 @@
-// Copyright 2024 IOTA Stiftung.
+// Copyright 2025 IOTA Stiftung.
 // SPDX-License-Identifier: Apache-2.0.
 import type { IComponent } from "@twin.org/core";
 import type { IIdentityAuthenticationActionRequest } from "@twin.org/identity-authentication";
 import type {
-	IIdsContractAgreementMessage,
-	IIdsContractAgreementVerificationMessage,
-	IIdsContractNegotiation,
-	IIdsContractNegotiationError,
-	IIdsContractNegotiationEventMessage,
-	IIdsContractNegotiationTerminationMessage,
-	IIdsContractOfferMessage,
-	IIdsContractRequestMessage
-} from "@twin.org/standards-ids-contract-negotiation";
+	IContractAgreementMessage,
+	IContractAgreementVerificationMessage,
+	IContractNegotiation,
+	IContractNegotiationError,
+	IContractNegotiationEventMessage,
+	IContractNegotiationTerminationMessage,
+	IContractOfferMessage,
+	IContractRequestMessage
+} from "@twin.org/standards-dataspace-protocol";
 import type { IOdrlOffer } from "@twin.org/standards-w3c-odrl";
-import type { IPolicyNegotiator } from "./IPolicyNegotiator";
-import type { IPolicyRequester } from "./IPolicyRequester";
+import type { IPolicyNegotiator } from "./IPolicyNegotiator.js";
+import type { IPolicyRequester } from "./IPolicyRequester.js";
 
 /**
  * Interface describing a Policy Negotiation Point (PNP) contract.
  * When receiving a request from another component, the PNP will negotiate the terms
  * of the request and determine the appropriate policies to create.
- * https://docs.internationaldataspaces.org/ids-knowledgebase/dataspace-protocol/contract-negotiation/contract.negotiation.protocol
+ * https://eclipse-dataspace-protocol-base.github.io/DataspaceProtocol/2025-1/#negotiation-protocol
  */
 export interface IPolicyNegotiationPointComponent extends IComponent {
 	/**
@@ -32,7 +32,7 @@ export interface IPolicyNegotiationPointComponent extends IComponent {
 	getNegotiation(
 		id: string,
 		actionRequest: IIdentityAuthenticationActionRequest
-	): Promise<IIdsContractNegotiation | IIdsContractNegotiationError>;
+	): Promise<IContractNegotiation | IContractNegotiationError>;
 
 	/**
 	 * Send a request to a provider.
@@ -50,9 +50,9 @@ export interface IPolicyNegotiationPointComponent extends IComponent {
 	 * @returns The current state of the contract negotiation or an error.
 	 */
 	requestFromConsumer(
-		message: IIdsContractRequestMessage,
+		message: IContractRequestMessage,
 		actionRequest: IIdentityAuthenticationActionRequest
-	): Promise<IIdsContractNegotiation | IIdsContractNegotiationError>;
+	): Promise<IContractNegotiation | IContractNegotiationError>;
 
 	/**
 	 * An offer has been received by a consumer.
@@ -61,9 +61,9 @@ export interface IPolicyNegotiationPointComponent extends IComponent {
 	 * @returns The current state of the contract negotiation or an error.
 	 */
 	offerFromProvider(
-		message: IIdsContractOfferMessage,
+		message: IContractOfferMessage,
 		actionRequest: IIdentityAuthenticationActionRequest
-	): Promise<IIdsContractNegotiation | IIdsContractNegotiationError>;
+	): Promise<IContractNegotiation | IContractNegotiationError>;
 
 	/**
 	 * An agreement has been received by a consumer.
@@ -72,9 +72,9 @@ export interface IPolicyNegotiationPointComponent extends IComponent {
 	 * @returns The error if there is one.
 	 */
 	agreementFromProvider(
-		message: IIdsContractAgreementMessage,
+		message: IContractAgreementMessage,
 		actionRequest: IIdentityAuthenticationActionRequest
-	): Promise<IIdsContractNegotiationError | undefined>;
+	): Promise<IContractNegotiationError | undefined>;
 
 	/**
 	 * An agreement verification has been received by a provider.
@@ -83,9 +83,9 @@ export interface IPolicyNegotiationPointComponent extends IComponent {
 	 * @returns The error if there is one.
 	 */
 	agreementVerificationFromConsumer(
-		message: IIdsContractAgreementVerificationMessage,
+		message: IContractAgreementVerificationMessage,
 		actionRequest: IIdentityAuthenticationActionRequest
-	): Promise<IIdsContractNegotiationError | undefined>;
+	): Promise<IContractNegotiationError | undefined>;
 
 	/**
 	 * An event has been received by the provider or consumer.
@@ -95,10 +95,10 @@ export interface IPolicyNegotiationPointComponent extends IComponent {
 	 * @returns The error if there is one.
 	 */
 	event(
-		message: IIdsContractNegotiationEventMessage,
+		message: IContractNegotiationEventMessage,
 		destination: "provider" | "consumer",
 		actionRequest: IIdentityAuthenticationActionRequest
-	): Promise<IIdsContractNegotiationError | undefined>;
+	): Promise<IContractNegotiationError | undefined>;
 
 	/**
 	 * A termination message has been received by the provider or consumer.
@@ -108,10 +108,10 @@ export interface IPolicyNegotiationPointComponent extends IComponent {
 	 * @returns The error if there is one.
 	 */
 	terminate(
-		message: IIdsContractNegotiationTerminationMessage,
+		message: IContractNegotiationTerminationMessage,
 		destination: "provider" | "consumer",
 		actionRequest: IIdentityAuthenticationActionRequest
-	): Promise<IIdsContractNegotiationError | undefined>;
+	): Promise<IContractNegotiationError | undefined>;
 
 	/**
 	 * Register a negotiator to use for handling data.

@@ -25,6 +25,6 @@
 		"Proof": "https://schema.twindev.org/w3c-did/Proof",
 		"DataIntegrityProof": "https://schema.twindev.org/w3c-did/DataIntegrityProof",
 		"DataAccess(.*)": "https://schema.twindev.org/rights-management/DataAccessQuery$1",
-		"IdsContract(.*)": "https://schema.twindev.org/ids-contract-negotiation/IdsContract$1"
+		"Contract(.*)": "https://schema.twindev.org/ids-contract-negotiation/Contract$1"
 	}
 }

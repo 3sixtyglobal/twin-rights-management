@@ -1,11 +1,11 @@
-// Copyright 2024 IOTA Stiftung.
+// Copyright 2025 IOTA Stiftung.
 // SPDX-License-Identifier: Apache-2.0.
 import type { IComponent } from "@twin.org/core";
 import type { IOdrlPolicy } from "@twin.org/standards-w3c-odrl";
-import type { IPolicyInformation } from "./IPolicyInformation";
-import type { IPolicyInformationSource } from "./IPolicyInformationSource";
-import type { IPolicyLocator } from "../IPolicyLocator";
-import type { PolicyInformationAccessMode } from "./policyInformationAccessMode";
+import type { IPolicyInformation } from "./IPolicyInformation.js";
+import type { IPolicyInformationSource } from "./IPolicyInformationSource.js";
+import type { IPolicyLocator } from "../IPolicyLocator.js";
+import type { PolicyInformationAccessMode } from "./policyInformationAccessMode.js";
 
 /**
  * Interface describing a Policy Information Point (PEP) contract.

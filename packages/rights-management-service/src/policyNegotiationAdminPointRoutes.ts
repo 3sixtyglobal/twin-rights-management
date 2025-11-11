@@ -1,4 +1,4 @@
-// Copyright 2024 IOTA Stiftung.
+// Copyright 2025 IOTA Stiftung.
 // SPDX-License-Identifier: Apache-2.0.
 import type {
 	IHttpRequestContext,
@@ -17,7 +17,7 @@ import type {
 	IPnapSetRequest,
 	IPolicyNegotiationAdminPointComponent
 } from "@twin.org/rights-management-models";
-import { IdsContractNegotiationStateType } from "@twin.org/standards-ids-contract-negotiation";
+import { ContractNegotiationStateType } from "@twin.org/standards-dataspace-protocol";
 import { HttpMethod, HttpStatusCode } from "@twin.org/web";
 
 /**
@@ -76,7 +76,7 @@ export function generateRestRoutesPolicyNegotiationAdminPoint(
 								id: "pid",
 								correlationId: "cid",
 								dateCreated: "2025-09-03T00:00:00.000Z",
-								state: IdsContractNegotiationStateType.REQUESTED
+								state: ContractNegotiationStateType.REQUESTED
 							}
 						}
 					}
@@ -104,7 +104,7 @@ export function generateRestRoutesPolicyNegotiationAdminPoint(
 							id: "pid",
 							correlationId: "cid",
 							dateCreated: "2025-09-03T00:00:00.000Z",
-							state: IdsContractNegotiationStateType.REQUESTED
+							state: ContractNegotiationStateType.REQUESTED
 						}
 					}
 				}
@@ -149,7 +149,7 @@ export function generateRestRoutesPolicyNegotiationAdminPoint(
 				{
 					id: "pnapQueryRequestExample",
 					request: {
-						query: { state: IdsContractNegotiationStateType.ACCEPTED, cursor: "next-cursor" }
+						query: { state: ContractNegotiationStateType.ACCEPTED, cursor: "next-cursor" }
 					}
 				}
 			]
@@ -167,7 +167,7 @@ export function generateRestRoutesPolicyNegotiationAdminPoint(
 										id: "pid",
 										correlationId: "cid",
 										dateCreated: "2025-09-03T00:00:00.000Z",
-										state: IdsContractNegotiationStateType.REQUESTED
+										state: ContractNegotiationStateType.REQUESTED
 									}
 								],
 								cursor: "next-cursor"
@@ -283,7 +283,7 @@ export async function pnapQuery(
 
 	const component = ComponentFactory.get<IPolicyNegotiationAdminPointComponent>(componentName);
 	const result = await component.query(
-		request.query?.state as IdsContractNegotiationStateType,
+		request.query?.state as ContractNegotiationStateType,
 		request.query?.cursor
 	);
 

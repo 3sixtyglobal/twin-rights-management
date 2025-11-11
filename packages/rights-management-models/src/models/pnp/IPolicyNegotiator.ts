@@ -1,7 +1,7 @@
-// Copyright 2024 IOTA Stiftung.
+// Copyright 2025 IOTA Stiftung.
 // SPDX-License-Identifier: Apache-2.0.
 import type { IOdrlAgreement, IOdrlOffer } from "@twin.org/standards-w3c-odrl";
-import type { IPolicyInformation } from "../pip/IPolicyInformation";
+import type { IPolicyInformation } from "../pip/IPolicyInformation.js";
 
 /**
  * Interface describing a Policy Negotiator.
@@ -12,7 +12,7 @@ export interface IPolicyNegotiator {
 	 * @param offer The offer to check.
 	 * @returns Sets the supports flag if it can be offered, and the interventionRequired flag if manual agreement is needed.
 	 */
-	supportsOffer(offer: IOdrlOffer): Promise<boolean>;
+	supportsOffer(offer: IOdrlOffer): boolean;
 
 	/**
 	 * Handle the offer.

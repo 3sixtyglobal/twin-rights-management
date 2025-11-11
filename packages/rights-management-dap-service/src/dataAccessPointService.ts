@@ -1,4 +1,4 @@
-// Copyright 2024 IOTA Stiftung.
+// Copyright 2025 IOTA Stiftung.
 // SPDX-License-Identifier: Apache-2.0.
 import { Coerce, ComponentFactory, GeneralError, Guards, Is } from "@twin.org/core";
 import type { IJsonLdNodeObject } from "@twin.org/data-json-ld";
@@ -12,7 +12,7 @@ import type {
 	IPolicyEnforcementPointComponent
 } from "@twin.org/rights-management-models";
 import { ActionType } from "@twin.org/standards-w3c-odrl";
-import type { IDataAccessPointServiceConstructorOptions } from "./models/IDataAccessPointServiceConstructorOptions";
+import type { IDataAccessPointServiceConstructorOptions } from "./models/IDataAccessPointServiceConstructorOptions.js";
 
 /**
  * Class implementation of Data Access Point Component.
@@ -57,6 +57,14 @@ export class DataAccessPointService implements IDataAccessPointComponent {
 		);
 
 		this._handlers = options?.config?.handlers ?? [];
+	}
+
+	/**
+	 * Returns the class name of the component.
+	 * @returns The class name of the component.
+	 */
+	public className(): string {
+		return DataAccessPointService.CLASS_NAME;
 	}
 
 	/**
@@ -328,7 +336,7 @@ export class DataAccessPointService implements IDataAccessPointComponent {
 
 		const result = await handlerEntry.handler.query(assetType, conditions, cursor, options);
 
-		const manipulatedItems = result.items.map(item =>
+		const manipulatedItems = result.items.map(async item =>
 			this._policyEnforcementPointComponent.intercept<IJsonLdNodeObject>({
 				assignee: actionRequest.requester,
 				action: ActionType.Read,
@@ -361,7 +369,7 @@ export class DataAccessPointService implements IDataAccessPointComponent {
 			this._handlers.push({ handlerId, handler });
 		}
 
-		this._logging?.log({
+		await this._logging?.log({
 			level: "info",
 			source: DataAccessPointService.CLASS_NAME,
 			ts: Date.now(),
@@ -385,7 +393,7 @@ export class DataAccessPointService implements IDataAccessPointComponent {
 			this._handlers.splice(currentIndex, 1);
 		}
 
-		this._logging?.log({
+		await this._logging?.log({
 			level: "info",
 			source: DataAccessPointService.CLASS_NAME,
 			ts: Date.now(),

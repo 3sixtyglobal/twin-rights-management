@@ -1,4 +1,4 @@
-// Copyright 2024 IOTA Stiftung.
+// Copyright 2025 IOTA Stiftung.
 // SPDX-License-Identifier: Apache-2.0.
 import { BaseError, ComponentFactory, Guards, Is } from "@twin.org/core";
 import type { ILoggingComponent } from "@twin.org/logging-models";
@@ -12,7 +12,7 @@ import {
 	PolicyInformationAccessMode
 } from "@twin.org/rights-management-models";
 import type { IOdrlPolicy } from "@twin.org/standards-w3c-odrl";
-import type { IPolicyInformationPointServiceConstructorOptions } from "./models/IPolicyInformationPointServiceConstructorOptions";
+import type { IPolicyInformationPointServiceConstructorOptions } from "./models/IPolicyInformationPointServiceConstructorOptions.js";
 
 /**
  * Class implementation of Policy Information Point Component.
@@ -47,6 +47,14 @@ export class PolicyInformationPointService implements IPolicyInformationPointCom
 			options?.loggingComponentType ?? "logging"
 		);
 		this._sources = options?.config?.sources ?? [];
+	}
+
+	/**
+	 * Returns the class name of the component.
+	 * @returns The class name of the component.
+	 */
+	public className(): string {
+		return PolicyInformationPointService.CLASS_NAME;
 	}
 
 	/**
@@ -86,7 +94,7 @@ export class PolicyInformationPointService implements IPolicyInformationPointCom
 						information[sourceId] = result;
 					}
 				} catch (error) {
-					this._logging?.log({
+					await this._logging?.log({
 						level: "error",
 						source: PolicyInformationPointService.CLASS_NAME,
 						ts: Date.now(),
@@ -125,7 +133,7 @@ export class PolicyInformationPointService implements IPolicyInformationPointCom
 			this._sources.push({ sourceId, source });
 		}
 
-		this._logging?.log({
+		await this._logging?.log({
 			level: "info",
 			source: PolicyInformationPointService.CLASS_NAME,
 			ts: Date.now(),
@@ -149,7 +157,7 @@ export class PolicyInformationPointService implements IPolicyInformationPointCom
 			this._sources.splice(currentIndex, 1);
 		}
 
-		this._logging?.log({
+		await this._logging?.log({
 			level: "info",
 			source: PolicyInformationPointService.CLASS_NAME,
 			ts: Date.now(),

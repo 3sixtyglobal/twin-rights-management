@@ -1,11 +1,11 @@
-// Copyright 2024 IOTA Stiftung.
+// Copyright 2025 IOTA Stiftung.
 // SPDX-License-Identifier: Apache-2.0.
-export * from "./models/IIdentityPolicyInformationSourceConstructorOptions";
-export * from "./models/IPolicyInformationPointServiceConfig";
-export * from "./models/IPolicyInformationPointServiceConstructorOptions";
-export * from "./models/IStaticPolicyInformationSource";
-export * from "./models/IStaticPolicyInformationSourceConfig";
-export * from "./models/IStaticPolicyInformationSourceConstructorOptions";
-export * from "./policyInformationPointService";
-export * from "./policyInformationSources/identityPolicyInformationSource";
-export * from "./policyInformationSources/staticPolicyInformationSource";
+export * from "./models/IIdentityPolicyInformationSourceConstructorOptions.js";
+export * from "./models/IPolicyInformationPointServiceConfig.js";
+export * from "./models/IPolicyInformationPointServiceConstructorOptions.js";
+export * from "./models/IStaticPolicyInformationSource.js";
+export * from "./models/IStaticPolicyInformationSourceConfig.js";
+export * from "./models/IStaticPolicyInformationSourceConstructorOptions.js";
+export * from "./policyInformationPointService.js";
+export * from "./policyInformationSources/identityPolicyInformationSource.js";
+export * from "./policyInformationSources/staticPolicyInformationSource.js";

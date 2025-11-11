@@ -1,12 +1,9 @@
-// Copyright 2024 IOTA Stiftung.
+// Copyright 2025 IOTA Stiftung.
 // SPDX-License-Identifier: Apache-2.0.
 import type { IHttpRequestContext, IRestRoute, ITag } from "@twin.org/api-models";
+import { ContextIdKeys } from "@twin.org/context";
 import { ComponentFactory, Guards, Is } from "@twin.org/core";
-import {
-	IdentityAuthenticationContexts,
-	IdentityAuthenticationTypes,
-	type IIdentityAuthenticationActionRequest
-} from "@twin.org/identity-authentication";
+import type { IIdentityAuthenticationActionRequest } from "@twin.org/identity-authentication";
 import { nameof } from "@twin.org/nameof";
 import type {
 	IPnpAgreementRequest,
@@ -21,13 +18,13 @@ import type {
 	IPolicyNegotiationPointComponent
 } from "@twin.org/rights-management-models";
 import {
-	IdsContractNegotiationContexts,
-	IdsContractNegotiationEventType,
-	IdsContractNegotiationStateType,
-	IdsContractNegotiationTypes,
-	type IIdsContractNegotiation,
-	type IIdsContractNegotiationError
-} from "@twin.org/standards-ids-contract-negotiation";
+	ContractNegotiationContexts,
+	ContractNegotiationEventType,
+	ContractNegotiationStateType,
+	ContractNegotiationTypes,
+	type IContractNegotiation,
+	type IContractNegotiationError
+} from "@twin.org/standards-dataspace-protocol";
 import { OdrlContexts, OdrlTypes } from "@twin.org/standards-w3c-odrl";
 import { HeaderTypes, HttpStatusCode, MimeTypes } from "@twin.org/web";
 
@@ -56,7 +53,7 @@ export function generateRestRoutesPolicyNegotiationPoint(
 	baseRouteName: string,
 	componentName: string
 ): IRestRoute[] {
-	// https://docs.internationaldataspaces.org/ids-knowledgebase/dataspace-protocol/contract-negotiation/contract.negotiation.binding.https#id-2.1-the-negotiations-endpoint-provider-side
+	// v
 	const pnpGetNegotiationRoute: IRestRoute<
 		IPnpNegotiationGetRequest,
 		IPnpContractNegotiationResponse
@@ -80,12 +77,6 @@ export function generateRestRoutesPolicyNegotiationPoint(
 						},
 						pathParams: {
 							id: "urn:contract-negotiation:00aa11bb.......ffff"
-						},
-						authentication: {
-							"@context": IdentityAuthenticationContexts.ContextRoot,
-							type: IdentityAuthenticationTypes.ActionRequest,
-							requester: "did:node-1",
-							action: "get-negotiation"
 						}
 					}
 				}
@@ -99,11 +90,11 @@ export function generateRestRoutesPolicyNegotiationPoint(
 						id: "pnpGetNegotiationResponseExample",
 						response: {
 							body: {
-								"@context": IdsContractNegotiationContexts.ContextRoot,
-								"@type": IdsContractNegotiationTypes.ContractNegotiation,
+								"@context": ContractNegotiationContexts.ContextRoot,
+								"@type": ContractNegotiationTypes.ContractNegotiation,
 								providerPid: "urn:contract-negotiation:002aa11bb.......ffff",
 								consumerPid: "urn:contract-negotiation:22aa11bb.......ffff",
-								state: IdsContractNegotiationStateType.REQUESTED
+								state: ContractNegotiationStateType.REQUESTED
 							}
 						}
 					}
@@ -111,10 +102,13 @@ export function generateRestRoutesPolicyNegotiationPoint(
 			}
 		],
 		skipAuth: true,
-		processorFeatures: ["verifiableCredential"]
+		processorFeatures: ["verifiableCredential"],
+		processorData: {
+			verifiableCredential: { contextId: ContextIdKeys.Organization }
+		}
 	};
 
-	// https://docs.internationaldataspaces.org/ids-knowledgebase/dataspace-protocol/contract-negotiation/contract.negotiation.binding.https#id-2.2-the-negotiations-request-endpoint-provider-side
+	// https://eclipse-dataspace-protocol-base.github.io/DataspaceProtocol/2025-1/#negotiations-providerpid-request-post
 	const pnpNegotiationRequestRoute: IRestRoute<
 		IPnpNegotiateRequest,
 		IPnpContractNegotiationResponse | IPnpContractResponse
@@ -137,8 +131,8 @@ export function generateRestRoutesPolicyNegotiationPoint(
 							[HeaderTypes.Authorization]: "z3Vcuh2BP9ShC.z3Vcuh2BP9ShC.z3Vcuh2BP9ShC"
 						},
 						body: {
-							"@context": IdsContractNegotiationContexts.ContextRoot,
-							"@type": IdsContractNegotiationTypes.ContractRequestMessage,
+							"@context": ContractNegotiationContexts.ContextRoot,
+							"@type": ContractNegotiationTypes.ContractRequestMessage,
 							consumerPid: "urn:contract-negotiation:22aa11bb.......ffff",
 							offer: {
 								"@context": OdrlContexts.ContextRoot,
@@ -146,12 +140,6 @@ export function generateRestRoutesPolicyNegotiationPoint(
 								uid: "urn:offer-1",
 								assigner: "urn:provider:node:1"
 							}
-						},
-						authentication: {
-							"@context": IdentityAuthenticationContexts.ContextRoot,
-							type: IdentityAuthenticationTypes.ActionRequest,
-							requester: "did:node-1",
-							action: "request"
 						}
 					}
 				}
@@ -165,11 +153,11 @@ export function generateRestRoutesPolicyNegotiationPoint(
 						id: "IPnpNegotiationRequestResponseExample",
 						response: {
 							body: {
-								"@context": IdsContractNegotiationContexts.ContextRoot,
-								"@type": IdsContractNegotiationTypes.ContractNegotiation,
+								"@context": ContractNegotiationContexts.ContextRoot,
+								"@type": ContractNegotiationTypes.ContractNegotiation,
 								providerPid: "urn:contract-negotiation:00aa11bb.......ffff",
 								consumerPid: "urn:contract-negotiation:22aa11bb.......ffff",
-								state: IdsContractNegotiationStateType.REQUESTED
+								state: ContractNegotiationStateType.REQUESTED
 							}
 						}
 					}
@@ -177,10 +165,13 @@ export function generateRestRoutesPolicyNegotiationPoint(
 			}
 		],
 		skipAuth: true,
-		processorFeatures: ["verifiableCredential"]
+		processorFeatures: ["verifiableCredential"],
+		processorData: {
+			verifiableCredential: { contextId: ContextIdKeys.Organization }
+		}
 	};
 
-	// https://docs.internationaldataspaces.org/ids-knowledgebase/dataspace-protocol/contract-negotiation/contract.negotiation.binding.https#id-2.3-the-negotiations-providerpid-request-endpoint-provider-side
+	// https://eclipse-dataspace-protocol-base.github.io/DataspaceProtocol/2025-1/#negotiations-providerpid-request-post
 	const pnpNegotiationProviderRequestRoute: IRestRoute<IPnpNegotiateRequest, IPnpContractResponse> =
 		{
 			operationId: "pnpNegotiationProviderRequest",
@@ -204,8 +195,8 @@ export function generateRestRoutesPolicyNegotiationPoint(
 								id: "urn:contract-negotiation:00aa11bb.......ffff"
 							},
 							body: {
-								"@context": IdsContractNegotiationContexts.ContextRoot,
-								"@type": IdsContractNegotiationTypes.ContractRequestMessage,
+								"@context": ContractNegotiationContexts.ContextRoot,
+								"@type": ContractNegotiationTypes.ContractRequestMessage,
 								consumerPid: "urn:contract-negotiation:22aa11bb.......ffff",
 								offer: {
 									"@context": OdrlContexts.ContextRoot,
@@ -213,12 +204,6 @@ export function generateRestRoutesPolicyNegotiationPoint(
 									uid: "urn:offer-1",
 									assigner: "urn:provider:node:1"
 								}
-							},
-							authentication: {
-								"@context": IdentityAuthenticationContexts.ContextRoot,
-								type: IdentityAuthenticationTypes.ActionRequest,
-								requester: "did:node-1",
-								action: "request"
 							}
 						}
 					}
@@ -238,10 +223,13 @@ export function generateRestRoutesPolicyNegotiationPoint(
 				}
 			],
 			skipAuth: true,
-			processorFeatures: ["verifiableCredential"]
+			processorFeatures: ["verifiableCredential"],
+			processorData: {
+				verifiableCredential: { contextId: ContextIdKeys.Organization }
+			}
 		};
 
-	// https://docs.internationaldataspaces.org/ids-knowledgebase/dataspace-protocol/contract-negotiation/contract.negotiation.binding.https#id-2.4-the-negotiations-providerpid-events-endpoint-provider-side
+	// https://eclipse-dataspace-protocol-base.github.io/DataspaceProtocol/2025-1/#negotiations-providerpid-events-post
 	const pnpNegotiationEventsRoute: IRestRoute<IPnpEventRequest, IPnpContractResponse> = {
 		operationId: "pnpNegotiationEvents",
 		summary: "Update the state of the negotiation",
@@ -264,17 +252,11 @@ export function generateRestRoutesPolicyNegotiationPoint(
 							id: "urn:contract-negotiation:00aa11bb.......ffff"
 						},
 						body: {
-							"@context": IdsContractNegotiationContexts.ContextRoot,
-							"@type": IdsContractNegotiationTypes.ContractRequestMessage,
+							"@context": ContractNegotiationContexts.ContextRoot,
+							"@type": ContractNegotiationTypes.ContractRequestMessage,
 							providerPid: "urn:contract-negotiation:00aa11bb.......ffff",
 							consumerPid: "urn:contract-negotiation:22aa11bb.......ffff",
-							event: IdsContractNegotiationEventType.ACCEPTED
-						},
-						authentication: {
-							"@context": IdentityAuthenticationContexts.ContextRoot,
-							type: IdentityAuthenticationTypes.ActionRequest,
-							requester: "did:node-1",
-							action: "event"
+							event: ContractNegotiationEventType.ACCEPTED
 						}
 					}
 				}
@@ -294,10 +276,13 @@ export function generateRestRoutesPolicyNegotiationPoint(
 			}
 		],
 		skipAuth: true,
-		processorFeatures: ["verifiableCredential"]
+		processorFeatures: ["verifiableCredential"],
+		processorData: {
+			verifiableCredential: { contextId: ContextIdKeys.Organization }
+		}
 	};
 
-	// https://docs.internationaldataspaces.org/ids-knowledgebase/dataspace-protocol/contract-negotiation/contract.negotiation.binding.https#id-2.5-the-negotiations-providerpid-agreement-verification-endpoint-provider-side
+	// https://eclipse-dataspace-protocol-base.github.io/DataspaceProtocol/2025-1/#negotiations-providerpid-agreement-verification-post
 	const pnpNegotiationAgreementVerificationRoute: IRestRoute<
 		IPnpAgreementVerificationRequest,
 		IPnpContractResponse
@@ -323,16 +308,10 @@ export function generateRestRoutesPolicyNegotiationPoint(
 							id: "urn:contract-negotiation:00aa11bb.......ffff"
 						},
 						body: {
-							"@context": IdsContractNegotiationContexts.ContextRoot,
-							"@type": IdsContractNegotiationTypes.ContractRequestMessage,
+							"@context": ContractNegotiationContexts.ContextRoot,
+							"@type": ContractNegotiationTypes.ContractRequestMessage,
 							providerPid: "urn:contract-negotiation:00aa11bb.......ffff",
 							consumerPid: "urn:contract-negotiation:22aa11bb.......ffff"
-						},
-						authentication: {
-							"@context": IdentityAuthenticationContexts.ContextRoot,
-							type: IdentityAuthenticationTypes.ActionRequest,
-							requester: "did:node-1",
-							action: "agreement-verification"
 						}
 					}
 				}
@@ -352,10 +331,13 @@ export function generateRestRoutesPolicyNegotiationPoint(
 			}
 		],
 		skipAuth: true,
-		processorFeatures: ["verifiableCredential"]
+		processorFeatures: ["verifiableCredential"],
+		processorData: {
+			verifiableCredential: { contextId: ContextIdKeys.Organization }
+		}
 	};
 
-	// https://docs.internationaldataspaces.org/ids-knowledgebase/dataspace-protocol/contract-negotiation/contract.negotiation.binding.https#id-2.6-the-negotiations-providerpid-termination-endpoint-provider-side
+	// https://eclipse-dataspace-protocol-base.github.io/DataspaceProtocol/2025-1/#negotiations-providerpid-termination-post
 	const pnpNegotiationTerminationRoute: IRestRoute<IPnpTerminateRequest, IPnpContractResponse> = {
 		operationId: "pnpNegotiationTermination",
 		summary: "Set the agreement to terminated",
@@ -378,16 +360,10 @@ export function generateRestRoutesPolicyNegotiationPoint(
 							id: "urn:contract-negotiation:00aa11bb.......ffff"
 						},
 						body: {
-							"@context": IdsContractNegotiationContexts.ContextRoot,
-							"@type": IdsContractNegotiationTypes.ContractRequestMessage,
+							"@context": ContractNegotiationContexts.ContextRoot,
+							"@type": ContractNegotiationTypes.ContractRequestMessage,
 							providerPid: "urn:contract-negotiation:00aa11bb.......ffff",
 							consumerPid: "urn:contract-negotiation:22aa11bb.......ffff"
-						},
-						authentication: {
-							"@context": IdentityAuthenticationContexts.ContextRoot,
-							type: IdentityAuthenticationTypes.ActionRequest,
-							requester: "did:node-1",
-							action: "terminate"
 						}
 					}
 				}
@@ -407,10 +383,13 @@ export function generateRestRoutesPolicyNegotiationPoint(
 			}
 		],
 		skipAuth: true,
-		processorFeatures: ["verifiableCredential"]
+		processorFeatures: ["verifiableCredential"],
+		processorData: {
+			verifiableCredential: { contextId: ContextIdKeys.Organization }
+		}
 	};
 
-	// https://docs.internationaldataspaces.org/ids-knowledgebase/dataspace-protocol/contract-negotiation/contract.negotiation.binding.https#id-3.2-the-negotiations-offers-endpoint-consumer-side
+	// https://eclipse-dataspace-protocol-base.github.io/DataspaceProtocol/2025-1/#negotiations-offers-post
 	const pnpNegotiationOfferRoute: IRestRoute<
 		IPnpOfferRequest,
 		IPnpContractNegotiationResponse | IPnpContractResponse
@@ -433,8 +412,8 @@ export function generateRestRoutesPolicyNegotiationPoint(
 							[HeaderTypes.Authorization]: "z3Vcuh2BP9ShC.z3Vcuh2BP9ShC.z3Vcuh2BP9ShC"
 						},
 						body: {
-							"@context": IdsContractNegotiationContexts.ContextRoot,
-							"@type": IdsContractNegotiationTypes.ContractRequestMessage,
+							"@context": ContractNegotiationContexts.ContextRoot,
+							"@type": ContractNegotiationTypes.ContractRequestMessage,
 							providerPid: "urn:contract-negotiation:00aa11bb.......ffff",
 							consumerPid: "urn:contract-negotiation:22aa11bb.......ffff",
 							offer: {
@@ -443,12 +422,6 @@ export function generateRestRoutesPolicyNegotiationPoint(
 								uid: "urn:offer-1",
 								assigner: "urn:provider:node:1"
 							}
-						},
-						authentication: {
-							"@context": IdentityAuthenticationContexts.ContextRoot,
-							type: IdentityAuthenticationTypes.ActionRequest,
-							requester: "did:node-1",
-							action: "offer"
 						}
 					}
 				}
@@ -462,8 +435,8 @@ export function generateRestRoutesPolicyNegotiationPoint(
 						id: "pnpNegotiationOfferResponseExample",
 						response: {
 							body: {
-								"@context": IdsContractNegotiationContexts.ContextRoot,
-								"@type": IdsContractNegotiationTypes.ContractRequestMessage,
+								"@context": ContractNegotiationContexts.ContextRoot,
+								"@type": ContractNegotiationTypes.ContractRequestMessage,
 								providerPid: "urn:contract-negotiation:00aa11bb.......ffff",
 								consumerPid: "urn:contract-negotiation:22aa11bb.......ffff"
 							}
@@ -473,10 +446,13 @@ export function generateRestRoutesPolicyNegotiationPoint(
 			}
 		],
 		skipAuth: true,
-		processorFeatures: ["verifiableCredential"]
+		processorFeatures: ["verifiableCredential"],
+		processorData: {
+			verifiableCredential: { contextId: ContextIdKeys.Organization }
+		}
 	};
 
-	// https://docs.internationaldataspaces.org/ids-knowledgebase/dataspace-protocol/contract-negotiation/contract.negotiation.binding.https#id-3.3-the-negotiations-consumerpid-offers-endpoint-consumer-side
+	// https://eclipse-dataspace-protocol-base.github.io/DataspaceProtocol/2025-1/#negotiations-consumerpid-offers-post
 	const pnpNegotiationConsumerOfferRoute: IRestRoute<IPnpOfferRequest, IPnpContractResponse> = {
 		operationId: "pnpNegotiationConsumerOffer",
 		summary: "Send the offer to the consumer with existing id",
@@ -499,8 +475,8 @@ export function generateRestRoutesPolicyNegotiationPoint(
 							id: "urn:contract-negotiation:22aa11bb.......ffff"
 						},
 						body: {
-							"@context": IdsContractNegotiationContexts.ContextRoot,
-							"@type": IdsContractNegotiationTypes.ContractRequestMessage,
+							"@context": ContractNegotiationContexts.ContextRoot,
+							"@type": ContractNegotiationTypes.ContractRequestMessage,
 							providerPid: "urn:contract-negotiation:00aa11bb.......ffff",
 							consumerPid: "urn:contract-negotiation:22aa11bb.......ffff",
 							offer: {
@@ -509,12 +485,6 @@ export function generateRestRoutesPolicyNegotiationPoint(
 								uid: "urn:offer-1",
 								assigner: "urn:provider:node:1"
 							}
-						},
-						authentication: {
-							"@context": IdentityAuthenticationContexts.ContextRoot,
-							type: IdentityAuthenticationTypes.ActionRequest,
-							requester: "did:node-1",
-							action: "offer"
 						}
 					}
 				}
@@ -528,8 +498,8 @@ export function generateRestRoutesPolicyNegotiationPoint(
 						id: "pnpNegotiationConsumerOfferResponseExample",
 						response: {
 							body: {
-								"@context": IdsContractNegotiationContexts.ContextRoot,
-								"@type": IdsContractNegotiationTypes.ContractNegotiation,
+								"@context": ContractNegotiationContexts.ContextRoot,
+								"@type": ContractNegotiationTypes.ContractNegotiation,
 								providerPid: "urn:contract-negotiation:00aa11bb.......ffff",
 								consumerPid: "urn:contract-negotiation:22aa11bb.......ffff"
 							}
@@ -539,10 +509,13 @@ export function generateRestRoutesPolicyNegotiationPoint(
 			}
 		],
 		skipAuth: true,
-		processorFeatures: ["verifiableCredential"]
+		processorFeatures: ["verifiableCredential"],
+		processorData: {
+			verifiableCredential: { contextId: ContextIdKeys.Organization }
+		}
 	};
 
-	// https://docs.internationaldataspaces.org/ids-knowledgebase/dataspace-protocol/contract-negotiation/contract.negotiation.binding.https#id-3.4-the-negotiations-consumerpid-agreement-endpoint-consumer-side
+	// https://eclipse-dataspace-protocol-base.github.io/DataspaceProtocol/2025-1/#negotiations-consumerpid-agreement-post
 	const pnpNegotiationAgreementRoute: IRestRoute<IPnpAgreementRequest, IPnpContractResponse> = {
 		operationId: "pnpNegotiationAgreement",
 		summary: "Send the agreement to the consumer",
@@ -565,8 +538,8 @@ export function generateRestRoutesPolicyNegotiationPoint(
 							id: "urn:contract-negotiation:22aa11bb.......ffff"
 						},
 						body: {
-							"@context": IdsContractNegotiationContexts.ContextRoot,
-							"@type": IdsContractNegotiationTypes.ContractRequestMessage,
+							"@context": ContractNegotiationContexts.ContextRoot,
+							"@type": ContractNegotiationTypes.ContractRequestMessage,
 							providerPid: "urn:contract-negotiation:00aa11bb.......ffff",
 							consumerPid: "urn:contract-negotiation:22aa11bb.......ffff",
 							agreement: {
@@ -576,12 +549,6 @@ export function generateRestRoutesPolicyNegotiationPoint(
 								assigner: "urn:provider:node:1",
 								assignee: "urn:consumer:node:1"
 							}
-						},
-						authentication: {
-							"@context": IdentityAuthenticationContexts.ContextRoot,
-							type: IdentityAuthenticationTypes.ActionRequest,
-							requester: "did:node-1",
-							action: "agreement"
 						}
 					}
 				}
@@ -601,12 +568,15 @@ export function generateRestRoutesPolicyNegotiationPoint(
 			}
 		],
 		skipAuth: true,
-		processorFeatures: ["verifiableCredential"]
+		processorFeatures: ["verifiableCredential"],
+		processorData: {
+			verifiableCredential: { contextId: ContextIdKeys.Organization }
+		}
 	};
 
 	// The consumer event and terminate routes are exactly the same as the pnpNegotiationEventsRoute and pnpNegotiationTerminationRoute
-	// https://docs.internationaldataspaces.org/ids-knowledgebase/dataspace-protocol/contract-negotiation/contract.negotiation.binding.https#id-3.5-the-negotiations-consumerpid-events-endpoint-consumer-side
-	// https://docs.internationaldataspaces.org/ids-knowledgebase/dataspace-protocol/contract-negotiation/contract.negotiation.binding.https#id-3.6-the-negotiations-consumerpid-termination-endpoint-consumer-side
+	// https://eclipse-dataspace-protocol-base.github.io/DataspaceProtocol/2025-1/#negotiations-consumerpid-events-post
+	// https://eclipse-dataspace-protocol-base.github.io/DataspaceProtocol/2025-1/#negotiations-consumerpid-termination-post
 
 	return [
 		pnpGetNegotiationRoute,
@@ -627,11 +597,11 @@ export function generateRestRoutesPolicyNegotiationPoint(
  * @returns The mapped status code or undefined if no mapping was found or not an error.
  */
 function mapError(
-	result: IIdsContractNegotiation | IIdsContractNegotiationError | undefined
+	result: IContractNegotiation | IContractNegotiationError | undefined
 ): HttpStatusCode | undefined {
 	if (
-		result?.["@type"] === IdsContractNegotiationTypes.ContractNegotiationError &&
-		Is.object<IIdsContractNegotiationError>(result)
+		result?.["@type"] === ContractNegotiationTypes.ContractNegotiationError &&
+		Is.object<IContractNegotiationError>(result)
 	) {
 		if (Is.stringValue(result.code) && /notfound/i.test(result.code)) {
 			return HttpStatusCode.notFound;

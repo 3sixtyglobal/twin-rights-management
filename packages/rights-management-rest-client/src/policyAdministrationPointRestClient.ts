@@ -1,4 +1,4 @@
-// Copyright 2024 IOTA Stiftung.
+// Copyright 2025 IOTA Stiftung.
 // SPDX-License-Identifier: Apache-2.0.
 import { BaseRestClient } from "@twin.org/api-core";
 import {
@@ -39,6 +39,14 @@ export class PolicyAdministrationPointRestClient
 	 */
 	constructor(config: IBaseRestClientConfig) {
 		super(nameof<PolicyAdministrationPointRestClient>(), config, "rights-management");
+	}
+
+	/**
+	 * Returns the class name of the component.
+	 * @returns The class name of the component.
+	 */
+	public className(): string {
+		return PolicyAdministrationPointRestClient.CLASS_NAME;
 	}
 
 	/**

@@ -1,5 +1,6 @@
-// Copyright 2024 IOTA Stiftung.
+// Copyright 2025 IOTA Stiftung.
 // SPDX-License-Identifier: Apache-2.0.
+import { ContextIdHelper, ContextIdKeys, ContextIdStore } from "@twin.org/context";
 import { ComponentFactory, GeneralError, Guards, Is } from "@twin.org/core";
 import type { IJsonLdNodeObject } from "@twin.org/data-json-ld";
 import type { EntityCondition } from "@twin.org/entity";
@@ -14,7 +15,7 @@ import type {
 	IDataAccessPointComponent,
 	IDataAccessRequestPointComponent
 } from "@twin.org/rights-management-models";
-import type { IDataAccessRequestPointServiceConstructorOptions } from "./models/IDataAccessRequestPointServiceConstructorOptions";
+import type { IDataAccessRequestPointServiceConstructorOptions } from "./models/IDataAccessRequestPointServiceConstructorOptions.js";
 
 /**
  * Class implementation of Data Access Request Point Component.
@@ -41,7 +42,7 @@ export class DataAccessRequestPointService implements IDataAccessRequestPointCom
 	 * The node identity.
 	 * @internal
 	 */
-	private _nodeIdentity?: string;
+	private _nodeId?: string;
 
 	/**
 	 * Create a new instance of DataAccessRequestPointService (DARP).
@@ -55,16 +56,22 @@ export class DataAccessRequestPointService implements IDataAccessRequestPointCom
 	}
 
 	/**
+	 * Returns the class name of the component.
+	 * @returns The class name of the component.
+	 */
+	public className(): string {
+		return DataAccessRequestPointService.CLASS_NAME;
+	}
+
+	/**
 	 * The component needs to be started when the node is initialized.
-	 * @param nodeIdentity The identity of the node starting the component.
 	 * @param nodeLoggingComponentType The node logging component type.
 	 * @returns Nothing.
 	 */
-	public async start(
-		nodeIdentity: string,
-		nodeLoggingComponentType: string | undefined
-	): Promise<void> {
-		this._nodeIdentity = nodeIdentity;
+	public async start(nodeLoggingComponentType?: string): Promise<void> {
+		const contextIds = await ContextIdStore.getContextIds();
+		ContextIdHelper.guard(contextIds, ContextIdKeys.Node);
+		this._nodeId = contextIds[ContextIdKeys.Node];
 	}
 
 	/**
@@ -79,15 +86,15 @@ export class DataAccessRequestPointService implements IDataAccessRequestPointCom
 		Guards.stringValue(DataAccessRequestPointService.CLASS_NAME, nameof(assetType), assetType);
 		Guards.object<IJsonLdNodeObject>(DataAccessRequestPointService.CLASS_NAME, nameof(item), item);
 
-		if (!Is.stringValue(this._nodeIdentity)) {
-			throw new GeneralError(DataAccessRequestPointService.CLASS_NAME, "missingNodeIdentity");
+		if (!Is.stringValue(this._nodeId)) {
+			throw new GeneralError(DataAccessRequestPointService.CLASS_NAME, "missingNodeId");
 		}
 
 		const actionRequest: IIdentityAuthenticationActionRequest = {
 			"@context": IdentityAuthenticationContexts.ContextRoot,
 			type: IdentityAuthenticationTypes.ActionRequest,
 			action: "create",
-			requester: this._nodeIdentity
+			requester: this._nodeId
 		};
 
 		const dataAccessClient = await this._dataAccessComponentCreator(url);
@@ -106,15 +113,15 @@ export class DataAccessRequestPointService implements IDataAccessRequestPointCom
 		Guards.stringValue(DataAccessRequestPointService.CLASS_NAME, nameof(assetType), assetType);
 		Guards.stringValue(DataAccessRequestPointService.CLASS_NAME, nameof(id), id);
 
-		if (!Is.stringValue(this._nodeIdentity)) {
-			throw new GeneralError(DataAccessRequestPointService.CLASS_NAME, "missingNodeIdentity");
+		if (!Is.stringValue(this._nodeId)) {
+			throw new GeneralError(DataAccessRequestPointService.CLASS_NAME, "missingNodeId");
 		}
 
 		const actionRequest: IIdentityAuthenticationActionRequest = {
 			"@context": IdentityAuthenticationContexts.ContextRoot,
 			type: IdentityAuthenticationTypes.ActionRequest,
 			action: "get",
-			requester: this._nodeIdentity
+			requester: this._nodeId
 		};
 
 		const dataAccessClient = await this._dataAccessComponentCreator(url);
@@ -133,15 +140,15 @@ export class DataAccessRequestPointService implements IDataAccessRequestPointCom
 		Guards.stringValue(DataAccessRequestPointService.CLASS_NAME, nameof(assetType), assetType);
 		Guards.object<IJsonLdNodeObject>(DataAccessRequestPointService.CLASS_NAME, nameof(item), item);
 
-		if (!Is.stringValue(this._nodeIdentity)) {
-			throw new GeneralError(DataAccessRequestPointService.CLASS_NAME, "missingNodeIdentity");
+		if (!Is.stringValue(this._nodeId)) {
+			throw new GeneralError(DataAccessRequestPointService.CLASS_NAME, "missingNodeId");
 		}
 
 		const actionRequest: IIdentityAuthenticationActionRequest = {
 			"@context": IdentityAuthenticationContexts.ContextRoot,
 			type: IdentityAuthenticationTypes.ActionRequest,
 			action: "update",
-			requester: this._nodeIdentity
+			requester: this._nodeId
 		};
 
 		const dataAccessClient = await this._dataAccessComponentCreator(url);
@@ -160,15 +167,15 @@ export class DataAccessRequestPointService implements IDataAccessRequestPointCom
 		Guards.stringValue(DataAccessRequestPointService.CLASS_NAME, nameof(assetType), assetType);
 		Guards.stringValue(DataAccessRequestPointService.CLASS_NAME, nameof(id), id);
 
-		if (!Is.stringValue(this._nodeIdentity)) {
-			throw new GeneralError(DataAccessRequestPointService.CLASS_NAME, "missingNodeIdentity");
+		if (!Is.stringValue(this._nodeId)) {
+			throw new GeneralError(DataAccessRequestPointService.CLASS_NAME, "missingNodeId");
 		}
 
 		const actionRequest: IIdentityAuthenticationActionRequest = {
 			"@context": IdentityAuthenticationContexts.ContextRoot,
 			type: IdentityAuthenticationTypes.ActionRequest,
 			action: "remove",
-			requester: this._nodeIdentity
+			requester: this._nodeId
 		};
 
 		const dataAccessClient = await this._dataAccessComponentCreator(url);
@@ -197,15 +204,15 @@ export class DataAccessRequestPointService implements IDataAccessRequestPointCom
 		Guards.stringValue(DataAccessRequestPointService.CLASS_NAME, nameof(url), url);
 		Guards.stringValue(DataAccessRequestPointService.CLASS_NAME, nameof(assetType), assetType);
 
-		if (!Is.stringValue(this._nodeIdentity)) {
-			throw new GeneralError(DataAccessRequestPointService.CLASS_NAME, "missingNodeIdentity");
+		if (!Is.stringValue(this._nodeId)) {
+			throw new GeneralError(DataAccessRequestPointService.CLASS_NAME, "missingNodeId");
 		}
 
 		const actionRequest: IIdentityAuthenticationActionRequest = {
 			"@context": IdentityAuthenticationContexts.ContextRoot,
 			type: IdentityAuthenticationTypes.ActionRequest,
 			action: "query",
-			requester: this._nodeIdentity
+			requester: this._nodeId
 		};
 
 		const dataAccessClient = await this._dataAccessComponentCreator(url);

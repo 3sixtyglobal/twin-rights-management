@@ -1,6 +1,6 @@
-// Copyright 2024 IOTA Stiftung.
+// Copyright 2025 IOTA Stiftung.
 // SPDX-License-Identifier: Apache-2.0.
-import type { IPolicyInformationPointServiceConfig } from "./IPolicyInformationPointServiceConfig";
+import type { IPolicyInformationPointServiceConfig } from "./IPolicyInformationPointServiceConfig.js";
 
 /**
  * Options for the Policy Information Point Component.

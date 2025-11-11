@@ -16,7 +16,7 @@ Client for performing Rights Management Data Access through to REST endpoints.
 
 > **new DataAccessPointRestClient**(`config`): `DataAccessPointRestClient`
 
-Create a new instance of DataAccessPointClient.
+Create a new instance of DataAccessPointRestClient.
 
 #### Parameters
 
@@ -43,6 +43,24 @@ The configuration for the client.
 Runtime name for the class.
 
 ## Methods
+
+### className()
+
+> **className**(): `string`
+
+Returns the class name of the component.
+
+#### Returns
+
+`string`
+
+The class name of the component.
+
+#### Implementation of
+
+`IDataAccessPointComponent.className`
+
+***
 
 ### create()
 
@@ -214,13 +232,13 @@ The type of the item to query.
 
 The conditions to apply to the query.
 
-`undefined` | `EntityCondition`\<`IJsonLdNodeObject`\>
+`EntityCondition`\<`IJsonLdNodeObject`\> | `undefined`
 
 ##### cursor
 
 The cursor for pagination.
 
-`undefined` | `string`
+`string` | `undefined`
 
 ##### options
 

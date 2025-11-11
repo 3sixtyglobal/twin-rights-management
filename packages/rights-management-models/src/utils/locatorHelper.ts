@@ -1,7 +1,7 @@
-// Copyright 2024 IOTA Stiftung.
+// Copyright 2025 IOTA Stiftung.
 // SPDX-License-Identifier: Apache-2.0.
 import { Is } from "@twin.org/core";
-import type { IPolicyLocator } from "../models/IPolicyLocator";
+import type { IPolicyLocator } from "../models/IPolicyLocator.js";
 
 /**
  * Helper methods for Locator.
@@ -40,13 +40,9 @@ export class LocatorHelper {
 	public static matches(locator1: IPolicyLocator, locator2: IPolicyLocator): boolean {
 		return (
 			// The type assertions return boolean so don't want to use nullish coalescing
-			// eslint-disable-next-line @typescript-eslint/prefer-nullish-coalescing
 			(Is.empty(locator1.assetType) || locator1.assetType === locator2.assetType) &&
-			// eslint-disable-next-line @typescript-eslint/prefer-nullish-coalescing
 			(Is.empty(locator1.action) || locator1.action === locator2.action) &&
-			// eslint-disable-next-line @typescript-eslint/prefer-nullish-coalescing
 			(Is.empty(locator1.assignee) || locator1.assignee === locator2.assignee) &&
-			// eslint-disable-next-line @typescript-eslint/prefer-nullish-coalescing
 			(Is.empty(locator1.resourceId) || locator1.resourceId === locator2.resourceId)
 		);
 	}

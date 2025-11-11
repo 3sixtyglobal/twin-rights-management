@@ -44,6 +44,24 @@ Runtime name for the class.
 
 ## Methods
 
+### className()
+
+> **className**(): `string`
+
+Returns the class name of the component.
+
+#### Returns
+
+`string`
+
+The class name of the component.
+
+#### Implementation of
+
+`IPolicyNegotiationAdminPointComponent.className`
+
+***
+
 ### get()
 
 > **get**(`policyId`): `Promise`\<`IPolicyNegotiation`\>
@@ -132,7 +150,7 @@ Get a list of the negotiations.
 
 ##### state?
 
-`IdsContractNegotiationStateType`
+`ContractNegotiationStateType`
 
 The state of the negotiations to retrieve.
 

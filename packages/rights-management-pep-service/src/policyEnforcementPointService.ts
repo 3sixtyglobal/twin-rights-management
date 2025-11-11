@@ -1,4 +1,4 @@
-// Copyright 2024 IOTA Stiftung.
+// Copyright 2025 IOTA Stiftung.
 // SPDX-License-Identifier: Apache-2.0.
 import { BaseError, ComponentFactory, GeneralError, Guards, ObjectHelper } from "@twin.org/core";
 import type { ILoggingComponent } from "@twin.org/logging-models";
@@ -10,7 +10,7 @@ import {
 	type IPolicyEnforcementProcessor,
 	type IPolicyLocator
 } from "@twin.org/rights-management-models";
-import type { IPolicyEnforcementPointServiceConstructorOptions } from "./models/IPolicyEnforcementPointServiceConstructorOptions";
+import type { IPolicyEnforcementPointServiceConstructorOptions } from "./models/IPolicyEnforcementPointServiceConstructorOptions.js";
 
 /**
  * Class implementation of Policy Enforcement Point Component.
@@ -57,6 +57,14 @@ export class PolicyEnforcementPointService implements IPolicyEnforcementPointCom
 	}
 
 	/**
+	 * Returns the class name of the component.
+	 * @returns The class name of the component.
+	 */
+	public className(): string {
+		return PolicyEnforcementPointService.CLASS_NAME;
+	}
+
+	/**
 	 * Process the data using Policy Decision Point (PDP) and return the manipulated data.
 	 * @param locator The locator to find relevant policies.
 	 * @param data The data to process.
@@ -69,7 +77,7 @@ export class PolicyEnforcementPointService implements IPolicyEnforcementPointCom
 			locator
 		);
 
-		this._logging?.log({
+		await this._logging?.log({
 			level: "info",
 			source: PolicyEnforcementPointService.CLASS_NAME,
 			ts: Date.now(),
@@ -85,7 +93,7 @@ export class PolicyEnforcementPointService implements IPolicyEnforcementPointCom
 
 		for (const { processorId, processor } of this._processors) {
 			try {
-				this._logging?.log({
+				await this._logging?.log({
 					level: "info",
 					source: PolicyEnforcementPointService.CLASS_NAME,
 					ts: Date.now(),
@@ -98,7 +106,7 @@ export class PolicyEnforcementPointService implements IPolicyEnforcementPointCom
 
 				processedData = await processor.process(locator, decisions, processedData);
 			} catch (error) {
-				this._logging?.log({
+				await this._logging?.log({
 					level: "error",
 					source: PolicyEnforcementPointService.CLASS_NAME,
 					ts: Date.now(),
@@ -145,7 +153,7 @@ export class PolicyEnforcementPointService implements IPolicyEnforcementPointCom
 			this._processors.push({ processorId, processor });
 		}
 
-		this._logging?.log({
+		await this._logging?.log({
 			level: "info",
 			source: PolicyEnforcementPointService.CLASS_NAME,
 			ts: Date.now(),
@@ -169,7 +177,7 @@ export class PolicyEnforcementPointService implements IPolicyEnforcementPointCom
 			this._processors.splice(currentIndex, 1);
 		}
 
-		this._logging?.log({
+		await this._logging?.log({
 			level: "info",
 			source: PolicyEnforcementPointService.CLASS_NAME,
 			ts: Date.now(),

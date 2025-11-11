@@ -36,25 +36,37 @@ The class name of the Data Access Request Point Service.
 
 ## Methods
 
+### className()
+
+> **className**(): `string`
+
+Returns the class name of the component.
+
+#### Returns
+
+`string`
+
+The class name of the component.
+
+#### Implementation of
+
+`IDataAccessRequestPointComponent.className`
+
+***
+
 ### start()
 
-> **start**(`nodeIdentity`, `nodeLoggingComponentType`): `Promise`\<`void`\>
+> **start**(`nodeLoggingComponentType?`): `Promise`\<`void`\>
 
 The component needs to be started when the node is initialized.
 
 #### Parameters
 
-##### nodeIdentity
+##### nodeLoggingComponentType?
 
 `string`
 
-The identity of the node starting the component.
-
-##### nodeLoggingComponentType
-
 The node logging component type.
-
-`undefined` | `string`
 
 #### Returns
 
@@ -244,13 +256,13 @@ The type of the item to query.
 
 The conditions to apply to the query.
 
-`undefined` | `EntityCondition`\<`IJsonLdNodeObject`\>
+`EntityCondition`\<`IJsonLdNodeObject`\> | `undefined`
 
 ##### cursor
 
 The cursor for pagination.
 
-`undefined` | `string`
+`string` | `undefined`
 
 ##### options
 

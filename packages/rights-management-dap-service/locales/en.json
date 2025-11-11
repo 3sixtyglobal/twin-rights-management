@@ -7,7 +7,7 @@
 			"incorrectActionType": "Incorrect action in credential \"{action}\", expecting \"{expecting}\""
 		},
 		"dataAccessRequestPointService": {
-			"missingNodeIdentity": "The node identity is missing"
+			"missingNodeId": "The node identity is missing"
 		}
 	},
 	"info": {

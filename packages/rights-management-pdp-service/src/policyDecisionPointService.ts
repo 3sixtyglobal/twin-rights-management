@@ -1,4 +1,4 @@
-// Copyright 2024 IOTA Stiftung.
+// Copyright 2025 IOTA Stiftung.
 // SPDX-License-Identifier: Apache-2.0.
 import { BaseError, ComponentFactory, GeneralError, Guards, Is } from "@twin.org/core";
 import type { ILoggingComponent } from "@twin.org/logging-models";
@@ -16,7 +16,7 @@ import {
 	LocatorHelper
 } from "@twin.org/rights-management-models";
 import type { IOdrlPolicy } from "@twin.org/standards-w3c-odrl";
-import type { IPolicyDecisionPointServiceConstructorOptions } from "./models/IPolicyDecisionPointServiceConstructorOptions";
+import type { IPolicyDecisionPointServiceConstructorOptions } from "./models/IPolicyDecisionPointServiceConstructorOptions.js";
 
 /**
  * Class implementation of Policy Decision Point Component.
@@ -78,6 +78,14 @@ export class PolicyDecisionPointService implements IPolicyDecisionPointComponent
 			options?.policyExecutionPointComponentType ?? "policy-execution-point"
 		);
 		this._arbiters = options?.config?.arbiters ?? [];
+	}
+
+	/**
+	 * Returns the class name of the component.
+	 * @returns The class name of the component.
+	 */
+	public className(): string {
+		return PolicyDecisionPointService.CLASS_NAME;
 	}
 
 	/**
@@ -146,7 +154,7 @@ export class PolicyDecisionPointService implements IPolicyDecisionPointComponent
 				const arbiterDecisions = await arbiter.decide(locator, information, policies, data);
 				decisions.push(...arbiterDecisions);
 			} catch (error) {
-				this._logging?.log({
+				await this._logging?.log({
 					level: "error",
 					source: PolicyDecisionPointService.CLASS_NAME,
 					ts: Date.now(),
@@ -194,7 +202,7 @@ export class PolicyDecisionPointService implements IPolicyDecisionPointComponent
 			this._arbiters.push({ arbiterId, arbiter });
 		}
 
-		this._logging?.log({
+		await this._logging?.log({
 			level: "info",
 			source: PolicyDecisionPointService.CLASS_NAME,
 			ts: Date.now(),
@@ -218,7 +226,7 @@ export class PolicyDecisionPointService implements IPolicyDecisionPointComponent
 			this._arbiters.splice(currentIndex, 1);
 		}
 
-		this._logging?.log({
+		await this._logging?.log({
 			level: "info",
 			source: PolicyDecisionPointService.CLASS_NAME,
 			ts: Date.now(),

@@ -1,4 +1,4 @@
-// Copyright 2024 IOTA Stiftung.
+// Copyright 2025 IOTA Stiftung.
 // SPDX-License-Identifier: Apache-2.0.
 import type {
 	ICreatedResponse,
@@ -7,12 +7,9 @@ import type {
 	IRestRoute,
 	ITag
 } from "@twin.org/api-models";
+import { ContextIdKeys } from "@twin.org/context";
 import { ComponentFactory, Guards } from "@twin.org/core";
-import {
-	IdentityAuthenticationContexts,
-	IdentityAuthenticationTypes,
-	type IIdentityAuthenticationActionRequest
-} from "@twin.org/identity-authentication";
+import type { IIdentityAuthenticationActionRequest } from "@twin.org/identity-authentication";
 import { nameof } from "@twin.org/nameof";
 import {
 	RightsManagementContexts,
@@ -83,12 +80,6 @@ export function generateRestRoutesDataAccessPoint(
 								type: "Person",
 								name: "Jane Doe"
 							}
-						},
-						authentication: {
-							"@context": IdentityAuthenticationContexts.ContextRoot,
-							type: IdentityAuthenticationTypes.ActionRequest,
-							requester: "did:node-1",
-							action: "create"
 						}
 					}
 				}
@@ -111,7 +102,10 @@ export function generateRestRoutesDataAccessPoint(
 			}
 		],
 		skipAuth: true,
-		processorFeatures: ["verifiableCredential"]
+		processorFeatures: ["verifiableCredential"],
+		processorData: {
+			verifiableCredential: { contextId: ContextIdKeys.Organization }
+		}
 	};
 
 	const dapGetRoute: IRestRoute<IDapGetRequest, IDapGetResponse> = {
@@ -135,12 +129,6 @@ export function generateRestRoutesDataAccessPoint(
 						pathParams: {
 							assetType: "contacts",
 							id: "urn:contacts:abc123def456"
-						},
-						authentication: {
-							"@context": IdentityAuthenticationContexts.ContextRoot,
-							type: IdentityAuthenticationTypes.ActionRequest,
-							requester: "did:node-1",
-							action: "get"
 						}
 					}
 				}
@@ -164,7 +152,10 @@ export function generateRestRoutesDataAccessPoint(
 			}
 		],
 		skipAuth: true,
-		processorFeatures: ["verifiableCredential"]
+		processorFeatures: ["verifiableCredential"],
+		processorData: {
+			verifiableCredential: { contextId: ContextIdKeys.Organization }
+		}
 	};
 
 	const dapUpdateRoute: IRestRoute<IDapUpdateRequest, INoContentResponse> = {
@@ -198,12 +189,6 @@ export function generateRestRoutesDataAccessPoint(
 								type: "Person",
 								name: "Jane Doe"
 							}
-						},
-						authentication: {
-							"@context": IdentityAuthenticationContexts.ContextRoot,
-							type: IdentityAuthenticationTypes.ActionRequest,
-							requester: "did:node-1",
-							action: "update"
 						}
 					}
 				}
@@ -215,7 +200,10 @@ export function generateRestRoutesDataAccessPoint(
 			}
 		],
 		skipAuth: true,
-		processorFeatures: ["verifiableCredential"]
+		processorFeatures: ["verifiableCredential"],
+		processorData: {
+			verifiableCredential: { contextId: ContextIdKeys.Organization }
+		}
 	};
 
 	const dapRemoveRoute: IRestRoute<IDapRemoveRequest, INoContentResponse> = {
@@ -239,12 +227,6 @@ export function generateRestRoutesDataAccessPoint(
 						pathParams: {
 							assetType: "contacts",
 							id: "urn:contacts:abc123def456"
-						},
-						authentication: {
-							"@context": IdentityAuthenticationContexts.ContextRoot,
-							type: IdentityAuthenticationTypes.ActionRequest,
-							requester: "did:node-1",
-							action: "remove"
 						}
 					}
 				}
@@ -256,7 +238,10 @@ export function generateRestRoutesDataAccessPoint(
 			}
 		],
 		skipAuth: true,
-		processorFeatures: ["verifiableCredential"]
+		processorFeatures: ["verifiableCredential"],
+		processorData: {
+			verifiableCredential: { contextId: ContextIdKeys.Organization }
+		}
 	};
 
 	const dapQueryRoute: IRestRoute<IDapQueryRequest, IDapQueryResponse> = {
@@ -284,12 +269,6 @@ export function generateRestRoutesDataAccessPoint(
 							"@context": RightsManagementContexts.ContextRoot,
 							type: RightsManagementTypes.DataAccessQuery,
 							assetType: "contacts"
-						},
-						authentication: {
-							"@context": IdentityAuthenticationContexts.ContextRoot,
-							type: IdentityAuthenticationTypes.ActionRequest,
-							requester: "did:node-1",
-							action: "query"
 						}
 					}
 				}
@@ -319,7 +298,10 @@ export function generateRestRoutesDataAccessPoint(
 			}
 		],
 		skipAuth: true,
-		processorFeatures: ["verifiableCredential"]
+		processorFeatures: ["verifiableCredential"],
+		processorData: {
+			verifiableCredential: { contextId: ContextIdKeys.Organization }
+		}
 	};
 
 	return [dapCreateRoute, dapGetRoute, dapUpdateRoute, dapRemoveRoute, dapQueryRoute];

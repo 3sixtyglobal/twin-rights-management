@@ -1,4 +1,4 @@
-// Copyright 2024 IOTA Stiftung.
+// Copyright 2025 IOTA Stiftung.
 // SPDX-License-Identifier: Apache-2.0.
 import { TaskSchedulerService } from "@twin.org/background-task-scheduler";
 import { ComponentFactory } from "@twin.org/core";
@@ -27,7 +27,7 @@ import {
 	type VaultSecret
 } from "@twin.org/vault-connector-entity-storage";
 import { VaultConnectorFactory } from "@twin.org/vault-models";
-import { DataAccessPointService } from "../src/dataAccessPointService";
+import { DataAccessPointService } from "../src/dataAccessPointService.js";
 
 let loggingMemoryEntityStorage: MemoryEntityStorageConnector<LogEntry>;
 let identityConnector: EntityStorageIdentityConnector;
@@ -80,7 +80,7 @@ describe("DataAccessPointService", () => {
 			intercept: vi.fn(),
 			registerProcessor: vi.fn(),
 			unregisterProcessor: vi.fn(),
-			CLASS_NAME: "MockPolicyEnforcementPointComponent"
+			className: () => "MockPolicyEnforcementPointComponent"
 		};
 
 		ComponentFactory.register("policy-enforcement-point", () => mockEnforcementPointComponent);

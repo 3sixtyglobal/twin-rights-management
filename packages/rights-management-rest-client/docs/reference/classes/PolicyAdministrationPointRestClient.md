@@ -16,7 +16,7 @@ Client for performing Rights Management Policy Administration through to REST en
 
 > **new PolicyAdministrationPointRestClient**(`config`): `PolicyAdministrationPointRestClient`
 
-Create a new instance of PolicyAdministrationPointClient.
+Create a new instance of PolicyAdministrationPointRestClient.
 
 #### Parameters
 
@@ -43,6 +43,24 @@ The configuration for the client.
 Runtime name for the class.
 
 ## Methods
+
+### className()
+
+> **className**(): `string`
+
+Returns the class name of the component.
+
+#### Returns
+
+`string`
+
+The class name of the component.
+
+#### Implementation of
+
+`IPolicyAdministrationPointComponent.className`
+
+***
 
 ### create()
 

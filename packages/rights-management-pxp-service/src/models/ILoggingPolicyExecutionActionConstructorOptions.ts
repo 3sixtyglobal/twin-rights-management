@@ -1,6 +1,6 @@
-// Copyright 2024 IOTA Stiftung.
+// Copyright 2025 IOTA Stiftung.
 // SPDX-License-Identifier: Apache-2.0.
-import type { ILoggingPolicyExecutionActionConfig } from "./ILoggingPolicyExecutionActionConfig";
+import type { ILoggingPolicyExecutionActionConfig } from "./ILoggingPolicyExecutionActionConfig.js";
 
 /**
  * Options for the Logging Policy Execution Action.

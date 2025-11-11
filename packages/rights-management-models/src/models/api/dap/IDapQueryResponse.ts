@@ -1,7 +1,7 @@
-// Copyright 2024 IOTA Stiftung.
+// Copyright 2025 IOTA Stiftung.
 // SPDX-License-Identifier: Apache-2.0.
 import type { HeaderTypes, MimeTypes } from "@twin.org/web";
-import type { IDataAccessQueryResponse } from "../../dap/jsonLd/IDataAccessQueryResponse";
+import type { IDataAccessQueryResponse } from "../../dap/jsonLd/IDataAccessQueryResponse.js";
 
 /**
  * The response structure for querying item with the DAP.

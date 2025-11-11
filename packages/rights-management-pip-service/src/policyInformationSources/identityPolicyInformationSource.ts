@@ -1,4 +1,4 @@
-// Copyright 2024 IOTA Stiftung.
+// Copyright 2025 IOTA Stiftung.
 // SPDX-License-Identifier: Apache-2.0.
 import { BaseError, ComponentFactory, Guards, type IComponent } from "@twin.org/core";
 import type { IJsonLdNodeObject } from "@twin.org/data-json-ld";
@@ -12,7 +12,7 @@ import {
 	PolicyInformationAccessMode
 } from "@twin.org/rights-management-models";
 import type { IOdrlPolicy } from "@twin.org/standards-w3c-odrl";
-import type { IIdentityPolicyInformationSourceConstructorOptions } from "../models/IIdentityPolicyInformationSourceConstructorOptions";
+import type { IIdentityPolicyInformationSourceConstructorOptions } from "../models/IIdentityPolicyInformationSourceConstructorOptions.js";
 
 /**
  * Policy information source which retrieves the identity information.
@@ -43,9 +43,17 @@ export class IdentityPolicyInformationSource implements IPolicyInformationSource
 		this._logging = ComponentFactory.getIfExists<ILoggingComponent>(
 			options?.loggingComponentType ?? "logging"
 		);
-		this._identityResolver = ComponentFactory.get<IIdentityResolverComponent>(
+		this._identityResolver = ComponentFactory.get(
 			options?.identityResolverComponentType ?? "identity-resolver"
 		);
+	}
+
+	/**
+	 * Returns the class name of the component.
+	 * @returns The class name of the component.
+	 */
+	public className(): string {
+		return IdentityPolicyInformationSource.CLASS_NAME;
 	}
 
 	/**
@@ -82,7 +90,7 @@ export class IdentityPolicyInformationSource implements IPolicyInformationSource
 		const information: IJsonLdNodeObject[] = [];
 
 		try {
-			this._logging?.log({
+			await this._logging?.log({
 				level: "info",
 				source: IdentityPolicyInformationSource.CLASS_NAME,
 				ts: Date.now(),
@@ -94,7 +102,7 @@ export class IdentityPolicyInformationSource implements IPolicyInformationSource
 			const idDoc = await this._identityResolver.identityResolve(locator.assignee);
 			information.push(idDoc as unknown as IJsonLdNodeObject);
 		} catch (err) {
-			this._logging?.log({
+			await this._logging?.log({
 				level: "error",
 				source: IdentityPolicyInformationSource.CLASS_NAME,
 				ts: Date.now(),
