@@ -24,6 +24,7 @@
 		"bech",
 		"cryptosuite",
 		"DARP",
+		"Dataspace",
 		"eddsa",
 		"Faucet",
 		"ipfs",
@@ -31,9 +32,9 @@
 		"lteq",
 		"nameof",
 		"ODRL",
+		"openapi",
 		"PNAP",
 		"PNRP",
-		"openapi",
 		"Stiftung",
 		"Unece",
 		"Unrevoke"

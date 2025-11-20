@@ -59,7 +59,7 @@ describe("PolicyInformationPointService", () => {
 		const policyInformationPoint = new PolicyInformationPointService();
 		const mockInformation: IJsonLdNodeObject[] = [
 			{
-				"@context": "https://www.w3.org/ns/did/v1",
+				"@context": "http://www.w3.org/ns/did/v1",
 				"@type": "VerifiableCredential",
 				"@id": "did:example:user123",
 				credentialSubject: {

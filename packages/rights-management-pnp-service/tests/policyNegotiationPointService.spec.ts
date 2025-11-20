@@ -423,7 +423,7 @@ describe("PolicyNegotiationPointService", () => {
 			handlerId: "negotiator-1",
 			information: {},
 			offer: {
-				"@context": "https://www.w3.org/ns/odrl/2/",
+				"@context": "http://www.w3.org/ns/odrl/2/",
 				"@type": "Offer",
 				assigner: testIdentityProvider,
 				uid: "offer-1"
@@ -484,7 +484,7 @@ describe("PolicyNegotiationPointService", () => {
 			handlerId: "requester-1",
 			information: {},
 			offer: {
-				"@context": "https://www.w3.org/ns/odrl/2/",
+				"@context": "http://www.w3.org/ns/odrl/2/",
 				"@type": "Offer",
 				assigner: testIdentityProvider,
 				uid: "offer-1"
@@ -503,7 +503,7 @@ describe("PolicyNegotiationPointService", () => {
 			handlerId: "negotiator-1",
 			information: {},
 			offer: {
-				"@context": "https://www.w3.org/ns/odrl/2/",
+				"@context": "http://www.w3.org/ns/odrl/2/",
 				"@type": "Offer",
 				assigner: testIdentityProvider,
 				uid: "offer-1"
@@ -523,7 +523,7 @@ describe("PolicyNegotiationPointService", () => {
 			handlerId: "negotiator-1",
 			information: {},
 			offer: {
-				"@context": "https://www.w3.org/ns/odrl/2/",
+				"@context": "http://www.w3.org/ns/odrl/2/",
 				"@type": "Offer",
 				assigner: testIdentityProvider,
 				uid: "offer-1"
@@ -543,13 +543,13 @@ describe("PolicyNegotiationPointService", () => {
 			handlerId: "requester-1",
 			information: {},
 			offer: {
-				"@context": "https://www.w3.org/ns/odrl/2/",
+				"@context": "http://www.w3.org/ns/odrl/2/",
 				"@type": "Offer",
 				assigner: testIdentityProvider,
 				uid: "offer-1"
 			},
 			agreement: {
-				"@context": "https://www.w3.org/ns/odrl/2/",
+				"@context": "http://www.w3.org/ns/odrl/2/",
 				"@type": "Agreement",
 				uid: "urn:policy:agreement-1",
 				assigner: testIdentityProvider,
@@ -569,13 +569,13 @@ describe("PolicyNegotiationPointService", () => {
 			handlerId: "negotiator-1",
 			information: {},
 			offer: {
-				"@context": "https://www.w3.org/ns/odrl/2/",
+				"@context": "http://www.w3.org/ns/odrl/2/",
 				"@type": "Offer",
 				assigner: testIdentityProvider,
 				uid: "offer-1"
 			},
 			agreement: {
-				"@context": "https://www.w3.org/ns/odrl/2/",
+				"@context": "http://www.w3.org/ns/odrl/2/",
 				"@type": "Agreement",
 				uid: "urn:policy:agreement-1",
 				assigner: testIdentityProvider,
@@ -596,13 +596,13 @@ describe("PolicyNegotiationPointService", () => {
 			handlerId: "requester-1",
 			information: {},
 			offer: {
-				"@context": "https://www.w3.org/ns/odrl/2/",
+				"@context": "http://www.w3.org/ns/odrl/2/",
 				"@type": "Offer",
 				assigner: testIdentityProvider,
 				uid: "offer-1"
 			},
 			agreement: {
-				"@context": "https://www.w3.org/ns/odrl/2/",
+				"@context": "http://www.w3.org/ns/odrl/2/",
 				"@type": "Agreement",
 				uid: "urn:policy:agreement-1",
 				assigner: testIdentityProvider,
@@ -621,13 +621,13 @@ describe("PolicyNegotiationPointService", () => {
 			handlerId: "negotiator-1",
 			information: {},
 			offer: {
-				"@context": "https://www.w3.org/ns/odrl/2/",
+				"@context": "http://www.w3.org/ns/odrl/2/",
 				"@type": "Offer",
 				assigner: testIdentityProvider,
 				uid: "offer-1"
 			},
 			agreement: {
-				"@context": "https://www.w3.org/ns/odrl/2/",
+				"@context": "http://www.w3.org/ns/odrl/2/",
 				"@type": "Agreement",
 				uid: "urn:policy:agreement-1",
 				assigner: testIdentityProvider,
@@ -647,13 +647,13 @@ describe("PolicyNegotiationPointService", () => {
 			handlerId: "requester-1",
 			information: {},
 			offer: {
-				"@context": "https://www.w3.org/ns/odrl/2/",
+				"@context": "http://www.w3.org/ns/odrl/2/",
 				"@type": "Offer",
 				assigner: testIdentityProvider,
 				uid: "offer-1"
 			},
 			agreement: {
-				"@context": "https://www.w3.org/ns/odrl/2/",
+				"@context": "http://www.w3.org/ns/odrl/2/",
 				"@type": "Agreement",
 				uid: "urn:policy:agreement-1",
 				assigner: testIdentityProvider,
@@ -672,13 +672,13 @@ describe("PolicyNegotiationPointService", () => {
 			handlerId: "negotiator-1",
 			information: {},
 			offer: {
-				"@context": "https://www.w3.org/ns/odrl/2/",
+				"@context": "http://www.w3.org/ns/odrl/2/",
 				"@type": "Offer",
 				assigner: testIdentityProvider,
 				uid: "offer-1"
 			},
 			agreement: {
-				"@context": "https://www.w3.org/ns/odrl/2/",
+				"@context": "http://www.w3.org/ns/odrl/2/",
 				"@type": "Agreement",
 				uid: "urn:policy:agreement-1",
 				assigner: testIdentityProvider,

@@ -8,7 +8,7 @@ import { nameof } from "@twin.org/nameof";
 import {
 	type ActionType,
 	OdrlContexts,
-	type PolicyType,
+	PolicyType,
 	type IOdrlPolicy
 } from "@twin.org/standards-w3c-odrl";
 import * as dotenv from "dotenv";
@@ -56,22 +56,29 @@ EntityStorageConnectorFactory.register(
 );
 
 // Helper function to create test policy without UID (for auto-generation)
-const createTestPolicy = (
+function createTestPolicy(
 	id: string,
 	policyType: PolicyType,
 	assetId: string,
 	action: ActionType
-): Omit<IOdrlPolicy, "uid"> & { uid?: string } => ({
-	"@context": OdrlContexts.ContextRoot,
-	"@type": policyType,
-	permission: [
-		{
-			target: assetId,
-			action
-		}
-	]
-});
+): Omit<IOdrlPolicy, "uid"> & { uid?: string } {
+	const policy: Omit<IOdrlPolicy, "uid"> & { uid?: string } = {
+		"@context": OdrlContexts.ContextRoot,
+		"@type": policyType,
+		permission: [
+			{
+				target: assetId,
+				action
+			}
+		]
+	};
 
+	if (policyType === PolicyType.Offer) {
+		policy.assigner = TEST_USER_IDENTITY;
+	}
+
+	return policy;
+}
 // Store mapping of expected ID to generated UID
 export const testPolicyMapping = new Map<string, string>();
 
