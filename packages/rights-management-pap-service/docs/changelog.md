@@ -1,5 +1,19 @@
 # @twin.org/rights-management-pap-service - Changelog
 
+## [0.0.3-next.2](https://github.com/twinfoundation/rights-management/compare/rights-management-pap-service-v0.0.3-next.1...rights-management-pap-service-v0.0.3-next.2) (2025-11-20)
+
+
+### Features
+
+* update dataspace protocol dependencies ([9dcc477](https://github.com/twinfoundation/rights-management/commit/9dcc47755c2f5a7fd3ef30e656f1988944cd4b54))
+
+
+### Dependencies
+
+* The following workspace dependencies were updated
+  * dependencies
+    * @twin.org/rights-management-models bumped from 0.0.3-next.1 to 0.0.3-next.2
+
 ## [0.0.3-next.1](https://github.com/twinfoundation/rights-management/compare/rights-management-pap-service-v0.0.3-next.0...rights-management-pap-service-v0.0.3-next.1) (2025-11-11)
 
 

@@ -1,5 +1,12 @@
 # @twin.org/rights-management-models - Changelog
 
+## [0.0.3-next.2](https://github.com/twinfoundation/rights-management/compare/rights-management-models-v0.0.3-next.1...rights-management-models-v0.0.3-next.2) (2025-11-20)
+
+
+### Miscellaneous Chores
+
+* **rights-management-models:** Synchronize repo versions
+
 ## [0.0.3-next.1](https://github.com/twinfoundation/rights-management/compare/rights-management-models-v0.0.3-next.0...rights-management-models-v0.0.3-next.1) (2025-11-11)
 
 

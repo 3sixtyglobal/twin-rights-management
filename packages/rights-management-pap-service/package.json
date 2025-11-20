@@ -1,6 +1,6 @@
 {
 	"name": "@twin.org/rights-management-pap-service",
-	"version": "0.0.3-next.1",
+	"version": "0.0.3-next.2",
 	"description": "Policy administration point implementation",
 	"repository": {
 		"type": "git",
@@ -38,7 +38,7 @@
 		"@twin.org/entity": "next",
 		"@twin.org/entity-storage-models": "next",
 		"@twin.org/logging-models": "next",
-		"@twin.org/rights-management-models": "0.0.3-next.1",
+		"@twin.org/rights-management-models": "0.0.3-next.2",
 		"@twin.org/nameof": "next",
 		"@twin.org/standards-w3c-odrl": "next"
 	},
