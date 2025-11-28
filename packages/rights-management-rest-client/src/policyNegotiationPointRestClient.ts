@@ -117,7 +117,7 @@ export class PolicyNegotiationPointRestClient
 			PolicyNegotiationPointRestClient.CLASS_NAME,
 			"notSupportedOnClient",
 			{
-				method: "sendRequestToProvider"
+				methodName: "sendRequestToProvider"
 			}
 		);
 	}
@@ -496,7 +496,7 @@ export class PolicyNegotiationPointRestClient
 			PolicyNegotiationPointRestClient.CLASS_NAME,
 			"notSupportedOnClient",
 			{
-				method: "registerNegotiator"
+				methodName: "registerNegotiator"
 			}
 		);
 	}
@@ -511,7 +511,7 @@ export class PolicyNegotiationPointRestClient
 			PolicyNegotiationPointRestClient.CLASS_NAME,
 			"notSupportedOnClient",
 			{
-				method: "unregisterNegotiator"
+				methodName: "unregisterNegotiator"
 			}
 		);
 	}
@@ -527,7 +527,7 @@ export class PolicyNegotiationPointRestClient
 			PolicyNegotiationPointRestClient.CLASS_NAME,
 			"notSupportedOnClient",
 			{
-				method: "registerRequester"
+				methodName: "registerRequester"
 			}
 		);
 	}
@@ -542,7 +542,7 @@ export class PolicyNegotiationPointRestClient
 			PolicyNegotiationPointRestClient.CLASS_NAME,
 			"notSupportedOnClient",
 			{
-				method: "unregisterRequester"
+				methodName: "unregisterRequester"
 			}
 		);
 	}
@@ -557,7 +557,7 @@ export class PolicyNegotiationPointRestClient
 			PolicyNegotiationPointRestClient.CLASS_NAME,
 			"notSupportedOnClient",
 			{
-				method: "registerOffer"
+				methodName: "registerOffer"
 			}
 		);
 	}
@@ -572,7 +572,7 @@ export class PolicyNegotiationPointRestClient
 			PolicyNegotiationPointRestClient.CLASS_NAME,
 			"notSupportedOnClient",
 			{
-				method: "unregisterOffer"
+				methodName: "unregisterOffer"
 			}
 		);
 	}

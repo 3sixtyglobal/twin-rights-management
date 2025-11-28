@@ -298,7 +298,7 @@ export class DataAccessPointRestClient extends BaseRestClient implements IDataAc
 	 */
 	public async registerHandler(handlerId: string, handler: IDataAccessHandler): Promise<void> {
 		throw new NotSupportedError(DataAccessPointRestClient.CLASS_NAME, "notSupportedOnClient", {
-			method: "registerHandler"
+			methodName: "registerHandler"
 		});
 	}
 
@@ -309,7 +309,7 @@ export class DataAccessPointRestClient extends BaseRestClient implements IDataAc
 	 */
 	public async unregisterHandler(handlerId: string): Promise<void> {
 		throw new NotSupportedError(DataAccessPointRestClient.CLASS_NAME, "notSupportedOnClient", {
-			method: "unregisterHandler"
+			methodName: "unregisterHandler"
 		});
 	}
 }

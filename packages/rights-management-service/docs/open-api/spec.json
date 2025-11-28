@@ -635,7 +635,9 @@
 								"examples": {
 									"pnpGetNegotiationResponseExample": {
 										"value": {
-											"@context": "https://w3id.org/dspace/2025/1/context.json",
+											"@context": [
+												"https://w3id.org/dspace/2025/1/context.json"
+											],
 											"@type": "ContractNegotiation",
 											"providerPid": "urn:contract-negotiation:002aa11bb.......ffff",
 											"consumerPid": "urn:contract-negotiation:22aa11bb.......ffff",
@@ -728,7 +730,9 @@
 							"examples": {
 								"pnpNegotiationRequestExample": {
 									"value": {
-										"@context": "https://w3id.org/dspace/2025/1/context.json",
+										"@context": [
+											"https://w3id.org/dspace/2025/1/context.json"
+										],
 										"@type": "ContractRequestMessage",
 										"consumerPid": "urn:contract-negotiation:22aa11bb.......ffff",
 										"offer": {
@@ -754,7 +758,9 @@
 								"examples": {
 									"IPnpNegotiationRequestResponseExample": {
 										"value": {
-											"@context": "https://w3id.org/dspace/2025/1/context.json",
+											"@context": [
+												"https://w3id.org/dspace/2025/1/context.json"
+											],
 											"@type": "ContractNegotiation",
 											"providerPid": "urn:contract-negotiation:00aa11bb.......ffff",
 											"consumerPid": "urn:contract-negotiation:22aa11bb.......ffff",
@@ -838,7 +844,9 @@
 							"examples": {
 								"pnpNegotiationProviderRequestExample": {
 									"value": {
-										"@context": "https://w3id.org/dspace/2025/1/context.json",
+										"@context": [
+											"https://w3id.org/dspace/2025/1/context.json"
+										],
 										"@type": "ContractRequestMessage",
 										"consumerPid": "urn:contract-negotiation:22aa11bb.......ffff",
 										"offer": {
@@ -957,7 +965,9 @@
 							"examples": {
 								"pnpNegotiationEventsRequestExample": {
 									"value": {
-										"@context": "https://w3id.org/dspace/2025/1/context.json",
+										"@context": [
+											"https://w3id.org/dspace/2025/1/context.json"
+										],
 										"@type": "ContractRequestMessage",
 										"providerPid": "urn:contract-negotiation:00aa11bb.......ffff",
 										"consumerPid": "urn:contract-negotiation:22aa11bb.......ffff",
@@ -1072,7 +1082,9 @@
 							"examples": {
 								"pnpNegotiationAgreementVerificationRequestExample": {
 									"value": {
-										"@context": "https://w3id.org/dspace/2025/1/context.json",
+										"@context": [
+											"https://w3id.org/dspace/2025/1/context.json"
+										],
 										"@type": "ContractRequestMessage",
 										"providerPid": "urn:contract-negotiation:00aa11bb.......ffff",
 										"consumerPid": "urn:contract-negotiation:22aa11bb.......ffff"
@@ -1186,7 +1198,9 @@
 							"examples": {
 								"pnpNegotiationTerminationRequestExample": {
 									"value": {
-										"@context": "https://w3id.org/dspace/2025/1/context.json",
+										"@context": [
+											"https://w3id.org/dspace/2025/1/context.json"
+										],
 										"@type": "ContractRequestMessage",
 										"providerPid": "urn:contract-negotiation:00aa11bb.......ffff",
 										"consumerPid": "urn:contract-negotiation:22aa11bb.......ffff"
@@ -1289,7 +1303,9 @@
 							"examples": {
 								"pnpNegotiationOfferRequestExample": {
 									"value": {
-										"@context": "https://w3id.org/dspace/2025/1/context.json",
+										"@context": [
+											"https://w3id.org/dspace/2025/1/context.json"
+										],
 										"@type": "ContractRequestMessage",
 										"providerPid": "urn:contract-negotiation:00aa11bb.......ffff",
 										"consumerPid": "urn:contract-negotiation:22aa11bb.......ffff",
@@ -1316,7 +1332,9 @@
 								"examples": {
 									"pnpNegotiationOfferResponseExample": {
 										"value": {
-											"@context": "https://w3id.org/dspace/2025/1/context.json",
+											"@context": [
+												"https://w3id.org/dspace/2025/1/context.json"
+											],
 											"@type": "ContractRequestMessage",
 											"providerPid": "urn:contract-negotiation:00aa11bb.......ffff",
 											"consumerPid": "urn:contract-negotiation:22aa11bb.......ffff"
@@ -1399,7 +1417,9 @@
 							"examples": {
 								"pnpNegotiationConsumerOfferRequestExample": {
 									"value": {
-										"@context": "https://w3id.org/dspace/2025/1/context.json",
+										"@context": [
+											"https://w3id.org/dspace/2025/1/context.json"
+										],
 										"@type": "ContractRequestMessage",
 										"providerPid": "urn:contract-negotiation:00aa11bb.......ffff",
 										"consumerPid": "urn:contract-negotiation:22aa11bb.......ffff",
@@ -1426,7 +1446,9 @@
 								"examples": {
 									"pnpNegotiationConsumerOfferResponseExample": {
 										"value": {
-											"@context": "https://w3id.org/dspace/2025/1/context.json",
+											"@context": [
+												"https://w3id.org/dspace/2025/1/context.json"
+											],
 											"@type": "ContractNegotiation",
 											"providerPid": "urn:contract-negotiation:00aa11bb.......ffff",
 											"consumerPid": "urn:contract-negotiation:22aa11bb.......ffff"
@@ -1529,7 +1551,9 @@
 							"examples": {
 								"pnpNegotiationAgreementRequestExample": {
 									"value": {
-										"@context": "https://w3id.org/dspace/2025/1/context.json",
+										"@context": [
+											"https://w3id.org/dspace/2025/1/context.json"
+										],
 										"@type": "ContractRequestMessage",
 										"providerPid": "urn:contract-negotiation:00aa11bb.......ffff",
 										"consumerPid": "urn:contract-negotiation:22aa11bb.......ffff",
@@ -2693,8 +2717,13 @@
 			"DataspaceProtocolContextType": {
 				"anyOf": [
 					{
-						"type": "string",
-						"const": "https://w3id.org/dspace/2025/1/context.json"
+						"type": "array",
+						"items": {
+							"type": "string",
+							"const": "https://w3id.org/dspace/2025/1/context.json"
+						},
+						"minItems": 1,
+						"maxItems": 1
 					},
 					{
 						"type": "array",

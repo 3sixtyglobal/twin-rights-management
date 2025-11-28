@@ -90,7 +90,7 @@ export function generateRestRoutesPolicyNegotiationPoint(
 						id: "pnpGetNegotiationResponseExample",
 						response: {
 							body: {
-								"@context": DataspaceProtocolContexts.ContextRoot,
+								"@context": [DataspaceProtocolContexts.ContextRoot],
 								"@type": ContractNegotiationTypes.ContractNegotiation,
 								providerPid: "urn:contract-negotiation:002aa11bb.......ffff",
 								consumerPid: "urn:contract-negotiation:22aa11bb.......ffff",
@@ -131,7 +131,7 @@ export function generateRestRoutesPolicyNegotiationPoint(
 							[HeaderTypes.Authorization]: "z3Vcuh2BP9ShC.z3Vcuh2BP9ShC.z3Vcuh2BP9ShC"
 						},
 						body: {
-							"@context": DataspaceProtocolContexts.ContextRoot,
+							"@context": [DataspaceProtocolContexts.ContextRoot],
 							"@type": ContractNegotiationTypes.ContractRequestMessage,
 							consumerPid: "urn:contract-negotiation:22aa11bb.......ffff",
 							offer: {
@@ -153,7 +153,7 @@ export function generateRestRoutesPolicyNegotiationPoint(
 						id: "IPnpNegotiationRequestResponseExample",
 						response: {
 							body: {
-								"@context": DataspaceProtocolContexts.ContextRoot,
+								"@context": [DataspaceProtocolContexts.ContextRoot],
 								"@type": ContractNegotiationTypes.ContractNegotiation,
 								providerPid: "urn:contract-negotiation:00aa11bb.......ffff",
 								consumerPid: "urn:contract-negotiation:22aa11bb.......ffff",
@@ -195,7 +195,7 @@ export function generateRestRoutesPolicyNegotiationPoint(
 								id: "urn:contract-negotiation:00aa11bb.......ffff"
 							},
 							body: {
-								"@context": DataspaceProtocolContexts.ContextRoot,
+								"@context": [DataspaceProtocolContexts.ContextRoot],
 								"@type": ContractNegotiationTypes.ContractRequestMessage,
 								consumerPid: "urn:contract-negotiation:22aa11bb.......ffff",
 								offer: {
@@ -252,7 +252,7 @@ export function generateRestRoutesPolicyNegotiationPoint(
 							id: "urn:contract-negotiation:00aa11bb.......ffff"
 						},
 						body: {
-							"@context": DataspaceProtocolContexts.ContextRoot,
+							"@context": [DataspaceProtocolContexts.ContextRoot],
 							"@type": ContractNegotiationTypes.ContractRequestMessage,
 							providerPid: "urn:contract-negotiation:00aa11bb.......ffff",
 							consumerPid: "urn:contract-negotiation:22aa11bb.......ffff",
@@ -308,7 +308,7 @@ export function generateRestRoutesPolicyNegotiationPoint(
 							id: "urn:contract-negotiation:00aa11bb.......ffff"
 						},
 						body: {
-							"@context": DataspaceProtocolContexts.ContextRoot,
+							"@context": [DataspaceProtocolContexts.ContextRoot],
 							"@type": ContractNegotiationTypes.ContractRequestMessage,
 							providerPid: "urn:contract-negotiation:00aa11bb.......ffff",
 							consumerPid: "urn:contract-negotiation:22aa11bb.......ffff"
@@ -360,7 +360,7 @@ export function generateRestRoutesPolicyNegotiationPoint(
 							id: "urn:contract-negotiation:00aa11bb.......ffff"
 						},
 						body: {
-							"@context": DataspaceProtocolContexts.ContextRoot,
+							"@context": [DataspaceProtocolContexts.ContextRoot],
 							"@type": ContractNegotiationTypes.ContractRequestMessage,
 							providerPid: "urn:contract-negotiation:00aa11bb.......ffff",
 							consumerPid: "urn:contract-negotiation:22aa11bb.......ffff"
@@ -412,7 +412,7 @@ export function generateRestRoutesPolicyNegotiationPoint(
 							[HeaderTypes.Authorization]: "z3Vcuh2BP9ShC.z3Vcuh2BP9ShC.z3Vcuh2BP9ShC"
 						},
 						body: {
-							"@context": DataspaceProtocolContexts.ContextRoot,
+							"@context": [DataspaceProtocolContexts.ContextRoot],
 							"@type": ContractNegotiationTypes.ContractRequestMessage,
 							providerPid: "urn:contract-negotiation:00aa11bb.......ffff",
 							consumerPid: "urn:contract-negotiation:22aa11bb.......ffff",
@@ -435,7 +435,7 @@ export function generateRestRoutesPolicyNegotiationPoint(
 						id: "pnpNegotiationOfferResponseExample",
 						response: {
 							body: {
-								"@context": DataspaceProtocolContexts.ContextRoot,
+								"@context": [DataspaceProtocolContexts.ContextRoot],
 								"@type": ContractNegotiationTypes.ContractRequestMessage,
 								providerPid: "urn:contract-negotiation:00aa11bb.......ffff",
 								consumerPid: "urn:contract-negotiation:22aa11bb.......ffff"
@@ -475,7 +475,7 @@ export function generateRestRoutesPolicyNegotiationPoint(
 							id: "urn:contract-negotiation:22aa11bb.......ffff"
 						},
 						body: {
-							"@context": DataspaceProtocolContexts.ContextRoot,
+							"@context": [DataspaceProtocolContexts.ContextRoot],
 							"@type": ContractNegotiationTypes.ContractRequestMessage,
 							providerPid: "urn:contract-negotiation:00aa11bb.......ffff",
 							consumerPid: "urn:contract-negotiation:22aa11bb.......ffff",
@@ -498,7 +498,7 @@ export function generateRestRoutesPolicyNegotiationPoint(
 						id: "pnpNegotiationConsumerOfferResponseExample",
 						response: {
 							body: {
-								"@context": DataspaceProtocolContexts.ContextRoot,
+								"@context": [DataspaceProtocolContexts.ContextRoot],
 								"@type": ContractNegotiationTypes.ContractNegotiation,
 								providerPid: "urn:contract-negotiation:00aa11bb.......ffff",
 								consumerPid: "urn:contract-negotiation:22aa11bb.......ffff"
@@ -538,7 +538,7 @@ export function generateRestRoutesPolicyNegotiationPoint(
 							id: "urn:contract-negotiation:22aa11bb.......ffff"
 						},
 						body: {
-							"@context": DataspaceProtocolContexts.ContextRoot,
+							"@context": [DataspaceProtocolContexts.ContextRoot],
 							"@type": ContractNegotiationTypes.ContractRequestMessage,
 							providerPid: "urn:contract-negotiation:00aa11bb.......ffff",
 							consumerPid: "urn:contract-negotiation:22aa11bb.......ffff",

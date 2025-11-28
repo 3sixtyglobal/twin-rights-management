@@ -285,7 +285,7 @@ export class PolicyNegotiationPointService implements IPolicyNegotiationPointCom
 		const negotiationComponent = await this._negotiationComponentCreator(url);
 
 		const requestMessage: IContractRequestMessage = {
-			"@context": DataspaceProtocolContexts.ContextRoot,
+			"@context": [DataspaceProtocolContexts.ContextRoot],
 			"@type": ContractNegotiationTypes.ContractRequestMessage,
 			consumerPid,
 			offer: {
@@ -1374,7 +1374,7 @@ export class PolicyNegotiationPointService implements IPolicyNegotiationPointCom
 		const translated = ErrorHelper.formatErrors(error);
 
 		const errMessage: IContractNegotiationError = {
-			"@context": DataspaceProtocolContexts.ContextRoot,
+			"@context": [DataspaceProtocolContexts.ContextRoot],
 			"@type": ContractNegotiationTypes.ContractNegotiationError,
 			providerPid: providerId,
 			consumerPid: consumerId,
@@ -1410,7 +1410,7 @@ export class PolicyNegotiationPointService implements IPolicyNegotiationPointCom
 		state: ContractNegotiationStateType
 	): IContractNegotiation {
 		return {
-			"@context": DataspaceProtocolContexts.ContextRoot,
+			"@context": [DataspaceProtocolContexts.ContextRoot],
 			"@type": ContractNegotiationTypes.ContractNegotiation,
 			providerPid: providerId,
 			consumerPid: consumerId,
@@ -1451,7 +1451,7 @@ export class PolicyNegotiationPointService implements IPolicyNegotiationPointCom
 			}
 
 			const offerMessage: IContractOfferMessage = {
-				"@context": DataspaceProtocolContexts.ContextRoot,
+				"@context": [DataspaceProtocolContexts.ContextRoot],
 				"@type": ContractNegotiationTypes.ContractOfferMessage,
 				providerPid: policyNegotiation.id,
 				consumerPid: policyNegotiation.correlationId,
@@ -1520,7 +1520,7 @@ export class PolicyNegotiationPointService implements IPolicyNegotiationPointCom
 
 			// Create the finalisation message
 			const eventMessage: IContractNegotiationEventMessage = {
-				"@context": DataspaceProtocolContexts.ContextRoot,
+				"@context": [DataspaceProtocolContexts.ContextRoot],
 				"@type": ContractNegotiationTypes.ContractNegotiationEventMessage,
 				providerPid:
 					destination === "consumer" ? policyNegotiation.id : policyNegotiation.correlationId,
@@ -1614,7 +1614,7 @@ export class PolicyNegotiationPointService implements IPolicyNegotiationPointCom
 				} else {
 					// Create the agreement message
 					const agreementMessage: IContractAgreementMessage = {
-						"@context": DataspaceProtocolContexts.ContextRoot,
+						"@context": [DataspaceProtocolContexts.ContextRoot],
 						"@type": ContractNegotiationTypes.ContractAgreementMessage,
 						providerPid: policyNegotiation.id,
 						consumerPid: policyNegotiation.correlationId,
@@ -1682,7 +1682,7 @@ export class PolicyNegotiationPointService implements IPolicyNegotiationPointCom
 			}
 
 			const agreementVerificationMessage: IContractAgreementVerificationMessage = {
-				"@context": DataspaceProtocolContexts.ContextRoot,
+				"@context": [DataspaceProtocolContexts.ContextRoot],
 				"@type": ContractNegotiationTypes.ContractAgreementVerificationMessage,
 				providerPid: policyNegotiation.correlationId,
 				consumerPid: policyNegotiation.id
