@@ -3,17 +3,7 @@
 		"dataAccessPointService": {
 			"noHandlerForAssetType": "No handler registered for asset type \"{assetType}\"",
 			"notAuthorizedToQuery": "Not authorized to query asset type \"{assetType}\"",
-			"notAuthorizedToGet": "Not authorized to get asset type \"{assetType}\" with id \"{id}\"",
-			"incorrectActionType": "Incorrect action in credential \"{action}\", expecting \"{expecting}\""
-		},
-		"dataAccessRequestPointService": {
-			"missingNodeId": "The node identity is missing"
-		}
-	},
-	"info": {
-		"dataAccessPointService": {
-			"registeredHandler": "Handler registered with id: \"{handlerId}\"",
-			"unregisteredHandler": "Handler unregistered with id: \"{handlerId}\""
+			"notAuthorizedToGet": "Not authorized to get asset type \"{assetType}\" with id \"{id}\""
 		}
 	}
 }

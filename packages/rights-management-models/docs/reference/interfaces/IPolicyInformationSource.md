@@ -2,6 +2,10 @@
 
 Interface for policy information sources.
 
+## Extends
+
+- `IComponent`
+
 ## Methods
 
 ### retrieve()

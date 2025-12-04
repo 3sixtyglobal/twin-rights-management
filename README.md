@@ -15,6 +15,7 @@ This mono-repository contains the packages to use with Rights Management in TWIN
 - [rights-management-dap-service](packages/rights-management-dap-service/README.md) - Data access point, data access request point implementations (DAP, DARP).
 - [rights-management-service](packages/rights-management-service/README.md) - Unified service for performing rights management operations.
 - [rights-management-rest-client](packages/rights-management-rest-client/README.md) - Rights Management implementation which can connect to REST endpoints.
+- [rights-management-plugins](packages/rights-management-plugins/README.md) - Rights Management plugin implementations.
 
 ## Contributing
 

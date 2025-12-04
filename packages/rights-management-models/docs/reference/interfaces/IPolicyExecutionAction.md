@@ -2,6 +2,10 @@
 
 Interface for policy execution actions.
 
+## Extends
+
+- `IComponent`
+
 ## Methods
 
 ### supportedStages()

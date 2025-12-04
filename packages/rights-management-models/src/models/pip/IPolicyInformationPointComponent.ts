@@ -3,7 +3,6 @@
 import type { IComponent } from "@twin.org/core";
 import type { IOdrlPolicy } from "@twin.org/standards-w3c-odrl";
 import type { IPolicyInformation } from "./IPolicyInformation.js";
-import type { IPolicyInformationSource } from "./IPolicyInformationSource.js";
 import type { IPolicyLocator } from "../IPolicyLocator.js";
 import type { PolicyInformationAccessMode } from "./policyInformationAccessMode.js";
 
@@ -27,19 +26,4 @@ export interface IPolicyInformationPointComponent extends IComponent {
 		policies?: IOdrlPolicy[],
 		data?: D
 	): Promise<IPolicyInformation>;
-
-	/**
-	 * Register a source to use for retrieval.
-	 * @param sourceId The id of the source to register.
-	 * @param source The source to register.
-	 * @returns Nothing.
-	 */
-	registerSource(sourceId: string, source: IPolicyInformationSource): Promise<void>;
-
-	/**
-	 * Unregister a source from the retrieval.
-	 * @param sourceId The id of the source to unregister.
-	 * @returns Nothing.
-	 */
-	unregisterSource(sourceId: string): Promise<void>;
 }

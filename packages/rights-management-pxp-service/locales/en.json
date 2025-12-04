@@ -5,13 +5,7 @@
 		}
 	},
 	"info": {
-		"loggingPolicyExecutionAction": {
-			"policyActionExecutedBefore": "Policy executed for locator: \"{locator}\", stage: \"{stage}\", data: \"{data}\", policies: \"{policies}\"",
-			"policyActionExecutedAfter": "Policy executed for locator: \"{locator}\", stage: \"{stage}\", data: \"{data}\", policies: \"{policies}\", decisions: \"{decisions}\""
-		},
 		"policyExecutionPointService": {
-			"registeredAction": "Action registered with id: \"{actionId}\", at stage \"{stage}\"",
-			"unregisteredAction": "Action unregistered with id: \"{actionId}\", at stage \"{stage}\"",
 			"executingActions": "Executing actions for stage: \"{stage}\", locator: \"{locator}\"",
 			"executingAction": "Executing action for stage: \"{stage}\", locator: \"{locator}\""
 		}

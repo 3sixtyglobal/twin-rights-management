@@ -54,32 +54,6 @@ The class name of the component.
 
 ***
 
-### start()
-
-> **start**(`nodeLoggingComponentType?`): `Promise`\<`void`\>
-
-The component needs to be started when the node is initialized.
-
-#### Parameters
-
-##### nodeLoggingComponentType?
-
-`string`
-
-The node logging component type.
-
-#### Returns
-
-`Promise`\<`void`\>
-
-Nothing.
-
-#### Implementation of
-
-`IDataAccessRequestPointComponent.start`
-
-***
-
 ### create()
 
 > **create**(`url`, `assetType`, `item`): `Promise`\<`string`\>

@@ -4,11 +4,5 @@
 			"decidingFailed": "Deciding on policies for locator \"{locator}\" failed in arbiter with id: \"{arbiterId}\"",
 			"noSupportedArbiters": "No arbiters found that support the given locator: \"{locator}\""
 		}
-	},
-	"info": {
-		"policyDecisionPointService": {
-			"registeredArbiter": "Arbiter registered with id: \"{arbiterId}\"",
-			"unregisteredArbiter": "Arbiter unregistered with id: \"{arbiterId}\""
-		}
 	}
 }

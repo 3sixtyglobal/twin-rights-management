@@ -29,11 +29,3 @@ The type of the policy decision point component.
 ```ts
 policy-decision-point
 ```
-
-***
-
-### config?
-
-> `optional` **config**: [`IPolicyEnforcementPointServiceConfig`](IPolicyEnforcementPointServiceConfig.md)
-
-The configuration for the Policy Enforcement Point Service.

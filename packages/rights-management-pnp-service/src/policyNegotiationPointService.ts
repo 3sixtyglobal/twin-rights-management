@@ -12,24 +12,19 @@ import {
 	Url,
 	Urn
 } from "@twin.org/core";
-import {
-	IdentityAuthenticationContexts,
-	IdentityAuthenticationTypes,
-	type IIdentityAuthenticationActionRequest
-} from "@twin.org/identity-authentication";
 import type { ILoggingComponent } from "@twin.org/logging-models";
 import { nameof } from "@twin.org/nameof";
 import {
 	PolicyInformationAccessMode,
+	PolicyNegotiatorFactory,
+	PolicyRequesterFactory,
 	RightsManagementNamespaces,
 	type IPolicyAdministrationPointComponent,
 	type IPolicyInformation,
 	type IPolicyInformationPointComponent,
 	type IPolicyNegotiation,
 	type IPolicyNegotiationAdminPointComponent,
-	type IPolicyNegotiationPointComponent,
-	type IPolicyNegotiator,
-	type IPolicyRequester
+	type IPolicyNegotiationPointComponent
 } from "@twin.org/rights-management-models";
 import {
 	ContractNegotiationEventType,
@@ -46,6 +41,7 @@ import {
 	type IContractRequestMessage
 } from "@twin.org/standards-dataspace-protocol";
 import { OdrlContexts, OdrlTypes, type IOdrlOffer } from "@twin.org/standards-w3c-odrl";
+import { TrustHelper, type ITrustComponent } from "@twin.org/trust-models";
 import type { IPolicyNegotiationPointServiceConfig } from "./models/IPolicyNegotiationPointServiceConfig.js";
 import type { IPolicyNegotiationPointServiceConstructorOptions } from "./models/IPolicyNegotiationPointServiceConstructorOptions.js";
 
@@ -83,6 +79,12 @@ export class PolicyNegotiationPointService implements IPolicyNegotiationPointCom
 	private readonly _policyInformationPointComponent: IPolicyInformationPointComponent;
 
 	/**
+	 * The trust component.
+	 * @internal
+	 */
+	private readonly _trustComponent: ITrustComponent;
+
+	/**
 	 * The url to send in negotiation messages as the callback address.
 	 * This should be the externally reachable url of this PNP service.
 	 * @internal
@@ -98,34 +100,10 @@ export class PolicyNegotiationPointService implements IPolicyNegotiationPointCom
 	) => Promise<IPolicyNegotiationPointComponent>;
 
 	/**
-	 * These negotiators can be registered to handle negotiations for specific asset types and actions.
+	 * Override the default trust generator.
 	 * @internal
 	 */
-	private readonly _negotiators: {
-		negotiatorId: string;
-		negotiator: IPolicyNegotiator;
-	}[];
-
-	/**
-	 * These requesters can be registered to handle offers.
-	 * @internal
-	 */
-	private readonly _requesters: {
-		requesterId: string;
-		requester: IPolicyRequester;
-	}[];
-
-	/**
-	 * These offers can be registered to provide offers for negotiation.
-	 * @internal
-	 */
-	private readonly _offers: IOdrlOffer[];
-
-	/**
-	 * The node identity.
-	 * @internal
-	 */
-	private _nodeId?: string;
+	private readonly _overrideTrustGeneratorType?: string;
 
 	/**
 	 * Create a new instance of PolicyNegotiationPointService (PNP).
@@ -168,11 +146,12 @@ export class PolicyNegotiationPointService implements IPolicyNegotiationPointCom
 		this._policyInformationPointComponent = ComponentFactory.get<IPolicyInformationPointComponent>(
 			options?.policyInformationPointComponentType ?? "policy-information-point"
 		);
+		this._trustComponent = ComponentFactory.get<ITrustComponent>(
+			options.trustComponentType ?? "trust"
+		);
 		this._baseCallbackUrl = options.config.baseCallbackUrl;
 		this._negotiationComponentCreator = options.config.negotiationComponentCreator;
-		this._negotiators = options.config.negotiators ?? [];
-		this._requesters = options.config.requesters ?? [];
-		this._offers = options.config.offers ?? [];
+		this._overrideTrustGeneratorType = options.config.overrideTrustGeneratorType;
 	}
 
 	/**
@@ -184,40 +163,19 @@ export class PolicyNegotiationPointService implements IPolicyNegotiationPointCom
 	}
 
 	/**
-	 * The component needs to be started when the node is initialized.
-	 * @param nodeLoggingComponentType The node logging component type.
-	 * @returns Nothing.
-	 */
-	public async start(nodeLoggingComponentType?: string): Promise<void> {
-		const contextIds = await ContextIdStore.getContextIds();
-		ContextIdHelper.guard(contextIds, ContextIdKeys.Node);
-		this._nodeId = contextIds[ContextIdKeys.Node];
-	}
-
-	/**
 	 * Get the current state of the negotiation.
 	 * @param id The id of the negotiation to retrieve.
-	 * @param actionRequest The action request used in the verifiable credential.
+	 * @param trustPayload Trust payload to verify the requesters identity.
 	 * @returns The current state of the negotiation or an error.
 	 */
 	public async getNegotiation(
 		id: string,
-		actionRequest: IIdentityAuthenticationActionRequest
+		trustPayload: unknown
 	): Promise<IContractNegotiation | IContractNegotiationError> {
 		Guards.stringValue(PolicyNegotiationPointService.CLASS_NAME, nameof(id), id);
-		Guards.objectValue<IIdentityAuthenticationActionRequest>(
-			PolicyNegotiationPointService.CLASS_NAME,
-			nameof(actionRequest),
-			actionRequest
-		);
 
 		try {
-			if (actionRequest.action !== "get-negotiation") {
-				throw new GeneralError(PolicyNegotiationPointService.CLASS_NAME, "incorrectActionType", {
-					action: actionRequest.action,
-					expecting: "get-negotiation"
-				});
-			}
+			await TrustHelper.verifyTrust(this._trustComponent, trustPayload, "getNegotiation");
 
 			const negotiation = await this._policyNegotiationAdminPointComponent.get(id);
 			if (Is.empty(negotiation)) {
@@ -254,11 +212,7 @@ export class PolicyNegotiationPointService implements IPolicyNegotiationPointCom
 		Guards.stringValue(PolicyNegotiationPointService.CLASS_NAME, nameof(requesterId), requesterId);
 		Guards.stringValue(PolicyNegotiationPointService.CLASS_NAME, nameof(odrlOfferId), odrlOfferId);
 
-		if (!Is.stringValue(this._nodeId)) {
-			throw new GeneralError(PolicyNegotiationPointService.CLASS_NAME, "missingNodeId");
-		}
-
-		const policyRequester = this._requesters.find(r => r.requesterId === requesterId)?.requester;
+		const policyRequester = PolicyRequesterFactory.getIfExists(requesterId);
 		if (Is.empty(policyRequester)) {
 			throw new GeneralError(PolicyNegotiationPointService.CLASS_NAME, "noRequesterFound", {
 				requesterId
@@ -274,13 +228,17 @@ export class PolicyNegotiationPointService implements IPolicyNegotiationPointCom
 			PolicyInformationAccessMode.Public
 		);
 
-		const actionRequest: IIdentityAuthenticationActionRequest = {
-			"@context": IdentityAuthenticationContexts.ContextRoot,
-			type: IdentityAuthenticationTypes.ActionRequest,
-			action: "request",
-			requester: this._nodeId,
-			data: policyInformation
-		};
+		const contextIds = await ContextIdStore.getContextIds();
+		ContextIdHelper.guard(contextIds, ContextIdKeys.Organization);
+		const organizationId = contextIds[ContextIdKeys.Organization];
+
+		const trustPayload = await this._trustComponent.generate(
+			organizationId,
+			this._overrideTrustGeneratorType,
+			{
+				subject: policyInformation
+			}
+		);
 
 		const negotiationComponent = await this._negotiationComponentCreator(url);
 
@@ -292,11 +250,12 @@ export class PolicyNegotiationPointService implements IPolicyNegotiationPointCom
 				"@context": OdrlContexts.ContextRoot,
 				"@type": OdrlTypes.Offer,
 				uid: odrlOfferId,
-				assigner: this._nodeId
+				assigner: organizationId
 			},
 			callbackAddress: this._baseCallbackUrl
 		};
-		const response = await negotiationComponent.requestFromConsumer(requestMessage, actionRequest);
+
+		const response = await negotiationComponent.requestFromConsumer(requestMessage, trustPayload);
 
 		if (
 			response["@type"] === ContractNegotiationTypes.ContractNegotiationError &&
@@ -329,12 +288,12 @@ export class PolicyNegotiationPointService implements IPolicyNegotiationPointCom
 	 * Processes an incoming request on a provider from a consumer.
 	 * https://eclipse-dataspace-protocol-base.github.io/DataspaceProtocol/2025-1/#contract-request-message.
 	 * @param message The negotiation request.
-	 * @param actionRequest The action request used in the verifiable credential.
+	 * @param trustPayload Trust payload to verify the requesters identity.
 	 * @returns The current state of the contract negotiation or an error.
 	 */
 	public async requestFromConsumer(
 		message: IContractRequestMessage,
-		actionRequest: IIdentityAuthenticationActionRequest
+		trustPayload: unknown
 	): Promise<IContractNegotiation | IContractNegotiationError> {
 		Guards.object<IContractRequestMessage>(
 			PolicyNegotiationPointService.CLASS_NAME,
@@ -356,11 +315,6 @@ export class PolicyNegotiationPointService implements IPolicyNegotiationPointCom
 			nameof(message.offer.uid),
 			message.offer.uid
 		);
-		Guards.objectValue<IIdentityAuthenticationActionRequest>(
-			PolicyNegotiationPointService.CLASS_NAME,
-			nameof(actionRequest),
-			actionRequest
-		);
 		Url.guard(
 			PolicyNegotiationPointService.CLASS_NAME,
 			nameof(message.callbackAddress),
@@ -375,16 +329,23 @@ export class PolicyNegotiationPointService implements IPolicyNegotiationPointCom
 		let policyNegotiation: IPolicyNegotiation | undefined;
 
 		try {
-			if (actionRequest.action !== "request") {
-				throw new GeneralError(PolicyNegotiationPointService.CLASS_NAME, "incorrectActionType", {
-					action: actionRequest.action,
-					expecting: "request"
-				});
-			}
+			const trustInfo = await TrustHelper.verifyTrust(
+				this._trustComponent,
+				trustPayload,
+				"requestFromConsumer"
+			);
 
 			// Now lookup the offer being requested
-			const providerOffer = this._offers.find(o => o.uid === message.offer.uid);
-			if (Is.empty(providerOffer)) {
+			let providerOffer: IOdrlOffer | undefined;
+
+			try {
+				providerOffer = (await this._policyAdministrationPointComponent.get(
+					message.offer.uid
+				)) as IOdrlOffer;
+			} catch {}
+
+			const isOffer = providerOffer?.["@type"] === OdrlTypes.Offer;
+			if (Is.empty(providerOffer) || !isOffer) {
 				// No offer, so error
 				const err = await this.setErrorState(
 					providerPid,
@@ -397,11 +358,12 @@ export class PolicyNegotiationPointService implements IPolicyNegotiationPointCom
 				return err;
 			}
 
+			const negotiatorNames = PolicyNegotiatorFactory.names();
+			const negotiators = negotiatorNames.map(name => PolicyNegotiatorFactory.get(name));
+
 			// See if we have a negotiator that supports the offer
-			const foundNegotiator = this._negotiators.find(n =>
-				n.negotiator.supportsOffer(providerOffer)
-			);
-			if (Is.empty(foundNegotiator)) {
+			const negotiator = negotiators.find(n => n.supportsOffer(providerOffer));
+			if (Is.empty(negotiator)) {
 				// No negotiator, so error
 				const err = await this.setErrorState(
 					providerPid,
@@ -416,7 +378,7 @@ export class PolicyNegotiationPointService implements IPolicyNegotiationPointCom
 
 			// On an initial request a consumer can send additional information to support the negotiation
 			// this could include information such as the geography of the consumer
-			const policyInformation = actionRequest.data as IPolicyInformation;
+			const policyInformation = trustInfo?.subject as IPolicyInformation;
 
 			// Construct a new negotiation or update an existing one
 			if (Is.stringValue(message.providerPid)) {
@@ -457,7 +419,7 @@ export class PolicyNegotiationPointService implements IPolicyNegotiationPointCom
 
 				policyNegotiation.offer = providerOffer;
 				policyNegotiation.information = policyInformation;
-				policyNegotiation.handlerId = foundNegotiator.negotiatorId;
+				policyNegotiation.handlerId = negotiator.className();
 			} else {
 				policyNegotiation = {
 					id: providerPid,
@@ -467,16 +429,13 @@ export class PolicyNegotiationPointService implements IPolicyNegotiationPointCom
 					state: ContractNegotiationStateType.REQUESTED,
 					callbackAddress: message.callbackAddress,
 					information: policyInformation,
-					handlerId: foundNegotiator.negotiatorId
+					handlerId: negotiator.className()
 				};
 			}
 
 			await this._policyNegotiationAdminPointComponent.set(policyNegotiation);
 
-			const negotiateResult = await foundNegotiator.negotiator.handleOffer(
-				providerOffer,
-				policyInformation
-			);
+			const negotiateResult = await negotiator.handleOffer(providerOffer, policyInformation);
 
 			// If the negotiator sets the accepted flag, but doesn't require intervention
 			// we send the offer to the consumer, otherwise we wait for manual handling
@@ -524,22 +483,17 @@ export class PolicyNegotiationPointService implements IPolicyNegotiationPointCom
 	/**
 	 * An offer has been received by a consumer.
 	 * @param message The offer being received by the consumer.
-	 * @param actionRequest The action request used in the verifiable credential.
+	 * @param trustPayload Trust payload to verify the requesters identity.
 	 * @returns The current state of the contract negotiation or an error.
 	 */
 	public async offerFromProvider(
 		message: IContractOfferMessage,
-		actionRequest: IIdentityAuthenticationActionRequest
+		trustPayload: unknown
 	): Promise<IContractNegotiation | IContractNegotiationError> {
 		Guards.object<IContractOfferMessage>(
 			PolicyNegotiationPointService.CLASS_NAME,
 			nameof(message),
 			message
-		);
-		Guards.objectValue<IIdentityAuthenticationActionRequest>(
-			PolicyNegotiationPointService.CLASS_NAME,
-			nameof(actionRequest),
-			actionRequest
 		);
 		Guards.stringValue(
 			PolicyNegotiationPointService.CLASS_NAME,
@@ -550,12 +504,7 @@ export class PolicyNegotiationPointService implements IPolicyNegotiationPointCom
 		let consumerPid;
 		let policyNegotiation: IPolicyNegotiation | undefined;
 		try {
-			if (actionRequest.action !== "offer") {
-				throw new GeneralError(PolicyNegotiationPointService.CLASS_NAME, "incorrectActionType", {
-					action: actionRequest.action,
-					expecting: "offer"
-				});
-			}
+			await TrustHelper.verifyTrust(this._trustComponent, trustPayload, "offerFromProvider");
 
 			// If the consumer id is set then we load an existing negotiation
 			// if it is not set then we need to create a new negotiation
@@ -608,10 +557,10 @@ export class PolicyNegotiationPointService implements IPolicyNegotiationPointCom
 			const requesterId = policyNegotiation.handlerId;
 			if (Is.stringValue(requesterId)) {
 				// Try and find the original requester of the negotiation
-				const found = this._requesters.find(r => r.requesterId === requesterId);
+				const policyRequester = PolicyRequesterFactory.getIfExists(requesterId);
 
 				// We can't find the requester, so error
-				if (Is.empty(found)) {
+				if (Is.empty(policyRequester)) {
 					const err = await this.setErrorState(
 						message.providerPid,
 						consumerPid,
@@ -626,7 +575,7 @@ export class PolicyNegotiationPointService implements IPolicyNegotiationPointCom
 				}
 
 				// Tell the requester about the offer
-				const accepted = await found.requester.offer(requesterId, message.offer);
+				const accepted = await policyRequester.offer(requesterId, message.offer);
 
 				if (!accepted) {
 					const err = await this.setErrorState(
@@ -679,22 +628,17 @@ export class PolicyNegotiationPointService implements IPolicyNegotiationPointCom
 	/**
 	 * An agreement has been received by a consumer.
 	 * @param message The agreement message to send.
-	 * @param actionRequest The action request used in the verifiable credential.
+	 * @param trustPayload Trust payload to verify the requesters identity.
 	 * @returns The error if there is one.
 	 */
 	public async agreementFromProvider(
 		message: IContractAgreementMessage,
-		actionRequest: IIdentityAuthenticationActionRequest
+		trustPayload: unknown
 	): Promise<IContractNegotiationError | undefined> {
 		Guards.object<IContractAgreementMessage>(
 			PolicyNegotiationPointService.CLASS_NAME,
 			nameof(message),
 			message
-		);
-		Guards.objectValue<IIdentityAuthenticationActionRequest>(
-			PolicyNegotiationPointService.CLASS_NAME,
-			nameof(actionRequest),
-			actionRequest
 		);
 		Guards.stringValue(
 			PolicyNegotiationPointService.CLASS_NAME,
@@ -714,12 +658,8 @@ export class PolicyNegotiationPointService implements IPolicyNegotiationPointCom
 
 		let policyNegotiation: IPolicyNegotiation | undefined;
 		try {
-			if (actionRequest.action !== "agreement") {
-				throw new GeneralError(PolicyNegotiationPointService.CLASS_NAME, "incorrectActionType", {
-					action: actionRequest.action,
-					expecting: "agreement"
-				});
-			}
+			await TrustHelper.verifyTrust(this._trustComponent, trustPayload, "agreementFromProvider");
+
 			// Load the negotiation if there is one
 			try {
 				policyNegotiation = await this._policyNegotiationAdminPointComponent.get(
@@ -760,10 +700,10 @@ export class PolicyNegotiationPointService implements IPolicyNegotiationPointCom
 			const requesterId = policyNegotiation.handlerId;
 			if (Is.stringValue(requesterId)) {
 				// Try and find the original requester of the negotiation
-				const found = this._requesters.find(r => r.requesterId === requesterId);
+				const policyRequester = PolicyRequesterFactory.getIfExists(requesterId);
 
 				// We can't find the requester, so error
-				if (Is.empty(found)) {
+				if (Is.empty(policyRequester)) {
 					const err = await this.setErrorState(
 						message.providerPid,
 						message.consumerPid,
@@ -778,7 +718,7 @@ export class PolicyNegotiationPointService implements IPolicyNegotiationPointCom
 				}
 
 				// Tell the requester about the offer
-				const accepted = await found.requester.agreement(requesterId, message.agreement);
+				const accepted = await policyRequester.agreement(requesterId, message.agreement);
 
 				if (!accepted) {
 					const err = await this.setErrorState(
@@ -819,22 +759,17 @@ export class PolicyNegotiationPointService implements IPolicyNegotiationPointCom
 	/**
 	 * An agreement verification has been received by a provider.
 	 * @param message The agreement message to send.
-	 * @param actionRequest The action request used in the verifiable credential.
+	 * @param trustPayload Trust payload to verify the requesters identity.
 	 * @returns The error if there is one.
 	 */
 	public async agreementVerificationFromConsumer(
 		message: IContractAgreementVerificationMessage,
-		actionRequest: IIdentityAuthenticationActionRequest
+		trustPayload: unknown
 	): Promise<IContractNegotiationError | undefined> {
 		Guards.object<IContractAgreementMessage>(
 			PolicyNegotiationPointService.CLASS_NAME,
 			nameof(message),
 			message
-		);
-		Guards.objectValue<IIdentityAuthenticationActionRequest>(
-			PolicyNegotiationPointService.CLASS_NAME,
-			nameof(actionRequest),
-			actionRequest
 		);
 		Guards.stringValue(
 			PolicyNegotiationPointService.CLASS_NAME,
@@ -849,12 +784,11 @@ export class PolicyNegotiationPointService implements IPolicyNegotiationPointCom
 
 		let policyNegotiation: IPolicyNegotiation | undefined;
 		try {
-			if (actionRequest.action !== "agreement-verification") {
-				throw new GeneralError(PolicyNegotiationPointService.CLASS_NAME, "incorrectActionType", {
-					action: actionRequest.action,
-					expecting: "agreement-verification"
-				});
-			}
+			await TrustHelper.verifyTrust(
+				this._trustComponent,
+				trustPayload,
+				"agreementVerificationFromConsumer"
+			);
 			// Load the negotiation if there is one
 			try {
 				policyNegotiation = await this._policyNegotiationAdminPointComponent.get(
@@ -937,13 +871,13 @@ export class PolicyNegotiationPointService implements IPolicyNegotiationPointCom
 	 * An event has been received by the provider or consumer.
 	 * @param message The event message to send.
 	 * @param destination The destination is provider or consumer.
-	 * @param actionRequest The action request used in the verifiable credential.
+	 * @param trustPayload Trust payload to verify the requesters identity.
 	 * @returns The error if there is one.
 	 */
 	public async event(
 		message: IContractNegotiationEventMessage,
 		destination: "provider" | "consumer",
-		actionRequest: IIdentityAuthenticationActionRequest
+		trustPayload: unknown
 	): Promise<IContractNegotiationError | undefined> {
 		Guards.object<IContractNegotiationEventMessage>(
 			PolicyNegotiationPointService.CLASS_NAME,
@@ -954,11 +888,6 @@ export class PolicyNegotiationPointService implements IPolicyNegotiationPointCom
 			"provider",
 			"consumer"
 		]);
-		Guards.objectValue<IIdentityAuthenticationActionRequest>(
-			PolicyNegotiationPointService.CLASS_NAME,
-			nameof(actionRequest),
-			actionRequest
-		);
 		Guards.stringValue(
 			PolicyNegotiationPointService.CLASS_NAME,
 			nameof(message.providerPid),
@@ -972,12 +901,8 @@ export class PolicyNegotiationPointService implements IPolicyNegotiationPointCom
 
 		let policyNegotiation: IPolicyNegotiation | undefined;
 		try {
-			if (actionRequest.action !== "event") {
-				throw new GeneralError(PolicyNegotiationPointService.CLASS_NAME, "incorrectActionType", {
-					action: actionRequest.action,
-					expecting: "event"
-				});
-			}
+			await TrustHelper.verifyTrust(this._trustComponent, trustPayload, "event");
+
 			// Load the negotiation if there is one, use either the provider or consumer pid based on destination
 			const policyId = destination === "provider" ? message.providerPid : message.consumerPid;
 			try {
@@ -1030,10 +955,10 @@ export class PolicyNegotiationPointService implements IPolicyNegotiationPointCom
 				// this will only happen on the consumer side
 				const requesterId = policyNegotiation.handlerId;
 				if (Is.stringValue(requesterId)) {
-					const found = this._requesters.find(r => r.requesterId === requesterId);
+					const policyRequester = PolicyRequesterFactory.getIfExists(requesterId);
 
 					// We can't find the requester, so error
-					if (Is.empty(found)) {
+					if (Is.empty(policyRequester)) {
 						const err = await this.setErrorState(
 							message.providerPid,
 							message.consumerPid,
@@ -1048,7 +973,7 @@ export class PolicyNegotiationPointService implements IPolicyNegotiationPointCom
 					}
 
 					// Tell the requester about the finalisation
-					await found.requester.finalised(requesterId);
+					await policyRequester.finalised(requesterId);
 				}
 			} else if (
 				destination === "provider" &&
@@ -1078,13 +1003,13 @@ export class PolicyNegotiationPointService implements IPolicyNegotiationPointCom
 	 * A termination message has been received by the consumer.
 	 * @param message The termination message to send.
 	 * @param destination The destination is provider or consumer.
-	 * @param actionRequest The action request used in the verifiable credential.
+	 * @param trustPayload Trust payload to verify the requesters identity.
 	 * @returns The error if there is one.
 	 */
 	public async terminate(
 		message: IContractNegotiationTerminationMessage,
 		destination: "provider" | "consumer",
-		actionRequest: IIdentityAuthenticationActionRequest
+		trustPayload: unknown
 	): Promise<IContractNegotiationError | undefined> {
 		Guards.object<IContractNegotiationTerminationMessage>(
 			PolicyNegotiationPointService.CLASS_NAME,
@@ -1095,11 +1020,6 @@ export class PolicyNegotiationPointService implements IPolicyNegotiationPointCom
 			"provider",
 			"consumer"
 		]);
-		Guards.objectValue<IIdentityAuthenticationActionRequest>(
-			PolicyNegotiationPointService.CLASS_NAME,
-			nameof(actionRequest),
-			actionRequest
-		);
 		Guards.stringValue(
 			PolicyNegotiationPointService.CLASS_NAME,
 			nameof(message.providerPid),
@@ -1113,12 +1033,7 @@ export class PolicyNegotiationPointService implements IPolicyNegotiationPointCom
 
 		let policyNegotiation: IPolicyNegotiation | undefined;
 		try {
-			if (actionRequest.action !== "terminate") {
-				throw new GeneralError(PolicyNegotiationPointService.CLASS_NAME, "incorrectActionType", {
-					action: actionRequest.action,
-					expecting: "terminate"
-				});
-			}
+			await TrustHelper.verifyTrust(this._trustComponent, trustPayload, "terminate");
 			// Load the negotiation if there is one, use either the provider or consumer pid based on destination
 			const policyId = destination === "provider" ? message.providerPid : message.consumerPid;
 			try {
@@ -1146,10 +1061,10 @@ export class PolicyNegotiationPointService implements IPolicyNegotiationPointCom
 				const requesterId = policyNegotiation.handlerId;
 				if (Is.stringValue(requesterId)) {
 					// Try and find the original requester of the negotiation
-					const found = this._requesters.find(r => r.requesterId === requesterId);
+					const policyRequester = PolicyRequesterFactory.getIfExists(requesterId);
 
 					// We can't find the requester, so error
-					if (Is.empty(found)) {
+					if (Is.empty(policyRequester)) {
 						const err = await this.setErrorState(
 							message.providerPid,
 							message.consumerPid,
@@ -1164,7 +1079,7 @@ export class PolicyNegotiationPointService implements IPolicyNegotiationPointCom
 					}
 
 					// Tell the requester about the termination
-					await found.requester.terminated(requesterId);
+					await policyRequester.terminated(requesterId);
 				}
 			}
 
@@ -1179,180 +1094,6 @@ export class PolicyNegotiationPointService implements IPolicyNegotiationPointCom
 				BaseError.fromError(error)
 			);
 		}
-	}
-
-	/**
-	 * Register a negotiator to use for handling data.
-	 * @param negotiatorId The id of the negotiator to register.
-	 * @param negotiator The negotiator to register.
-	 * @returns Nothing.
-	 */
-	public async registerNegotiator(
-		negotiatorId: string,
-		negotiator: IPolicyNegotiator
-	): Promise<void> {
-		Guards.stringValue(
-			PolicyNegotiationPointService.CLASS_NAME,
-			nameof(negotiatorId),
-			negotiatorId
-		);
-		Guards.objectValue<IPolicyNegotiator>(
-			PolicyNegotiationPointService.CLASS_NAME,
-			nameof(negotiator),
-			negotiator
-		);
-
-		const currentIndex = this._negotiators.findIndex(p => p.negotiatorId === negotiatorId);
-		if (currentIndex !== -1) {
-			this._negotiators[currentIndex].negotiator = negotiator;
-		} else {
-			this._negotiators.push({ negotiatorId, negotiator });
-		}
-
-		await this._logging?.log({
-			level: "info",
-			source: PolicyNegotiationPointService.CLASS_NAME,
-			ts: Date.now(),
-			message: "registeredNegotiator",
-			data: {
-				negotiatorId
-			}
-		});
-	}
-
-	/**
-	 * Unregister a negotiator from the handling.
-	 * @param negotiatorId The id of the negotiator to unregister.
-	 * @returns Nothing.
-	 */
-	public async unregisterNegotiator(negotiatorId: string): Promise<void> {
-		Guards.stringValue(
-			PolicyNegotiationPointService.CLASS_NAME,
-			nameof(negotiatorId),
-			negotiatorId
-		);
-
-		const currentIndex = this._negotiators.findIndex(p => p.negotiatorId === negotiatorId);
-		if (currentIndex !== -1) {
-			this._negotiators.splice(currentIndex, 1);
-		}
-
-		await this._logging?.log({
-			level: "info",
-			source: PolicyNegotiationPointService.CLASS_NAME,
-			ts: Date.now(),
-			message: "unregisteredNegotiator",
-			data: {
-				negotiatorId
-			}
-		});
-	}
-
-	/**
-	 * Register a requester to use for handle returning offers.
-	 * @param requesterId The id of the requester to register.
-	 * @param requester The requester to register.
-	 * @returns Nothing.
-	 */
-	public async registerRequester(requesterId: string, requester: IPolicyRequester): Promise<void> {
-		Guards.stringValue(PolicyNegotiationPointService.CLASS_NAME, nameof(requesterId), requesterId);
-		Guards.objectValue<IPolicyRequester>(
-			PolicyNegotiationPointService.CLASS_NAME,
-			nameof(requester),
-			requester
-		);
-
-		const currentIndex = this._requesters.findIndex(p => p.requesterId === requesterId);
-		if (currentIndex !== -1) {
-			this._requesters[currentIndex].requester = requester;
-		} else {
-			this._requesters.push({ requesterId, requester });
-		}
-
-		await this._logging?.log({
-			level: "info",
-			source: PolicyNegotiationPointService.CLASS_NAME,
-			ts: Date.now(),
-			message: "registeredRequester",
-			data: {
-				requesterId
-			}
-		});
-	}
-
-	/**
-	 * Unregister a requester from the handling.
-	 * @param requesterId The id of the requester to unregister.
-	 * @returns Nothing.
-	 */
-	public async unregisterRequester(requesterId: string): Promise<void> {
-		Guards.stringValue(PolicyNegotiationPointService.CLASS_NAME, nameof(requesterId), requesterId);
-
-		const currentIndex = this._requesters.findIndex(p => p.requesterId === requesterId);
-		if (currentIndex !== -1) {
-			this._requesters.splice(currentIndex, 1);
-		}
-
-		await this._logging?.log({
-			level: "info",
-			source: PolicyNegotiationPointService.CLASS_NAME,
-			ts: Date.now(),
-			message: "unregisteredRequester",
-			data: {
-				requesterId
-			}
-		});
-	}
-
-	/**
-	 * Register an offer available for negotiation.
-	 * @param offer The offer to register.
-	 * @returns Nothing.
-	 */
-	public async registerOffer(offer: IOdrlOffer): Promise<void> {
-		Guards.objectValue<IOdrlOffer>(PolicyNegotiationPointService.CLASS_NAME, nameof(offer), offer);
-		Guards.stringValue(PolicyNegotiationPointService.CLASS_NAME, nameof(offer.uid), offer.uid);
-
-		const index = this._offers.findIndex(o => o.uid === offer.uid);
-		if (index !== -1) {
-			this._offers[index] = offer;
-		} else {
-			this._offers.push(offer);
-		}
-
-		await this._logging?.log({
-			level: "info",
-			source: PolicyNegotiationPointService.CLASS_NAME,
-			ts: Date.now(),
-			message: "registeredOffer",
-			data: {
-				offerId: offer.uid
-			}
-		});
-	}
-
-	/**
-	 * Unregister an offer.
-	 * @param offerId The id of the offer to unregister.
-	 * @returns Nothing.
-	 */
-	public async unregisterOffer(offerId: string): Promise<void> {
-		Guards.stringValue(PolicyNegotiationPointService.CLASS_NAME, nameof(offerId), offerId);
-
-		const index = this._offers.findIndex(o => o.uid === offerId);
-		if (index !== -1) {
-			this._offers.splice(index, 1);
-		}
-
-		await this._logging?.log({
-			level: "info",
-			source: PolicyNegotiationPointService.CLASS_NAME,
-			ts: Date.now(),
-			message: "unregisteredOffer",
-			data: {
-				offerId
-			}
-		});
 	}
 
 	/**
@@ -1446,10 +1187,6 @@ export class PolicyNegotiationPointService implements IPolicyNegotiationPointCom
 				policyNegotiation.offer
 			);
 
-			if (!Is.stringValue(this._nodeId)) {
-				throw new GeneralError(PolicyNegotiationPointService.CLASS_NAME, "missingNodeId");
-			}
-
 			const offerMessage: IContractOfferMessage = {
 				"@context": [DataspaceProtocolContexts.ContextRoot],
 				"@type": ContractNegotiationTypes.ContractOfferMessage,
@@ -1459,18 +1196,20 @@ export class PolicyNegotiationPointService implements IPolicyNegotiationPointCom
 				callbackAddress: this._baseCallbackUrl
 			};
 
-			const actionRequest: IIdentityAuthenticationActionRequest = {
-				"@context": IdentityAuthenticationContexts.ContextRoot,
-				type: IdentityAuthenticationTypes.ActionRequest,
-				action: "offer",
-				requester: this._nodeId
-			};
+			const contextIds = await ContextIdStore.getContextIds();
+			ContextIdHelper.guard(contextIds, ContextIdKeys.Organization);
+
+			const trustPayload = await this._trustComponent.generate(
+				contextIds[ContextIdKeys.Organization],
+				this._overrideTrustGeneratorType
+			);
 
 			policyNegotiation.state = ContractNegotiationStateType.OFFERED;
 			await this._policyNegotiationAdminPointComponent.set(policyNegotiation);
 
 			const negotiationComponent = await this._negotiationComponentCreator(callbackAddress);
-			const response = await negotiationComponent.offerFromProvider(offerMessage, actionRequest);
+
+			const response = await negotiationComponent.offerFromProvider(offerMessage, trustPayload);
 
 			// If there was no error then the consumer will now send an event if they accepted the offer
 			await this.terminateIfResponseError(response, policyNegotiation);
@@ -1514,10 +1253,6 @@ export class PolicyNegotiationPointService implements IPolicyNegotiationPointCom
 			const offer = policyNegotiation.offer;
 			Guards.object<IOdrlOffer>(PolicyNegotiationPointService.CLASS_NAME, nameof(offer), offer);
 
-			if (!Is.stringValue(this._nodeId)) {
-				throw new GeneralError(PolicyNegotiationPointService.CLASS_NAME, "missingNodeId");
-			}
-
 			// Create the finalisation message
 			const eventMessage: IContractNegotiationEventMessage = {
 				"@context": [DataspaceProtocolContexts.ContextRoot],
@@ -1529,18 +1264,19 @@ export class PolicyNegotiationPointService implements IPolicyNegotiationPointCom
 				event
 			};
 
-			const actionRequest: IIdentityAuthenticationActionRequest = {
-				"@context": IdentityAuthenticationContexts.ContextRoot,
-				type: IdentityAuthenticationTypes.ActionRequest,
-				action: "event",
-				requester: this._nodeId
-			};
+			const contextIds = await ContextIdStore.getContextIds();
+			ContextIdHelper.guard(contextIds, ContextIdKeys.Organization);
+
+			const trustPayload = await this._trustComponent.generate(
+				contextIds[ContextIdKeys.Organization],
+				this._overrideTrustGeneratorType
+			);
 
 			policyNegotiation.state = event;
 			await this._policyNegotiationAdminPointComponent.set(policyNegotiation);
 
 			const negotiationComponent = await this._negotiationComponentCreator(callbackAddress);
-			const response = await negotiationComponent.event(eventMessage, destination, actionRequest);
+			const response = await negotiationComponent.event(eventMessage, destination, trustPayload);
 
 			await this.terminateIfResponseError(response, policyNegotiation);
 		} catch (error) {
@@ -1579,12 +1315,10 @@ export class PolicyNegotiationPointService implements IPolicyNegotiationPointCom
 			const offer = policyNegotiation.offer;
 			Guards.object<IOdrlOffer>(PolicyNegotiationPointService.CLASS_NAME, nameof(offer), offer);
 
-			if (!Is.stringValue(this._nodeId)) {
-				throw new GeneralError(PolicyNegotiationPointService.CLASS_NAME, "missingNodeId");
-			}
-
-			const found = this._negotiators.find(n => n.negotiator.supportsOffer(offer));
-			if (Is.empty(found)) {
+			const negotiatorNames = PolicyNegotiatorFactory.names();
+			const negotiators = negotiatorNames.map(name => PolicyNegotiatorFactory.get(name));
+			const negotiator = negotiators.find(n => n.supportsOffer(offer));
+			if (Is.empty(negotiator)) {
 				// No negotiator, so set the error on the negotiation
 				await this.setErrorState(
 					policyNegotiation.id,
@@ -1596,10 +1330,7 @@ export class PolicyNegotiationPointService implements IPolicyNegotiationPointCom
 				);
 			} else {
 				// Use the negotiator to create the agreement for the offer
-				const agreement = await found.negotiator.createAgreement(
-					offer,
-					policyNegotiation.information
-				);
+				const agreement = await negotiator.createAgreement(offer, policyNegotiation.information);
 
 				if (Is.empty(agreement)) {
 					// No agreement, so set the error on the negotiation
@@ -1622,12 +1353,13 @@ export class PolicyNegotiationPointService implements IPolicyNegotiationPointCom
 						callbackAddress: this._baseCallbackUrl
 					};
 
-					const actionRequest: IIdentityAuthenticationActionRequest = {
-						"@context": IdentityAuthenticationContexts.ContextRoot,
-						type: IdentityAuthenticationTypes.ActionRequest,
-						action: "agreement",
-						requester: this._nodeId
-					};
+					const contextIds = await ContextIdStore.getContextIds();
+					ContextIdHelper.guard(contextIds, ContextIdKeys.Organization);
+
+					const trustPayload = await this._trustComponent.generate(
+						contextIds[ContextIdKeys.Organization],
+						this._overrideTrustGeneratorType
+					);
 
 					policyNegotiation.state = ContractNegotiationStateType.AGREED;
 					policyNegotiation.agreement = agreement;
@@ -1636,7 +1368,7 @@ export class PolicyNegotiationPointService implements IPolicyNegotiationPointCom
 					const negotiationComponent = await this._negotiationComponentCreator(callbackAddress);
 					const response = await negotiationComponent.agreementFromProvider(
 						agreementMessage,
-						actionRequest
+						trustPayload
 					);
 
 					// If there was no error then the consumer will now send an agreement verification
@@ -1677,10 +1409,6 @@ export class PolicyNegotiationPointService implements IPolicyNegotiationPointCom
 				policyNegotiation
 			);
 
-			if (!Is.stringValue(this._nodeId)) {
-				throw new GeneralError(PolicyNegotiationPointService.CLASS_NAME, "missingNodeId");
-			}
-
 			const agreementVerificationMessage: IContractAgreementVerificationMessage = {
 				"@context": [DataspaceProtocolContexts.ContextRoot],
 				"@type": ContractNegotiationTypes.ContractAgreementVerificationMessage,
@@ -1688,12 +1416,13 @@ export class PolicyNegotiationPointService implements IPolicyNegotiationPointCom
 				consumerPid: policyNegotiation.id
 			};
 
-			const actionRequest: IIdentityAuthenticationActionRequest = {
-				"@context": IdentityAuthenticationContexts.ContextRoot,
-				type: IdentityAuthenticationTypes.ActionRequest,
-				action: "agreement-verification",
-				requester: this._nodeId
-			};
+			const contextIds = await ContextIdStore.getContextIds();
+			ContextIdHelper.guard(contextIds, ContextIdKeys.Organization);
+
+			const trustPayload = await this._trustComponent.generate(
+				contextIds[ContextIdKeys.Organization],
+				this._overrideTrustGeneratorType
+			);
 
 			policyNegotiation.state = ContractNegotiationStateType.VERIFIED;
 			await this._policyNegotiationAdminPointComponent.set(policyNegotiation);
@@ -1701,7 +1430,7 @@ export class PolicyNegotiationPointService implements IPolicyNegotiationPointCom
 			const negotiationComponent = await this._negotiationComponentCreator(callbackAddress);
 			const response = await negotiationComponent.agreementVerificationFromConsumer(
 				agreementVerificationMessage,
-				actionRequest
+				trustPayload
 			);
 
 			await this.terminateIfResponseError(response, policyNegotiation);

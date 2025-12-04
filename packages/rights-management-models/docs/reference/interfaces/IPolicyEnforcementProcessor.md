@@ -2,6 +2,10 @@
 
 Interface for policy enforcement processors.
 
+## Extends
+
+- `IComponent`
+
 ## Methods
 
 ### process()

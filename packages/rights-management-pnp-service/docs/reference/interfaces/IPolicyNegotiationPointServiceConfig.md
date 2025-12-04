@@ -32,40 +32,8 @@ To be used when sending request remotely to another node.
 
 ***
 
-### negotiators?
+### overrideTrustGeneratorType?
 
-> `optional` **negotiators**: `object`[]
+> `optional` **overrideTrustGeneratorType**: `string`
 
-Initial negotiators to register with the PNP.
-
-#### negotiatorId
-
-> **negotiatorId**: `string`
-
-#### negotiator
-
-> **negotiator**: `IPolicyNegotiator`
-
-***
-
-### requesters?
-
-> `optional` **requesters**: `object`[]
-
-Initial requesters to handle offers from the PNP.
-
-#### requesterId
-
-> **requesterId**: `string`
-
-#### requester
-
-> **requester**: `IPolicyRequester`
-
-***
-
-### offers?
-
-> `optional` **offers**: `IOdrlOffer`[]
-
-These offers can be registered to provide offers for negotiation.
+Override the default trust generator.

@@ -1,8 +1,7 @@
 # Interface: IDataAccessRequestPointComponent
 
 Interface describing a Data Access Request Point (DARP) contract.
-The DARP component sends requests to the DAP for data access operations,
-it will create proofs for the requests.
+The DARP component sends requests to the DAP for data access operations
 
 ## Extends
 

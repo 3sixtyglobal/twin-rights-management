@@ -18,6 +18,20 @@ logging
 
 ***
 
+### trustComponentType?
+
+> `optional` **trustComponentType**: `string`
+
+The type of the trust component.
+
+#### Default
+
+```ts
+trust
+```
+
+***
+
 ### config
 
 > **config**: [`IDataAccessRequestPointServiceConfig`](IDataAccessRequestPointServiceConfig.md)

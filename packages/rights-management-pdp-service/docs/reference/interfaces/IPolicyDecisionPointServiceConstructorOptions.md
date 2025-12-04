@@ -57,11 +57,3 @@ The type of the policy execution point component.
 ```ts
 policy-execution-point
 ```
-
-***
-
-### config?
-
-> `optional` **config**: [`IPolicyDecisionPointServiceConfig`](IPolicyDecisionPointServiceConfig.md)
-
-The configuration for the Policy Decision Point Service.

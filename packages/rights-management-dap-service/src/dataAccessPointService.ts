@@ -3,15 +3,15 @@
 import { Coerce, ComponentFactory, GeneralError, Guards, Is } from "@twin.org/core";
 import type { IJsonLdNodeObject } from "@twin.org/data-json-ld";
 import type { EntityCondition } from "@twin.org/entity";
-import type { IIdentityAuthenticationActionRequest } from "@twin.org/identity-authentication";
 import type { ILoggingComponent } from "@twin.org/logging-models";
 import { nameof } from "@twin.org/nameof";
-import type {
-	IDataAccessHandler,
-	IDataAccessPointComponent,
-	IPolicyEnforcementPointComponent
+import {
+	DataAccessHandlerFactory,
+	type IDataAccessPointComponent,
+	type IPolicyEnforcementPointComponent
 } from "@twin.org/rights-management-models";
 import { ActionType } from "@twin.org/standards-w3c-odrl";
+import { type ITrustComponent, TrustHelper } from "@twin.org/trust-models";
 import type { IDataAccessPointServiceConstructorOptions } from "./models/IDataAccessPointServiceConstructorOptions.js";
 
 /**
@@ -36,13 +36,10 @@ export class DataAccessPointService implements IDataAccessPointComponent {
 	private readonly _policyEnforcementPointComponent: IPolicyEnforcementPointComponent;
 
 	/**
-	 * These handlers can be registered to handle specific asset types.
+	 * The trust component.
 	 * @internal
 	 */
-	private readonly _handlers: {
-		handlerId: string;
-		handler: IDataAccessHandler;
-	}[];
+	private readonly _trustComponent: ITrustComponent;
 
 	/**
 	 * Create a new instance of DataAccessPointService (DAP).
@@ -55,8 +52,9 @@ export class DataAccessPointService implements IDataAccessPointComponent {
 		this._policyEnforcementPointComponent = ComponentFactory.get<IPolicyEnforcementPointComponent>(
 			options?.policyEnforcementPointComponentType ?? "policy-enforcement-point"
 		);
-
-		this._handlers = options?.config?.handlers ?? [];
+		this._trustComponent = ComponentFactory.get<ITrustComponent>(
+			options?.trustComponentType ?? "trust"
+		);
 	}
 
 	/**
@@ -71,88 +69,68 @@ export class DataAccessPointService implements IDataAccessPointComponent {
 	 * Create an item.
 	 * @param assetType The type of the item to create.
 	 * @param item The item to create.
-	 * @param actionRequest The action request used in the verifiable credential.
+	 * @param trustPayload Trust payload to verify the requesters identity.
 	 * @returns The id of the item created, for some items this is supplied in the `item`.
 	 */
 	public async create(
 		assetType: string,
 		item: IJsonLdNodeObject,
-		actionRequest: IIdentityAuthenticationActionRequest
+		trustPayload: unknown
 	): Promise<string> {
 		Guards.stringValue(DataAccessPointService.CLASS_NAME, nameof(assetType), assetType);
 		Guards.object<IJsonLdNodeObject>(DataAccessPointService.CLASS_NAME, nameof(item), item);
-		Guards.objectValue<IIdentityAuthenticationActionRequest>(
-			DataAccessPointService.CLASS_NAME,
-			nameof(actionRequest),
-			actionRequest
-		);
 
-		const handlerEntry = this._handlers.find(p =>
-			p.handler.supportedAssetTypes().includes(assetType)
-		);
+		const handlerNames = DataAccessHandlerFactory.names();
+		const handlers = handlerNames.map(name => DataAccessHandlerFactory.get(name));
+		const handler = handlers.find(p => p.supportedAssetTypes().includes(assetType));
 
-		if (Is.empty(handlerEntry)) {
+		if (Is.empty(handler)) {
 			throw new GeneralError(DataAccessPointService.CLASS_NAME, "noHandlerForAssetType", {
 				assetType
 			});
 		}
 
-		if (actionRequest.action !== "create") {
-			throw new GeneralError(DataAccessPointService.CLASS_NAME, "incorrectActionType", {
-				action: actionRequest.action,
-				expecting: "create"
-			});
-		}
+		const trustInfo = await TrustHelper.verifyTrust(this._trustComponent, trustPayload, "create");
 
 		const manipulatedItem =
 			await this._policyEnforcementPointComponent.intercept<IJsonLdNodeObject>({
-				assignee: actionRequest.requester,
+				assignee: trustInfo.identity,
 				action: ActionType.Write,
 				assetType
 			});
 
-		return handlerEntry.handler.create(assetType, manipulatedItem);
+		return handler.create(assetType, manipulatedItem);
 	}
 
 	/**
 	 * Get an item.
 	 * @param assetType The type of the item to retrieve.
 	 * @param id The ID of the item to retrieve.
-	 * @param actionRequest The action request used in the verifiable credential.
+	 * @param trustPayload Trust payload to verify the requesters identity.
 	 * @returns The item retrieved if the policies allow it.
 	 */
 	public async get(
 		assetType: string,
 		id: string,
-		actionRequest: IIdentityAuthenticationActionRequest
+		trustPayload: unknown
 	): Promise<IJsonLdNodeObject> {
 		Guards.stringValue(DataAccessPointService.CLASS_NAME, nameof(assetType), assetType);
 		Guards.stringValue(DataAccessPointService.CLASS_NAME, nameof(id), id);
-		Guards.objectValue<IIdentityAuthenticationActionRequest>(
-			DataAccessPointService.CLASS_NAME,
-			nameof(actionRequest),
-			actionRequest
-		);
 
-		const handlerEntry = this._handlers.find(p =>
-			p.handler.supportedAssetTypes().includes(assetType)
-		);
+		const handlerNames = DataAccessHandlerFactory.names();
+		const handlers = handlerNames.map(name => DataAccessHandlerFactory.get(name));
+		const handler = handlers.find(p => p.supportedAssetTypes().includes(assetType));
 
-		if (Is.empty(handlerEntry)) {
+		if (Is.empty(handler)) {
 			throw new GeneralError(DataAccessPointService.CLASS_NAME, "noHandlerForAssetType", {
 				assetType
 			});
 		}
 
-		if (actionRequest.action !== "get") {
-			throw new GeneralError(DataAccessPointService.CLASS_NAME, "incorrectActionType", {
-				action: actionRequest.action,
-				expecting: "get"
-			});
-		}
+		const trustInfo = await TrustHelper.verifyTrust(this._trustComponent, trustPayload, "get");
 
 		const isAllowed = await this._policyEnforcementPointComponent.intercept({
-			assignee: actionRequest.requester,
+			assignee: trustInfo.identity,
 			action: ActionType.Use,
 			assetType,
 			resourceId: id
@@ -165,14 +143,14 @@ export class DataAccessPointService implements IDataAccessPointComponent {
 			});
 		}
 
-		const item = await handlerEntry.handler.get(assetType, id);
+		const item = await handler.get(assetType, id);
 
 		const manipulatedItem = await this._policyEnforcementPointComponent.intercept<
 			IJsonLdNodeObject,
 			IJsonLdNodeObject
 		>(
 			{
-				assignee: actionRequest.requester,
+				assignee: trustInfo.identity,
 				action: ActionType.Read,
 				assetType,
 				resourceId: id
@@ -187,96 +165,72 @@ export class DataAccessPointService implements IDataAccessPointComponent {
 	 * Update an item.
 	 * @param assetType The type of the item to update.
 	 * @param item The item to update.
-	 * @param actionRequest The action request used in the verifiable credential.
+	 * @param trustPayload Trust payload to verify the requesters identity.
 	 * @returns Nothing.
 	 */
 	public async update(
 		assetType: string,
 		item: IJsonLdNodeObject,
-		actionRequest: IIdentityAuthenticationActionRequest
+		trustPayload: unknown
 	): Promise<void> {
 		Guards.stringValue(DataAccessPointService.CLASS_NAME, nameof(assetType), assetType);
 		Guards.object<IJsonLdNodeObject>(DataAccessPointService.CLASS_NAME, nameof(item), item);
-		Guards.objectValue<IIdentityAuthenticationActionRequest>(
-			DataAccessPointService.CLASS_NAME,
-			nameof(actionRequest),
-			actionRequest
-		);
 		Guards.stringValue(DataAccessPointService.CLASS_NAME, nameof(item.id), item.id);
 
-		const handlerEntry = this._handlers.find(p =>
-			p.handler.supportedAssetTypes().includes(assetType)
-		);
+		const handlerNames = DataAccessHandlerFactory.names();
+		const handlers = handlerNames.map(name => DataAccessHandlerFactory.get(name));
+		const handler = handlers.find(p => p.supportedAssetTypes().includes(assetType));
 
-		if (Is.empty(handlerEntry)) {
+		if (Is.empty(handler)) {
 			throw new GeneralError(DataAccessPointService.CLASS_NAME, "noHandlerForAssetType", {
 				assetType
 			});
 		}
 
-		if (actionRequest.action !== "update") {
-			throw new GeneralError(DataAccessPointService.CLASS_NAME, "incorrectActionType", {
-				action: actionRequest.action,
-				expecting: "update"
-			});
-		}
+		const trustInfo = await TrustHelper.verifyTrust(this._trustComponent, trustPayload, "update");
 
 		const manipulatedItem =
 			await this._policyEnforcementPointComponent.intercept<IJsonLdNodeObject>({
-				assignee: actionRequest.requester,
+				assignee: trustInfo.identity,
 				action: ActionType.Modify,
 				assetType,
 				resourceId: item.id
 			});
 
-		return handlerEntry.handler.update(assetType, manipulatedItem);
+		return handler.update(assetType, manipulatedItem);
 	}
 
 	/**
 	 * Remove an item.
 	 * @param assetType The type of the item to remove.
 	 * @param id The id of the item to remove.
-	 * @param actionRequest The action request used in the verifiable credential.
+	 * @param trustPayload Trust payload to verify the requesters identity.
 	 * @returns Nothing.
 	 */
-	public async remove(
-		assetType: string,
-		id: string,
-		actionRequest: IIdentityAuthenticationActionRequest
-	): Promise<void> {
+	public async remove(assetType: string, id: string, trustPayload: unknown): Promise<void> {
 		Guards.stringValue(DataAccessPointService.CLASS_NAME, nameof(assetType), assetType);
 		Guards.stringValue(DataAccessPointService.CLASS_NAME, nameof(id), id);
-		Guards.objectValue<IIdentityAuthenticationActionRequest>(
-			DataAccessPointService.CLASS_NAME,
-			nameof(actionRequest),
-			actionRequest
-		);
 
-		const handlerEntry = this._handlers.find(p =>
-			p.handler.supportedAssetTypes().includes(assetType)
-		);
+		const handlerNames = DataAccessHandlerFactory.names();
+		const handlers = handlerNames.map(name => DataAccessHandlerFactory.get(name));
+		const handler = handlers.find(p => p.supportedAssetTypes().includes(assetType));
 
-		if (Is.empty(handlerEntry)) {
+		if (Is.empty(handler)) {
 			throw new GeneralError(DataAccessPointService.CLASS_NAME, "noHandlerForAssetType", {
 				assetType
 			});
 		}
 
-		if (actionRequest.action !== "remove") {
-			throw new GeneralError(DataAccessPointService.CLASS_NAME, "incorrectActionType", {
-				action: actionRequest.action,
-				expecting: "remove"
-			});
-		}
+		const trustInfo = await TrustHelper.verifyTrust(this._trustComponent, trustPayload, "remove");
 
 		await this._policyEnforcementPointComponent.intercept({
-			assignee: actionRequest.requester,
+			assignee: trustInfo.identity,
 			action: ActionType.Delete,
 			assetType,
 			resourceId: id
 		});
 
-		return handlerEntry.handler.remove(assetType, id);
+		return handler.remove(assetType, id);
 	}
 
 	/**
@@ -285,7 +239,7 @@ export class DataAccessPointService implements IDataAccessPointComponent {
 	 * @param conditions The conditions to apply to the query.
 	 * @param cursor The cursor for pagination.
 	 * @param options Additional options which might be supported by the handler.
-	 * @param actionRequest The action request used in the verifiable credential.
+	 * @param trustPayload Trust payload to verify the requesters identity.
 	 * @returns The items matching the query and cursor if there are more items.
 	 */
 	public async query(
@@ -293,37 +247,27 @@ export class DataAccessPointService implements IDataAccessPointComponent {
 		conditions: EntityCondition<IJsonLdNodeObject> | undefined,
 		cursor: string | undefined,
 		options: unknown | undefined,
-		actionRequest: IIdentityAuthenticationActionRequest
+		trustPayload: unknown
 	): Promise<{
 		items: IJsonLdNodeObject[];
 		cursor?: string;
 	}> {
 		Guards.stringValue(DataAccessPointService.CLASS_NAME, nameof(assetType), assetType);
-		Guards.objectValue<IIdentityAuthenticationActionRequest>(
-			DataAccessPointService.CLASS_NAME,
-			nameof(actionRequest),
-			actionRequest
-		);
 
-		const handlerEntry = this._handlers.find(p =>
-			p.handler.supportedAssetTypes().includes(assetType)
-		);
+		const handlerNames = DataAccessHandlerFactory.names();
+		const handlers = handlerNames.map(name => DataAccessHandlerFactory.get(name));
+		const handler = handlers.find(p => p.supportedAssetTypes().includes(assetType));
 
-		if (Is.empty(handlerEntry)) {
+		if (Is.empty(handler)) {
 			throw new GeneralError(DataAccessPointService.CLASS_NAME, "noHandlerForAssetType", {
 				assetType
 			});
 		}
 
-		if (actionRequest.action !== "query") {
-			throw new GeneralError(DataAccessPointService.CLASS_NAME, "incorrectActionType", {
-				action: actionRequest.action,
-				expecting: "query"
-			});
-		}
+		const trustInfo = await TrustHelper.verifyTrust(this._trustComponent, trustPayload, "query");
 
 		const isAllowed = await this._policyEnforcementPointComponent.intercept({
-			assignee: actionRequest.requester,
+			assignee: trustInfo.identity,
 			action: ActionType.Use,
 			assetType
 		});
@@ -334,11 +278,11 @@ export class DataAccessPointService implements IDataAccessPointComponent {
 			});
 		}
 
-		const result = await handlerEntry.handler.query(assetType, conditions, cursor, options);
+		const result = await handler.query(assetType, conditions, cursor, options);
 
 		const manipulatedItems = result.items.map(async item =>
 			this._policyEnforcementPointComponent.intercept<IJsonLdNodeObject>({
-				assignee: actionRequest.requester,
+				assignee: trustInfo.identity,
 				action: ActionType.Read,
 				assetType,
 				resourceId: Coerce.string(item.id)
@@ -346,61 +290,5 @@ export class DataAccessPointService implements IDataAccessPointComponent {
 		);
 
 		return { items: await Promise.all(manipulatedItems), cursor: result.cursor };
-	}
-
-	/**
-	 * Register a handler to use for handling data.
-	 * @param handlerId The id of the handler to register.
-	 * @param handler The handler to register.
-	 * @returns Nothing.
-	 */
-	public async registerHandler(handlerId: string, handler: IDataAccessHandler): Promise<void> {
-		Guards.stringValue(DataAccessPointService.CLASS_NAME, nameof(handlerId), handlerId);
-		Guards.objectValue<IDataAccessHandler>(
-			DataAccessPointService.CLASS_NAME,
-			nameof(handler),
-			handler
-		);
-
-		const currentIndex = this._handlers.findIndex(p => p.handlerId === handlerId);
-		if (currentIndex !== -1) {
-			this._handlers[currentIndex].handler = handler;
-		} else {
-			this._handlers.push({ handlerId, handler });
-		}
-
-		await this._logging?.log({
-			level: "info",
-			source: DataAccessPointService.CLASS_NAME,
-			ts: Date.now(),
-			message: "registeredHandler",
-			data: {
-				handlerId
-			}
-		});
-	}
-
-	/**
-	 * Unregister a handler from the handling.
-	 * @param handlerId The id of the handler to unregister.
-	 * @returns Nothing.
-	 */
-	public async unregisterHandler(handlerId: string): Promise<void> {
-		Guards.stringValue(DataAccessPointService.CLASS_NAME, nameof(handlerId), handlerId);
-
-		const currentIndex = this._handlers.findIndex(p => p.handlerId === handlerId);
-		if (currentIndex !== -1) {
-			this._handlers.splice(currentIndex, 1);
-		}
-
-		await this._logging?.log({
-			level: "info",
-			source: DataAccessPointService.CLASS_NAME,
-			ts: Date.now(),
-			message: "unregisteredHandler",
-			data: {
-				handlerId
-			}
-		});
 	}
 }

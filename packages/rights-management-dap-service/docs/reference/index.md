@@ -7,7 +7,6 @@
 
 ## Interfaces
 
-- [IDataAccessPointServiceConfig](interfaces/IDataAccessPointServiceConfig.md)
 - [IDataAccessPointServiceConstructorOptions](interfaces/IDataAccessPointServiceConstructorOptions.md)
 - [IDataAccessRequestPointServiceConfig](interfaces/IDataAccessRequestPointServiceConfig.md)
 - [IDataAccessRequestPointServiceConstructorOptions](interfaces/IDataAccessRequestPointServiceConstructorOptions.md)

@@ -1,7 +1,6 @@
 // Copyright 2025 IOTA Stiftung.
 // SPDX-License-Identifier: Apache-2.0.
 import type { IComponent } from "@twin.org/core";
-import type { IPolicyArbiter } from "./IPolicyArbiter.js";
 import type { IPolicyDecision } from "./IPolicyDecision.js";
 import type { IPolicyLocator } from "../IPolicyLocator.js";
 
@@ -24,19 +23,4 @@ export interface IPolicyDecisionPointComponent extends IComponent {
 	 * can manipulate the data accordingly.
 	 */
 	evaluate<D = unknown>(locator: IPolicyLocator, data?: D): Promise<IPolicyDecision[]>;
-
-	/**
-	 * Register an arbiter to use for making decisions.
-	 * @param arbiterId The id of the arbiter to register.
-	 * @param arbiter The arbiter to register.
-	 * @returns Nothing.
-	 */
-	registerArbiter(arbiterId: string, arbiter: IPolicyArbiter): Promise<void>;
-
-	/**
-	 * Unregister an arbiter from making decisions.
-	 * @param arbiterId The id of the arbiter to unregister.
-	 * @returns Nothing.
-	 */
-	unregisterArbiter(arbiterId: string): Promise<void>;
 }

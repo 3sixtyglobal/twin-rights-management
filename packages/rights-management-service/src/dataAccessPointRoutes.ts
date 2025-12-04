@@ -7,9 +7,7 @@ import type {
 	IRestRoute,
 	ITag
 } from "@twin.org/api-models";
-import { ContextIdKeys } from "@twin.org/context";
 import { ComponentFactory, Guards } from "@twin.org/core";
-import type { IIdentityAuthenticationActionRequest } from "@twin.org/identity-authentication";
 import { nameof } from "@twin.org/nameof";
 import {
 	RightsManagementContexts,
@@ -23,7 +21,7 @@ import {
 	type IDapUpdateRequest,
 	type IDataAccessPointComponent
 } from "@twin.org/rights-management-models";
-import { HeaderTypes, HttpStatusCode, MimeTypes } from "@twin.org/web";
+import { HeaderHelper, HeaderTypes, HttpStatusCode, MimeTypes } from "@twin.org/web";
 
 /**
  * The source used when communicating about these routes.
@@ -101,11 +99,7 @@ export function generateRestRoutesDataAccessPoint(
 				]
 			}
 		],
-		skipAuth: true,
-		processorFeatures: ["verifiableCredential"],
-		processorData: {
-			verifiableCredential: { contextId: ContextIdKeys.Organization }
-		}
+		skipAuth: true
 	};
 
 	const dapGetRoute: IRestRoute<IDapGetRequest, IDapGetResponse> = {
@@ -151,11 +145,7 @@ export function generateRestRoutesDataAccessPoint(
 				]
 			}
 		],
-		skipAuth: true,
-		processorFeatures: ["verifiableCredential"],
-		processorData: {
-			verifiableCredential: { contextId: ContextIdKeys.Organization }
-		}
+		skipAuth: true
 	};
 
 	const dapUpdateRoute: IRestRoute<IDapUpdateRequest, INoContentResponse> = {
@@ -199,11 +189,7 @@ export function generateRestRoutesDataAccessPoint(
 				type: nameof<INoContentResponse>()
 			}
 		],
-		skipAuth: true,
-		processorFeatures: ["verifiableCredential"],
-		processorData: {
-			verifiableCredential: { contextId: ContextIdKeys.Organization }
-		}
+		skipAuth: true
 	};
 
 	const dapRemoveRoute: IRestRoute<IDapRemoveRequest, INoContentResponse> = {
@@ -237,11 +223,7 @@ export function generateRestRoutesDataAccessPoint(
 				type: nameof<INoContentResponse>()
 			}
 		],
-		skipAuth: true,
-		processorFeatures: ["verifiableCredential"],
-		processorData: {
-			verifiableCredential: { contextId: ContextIdKeys.Organization }
-		}
+		skipAuth: true
 	};
 
 	const dapQueryRoute: IRestRoute<IDapQueryRequest, IDapQueryResponse> = {
@@ -297,11 +279,7 @@ export function generateRestRoutesDataAccessPoint(
 				]
 			}
 		],
-		skipAuth: true,
-		processorFeatures: ["verifiableCredential"],
-		processorData: {
-			verifiableCredential: { contextId: ContextIdKeys.Organization }
-		}
+		skipAuth: true
 	};
 
 	return [dapCreateRoute, dapGetRoute, dapUpdateRoute, dapRemoveRoute, dapQueryRoute];
@@ -336,8 +314,9 @@ export async function dapCreate(
 	const result = await component.create(
 		request.pathParams.assetType,
 		request.body.object,
-		httpRequestContext.processorState
-			.verifiableCredentialSubject as IIdentityAuthenticationActionRequest
+		HeaderHelper.extractBearer(
+			httpRequestContext.serverRequest.headers?.[HeaderTypes.Authorization]
+		)
 	);
 
 	return {
@@ -374,8 +353,9 @@ export async function dapGet(
 	const result = await component.get(
 		request.pathParams.assetType,
 		request.pathParams.id,
-		httpRequestContext.processorState
-			.verifiableCredentialSubject as IIdentityAuthenticationActionRequest
+		HeaderHelper.extractBearer(
+			httpRequestContext.serverRequest.headers?.[HeaderTypes.Authorization]
+		)
 	);
 
 	return {
@@ -411,8 +391,9 @@ export async function dapUpdate(
 	await component.update(
 		request.pathParams.assetType,
 		request.body.object,
-		httpRequestContext.processorState
-			.verifiableCredentialSubject as IIdentityAuthenticationActionRequest
+		HeaderHelper.extractBearer(
+			httpRequestContext.serverRequest.headers?.[HeaderTypes.Authorization]
+		)
 	);
 
 	return {
@@ -448,8 +429,9 @@ export async function dapRemove(
 	await component.remove(
 		request.pathParams.assetType,
 		request.pathParams.id,
-		httpRequestContext.processorState
-			.verifiableCredentialSubject as IIdentityAuthenticationActionRequest
+		HeaderHelper.extractBearer(
+			httpRequestContext.serverRequest.headers?.[HeaderTypes.Authorization]
+		)
 	);
 
 	return {
@@ -490,8 +472,9 @@ export async function dapQuery(
 		request.body.conditions,
 		request.body.cursor,
 		request.body.options,
-		httpRequestContext.processorState
-			.verifiableCredentialSubject as IIdentityAuthenticationActionRequest
+		HeaderHelper.extractBearer(
+			httpRequestContext.serverRequest.headers?.[HeaderTypes.Authorization]
+		)
 	);
 
 	return {

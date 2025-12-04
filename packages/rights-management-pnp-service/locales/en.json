@@ -11,22 +11,10 @@
 			"invalidState": "The negotiation is in an incorrect state \"{state}\" for negotiation with id: \"{negotiationId}\"",
 			"offerNotAccepted": "Offer with id: \"{offerId}\" was not accepted by the requester",
 			"agreementNotAccepted": "Agreement with id: \"{agreementId}\" was not accepted by the requester",
-			"noAgreementCreated": "No agreement was created for offer with id: \"{offerId}\"",
-			"incorrectActionType": "Incorrect action in credential \"{action}\", expecting \"{expecting}\"",
-			"missingNodeId": "The node identity is missing"
+			"noAgreementCreated": "No agreement was created for offer with id: \"{offerId}\""
 		},
 		"policyNegotiationAdminPointService": {
 			"policyNotFound": "Policy with id: \"{notFoundId}\" not found"
-		}
-	},
-	"info": {
-		"policyNegotiationPointService": {
-			"registeredNegotiator": "Negotiator registered with id: \"{negotiatorId}\"",
-			"unregisteredNegotiator": "Negotiator unregistered with id: \"{negotiatorId}\"",
-			"registeredRequester": "Requester registered with id: \"{requesterId}\"",
-			"unregisteredRequester": "Requester unregistered with id: \"{requesterId}\"",
-			"registeredOffer": "Offer registered with id: \"{offerId}\"",
-			"unregisteredOffer": "Offer unregistered with id: \"{offerId}\""
 		}
 	}
 }

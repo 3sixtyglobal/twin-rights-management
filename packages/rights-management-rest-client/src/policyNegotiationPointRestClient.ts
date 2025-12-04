@@ -2,9 +2,7 @@
 // SPDX-License-Identifier: Apache-2.0.
 import { BaseRestClient } from "@twin.org/api-core";
 import type { IBaseRestClientConfig } from "@twin.org/api-models";
-import { ContextIdKeys } from "@twin.org/context";
 import { Guards, Is, NotSupportedError, Url } from "@twin.org/core";
-import type { IIdentityAuthenticationActionRequest } from "@twin.org/identity-authentication";
 import { nameof } from "@twin.org/nameof";
 import type {
 	IPnpAgreementRequest,
@@ -16,9 +14,7 @@ import type {
 	IPnpNegotiationGetRequest,
 	IPnpOfferRequest,
 	IPnpTerminateRequest,
-	IPolicyNegotiationPointComponent,
-	IPolicyNegotiator,
-	IPolicyRequester
+	IPolicyNegotiationPointComponent
 } from "@twin.org/rights-management-models";
 import type {
 	IContractAgreementMessage,
@@ -31,7 +27,7 @@ import type {
 	IContractRequestMessage
 } from "@twin.org/standards-dataspace-protocol";
 import type { IOdrlOffer } from "@twin.org/standards-w3c-odrl";
-import { HeaderTypes, MimeTypes } from "@twin.org/web";
+import { HeaderHelper, HeaderTypes, MimeTypes } from "@twin.org/web";
 
 /**
  * Client for performing Rights Management Policy Negotiation through to REST endpoints.
@@ -64,18 +60,18 @@ export class PolicyNegotiationPointRestClient
 	/**
 	 * Get the current state of the negotiation.
 	 * @param id The id of the negotiation to retrieve.
-	 * @param actionRequest The action request used in the verifiable credential.
+	 * @param trustPayload Trust payload to verify the requesters identity.
 	 * @returns The current state of the negotiation or an error.
 	 */
 	public async getNegotiation(
 		id: string,
-		actionRequest: IIdentityAuthenticationActionRequest
+		trustPayload: unknown
 	): Promise<IContractNegotiation | IContractNegotiationError> {
 		Guards.stringValue(PolicyNegotiationPointRestClient.CLASS_NAME, nameof(id), id);
-		Guards.objectValue<IIdentityAuthenticationActionRequest>(
+		Guards.stringValue(
 			PolicyNegotiationPointRestClient.CLASS_NAME,
-			nameof(actionRequest),
-			actionRequest
+			nameof(trustPayload),
+			trustPayload
 		);
 
 		const response = await this.fetch<IPnpNegotiationGetRequest, IPnpContractNegotiationResponse>(
@@ -83,17 +79,11 @@ export class PolicyNegotiationPointRestClient
 			"GET",
 			{
 				headers: {
-					[HeaderTypes.Accept]: MimeTypes.JsonLd
+					[HeaderTypes.Accept]: MimeTypes.JsonLd,
+					[HeaderTypes.Authorization]: HeaderHelper.createBearer(trustPayload)
 				},
 				pathParams: {
 					id
-				}
-			},
-			{
-				authenticationGeneratorType: "verifiable-credential",
-				authenticationData: {
-					contextId: ContextIdKeys.Organization,
-					subject: actionRequest
 				}
 			}
 		);
@@ -125,12 +115,12 @@ export class PolicyNegotiationPointRestClient
 	/**
 	 * Processes an incoming request on a provider from a consumer.
 	 * @param message The negotiation request.
-	 * @param actionRequest The action request used in the verifiable credential.
+	 * @param trustPayload Trust payload to verify the requesters identity.
 	 * @returns The current state of the contract negotiation or an error.
 	 */
 	public async requestFromConsumer(
 		message: IContractRequestMessage,
-		actionRequest: IIdentityAuthenticationActionRequest
+		trustPayload: unknown
 	): Promise<IContractNegotiation | IContractNegotiationError> {
 		Guards.object<IContractRequestMessage>(
 			PolicyNegotiationPointRestClient.CLASS_NAME,
@@ -152,15 +142,15 @@ export class PolicyNegotiationPointRestClient
 			nameof(message.offer.uid),
 			message.offer.uid
 		);
-		Guards.objectValue<IIdentityAuthenticationActionRequest>(
-			PolicyNegotiationPointRestClient.CLASS_NAME,
-			nameof(actionRequest),
-			actionRequest
-		);
 		Url.guard(
 			PolicyNegotiationPointRestClient.CLASS_NAME,
 			nameof(message.callbackAddress),
 			message.callbackAddress
+		);
+		Guards.stringValue(
+			PolicyNegotiationPointRestClient.CLASS_NAME,
+			nameof(trustPayload),
+			trustPayload
 		);
 
 		const response = await this.fetch<IPnpNegotiateRequest, IPnpContractNegotiationResponse>(
@@ -170,19 +160,13 @@ export class PolicyNegotiationPointRestClient
 			"POST",
 			{
 				headers: {
-					[HeaderTypes.Accept]: MimeTypes.JsonLd
+					[HeaderTypes.Accept]: MimeTypes.JsonLd,
+					[HeaderTypes.Authorization]: HeaderHelper.createBearer(trustPayload)
 				},
 				pathParams: {
 					id: message.providerPid
 				},
 				body: message
-			},
-			{
-				authenticationGeneratorType: "verifiable-credential",
-				authenticationData: {
-					contextId: ContextIdKeys.Organization,
-					subject: actionRequest
-				}
 			}
 		);
 
@@ -192,27 +176,27 @@ export class PolicyNegotiationPointRestClient
 	/**
 	 * An offer has been received by a consumer.
 	 * @param message The offer being received by the consumer.
-	 * @param actionRequest The action request used in the verifiable credential.
+	 * @param trustPayload Trust payload to verify the requesters identity.
 	 * @returns The current state of the contract negotiation or an error.
 	 */
 	public async offerFromProvider(
 		message: IContractOfferMessage,
-		actionRequest: IIdentityAuthenticationActionRequest
+		trustPayload: unknown
 	): Promise<IContractNegotiation | IContractNegotiationError> {
 		Guards.object<IContractOfferMessage>(
 			PolicyNegotiationPointRestClient.CLASS_NAME,
 			nameof(message),
 			message
 		);
-		Guards.objectValue<IIdentityAuthenticationActionRequest>(
-			PolicyNegotiationPointRestClient.CLASS_NAME,
-			nameof(actionRequest),
-			actionRequest
-		);
 		Guards.stringValue(
 			PolicyNegotiationPointRestClient.CLASS_NAME,
 			nameof(message.providerPid),
 			message.providerPid
+		);
+		Guards.stringValue(
+			PolicyNegotiationPointRestClient.CLASS_NAME,
+			nameof(trustPayload),
+			trustPayload
 		);
 
 		const response = await this.fetch<IPnpOfferRequest, IPnpContractNegotiationResponse>(
@@ -222,19 +206,13 @@ export class PolicyNegotiationPointRestClient
 			"POST",
 			{
 				headers: {
-					[HeaderTypes.Accept]: MimeTypes.JsonLd
+					[HeaderTypes.Accept]: MimeTypes.JsonLd,
+					[HeaderTypes.Authorization]: HeaderHelper.createBearer(trustPayload)
 				},
 				pathParams: {
 					id: message.consumerPid
 				},
 				body: message
-			},
-			{
-				authenticationGeneratorType: "verifiable-credential",
-				authenticationData: {
-					contextId: ContextIdKeys.Organization,
-					subject: actionRequest
-				}
 			}
 		);
 
@@ -244,22 +222,17 @@ export class PolicyNegotiationPointRestClient
 	/**
 	 * An agreement has been received by a consumer.
 	 * @param message The agreement message to send.
-	 * @param actionRequest The action request used in the verifiable credential.
+	 * @param trustPayload Trust payload to verify the requesters identity.
 	 * @returns The error if there is one.
 	 */
 	public async agreementFromProvider(
 		message: IContractAgreementMessage,
-		actionRequest: IIdentityAuthenticationActionRequest
+		trustPayload: unknown
 	): Promise<IContractNegotiationError | undefined> {
 		Guards.object<IContractAgreementMessage>(
 			PolicyNegotiationPointRestClient.CLASS_NAME,
 			nameof(message),
 			message
-		);
-		Guards.objectValue<IIdentityAuthenticationActionRequest>(
-			PolicyNegotiationPointRestClient.CLASS_NAME,
-			nameof(actionRequest),
-			actionRequest
 		);
 		Guards.stringValue(
 			PolicyNegotiationPointRestClient.CLASS_NAME,
@@ -276,25 +249,23 @@ export class PolicyNegotiationPointRestClient
 			nameof(message.callbackAddress),
 			message.callbackAddress
 		);
-
+		Guards.stringValue(
+			PolicyNegotiationPointRestClient.CLASS_NAME,
+			nameof(trustPayload),
+			trustPayload
+		);
 		const response = await this.fetch<IPnpAgreementRequest, IPnpContractResponse>(
 			"/pnp/negotiations/:id/agreement",
 			"POST",
 			{
 				headers: {
-					[HeaderTypes.Accept]: MimeTypes.JsonLd
+					[HeaderTypes.Accept]: MimeTypes.JsonLd,
+					[HeaderTypes.Authorization]: HeaderHelper.createBearer(trustPayload)
 				},
 				pathParams: {
 					id: message.consumerPid
 				},
 				body: message
-			},
-			{
-				authenticationGeneratorType: "verifiable-credential",
-				authenticationData: {
-					contextId: ContextIdKeys.Organization,
-					subject: actionRequest
-				}
 			}
 		);
 
@@ -304,22 +275,17 @@ export class PolicyNegotiationPointRestClient
 	/**
 	 * An agreement verification has been received by a provider.
 	 * @param message The agreement verification message to send.
-	 * @param actionRequest The action request used in the verifiable credential.
+	 * @param trustPayload Trust payload to verify the requesters identity.
 	 * @returns The error if there is one.
 	 */
 	public async agreementVerificationFromConsumer(
 		message: IContractAgreementVerificationMessage,
-		actionRequest: IIdentityAuthenticationActionRequest
+		trustPayload: unknown
 	): Promise<IContractNegotiationError | undefined> {
 		Guards.object<IContractAgreementMessage>(
 			PolicyNegotiationPointRestClient.CLASS_NAME,
 			nameof(message),
 			message
-		);
-		Guards.objectValue<IIdentityAuthenticationActionRequest>(
-			PolicyNegotiationPointRestClient.CLASS_NAME,
-			nameof(actionRequest),
-			actionRequest
 		);
 		Guards.stringValue(
 			PolicyNegotiationPointRestClient.CLASS_NAME,
@@ -331,25 +297,24 @@ export class PolicyNegotiationPointRestClient
 			nameof(message.consumerPid),
 			message.consumerPid
 		);
+		Guards.stringValue(
+			PolicyNegotiationPointRestClient.CLASS_NAME,
+			nameof(trustPayload),
+			trustPayload
+		);
 
 		const response = await this.fetch<IPnpAgreementVerificationRequest, IPnpContractResponse>(
 			"/pnp/negotiations/:id/agreement/verification",
 			"POST",
 			{
 				headers: {
-					[HeaderTypes.Accept]: MimeTypes.JsonLd
+					[HeaderTypes.Accept]: MimeTypes.JsonLd,
+					[HeaderTypes.Authorization]: HeaderHelper.createBearer(trustPayload)
 				},
 				pathParams: {
 					id: message.providerPid
 				},
 				body: message
-			},
-			{
-				authenticationGeneratorType: "verifiable-credential",
-				authenticationData: {
-					contextId: ContextIdKeys.Organization,
-					subject: actionRequest
-				}
 			}
 		);
 
@@ -360,13 +325,13 @@ export class PolicyNegotiationPointRestClient
 	 * An event has been received by the provider or consumer.
 	 * @param message The event message to send.
 	 * @param destination The destination is provider or consumer.
-	 * @param actionRequest The action request used in the verifiable credential.
+	 * @param trustPayload Trust payload to verify the requesters identity.
 	 * @returns The error if there is one.
 	 */
 	public async event(
 		message: IContractNegotiationEventMessage,
 		destination: "provider" | "consumer",
-		actionRequest: IIdentityAuthenticationActionRequest
+		trustPayload: unknown
 	): Promise<IContractNegotiationError | undefined> {
 		Guards.object<IContractNegotiationEventMessage>(
 			PolicyNegotiationPointRestClient.CLASS_NAME,
@@ -379,11 +344,6 @@ export class PolicyNegotiationPointRestClient
 			destination,
 			["provider", "consumer"]
 		);
-		Guards.objectValue<IIdentityAuthenticationActionRequest>(
-			PolicyNegotiationPointRestClient.CLASS_NAME,
-			nameof(actionRequest),
-			actionRequest
-		);
 		Guards.stringValue(
 			PolicyNegotiationPointRestClient.CLASS_NAME,
 			nameof(message.providerPid),
@@ -394,25 +354,24 @@ export class PolicyNegotiationPointRestClient
 			nameof(message.consumerPid),
 			message.consumerPid
 		);
+		Guards.stringValue(
+			PolicyNegotiationPointRestClient.CLASS_NAME,
+			nameof(trustPayload),
+			trustPayload
+		);
 
 		const response = await this.fetch<IPnpEventRequest, IPnpContractResponse>(
 			"/pnp/negotiations/:id/events",
 			"POST",
 			{
 				headers: {
-					[HeaderTypes.Accept]: MimeTypes.JsonLd
+					[HeaderTypes.Accept]: MimeTypes.JsonLd,
+					[HeaderTypes.Authorization]: HeaderHelper.createBearer(trustPayload)
 				},
 				pathParams: {
 					id: destination === "provider" ? message.providerPid : message.consumerPid
 				},
 				body: message
-			},
-			{
-				authenticationGeneratorType: "verifiable-credential",
-				authenticationData: {
-					contextId: ContextIdKeys.Organization,
-					subject: actionRequest
-				}
 			}
 		);
 
@@ -423,13 +382,13 @@ export class PolicyNegotiationPointRestClient
 	 * A termination message has been received by the provider or consumer.
 	 * @param message The termination message to send.
 	 * @param destination The destination is provider or consumer.
-	 * @param actionRequest The action request used in the verifiable credential.
+	 * @param trustPayload Trust payload to verify the requesters identity.
 	 * @returns The error if there is one.
 	 */
 	public async terminate(
 		message: IContractNegotiationTerminationMessage,
 		destination: "provider" | "consumer",
-		actionRequest: IIdentityAuthenticationActionRequest
+		trustPayload: unknown
 	): Promise<IContractNegotiationError | undefined> {
 		Guards.object<IContractNegotiationTerminationMessage>(
 			PolicyNegotiationPointRestClient.CLASS_NAME,
@@ -442,11 +401,6 @@ export class PolicyNegotiationPointRestClient
 			destination,
 			["provider", "consumer"]
 		);
-		Guards.objectValue<IIdentityAuthenticationActionRequest>(
-			PolicyNegotiationPointRestClient.CLASS_NAME,
-			nameof(actionRequest),
-			actionRequest
-		);
 		Guards.stringValue(
 			PolicyNegotiationPointRestClient.CLASS_NAME,
 			nameof(message.providerPid),
@@ -457,123 +411,27 @@ export class PolicyNegotiationPointRestClient
 			nameof(message.consumerPid),
 			message.consumerPid
 		);
+		Guards.stringValue(
+			PolicyNegotiationPointRestClient.CLASS_NAME,
+			nameof(trustPayload),
+			trustPayload
+		);
 
 		const response = await this.fetch<IPnpTerminateRequest, IPnpContractResponse>(
 			"/pnp/negotiations/:id/termination",
 			"POST",
 			{
 				headers: {
-					[HeaderTypes.Accept]: MimeTypes.JsonLd
+					[HeaderTypes.Accept]: MimeTypes.JsonLd,
+					[HeaderTypes.Authorization]: HeaderHelper.createBearer(trustPayload)
 				},
 				pathParams: {
 					id: destination === "provider" ? message.providerPid : message.consumerPid
 				},
 				body: message
-			},
-			{
-				authenticationGeneratorType: "verifiable-credential",
-				authenticationData: {
-					contextId: ContextIdKeys.Organization,
-					subject: actionRequest
-				}
 			}
 		);
 
 		return response.body;
-	}
-
-	/**
-	 * Register a negotiator to use for handling data - not supported in the REST client.
-	 * @param negotiatorId The id of the negotiator to register.
-	 * @param negotiator The negotiator to register.
-	 * @returns Nothing.
-	 */
-	public async registerNegotiator(
-		negotiatorId: string,
-		negotiator: IPolicyNegotiator
-	): Promise<void> {
-		throw new NotSupportedError(
-			PolicyNegotiationPointRestClient.CLASS_NAME,
-			"notSupportedOnClient",
-			{
-				methodName: "registerNegotiator"
-			}
-		);
-	}
-
-	/**
-	 * Unregister a negotiator from the handling - not supported in the REST client.
-	 * @param negotiatorId The id of the negotiator to unregister.
-	 * @returns Nothing.
-	 */
-	public async unregisterNegotiator(negotiatorId: string): Promise<void> {
-		throw new NotSupportedError(
-			PolicyNegotiationPointRestClient.CLASS_NAME,
-			"notSupportedOnClient",
-			{
-				methodName: "unregisterNegotiator"
-			}
-		);
-	}
-
-	/**
-	 * Register a requester to use for handle returning offers - not supported in the REST client.
-	 * @param requesterId The id of the requester to register.
-	 * @param requester The requester to register.
-	 * @returns Nothing.
-	 */
-	public async registerRequester(requesterId: string, requester: IPolicyRequester): Promise<void> {
-		throw new NotSupportedError(
-			PolicyNegotiationPointRestClient.CLASS_NAME,
-			"notSupportedOnClient",
-			{
-				methodName: "registerRequester"
-			}
-		);
-	}
-
-	/**
-	 * Unregister a requester from the handling - not supported in the REST client.
-	 * @param requesterId The id of the requester to unregister.
-	 * @returns Nothing.
-	 */
-	public async unregisterRequester(requesterId: string): Promise<void> {
-		throw new NotSupportedError(
-			PolicyNegotiationPointRestClient.CLASS_NAME,
-			"notSupportedOnClient",
-			{
-				methodName: "unregisterRequester"
-			}
-		);
-	}
-
-	/**
-	 * Register an offer available for negotiation - not supported in the REST client.
-	 * @param offer The offer to register.
-	 * @returns Nothing.
-	 */
-	public async registerOffer(offer: IOdrlOffer): Promise<void> {
-		throw new NotSupportedError(
-			PolicyNegotiationPointRestClient.CLASS_NAME,
-			"notSupportedOnClient",
-			{
-				methodName: "registerOffer"
-			}
-		);
-	}
-
-	/**
-	 * Unregister an offer - not supported in the REST client.
-	 * @param offerId The id of the offer to unregister.
-	 * @returns Nothing.
-	 */
-	public async unregisterOffer(offerId: string): Promise<void> {
-		throw new NotSupportedError(
-			PolicyNegotiationPointRestClient.CLASS_NAME,
-			"notSupportedOnClient",
-			{
-				methodName: "unregisterOffer"
-			}
-		);
 	}
 }

@@ -2,6 +2,10 @@
 
 Interface describing a Data Access Handler.
 
+## Extends
+
+- `IComponent`
+
 ## Methods
 
 ### supportedAssetTypes()

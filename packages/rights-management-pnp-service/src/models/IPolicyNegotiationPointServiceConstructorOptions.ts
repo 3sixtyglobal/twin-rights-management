@@ -31,6 +31,12 @@ export interface IPolicyNegotiationPointServiceConstructorOptions {
 	policyInformationPointComponentType?: string;
 
 	/**
+	 * The type of the trust component.
+	 * @default trust
+	 */
+	trustComponentType?: string;
+
+	/**
 	 * Configuration options for the policy negotiation point service.
 	 */
 	config: IPolicyNegotiationPointServiceConfig;

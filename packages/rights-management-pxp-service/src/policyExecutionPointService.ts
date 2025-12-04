@@ -1,15 +1,15 @@
 // Copyright 2025 IOTA Stiftung.
 // SPDX-License-Identifier: Apache-2.0.
-import { BaseError, ComponentFactory, GeneralError, Guards, Is } from "@twin.org/core";
+import { BaseError, ComponentFactory, GeneralError, Guards } from "@twin.org/core";
 import type { ILoggingComponent } from "@twin.org/logging-models";
 import { nameof } from "@twin.org/nameof";
 import {
 	type IPolicyDecision,
-	type IPolicyExecutionAction,
 	type IPolicyExecutionPointComponent,
 	type IPolicyLocator,
 	LocatorHelper,
-	PolicyDecisionStage
+	PolicyDecisionStage,
+	PolicyExecutionActionFactory
 } from "@twin.org/rights-management-models";
 import type { IOdrlPolicy } from "@twin.org/standards-w3c-odrl";
 import type { IPolicyExecutionPointServiceConstructorOptions } from "./models/IPolicyExecutionPointServiceConstructorOptions.js";
@@ -30,17 +30,6 @@ export class PolicyExecutionPointService implements IPolicyExecutionPointCompone
 	private readonly _logging?: ILoggingComponent;
 
 	/**
-	 * These actions can be registered to perform specific tasks before or after the policy execution.
-	 * @internal
-	 */
-	private readonly _executionActions: {
-		[stage in PolicyDecisionStage]: {
-			actionId: string;
-			action: IPolicyExecutionAction;
-		}[];
-	};
-
-	/**
 	 * Create a new instance of PolicyExecutionPointService (PXP).
 	 * @param options The options for the component.
 	 */
@@ -48,29 +37,6 @@ export class PolicyExecutionPointService implements IPolicyExecutionPointCompone
 		this._logging = ComponentFactory.getIfExists<ILoggingComponent>(
 			options?.loggingComponentType ?? "logging"
 		);
-
-		this._executionActions = {
-			[PolicyDecisionStage.Before]: [],
-			[PolicyDecisionStage.After]: []
-		};
-
-		if (Is.arrayValue(options?.config?.actions)) {
-			for (const { actionId, action } of options.config.actions) {
-				const supportedStages = action.supportedStages();
-				if (supportedStages.includes(PolicyDecisionStage.Before)) {
-					this._executionActions[PolicyDecisionStage.Before].push({
-						actionId,
-						action
-					});
-				}
-				if (supportedStages.includes(PolicyDecisionStage.After)) {
-					this._executionActions[PolicyDecisionStage.After].push({
-						actionId,
-						action
-					});
-				}
-			}
-		}
 	}
 
 	/**
@@ -118,7 +84,12 @@ export class PolicyExecutionPointService implements IPolicyExecutionPointCompone
 			}
 		});
 
-		for (const { actionId, action: executionAction } of this._executionActions[stage]) {
+		const actionNames = PolicyExecutionActionFactory.names();
+		const actions = actionNames
+			.map(actionName => PolicyExecutionActionFactory.get(actionName))
+			.filter(a => a.supportedStages().includes(stage));
+
+		for (const action of actions) {
 			try {
 				await this._logging?.log({
 					level: "info",
@@ -130,7 +101,7 @@ export class PolicyExecutionPointService implements IPolicyExecutionPointCompone
 						locator: locatorDetails
 					}
 				});
-				await executionAction.execute(stage, locator, policies, decisions, data);
+				await action.execute(stage, locator, policies, decisions, data);
 			} catch (error) {
 				await this._logging?.log({
 					level: "error",
@@ -138,7 +109,7 @@ export class PolicyExecutionPointService implements IPolicyExecutionPointCompone
 					ts: Date.now(),
 					message: "actionExecutionFailed",
 					data: {
-						actionId,
+						actionId: action.className(),
 						stage,
 						locator: locatorDetails
 					},
@@ -148,7 +119,7 @@ export class PolicyExecutionPointService implements IPolicyExecutionPointCompone
 					PolicyExecutionPointService.CLASS_NAME,
 					"actionExecutionFailed",
 					{
-						actionId,
+						actionId: action.className(),
 						stage,
 						locator: locatorDetails
 					},
@@ -156,84 +127,5 @@ export class PolicyExecutionPointService implements IPolicyExecutionPointCompone
 				);
 			}
 		}
-	}
-
-	/**
-	 * Register an action to be executed.
-	 * @param actionId The id of the action to register.
-	 * @param stage The stage at which the action should be executed.
-	 * @param action The action to execute.
-	 * @returns Nothing.
-	 */
-	public async registerAction(
-		actionId: string,
-		stage: PolicyDecisionStage,
-		action: IPolicyExecutionAction
-	): Promise<void> {
-		Guards.stringValue(PolicyExecutionPointService.CLASS_NAME, nameof(actionId), actionId);
-		Guards.arrayOneOf(
-			PolicyExecutionPointService.CLASS_NAME,
-			nameof(stage),
-			stage,
-			Object.values(PolicyDecisionStage)
-		);
-		Guards.object<IPolicyExecutionAction>(
-			PolicyExecutionPointService.CLASS_NAME,
-			nameof(action),
-			action
-		);
-
-		const currentIndex = this._executionActions[stage].findIndex(a => a.actionId === actionId);
-		if (currentIndex !== -1) {
-			this._executionActions[stage][currentIndex].action = action;
-		} else {
-			this._executionActions[stage].push({
-				actionId,
-				action
-			});
-		}
-
-		await this._logging?.log({
-			level: "info",
-			source: PolicyExecutionPointService.CLASS_NAME,
-			ts: Date.now(),
-			message: "registeredAction",
-			data: {
-				actionId,
-				stage
-			}
-		});
-	}
-
-	/**
-	 * Unregister an action from the execution point.
-	 * @param actionId The id of the action to unregister.
-	 * @param stage The stage at which the action was executed.
-	 * @returns Nothing.
-	 */
-	public async unregisterAction(actionId: string, stage: PolicyDecisionStage): Promise<void> {
-		Guards.stringValue(PolicyExecutionPointService.CLASS_NAME, nameof(actionId), actionId);
-		Guards.arrayOneOf(
-			PolicyExecutionPointService.CLASS_NAME,
-			nameof(stage),
-			stage,
-			Object.values(PolicyDecisionStage)
-		);
-
-		const currentIndex = this._executionActions[stage].findIndex(a => a.actionId === actionId);
-		if (currentIndex !== -1) {
-			this._executionActions[stage].splice(currentIndex, 1);
-		}
-
-		await this._logging?.log({
-			level: "info",
-			source: PolicyExecutionPointService.CLASS_NAME,
-			ts: Date.now(),
-			message: "unregisteredAction",
-			data: {
-				actionId,
-				stage
-			}
-		});
 	}
 }

@@ -1,5 +1,6 @@
 // Copyright 2025 IOTA Stiftung.
 // SPDX-License-Identifier: Apache-2.0.
+import type { IComponent } from "@twin.org/core";
 import type { IOdrlPolicy } from "@twin.org/standards-w3c-odrl";
 import type { IPolicyLocator } from "../IPolicyLocator.js";
 import type { IPolicyDecision } from "./IPolicyDecision.js";
@@ -8,7 +9,7 @@ import type { IPolicyInformation } from "../pip/IPolicyInformation.js";
 /**
  * Interface describing a Policy Arbiter.
  */
-export interface IPolicyArbiter {
+export interface IPolicyArbiter extends IComponent {
 	/**
 	 * The policies supported by this arbiter.
 	 * @returns The supported policies, if empty can be used for all.

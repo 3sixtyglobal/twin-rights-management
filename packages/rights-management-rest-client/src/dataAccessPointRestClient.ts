@@ -6,11 +6,9 @@ import type {
 	ICreatedResponse,
 	INoContentResponse
 } from "@twin.org/api-models";
-import { ContextIdKeys } from "@twin.org/context";
-import { Guards, NotSupportedError } from "@twin.org/core";
+import { Guards } from "@twin.org/core";
 import type { IJsonLdNodeObject } from "@twin.org/data-json-ld";
 import type { EntityCondition } from "@twin.org/entity";
-import type { IIdentityAuthenticationActionRequest } from "@twin.org/identity-authentication";
 import { nameof } from "@twin.org/nameof";
 import {
 	RightsManagementContexts,
@@ -22,10 +20,9 @@ import {
 	type IDapQueryResponse,
 	type IDapRemoveRequest,
 	type IDapUpdateRequest,
-	type IDataAccessHandler,
 	type IDataAccessPointComponent
 } from "@twin.org/rights-management-models";
-import { HeaderTypes, MimeTypes } from "@twin.org/web";
+import { HeaderHelper, HeaderTypes, MimeTypes } from "@twin.org/web";
 
 /**
  * Client for performing Rights Management Data Access through to REST endpoints.
@@ -56,28 +53,25 @@ export class DataAccessPointRestClient extends BaseRestClient implements IDataAc
 	 * Create an item.
 	 * @param assetType The type of the item to create.
 	 * @param item The item to create.
-	 * @param actionRequest The action request used in the verifiable credential.
+	 * @param trustPayload Trust payload to verify the requesters identity.
 	 * @returns The id of the item created, for some items this is supplied in the `item`.
 	 */
 	public async create(
 		assetType: string,
 		item: IJsonLdNodeObject,
-		actionRequest: IIdentityAuthenticationActionRequest
+		trustPayload: unknown
 	): Promise<string> {
 		Guards.stringValue(DataAccessPointRestClient.CLASS_NAME, nameof(assetType), assetType);
 		Guards.object<IJsonLdNodeObject>(DataAccessPointRestClient.CLASS_NAME, nameof(item), item);
-		Guards.objectValue<IIdentityAuthenticationActionRequest>(
-			DataAccessPointRestClient.CLASS_NAME,
-			nameof(actionRequest),
-			actionRequest
-		);
+		Guards.stringValue(DataAccessPointRestClient.CLASS_NAME, nameof(trustPayload), trustPayload);
 
 		const response = await this.fetch<IDapCreateRequest, ICreatedResponse>(
 			"/data/:assetType",
 			"POST",
 			{
 				headers: {
-					[HeaderTypes.Accept]: MimeTypes.JsonLd
+					[HeaderTypes.Accept]: MimeTypes.JsonLd,
+					[HeaderTypes.Authorization]: HeaderHelper.createBearer(trustPayload)
 				},
 				pathParams: {
 					assetType
@@ -86,13 +80,6 @@ export class DataAccessPointRestClient extends BaseRestClient implements IDataAc
 					"@context": RightsManagementContexts.ContextRoot,
 					type: RightsManagementTypes.DataAccessRequestWithObject,
 					object: item
-				}
-			},
-			{
-				authenticationGeneratorType: "verifiable-credential",
-				authenticationData: {
-					contextId: ContextIdKeys.Organization,
-					subject: actionRequest
 				}
 			}
 		);
@@ -104,39 +91,29 @@ export class DataAccessPointRestClient extends BaseRestClient implements IDataAc
 	 * Get an item.
 	 * @param assetType The type of the item to retrieve.
 	 * @param id The ID of the item to retrieve.
-	 * @param actionRequest The action request used in the verifiable credential.
+	 * @param trustPayload Trust payload to verify the requesters identity.
 	 * @returns The item retrieved if the policies allow it.
 	 */
 	public async get(
 		assetType: string,
 		id: string,
-		actionRequest: IIdentityAuthenticationActionRequest
+		trustPayload: unknown
 	): Promise<IJsonLdNodeObject> {
 		Guards.stringValue(DataAccessPointRestClient.CLASS_NAME, nameof(assetType), assetType);
 		Guards.stringValue(DataAccessPointRestClient.CLASS_NAME, nameof(id), id);
-		Guards.objectValue<IIdentityAuthenticationActionRequest>(
-			DataAccessPointRestClient.CLASS_NAME,
-			nameof(actionRequest),
-			actionRequest
-		);
+		Guards.stringValue(DataAccessPointRestClient.CLASS_NAME, nameof(trustPayload), trustPayload);
 
 		const response = await this.fetch<IDapGetRequest, IDapGetResponse>(
 			"/data/:assetType/:id",
 			"GET",
 			{
 				headers: {
-					[HeaderTypes.Accept]: MimeTypes.JsonLd
+					[HeaderTypes.Accept]: MimeTypes.JsonLd,
+					[HeaderTypes.Authorization]: HeaderHelper.createBearer(trustPayload)
 				},
 				pathParams: {
 					assetType,
 					id
-				}
-			},
-			{
-				authenticationGeneratorType: "verifiable-credential",
-				authenticationData: {
-					contextId: ContextIdKeys.Organization,
-					subject: actionRequest
 				}
 			}
 		);
@@ -148,90 +125,58 @@ export class DataAccessPointRestClient extends BaseRestClient implements IDataAc
 	 * Update an item.
 	 * @param assetType The type of the item to update.
 	 * @param item The item to update.
-	 * @param actionRequest The action request used in the verifiable credential.
+	 * @param trustPayload Trust payload to verify the requesters identity.
 	 * @returns Nothing.
 	 */
 	public async update(
 		assetType: string,
 		item: IJsonLdNodeObject,
-		actionRequest: IIdentityAuthenticationActionRequest
+		trustPayload: unknown
 	): Promise<void> {
 		Guards.stringValue(DataAccessPointRestClient.CLASS_NAME, nameof(assetType), assetType);
 		Guards.object<IJsonLdNodeObject>(DataAccessPointRestClient.CLASS_NAME, nameof(item), item);
-		Guards.objectValue<IIdentityAuthenticationActionRequest>(
-			DataAccessPointRestClient.CLASS_NAME,
-			nameof(actionRequest),
-			actionRequest
-		);
 		Guards.stringValue(DataAccessPointRestClient.CLASS_NAME, nameof(item.id), item.id);
+		Guards.stringValue(DataAccessPointRestClient.CLASS_NAME, nameof(trustPayload), trustPayload);
 
-		await this.fetch<IDapUpdateRequest, INoContentResponse>(
-			"/data/:assetType/:id",
-			"PUT",
-			{
-				headers: {
-					[HeaderTypes.Accept]: MimeTypes.JsonLd
-				},
-				pathParams: {
-					assetType,
-					id: item.id
-				},
-				body: {
-					"@context": RightsManagementContexts.ContextRoot,
-					type: RightsManagementTypes.DataAccessRequestWithObject,
-					object: item
-				}
+		await this.fetch<IDapUpdateRequest, INoContentResponse>("/data/:assetType/:id", "PUT", {
+			headers: {
+				[HeaderTypes.Accept]: MimeTypes.JsonLd,
+				[HeaderTypes.Authorization]: HeaderHelper.createBearer(trustPayload)
 			},
-			{
-				authenticationGeneratorType: "verifiable-credential",
-				authenticationData: {
-					contextId: ContextIdKeys.Organization,
-					subject: actionRequest
-				}
+			pathParams: {
+				assetType,
+				id: item.id
+			},
+			body: {
+				"@context": RightsManagementContexts.ContextRoot,
+				type: RightsManagementTypes.DataAccessRequestWithObject,
+				object: item
 			}
-		);
+		});
 	}
 
 	/**
 	 * Remove an item.
 	 * @param assetType The type of the item to remove.
 	 * @param id The id of the item to remove.
-	 * @param actionRequest The action request used in the verifiable credential.
+	 * @param trustPayload Trust payload to verify the requesters identity.
 	 * @returns Nothing.
 	 */
-	public async remove(
-		assetType: string,
-		id: string,
-		actionRequest: IIdentityAuthenticationActionRequest
-	): Promise<void> {
+	public async remove(assetType: string, id: string, trustPayload: unknown): Promise<void> {
 		Guards.stringValue(DataAccessPointRestClient.CLASS_NAME, nameof(assetType), assetType);
 		Guards.stringValue(DataAccessPointRestClient.CLASS_NAME, nameof(id), id);
-		Guards.objectValue<IIdentityAuthenticationActionRequest>(
-			DataAccessPointRestClient.CLASS_NAME,
-			nameof(actionRequest),
-			actionRequest
-		);
+		Guards.stringValue(DataAccessPointRestClient.CLASS_NAME, nameof(trustPayload), trustPayload);
 
-		await this.fetch<IDapRemoveRequest, INoContentResponse>(
-			"/data/:assetType/:id",
-			"DELETE",
-			{
-				headers: {
-					[HeaderTypes.Accept]: MimeTypes.JsonLd
-				},
-				pathParams: {
-					assetType,
-					id
-				}
+		await this.fetch<IDapRemoveRequest, INoContentResponse>("/data/:assetType/:id", "DELETE", {
+			headers: {
+				[HeaderTypes.Accept]: MimeTypes.JsonLd,
+				[HeaderTypes.Authorization]: HeaderHelper.createBearer(trustPayload)
 			},
-			{
-				authenticationGeneratorType: "verifiable-credential",
-				authenticationData: {
-					contextId: ContextIdKeys.Organization,
-					subject: actionRequest
-				}
+			pathParams: {
+				assetType,
+				id
 			}
-		);
+		});
 	}
 
 	/**
@@ -240,7 +185,7 @@ export class DataAccessPointRestClient extends BaseRestClient implements IDataAc
 	 * @param conditions The conditions to apply to the query.
 	 * @param cursor The cursor for pagination.
 	 * @param options Additional options which might be supported by the handler.
-	 * @param actionRequest The action request used in the verifiable credential.
+	 * @param trustPayload Trust payload to verify the requesters identity.
 	 * @returns The items matching the query and cursor if there are more items.
 	 */
 	public async query(
@@ -248,24 +193,21 @@ export class DataAccessPointRestClient extends BaseRestClient implements IDataAc
 		conditions: EntityCondition<IJsonLdNodeObject> | undefined,
 		cursor: string | undefined,
 		options: unknown | undefined,
-		actionRequest: IIdentityAuthenticationActionRequest
+		trustPayload: unknown
 	): Promise<{
 		items: IJsonLdNodeObject[];
 		cursor?: string;
 	}> {
 		Guards.stringValue(DataAccessPointRestClient.CLASS_NAME, nameof(assetType), assetType);
-		Guards.objectValue<IIdentityAuthenticationActionRequest>(
-			DataAccessPointRestClient.CLASS_NAME,
-			nameof(actionRequest),
-			actionRequest
-		);
+		Guards.stringValue(DataAccessPointRestClient.CLASS_NAME, nameof(trustPayload), trustPayload);
 
 		const response = await this.fetch<IDapQueryRequest, IDapQueryResponse>(
 			"/data/:assetType/query",
 			"POST",
 			{
 				headers: {
-					[HeaderTypes.Accept]: MimeTypes.JsonLd
+					[HeaderTypes.Accept]: MimeTypes.JsonLd,
+					[HeaderTypes.Authorization]: HeaderHelper.createBearer(trustPayload)
 				},
 				pathParams: {
 					assetType
@@ -277,39 +219,9 @@ export class DataAccessPointRestClient extends BaseRestClient implements IDataAc
 					cursor,
 					options
 				}
-			},
-			{
-				authenticationGeneratorType: "verifiable-credential",
-				authenticationData: {
-					contextId: ContextIdKeys.Organization,
-					subject: actionRequest
-				}
 			}
 		);
 
 		return response.body;
-	}
-
-	/**
-	 * Register a handler to use for a specific asset type.
-	 * @param handlerId The id of the handler to register.
-	 * @param handler The handler to register.
-	 * @returns Nothing.
-	 */
-	public async registerHandler(handlerId: string, handler: IDataAccessHandler): Promise<void> {
-		throw new NotSupportedError(DataAccessPointRestClient.CLASS_NAME, "notSupportedOnClient", {
-			methodName: "registerHandler"
-		});
-	}
-
-	/**
-	 * Unregister a handler from the handling.
-	 * @param handlerId The id of the handler to unregister.
-	 * @returns Nothing.
-	 */
-	public async unregisterHandler(handlerId: string): Promise<void> {
-		throw new NotSupportedError(DataAccessPointRestClient.CLASS_NAME, "notSupportedOnClient", {
-			methodName: "unregisterHandler"
-		});
 	}
 }

@@ -56,7 +56,7 @@ The class name of the component.
 
 ### create()
 
-> **create**(`assetType`, `item`, `actionRequest`): `Promise`\<`string`\>
+> **create**(`assetType`, `item`, `trustPayload`): `Promise`\<`string`\>
 
 Create an item.
 
@@ -74,11 +74,11 @@ The type of the item to create.
 
 The item to create.
 
-##### actionRequest
+##### trustPayload
 
-`IIdentityAuthenticationActionRequest`
+`unknown`
 
-The action request used in the verifiable credential.
+Trust payload to verify the requesters identity.
 
 #### Returns
 
@@ -94,7 +94,7 @@ The id of the item created, for some items this is supplied in the `item`.
 
 ### get()
 
-> **get**(`assetType`, `id`, `actionRequest`): `Promise`\<`IJsonLdNodeObject`\>
+> **get**(`assetType`, `id`, `trustPayload`): `Promise`\<`IJsonLdNodeObject`\>
 
 Get an item.
 
@@ -112,11 +112,11 @@ The type of the item to retrieve.
 
 The ID of the item to retrieve.
 
-##### actionRequest
+##### trustPayload
 
-`IIdentityAuthenticationActionRequest`
+`unknown`
 
-The action request used in the verifiable credential.
+Trust payload to verify the requesters identity.
 
 #### Returns
 
@@ -132,7 +132,7 @@ The item retrieved if the policies allow it.
 
 ### update()
 
-> **update**(`assetType`, `item`, `actionRequest`): `Promise`\<`void`\>
+> **update**(`assetType`, `item`, `trustPayload`): `Promise`\<`void`\>
 
 Update an item.
 
@@ -150,11 +150,11 @@ The type of the item to update.
 
 The item to update.
 
-##### actionRequest
+##### trustPayload
 
-`IIdentityAuthenticationActionRequest`
+`unknown`
 
-The action request used in the verifiable credential.
+Trust payload to verify the requesters identity.
 
 #### Returns
 
@@ -170,7 +170,7 @@ Nothing.
 
 ### remove()
 
-> **remove**(`assetType`, `id`, `actionRequest`): `Promise`\<`void`\>
+> **remove**(`assetType`, `id`, `trustPayload`): `Promise`\<`void`\>
 
 Remove an item.
 
@@ -188,11 +188,11 @@ The type of the item to remove.
 
 The id of the item to remove.
 
-##### actionRequest
+##### trustPayload
 
-`IIdentityAuthenticationActionRequest`
+`unknown`
 
-The action request used in the verifiable credential.
+Trust payload to verify the requesters identity.
 
 #### Returns
 
@@ -208,7 +208,7 @@ Nothing.
 
 ### query()
 
-> **query**(`assetType`, `conditions`, `cursor`, `options`, `actionRequest`): `Promise`\<\{ `items`: `IJsonLdNodeObject`[]; `cursor?`: `string`; \}\>
+> **query**(`assetType`, `conditions`, `cursor`, `options`, `trustPayload`): `Promise`\<\{ `items`: `IJsonLdNodeObject`[]; `cursor?`: `string`; \}\>
 
 Query for items.
 
@@ -238,11 +238,11 @@ The cursor for pagination.
 
 Additional options which might be supported by the handler.
 
-##### actionRequest
+##### trustPayload
 
-`IIdentityAuthenticationActionRequest`
+`unknown`
 
-The action request used in the verifiable credential.
+Trust payload to verify the requesters identity.
 
 #### Returns
 
@@ -253,61 +253,3 @@ The items matching the query and cursor if there are more items.
 #### Implementation of
 
 `IDataAccessPointComponent.query`
-
-***
-
-### registerHandler()
-
-> **registerHandler**(`handlerId`, `handler`): `Promise`\<`void`\>
-
-Register a handler to use for handling data.
-
-#### Parameters
-
-##### handlerId
-
-`string`
-
-The id of the handler to register.
-
-##### handler
-
-`IDataAccessHandler`
-
-The handler to register.
-
-#### Returns
-
-`Promise`\<`void`\>
-
-Nothing.
-
-#### Implementation of
-
-`IDataAccessPointComponent.registerHandler`
-
-***
-
-### unregisterHandler()
-
-> **unregisterHandler**(`handlerId`): `Promise`\<`void`\>
-
-Unregister a handler from the handling.
-
-#### Parameters
-
-##### handlerId
-
-`string`
-
-The id of the handler to unregister.
-
-#### Returns
-
-`Promise`\<`void`\>
-
-Nothing.
-
-#### Implementation of
-
-`IDataAccessPointComponent.unregisterHandler`

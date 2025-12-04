@@ -20,3 +20,11 @@ To be used when sending request remotely to another node.
 #### Returns
 
 `Promise`\<`IDataAccessPointComponent`\>
+
+***
+
+### overrideTrustGeneratorType?
+
+> `optional` **overrideTrustGeneratorType**: `string`
+
+Override the default trust generator.

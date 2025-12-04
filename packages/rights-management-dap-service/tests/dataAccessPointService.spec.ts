@@ -20,6 +20,7 @@ import { LoggingService } from "@twin.org/logging-service";
 import { nameof } from "@twin.org/nameof";
 import type { IPolicyEnforcementPointComponent } from "@twin.org/rights-management-models";
 import { initSchema as initSchemaPolicyAdministrationPoint } from "@twin.org/rights-management-pap-service";
+import type { ITrustComponent } from "@twin.org/trust-models";
 import {
 	EntityStorageVaultConnector,
 	initSchema as initSchemaVault,
@@ -32,6 +33,7 @@ import { DataAccessPointService } from "../src/dataAccessPointService.js";
 let loggingMemoryEntityStorage: MemoryEntityStorageConnector<LogEntry>;
 let identityConnector: EntityStorageIdentityConnector;
 let mockEnforcementPointComponent: IPolicyEnforcementPointComponent;
+let mockTrustComponent: ITrustComponent;
 
 describe("DataAccessPointService", () => {
 	beforeEach(async () => {
@@ -78,12 +80,24 @@ describe("DataAccessPointService", () => {
 
 		mockEnforcementPointComponent = {
 			intercept: vi.fn(),
-			registerProcessor: vi.fn(),
-			unregisterProcessor: vi.fn(),
 			className: () => "MockPolicyEnforcementPointComponent"
 		};
 
 		ComponentFactory.register("policy-enforcement-point", () => mockEnforcementPointComponent);
+
+		mockTrustComponent = {
+			className: () => "MockTrustComponent",
+			generate: vi.fn(
+				async (identity: string, generatorType?: string, info?: { [key: string]: unknown }) =>
+					`token:${identity}`
+			),
+			verify: vi.fn(async (payload: unknown, overrideVerifiers?: string[]) => ({
+				verified: true,
+				info: { identity: (payload as string).slice(6) }
+			}))
+		};
+
+		ComponentFactory.register("trust", () => mockTrustComponent);
 	});
 
 	test("can create the service", async () => {

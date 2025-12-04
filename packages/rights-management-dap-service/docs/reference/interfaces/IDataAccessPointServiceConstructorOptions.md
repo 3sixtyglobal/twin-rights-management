@@ -32,8 +32,14 @@ policy-enforcement-point
 
 ***
 
-### config?
+### trustComponentType?
 
-> `optional` **config**: [`IDataAccessPointServiceConfig`](IDataAccessPointServiceConfig.md)
+> `optional` **trustComponentType**: `string`
 
-Configuration options for the data access point service.
+The type of the trust component.
+
+#### Default
+
+```ts
+trust
+```

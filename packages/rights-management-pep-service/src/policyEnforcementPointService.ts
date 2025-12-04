@@ -5,9 +5,9 @@ import type { ILoggingComponent } from "@twin.org/logging-models";
 import { nameof } from "@twin.org/nameof";
 import {
 	LocatorHelper,
+	PolicyEnforcementProcessorFactory,
 	type IPolicyDecisionPointComponent,
 	type IPolicyEnforcementPointComponent,
-	type IPolicyEnforcementProcessor,
 	type IPolicyLocator
 } from "@twin.org/rights-management-models";
 import type { IPolicyEnforcementPointServiceConstructorOptions } from "./models/IPolicyEnforcementPointServiceConstructorOptions.js";
@@ -34,15 +34,6 @@ export class PolicyEnforcementPointService implements IPolicyEnforcementPointCom
 	private readonly _policyDecisionPointComponent: IPolicyDecisionPointComponent;
 
 	/**
-	 * These processors can be registered to handle data after decision is made.
-	 * @internal
-	 */
-	private readonly _processors: {
-		processorId: string;
-		processor: IPolicyEnforcementProcessor;
-	}[];
-
-	/**
 	 * Create a new instance of PolicyEnforcementPointService (PEP).
 	 * @param options The options for the component.
 	 */
@@ -53,7 +44,6 @@ export class PolicyEnforcementPointService implements IPolicyEnforcementPointCom
 		this._policyDecisionPointComponent = ComponentFactory.get<IPolicyDecisionPointComponent>(
 			options?.policyDecisionPointComponentType ?? "policy-decision-point"
 		);
-		this._processors = options?.config?.processors ?? [];
 	}
 
 	/**
@@ -91,7 +81,10 @@ export class PolicyEnforcementPointService implements IPolicyEnforcementPointCom
 
 		let processedData: unknown = ObjectHelper.clone(data);
 
-		for (const { processorId, processor } of this._processors) {
+		const processorNames = PolicyEnforcementProcessorFactory.names();
+		const processors = processorNames.map(name => PolicyEnforcementProcessorFactory.get(name));
+
+		for (const processor of processors) {
 			try {
 				await this._logging?.log({
 					level: "info",
@@ -100,7 +93,7 @@ export class PolicyEnforcementPointService implements IPolicyEnforcementPointCom
 					message: "processing",
 					data: {
 						locator: LocatorHelper.toString(locator),
-						processorId
+						processorId: processor.className()
 					}
 				});
 
@@ -112,7 +105,7 @@ export class PolicyEnforcementPointService implements IPolicyEnforcementPointCom
 					ts: Date.now(),
 					message: "processingFailed",
 					data: {
-						processorId,
+						processorId: processor.className(),
 						locator: LocatorHelper.toString(locator)
 					},
 					error: BaseError.fromError(error)
@@ -120,71 +113,12 @@ export class PolicyEnforcementPointService implements IPolicyEnforcementPointCom
 				throw new GeneralError(
 					PolicyEnforcementPointService.CLASS_NAME,
 					"processingFailed",
-					{ processorId, locator: LocatorHelper.toString(locator) },
+					{ processorId: processor.className(), locator: LocatorHelper.toString(locator) },
 					error
 				);
 			}
 		}
 
 		return processedData as R;
-	}
-
-	/**
-	 * Register a processor to use for handling data.
-	 * @param processorId The id of the processor to register.
-	 * @param processor The processor to register.
-	 * @returns Nothing.
-	 */
-	public async registerProcessor(
-		processorId: string,
-		processor: IPolicyEnforcementProcessor
-	): Promise<void> {
-		Guards.stringValue(PolicyEnforcementPointService.CLASS_NAME, nameof(processorId), processorId);
-		Guards.objectValue<IPolicyEnforcementProcessor>(
-			PolicyEnforcementPointService.CLASS_NAME,
-			nameof(processor),
-			processor
-		);
-
-		const currentIndex = this._processors.findIndex(p => p.processorId === processorId);
-		if (currentIndex !== -1) {
-			this._processors[currentIndex].processor = processor;
-		} else {
-			this._processors.push({ processorId, processor });
-		}
-
-		await this._logging?.log({
-			level: "info",
-			source: PolicyEnforcementPointService.CLASS_NAME,
-			ts: Date.now(),
-			message: "registeredProcessor",
-			data: {
-				processorId
-			}
-		});
-	}
-
-	/**
-	 * Unregister a processor from the handling.
-	 * @param processorId The id of the processor to unregister.
-	 * @returns Nothing.
-	 */
-	public async unregisterProcessor(processorId: string): Promise<void> {
-		Guards.stringValue(PolicyEnforcementPointService.CLASS_NAME, nameof(processorId), processorId);
-
-		const currentIndex = this._processors.findIndex(p => p.processorId === processorId);
-		if (currentIndex !== -1) {
-			this._processors.splice(currentIndex, 1);
-		}
-
-		await this._logging?.log({
-			level: "info",
-			source: PolicyEnforcementPointService.CLASS_NAME,
-			ts: Date.now(),
-			message: "unregisteredProcessor",
-			data: {
-				processorId
-			}
-		});
 	}
 }

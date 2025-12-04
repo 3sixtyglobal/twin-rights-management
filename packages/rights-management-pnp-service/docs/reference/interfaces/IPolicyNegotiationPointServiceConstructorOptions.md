@@ -60,6 +60,20 @@ policy-information-point
 
 ***
 
+### trustComponentType?
+
+> `optional` **trustComponentType**: `string`
+
+The type of the trust component.
+
+#### Default
+
+```ts
+trust
+```
+
+***
+
 ### config
 
 > **config**: [`IPolicyNegotiationPointServiceConfig`](IPolicyNegotiationPointServiceConfig.md)

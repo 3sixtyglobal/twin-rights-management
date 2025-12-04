@@ -1,12 +1,13 @@
 // Copyright 2025 IOTA Stiftung.
 // SPDX-License-Identifier: Apache-2.0.
+import type { IComponent } from "@twin.org/core";
 import type { IJsonLdNodeObject } from "@twin.org/data-json-ld";
 import type { EntityCondition } from "@twin.org/entity";
 
 /**
  * Interface describing a Data Access Handler.
  */
-export interface IDataAccessHandler {
+export interface IDataAccessHandler extends IComponent {
 	/**
 	 * The asset types supported by this handler.
 	 * @returns The supported asset types.

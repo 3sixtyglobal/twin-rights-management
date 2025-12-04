@@ -1,6 +1,6 @@
 // Copyright 2025 IOTA Stiftung.
 // SPDX-License-Identifier: Apache-2.0.
-import { ComponentFactory } from "@twin.org/core";
+import { ComponentFactory, Factory } from "@twin.org/core";
 import type { IJsonLdNodeObject } from "@twin.org/data-json-ld";
 import { MemoryEntityStorageConnector } from "@twin.org/entity-storage-connector-memory";
 import { EntityStorageConnectorFactory } from "@twin.org/entity-storage-models";
@@ -14,6 +14,7 @@ import { LoggingService } from "@twin.org/logging-service";
 import { nameof } from "@twin.org/nameof";
 import {
 	PolicyInformationAccessMode,
+	PolicyInformationSourceFactory,
 	type IPolicyInformationSource
 } from "@twin.org/rights-management-models";
 import { PolicyInformationPointService } from "../src/policyInformationPointService.js";
@@ -24,12 +25,23 @@ import { PolicyInformationPointService } from "../src/policyInformationPointServ
 class MockPolicyInformationSource implements IPolicyInformationSource {
 	// eslint-disable-next-line no-restricted-syntax
 	public retrieve = vi.fn();
+
+	private readonly _className: string;
+
+	constructor(className: string) {
+		this._className = className;
+	}
+
+	// eslint-disable-next-line no-restricted-syntax
+	public className = (): string => this._className;
 }
 
 let loggingMemoryEntityStorage: MemoryEntityStorageConnector<LogEntry>;
 
 describe("PolicyInformationPointService", () => {
 	beforeEach(() => {
+		Factory.clearFactories();
+
 		initSchema();
 
 		loggingMemoryEntityStorage = new MemoryEntityStorageConnector<LogEntry>({
@@ -47,9 +59,9 @@ describe("PolicyInformationPointService", () => {
 
 	test("can register an information source", async () => {
 		const policyInformationPoint = new PolicyInformationPointService();
-		const mockSource = new MockPolicyInformationSource();
+		const mockSource = new MockPolicyInformationSource("testSource");
 
-		await policyInformationPoint.registerSource("testSource", mockSource);
+		PolicyInformationSourceFactory.register("testSource", () => mockSource);
 
 		// Verify no errors thrown during registration
 		expect(() => policyInformationPoint).not.toThrow();
@@ -69,10 +81,10 @@ describe("PolicyInformationPointService", () => {
 			}
 		];
 
-		const mockSource = new MockPolicyInformationSource();
+		const mockSource = new MockPolicyInformationSource("identitySource");
 		mockSource.retrieve.mockResolvedValue(mockInformation);
 
-		await policyInformationPoint.registerSource("identitySource", mockSource);
+		PolicyInformationSourceFactory.register("identitySource", () => mockSource);
 		const information = await policyInformationPoint.retrieve(
 			{
 				assetType: "document",
@@ -108,13 +120,13 @@ describe("PolicyInformationPointService", () => {
 			{ "@type": "Context", "@id": "context1", location: "EU", timeZone: "UTC+1" }
 		];
 
-		const identitySource = new MockPolicyInformationSource();
-		const contextSource = new MockPolicyInformationSource();
+		const identitySource = new MockPolicyInformationSource("identity");
+		const contextSource = new MockPolicyInformationSource("context");
 		identitySource.retrieve.mockResolvedValue(identityInfo);
 		contextSource.retrieve.mockResolvedValue(contextInfo);
 
-		await policyInformationPoint.registerSource("identity", identitySource);
-		await policyInformationPoint.registerSource("context", contextSource);
+		PolicyInformationSourceFactory.register("identity", () => identitySource);
+		PolicyInformationSourceFactory.register("context", () => contextSource);
 
 		const information = await policyInformationPoint.retrieve(
 			{
@@ -152,10 +164,10 @@ describe("PolicyInformationPointService", () => {
 
 	test("handles source returning undefined", async () => {
 		const policyInformationPoint = new PolicyInformationPointService();
-		const mockSource = new MockPolicyInformationSource();
+		const mockSource = new MockPolicyInformationSource("emptySource");
 		mockSource.retrieve.mockResolvedValue(undefined);
 
-		await policyInformationPoint.registerSource("emptySource", mockSource);
+		PolicyInformationSourceFactory.register("emptySource", () => mockSource);
 		const information = await policyInformationPoint.retrieve(
 			{
 				assetType: "test",
@@ -172,15 +184,15 @@ describe("PolicyInformationPointService", () => {
 
 	test("continues retrieving from other sources when one fails", async () => {
 		const policyInformationPoint = new PolicyInformationPointService();
-		const workingSource = new MockPolicyInformationSource();
-		const failingSource = new MockPolicyInformationSource();
+		const workingSource = new MockPolicyInformationSource("working");
+		const failingSource = new MockPolicyInformationSource("failing");
 
 		const workingInfo: IJsonLdNodeObject[] = [{ "@id": "working-info", "@type": "Info" }];
 		workingSource.retrieve.mockResolvedValue(workingInfo);
 		failingSource.retrieve.mockRejectedValue(new Error("Source error"));
 
-		await policyInformationPoint.registerSource("working", workingSource);
-		await policyInformationPoint.registerSource("failing", failingSource);
+		PolicyInformationSourceFactory.register("working", () => workingSource);
+		PolicyInformationSourceFactory.register("failing", () => failingSource);
 
 		const information = await policyInformationPoint.retrieve(
 			{
@@ -200,10 +212,10 @@ describe("PolicyInformationPointService", () => {
 
 	test("logs error when information source fails", async () => {
 		const policyInformationPoint = new PolicyInformationPointService();
-		const failingSource = new MockPolicyInformationSource();
+		const failingSource = new MockPolicyInformationSource("failing");
 		failingSource.retrieve.mockRejectedValue(new Error("Identity resolution failed"));
 
-		await policyInformationPoint.registerSource("failing", failingSource);
+		PolicyInformationSourceFactory.register("failing", () => failingSource);
 		await policyInformationPoint.retrieve(
 			{ assetType: "file", action: "upload", assignee: "node456" },
 			PolicyInformationAccessMode.Any,
@@ -212,12 +224,10 @@ describe("PolicyInformationPointService", () => {
 		);
 
 		const logEntries = loggingMemoryEntityStorage.getStore();
-		expect(logEntries.length).toBe(2);
-		expect(logEntries[0].level).toBe("info");
-		expect(logEntries[0].message).toBe("registeredSource");
-		expect(logEntries[1].level).toBe("error");
-		expect(logEntries[1].message).toBe("sourceRetrieveFailed");
-		expect(logEntries[1].data).toEqual({
+		expect(logEntries.length).toBe(1);
+		expect(logEntries[0].level).toBe("error");
+		expect(logEntries[0].message).toBe("sourceRetrieveFailed");
+		expect(logEntries[0].data).toEqual({
 			sourceId: "failing",
 			locator: "Assignee: node456, Action: upload, Asset Type: file"
 		});

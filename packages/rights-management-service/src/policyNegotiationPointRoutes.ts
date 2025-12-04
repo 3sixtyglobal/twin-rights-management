@@ -1,9 +1,7 @@
 // Copyright 2025 IOTA Stiftung.
 // SPDX-License-Identifier: Apache-2.0.
 import type { IHttpRequestContext, IRestRoute, ITag } from "@twin.org/api-models";
-import { ContextIdKeys } from "@twin.org/context";
 import { ComponentFactory, Guards, Is } from "@twin.org/core";
-import type { IIdentityAuthenticationActionRequest } from "@twin.org/identity-authentication";
 import { nameof } from "@twin.org/nameof";
 import type {
 	IPnpAgreementRequest,
@@ -26,7 +24,7 @@ import {
 	type IContractNegotiationError
 } from "@twin.org/standards-dataspace-protocol";
 import { OdrlContexts, OdrlTypes } from "@twin.org/standards-w3c-odrl";
-import { HeaderTypes, HttpStatusCode, MimeTypes } from "@twin.org/web";
+import { HeaderHelper, HeaderTypes, HttpStatusCode, MimeTypes } from "@twin.org/web";
 
 /**
  * The source used when communicating about these routes.
@@ -101,11 +99,7 @@ export function generateRestRoutesPolicyNegotiationPoint(
 				]
 			}
 		],
-		skipAuth: true,
-		processorFeatures: ["verifiableCredential"],
-		processorData: {
-			verifiableCredential: { contextId: ContextIdKeys.Organization }
-		}
+		skipAuth: true
 	};
 
 	// https://eclipse-dataspace-protocol-base.github.io/DataspaceProtocol/2025-1/#negotiations-providerpid-request-post
@@ -164,11 +158,7 @@ export function generateRestRoutesPolicyNegotiationPoint(
 				]
 			}
 		],
-		skipAuth: true,
-		processorFeatures: ["verifiableCredential"],
-		processorData: {
-			verifiableCredential: { contextId: ContextIdKeys.Organization }
-		}
+		skipAuth: true
 	};
 
 	// https://eclipse-dataspace-protocol-base.github.io/DataspaceProtocol/2025-1/#negotiations-providerpid-request-post
@@ -222,11 +212,7 @@ export function generateRestRoutesPolicyNegotiationPoint(
 					]
 				}
 			],
-			skipAuth: true,
-			processorFeatures: ["verifiableCredential"],
-			processorData: {
-				verifiableCredential: { contextId: ContextIdKeys.Organization }
-			}
+			skipAuth: true
 		};
 
 	// https://eclipse-dataspace-protocol-base.github.io/DataspaceProtocol/2025-1/#negotiations-providerpid-events-post
@@ -275,11 +261,7 @@ export function generateRestRoutesPolicyNegotiationPoint(
 				]
 			}
 		],
-		skipAuth: true,
-		processorFeatures: ["verifiableCredential"],
-		processorData: {
-			verifiableCredential: { contextId: ContextIdKeys.Organization }
-		}
+		skipAuth: true
 	};
 
 	// https://eclipse-dataspace-protocol-base.github.io/DataspaceProtocol/2025-1/#negotiations-providerpid-agreement-verification-post
@@ -330,11 +312,7 @@ export function generateRestRoutesPolicyNegotiationPoint(
 				]
 			}
 		],
-		skipAuth: true,
-		processorFeatures: ["verifiableCredential"],
-		processorData: {
-			verifiableCredential: { contextId: ContextIdKeys.Organization }
-		}
+		skipAuth: true
 	};
 
 	// https://eclipse-dataspace-protocol-base.github.io/DataspaceProtocol/2025-1/#negotiations-providerpid-termination-post
@@ -382,11 +360,7 @@ export function generateRestRoutesPolicyNegotiationPoint(
 				]
 			}
 		],
-		skipAuth: true,
-		processorFeatures: ["verifiableCredential"],
-		processorData: {
-			verifiableCredential: { contextId: ContextIdKeys.Organization }
-		}
+		skipAuth: true
 	};
 
 	// https://eclipse-dataspace-protocol-base.github.io/DataspaceProtocol/2025-1/#negotiations-offers-post
@@ -445,11 +419,7 @@ export function generateRestRoutesPolicyNegotiationPoint(
 				]
 			}
 		],
-		skipAuth: true,
-		processorFeatures: ["verifiableCredential"],
-		processorData: {
-			verifiableCredential: { contextId: ContextIdKeys.Organization }
-		}
+		skipAuth: true
 	};
 
 	// https://eclipse-dataspace-protocol-base.github.io/DataspaceProtocol/2025-1/#negotiations-consumerpid-offers-post
@@ -508,11 +478,7 @@ export function generateRestRoutesPolicyNegotiationPoint(
 				]
 			}
 		],
-		skipAuth: true,
-		processorFeatures: ["verifiableCredential"],
-		processorData: {
-			verifiableCredential: { contextId: ContextIdKeys.Organization }
-		}
+		skipAuth: true
 	};
 
 	// https://eclipse-dataspace-protocol-base.github.io/DataspaceProtocol/2025-1/#negotiations-consumerpid-agreement-post
@@ -567,11 +533,7 @@ export function generateRestRoutesPolicyNegotiationPoint(
 				]
 			}
 		],
-		skipAuth: true,
-		processorFeatures: ["verifiableCredential"],
-		processorData: {
-			verifiableCredential: { contextId: ContextIdKeys.Organization }
-		}
+		skipAuth: true
 	};
 
 	// The consumer event and terminate routes are exactly the same as the pnpNegotiationEventsRoute and pnpNegotiationTerminationRoute
@@ -641,8 +603,9 @@ export async function pnpGetNegotiation(
 	const component = ComponentFactory.get<IPolicyNegotiationPointComponent>(componentName);
 	const result = await component.getNegotiation(
 		request.pathParams.id,
-		httpRequestContext.processorState
-			.verifiableCredentialSubject as IIdentityAuthenticationActionRequest
+		HeaderHelper.extractBearer(
+			httpRequestContext.serverRequest.headers?.[HeaderTypes.Authorization]
+		)
 	);
 
 	return {
@@ -679,8 +642,9 @@ export async function pnpNegotiationRequest(
 	const component = ComponentFactory.get<IPolicyNegotiationPointComponent>(componentName);
 	const result = await component.requestFromConsumer(
 		request.body,
-		httpRequestContext.processorState
-			.verifiableCredentialSubject as IIdentityAuthenticationActionRequest
+		HeaderHelper.extractBearer(
+			httpRequestContext.serverRequest.headers?.[HeaderTypes.Authorization]
+		)
 	);
 
 	const isUpdate = Is.stringValue(request.pathParams?.id);
@@ -733,8 +697,9 @@ export async function pnpNegotiationProviderEvents(
 	const result = await component.event(
 		request.body,
 		request.pathParams.id === request.body.providerPid ? "provider" : "consumer",
-		httpRequestContext.processorState
-			.verifiableCredentialSubject as IIdentityAuthenticationActionRequest
+		HeaderHelper.extractBearer(
+			httpRequestContext.serverRequest.headers?.[HeaderTypes.Authorization]
+		)
 	);
 
 	return {
@@ -780,8 +745,9 @@ export async function pnpNegotiationAgreementVerification(
 	const component = ComponentFactory.get<IPolicyNegotiationPointComponent>(componentName);
 	const result = await component.agreementVerificationFromConsumer(
 		request.body,
-		httpRequestContext.processorState
-			.verifiableCredentialSubject as IIdentityAuthenticationActionRequest
+		HeaderHelper.extractBearer(
+			httpRequestContext.serverRequest.headers?.[HeaderTypes.Authorization]
+		)
 	);
 
 	return {
@@ -824,8 +790,9 @@ export async function pnpNegotiationTermination(
 	const result = await component.terminate(
 		request.body,
 		request.pathParams.id === request.body.providerPid ? "provider" : "consumer",
-		httpRequestContext.processorState
-			.verifiableCredentialSubject as IIdentityAuthenticationActionRequest
+		HeaderHelper.extractBearer(
+			httpRequestContext.serverRequest.headers?.[HeaderTypes.Authorization]
+		)
 	);
 
 	return {
@@ -862,8 +829,9 @@ export async function pnpNegotiationOffer(
 	const component = ComponentFactory.get<IPolicyNegotiationPointComponent>(componentName);
 	const result = await component.offerFromProvider(
 		request.body,
-		httpRequestContext.processorState
-			.verifiableCredentialSubject as IIdentityAuthenticationActionRequest
+		HeaderHelper.extractBearer(
+			httpRequestContext.serverRequest.headers?.[HeaderTypes.Authorization]
+		)
 	);
 
 	const isUpdate = Is.stringValue(request.pathParams?.id);
@@ -915,8 +883,9 @@ export async function pnpNegotiationAgreement(
 	const component = ComponentFactory.get<IPolicyNegotiationPointComponent>(componentName);
 	const result = await component.agreementFromProvider(
 		request.body,
-		httpRequestContext.processorState
-			.verifiableCredentialSubject as IIdentityAuthenticationActionRequest
+		HeaderHelper.extractBearer(
+			httpRequestContext.serverRequest.headers?.[HeaderTypes.Authorization]
+		)
 	);
 
 	return {

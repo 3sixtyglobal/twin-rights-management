@@ -62,7 +62,8 @@
 		"packages/rights-management-pnp-service",
 		"packages/rights-management-dap-service",
 		"packages/rights-management-service",
-		"packages/rights-management-rest-client"
+		"packages/rights-management-rest-client",
+		"packages/rights-management-plugins"
 	],
 	"type": "module",
 	"bugs": {

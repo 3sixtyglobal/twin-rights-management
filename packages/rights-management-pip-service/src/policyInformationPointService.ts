@@ -6,10 +6,10 @@ import { nameof } from "@twin.org/nameof";
 import {
 	type IPolicyInformation,
 	type IPolicyInformationPointComponent,
-	type IPolicyInformationSource,
 	type IPolicyLocator,
 	LocatorHelper,
-	PolicyInformationAccessMode
+	PolicyInformationAccessMode,
+	PolicyInformationSourceFactory
 } from "@twin.org/rights-management-models";
 import type { IOdrlPolicy } from "@twin.org/standards-w3c-odrl";
 import type { IPolicyInformationPointServiceConstructorOptions } from "./models/IPolicyInformationPointServiceConstructorOptions.js";
@@ -30,15 +30,6 @@ export class PolicyInformationPointService implements IPolicyInformationPointCom
 	private readonly _logging?: ILoggingComponent;
 
 	/**
-	 * These sources can be registered to retrieve data based on the input.
-	 * @internal
-	 */
-	private readonly _sources: {
-		sourceId: string;
-		source: IPolicyInformationSource;
-	}[];
-
-	/**
 	 * Create a new instance of PolicyInformationPointService (PIP).
 	 * @param options The options for the component.
 	 */
@@ -46,7 +37,6 @@ export class PolicyInformationPointService implements IPolicyInformationPointCom
 		this._logging = ComponentFactory.getIfExists<ILoggingComponent>(
 			options?.loggingComponentType ?? "logging"
 		);
-		this._sources = options?.config?.sources ?? [];
 	}
 
 	/**
@@ -85,13 +75,16 @@ export class PolicyInformationPointService implements IPolicyInformationPointCom
 
 		const information: IPolicyInformation = {};
 
+		const sourceNames = PolicyInformationSourceFactory.names();
+		const sources = sourceNames.map(sourceName => PolicyInformationSourceFactory.get(sourceName));
+
 		await Promise.all(
-			this._sources.map(async ({ sourceId, source }) => {
+			sources.map(async source => {
 				try {
 					const result = await source.retrieve(locator, accessMode, policies, data);
 
 					if (Is.arrayValue(result)) {
-						information[sourceId] = result;
+						information[source.className()] = result;
 					}
 				} catch (error) {
 					await this._logging?.log({
@@ -100,7 +93,7 @@ export class PolicyInformationPointService implements IPolicyInformationPointCom
 						ts: Date.now(),
 						message: "sourceRetrieveFailed",
 						data: {
-							sourceId,
+							sourceId: source.className(),
 							locator: LocatorHelper.toString(locator)
 						},
 						error: BaseError.fromError(error)
@@ -110,61 +103,5 @@ export class PolicyInformationPointService implements IPolicyInformationPointCom
 		);
 
 		return information;
-	}
-
-	/**
-	 * Register a source to use for retrieval.
-	 * @param sourceId The id of the source to register.
-	 * @param source The source to register.
-	 * @returns Nothing.
-	 */
-	public async registerSource(sourceId: string, source: IPolicyInformationSource): Promise<void> {
-		Guards.stringValue(PolicyInformationPointService.CLASS_NAME, nameof(sourceId), sourceId);
-		Guards.objectValue<IPolicyInformationSource>(
-			PolicyInformationPointService.CLASS_NAME,
-			nameof(source),
-			source
-		);
-
-		const currentIndex = this._sources.findIndex(s => s.sourceId === sourceId);
-		if (currentIndex !== -1) {
-			this._sources[currentIndex].source = source;
-		} else {
-			this._sources.push({ sourceId, source });
-		}
-
-		await this._logging?.log({
-			level: "info",
-			source: PolicyInformationPointService.CLASS_NAME,
-			ts: Date.now(),
-			message: "registeredSource",
-			data: {
-				sourceId
-			}
-		});
-	}
-
-	/**
-	 * Unregister a source from the retrieval.
-	 * @param sourceId The id of the source to unregister.
-	 * @returns Nothing.
-	 */
-	public async unregisterSource(sourceId: string): Promise<void> {
-		Guards.stringValue(PolicyInformationPointService.CLASS_NAME, nameof(sourceId), sourceId);
-
-		const currentIndex = this._sources.findIndex(s => s.sourceId === sourceId);
-		if (currentIndex !== -1) {
-			this._sources.splice(currentIndex, 1);
-		}
-
-		await this._logging?.log({
-			level: "info",
-			source: PolicyInformationPointService.CLASS_NAME,
-			ts: Date.now(),
-			message: "unregisteredSource",
-			data: {
-				sourceId
-			}
-		});
 	}
 }

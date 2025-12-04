@@ -2,6 +2,10 @@
 
 Interface describing a Policy Arbiter.
 
+## Extends
+
+- `IComponent`
+
 ## Methods
 
 ### supportedPolicies()

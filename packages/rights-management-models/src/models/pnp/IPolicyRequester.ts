@@ -1,11 +1,18 @@
 // Copyright 2025 IOTA Stiftung.
 // SPDX-License-Identifier: Apache-2.0.
+import type { IComponent } from "@twin.org/core";
 import type { IOdrlAgreement, IOdrlOffer } from "@twin.org/standards-w3c-odrl";
 
 /**
  * Interface describing a Policy Requester.
  */
-export interface IPolicyRequester {
+export interface IPolicyRequester extends IComponent {
+	/**
+	 * The unique id of the requester.
+	 * @returns The requester id.
+	 */
+	requesterId(): string;
+
 	/**
 	 * A policy has been offered by a provider, let the requester know about it.
 	 * @param negotiationId The id of the negotiation.

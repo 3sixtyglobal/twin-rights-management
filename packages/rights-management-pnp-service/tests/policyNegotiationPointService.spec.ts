@@ -2,7 +2,7 @@
 // SPDX-License-Identifier: Apache-2.0.
 import { TaskSchedulerService } from "@twin.org/background-task-scheduler";
 import { ContextIdStore } from "@twin.org/context";
-import { ComponentFactory } from "@twin.org/core";
+import { ComponentFactory, Factory } from "@twin.org/core";
 import { MemoryEntityStorageConnector } from "@twin.org/entity-storage-connector-memory";
 import { EntityStorageConnectorFactory } from "@twin.org/entity-storage-models";
 import {
@@ -19,11 +19,13 @@ import {
 import { LoggingConnectorFactory } from "@twin.org/logging-models";
 import { LoggingService } from "@twin.org/logging-service";
 import { nameof } from "@twin.org/nameof";
-import type {
-	IPolicyInformation,
-	IPolicyNegotiationPointComponent,
-	IPolicyNegotiator,
-	IPolicyRequester
+import {
+	PolicyNegotiatorFactory,
+	PolicyRequesterFactory,
+	type IPolicyInformation,
+	type IPolicyNegotiationPointComponent,
+	type IPolicyNegotiator,
+	type IPolicyRequester
 } from "@twin.org/rights-management-models";
 import {
 	PolicyAdministrationPointService,
@@ -32,6 +34,7 @@ import {
 } from "@twin.org/rights-management-pap-service";
 import { PolicyInformationPointService } from "@twin.org/rights-management-pip-service";
 import { OdrlContexts, OdrlTypes, type IOdrlOffer } from "@twin.org/standards-w3c-odrl";
+import type { ITrustComponent } from "@twin.org/trust-models";
 import {
 	EntityStorageVaultConnector,
 	initSchema as initSchemaVault,
@@ -58,6 +61,7 @@ let testIdentityConsumer: string;
 let mockOffer: IOdrlOffer;
 let mockNegotiator: IPolicyNegotiator;
 let mockPolicyRequester: IPolicyRequester;
+let mockTrustComponent: ITrustComponent;
 
 /**
  * Helper to wait for a negotiation to reach a specific state.
@@ -81,18 +85,19 @@ async function waitForState(
 	throw new Error(`Timeout waiting for state ${state} for ${entity}`);
 }
 
-let testNodeId: string;
+let testOrganizationId: string;
 
 describe("PolicyNegotiationPointService", () => {
-	beforeAll(async () => {
+	beforeEach(async () => {
+		Factory.clearFactories();
+		vi.clearAllMocks();
+
 		initSchemaLogging();
 		initSchemaPolicyAdministrationPoint();
 		initSchemaVault();
 		initSchemaIdentity();
 		initSchema();
-	});
 
-	beforeEach(async () => {
 		loggingMemoryEntityStorage = new MemoryEntityStorageConnector<LogEntry>({
 			entitySchema: nameof<LogEntry>()
 		});
@@ -150,7 +155,7 @@ describe("PolicyNegotiationPointService", () => {
 		mockOffer = {
 			"@context": OdrlContexts.ContextRoot,
 			"@type": OdrlTypes.Offer,
-			uid: "offer-1",
+			uid: "urn:policy:offer-1",
 			assigner: testIdentityProvider
 		};
 
@@ -194,14 +199,14 @@ describe("PolicyNegotiationPointService", () => {
 		);
 
 		adminPointComponent = new PolicyAdministrationPointService();
-		// We mock the create call to the PAP to return a fixed policy ID
-		adminPointComponent.create = vi.fn().mockResolvedValue("123");
 		ComponentFactory.register("policy-administration-point", () => adminPointComponent);
 
 		informationPointComponent = new PolicyInformationPointService();
 		ComponentFactory.register("policy-information-point", () => informationPointComponent);
 
 		mockPolicyRequester = {
+			className: () => "MockPolicyRequester",
+			requesterId: () => "requester-1",
 			offer: vi.fn(async (negotiationId, offer) => true),
 			agreement: vi.fn(async (negotiationId, agreement) => true),
 			finalised: vi.fn(async negotiationId => {}),
@@ -209,6 +214,7 @@ describe("PolicyNegotiationPointService", () => {
 		};
 
 		mockNegotiator = {
+			className: () => "MockPolicyNegotiator",
 			supportsOffer: vi.fn((offer: IOdrlOffer) => true),
 			handleOffer: vi.fn(async (offer: IOdrlOffer, information?: IPolicyInformation) => ({
 				accepted: true,
@@ -223,8 +229,24 @@ describe("PolicyNegotiationPointService", () => {
 			}))
 		};
 
-		testNodeId = testIdentityConsumer;
-		ContextIdStore.getContextIds = vi.fn().mockImplementation(() => ({ node: testNodeId }));
+		mockTrustComponent = {
+			className: () => "MockTrustComponent",
+			generate: vi.fn(
+				async (identity: string, generatorType?: string, info?: { [key: string]: unknown }) =>
+					`token:${identity}`
+			),
+			verify: vi.fn(async (payload: unknown, overrideVerifiers?: string[]) => ({
+				verified: true,
+				info: { identity: (payload as string).slice(6) }
+			}))
+		};
+
+		ComponentFactory.register("trust", () => mockTrustComponent);
+
+		testOrganizationId = testIdentityConsumer;
+		ContextIdStore.getContextIds = vi
+			.fn()
+			.mockImplementation(() => ({ organization: testOrganizationId }));
 	});
 
 	afterEach(() => {
@@ -263,17 +285,11 @@ describe("PolicyNegotiationPointService", () => {
 		providerPoints.provider = policyNegotiationProviderPoint;
 		providerPoints.consumer = policyNegotiationConsumerPoint;
 
-		testNodeId = testIdentityConsumer;
-		await policyNegotiationConsumerPoint.start();
-
-		testNodeId = testIdentityProvider;
-		await policyNegotiationProviderPoint.start();
-
 		await expect(
 			policyNegotiationConsumerPoint.sendRequestToProvider(
 				"http://localhost:3000",
 				"requester-1",
-				"offer-1"
+				"urn:policy:offer-1"
 			)
 		).rejects.toMatchObject({
 			name: "GeneralError",
@@ -302,18 +318,15 @@ describe("PolicyNegotiationPointService", () => {
 		providerPoints.provider = policyNegotiationProviderPoint;
 		providerPoints.consumer = policyNegotiationConsumerPoint;
 
-		testNodeId = testIdentityConsumer;
-		await policyNegotiationConsumerPoint.start();
-		testNodeId = testIdentityProvider;
-		await policyNegotiationProviderPoint.start();
+		testOrganizationId = testIdentityConsumer;
 
-		await policyNegotiationConsumerPoint.registerRequester("requester-1", mockPolicyRequester);
+		PolicyRequesterFactory.register("requester-1", () => mockPolicyRequester);
 
 		await expect(
 			policyNegotiationConsumerPoint.sendRequestToProvider(
 				"http://localhost:3000",
 				"requester-1",
-				"offer-1"
+				"urn:policy:offer-1"
 			)
 		).rejects.toMatchObject({
 			name: "GeneralError",
@@ -342,20 +355,18 @@ describe("PolicyNegotiationPointService", () => {
 		providerPoints.provider = policyNegotiationProviderPoint;
 		providerPoints.consumer = policyNegotiationConsumerPoint;
 
-		testNodeId = testIdentityConsumer;
-		await policyNegotiationConsumerPoint.start();
-		testNodeId = testIdentityProvider;
-		await policyNegotiationProviderPoint.start();
+		// testOrganizationId = testIdentityConsumer;
+		// testOrganizationId = testIdentityProvider;
 
-		await policyNegotiationConsumerPoint.registerRequester("requester-1", mockPolicyRequester);
+		PolicyRequesterFactory.register("requester-1", () => mockPolicyRequester);
 
-		await policyNegotiationProviderPoint.registerOffer(mockOffer);
+		await adminPointComponent.create(mockOffer);
 
 		await expect(
 			policyNegotiationConsumerPoint.sendRequestToProvider(
 				"http://localhost:3000",
 				"requester-1",
-				"offer-1"
+				"urn:policy:offer-1"
 			)
 		).rejects.toMatchObject({
 			name: "GeneralError",
@@ -384,19 +395,17 @@ describe("PolicyNegotiationPointService", () => {
 		providerPoints.provider = policyNegotiationProviderPoint;
 		providerPoints.consumer = policyNegotiationConsumerPoint;
 
-		testNodeId = testIdentityConsumer;
-		await policyNegotiationConsumerPoint.start();
-		testNodeId = testIdentityProvider;
-		await policyNegotiationProviderPoint.start();
+		// testOrganizationId = testIdentityConsumer;
+		// testOrganizationId = testIdentityProvider;
 
-		await policyNegotiationConsumerPoint.registerRequester("requester-1", mockPolicyRequester);
-		await policyNegotiationProviderPoint.registerOffer(mockOffer);
-		await policyNegotiationProviderPoint.registerNegotiator("negotiator-1", mockNegotiator);
+		PolicyRequesterFactory.register("requester-1", () => mockPolicyRequester);
+		await adminPointComponent.create(mockOffer);
+		PolicyNegotiatorFactory.register("MockPolicyNegotiator", () => mockNegotiator);
 
 		const consumerPid = await policyNegotiationConsumerPoint.sendRequestToProvider(
 			"http://localhost:3000",
 			"requester-1",
-			"offer-1"
+			"urn:policy:offer-1"
 		);
 
 		const consumerStore = policyNegotiationConsumerMemoryEntityStorage.getStore();
@@ -420,13 +429,13 @@ describe("PolicyNegotiationPointService", () => {
 			correlationId: consumerPid,
 			dateCreated: expect.any(String),
 			expires: expect.any(Number),
-			handlerId: "negotiator-1",
+			handlerId: "MockPolicyNegotiator",
 			information: {},
 			offer: {
 				"@context": "http://www.w3.org/ns/odrl/2/",
 				"@type": "Offer",
 				assigner: testIdentityProvider,
-				uid: "offer-1"
+				uid: "urn:policy:offer-1"
 			},
 			state: "REQUESTED"
 		});
@@ -453,19 +462,17 @@ describe("PolicyNegotiationPointService", () => {
 		providerPoints.provider = policyNegotiationProviderPoint;
 		providerPoints.consumer = policyNegotiationConsumerPoint;
 
-		testNodeId = testIdentityConsumer;
-		await policyNegotiationConsumerPoint.start();
-		testNodeId = testIdentityProvider;
-		await policyNegotiationProviderPoint.start();
+		// testOrganizationId = testIdentityConsumer;
+		// testOrganizationId = testIdentityProvider;
 
-		await policyNegotiationConsumerPoint.registerRequester("requester-1", mockPolicyRequester);
-		await policyNegotiationProviderPoint.registerOffer(mockOffer);
-		await policyNegotiationProviderPoint.registerNegotiator("negotiator-1", mockNegotiator);
+		PolicyRequesterFactory.register("requester-2", () => mockPolicyRequester);
+		await adminPointComponent.create(mockOffer);
+		PolicyNegotiatorFactory.register("MockPolicyNegotiator", () => mockNegotiator);
 
 		const consumerPid = await policyNegotiationConsumerPoint.sendRequestToProvider(
 			"http://localhost:3000",
-			"requester-1",
-			"offer-1"
+			"requester-2",
+			"urn:policy:offer-1"
 		);
 
 		const consumerStore = policyNegotiationConsumerMemoryEntityStorage.getStore();
@@ -481,13 +488,13 @@ describe("PolicyNegotiationPointService", () => {
 			correlationId: providerStore[0].id,
 			dateCreated: expect.any(String),
 			expires: expect.any(Number),
-			handlerId: "requester-1",
+			handlerId: "requester-2",
 			information: {},
 			offer: {
 				"@context": "http://www.w3.org/ns/odrl/2/",
 				"@type": "Offer",
 				assigner: testIdentityProvider,
-				uid: "offer-1"
+				uid: "urn:policy:offer-1"
 			},
 			state: "ACCEPTED"
 		});
@@ -500,13 +507,13 @@ describe("PolicyNegotiationPointService", () => {
 			correlationId: consumerPid,
 			dateCreated: expect.any(String),
 			expires: expect.any(Number),
-			handlerId: "negotiator-1",
+			handlerId: "MockPolicyNegotiator",
 			information: {},
 			offer: {
 				"@context": "http://www.w3.org/ns/odrl/2/",
 				"@type": "Offer",
 				assigner: testIdentityProvider,
-				uid: "offer-1"
+				uid: "urn:policy:offer-1"
 			},
 			state: "OFFERED"
 		});
@@ -520,13 +527,13 @@ describe("PolicyNegotiationPointService", () => {
 			correlationId: consumerPid,
 			dateCreated: expect.any(String),
 			expires: expect.any(Number),
-			handlerId: "negotiator-1",
+			handlerId: "MockPolicyNegotiator",
 			information: {},
 			offer: {
 				"@context": "http://www.w3.org/ns/odrl/2/",
 				"@type": "Offer",
 				assigner: testIdentityProvider,
-				uid: "offer-1"
+				uid: "urn:policy:offer-1"
 			},
 			state: "ACCEPTED"
 		});
@@ -540,13 +547,13 @@ describe("PolicyNegotiationPointService", () => {
 			correlationId: providerStore[0].id,
 			dateCreated: expect.any(String),
 			expires: expect.any(Number),
-			handlerId: "requester-1",
+			handlerId: "requester-2",
 			information: {},
 			offer: {
 				"@context": "http://www.w3.org/ns/odrl/2/",
 				"@type": "Offer",
 				assigner: testIdentityProvider,
-				uid: "offer-1"
+				uid: "urn:policy:offer-1"
 			},
 			agreement: {
 				"@context": "http://www.w3.org/ns/odrl/2/",
@@ -566,13 +573,13 @@ describe("PolicyNegotiationPointService", () => {
 			correlationId: consumerPid,
 			dateCreated: expect.any(String),
 			expires: expect.any(Number),
-			handlerId: "negotiator-1",
+			handlerId: "MockPolicyNegotiator",
 			information: {},
 			offer: {
 				"@context": "http://www.w3.org/ns/odrl/2/",
 				"@type": "Offer",
 				assigner: testIdentityProvider,
-				uid: "offer-1"
+				uid: "urn:policy:offer-1"
 			},
 			agreement: {
 				"@context": "http://www.w3.org/ns/odrl/2/",
@@ -593,13 +600,13 @@ describe("PolicyNegotiationPointService", () => {
 			correlationId: providerStore[0].id,
 			dateCreated: expect.any(String),
 			expires: expect.any(Number),
-			handlerId: "requester-1",
+			handlerId: "requester-2",
 			information: {},
 			offer: {
 				"@context": "http://www.w3.org/ns/odrl/2/",
 				"@type": "Offer",
 				assigner: testIdentityProvider,
-				uid: "offer-1"
+				uid: "urn:policy:offer-1"
 			},
 			agreement: {
 				"@context": "http://www.w3.org/ns/odrl/2/",
@@ -618,13 +625,13 @@ describe("PolicyNegotiationPointService", () => {
 			correlationId: consumerPid,
 			dateCreated: expect.any(String),
 			expires: expect.any(Number),
-			handlerId: "negotiator-1",
+			handlerId: "MockPolicyNegotiator",
 			information: {},
 			offer: {
 				"@context": "http://www.w3.org/ns/odrl/2/",
 				"@type": "Offer",
 				assigner: testIdentityProvider,
-				uid: "offer-1"
+				uid: "urn:policy:offer-1"
 			},
 			agreement: {
 				"@context": "http://www.w3.org/ns/odrl/2/",
@@ -644,13 +651,13 @@ describe("PolicyNegotiationPointService", () => {
 			correlationId: providerStore[0].id,
 			dateCreated: expect.any(String),
 			expires: expect.any(Number),
-			handlerId: "requester-1",
+			handlerId: "requester-2",
 			information: {},
 			offer: {
 				"@context": "http://www.w3.org/ns/odrl/2/",
 				"@type": "Offer",
 				assigner: testIdentityProvider,
-				uid: "offer-1"
+				uid: "urn:policy:offer-1"
 			},
 			agreement: {
 				"@context": "http://www.w3.org/ns/odrl/2/",
@@ -669,13 +676,13 @@ describe("PolicyNegotiationPointService", () => {
 			correlationId: consumerPid,
 			dateCreated: expect.any(String),
 			expires: expect.any(Number),
-			handlerId: "negotiator-1",
+			handlerId: "MockPolicyNegotiator",
 			information: {},
 			offer: {
 				"@context": "http://www.w3.org/ns/odrl/2/",
 				"@type": "Offer",
 				assigner: testIdentityProvider,
-				uid: "offer-1"
+				uid: "urn:policy:offer-1"
 			},
 			agreement: {
 				"@context": "http://www.w3.org/ns/odrl/2/",
@@ -695,71 +702,5 @@ describe("PolicyNegotiationPointService", () => {
 		expect(mockPolicyRequester.agreement).toHaveBeenCalledTimes(1);
 		expect(mockPolicyRequester.finalised).toHaveBeenCalledTimes(1);
 		expect(mockPolicyRequester.terminated).toHaveBeenCalledTimes(0);
-	});
-
-	test("should register a requester without error", async () => {
-		const service = new PolicyNegotiationPointService({
-			policyNegotiationAdministrationPointComponentType: "policy-negotiation-provider-admin-point",
-			config: {
-				baseCallbackUrl: "http://localhost:4000",
-				negotiationComponentCreator: async () => ({}) as IPolicyNegotiationPointComponent
-			}
-		});
-		testNodeId = testIdentityProvider;
-		await service.start();
-		await expect(
-			service.registerRequester("requester-1", mockPolicyRequester)
-		).resolves.not.toThrow();
-	});
-
-	test("should register a negotiator without error", async () => {
-		const service = new PolicyNegotiationPointService({
-			policyNegotiationAdministrationPointComponentType: "policy-negotiation-provider-admin-point",
-			config: {
-				baseCallbackUrl: "http://localhost:4000",
-				negotiationComponentCreator: async () => ({}) as IPolicyNegotiationPointComponent
-			}
-		});
-		testNodeId = testIdentityProvider;
-		await service.start();
-		await expect(service.registerNegotiator("negotiator-1", mockNegotiator)).resolves.not.toThrow();
-	});
-
-	test("should unregister negotiator and be idempotent", async () => {
-		const service = new PolicyNegotiationPointService({
-			policyNegotiationAdministrationPointComponentType: "policy-negotiation-provider-admin-point",
-			config: {
-				baseCallbackUrl: "http://localhost:4000",
-				negotiationComponentCreator: async () => ({}) as IPolicyNegotiationPointComponent
-			}
-		});
-		testNodeId = testIdentityProvider;
-		await service.start();
-		await service.registerNegotiator("negotiator-1", mockNegotiator);
-		await expect(service.unregisterNegotiator("negotiator-1")).resolves.not.toThrow();
-		// Second call should also not throw
-		await expect(service.unregisterNegotiator("negotiator-1")).resolves.not.toThrow();
-		// Try registering again to ensure clean state
-		await expect(service.registerNegotiator("negotiator-1", mockNegotiator)).resolves.not.toThrow();
-	});
-
-	test("should unregister requester and be idempotent", async () => {
-		const service = new PolicyNegotiationPointService({
-			policyNegotiationAdministrationPointComponentType: "policy-negotiation-provider-admin-point",
-			config: {
-				baseCallbackUrl: "http://localhost:4000",
-				negotiationComponentCreator: async () => ({}) as IPolicyNegotiationPointComponent
-			}
-		});
-		testNodeId = testIdentityProvider;
-		await service.start();
-		await service.registerRequester("requester-1", mockPolicyRequester);
-		await expect(service.unregisterRequester("requester-1")).resolves.not.toThrow();
-		// Second call should also not throw
-		await expect(service.unregisterRequester("requester-1")).resolves.not.toThrow();
-		// Try registering again to ensure clean state
-		await expect(
-			service.registerRequester("requester-1", mockPolicyRequester)
-		).resolves.not.toThrow();
 	});
 });

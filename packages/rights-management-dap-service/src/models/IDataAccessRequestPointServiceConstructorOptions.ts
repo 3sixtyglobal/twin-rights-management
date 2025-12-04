@@ -13,6 +13,12 @@ export interface IDataAccessRequestPointServiceConstructorOptions {
 	loggingComponentType?: string;
 
 	/**
+	 * The type of the trust component.
+	 * @default trust
+	 */
+	trustComponentType?: string;
+
+	/**
 	 * Configuration options for the data access request point service.
 	 */
 	config: IDataAccessRequestPointServiceConfig;

@@ -2758,7 +2758,7 @@
 						}
 					}
 				],
-				"description": "The Dataspace Protocol Protocol JSON-LD context type."
+				"description": "The Dataspace Protocol JSON-LD context type."
 			},
 			"EntityCondition<JsonLdNodeObject>": {
 				"anyOf": [

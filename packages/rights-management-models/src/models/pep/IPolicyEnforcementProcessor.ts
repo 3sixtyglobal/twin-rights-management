@@ -1,12 +1,13 @@
 // Copyright 2025 IOTA Stiftung.
 // SPDX-License-Identifier: Apache-2.0.
+import type { IComponent } from "@twin.org/core";
 import type { IPolicyLocator } from "../IPolicyLocator.js";
 import type { IPolicyDecision } from "../pdp/IPolicyDecision.js";
 
 /**
  * Interface for policy enforcement processors.
  */
-export interface IPolicyEnforcementProcessor {
+export interface IPolicyEnforcementProcessor extends IComponent {
 	/**
 	 * Process the response from the policy decision point.
 	 * @param locator The locator to find relevant policies.

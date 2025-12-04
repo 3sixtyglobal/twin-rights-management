@@ -11,4 +11,9 @@ export interface IDataAccessRequestPointServiceConfig {
 	 * To be used when sending request remotely to another node.
 	 */
 	dataAccessComponentCreator: (url: string) => Promise<IDataAccessPointComponent>;
+
+	/**
+	 * Override the default trust generator.
+	 */
+	overrideTrustGeneratorType?: string;
 }

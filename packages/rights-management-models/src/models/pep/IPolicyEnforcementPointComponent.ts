@@ -2,7 +2,6 @@
 // SPDX-License-Identifier: Apache-2.0.
 import type { IComponent } from "@twin.org/core";
 import type { IPolicyLocator } from "../IPolicyLocator.js";
-import type { IPolicyEnforcementProcessor } from "./IPolicyEnforcementProcessor.js";
 
 /**
  * Interface describing a Policy Enforcement Point (PEP) contract.
@@ -18,19 +17,4 @@ export interface IPolicyEnforcementPointComponent extends IComponent {
 	 * @returns The manipulated data with any policies applied.
 	 */
 	intercept<D = unknown, R = D>(locator: IPolicyLocator, data?: D): Promise<R>;
-
-	/**
-	 * Register a processor to use for handling data.
-	 * @param processorId The id of the processor to register.
-	 * @param processor The processor to register.
-	 * @returns Nothing.
-	 */
-	registerProcessor(processorId: string, processor: IPolicyEnforcementProcessor): Promise<void>;
-
-	/**
-	 * Unregister a processor from the handling.
-	 * @param processorId The id of the processor to unregister.
-	 * @returns Nothing.
-	 */
-	unregisterProcessor(processorId: string): Promise<void>;
 }

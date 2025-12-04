@@ -1,6 +1,6 @@
 // Copyright 2025 IOTA Stiftung.
 // SPDX-License-Identifier: Apache-2.0.
-import { ComponentFactory, GeneralError } from "@twin.org/core";
+import { ComponentFactory, Factory, GeneralError } from "@twin.org/core";
 import { MemoryEntityStorageConnector } from "@twin.org/entity-storage-connector-memory";
 import { EntityStorageConnectorFactory } from "@twin.org/entity-storage-models";
 import {
@@ -13,6 +13,7 @@ import { LoggingService } from "@twin.org/logging-service";
 import { nameof } from "@twin.org/nameof";
 import {
 	PolicyDecision,
+	PolicyEnforcementProcessorFactory,
 	type IPolicyDecision,
 	type IPolicyDecisionPointComponent,
 	type IPolicyEnforcementProcessor
@@ -36,12 +37,6 @@ class MockPolicyDecisionPointComponent implements IPolicyDecisionPointComponent 
 	// eslint-disable-next-line no-restricted-syntax
 	public evaluate = vi.fn();
 
-	// eslint-disable-next-line no-restricted-syntax
-	public registerArbiter = vi.fn();
-
-	// eslint-disable-next-line no-restricted-syntax
-	public unregisterArbiter = vi.fn();
-
 	/**
 	 * Returns the class name of the component.
 	 * @returns The class name of the component.
@@ -57,6 +52,10 @@ class MockPolicyDecisionPointComponent implements IPolicyDecisionPointComponent 
 class MockPolicyEnforcementProcessor implements IPolicyEnforcementProcessor {
 	// eslint-disable-next-line no-restricted-syntax
 	public process = vi.fn();
+
+	public className(): string {
+		return "MockPolicyEnforcementProcessor";
+	}
 }
 
 let loggingMemoryEntityStorage: MemoryEntityStorageConnector<LogEntry>;
@@ -64,6 +63,8 @@ let odrlPolicyMemoryEntityStorage: MemoryEntityStorageConnector<OdrlPolicy>;
 
 describe("PolicyEnforcementPointService", () => {
 	beforeEach(() => {
+		Factory.clearFactories();
+
 		initSchemaLogging();
 		initSchemaPolicyAdministrationPoint();
 
@@ -105,7 +106,7 @@ describe("PolicyEnforcementPointService", () => {
 		const policyEnforcementPoint = new PolicyEnforcementPointService();
 		const mockProcessor = new MockPolicyEnforcementProcessor();
 
-		await policyEnforcementPoint.registerProcessor("testProcessor", mockProcessor);
+		PolicyEnforcementProcessorFactory.register("testProcessor", () => mockProcessor);
 
 		// Verify no errors thrown during registration
 		expect(() => policyEnforcementPoint).not.toThrow();
@@ -115,23 +116,22 @@ describe("PolicyEnforcementPointService", () => {
 		const policyEnforcementPoint = new PolicyEnforcementPointService();
 		const mockProcessor = new MockPolicyEnforcementProcessor();
 
-		await policyEnforcementPoint.registerProcessor("testProcessor", mockProcessor);
-		await policyEnforcementPoint.unregisterProcessor("testProcessor");
+		PolicyEnforcementProcessorFactory.register("testProcessor", () => mockProcessor);
+		PolicyEnforcementProcessorFactory.unregister("testProcessor");
 
 		// Should complete without errors
 		expect(() => policyEnforcementPoint).not.toThrow();
 	});
 
 	test("can replace an existing processor", async () => {
-		const policyEnforcementPoint = new PolicyEnforcementPointService();
 		const firstProcessor = new MockPolicyEnforcementProcessor();
 		const secondProcessor = new MockPolicyEnforcementProcessor();
 
-		await policyEnforcementPoint.registerProcessor("testProcessor", firstProcessor);
-		await policyEnforcementPoint.registerProcessor("testProcessor", secondProcessor);
+		PolicyEnforcementProcessorFactory.register("testProcessor", () => firstProcessor);
+		PolicyEnforcementProcessorFactory.register("testProcessor", () => secondProcessor);
 
 		// Should replace without duplicating
-		expect(() => policyEnforcementPoint).not.toThrow();
+		expect(PolicyEnforcementProcessorFactory.names()).toEqual(["testProcessor"]);
 	});
 
 	test("intercept calls PDP evaluate and processes data through registered processors", async () => {
@@ -149,7 +149,7 @@ describe("PolicyEnforcementPointService", () => {
 		const processedData = { content: "processed data", watermark: "applied" };
 		mockProcessor.process.mockResolvedValue(processedData);
 
-		await policyEnforcementPoint.registerProcessor("watermarkProcessor", mockProcessor);
+		PolicyEnforcementProcessorFactory.register("watermarkProcessor", () => mockProcessor);
 
 		const inputData = { content: "original data" };
 		const result = await policyEnforcementPoint.intercept(
@@ -189,8 +189,8 @@ describe("PolicyEnforcementPointService", () => {
 		firstProcessor.process.mockResolvedValue(firstProcessedData);
 		secondProcessor.process.mockResolvedValue(finalProcessedData);
 
-		await policyEnforcementPoint.registerProcessor("firstProcessor", firstProcessor);
-		await policyEnforcementPoint.registerProcessor("secondProcessor", secondProcessor);
+		PolicyEnforcementProcessorFactory.register("firstProcessor", () => firstProcessor);
+		PolicyEnforcementProcessorFactory.register("secondProcessor", () => secondProcessor);
 
 		const inputData = { content: "original" };
 		const result = await policyEnforcementPoint.intercept(
@@ -223,8 +223,8 @@ describe("PolicyEnforcementPointService", () => {
 		failingProcessor.process.mockRejectedValue(new Error("Processor failed"));
 		subsequentProcessor.process.mockResolvedValue({ content: "should not be called" });
 
-		await policyEnforcementPoint.registerProcessor("failingProcessor", failingProcessor);
-		await policyEnforcementPoint.registerProcessor("subsequentProcessor", subsequentProcessor);
+		PolicyEnforcementProcessorFactory.register("failingProcessor", () => failingProcessor);
+		PolicyEnforcementProcessorFactory.register("subsequentProcessor", () => subsequentProcessor);
 
 		await expect(
 			policyEnforcementPoint.intercept(
@@ -237,39 +237,6 @@ describe("PolicyEnforcementPointService", () => {
 		expect(subsequentProcessor.process).not.toHaveBeenCalled();
 	});
 
-	test("logs processor registration", async () => {
-		const policyEnforcementPoint = new PolicyEnforcementPointService();
-		const mockProcessor = new MockPolicyEnforcementProcessor();
-
-		await policyEnforcementPoint.registerProcessor("logTestProcessor", mockProcessor);
-
-		const logEntries = await loggingMemoryEntityStorage.query();
-		const registrationLog = logEntries.entities.find(
-			log => log.message === "registeredProcessor" && log.data?.processorId === "logTestProcessor"
-		);
-
-		expect(registrationLog).toBeDefined();
-		expect(registrationLog?.level).toBe("info");
-	});
-
-	test("logs processor unregistration", async () => {
-		const policyEnforcementPoint = new PolicyEnforcementPointService();
-		const mockProcessor = new MockPolicyEnforcementProcessor();
-
-		await policyEnforcementPoint.registerProcessor("unregisterTestProcessor", mockProcessor);
-		await policyEnforcementPoint.unregisterProcessor("unregisterTestProcessor");
-
-		const logEntries = await loggingMemoryEntityStorage.query();
-		const unregistrationLog = logEntries.entities.find(
-			log =>
-				log.message === "unregisteredProcessor" &&
-				log.data?.processorId === "unregisterTestProcessor"
-		);
-
-		expect(unregistrationLog).toBeDefined();
-		expect(unregistrationLog?.level).toBe("info");
-	});
-
 	test("logs processor failures and throws", async () => {
 		const mockPdp = ComponentFactory.get<MockPolicyDecisionPointComponent>("policy-decision-point");
 		mockPdp.evaluate.mockResolvedValue([]);
@@ -278,7 +245,7 @@ describe("PolicyEnforcementPointService", () => {
 		const failingProcessor = new MockPolicyEnforcementProcessor();
 		failingProcessor.process.mockRejectedValue(new Error("Processing error"));
 
-		await policyEnforcementPoint.registerProcessor("errorProcessor", failingProcessor);
+		PolicyEnforcementProcessorFactory.register("errorProcessor", () => failingProcessor);
 
 		await expect(
 			policyEnforcementPoint.intercept(
@@ -289,7 +256,9 @@ describe("PolicyEnforcementPointService", () => {
 
 		const logEntries = await loggingMemoryEntityStorage.query();
 		const errorLog = logEntries.entities.find(
-			log => log.message === "processingFailed" && log.data?.processorId === "errorProcessor"
+			log =>
+				log.message === "processingFailed" &&
+				log.data?.processorId === "MockPolicyEnforcementProcessor"
 		);
 
 		expect(errorLog).toBeDefined();
@@ -311,7 +280,7 @@ describe("PolicyEnforcementPointService", () => {
 			return data;
 		});
 
-		await policyEnforcementPoint.registerProcessor("modifyingProcessor", mockProcessor);
+		PolicyEnforcementProcessorFactory.register("modifyingProcessor", () => mockProcessor);
 
 		const originalData = { content: "original", modified: false };
 		await policyEnforcementPoint.intercept(
@@ -322,26 +291,6 @@ describe("PolicyEnforcementPointService", () => {
 		// Original data should remain unchanged
 		expect(originalData.modified).toBe(false);
 		expect(mockProcessor.process).toHaveBeenCalled();
-	});
-
-	test("validates processor registration parameters", async () => {
-		const policyEnforcementPoint = new PolicyEnforcementPointService();
-		const mockProcessor = new MockPolicyEnforcementProcessor();
-
-		await expect(policyEnforcementPoint.registerProcessor("", mockProcessor)).rejects.toThrow();
-
-		await expect(
-			policyEnforcementPoint.registerProcessor(
-				"validId",
-				undefined as unknown as IPolicyEnforcementProcessor
-			)
-		).rejects.toThrow();
-	});
-
-	test("validates processor unregistration parameters", async () => {
-		const policyEnforcementPoint = new PolicyEnforcementPointService();
-
-		await expect(policyEnforcementPoint.unregisterProcessor("")).rejects.toThrow();
 	});
 
 	test("processor only processes matching asset type", async () => {
@@ -360,7 +309,7 @@ describe("PolicyEnforcementPointService", () => {
 			return data;
 		});
 
-		await policyEnforcementPoint.registerProcessor("documentProcessor", selectiveProcessor);
+		PolicyEnforcementProcessorFactory.register("documentProcessor", () => selectiveProcessor);
 
 		const documentData = { content: "document content" };
 		const imageData = { content: "image content" };
@@ -399,7 +348,7 @@ describe("PolicyEnforcementPointService", () => {
 			return data;
 		});
 
-		await policyEnforcementPoint.registerProcessor("encryptionProcessor", encryptionProcessor);
+		PolicyEnforcementProcessorFactory.register("encryptionProcessor", () => encryptionProcessor);
 
 		const testData = { content: "sensitive data" };
 
@@ -441,7 +390,7 @@ describe("PolicyEnforcementPointService", () => {
 			return data;
 		});
 
-		await policyEnforcementPoint.registerProcessor("watermarkProcessor", watermarkProcessor);
+		PolicyEnforcementProcessorFactory.register("watermarkProcessor", () => watermarkProcessor);
 
 		const imageData = { filename: "photo.jpg", content: "image data" };
 
@@ -509,9 +458,9 @@ describe("PolicyEnforcementPointService", () => {
 			return data;
 		});
 
-		await policyEnforcementPoint.registerProcessor("auditProcessor", auditProcessor);
-		await policyEnforcementPoint.registerProcessor("compressionProcessor", compressionProcessor);
-		await policyEnforcementPoint.registerProcessor("encryptionProcessor", encryptionProcessor);
+		PolicyEnforcementProcessorFactory.register("auditProcessor", () => auditProcessor);
+		PolicyEnforcementProcessorFactory.register("compressionProcessor", () => compressionProcessor);
+		PolicyEnforcementProcessorFactory.register("encryptionProcessor", () => encryptionProcessor);
 
 		// Test video download (should be audited AND compressed)
 		const videoData = { filename: "movie.mp4", size: "2GB" };

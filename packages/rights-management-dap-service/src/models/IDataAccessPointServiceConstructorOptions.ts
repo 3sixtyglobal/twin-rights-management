@@ -1,6 +1,5 @@
 // Copyright 2025 IOTA Stiftung.
 // SPDX-License-Identifier: Apache-2.0.
-import type { IDataAccessPointServiceConfig } from "./IDataAccessPointServiceConfig.js";
 
 /**
  * Options for the Data Access Point Service.
@@ -19,7 +18,8 @@ export interface IDataAccessPointServiceConstructorOptions {
 	policyEnforcementPointComponentType?: string;
 
 	/**
-	 * Configuration options for the data access point service.
+	 * The type of the trust component.
+	 * @default trust
 	 */
-	config?: IDataAccessPointServiceConfig;
+	trustComponentType?: string;
 }

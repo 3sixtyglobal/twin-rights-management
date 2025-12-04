@@ -1,20 +1,16 @@
 // Copyright 2025 IOTA Stiftung.
 // SPDX-License-Identifier: Apache-2.0.
 import { ContextIdHelper, ContextIdKeys, ContextIdStore } from "@twin.org/context";
-import { ComponentFactory, GeneralError, Guards, Is } from "@twin.org/core";
+import { ComponentFactory, Guards } from "@twin.org/core";
 import type { IJsonLdNodeObject } from "@twin.org/data-json-ld";
 import type { EntityCondition } from "@twin.org/entity";
-import {
-	IdentityAuthenticationContexts,
-	IdentityAuthenticationTypes,
-	type IIdentityAuthenticationActionRequest
-} from "@twin.org/identity-authentication";
 import type { ILoggingComponent } from "@twin.org/logging-models";
 import { nameof } from "@twin.org/nameof";
 import type {
 	IDataAccessPointComponent,
 	IDataAccessRequestPointComponent
 } from "@twin.org/rights-management-models";
+import type { ITrustComponent } from "@twin.org/trust-models";
 import type { IDataAccessRequestPointServiceConstructorOptions } from "./models/IDataAccessRequestPointServiceConstructorOptions.js";
 
 /**
@@ -39,10 +35,16 @@ export class DataAccessRequestPointService implements IDataAccessRequestPointCom
 	private readonly _dataAccessComponentCreator: (url: string) => Promise<IDataAccessPointComponent>;
 
 	/**
-	 * The node identity.
+	 * The trust component.
 	 * @internal
 	 */
-	private _nodeId?: string;
+	private readonly _trustComponent: ITrustComponent;
+
+	/**
+	 * Override the default trust generator.
+	 * @internal
+	 */
+	private readonly _overrideTrustGeneratorType?: string;
 
 	/**
 	 * Create a new instance of DataAccessRequestPointService (DARP).
@@ -53,6 +55,10 @@ export class DataAccessRequestPointService implements IDataAccessRequestPointCom
 			options?.loggingComponentType ?? "logging"
 		);
 		this._dataAccessComponentCreator = options.config.dataAccessComponentCreator;
+		this._trustComponent = ComponentFactory.get<ITrustComponent>(
+			options?.trustComponentType ?? "trust"
+		);
+		this._overrideTrustGeneratorType = options.config.overrideTrustGeneratorType;
 	}
 
 	/**
@@ -61,17 +67,6 @@ export class DataAccessRequestPointService implements IDataAccessRequestPointCom
 	 */
 	public className(): string {
 		return DataAccessRequestPointService.CLASS_NAME;
-	}
-
-	/**
-	 * The component needs to be started when the node is initialized.
-	 * @param nodeLoggingComponentType The node logging component type.
-	 * @returns Nothing.
-	 */
-	public async start(nodeLoggingComponentType?: string): Promise<void> {
-		const contextIds = await ContextIdStore.getContextIds();
-		ContextIdHelper.guard(contextIds, ContextIdKeys.Node);
-		this._nodeId = contextIds[ContextIdKeys.Node];
 	}
 
 	/**
@@ -86,19 +81,17 @@ export class DataAccessRequestPointService implements IDataAccessRequestPointCom
 		Guards.stringValue(DataAccessRequestPointService.CLASS_NAME, nameof(assetType), assetType);
 		Guards.object<IJsonLdNodeObject>(DataAccessRequestPointService.CLASS_NAME, nameof(item), item);
 
-		if (!Is.stringValue(this._nodeId)) {
-			throw new GeneralError(DataAccessRequestPointService.CLASS_NAME, "missingNodeId");
-		}
+		const contextIds = await ContextIdStore.getContextIds();
+		ContextIdHelper.guard(contextIds, ContextIdKeys.Organization);
+		const organizationId = contextIds[ContextIdKeys.Organization];
 
-		const actionRequest: IIdentityAuthenticationActionRequest = {
-			"@context": IdentityAuthenticationContexts.ContextRoot,
-			type: IdentityAuthenticationTypes.ActionRequest,
-			action: "create",
-			requester: this._nodeId
-		};
+		const trustPayload = await this._trustComponent.generate(
+			organizationId,
+			this._overrideTrustGeneratorType
+		);
 
 		const dataAccessClient = await this._dataAccessComponentCreator(url);
-		return dataAccessClient.create(assetType, item, actionRequest);
+		return dataAccessClient.create(assetType, item, trustPayload);
 	}
 
 	/**
@@ -113,19 +106,17 @@ export class DataAccessRequestPointService implements IDataAccessRequestPointCom
 		Guards.stringValue(DataAccessRequestPointService.CLASS_NAME, nameof(assetType), assetType);
 		Guards.stringValue(DataAccessRequestPointService.CLASS_NAME, nameof(id), id);
 
-		if (!Is.stringValue(this._nodeId)) {
-			throw new GeneralError(DataAccessRequestPointService.CLASS_NAME, "missingNodeId");
-		}
+		const contextIds = await ContextIdStore.getContextIds();
+		ContextIdHelper.guard(contextIds, ContextIdKeys.Organization);
+		const organizationId = contextIds[ContextIdKeys.Organization];
 
-		const actionRequest: IIdentityAuthenticationActionRequest = {
-			"@context": IdentityAuthenticationContexts.ContextRoot,
-			type: IdentityAuthenticationTypes.ActionRequest,
-			action: "get",
-			requester: this._nodeId
-		};
+		const trustPayload = await this._trustComponent.generate(
+			organizationId,
+			this._overrideTrustGeneratorType
+		);
 
 		const dataAccessClient = await this._dataAccessComponentCreator(url);
-		return dataAccessClient.get(assetType, id, actionRequest);
+		return dataAccessClient.get(assetType, id, trustPayload);
 	}
 
 	/**
@@ -140,19 +131,17 @@ export class DataAccessRequestPointService implements IDataAccessRequestPointCom
 		Guards.stringValue(DataAccessRequestPointService.CLASS_NAME, nameof(assetType), assetType);
 		Guards.object<IJsonLdNodeObject>(DataAccessRequestPointService.CLASS_NAME, nameof(item), item);
 
-		if (!Is.stringValue(this._nodeId)) {
-			throw new GeneralError(DataAccessRequestPointService.CLASS_NAME, "missingNodeId");
-		}
+		const contextIds = await ContextIdStore.getContextIds();
+		ContextIdHelper.guard(contextIds, ContextIdKeys.Organization);
+		const organizationId = contextIds[ContextIdKeys.Organization];
 
-		const actionRequest: IIdentityAuthenticationActionRequest = {
-			"@context": IdentityAuthenticationContexts.ContextRoot,
-			type: IdentityAuthenticationTypes.ActionRequest,
-			action: "update",
-			requester: this._nodeId
-		};
+		const trustPayload = await this._trustComponent.generate(
+			organizationId,
+			this._overrideTrustGeneratorType
+		);
 
 		const dataAccessClient = await this._dataAccessComponentCreator(url);
-		return dataAccessClient.update(assetType, item, actionRequest);
+		return dataAccessClient.update(assetType, item, trustPayload);
 	}
 
 	/**
@@ -167,19 +156,17 @@ export class DataAccessRequestPointService implements IDataAccessRequestPointCom
 		Guards.stringValue(DataAccessRequestPointService.CLASS_NAME, nameof(assetType), assetType);
 		Guards.stringValue(DataAccessRequestPointService.CLASS_NAME, nameof(id), id);
 
-		if (!Is.stringValue(this._nodeId)) {
-			throw new GeneralError(DataAccessRequestPointService.CLASS_NAME, "missingNodeId");
-		}
+		const contextIds = await ContextIdStore.getContextIds();
+		ContextIdHelper.guard(contextIds, ContextIdKeys.Organization);
+		const organizationId = contextIds[ContextIdKeys.Organization];
 
-		const actionRequest: IIdentityAuthenticationActionRequest = {
-			"@context": IdentityAuthenticationContexts.ContextRoot,
-			type: IdentityAuthenticationTypes.ActionRequest,
-			action: "remove",
-			requester: this._nodeId
-		};
+		const trustPayload = await this._trustComponent.generate(
+			organizationId,
+			this._overrideTrustGeneratorType
+		);
 
 		const dataAccessClient = await this._dataAccessComponentCreator(url);
-		await dataAccessClient.remove(assetType, id, actionRequest);
+		await dataAccessClient.remove(assetType, id, trustPayload);
 	}
 
 	/**
@@ -204,18 +191,16 @@ export class DataAccessRequestPointService implements IDataAccessRequestPointCom
 		Guards.stringValue(DataAccessRequestPointService.CLASS_NAME, nameof(url), url);
 		Guards.stringValue(DataAccessRequestPointService.CLASS_NAME, nameof(assetType), assetType);
 
-		if (!Is.stringValue(this._nodeId)) {
-			throw new GeneralError(DataAccessRequestPointService.CLASS_NAME, "missingNodeId");
-		}
+		const contextIds = await ContextIdStore.getContextIds();
+		ContextIdHelper.guard(contextIds, ContextIdKeys.Organization);
+		const organizationId = contextIds[ContextIdKeys.Organization];
 
-		const actionRequest: IIdentityAuthenticationActionRequest = {
-			"@context": IdentityAuthenticationContexts.ContextRoot,
-			type: IdentityAuthenticationTypes.ActionRequest,
-			action: "query",
-			requester: this._nodeId
-		};
+		const trustPayload = await this._trustComponent.generate(
+			organizationId,
+			this._overrideTrustGeneratorType
+		);
 
 		const dataAccessClient = await this._dataAccessComponentCreator(url);
-		return dataAccessClient.query(assetType, conditions, cursor, options, actionRequest);
+		return dataAccessClient.query(assetType, conditions, cursor, options, trustPayload);
 	}
 }

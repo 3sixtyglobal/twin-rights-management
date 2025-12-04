@@ -74,6 +74,13 @@
 
 ## Variables
 
+- [DataAccessHandlerFactory](variables/DataAccessHandlerFactory.md)
+- [PolicyArbiterFactory](variables/PolicyArbiterFactory.md)
+- [PolicyEnforcementProcessorFactory](variables/PolicyEnforcementProcessorFactory.md)
+- [PolicyExecutionActionFactory](variables/PolicyExecutionActionFactory.md)
+- [PolicyInformationSourceFactory](variables/PolicyInformationSourceFactory.md)
+- [PolicyNegotiatorFactory](variables/PolicyNegotiatorFactory.md)
+- [PolicyRequesterFactory](variables/PolicyRequesterFactory.md)
 - [PolicyDecision](variables/PolicyDecision.md)
 - [PolicyDecisionStage](variables/PolicyDecisionStage.md)
 - [PolicyInformationAccessMode](variables/PolicyInformationAccessMode.md)

@@ -1,0 +1,20 @@
+{
+	"error": {
+		"identityPolicyInformationSource": {
+			"identityRetrievalFailed": "Failed to retrieve identity information for locator: \"{locator}\""
+		}
+	},
+	"info": {
+		"identityPolicyInformationSource": {
+			"identityRetrieving": "Retrieving identity information for locator: \"{locator}\""
+		},
+		"staticPolicyInformationSource": {
+			"staticRetrieving": "Retrieving static policy information for locator \"{locator}\" with access mode: \"{accessMode}\"",
+			"staticRetrieved": "Retrieved static policy information for locator: \"{locator}\" with access mode: \"{accessMode}\", item count: {itemCount}"
+		},
+		"loggingPolicyExecutionAction": {
+			"policyActionExecutedBefore": "Policy executed for locator: \"{locator}\", stage: \"{stage}\", data: \"{data}\", policies: \"{policies}\"",
+			"policyActionExecutedAfter": "Policy executed for locator: \"{locator}\", stage: \"{stage}\", data: \"{data}\", policies: \"{policies}\", decisions: \"{decisions}\""
+		}
+	}
+}

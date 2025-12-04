@@ -2,6 +2,10 @@
 
 Interface describing a Policy Negotiator.
 
+## Extends
+
+- `IComponent`
+
 ## Methods
 
 ### supportsOffer()

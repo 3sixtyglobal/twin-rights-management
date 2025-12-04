@@ -39,7 +39,6 @@
 		"@twin.org/data-json-ld": "next",
 		"@twin.org/entity": "next",
 		"@twin.org/nameof": "next",
-		"@twin.org/identity-authentication": "next",
 		"@twin.org/rights-management-models": "0.0.3-next.3",
 		"@twin.org/standards-dataspace-protocol": "next",
 		"@twin.org/standards-w3c-did": "next",

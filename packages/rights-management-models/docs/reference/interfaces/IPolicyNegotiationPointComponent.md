@@ -13,7 +13,7 @@ https://eclipse-dataspace-protocol-base.github.io/DataspaceProtocol/2025-1/#nego
 
 ### getNegotiation()
 
-> **getNegotiation**(`id`, `actionRequest`): `Promise`\<`IContractNegotiation` \| `IContractNegotiationError`\>
+> **getNegotiation**(`id`, `trustPayload`): `Promise`\<`IContractNegotiation` \| `IContractNegotiationError`\>
 
 Get the current state of the negotiation.
 
@@ -25,11 +25,11 @@ Get the current state of the negotiation.
 
 The id of the negotiation to retrieve.
 
-##### actionRequest
+##### trustPayload
 
-`IIdentityAuthenticationActionRequest`
+`unknown`
 
-The action request used in the verifiable credential.
+Trust payload to verify the requesters identity.
 
 #### Returns
 
@@ -75,7 +75,7 @@ The negotiation id.
 
 ### requestFromConsumer()
 
-> **requestFromConsumer**(`message`, `actionRequest`): `Promise`\<`IContractNegotiation` \| `IContractNegotiationError`\>
+> **requestFromConsumer**(`message`, `trustPayload`): `Promise`\<`IContractNegotiation` \| `IContractNegotiationError`\>
 
 Processes an incoming request on a provider from a consumer.
 
@@ -87,11 +87,11 @@ Processes an incoming request on a provider from a consumer.
 
 The negotiation request.
 
-##### actionRequest
+##### trustPayload
 
-`IIdentityAuthenticationActionRequest`
+`unknown`
 
-The action request used in the verifiable credential.
+Trust payload to verify the requesters identity.
 
 #### Returns
 
@@ -103,7 +103,7 @@ The current state of the contract negotiation or an error.
 
 ### offerFromProvider()
 
-> **offerFromProvider**(`message`, `actionRequest`): `Promise`\<`IContractNegotiation` \| `IContractNegotiationError`\>
+> **offerFromProvider**(`message`, `trustPayload`): `Promise`\<`IContractNegotiation` \| `IContractNegotiationError`\>
 
 An offer has been received by a consumer.
 
@@ -115,11 +115,11 @@ An offer has been received by a consumer.
 
 The offer being received by the consumer.
 
-##### actionRequest
+##### trustPayload
 
-`IIdentityAuthenticationActionRequest`
+`unknown`
 
-The action request used in the verifiable credential.
+Trust payload to verify the requesters identity.
 
 #### Returns
 
@@ -131,7 +131,7 @@ The current state of the contract negotiation or an error.
 
 ### agreementFromProvider()
 
-> **agreementFromProvider**(`message`, `actionRequest`): `Promise`\<`IContractNegotiationError` \| `undefined`\>
+> **agreementFromProvider**(`message`, `trustPayload`): `Promise`\<`IContractNegotiationError` \| `undefined`\>
 
 An agreement has been received by a consumer.
 
@@ -143,11 +143,11 @@ An agreement has been received by a consumer.
 
 The agreement message to send.
 
-##### actionRequest
+##### trustPayload
 
-`IIdentityAuthenticationActionRequest`
+`unknown`
 
-The action request used in the verifiable credential.
+Trust payload to verify the requesters identity.
 
 #### Returns
 
@@ -159,7 +159,7 @@ The error if there is one.
 
 ### agreementVerificationFromConsumer()
 
-> **agreementVerificationFromConsumer**(`message`, `actionRequest`): `Promise`\<`IContractNegotiationError` \| `undefined`\>
+> **agreementVerificationFromConsumer**(`message`, `trustPayload`): `Promise`\<`IContractNegotiationError` \| `undefined`\>
 
 An agreement verification has been received by a provider.
 
@@ -171,11 +171,11 @@ An agreement verification has been received by a provider.
 
 The agreement verification message to send.
 
-##### actionRequest
+##### trustPayload
 
-`IIdentityAuthenticationActionRequest`
+`unknown`
 
-The action request used in the verifiable credential.
+Trust payload to verify the requesters identity.
 
 #### Returns
 
@@ -187,7 +187,7 @@ The error if there is one.
 
 ### event()
 
-> **event**(`message`, `destination`, `actionRequest`): `Promise`\<`IContractNegotiationError` \| `undefined`\>
+> **event**(`message`, `destination`, `trustPayload`): `Promise`\<`IContractNegotiationError` \| `undefined`\>
 
 An event has been received by the provider or consumer.
 
@@ -205,11 +205,11 @@ The destination is provider or consumer.
 
 `"provider"` | `"consumer"`
 
-##### actionRequest
+##### trustPayload
 
-`IIdentityAuthenticationActionRequest`
+`unknown`
 
-The action request used in the verifiable credential.
+Trust payload to verify the requesters identity.
 
 #### Returns
 
@@ -221,7 +221,7 @@ The error if there is one.
 
 ### terminate()
 
-> **terminate**(`message`, `destination`, `actionRequest`): `Promise`\<`IContractNegotiationError` \| `undefined`\>
+> **terminate**(`message`, `destination`, `trustPayload`): `Promise`\<`IContractNegotiationError` \| `undefined`\>
 
 A termination message has been received by the provider or consumer.
 
@@ -239,158 +239,14 @@ The destination is provider or consumer.
 
 `"provider"` | `"consumer"`
 
-##### actionRequest
+##### trustPayload
 
-`IIdentityAuthenticationActionRequest`
+`unknown`
 
-The action request used in the verifiable credential.
+Trust payload to verify the requesters identity.
 
 #### Returns
 
 `Promise`\<`IContractNegotiationError` \| `undefined`\>
 
 The error if there is one.
-
-***
-
-### registerNegotiator()
-
-> **registerNegotiator**(`negotiatorId`, `negotiator`): `Promise`\<`void`\>
-
-Register a negotiator to use for handling data.
-
-#### Parameters
-
-##### negotiatorId
-
-`string`
-
-The id of the negotiator to register.
-
-##### negotiator
-
-[`IPolicyNegotiator`](IPolicyNegotiator.md)
-
-The negotiator to register.
-
-#### Returns
-
-`Promise`\<`void`\>
-
-Nothing.
-
-***
-
-### unregisterNegotiator()
-
-> **unregisterNegotiator**(`negotiatorId`): `Promise`\<`void`\>
-
-Unregister a negotiator from the handling.
-
-#### Parameters
-
-##### negotiatorId
-
-`string`
-
-The id of the negotiator to unregister.
-
-#### Returns
-
-`Promise`\<`void`\>
-
-Nothing.
-
-***
-
-### registerRequester()
-
-> **registerRequester**(`requesterId`, `requester`): `Promise`\<`void`\>
-
-Register a requester to use for handle returning offers.
-
-#### Parameters
-
-##### requesterId
-
-`string`
-
-The id of the requester to register.
-
-##### requester
-
-[`IPolicyRequester`](IPolicyRequester.md)
-
-The requester to register.
-
-#### Returns
-
-`Promise`\<`void`\>
-
-Nothing.
-
-***
-
-### unregisterRequester()
-
-> **unregisterRequester**(`requesterId`): `Promise`\<`void`\>
-
-Unregister a requester from the handling.
-
-#### Parameters
-
-##### requesterId
-
-`string`
-
-The id of the requester to unregister.
-
-#### Returns
-
-`Promise`\<`void`\>
-
-Nothing.
-
-***
-
-### registerOffer()
-
-> **registerOffer**(`offer`): `Promise`\<`void`\>
-
-Register an offer available for negotiation.
-
-#### Parameters
-
-##### offer
-
-`IOdrlOffer`
-
-The offer to register.
-
-#### Returns
-
-`Promise`\<`void`\>
-
-Nothing.
-
-***
-
-### unregisterOffer()
-
-> **unregisterOffer**(`offerId`): `Promise`\<`void`\>
-
-Unregister an offer.
-
-#### Parameters
-
-##### offerId
-
-`string`
-
-The id of the offer to unregister.
-
-#### Returns
-
-`Promise`\<`void`\>
-
-Nothing.

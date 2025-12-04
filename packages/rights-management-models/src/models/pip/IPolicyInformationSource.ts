@@ -1,14 +1,15 @@
 // Copyright 2025 IOTA Stiftung.
 // SPDX-License-Identifier: Apache-2.0.
+import type { IComponent } from "@twin.org/core";
 import type { IOdrlPolicy } from "@twin.org/standards-w3c-odrl";
-import type { IPolicyInformationItems } from "./IPolicyInformationItems.js";
 import type { IPolicyLocator } from "../IPolicyLocator.js";
+import type { IPolicyInformationItems } from "./IPolicyInformationItems.js";
 import type { PolicyInformationAccessMode } from "./policyInformationAccessMode.js";
 
 /**
  * Interface for policy information sources.
  */
-export interface IPolicyInformationSource {
+export interface IPolicyInformationSource extends IComponent {
 	/**
 	 * Retrieve information from the sources.
 	 * @param locator The locator to find relevant policies.

@@ -15,11 +15,3 @@ The logging component for logging policy information.
 ```ts
 logging
 ```
-
-***
-
-### config?
-
-> `optional` **config**: [`IPolicyInformationPointServiceConfig`](IPolicyInformationPointServiceConfig.md)
-
-The configuration for the Policy Information Point Component.
