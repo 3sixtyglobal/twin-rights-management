@@ -16,12 +16,12 @@ import type {
 	IPolicyNegotiationPointComponent
 } from "@twin.org/rights-management-models";
 import {
-	ContractNegotiationEventType,
-	ContractNegotiationStateType,
-	ContractNegotiationTypes,
+	DataspaceProtocolContractNegotiationEventType,
+	DataspaceProtocolContractNegotiationStateType,
+	DataspaceProtocolContractNegotiationTypes,
 	DataspaceProtocolContexts,
-	type IContractNegotiation,
-	type IContractNegotiationError
+	type IDataspaceProtocolContractNegotiation,
+	type IDataspaceProtocolContractNegotiationError
 } from "@twin.org/standards-dataspace-protocol";
 import { OdrlContexts, OdrlTypes } from "@twin.org/standards-w3c-odrl";
 import { HeaderHelper, HeaderTypes, HttpStatusCode, MimeTypes } from "@twin.org/web";
@@ -89,10 +89,10 @@ export function generateRestRoutesPolicyNegotiationPoint(
 						response: {
 							body: {
 								"@context": [DataspaceProtocolContexts.ContextRoot],
-								"@type": ContractNegotiationTypes.ContractNegotiation,
+								"@type": DataspaceProtocolContractNegotiationTypes.ContractNegotiation,
 								providerPid: "urn:contract-negotiation:002aa11bb.......ffff",
 								consumerPid: "urn:contract-negotiation:22aa11bb.......ffff",
-								state: ContractNegotiationStateType.REQUESTED
+								state: DataspaceProtocolContractNegotiationStateType.REQUESTED
 							}
 						}
 					}
@@ -126,7 +126,7 @@ export function generateRestRoutesPolicyNegotiationPoint(
 						},
 						body: {
 							"@context": [DataspaceProtocolContexts.ContextRoot],
-							"@type": ContractNegotiationTypes.ContractRequestMessage,
+							"@type": DataspaceProtocolContractNegotiationTypes.ContractRequestMessage,
 							consumerPid: "urn:contract-negotiation:22aa11bb.......ffff",
 							offer: {
 								"@context": OdrlContexts.ContextRoot,
@@ -148,10 +148,10 @@ export function generateRestRoutesPolicyNegotiationPoint(
 						response: {
 							body: {
 								"@context": [DataspaceProtocolContexts.ContextRoot],
-								"@type": ContractNegotiationTypes.ContractNegotiation,
+								"@type": DataspaceProtocolContractNegotiationTypes.ContractNegotiation,
 								providerPid: "urn:contract-negotiation:00aa11bb.......ffff",
 								consumerPid: "urn:contract-negotiation:22aa11bb.......ffff",
-								state: ContractNegotiationStateType.REQUESTED
+								state: DataspaceProtocolContractNegotiationStateType.REQUESTED
 							}
 						}
 					}
@@ -186,7 +186,7 @@ export function generateRestRoutesPolicyNegotiationPoint(
 							},
 							body: {
 								"@context": [DataspaceProtocolContexts.ContextRoot],
-								"@type": ContractNegotiationTypes.ContractRequestMessage,
+								"@type": DataspaceProtocolContractNegotiationTypes.ContractRequestMessage,
 								consumerPid: "urn:contract-negotiation:22aa11bb.......ffff",
 								offer: {
 									"@context": OdrlContexts.ContextRoot,
@@ -239,10 +239,10 @@ export function generateRestRoutesPolicyNegotiationPoint(
 						},
 						body: {
 							"@context": [DataspaceProtocolContexts.ContextRoot],
-							"@type": ContractNegotiationTypes.ContractRequestMessage,
+							"@type": DataspaceProtocolContractNegotiationTypes.ContractRequestMessage,
 							providerPid: "urn:contract-negotiation:00aa11bb.......ffff",
 							consumerPid: "urn:contract-negotiation:22aa11bb.......ffff",
-							event: ContractNegotiationEventType.ACCEPTED
+							event: DataspaceProtocolContractNegotiationEventType.ACCEPTED
 						}
 					}
 				}
@@ -291,7 +291,7 @@ export function generateRestRoutesPolicyNegotiationPoint(
 						},
 						body: {
 							"@context": [DataspaceProtocolContexts.ContextRoot],
-							"@type": ContractNegotiationTypes.ContractRequestMessage,
+							"@type": DataspaceProtocolContractNegotiationTypes.ContractRequestMessage,
 							providerPid: "urn:contract-negotiation:00aa11bb.......ffff",
 							consumerPid: "urn:contract-negotiation:22aa11bb.......ffff"
 						}
@@ -339,7 +339,7 @@ export function generateRestRoutesPolicyNegotiationPoint(
 						},
 						body: {
 							"@context": [DataspaceProtocolContexts.ContextRoot],
-							"@type": ContractNegotiationTypes.ContractRequestMessage,
+							"@type": DataspaceProtocolContractNegotiationTypes.ContractRequestMessage,
 							providerPid: "urn:contract-negotiation:00aa11bb.......ffff",
 							consumerPid: "urn:contract-negotiation:22aa11bb.......ffff"
 						}
@@ -387,7 +387,7 @@ export function generateRestRoutesPolicyNegotiationPoint(
 						},
 						body: {
 							"@context": [DataspaceProtocolContexts.ContextRoot],
-							"@type": ContractNegotiationTypes.ContractRequestMessage,
+							"@type": DataspaceProtocolContractNegotiationTypes.ContractRequestMessage,
 							providerPid: "urn:contract-negotiation:00aa11bb.......ffff",
 							consumerPid: "urn:contract-negotiation:22aa11bb.......ffff",
 							offer: {
@@ -410,7 +410,7 @@ export function generateRestRoutesPolicyNegotiationPoint(
 						response: {
 							body: {
 								"@context": [DataspaceProtocolContexts.ContextRoot],
-								"@type": ContractNegotiationTypes.ContractRequestMessage,
+								"@type": DataspaceProtocolContractNegotiationTypes.ContractRequestMessage,
 								providerPid: "urn:contract-negotiation:00aa11bb.......ffff",
 								consumerPid: "urn:contract-negotiation:22aa11bb.......ffff"
 							}
@@ -446,7 +446,7 @@ export function generateRestRoutesPolicyNegotiationPoint(
 						},
 						body: {
 							"@context": [DataspaceProtocolContexts.ContextRoot],
-							"@type": ContractNegotiationTypes.ContractRequestMessage,
+							"@type": DataspaceProtocolContractNegotiationTypes.ContractRequestMessage,
 							providerPid: "urn:contract-negotiation:00aa11bb.......ffff",
 							consumerPid: "urn:contract-negotiation:22aa11bb.......ffff",
 							offer: {
@@ -469,7 +469,7 @@ export function generateRestRoutesPolicyNegotiationPoint(
 						response: {
 							body: {
 								"@context": [DataspaceProtocolContexts.ContextRoot],
-								"@type": ContractNegotiationTypes.ContractNegotiation,
+								"@type": DataspaceProtocolContractNegotiationTypes.ContractNegotiation,
 								providerPid: "urn:contract-negotiation:00aa11bb.......ffff",
 								consumerPid: "urn:contract-negotiation:22aa11bb.......ffff"
 							}
@@ -505,7 +505,7 @@ export function generateRestRoutesPolicyNegotiationPoint(
 						},
 						body: {
 							"@context": [DataspaceProtocolContexts.ContextRoot],
-							"@type": ContractNegotiationTypes.ContractRequestMessage,
+							"@type": DataspaceProtocolContractNegotiationTypes.ContractRequestMessage,
 							providerPid: "urn:contract-negotiation:00aa11bb.......ffff",
 							consumerPid: "urn:contract-negotiation:22aa11bb.......ffff",
 							agreement: {
@@ -559,11 +559,14 @@ export function generateRestRoutesPolicyNegotiationPoint(
  * @returns The mapped status code or undefined if no mapping was found or not an error.
  */
 function mapError(
-	result: IContractNegotiation | IContractNegotiationError | undefined
+	result:
+		| IDataspaceProtocolContractNegotiation
+		| IDataspaceProtocolContractNegotiationError
+		| undefined
 ): HttpStatusCode | undefined {
 	if (
-		result?.["@type"] === ContractNegotiationTypes.ContractNegotiationError &&
-		Is.object<IContractNegotiationError>(result)
+		result?.["@type"] === DataspaceProtocolContractNegotiationTypes.ContractNegotiationError &&
+		Is.object<IDataspaceProtocolContractNegotiationError>(result)
 	) {
 		if (Is.stringValue(result.code) && /notfound/i.test(result.code)) {
 			return HttpStatusCode.notFound;

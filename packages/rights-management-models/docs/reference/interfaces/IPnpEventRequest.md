@@ -36,6 +36,6 @@ The identifier of the negotiation to target.
 
 ### body
 
-> **body**: `IContractNegotiationEventMessage`
+> **body**: `IDataspaceProtocolContractNegotiationEventMessage`
 
 The body parameters of the request.

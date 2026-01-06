@@ -27,18 +27,18 @@ import {
 	type IPolicyNegotiationPointComponent
 } from "@twin.org/rights-management-models";
 import {
-	ContractNegotiationEventType,
-	ContractNegotiationStateType,
-	ContractNegotiationTypes,
+	DataspaceProtocolContractNegotiationEventType,
+	DataspaceProtocolContractNegotiationStateType,
+	DataspaceProtocolContractNegotiationTypes,
 	DataspaceProtocolContexts,
-	type IContractAgreementMessage,
-	type IContractAgreementVerificationMessage,
-	type IContractNegotiation,
-	type IContractNegotiationError,
-	type IContractNegotiationEventMessage,
-	type IContractNegotiationTerminationMessage,
-	type IContractOfferMessage,
-	type IContractRequestMessage
+	type IDataspaceProtocolContractAgreementMessage,
+	type IDataspaceProtocolContractAgreementVerificationMessage,
+	type IDataspaceProtocolContractNegotiation,
+	type IDataspaceProtocolContractNegotiationError,
+	type IDataspaceProtocolContractNegotiationEventMessage,
+	type IDataspaceProtocolContractNegotiationTerminationMessage,
+	type IDataspaceProtocolContractOfferMessage,
+	type IDataspaceProtocolContractRequestMessage
 } from "@twin.org/standards-dataspace-protocol";
 import { OdrlContexts, OdrlTypes, type IOdrlOffer } from "@twin.org/standards-w3c-odrl";
 import { TrustHelper, type ITrustComponent } from "@twin.org/trust-models";
@@ -171,7 +171,7 @@ export class PolicyNegotiationPointService implements IPolicyNegotiationPointCom
 	public async getNegotiation(
 		id: string,
 		trustPayload: unknown
-	): Promise<IContractNegotiation | IContractNegotiationError> {
+	): Promise<IDataspaceProtocolContractNegotiation | IDataspaceProtocolContractNegotiationError> {
 		Guards.stringValue(PolicyNegotiationPointService.CLASS_NAME, nameof(id), id);
 
 		try {
@@ -242,9 +242,9 @@ export class PolicyNegotiationPointService implements IPolicyNegotiationPointCom
 
 		const negotiationComponent = await this._negotiationComponentCreator(url);
 
-		const requestMessage: IContractRequestMessage = {
+		const requestMessage: IDataspaceProtocolContractRequestMessage = {
 			"@context": [DataspaceProtocolContexts.ContextRoot],
-			"@type": ContractNegotiationTypes.ContractRequestMessage,
+			"@type": DataspaceProtocolContractNegotiationTypes.ContractRequestMessage,
 			consumerPid,
 			offer: {
 				"@context": OdrlContexts.ContextRoot,
@@ -258,8 +258,8 @@ export class PolicyNegotiationPointService implements IPolicyNegotiationPointCom
 		const response = await negotiationComponent.requestFromConsumer(requestMessage, trustPayload);
 
 		if (
-			response["@type"] === ContractNegotiationTypes.ContractNegotiationError &&
-			Is.object<IContractNegotiationError>(response)
+			response["@type"] === DataspaceProtocolContractNegotiationTypes.ContractNegotiationError &&
+			Is.object<IDataspaceProtocolContractNegotiationError>(response)
 		) {
 			throw new GeneralError(
 				PolicyNegotiationPointService.CLASS_NAME,
@@ -273,7 +273,7 @@ export class PolicyNegotiationPointService implements IPolicyNegotiationPointCom
 		const policyNegotiation: IPolicyNegotiation = {
 			id: consumerPid,
 			correlationId: response.providerPid,
-			state: ContractNegotiationStateType.REQUESTED,
+			state: DataspaceProtocolContractNegotiationStateType.REQUESTED,
 			dateCreated: new Date(Date.now()).toISOString(),
 			handlerId: requesterId,
 			information: policyInformation
@@ -292,10 +292,10 @@ export class PolicyNegotiationPointService implements IPolicyNegotiationPointCom
 	 * @returns The current state of the contract negotiation or an error.
 	 */
 	public async requestFromConsumer(
-		message: IContractRequestMessage,
+		message: IDataspaceProtocolContractRequestMessage,
 		trustPayload: unknown
-	): Promise<IContractNegotiation | IContractNegotiationError> {
-		Guards.object<IContractRequestMessage>(
+	): Promise<IDataspaceProtocolContractNegotiation | IDataspaceProtocolContractNegotiationError> {
+		Guards.object<IDataspaceProtocolContractRequestMessage>(
 			PolicyNegotiationPointService.CLASS_NAME,
 			nameof(message),
 			message
@@ -404,7 +404,7 @@ export class PolicyNegotiationPointService implements IPolicyNegotiationPointCom
 				}
 
 				// The negotiation must be in the REQUESTED state to update it
-				if (policyNegotiation.state !== ContractNegotiationStateType.REQUESTED) {
+				if (policyNegotiation.state !== DataspaceProtocolContractNegotiationStateType.REQUESTED) {
 					const err = await this.setErrorState(
 						message.providerPid,
 						policyNegotiation.correlationId,
@@ -426,7 +426,7 @@ export class PolicyNegotiationPointService implements IPolicyNegotiationPointCom
 					correlationId: message.consumerPid,
 					dateCreated: new Date(Date.now()).toISOString(),
 					offer: providerOffer,
-					state: ContractNegotiationStateType.REQUESTED,
+					state: DataspaceProtocolContractNegotiationStateType.REQUESTED,
 					callbackAddress: message.callbackAddress,
 					information: policyInformation,
 					handlerId: negotiator.className()
@@ -487,10 +487,10 @@ export class PolicyNegotiationPointService implements IPolicyNegotiationPointCom
 	 * @returns The current state of the contract negotiation or an error.
 	 */
 	public async offerFromProvider(
-		message: IContractOfferMessage,
+		message: IDataspaceProtocolContractOfferMessage,
 		trustPayload: unknown
-	): Promise<IContractNegotiation | IContractNegotiationError> {
-		Guards.object<IContractOfferMessage>(
+	): Promise<IDataspaceProtocolContractNegotiation | IDataspaceProtocolContractNegotiationError> {
+		Guards.object<IDataspaceProtocolContractOfferMessage>(
 			PolicyNegotiationPointService.CLASS_NAME,
 			nameof(message),
 			message
@@ -530,7 +530,7 @@ export class PolicyNegotiationPointService implements IPolicyNegotiationPointCom
 				}
 
 				// The negotiation must be in the REQUESTED state to accept an offer
-				if (policyNegotiation.state !== ContractNegotiationStateType.REQUESTED) {
+				if (policyNegotiation.state !== DataspaceProtocolContractNegotiationStateType.REQUESTED) {
 					const err = await this.setErrorState(
 						message.providerPid,
 						message.consumerPid,
@@ -549,7 +549,7 @@ export class PolicyNegotiationPointService implements IPolicyNegotiationPointCom
 					id: consumerPid,
 					correlationId: message.providerPid,
 					dateCreated: new Date(Date.now()).toISOString(),
-					state: ContractNegotiationStateType.OFFERED
+					state: DataspaceProtocolContractNegotiationStateType.OFFERED
 				};
 			}
 
@@ -591,7 +591,7 @@ export class PolicyNegotiationPointService implements IPolicyNegotiationPointCom
 			}
 
 			// The offer was accepted by the consumer, so update the state
-			policyNegotiation.state = ContractNegotiationStateType.ACCEPTED;
+			policyNegotiation.state = DataspaceProtocolContractNegotiationStateType.ACCEPTED;
 			policyNegotiation.offer = message.offer;
 
 			await this._policyNegotiationAdminPointComponent.set(policyNegotiation);
@@ -604,7 +604,7 @@ export class PolicyNegotiationPointService implements IPolicyNegotiationPointCom
 					await this.sendEvent(
 						callbackAddress,
 						pol,
-						ContractNegotiationEventType.ACCEPTED,
+						DataspaceProtocolContractNegotiationEventType.ACCEPTED,
 						"provider"
 					);
 				}, 100);
@@ -632,10 +632,10 @@ export class PolicyNegotiationPointService implements IPolicyNegotiationPointCom
 	 * @returns The error if there is one.
 	 */
 	public async agreementFromProvider(
-		message: IContractAgreementMessage,
+		message: IDataspaceProtocolContractAgreementMessage,
 		trustPayload: unknown
-	): Promise<IContractNegotiationError | undefined> {
-		Guards.object<IContractAgreementMessage>(
+	): Promise<IDataspaceProtocolContractNegotiationError | undefined> {
+		Guards.object<IDataspaceProtocolContractAgreementMessage>(
 			PolicyNegotiationPointService.CLASS_NAME,
 			nameof(message),
 			message
@@ -683,7 +683,7 @@ export class PolicyNegotiationPointService implements IPolicyNegotiationPointCom
 			}
 
 			// The negotiation must be in the ACCEPTED state to accept an agreement
-			if (policyNegotiation.state !== ContractNegotiationStateType.ACCEPTED) {
+			if (policyNegotiation.state !== DataspaceProtocolContractNegotiationStateType.ACCEPTED) {
 				const err = await this.setErrorState(
 					message.providerPid,
 					message.consumerPid,
@@ -735,7 +735,7 @@ export class PolicyNegotiationPointService implements IPolicyNegotiationPointCom
 
 			// The agreement was accepted by the consumer, so update the state
 			// and store the agreement
-			policyNegotiation.state = ContractNegotiationStateType.AGREED;
+			policyNegotiation.state = DataspaceProtocolContractNegotiationStateType.AGREED;
 			policyNegotiation.agreement = message.agreement;
 
 			await this._policyNegotiationAdminPointComponent.set(policyNegotiation);
@@ -763,10 +763,10 @@ export class PolicyNegotiationPointService implements IPolicyNegotiationPointCom
 	 * @returns The error if there is one.
 	 */
 	public async agreementVerificationFromConsumer(
-		message: IContractAgreementVerificationMessage,
+		message: IDataspaceProtocolContractAgreementVerificationMessage,
 		trustPayload: unknown
-	): Promise<IContractNegotiationError | undefined> {
-		Guards.object<IContractAgreementMessage>(
+	): Promise<IDataspaceProtocolContractNegotiationError | undefined> {
+		Guards.object<IDataspaceProtocolContractAgreementMessage>(
 			PolicyNegotiationPointService.CLASS_NAME,
 			nameof(message),
 			message
@@ -812,7 +812,7 @@ export class PolicyNegotiationPointService implements IPolicyNegotiationPointCom
 			}
 
 			// The negotiation must be in the AGREED state to accept an agreement
-			if (policyNegotiation.state !== ContractNegotiationStateType.AGREED) {
+			if (policyNegotiation.state !== DataspaceProtocolContractNegotiationStateType.AGREED) {
 				const err = await this.setErrorState(
 					message.providerPid,
 					message.consumerPid,
@@ -839,7 +839,7 @@ export class PolicyNegotiationPointService implements IPolicyNegotiationPointCom
 			await this._policyAdministrationPointComponent.create(policyNegotiation.agreement);
 
 			// The agreement was created, so update the state to finalized
-			policyNegotiation.state = ContractNegotiationStateType.FINALIZED;
+			policyNegotiation.state = DataspaceProtocolContractNegotiationStateType.FINALIZED;
 			await this._policyNegotiationAdminPointComponent.set(policyNegotiation);
 
 			// Send the finalisation on the next cycle so we don't delay the current response
@@ -852,7 +852,7 @@ export class PolicyNegotiationPointService implements IPolicyNegotiationPointCom
 					await this.sendEvent(
 						callbackAddress,
 						pol,
-						ContractNegotiationEventType.FINALIZED,
+						DataspaceProtocolContractNegotiationEventType.FINALIZED,
 						"consumer"
 					);
 				}, 100);
@@ -875,11 +875,11 @@ export class PolicyNegotiationPointService implements IPolicyNegotiationPointCom
 	 * @returns The error if there is one.
 	 */
 	public async event(
-		message: IContractNegotiationEventMessage,
+		message: IDataspaceProtocolContractNegotiationEventMessage,
 		destination: "provider" | "consumer",
 		trustPayload: unknown
-	): Promise<IContractNegotiationError | undefined> {
-		Guards.object<IContractNegotiationEventMessage>(
+	): Promise<IDataspaceProtocolContractNegotiationError | undefined> {
+		Guards.object<IDataspaceProtocolContractNegotiationEventMessage>(
 			PolicyNegotiationPointService.CLASS_NAME,
 			nameof(message),
 			message
@@ -928,10 +928,10 @@ export class PolicyNegotiationPointService implements IPolicyNegotiationPointCom
 			// https://eclipse-dataspace-protocol-base.github.io/DataspaceProtocol/2025-1/#state-machine
 			if (
 				!(
-					(policyNegotiation.state === ContractNegotiationStateType.OFFERED &&
-						message.event === ContractNegotiationEventType.ACCEPTED) ||
-					(policyNegotiation.state === ContractNegotiationStateType.VERIFIED &&
-						message.event === ContractNegotiationEventType.FINALIZED)
+					(policyNegotiation.state === DataspaceProtocolContractNegotiationStateType.OFFERED &&
+						message.event === DataspaceProtocolContractNegotiationEventType.ACCEPTED) ||
+					(policyNegotiation.state === DataspaceProtocolContractNegotiationStateType.VERIFIED &&
+						message.event === DataspaceProtocolContractNegotiationEventType.FINALIZED)
 				)
 			) {
 				const err = await this.setErrorState(
@@ -950,7 +950,10 @@ export class PolicyNegotiationPointService implements IPolicyNegotiationPointCom
 			policyNegotiation.state = message.event;
 			await this._policyNegotiationAdminPointComponent.set(policyNegotiation);
 
-			if (destination === "consumer" && message.event === ContractNegotiationEventType.FINALIZED) {
+			if (
+				destination === "consumer" &&
+				message.event === DataspaceProtocolContractNegotiationEventType.FINALIZED
+			) {
 				// Try and find the original requester of the negotiation
 				// this will only happen on the consumer side
 				const requesterId = policyNegotiation.handlerId;
@@ -977,7 +980,7 @@ export class PolicyNegotiationPointService implements IPolicyNegotiationPointCom
 				}
 			} else if (
 				destination === "provider" &&
-				message.event === ContractNegotiationEventType.ACCEPTED
+				message.event === DataspaceProtocolContractNegotiationEventType.ACCEPTED
 			) {
 				// Now that the offer was accepted by the consumer we can proceed with the agreement
 				// Send the offer on the next cycle so we don't delay the current response
@@ -1007,11 +1010,11 @@ export class PolicyNegotiationPointService implements IPolicyNegotiationPointCom
 	 * @returns The error if there is one.
 	 */
 	public async terminate(
-		message: IContractNegotiationTerminationMessage,
+		message: IDataspaceProtocolContractNegotiationTerminationMessage,
 		destination: "provider" | "consumer",
 		trustPayload: unknown
-	): Promise<IContractNegotiationError | undefined> {
-		Guards.object<IContractNegotiationTerminationMessage>(
+	): Promise<IDataspaceProtocolContractNegotiationError | undefined> {
+		Guards.object<IDataspaceProtocolContractNegotiationTerminationMessage>(
 			PolicyNegotiationPointService.CLASS_NAME,
 			nameof(message),
 			message
@@ -1084,7 +1087,7 @@ export class PolicyNegotiationPointService implements IPolicyNegotiationPointCom
 			}
 
 			// Update the state to terminated
-			policyNegotiation.state = ContractNegotiationStateType.TERMINATED;
+			policyNegotiation.state = DataspaceProtocolContractNegotiationStateType.TERMINATED;
 			await this._policyNegotiationAdminPointComponent.set(policyNegotiation);
 		} catch (error) {
 			return this.setErrorState(
@@ -1110,13 +1113,13 @@ export class PolicyNegotiationPointService implements IPolicyNegotiationPointCom
 		consumerId: string,
 		policyNegotiation: IPolicyNegotiation | undefined,
 		error: unknown
-	): Promise<IContractNegotiationError> {
+	): Promise<IDataspaceProtocolContractNegotiationError> {
 		const err = BaseError.fromError(error);
 		const translated = ErrorHelper.formatErrors(error);
 
-		const errMessage: IContractNegotiationError = {
+		const errMessage: IDataspaceProtocolContractNegotiationError = {
 			"@context": [DataspaceProtocolContexts.ContextRoot],
-			"@type": ContractNegotiationTypes.ContractNegotiationError,
+			"@type": DataspaceProtocolContractNegotiationTypes.ContractNegotiationError,
 			providerPid: providerId,
 			consumerPid: consumerId,
 			code: err.message,
@@ -1129,7 +1132,7 @@ export class PolicyNegotiationPointService implements IPolicyNegotiationPointCom
 		if (!Is.empty(policyNegotiation)) {
 			policyNegotiation.code = errMessage.code;
 			policyNegotiation.reason = errMessage.reason;
-			policyNegotiation.state = ContractNegotiationStateType.TERMINATED;
+			policyNegotiation.state = DataspaceProtocolContractNegotiationStateType.TERMINATED;
 
 			await this._policyNegotiationAdminPointComponent.set(policyNegotiation);
 		}
@@ -1148,11 +1151,11 @@ export class PolicyNegotiationPointService implements IPolicyNegotiationPointCom
 	private constructNegotiationMessage(
 		providerId: string,
 		consumerId: string,
-		state: ContractNegotiationStateType
-	): IContractNegotiation {
+		state: DataspaceProtocolContractNegotiationStateType
+	): IDataspaceProtocolContractNegotiation {
 		return {
 			"@context": [DataspaceProtocolContexts.ContextRoot],
-			"@type": ContractNegotiationTypes.ContractNegotiation,
+			"@type": DataspaceProtocolContractNegotiationTypes.ContractNegotiation,
 			providerPid: providerId,
 			consumerPid: consumerId,
 			state
@@ -1187,9 +1190,9 @@ export class PolicyNegotiationPointService implements IPolicyNegotiationPointCom
 				policyNegotiation.offer
 			);
 
-			const offerMessage: IContractOfferMessage = {
+			const offerMessage: IDataspaceProtocolContractOfferMessage = {
 				"@context": [DataspaceProtocolContexts.ContextRoot],
-				"@type": ContractNegotiationTypes.ContractOfferMessage,
+				"@type": DataspaceProtocolContractNegotiationTypes.ContractOfferMessage,
 				providerPid: policyNegotiation.id,
 				consumerPid: policyNegotiation.correlationId,
 				offer: policyNegotiation.offer,
@@ -1204,7 +1207,7 @@ export class PolicyNegotiationPointService implements IPolicyNegotiationPointCom
 				this._overrideTrustGeneratorType
 			);
 
-			policyNegotiation.state = ContractNegotiationStateType.OFFERED;
+			policyNegotiation.state = DataspaceProtocolContractNegotiationStateType.OFFERED;
 			await this._policyNegotiationAdminPointComponent.set(policyNegotiation);
 
 			const negotiationComponent = await this._negotiationComponentCreator(callbackAddress);
@@ -1236,7 +1239,7 @@ export class PolicyNegotiationPointService implements IPolicyNegotiationPointCom
 	private async sendEvent(
 		callbackAddress: string,
 		policyNegotiation: IPolicyNegotiation,
-		event: ContractNegotiationEventType,
+		event: DataspaceProtocolContractNegotiationEventType,
 		destination: "provider" | "consumer"
 	): Promise<void> {
 		try {
@@ -1254,9 +1257,9 @@ export class PolicyNegotiationPointService implements IPolicyNegotiationPointCom
 			Guards.object<IOdrlOffer>(PolicyNegotiationPointService.CLASS_NAME, nameof(offer), offer);
 
 			// Create the finalisation message
-			const eventMessage: IContractNegotiationEventMessage = {
+			const eventMessage: IDataspaceProtocolContractNegotiationEventMessage = {
 				"@context": [DataspaceProtocolContexts.ContextRoot],
-				"@type": ContractNegotiationTypes.ContractNegotiationEventMessage,
+				"@type": DataspaceProtocolContractNegotiationTypes.ContractNegotiationEventMessage,
 				providerPid:
 					destination === "consumer" ? policyNegotiation.id : policyNegotiation.correlationId,
 				consumerPid:
@@ -1344,9 +1347,9 @@ export class PolicyNegotiationPointService implements IPolicyNegotiationPointCom
 					);
 				} else {
 					// Create the agreement message
-					const agreementMessage: IContractAgreementMessage = {
+					const agreementMessage: IDataspaceProtocolContractAgreementMessage = {
 						"@context": [DataspaceProtocolContexts.ContextRoot],
-						"@type": ContractNegotiationTypes.ContractAgreementMessage,
+						"@type": DataspaceProtocolContractNegotiationTypes.ContractAgreementMessage,
 						providerPid: policyNegotiation.id,
 						consumerPid: policyNegotiation.correlationId,
 						agreement,
@@ -1361,7 +1364,7 @@ export class PolicyNegotiationPointService implements IPolicyNegotiationPointCom
 						this._overrideTrustGeneratorType
 					);
 
-					policyNegotiation.state = ContractNegotiationStateType.AGREED;
+					policyNegotiation.state = DataspaceProtocolContractNegotiationStateType.AGREED;
 					policyNegotiation.agreement = agreement;
 					await this._policyNegotiationAdminPointComponent.set(policyNegotiation);
 
@@ -1409,9 +1412,9 @@ export class PolicyNegotiationPointService implements IPolicyNegotiationPointCom
 				policyNegotiation
 			);
 
-			const agreementVerificationMessage: IContractAgreementVerificationMessage = {
+			const agreementVerificationMessage: IDataspaceProtocolContractAgreementVerificationMessage = {
 				"@context": [DataspaceProtocolContexts.ContextRoot],
-				"@type": ContractNegotiationTypes.ContractAgreementVerificationMessage,
+				"@type": DataspaceProtocolContractNegotiationTypes.ContractAgreementVerificationMessage,
 				providerPid: policyNegotiation.correlationId,
 				consumerPid: policyNegotiation.id
 			};
@@ -1424,7 +1427,7 @@ export class PolicyNegotiationPointService implements IPolicyNegotiationPointCom
 				this._overrideTrustGeneratorType
 			);
 
-			policyNegotiation.state = ContractNegotiationStateType.VERIFIED;
+			policyNegotiation.state = DataspaceProtocolContractNegotiationStateType.VERIFIED;
 			await this._policyNegotiationAdminPointComponent.set(policyNegotiation);
 
 			const negotiationComponent = await this._negotiationComponentCreator(callbackAddress);
@@ -1453,14 +1456,14 @@ export class PolicyNegotiationPointService implements IPolicyNegotiationPointCom
 	 * @internal
 	 */
 	private async terminateIfResponseError(
-		response: IContractNegotiationError | undefined,
+		response: IDataspaceProtocolContractNegotiationError | undefined,
 		policyNegotiation: IPolicyNegotiation
 	): Promise<void> {
 		if (
-			response?.["@type"] === ContractNegotiationTypes.ContractNegotiationError &&
-			Is.object<IContractNegotiationError>(response)
+			response?.["@type"] === DataspaceProtocolContractNegotiationTypes.ContractNegotiationError &&
+			Is.object<IDataspaceProtocolContractNegotiationError>(response)
 		) {
-			policyNegotiation.state = ContractNegotiationStateType.TERMINATED;
+			policyNegotiation.state = DataspaceProtocolContractNegotiationStateType.TERMINATED;
 			policyNegotiation.reason = response.reason;
 			policyNegotiation.code = response.code;
 			await this._policyNegotiationAdminPointComponent.set(policyNegotiation);

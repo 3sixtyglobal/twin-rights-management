@@ -14,7 +14,7 @@ import type {
 	IPolicyNegotiation,
 	IPolicyNegotiationAdminPointComponent
 } from "@twin.org/rights-management-models";
-import { ContractNegotiationStateType } from "@twin.org/standards-dataspace-protocol";
+import { DataspaceProtocolContractNegotiationStateType } from "@twin.org/standards-dataspace-protocol";
 import type { PolicyNegotiation } from "./entities/policyNegotiation.js";
 import type { IPolicyNegotiationAdminPointServiceConstructorOptions } from "./models/IPolicyNegotiationAdminPointServiceConstructorOptions.js";
 
@@ -193,7 +193,7 @@ export class PolicyNegotiationAdminPointService implements IPolicyNegotiationAdm
 	 * @returns A list of negotiations and cursor if there are more entries.
 	 */
 	public async query(
-		status?: ContractNegotiationStateType,
+		status?: DataspaceProtocolContractNegotiationStateType,
 		cursor?: string
 	): Promise<{
 		items: IPolicyNegotiation[];
@@ -201,7 +201,7 @@ export class PolicyNegotiationAdminPointService implements IPolicyNegotiationAdm
 	}> {
 		let condition;
 
-		if (Is.arrayOneOf(status, Object.values(ContractNegotiationStateType))) {
+		if (Is.arrayOneOf(status, Object.values(DataspaceProtocolContractNegotiationStateType))) {
 			condition = {
 				conditions: [
 					{

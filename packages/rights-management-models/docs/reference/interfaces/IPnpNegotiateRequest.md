@@ -36,6 +36,6 @@ The identifier of the contract negotiation to be retrieved, can be undefined.
 
 ### body
 
-> **body**: `IContractRequestMessage`
+> **body**: `IDataspaceProtocolContractRequestMessage`
 
 The body parameters of the request.

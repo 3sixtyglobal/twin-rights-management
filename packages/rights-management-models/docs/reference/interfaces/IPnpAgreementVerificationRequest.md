@@ -36,6 +36,6 @@ The identifier of the contract negotiation to be retrieved.
 
 ### body
 
-> **body**: `IContractAgreementVerificationMessage`
+> **body**: `IDataspaceProtocolContractAgreementVerificationMessage`
 
 The body parameters of the request.

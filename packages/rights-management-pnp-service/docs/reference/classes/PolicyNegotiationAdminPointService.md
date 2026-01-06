@@ -194,7 +194,7 @@ Get a list of the negotiations.
 
 ##### status?
 
-`ContractNegotiationStateType`
+`DataspaceProtocolContractNegotiationStateType`
 
 The status of the negotiations to retrieve.
 

@@ -369,7 +369,7 @@ describe("PolicyExecutionPointService", () => {
 			],
 			policies: [
 				{
-					"@context": "http://www.w3.org/ns/odrl/2/",
+					"@context": "http://www.w3.org/ns/odrl.jsonld",
 					"@type": "Agreement",
 					permission: [
 						{
@@ -415,7 +415,7 @@ describe("PolicyExecutionPointService", () => {
 			stage: PolicyDecisionStage.After,
 			policies: [
 				{
-					"@context": "http://www.w3.org/ns/odrl/2/",
+					"@context": "http://www.w3.org/ns/odrl.jsonld",
 					"@type": "Agreement",
 					uid: "policy2"
 				}

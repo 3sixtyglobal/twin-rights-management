@@ -64,7 +64,7 @@ The class name of the component.
 
 ### getNegotiation()
 
-> **getNegotiation**(`id`, `trustPayload`): `Promise`\<`IContractNegotiation` \| `IContractNegotiationError`\>
+> **getNegotiation**(`id`, `trustPayload`): `Promise`\<`IDataspaceProtocolContractNegotiation` \| `IDataspaceProtocolContractNegotiationError`\>
 
 Get the current state of the negotiation.
 
@@ -84,7 +84,7 @@ Trust payload to verify the requesters identity.
 
 #### Returns
 
-`Promise`\<`IContractNegotiation` \| `IContractNegotiationError`\>
+`Promise`\<`IDataspaceProtocolContractNegotiation` \| `IDataspaceProtocolContractNegotiationError`\>
 
 The current state of the negotiation or an error.
 
@@ -134,7 +134,7 @@ The negotiation id.
 
 ### requestFromConsumer()
 
-> **requestFromConsumer**(`message`, `trustPayload`): `Promise`\<`IContractNegotiation` \| `IContractNegotiationError`\>
+> **requestFromConsumer**(`message`, `trustPayload`): `Promise`\<`IDataspaceProtocolContractNegotiation` \| `IDataspaceProtocolContractNegotiationError`\>
 
 Processes an incoming request on a provider from a consumer.
 
@@ -142,7 +142,7 @@ Processes an incoming request on a provider from a consumer.
 
 ##### message
 
-`IContractRequestMessage`
+`IDataspaceProtocolContractRequestMessage`
 
 The negotiation request.
 
@@ -154,7 +154,7 @@ Trust payload to verify the requesters identity.
 
 #### Returns
 
-`Promise`\<`IContractNegotiation` \| `IContractNegotiationError`\>
+`Promise`\<`IDataspaceProtocolContractNegotiation` \| `IDataspaceProtocolContractNegotiationError`\>
 
 The current state of the contract negotiation or an error.
 
@@ -166,7 +166,7 @@ The current state of the contract negotiation or an error.
 
 ### offerFromProvider()
 
-> **offerFromProvider**(`message`, `trustPayload`): `Promise`\<`IContractNegotiation` \| `IContractNegotiationError`\>
+> **offerFromProvider**(`message`, `trustPayload`): `Promise`\<`IDataspaceProtocolContractNegotiation` \| `IDataspaceProtocolContractNegotiationError`\>
 
 An offer has been received by a consumer.
 
@@ -174,7 +174,7 @@ An offer has been received by a consumer.
 
 ##### message
 
-`IContractOfferMessage`
+`IDataspaceProtocolContractOfferMessage`
 
 The offer being received by the consumer.
 
@@ -186,7 +186,7 @@ Trust payload to verify the requesters identity.
 
 #### Returns
 
-`Promise`\<`IContractNegotiation` \| `IContractNegotiationError`\>
+`Promise`\<`IDataspaceProtocolContractNegotiation` \| `IDataspaceProtocolContractNegotiationError`\>
 
 The current state of the contract negotiation or an error.
 
@@ -198,7 +198,7 @@ The current state of the contract negotiation or an error.
 
 ### agreementFromProvider()
 
-> **agreementFromProvider**(`message`, `trustPayload`): `Promise`\<`IContractNegotiationError` \| `undefined`\>
+> **agreementFromProvider**(`message`, `trustPayload`): `Promise`\<`IDataspaceProtocolContractNegotiationError` \| `undefined`\>
 
 An agreement has been received by a consumer.
 
@@ -206,7 +206,7 @@ An agreement has been received by a consumer.
 
 ##### message
 
-`IContractAgreementMessage`
+`IDataspaceProtocolContractAgreementMessage`
 
 The agreement message to send.
 
@@ -218,7 +218,7 @@ Trust payload to verify the requesters identity.
 
 #### Returns
 
-`Promise`\<`IContractNegotiationError` \| `undefined`\>
+`Promise`\<`IDataspaceProtocolContractNegotiationError` \| `undefined`\>
 
 The error if there is one.
 
@@ -230,7 +230,7 @@ The error if there is one.
 
 ### agreementVerificationFromConsumer()
 
-> **agreementVerificationFromConsumer**(`message`, `trustPayload`): `Promise`\<`IContractNegotiationError` \| `undefined`\>
+> **agreementVerificationFromConsumer**(`message`, `trustPayload`): `Promise`\<`IDataspaceProtocolContractNegotiationError` \| `undefined`\>
 
 An agreement verification has been received by a provider.
 
@@ -238,7 +238,7 @@ An agreement verification has been received by a provider.
 
 ##### message
 
-`IContractAgreementVerificationMessage`
+`IDataspaceProtocolContractAgreementVerificationMessage`
 
 The agreement verification message to send.
 
@@ -250,7 +250,7 @@ Trust payload to verify the requesters identity.
 
 #### Returns
 
-`Promise`\<`IContractNegotiationError` \| `undefined`\>
+`Promise`\<`IDataspaceProtocolContractNegotiationError` \| `undefined`\>
 
 The error if there is one.
 
@@ -262,7 +262,7 @@ The error if there is one.
 
 ### event()
 
-> **event**(`message`, `destination`, `trustPayload`): `Promise`\<`IContractNegotiationError` \| `undefined`\>
+> **event**(`message`, `destination`, `trustPayload`): `Promise`\<`IDataspaceProtocolContractNegotiationError` \| `undefined`\>
 
 An event has been received by the provider or consumer.
 
@@ -270,7 +270,7 @@ An event has been received by the provider or consumer.
 
 ##### message
 
-`IContractNegotiationEventMessage`
+`IDataspaceProtocolContractNegotiationEventMessage`
 
 The event message to send.
 
@@ -288,7 +288,7 @@ Trust payload to verify the requesters identity.
 
 #### Returns
 
-`Promise`\<`IContractNegotiationError` \| `undefined`\>
+`Promise`\<`IDataspaceProtocolContractNegotiationError` \| `undefined`\>
 
 The error if there is one.
 
@@ -300,7 +300,7 @@ The error if there is one.
 
 ### terminate()
 
-> **terminate**(`message`, `destination`, `trustPayload`): `Promise`\<`IContractNegotiationError` \| `undefined`\>
+> **terminate**(`message`, `destination`, `trustPayload`): `Promise`\<`IDataspaceProtocolContractNegotiationError` \| `undefined`\>
 
 A termination message has been received by the provider or consumer.
 
@@ -308,7 +308,7 @@ A termination message has been received by the provider or consumer.
 
 ##### message
 
-`IContractNegotiationTerminationMessage`
+`IDataspaceProtocolContractNegotiationTerminationMessage`
 
 The termination message to send.
 
@@ -326,7 +326,7 @@ Trust payload to verify the requesters identity.
 
 #### Returns
 
-`Promise`\<`IContractNegotiationError` \| `undefined`\>
+`Promise`\<`IDataspaceProtocolContractNegotiationError` \| `undefined`\>
 
 The error if there is one.
 

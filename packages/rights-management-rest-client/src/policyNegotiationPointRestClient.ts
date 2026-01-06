@@ -17,14 +17,14 @@ import type {
 	IPolicyNegotiationPointComponent
 } from "@twin.org/rights-management-models";
 import type {
-	IContractAgreementMessage,
-	IContractAgreementVerificationMessage,
-	IContractNegotiation,
-	IContractNegotiationError,
-	IContractNegotiationEventMessage,
-	IContractNegotiationTerminationMessage,
-	IContractOfferMessage,
-	IContractRequestMessage
+	IDataspaceProtocolContractAgreementMessage,
+	IDataspaceProtocolContractAgreementVerificationMessage,
+	IDataspaceProtocolContractNegotiation,
+	IDataspaceProtocolContractNegotiationError,
+	IDataspaceProtocolContractNegotiationEventMessage,
+	IDataspaceProtocolContractNegotiationTerminationMessage,
+	IDataspaceProtocolContractOfferMessage,
+	IDataspaceProtocolContractRequestMessage
 } from "@twin.org/standards-dataspace-protocol";
 import type { IOdrlOffer } from "@twin.org/standards-w3c-odrl";
 import { HeaderHelper, HeaderTypes, MimeTypes } from "@twin.org/web";
@@ -66,7 +66,7 @@ export class PolicyNegotiationPointRestClient
 	public async getNegotiation(
 		id: string,
 		trustPayload: unknown
-	): Promise<IContractNegotiation | IContractNegotiationError> {
+	): Promise<IDataspaceProtocolContractNegotiation | IDataspaceProtocolContractNegotiationError> {
 		Guards.stringValue(PolicyNegotiationPointRestClient.CLASS_NAME, nameof(id), id);
 		Guards.stringValue(
 			PolicyNegotiationPointRestClient.CLASS_NAME,
@@ -119,10 +119,10 @@ export class PolicyNegotiationPointRestClient
 	 * @returns The current state of the contract negotiation or an error.
 	 */
 	public async requestFromConsumer(
-		message: IContractRequestMessage,
+		message: IDataspaceProtocolContractRequestMessage,
 		trustPayload: unknown
-	): Promise<IContractNegotiation | IContractNegotiationError> {
-		Guards.object<IContractRequestMessage>(
+	): Promise<IDataspaceProtocolContractNegotiation | IDataspaceProtocolContractNegotiationError> {
+		Guards.object<IDataspaceProtocolContractRequestMessage>(
 			PolicyNegotiationPointRestClient.CLASS_NAME,
 			nameof(message),
 			message
@@ -180,10 +180,10 @@ export class PolicyNegotiationPointRestClient
 	 * @returns The current state of the contract negotiation or an error.
 	 */
 	public async offerFromProvider(
-		message: IContractOfferMessage,
+		message: IDataspaceProtocolContractOfferMessage,
 		trustPayload: unknown
-	): Promise<IContractNegotiation | IContractNegotiationError> {
-		Guards.object<IContractOfferMessage>(
+	): Promise<IDataspaceProtocolContractNegotiation | IDataspaceProtocolContractNegotiationError> {
+		Guards.object<IDataspaceProtocolContractOfferMessage>(
 			PolicyNegotiationPointRestClient.CLASS_NAME,
 			nameof(message),
 			message
@@ -226,10 +226,10 @@ export class PolicyNegotiationPointRestClient
 	 * @returns The error if there is one.
 	 */
 	public async agreementFromProvider(
-		message: IContractAgreementMessage,
+		message: IDataspaceProtocolContractAgreementMessage,
 		trustPayload: unknown
-	): Promise<IContractNegotiationError | undefined> {
-		Guards.object<IContractAgreementMessage>(
+	): Promise<IDataspaceProtocolContractNegotiationError | undefined> {
+		Guards.object<IDataspaceProtocolContractAgreementMessage>(
 			PolicyNegotiationPointRestClient.CLASS_NAME,
 			nameof(message),
 			message
@@ -279,10 +279,10 @@ export class PolicyNegotiationPointRestClient
 	 * @returns The error if there is one.
 	 */
 	public async agreementVerificationFromConsumer(
-		message: IContractAgreementVerificationMessage,
+		message: IDataspaceProtocolContractAgreementVerificationMessage,
 		trustPayload: unknown
-	): Promise<IContractNegotiationError | undefined> {
-		Guards.object<IContractAgreementMessage>(
+	): Promise<IDataspaceProtocolContractNegotiationError | undefined> {
+		Guards.object<IDataspaceProtocolContractAgreementVerificationMessage>(
 			PolicyNegotiationPointRestClient.CLASS_NAME,
 			nameof(message),
 			message
@@ -329,11 +329,11 @@ export class PolicyNegotiationPointRestClient
 	 * @returns The error if there is one.
 	 */
 	public async event(
-		message: IContractNegotiationEventMessage,
+		message: IDataspaceProtocolContractNegotiationEventMessage,
 		destination: "provider" | "consumer",
 		trustPayload: unknown
-	): Promise<IContractNegotiationError | undefined> {
-		Guards.object<IContractNegotiationEventMessage>(
+	): Promise<IDataspaceProtocolContractNegotiationError | undefined> {
+		Guards.object<IDataspaceProtocolContractNegotiationEventMessage>(
 			PolicyNegotiationPointRestClient.CLASS_NAME,
 			nameof(message),
 			message
@@ -386,11 +386,11 @@ export class PolicyNegotiationPointRestClient
 	 * @returns The error if there is one.
 	 */
 	public async terminate(
-		message: IContractNegotiationTerminationMessage,
+		message: IDataspaceProtocolContractNegotiationTerminationMessage,
 		destination: "provider" | "consumer",
 		trustPayload: unknown
-	): Promise<IContractNegotiationError | undefined> {
-		Guards.object<IContractNegotiationTerminationMessage>(
+	): Promise<IDataspaceProtocolContractNegotiationError | undefined> {
+		Guards.object<IDataspaceProtocolContractNegotiationTerminationMessage>(
 			PolicyNegotiationPointRestClient.CLASS_NAME,
 			nameof(message),
 			message

@@ -98,7 +98,7 @@ The expiration time for the policy negotiation if it's a manual process.
 
 ### state
 
-> **state**: `ContractNegotiationStateType`
+> **state**: `DataspaceProtocolContractNegotiationStateType`
 
 The status of the negotiation.
 

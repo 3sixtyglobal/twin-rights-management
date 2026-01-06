@@ -14,7 +14,7 @@ import type {
 	IPolicyNegotiation,
 	IPolicyNegotiationAdminPointComponent
 } from "@twin.org/rights-management-models";
-import type { ContractNegotiationStateType } from "@twin.org/standards-dataspace-protocol";
+import type { DataspaceProtocolContractNegotiationStateType } from "@twin.org/standards-dataspace-protocol";
 
 /**
  * Client for performing Rights Management Policy Negotiation Admin through to REST endpoints.
@@ -119,7 +119,7 @@ export class PolicyNegotiationAdminPointRestClient
 	 * @returns A list of negotiations and cursor if there are more entries.
 	 */
 	public async query(
-		state?: ContractNegotiationStateType,
+		state?: DataspaceProtocolContractNegotiationStateType,
 		cursor?: string
 	): Promise<{
 		items: IPolicyNegotiation[];

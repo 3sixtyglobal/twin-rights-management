@@ -17,7 +17,7 @@ import type {
 	IPnapSetRequest,
 	IPolicyNegotiationAdminPointComponent
 } from "@twin.org/rights-management-models";
-import { ContractNegotiationStateType } from "@twin.org/standards-dataspace-protocol";
+import { DataspaceProtocolContractNegotiationStateType } from "@twin.org/standards-dataspace-protocol";
 import { HttpMethod, HttpStatusCode } from "@twin.org/web";
 
 /**
@@ -76,7 +76,7 @@ export function generateRestRoutesPolicyNegotiationAdminPoint(
 								id: "pid",
 								correlationId: "cid",
 								dateCreated: "2025-09-03T00:00:00.000Z",
-								state: ContractNegotiationStateType.REQUESTED
+								state: DataspaceProtocolContractNegotiationStateType.REQUESTED
 							}
 						}
 					}
@@ -104,7 +104,7 @@ export function generateRestRoutesPolicyNegotiationAdminPoint(
 							id: "pid",
 							correlationId: "cid",
 							dateCreated: "2025-09-03T00:00:00.000Z",
-							state: ContractNegotiationStateType.REQUESTED
+							state: DataspaceProtocolContractNegotiationStateType.REQUESTED
 						}
 					}
 				}
@@ -149,7 +149,10 @@ export function generateRestRoutesPolicyNegotiationAdminPoint(
 				{
 					id: "pnapQueryRequestExample",
 					request: {
-						query: { state: ContractNegotiationStateType.ACCEPTED, cursor: "next-cursor" }
+						query: {
+							state: DataspaceProtocolContractNegotiationStateType.ACCEPTED,
+							cursor: "next-cursor"
+						}
 					}
 				}
 			]
@@ -167,7 +170,7 @@ export function generateRestRoutesPolicyNegotiationAdminPoint(
 										id: "pid",
 										correlationId: "cid",
 										dateCreated: "2025-09-03T00:00:00.000Z",
-										state: ContractNegotiationStateType.REQUESTED
+										state: DataspaceProtocolContractNegotiationStateType.REQUESTED
 									}
 								],
 								cursor: "next-cursor"
@@ -283,7 +286,7 @@ export async function pnapQuery(
 
 	const component = ComponentFactory.get<IPolicyNegotiationAdminPointComponent>(componentName);
 	const result = await component.query(
-		request.query?.state as ContractNegotiationStateType,
+		request.query?.state as DataspaceProtocolContractNegotiationStateType,
 		request.query?.cursor
 	);
 

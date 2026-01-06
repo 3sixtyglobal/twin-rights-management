@@ -1,7 +1,7 @@
 // Copyright 2025 IOTA Stiftung.
 // SPDX-License-Identifier: Apache-2.0.
 import type { IComponent } from "@twin.org/core";
-import type { ContractNegotiationStateType } from "@twin.org/standards-dataspace-protocol";
+import type { DataspaceProtocolContractNegotiationStateType } from "@twin.org/standards-dataspace-protocol";
 import type { IPolicyNegotiation } from "./IPolicyNegotiation.js";
 
 /**
@@ -38,7 +38,7 @@ export interface IPolicyNegotiationAdminPointComponent extends IComponent {
 	 * @returns A list of negotiations and cursor if there are more entries.
 	 */
 	query(
-		status?: ContractNegotiationStateType,
+		status?: DataspaceProtocolContractNegotiationStateType,
 		cursor?: string
 	): Promise<{ items: IPolicyNegotiation[]; cursor?: string }>;
 }

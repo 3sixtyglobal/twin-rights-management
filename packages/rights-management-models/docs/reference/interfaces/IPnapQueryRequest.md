@@ -12,7 +12,7 @@ The query parameters of the request.
 
 #### state?
 
-> `optional` **state**: `ContractNegotiationStateType`
+> `optional` **state**: `DataspaceProtocolContractNegotiationStateType`
 
 The state of the policy negotiations.
 

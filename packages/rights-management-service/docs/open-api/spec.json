@@ -56,7 +56,7 @@
 							"examples": {
 								"papCreateRequestExample": {
 									"value": {
-										"@context": "http://www.w3.org/ns/odrl/2/",
+										"@context": "http://www.w3.org/ns/odrl.jsonld",
 										"@type": "Set",
 										"permission": [
 											{
@@ -196,7 +196,7 @@
 											"cursor": "next-page-cursor",
 											"policies": [
 												{
-													"@context": "http://www.w3.org/ns/odrl/2/",
+													"@context": "http://www.w3.org/ns/odrl.jsonld",
 													"@type": "Set",
 													"uid": "urn:rights-management:abc123def456",
 													"permission": [
@@ -309,7 +309,7 @@
 							"examples": {
 								"papUpdateRequestExample": {
 									"value": {
-										"@context": "http://www.w3.org/ns/odrl/2/",
+										"@context": "http://www.w3.org/ns/odrl.jsonld",
 										"@type": "Set",
 										"uid": "urn:rights-management:abc123def456",
 										"permission": [
@@ -422,7 +422,7 @@
 								"examples": {
 									"papGetResponseExample": {
 										"value": {
-											"@context": "http://www.w3.org/ns/odrl/2/",
+											"@context": "http://www.w3.org/ns/odrl.jsonld",
 											"@type": "Set",
 											"uid": "urn:rights-management:abc123def456",
 											"permission": [
@@ -636,7 +636,7 @@
 									"pnpGetNegotiationResponseExample": {
 										"value": {
 											"@context": [
-												"https://w3id.org/dspace/2025/1/context.json"
+												"https://w3id.org/dspace/2025/1/context.jsonld"
 											],
 											"@type": "ContractNegotiation",
 											"providerPid": "urn:contract-negotiation:002aa11bb.......ffff",
@@ -725,18 +725,18 @@
 					"content": {
 						"application/json": {
 							"schema": {
-								"$ref": "https://schema.twindev.org/ids-contract-negotiation/ContractRequestMessage"
+								"$ref": "#/components/schemas/DataspaceProtocolContractRequestMessage"
 							},
 							"examples": {
 								"pnpNegotiationRequestExample": {
 									"value": {
 										"@context": [
-											"https://w3id.org/dspace/2025/1/context.json"
+											"https://w3id.org/dspace/2025/1/context.jsonld"
 										],
 										"@type": "ContractRequestMessage",
 										"consumerPid": "urn:contract-negotiation:22aa11bb.......ffff",
 										"offer": {
-											"@context": "http://www.w3.org/ns/odrl/2/",
+											"@context": "http://www.w3.org/ns/odrl.jsonld",
 											"@type": "Offer",
 											"uid": "urn:offer-1",
 											"assigner": "urn:provider:node:1"
@@ -759,7 +759,7 @@
 									"IPnpNegotiationRequestResponseExample": {
 										"value": {
 											"@context": [
-												"https://w3id.org/dspace/2025/1/context.json"
+												"https://w3id.org/dspace/2025/1/context.jsonld"
 											],
 											"@type": "ContractNegotiation",
 											"providerPid": "urn:contract-negotiation:00aa11bb.......ffff",
@@ -839,18 +839,18 @@
 					"content": {
 						"application/json": {
 							"schema": {
-								"$ref": "https://schema.twindev.org/ids-contract-negotiation/ContractRequestMessage"
+								"$ref": "#/components/schemas/DataspaceProtocolContractRequestMessage"
 							},
 							"examples": {
 								"pnpNegotiationProviderRequestExample": {
 									"value": {
 										"@context": [
-											"https://w3id.org/dspace/2025/1/context.json"
+											"https://w3id.org/dspace/2025/1/context.jsonld"
 										],
 										"@type": "ContractRequestMessage",
 										"consumerPid": "urn:contract-negotiation:22aa11bb.......ffff",
 										"offer": {
-											"@context": "http://www.w3.org/ns/odrl/2/",
+											"@context": "http://www.w3.org/ns/odrl.jsonld",
 											"@type": "Offer",
 											"uid": "urn:offer-1",
 											"assigner": "urn:provider:node:1"
@@ -867,7 +867,7 @@
 						"content": {
 							"application/json": {
 								"schema": {
-									"$ref": "https://schema.twindev.org/ids-contract-negotiation/ContractNegotiationError"
+									"$ref": "#/components/schemas/DataspaceProtocolContractNegotiationError"
 								}
 							}
 						}
@@ -960,13 +960,13 @@
 					"content": {
 						"application/json": {
 							"schema": {
-								"$ref": "https://schema.twindev.org/ids-contract-negotiation/ContractNegotiationEventMessage"
+								"$ref": "#/components/schemas/DataspaceProtocolContractNegotiationEventMessage"
 							},
 							"examples": {
 								"pnpNegotiationEventsRequestExample": {
 									"value": {
 										"@context": [
-											"https://w3id.org/dspace/2025/1/context.json"
+											"https://w3id.org/dspace/2025/1/context.jsonld"
 										],
 										"@type": "ContractRequestMessage",
 										"providerPid": "urn:contract-negotiation:00aa11bb.......ffff",
@@ -984,7 +984,7 @@
 						"content": {
 							"application/json": {
 								"schema": {
-									"$ref": "https://schema.twindev.org/ids-contract-negotiation/ContractNegotiationError"
+									"$ref": "#/components/schemas/DataspaceProtocolContractNegotiationError"
 								}
 							}
 						}
@@ -1077,13 +1077,13 @@
 					"content": {
 						"application/json": {
 							"schema": {
-								"$ref": "https://schema.twindev.org/ids-contract-negotiation/ContractAgreementVerificationMessage"
+								"$ref": "#/components/schemas/DataspaceProtocolContractAgreementVerificationMessage"
 							},
 							"examples": {
 								"pnpNegotiationAgreementVerificationRequestExample": {
 									"value": {
 										"@context": [
-											"https://w3id.org/dspace/2025/1/context.json"
+											"https://w3id.org/dspace/2025/1/context.jsonld"
 										],
 										"@type": "ContractRequestMessage",
 										"providerPid": "urn:contract-negotiation:00aa11bb.......ffff",
@@ -1100,7 +1100,7 @@
 						"content": {
 							"application/json": {
 								"schema": {
-									"$ref": "https://schema.twindev.org/ids-contract-negotiation/ContractNegotiationError"
+									"$ref": "#/components/schemas/DataspaceProtocolContractNegotiationError"
 								}
 							}
 						}
@@ -1193,13 +1193,13 @@
 					"content": {
 						"application/json": {
 							"schema": {
-								"$ref": "https://schema.twindev.org/ids-contract-negotiation/ContractNegotiationTerminationMessage"
+								"$ref": "#/components/schemas/DataspaceProtocolContractNegotiationTerminationMessage"
 							},
 							"examples": {
 								"pnpNegotiationTerminationRequestExample": {
 									"value": {
 										"@context": [
-											"https://w3id.org/dspace/2025/1/context.json"
+											"https://w3id.org/dspace/2025/1/context.jsonld"
 										],
 										"@type": "ContractRequestMessage",
 										"providerPid": "urn:contract-negotiation:00aa11bb.......ffff",
@@ -1216,7 +1216,7 @@
 						"content": {
 							"application/json": {
 								"schema": {
-									"$ref": "https://schema.twindev.org/ids-contract-negotiation/ContractNegotiationError"
+									"$ref": "#/components/schemas/DataspaceProtocolContractNegotiationError"
 								}
 							}
 						}
@@ -1298,19 +1298,19 @@
 					"content": {
 						"application/json": {
 							"schema": {
-								"$ref": "https://schema.twindev.org/ids-contract-negotiation/ContractOfferMessage"
+								"$ref": "#/components/schemas/DataspaceProtocolContractOfferMessage"
 							},
 							"examples": {
 								"pnpNegotiationOfferRequestExample": {
 									"value": {
 										"@context": [
-											"https://w3id.org/dspace/2025/1/context.json"
+											"https://w3id.org/dspace/2025/1/context.jsonld"
 										],
 										"@type": "ContractRequestMessage",
 										"providerPid": "urn:contract-negotiation:00aa11bb.......ffff",
 										"consumerPid": "urn:contract-negotiation:22aa11bb.......ffff",
 										"offer": {
-											"@context": "http://www.w3.org/ns/odrl/2/",
+											"@context": "http://www.w3.org/ns/odrl.jsonld",
 											"@type": "Offer",
 											"uid": "urn:offer-1",
 											"assigner": "urn:provider:node:1"
@@ -1327,13 +1327,13 @@
 						"content": {
 							"application/json": {
 								"schema": {
-									"$ref": "https://schema.twindev.org/ids-contract-negotiation/ContractNegotiationError"
+									"$ref": "#/components/schemas/DataspaceProtocolContractNegotiationError"
 								},
 								"examples": {
 									"pnpNegotiationOfferResponseExample": {
 										"value": {
 											"@context": [
-												"https://w3id.org/dspace/2025/1/context.json"
+												"https://w3id.org/dspace/2025/1/context.jsonld"
 											],
 											"@type": "ContractRequestMessage",
 											"providerPid": "urn:contract-negotiation:00aa11bb.......ffff",
@@ -1412,19 +1412,19 @@
 					"content": {
 						"application/json": {
 							"schema": {
-								"$ref": "https://schema.twindev.org/ids-contract-negotiation/ContractOfferMessage"
+								"$ref": "#/components/schemas/DataspaceProtocolContractOfferMessage"
 							},
 							"examples": {
 								"pnpNegotiationConsumerOfferRequestExample": {
 									"value": {
 										"@context": [
-											"https://w3id.org/dspace/2025/1/context.json"
+											"https://w3id.org/dspace/2025/1/context.jsonld"
 										],
 										"@type": "ContractRequestMessage",
 										"providerPid": "urn:contract-negotiation:00aa11bb.......ffff",
 										"consumerPid": "urn:contract-negotiation:22aa11bb.......ffff",
 										"offer": {
-											"@context": "http://www.w3.org/ns/odrl/2/",
+											"@context": "http://www.w3.org/ns/odrl.jsonld",
 											"@type": "Offer",
 											"uid": "urn:offer-1",
 											"assigner": "urn:provider:node:1"
@@ -1441,13 +1441,13 @@
 						"content": {
 							"application/json": {
 								"schema": {
-									"$ref": "https://schema.twindev.org/ids-contract-negotiation/ContractNegotiationError"
+									"$ref": "#/components/schemas/DataspaceProtocolContractNegotiationError"
 								},
 								"examples": {
 									"pnpNegotiationConsumerOfferResponseExample": {
 										"value": {
 											"@context": [
-												"https://w3id.org/dspace/2025/1/context.json"
+												"https://w3id.org/dspace/2025/1/context.jsonld"
 											],
 											"@type": "ContractNegotiation",
 											"providerPid": "urn:contract-negotiation:00aa11bb.......ffff",
@@ -1546,19 +1546,19 @@
 					"content": {
 						"application/json": {
 							"schema": {
-								"$ref": "https://schema.twindev.org/ids-contract-negotiation/ContractAgreementMessage"
+								"$ref": "#/components/schemas/DataspaceProtocolContractAgreementMessage"
 							},
 							"examples": {
 								"pnpNegotiationAgreementRequestExample": {
 									"value": {
 										"@context": [
-											"https://w3id.org/dspace/2025/1/context.json"
+											"https://w3id.org/dspace/2025/1/context.jsonld"
 										],
 										"@type": "ContractRequestMessage",
 										"providerPid": "urn:contract-negotiation:00aa11bb.......ffff",
 										"consumerPid": "urn:contract-negotiation:22aa11bb.......ffff",
 										"agreement": {
-											"@context": "http://www.w3.org/ns/odrl/2/",
+											"@context": "http://www.w3.org/ns/odrl.jsonld",
 											"@type": "Agreement",
 											"uid": "urn:offer-1",
 											"assigner": "urn:provider:node:1",
@@ -1576,7 +1576,7 @@
 						"content": {
 							"application/json": {
 								"schema": {
-									"$ref": "https://schema.twindev.org/ids-contract-negotiation/ContractNegotiationError"
+									"$ref": "#/components/schemas/DataspaceProtocolContractNegotiationError"
 								}
 							}
 						}
@@ -1938,7 +1938,7 @@
 						"in": "query",
 						"required": false,
 						"schema": {
-							"$ref": "https://schema.twindev.org/ids-contract-negotiation/ContractNegotiationStateType"
+							"$ref": "#/components/schemas/DataspaceProtocolContractNegotiationStateType"
 						},
 						"example": "ACCEPTED"
 					},
@@ -2720,7 +2720,7 @@
 						"type": "array",
 						"items": {
 							"type": "string",
-							"const": "https://w3id.org/dspace/2025/1/context.json"
+							"const": "https://w3id.org/dspace/2025/1/context.jsonld"
 						},
 						"minItems": 1,
 						"maxItems": 1
@@ -2731,7 +2731,7 @@
 						"prefixItems": [
 							{
 								"type": "string",
-								"const": "https://w3id.org/dspace/2025/1/context.json"
+								"const": "https://w3id.org/dspace/2025/1/context.jsonld"
 							},
 							{
 								"$ref": "https://schema.twindev.org/json-ld/JsonLdContextDefinitionElement"
@@ -2750,7 +2750,7 @@
 							},
 							{
 								"type": "string",
-								"const": "https://w3id.org/dspace/2025/1/context.json"
+								"const": "https://w3id.org/dspace/2025/1/context.jsonld"
 							}
 						],
 						"items": {
@@ -2759,6 +2759,333 @@
 					}
 				],
 				"description": "The Dataspace Protocol JSON-LD context type."
+			},
+			"DataspaceProtocolContractAgreementMessage": {
+				"type": "object",
+				"properties": {
+					"@context": {
+						"$ref": "#/components/schemas/DataspaceProtocolContextType"
+					},
+					"@type": {
+						"type": "string",
+						"description": "The type of the message."
+					},
+					"providerPid": {
+						"type": "string",
+						"description": "The provider id for the contract."
+					},
+					"consumerPid": {
+						"type": "string",
+						"description": "The consumer id for the contract."
+					},
+					"agreement": {
+						"$ref": "https://schema.twindev.org/w3c-odrl/OdrlAgreement"
+					},
+					"callbackAddress": {
+						"type": "string",
+						"description": "The base callback address for the provider to update the consumer on the state of the negotiation."
+					}
+				},
+				"required": [
+					"@context",
+					"@type",
+					"providerPid",
+					"consumerPid",
+					"agreement"
+				],
+				"additionalProperties": false,
+				"description": "Interface for Dataspace Protocol Contract Agreement Messages. https://eclipse-dataspace-protocol-base.github.io/DataspaceProtocol/2025-1/#contract-agreement-message"
+			},
+			"DataspaceProtocolContractAgreementVerificationMessage": {
+				"type": "object",
+				"properties": {
+					"@context": {
+						"$ref": "#/components/schemas/DataspaceProtocolContextType"
+					},
+					"@type": {
+						"type": "string",
+						"description": "The type of the message."
+					},
+					"providerPid": {
+						"type": "string",
+						"description": "The provider id for the contract."
+					},
+					"consumerPid": {
+						"type": "string",
+						"description": "The consumer id for the contract."
+					}
+				},
+				"required": [
+					"@context",
+					"@type",
+					"providerPid",
+					"consumerPid"
+				],
+				"additionalProperties": false,
+				"description": "Interface for Dataspace Protocol Contract Agreement Verification Messages. https://eclipse-dataspace-protocol-base.github.io/DataspaceProtocol/2025-1/#contract-agreement-verification-message"
+			},
+			"DataspaceProtocolContractNegotiation": {
+				"type": "object",
+				"properties": {
+					"@context": {
+						"$ref": "#/components/schemas/DataspaceProtocolContextType"
+					},
+					"@type": {
+						"type": "string",
+						"description": "The type of the message."
+					},
+					"providerPid": {
+						"type": "string",
+						"description": "The provider id for the contract."
+					},
+					"consumerPid": {
+						"type": "string",
+						"description": "The consumer id for the contract."
+					},
+					"state": {
+						"$ref": "#/components/schemas/DataspaceProtocolContractNegotiationStateType"
+					}
+				},
+				"required": [
+					"@context",
+					"@type",
+					"providerPid",
+					"consumerPid",
+					"state"
+				],
+				"additionalProperties": false,
+				"description": "Interface for Dataspace Protocol Contract Agreement Messages. https://eclipse-dataspace-protocol-base.github.io/DataspaceProtocol/2025-1/#ack-contract-negotiation"
+			},
+			"DataspaceProtocolContractNegotiationError": {
+				"type": "object",
+				"properties": {
+					"@context": {
+						"$ref": "#/components/schemas/DataspaceProtocolContextType"
+					},
+					"@type": {
+						"type": "string",
+						"description": "The type of the message."
+					},
+					"providerPid": {
+						"type": "string",
+						"description": "The provider id for the contract."
+					},
+					"consumerPid": {
+						"type": "string",
+						"description": "The consumer id for the contract."
+					},
+					"code": {
+						"type": "string",
+						"description": "The error code."
+					},
+					"reason": {
+						"type": "array",
+						"items": {},
+						"description": "The error reason(s)."
+					}
+				},
+				"required": [
+					"@context",
+					"@type",
+					"providerPid",
+					"consumerPid"
+				],
+				"additionalProperties": false,
+				"description": "Interface for Dataspace Protocol Contract Negotiation Error Messages. https://eclipse-dataspace-protocol-base.github.io/DataspaceProtocol/2025-1/#error-contract-negotiation-error"
+			},
+			"DataspaceProtocolContractNegotiationEventMessage": {
+				"type": "object",
+				"properties": {
+					"@context": {
+						"$ref": "#/components/schemas/DataspaceProtocolContextType"
+					},
+					"@type": {
+						"type": "string",
+						"description": "The type of the message."
+					},
+					"providerPid": {
+						"type": "string",
+						"description": "The provider id for the contract."
+					},
+					"consumerPid": {
+						"type": "string",
+						"description": "The consumer id for the contract."
+					},
+					"event": {
+						"$ref": "#/components/schemas/DataspaceProtocolContractNegotiationEventType"
+					}
+				},
+				"required": [
+					"@context",
+					"@type",
+					"providerPid",
+					"consumerPid",
+					"event"
+				],
+				"additionalProperties": false,
+				"description": "Interface for Dataspace Protocol Contract Negotiation Event Messages. https://eclipse-dataspace-protocol-base.github.io/DataspaceProtocol/2025-1/#contract-negotiation-event-message"
+			},
+			"DataspaceProtocolContractNegotiationEventType": {
+				"anyOf": [
+					{
+						"type": "string",
+						"const": "ACCEPTED",
+						"description": "Accepted."
+					},
+					{
+						"type": "string",
+						"const": "FINALIZED",
+						"description": "Finalized."
+					}
+				],
+				"description": "The types for Dataspace Protocol Contract Negotiation Events. https://eclipse-dataspace-protocol-base.github.io/DataspaceProtocol/2025-1/#contract-negotiation-event-message   The types for Dataspace Protocol Contract Negotiation Events."
+			},
+			"DataspaceProtocolContractNegotiationStateType": {
+				"anyOf": [
+					{
+						"type": "string",
+						"const": "REQUESTED",
+						"description": "Requested."
+					},
+					{
+						"type": "string",
+						"const": "OFFERED",
+						"description": "Offered."
+					},
+					{
+						"type": "string",
+						"const": "ACCEPTED",
+						"description": "Accepted."
+					},
+					{
+						"type": "string",
+						"const": "AGREED",
+						"description": "Agreed."
+					},
+					{
+						"type": "string",
+						"const": "VERIFIED",
+						"description": "Verified."
+					},
+					{
+						"type": "string",
+						"const": "FINALIZED",
+						"description": "Finalized."
+					},
+					{
+						"type": "string",
+						"const": "TERMINATED",
+						"description": "Terminated."
+					}
+				],
+				"description": "The types for Dataspace Protocol Contract Negotiation States. https://eclipse-dataspace-protocol-base.github.io/DataspaceProtocol/2025-1/#contract-negotiation-states   The types for Dataspace Protocol Contract Negotiation States."
+			},
+			"DataspaceProtocolContractNegotiationTerminationMessage": {
+				"type": "object",
+				"properties": {
+					"@context": {
+						"$ref": "#/components/schemas/DataspaceProtocolContextType"
+					},
+					"@type": {
+						"type": "string",
+						"description": "The type of the message."
+					},
+					"providerPid": {
+						"type": "string",
+						"description": "The provider id for the contract."
+					},
+					"consumerPid": {
+						"type": "string",
+						"description": "The consumer id for the contract."
+					},
+					"code": {
+						"type": "string",
+						"description": "The termination code."
+					},
+					"reason": {
+						"type": "array",
+						"items": {},
+						"description": "The termination reason(s)."
+					}
+				},
+				"required": [
+					"@context",
+					"@type",
+					"providerPid",
+					"consumerPid"
+				],
+				"additionalProperties": false,
+				"description": "Interface for Dataspace Protocol Contract Negotiation Termination Messages. https://eclipse-dataspace-protocol-base.github.io/DataspaceProtocol/2025-1/#contract-negotiation-termination-message"
+			},
+			"DataspaceProtocolContractOfferMessage": {
+				"type": "object",
+				"properties": {
+					"@context": {
+						"$ref": "#/components/schemas/DataspaceProtocolContextType"
+					},
+					"@type": {
+						"type": "string",
+						"description": "The type of the message."
+					},
+					"providerPid": {
+						"type": "string",
+						"description": "The provider id for the contract."
+					},
+					"consumerPid": {
+						"type": "string",
+						"description": "The consumer id for the contract."
+					},
+					"offer": {
+						"$ref": "https://schema.twindev.org/w3c-odrl/OdrlOffer"
+					},
+					"callbackAddress": {
+						"type": "string",
+						"description": "The base callback address for the provider to update the consumer on the state of the negotiation."
+					}
+				},
+				"required": [
+					"@context",
+					"@type",
+					"providerPid",
+					"offer"
+				],
+				"additionalProperties": false,
+				"description": "Interface for Dataspace Protocol Contract Offer Messages. https://eclipse-dataspace-protocol-base.github.io/DataspaceProtocol/2025-1/#contract-offer-message"
+			},
+			"DataspaceProtocolContractRequestMessage": {
+				"type": "object",
+				"properties": {
+					"@context": {
+						"$ref": "#/components/schemas/DataspaceProtocolContextType"
+					},
+					"@type": {
+						"type": "string",
+						"description": "The type of the message."
+					},
+					"providerPid": {
+						"type": "string",
+						"description": "The provider id for the contract."
+					},
+					"consumerPid": {
+						"type": "string",
+						"description": "The consumer id for the contract."
+					},
+					"offer": {
+						"$ref": "https://schema.twindev.org/w3c-odrl/OdrlOffer"
+					},
+					"callbackAddress": {
+						"type": "string",
+						"description": "The base callback address for the provider to update the consumer on the state of the negotiation."
+					}
+				},
+				"required": [
+					"@context",
+					"@type",
+					"consumerPid",
+					"offer"
+				],
+				"additionalProperties": false,
+				"description": "Interface for Dataspace Protocol Contract Request Messages. https://eclipse-dataspace-protocol-base.github.io/DataspaceProtocol/2025-1/#contract-request-message"
 			},
 			"EntityCondition<JsonLdNodeObject>": {
 				"anyOf": [
@@ -3188,10 +3515,10 @@
 			"PnpContractNegotiationResponse": {
 				"anyOf": [
 					{
-						"$ref": "https://schema.twindev.org/ids-contract-negotiation/ContractNegotiation"
+						"$ref": "#/components/schemas/DataspaceProtocolContractNegotiation"
 					},
 					{
-						"$ref": "https://schema.twindev.org/ids-contract-negotiation/ContractNegotiationError"
+						"$ref": "#/components/schemas/DataspaceProtocolContractNegotiationError"
 					}
 				],
 				"description": "The state of the policy or an error."
@@ -3250,7 +3577,7 @@
 						"description": "The expiration time for the policy negotiation if it's a manual process."
 					},
 					"state": {
-						"$ref": "https://schema.twindev.org/ids-contract-negotiation/ContractNegotiationStateType"
+						"$ref": "#/components/schemas/DataspaceProtocolContractNegotiationStateType"
 					},
 					"callbackAddress": {
 						"type": "string",

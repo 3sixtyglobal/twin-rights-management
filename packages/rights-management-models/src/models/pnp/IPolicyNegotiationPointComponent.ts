@@ -2,14 +2,14 @@
 // SPDX-License-Identifier: Apache-2.0.
 import type { IComponent } from "@twin.org/core";
 import type {
-	IContractAgreementMessage,
-	IContractAgreementVerificationMessage,
-	IContractNegotiation,
-	IContractNegotiationError,
-	IContractNegotiationEventMessage,
-	IContractNegotiationTerminationMessage,
-	IContractOfferMessage,
-	IContractRequestMessage
+	IDataspaceProtocolContractAgreementMessage,
+	IDataspaceProtocolContractAgreementVerificationMessage,
+	IDataspaceProtocolContractNegotiation,
+	IDataspaceProtocolContractNegotiationError,
+	IDataspaceProtocolContractNegotiationEventMessage,
+	IDataspaceProtocolContractNegotiationTerminationMessage,
+	IDataspaceProtocolContractOfferMessage,
+	IDataspaceProtocolContractRequestMessage
 } from "@twin.org/standards-dataspace-protocol";
 
 /**
@@ -28,7 +28,7 @@ export interface IPolicyNegotiationPointComponent extends IComponent {
 	getNegotiation(
 		id: string,
 		trustPayload: unknown
-	): Promise<IContractNegotiation | IContractNegotiationError>;
+	): Promise<IDataspaceProtocolContractNegotiation | IDataspaceProtocolContractNegotiationError>;
 
 	/**
 	 * Send a request to a provider.
@@ -46,9 +46,9 @@ export interface IPolicyNegotiationPointComponent extends IComponent {
 	 * @returns The current state of the contract negotiation or an error.
 	 */
 	requestFromConsumer(
-		message: IContractRequestMessage,
+		message: IDataspaceProtocolContractRequestMessage,
 		trustPayload: unknown
-	): Promise<IContractNegotiation | IContractNegotiationError>;
+	): Promise<IDataspaceProtocolContractNegotiation | IDataspaceProtocolContractNegotiationError>;
 
 	/**
 	 * An offer has been received by a consumer.
@@ -57,9 +57,9 @@ export interface IPolicyNegotiationPointComponent extends IComponent {
 	 * @returns The current state of the contract negotiation or an error.
 	 */
 	offerFromProvider(
-		message: IContractOfferMessage,
+		message: IDataspaceProtocolContractOfferMessage,
 		trustPayload: unknown
-	): Promise<IContractNegotiation | IContractNegotiationError>;
+	): Promise<IDataspaceProtocolContractNegotiation | IDataspaceProtocolContractNegotiationError>;
 
 	/**
 	 * An agreement has been received by a consumer.
@@ -68,9 +68,9 @@ export interface IPolicyNegotiationPointComponent extends IComponent {
 	 * @returns The error if there is one.
 	 */
 	agreementFromProvider(
-		message: IContractAgreementMessage,
+		message: IDataspaceProtocolContractAgreementMessage,
 		trustPayload: unknown
-	): Promise<IContractNegotiationError | undefined>;
+	): Promise<IDataspaceProtocolContractNegotiationError | undefined>;
 
 	/**
 	 * An agreement verification has been received by a provider.
@@ -79,9 +79,9 @@ export interface IPolicyNegotiationPointComponent extends IComponent {
 	 * @returns The error if there is one.
 	 */
 	agreementVerificationFromConsumer(
-		message: IContractAgreementVerificationMessage,
+		message: IDataspaceProtocolContractAgreementVerificationMessage,
 		trustPayload: unknown
-	): Promise<IContractNegotiationError | undefined>;
+	): Promise<IDataspaceProtocolContractNegotiationError | undefined>;
 
 	/**
 	 * An event has been received by the provider or consumer.
@@ -91,10 +91,10 @@ export interface IPolicyNegotiationPointComponent extends IComponent {
 	 * @returns The error if there is one.
 	 */
 	event(
-		message: IContractNegotiationEventMessage,
+		message: IDataspaceProtocolContractNegotiationEventMessage,
 		destination: "provider" | "consumer",
 		trustPayload: unknown
-	): Promise<IContractNegotiationError | undefined>;
+	): Promise<IDataspaceProtocolContractNegotiationError | undefined>;
 
 	/**
 	 * A termination message has been received by the provider or consumer.
@@ -104,8 +104,8 @@ export interface IPolicyNegotiationPointComponent extends IComponent {
 	 * @returns The error if there is one.
 	 */
 	terminate(
-		message: IContractNegotiationTerminationMessage,
+		message: IDataspaceProtocolContractNegotiationTerminationMessage,
 		destination: "provider" | "consumer",
 		trustPayload: unknown
-	): Promise<IContractNegotiationError | undefined>;
+	): Promise<IDataspaceProtocolContractNegotiationError | undefined>;
 }

@@ -26,6 +26,6 @@ Response status code.
 
 ### body
 
-> **body**: `IContractNegotiation` \| `IContractNegotiationError`
+> **body**: `IDataspaceProtocolContractNegotiation` \| `IDataspaceProtocolContractNegotiationError`
 
 The state of the policy or an error.

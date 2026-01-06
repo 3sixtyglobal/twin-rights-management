@@ -1,6 +1,6 @@
 // Copyright 2025 IOTA Stiftung.
 // SPDX-License-Identifier: Apache-2.0.
-import type { IContractRequestMessage } from "@twin.org/standards-dataspace-protocol";
+import type { IDataspaceProtocolContractRequestMessage } from "@twin.org/standards-dataspace-protocol";
 import type { HeaderTypes, MimeTypes } from "@twin.org/web";
 
 /**
@@ -28,5 +28,5 @@ export interface IPnpNegotiateRequest {
 	/**
 	 * The body parameters of the request.
 	 */
-	body: IContractRequestMessage;
+	body: IDataspaceProtocolContractRequestMessage;
 }

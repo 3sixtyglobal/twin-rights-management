@@ -56,7 +56,7 @@ The expiration time for the policy negotiation.
 
 ### state
 
-> **state**: `ContractNegotiationStateType`
+> **state**: `DataspaceProtocolContractNegotiationStateType`
 
 The status of the negotiation.
 

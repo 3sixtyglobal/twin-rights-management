@@ -13,7 +13,7 @@ import {
 import { LoggingConnectorFactory } from "@twin.org/logging-models";
 import { LoggingService } from "@twin.org/logging-service";
 import { nameof } from "@twin.org/nameof";
-import { ContractNegotiationStateType } from "@twin.org/standards-dataspace-protocol";
+import { DataspaceProtocolContractNegotiationStateType } from "@twin.org/standards-dataspace-protocol";
 import type { PolicyNegotiation } from "../src/entities/policyNegotiation.js";
 import { PolicyNegotiationAdminPointService } from "../src/policyNegotiationAdminPointService.js";
 import { initSchema } from "../src/schema.js";
@@ -58,7 +58,7 @@ describe("PolicyNegotiationAdminPointService", () => {
 			id: "pid",
 			correlationId: "cid",
 			dateCreated: new Date().toISOString(),
-			state: ContractNegotiationStateType.REQUESTED
+			state: DataspaceProtocolContractNegotiationStateType.REQUESTED
 		};
 		await service.set(negotiation);
 		const result = await service.get("pid");
@@ -72,7 +72,7 @@ describe("PolicyNegotiationAdminPointService", () => {
 			id: "pid",
 			correlationId: "cid",
 			dateCreated: new Date().toISOString(),
-			state: ContractNegotiationStateType.REQUESTED,
+			state: DataspaceProtocolContractNegotiationStateType.REQUESTED,
 			interventionRequired: true
 		};
 		await service.set(negotiation);
@@ -94,7 +94,7 @@ describe("PolicyNegotiationAdminPointService", () => {
 			id: "pid",
 			correlationId: "cid",
 			dateCreated: new Date().toISOString(),
-			state: ContractNegotiationStateType.REQUESTED
+			state: DataspaceProtocolContractNegotiationStateType.REQUESTED
 		};
 		await service.set(negotiation);
 		await service.remove("pid");
@@ -113,7 +113,7 @@ describe("PolicyNegotiationAdminPointService", () => {
 			id: "pid",
 			correlationId: "cid",
 			dateCreated: new Date().toISOString(),
-			state: ContractNegotiationStateType.REQUESTED
+			state: DataspaceProtocolContractNegotiationStateType.REQUESTED
 		};
 
 		Date.now = vi.fn().mockImplementation(() => now - msInDay);
@@ -123,7 +123,7 @@ describe("PolicyNegotiationAdminPointService", () => {
 			id: "pid2",
 			correlationId: "cid2",
 			dateCreated: new Date().toISOString(),
-			state: ContractNegotiationStateType.REQUESTED
+			state: DataspaceProtocolContractNegotiationStateType.REQUESTED
 		};
 
 		Date.now = vi.fn().mockImplementation(() => now + msInDay);

@@ -36,6 +36,6 @@ The identifier of the consumer being offered, this can be undefined.
 
 ### body
 
-> **body**: `IContractOfferMessage`
+> **body**: `IDataspaceProtocolContractOfferMessage`
 
 The body parameters of the request.

@@ -2,7 +2,7 @@
 // SPDX-License-Identifier: Apache-2.0.
 import { entity, property } from "@twin.org/entity";
 import type { IPolicyInformation } from "@twin.org/rights-management-models";
-import type { ContractNegotiationStateType } from "@twin.org/standards-dataspace-protocol";
+import type { DataspaceProtocolContractNegotiationStateType } from "@twin.org/standards-dataspace-protocol";
 import type { IOdrlAgreement, IOdrlOffer } from "@twin.org/standards-w3c-odrl";
 
 /**
@@ -44,7 +44,7 @@ export class PolicyNegotiation {
 	 * The status of the negotiation.
 	 */
 	@property({ type: "string" })
-	public state!: ContractNegotiationStateType;
+	public state!: DataspaceProtocolContractNegotiationStateType;
 
 	/**
 	 * The callback address to send updates to the requester.

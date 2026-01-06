@@ -150,7 +150,7 @@ Get a list of the negotiations.
 
 ##### state?
 
-`ContractNegotiationStateType`
+`DataspaceProtocolContractNegotiationStateType`
 
 The state of the negotiations to retrieve.
 
