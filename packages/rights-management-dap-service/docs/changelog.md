@@ -1,5 +1,22 @@
 # Changelog
 
+## [0.0.3-next.5](https://github.com/twinfoundation/rights-management/compare/rights-management-dap-service-v0.0.3-next.4...rights-management-dap-service-v0.0.3-next.5) (2026-01-06)
+
+
+### Miscellaneous Chores
+
+* **rights-management-dap-service:** Synchronize repo versions
+
+
+### Dependencies
+
+* The following workspace dependencies were updated
+  * dependencies
+    * @twin.org/rights-management-models bumped from 0.0.3-next.4 to 0.0.3-next.5
+  * devDependencies
+    * @twin.org/rights-management-pap-service bumped from 0.0.3-next.4 to 0.0.3-next.5
+    * @twin.org/rights-management-pip-service bumped from 0.0.3-next.4 to 0.0.3-next.5
+
 ## [0.0.3-next.4](https://github.com/twinfoundation/rights-management/compare/rights-management-dap-service-v0.0.3-next.3...rights-management-dap-service-v0.0.3-next.4) (2025-12-04)
 
 

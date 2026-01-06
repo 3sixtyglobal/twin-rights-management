@@ -1,5 +1,12 @@
 # @twin.org/rights-management-models - Changelog
 
+## [0.0.3-next.5](https://github.com/twinfoundation/rights-management/compare/rights-management-models-v0.0.3-next.4...rights-management-models-v0.0.3-next.5) (2026-01-06)
+
+
+### Features
+
+* update dspace dependencies ([072917b](https://github.com/twinfoundation/rights-management/commit/072917bcfa052a6d61e6cd3676e275ba7fc4ec25))
+
 ## [0.0.3-next.4](https://github.com/twinfoundation/rights-management/compare/rights-management-models-v0.0.3-next.3...rights-management-models-v0.0.3-next.4) (2025-12-04)
 
 
