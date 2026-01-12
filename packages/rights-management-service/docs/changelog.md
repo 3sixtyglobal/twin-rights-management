@@ -1,5 +1,27 @@
 # @twin.org/rights-management-pap-service - Changelog
 
+## [0.0.3-next.6](https://github.com/twinfoundation/rights-management/compare/rights-management-service-v0.0.3-next.5...rights-management-service-v0.0.3-next.6) (2026-01-12)
+
+
+### Features
+
+* use per request http headers ([#59](https://github.com/twinfoundation/rights-management/issues/59)) ([8806642](https://github.com/twinfoundation/rights-management/commit/88066429c362ac98fb870727a4fc55c9b533f1a4))
+
+
+### Dependencies
+
+* The following workspace dependencies were updated
+  * dependencies
+    * @twin.org/rights-management-models bumped from 0.0.3-next.5 to 0.0.3-next.6
+  * devDependencies
+    * @twin.org/rights-management-pap-service bumped from 0.0.3-next.5 to 0.0.3-next.6
+    * @twin.org/rights-management-pdp-service bumped from 0.0.3-next.5 to 0.0.3-next.6
+    * @twin.org/rights-management-pep-service bumped from 0.0.3-next.5 to 0.0.3-next.6
+    * @twin.org/rights-management-pip-service bumped from 0.0.3-next.5 to 0.0.3-next.6
+    * @twin.org/rights-management-pmp-service bumped from 0.0.3-next.5 to 0.0.3-next.6
+    * @twin.org/rights-management-pnp-service bumped from 0.0.3-next.5 to 0.0.3-next.6
+    * @twin.org/rights-management-pxp-service bumped from 0.0.3-next.5 to 0.0.3-next.6
+
 ## [0.0.3-next.5](https://github.com/twinfoundation/rights-management/compare/rights-management-service-v0.0.3-next.4...rights-management-service-v0.0.3-next.5) (2026-01-06)
 
 

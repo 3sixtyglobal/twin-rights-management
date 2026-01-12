@@ -1,6 +1,6 @@
 {
 	"name": "@twin.org/rights-management-rest-client",
-	"version": "0.0.3-next.5",
+	"version": "0.0.3-next.6",
 	"description": "Rights management implementation which can connect to REST endpoints",
 	"repository": {
 		"type": "git",
@@ -39,7 +39,7 @@
 		"@twin.org/data-json-ld": "next",
 		"@twin.org/entity": "next",
 		"@twin.org/nameof": "next",
-		"@twin.org/rights-management-models": "0.0.3-next.5",
+		"@twin.org/rights-management-models": "0.0.3-next.6",
 		"@twin.org/standards-dataspace-protocol": "next",
 		"@twin.org/standards-w3c-did": "next",
 		"@twin.org/web": "next"
