@@ -314,9 +314,7 @@ export async function dapCreate(
 	const result = await component.create(
 		request.pathParams.assetType,
 		request.body.object,
-		HeaderHelper.extractBearer(
-			httpRequestContext.serverRequest.headers?.[HeaderTypes.Authorization]
-		)
+		HeaderHelper.extractBearer(request.headers?.[HeaderTypes.Authorization])
 	);
 
 	return {
@@ -353,9 +351,7 @@ export async function dapGet(
 	const result = await component.get(
 		request.pathParams.assetType,
 		request.pathParams.id,
-		HeaderHelper.extractBearer(
-			httpRequestContext.serverRequest.headers?.[HeaderTypes.Authorization]
-		)
+		HeaderHelper.extractBearer(request.headers?.[HeaderTypes.Authorization])
 	);
 
 	return {
@@ -391,9 +387,7 @@ export async function dapUpdate(
 	await component.update(
 		request.pathParams.assetType,
 		request.body.object,
-		HeaderHelper.extractBearer(
-			httpRequestContext.serverRequest.headers?.[HeaderTypes.Authorization]
-		)
+		HeaderHelper.extractBearer(request.headers?.[HeaderTypes.Authorization])
 	);
 
 	return {
@@ -429,9 +423,7 @@ export async function dapRemove(
 	await component.remove(
 		request.pathParams.assetType,
 		request.pathParams.id,
-		HeaderHelper.extractBearer(
-			httpRequestContext.serverRequest.headers?.[HeaderTypes.Authorization]
-		)
+		HeaderHelper.extractBearer(request.headers?.[HeaderTypes.Authorization])
 	);
 
 	return {
@@ -472,9 +464,7 @@ export async function dapQuery(
 		request.body.conditions,
 		request.body.cursor,
 		request.body.options,
-		HeaderHelper.extractBearer(
-			httpRequestContext.serverRequest.headers?.[HeaderTypes.Authorization]
-		)
+		HeaderHelper.extractBearer(request.headers?.[HeaderTypes.Authorization])
 	);
 
 	return {

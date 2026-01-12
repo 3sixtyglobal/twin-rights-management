@@ -606,9 +606,7 @@ export async function pnpGetNegotiation(
 	const component = ComponentFactory.get<IPolicyNegotiationPointComponent>(componentName);
 	const result = await component.getNegotiation(
 		request.pathParams.id,
-		HeaderHelper.extractBearer(
-			httpRequestContext.serverRequest.headers?.[HeaderTypes.Authorization]
-		)
+		HeaderHelper.extractBearer(request.headers?.[HeaderTypes.Authorization])
 	);
 
 	return {
@@ -645,9 +643,7 @@ export async function pnpNegotiationRequest(
 	const component = ComponentFactory.get<IPolicyNegotiationPointComponent>(componentName);
 	const result = await component.requestFromConsumer(
 		request.body,
-		HeaderHelper.extractBearer(
-			httpRequestContext.serverRequest.headers?.[HeaderTypes.Authorization]
-		)
+		HeaderHelper.extractBearer(request.headers?.[HeaderTypes.Authorization])
 	);
 
 	const isUpdate = Is.stringValue(request.pathParams?.id);
@@ -700,9 +696,7 @@ export async function pnpNegotiationProviderEvents(
 	const result = await component.event(
 		request.body,
 		request.pathParams.id === request.body.providerPid ? "provider" : "consumer",
-		HeaderHelper.extractBearer(
-			httpRequestContext.serverRequest.headers?.[HeaderTypes.Authorization]
-		)
+		HeaderHelper.extractBearer(request.headers?.[HeaderTypes.Authorization])
 	);
 
 	return {
@@ -748,9 +742,7 @@ export async function pnpNegotiationAgreementVerification(
 	const component = ComponentFactory.get<IPolicyNegotiationPointComponent>(componentName);
 	const result = await component.agreementVerificationFromConsumer(
 		request.body,
-		HeaderHelper.extractBearer(
-			httpRequestContext.serverRequest.headers?.[HeaderTypes.Authorization]
-		)
+		HeaderHelper.extractBearer(request.headers?.[HeaderTypes.Authorization])
 	);
 
 	return {
@@ -793,9 +785,7 @@ export async function pnpNegotiationTermination(
 	const result = await component.terminate(
 		request.body,
 		request.pathParams.id === request.body.providerPid ? "provider" : "consumer",
-		HeaderHelper.extractBearer(
-			httpRequestContext.serverRequest.headers?.[HeaderTypes.Authorization]
-		)
+		HeaderHelper.extractBearer(request.headers?.[HeaderTypes.Authorization])
 	);
 
 	return {
@@ -832,9 +822,7 @@ export async function pnpNegotiationOffer(
 	const component = ComponentFactory.get<IPolicyNegotiationPointComponent>(componentName);
 	const result = await component.offerFromProvider(
 		request.body,
-		HeaderHelper.extractBearer(
-			httpRequestContext.serverRequest.headers?.[HeaderTypes.Authorization]
-		)
+		HeaderHelper.extractBearer(request.headers?.[HeaderTypes.Authorization])
 	);
 
 	const isUpdate = Is.stringValue(request.pathParams?.id);
@@ -886,9 +874,7 @@ export async function pnpNegotiationAgreement(
 	const component = ComponentFactory.get<IPolicyNegotiationPointComponent>(componentName);
 	const result = await component.agreementFromProvider(
 		request.body,
-		HeaderHelper.extractBearer(
-			httpRequestContext.serverRequest.headers?.[HeaderTypes.Authorization]
-		)
+		HeaderHelper.extractBearer(request.headers?.[HeaderTypes.Authorization])
 	);
 
 	return {
