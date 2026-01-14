@@ -268,7 +268,7 @@ describe("PolicyExecutionPointService", () => {
 		const mockAction = new MockPolicyExecutionAction();
 		const testData = { key: "value" };
 		const testPolicies = [
-			{ "@context": OdrlContexts.ContextRoot, "@type": PolicyType.Agreement, uid: "policy1" }
+			{ "@context": OdrlContexts.JsonLdContext, "@type": PolicyType.Agreement, uid: "policy1" }
 		];
 		const testDecisions = [{ target: "asset1", decision: PolicyDecision.Granted }];
 
@@ -294,7 +294,7 @@ describe("PolicyExecutionPointService", () => {
 		const policyExecutionPoint = new PolicyExecutionPointService();
 
 		const testPolicies = [
-			{ "@context": OdrlContexts.ContextRoot, "@type": PolicyType.Agreement, uid: "policy1" }
+			{ "@context": OdrlContexts.JsonLdContext, "@type": PolicyType.Agreement, uid: "policy1" }
 		];
 		const testDecisions = [{ target: "asset1", decision: PolicyDecision.Granted }];
 
@@ -327,7 +327,7 @@ describe("PolicyExecutionPointService", () => {
 		const testData = { sensitiveInfo: "secret" };
 		const testPolicies: IOdrlPolicy[] = [
 			{
-				"@context": OdrlContexts.ContextRoot,
+				"@context": OdrlContexts.JsonLdContext,
 				"@type": PolicyType.Agreement,
 				uid: "policy1",
 				permission: [
@@ -386,7 +386,7 @@ describe("PolicyExecutionPointService", () => {
 	test("loggingPolicyAction handles undefined assignee", async () => {
 		const policyExecutionPoint = new PolicyExecutionPointService();
 		const testPolicies: IOdrlPolicy[] = [
-			{ "@context": OdrlContexts.ContextRoot, "@type": PolicyType.Agreement, uid: "policy2" }
+			{ "@context": OdrlContexts.JsonLdContext, "@type": PolicyType.Agreement, uid: "policy2" }
 		];
 		const testDecisions = [{ target: "asset1", decision: PolicyDecision.Granted }];
 
@@ -451,9 +451,9 @@ describe("PolicyExecutionPointService", () => {
 	test("loggingPolicyAction works with multiple policies", async () => {
 		const policyExecutionPoint = new PolicyExecutionPointService();
 		const multiplePolicies = [
-			{ "@context": OdrlContexts.ContextRoot, "@type": PolicyType.Agreement, uid: "policy1" },
-			{ "@context": OdrlContexts.ContextRoot, "@type": PolicyType.Set, uid: "policy2" },
-			{ "@context": OdrlContexts.ContextRoot, "@type": PolicyType.Offer, uid: "policy3" }
+			{ "@context": OdrlContexts.JsonLdContext, "@type": PolicyType.Agreement, uid: "policy1" },
+			{ "@context": OdrlContexts.JsonLdContext, "@type": PolicyType.Set, uid: "policy2" },
+			{ "@context": OdrlContexts.JsonLdContext, "@type": PolicyType.Offer, uid: "policy3" }
 		];
 		const testDecisions = [{ target: "asset1", decision: PolicyDecision.Granted }];
 		const mockLoggingAction = new MockPolicyExecutionAction();
@@ -475,7 +475,7 @@ describe("PolicyExecutionPointService", () => {
 	test("multiple loggingPolicyActions create separate log entries", async () => {
 		const policyExecutionPoint = new PolicyExecutionPointService();
 		const testPolicies = [
-			{ "@context": OdrlContexts.ContextRoot, "@type": PolicyType.Agreement, uid: "policy1" }
+			{ "@context": OdrlContexts.JsonLdContext, "@type": PolicyType.Agreement, uid: "policy1" }
 		];
 		const testDecisions = [{ target: "asset1", decision: PolicyDecision.Granted }];
 
@@ -519,7 +519,7 @@ describe("PolicyExecutionPointService", () => {
 			personalInfo: { ssn: "123-45-6789" }
 		};
 		const testPolicies = [
-			{ "@context": OdrlContexts.ContextRoot, "@type": PolicyType.Agreement, uid: "policy1" }
+			{ "@context": OdrlContexts.JsonLdContext, "@type": PolicyType.Agreement, uid: "policy1" }
 		];
 		const testDecisions = [{ target: "asset1", decision: PolicyDecision.Granted }];
 

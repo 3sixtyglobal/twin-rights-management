@@ -214,7 +214,7 @@ describe("PolicyAdministrationPointService", () => {
 
 	test("should successfully validate and create a valid ODRL policy", async () => {
 		const validPolicy = {
-			"@context": OdrlContexts.ContextRoot,
+			"@context": OdrlContexts.JsonLdContext,
 			"@type": "Set",
 			permission: [
 				{
@@ -236,7 +236,7 @@ describe("PolicyAdministrationPointService", () => {
 	test("should validate ODRL policy structure through JSON-LD validation", async () => {
 		// Create a policy with all required fields but invalid ODRL structure
 		const invalidOdrlPolicy = {
-			"@context": OdrlContexts.ContextRoot,
+			"@context": OdrlContexts.JsonLdContext,
 			"@type": "InvalidPolicyType",
 			permission: [
 				{
@@ -252,7 +252,7 @@ describe("PolicyAdministrationPointService", () => {
 
 	test("should auto-generate UID when not provided", async () => {
 		const policyWithoutUid = {
-			"@context": OdrlContexts.ContextRoot,
+			"@context": OdrlContexts.JsonLdContext,
 			"@type": "Set",
 			permission: [
 				{
@@ -296,7 +296,7 @@ describe("PolicyAdministrationPointService", () => {
 		const policyId = createResult;
 
 		const updatedPolicy: IOdrlPolicy = {
-			"@context": OdrlContexts.ContextRoot,
+			"@context": OdrlContexts.JsonLdContext,
 			"@type": "Set",
 			uid: policyId,
 			permission: [
@@ -322,7 +322,7 @@ describe("PolicyAdministrationPointService", () => {
 	test("should throw error when updating non-existent policy", async () => {
 		const nonExistentId = "http://example.com/non-existent-policy";
 		const updatePolicy: IOdrlPolicy = {
-			"@context": OdrlContexts.ContextRoot,
+			"@context": OdrlContexts.JsonLdContext,
 			"@type": "Set",
 			uid: nonExistentId,
 			permission: [
@@ -339,7 +339,7 @@ describe("PolicyAdministrationPointService", () => {
 	test("should throw error when updating with non-existent UID", async () => {
 		// Try to update a policy that doesn't exist
 		const nonExistentPolicy: IOdrlPolicy = {
-			"@context": OdrlContexts.ContextRoot,
+			"@context": OdrlContexts.JsonLdContext,
 			"@type": "Set",
 			uid: "http://example.com/non-existent-uid",
 			permission: [
@@ -356,7 +356,7 @@ describe("PolicyAdministrationPointService", () => {
 	test("should replace policy entirely in update", async () => {
 		// Create initial policy with complex structure
 		const initialPolicy = {
-			"@context": OdrlContexts.ContextRoot,
+			"@context": OdrlContexts.JsonLdContext,
 			"@type": "Set",
 			assigner: {
 				uid: "http://example.com/party/1",
@@ -381,7 +381,7 @@ describe("PolicyAdministrationPointService", () => {
 		const policyId = createResult;
 
 		const replacementPolicy: IOdrlPolicy = {
-			"@context": OdrlContexts.ContextRoot,
+			"@context": OdrlContexts.JsonLdContext,
 			"@type": "Set",
 			uid: policyId,
 			assigner: {
@@ -418,7 +418,7 @@ describe("PolicyAdministrationPointService", () => {
 
 	test("should replace arrays entirely in update", async () => {
 		const initialPolicy = {
-			"@context": OdrlContexts.ContextRoot,
+			"@context": OdrlContexts.JsonLdContext,
 			"@type": "Set",
 			permission: [
 				{
@@ -436,7 +436,7 @@ describe("PolicyAdministrationPointService", () => {
 		const policyId = createResult;
 
 		const updateWithNewArray: IOdrlPolicy = {
-			"@context": OdrlContexts.ContextRoot,
+			"@context": OdrlContexts.JsonLdContext,
 			"@type": "Set",
 			uid: policyId,
 			permission: [
@@ -467,7 +467,7 @@ describe("PolicyAdministrationPointService", () => {
 		const policyId = createResult;
 
 		const invalidUpdate = {
-			"@context": OdrlContexts.ContextRoot,
+			"@context": OdrlContexts.JsonLdContext,
 			"@type": "InvalidType",
 			uid: policyId,
 			permission: [
@@ -490,7 +490,7 @@ describe("PolicyAdministrationPointService", () => {
 		const policyId = createResult;
 
 		const updatedPolicy: IOdrlPolicy = {
-			"@context": OdrlContexts.ContextRoot,
+			"@context": OdrlContexts.JsonLdContext,
 			"@type": "Offer",
 			uid: policyId,
 			permission: [

@@ -32,7 +32,7 @@ export const TEST_USER_IDENTITY = "user:1234";
 export const TEST_NODE_IDENTITY = "node:5678";
 
 export const SAMPLE_POLICY: IOdrlPolicy = {
-	"@context": OdrlContexts.ContextRoot,
+	"@context": OdrlContexts.JsonLdContext,
 	"@type": "Set",
 	uid: TEST_POLICY_ID,
 	permission: [
@@ -63,7 +63,7 @@ function createTestPolicy(
 	action: ActionType
 ): Omit<IOdrlPolicy, "uid"> & { uid?: string } {
 	const policy: Omit<IOdrlPolicy, "uid"> & { uid?: string } = {
-		"@context": OdrlContexts.ContextRoot,
+		"@context": OdrlContexts.JsonLdContext,
 		"@type": policyType,
 		permission: [
 			{

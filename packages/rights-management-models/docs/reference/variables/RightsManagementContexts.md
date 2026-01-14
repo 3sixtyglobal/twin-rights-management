@@ -6,8 +6,8 @@ The LD Contexts concerning Rights Management.
 
 ## Type Declaration
 
-### ContextRoot
+### Namespace
 
-> `readonly` **ContextRoot**: `"https://schema.twindev.org/rights-management"` = `"https://schema.twindev.org/rights-management"`
+> `readonly` **Namespace**: `"https://schema.twindev.org/rights-management"` = `"https://schema.twindev.org/rights-management"`
 
-The Rights Management LD Context.
+The Namespace.

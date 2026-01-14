@@ -88,7 +88,7 @@ export function generateRestRoutesPolicyNegotiationPoint(
 						id: "pnpGetNegotiationResponseExample",
 						response: {
 							body: {
-								"@context": [DataspaceProtocolContexts.ContextRoot],
+								"@context": [DataspaceProtocolContexts.JsonLdContext],
 								"@type": DataspaceProtocolContractNegotiationTypes.ContractNegotiation,
 								providerPid: "urn:contract-negotiation:002aa11bb.......ffff",
 								consumerPid: "urn:contract-negotiation:22aa11bb.......ffff",
@@ -125,11 +125,11 @@ export function generateRestRoutesPolicyNegotiationPoint(
 							[HeaderTypes.Authorization]: "z3Vcuh2BP9ShC.z3Vcuh2BP9ShC.z3Vcuh2BP9ShC"
 						},
 						body: {
-							"@context": [DataspaceProtocolContexts.ContextRoot],
+							"@context": [DataspaceProtocolContexts.JsonLdContext],
 							"@type": DataspaceProtocolContractNegotiationTypes.ContractRequestMessage,
 							consumerPid: "urn:contract-negotiation:22aa11bb.......ffff",
 							offer: {
-								"@context": OdrlContexts.ContextRoot,
+								"@context": OdrlContexts.JsonLdContext,
 								"@type": OdrlTypes.Offer,
 								uid: "urn:offer-1",
 								assigner: "urn:provider:node:1"
@@ -147,7 +147,7 @@ export function generateRestRoutesPolicyNegotiationPoint(
 						id: "IPnpNegotiationRequestResponseExample",
 						response: {
 							body: {
-								"@context": [DataspaceProtocolContexts.ContextRoot],
+								"@context": [DataspaceProtocolContexts.JsonLdContext],
 								"@type": DataspaceProtocolContractNegotiationTypes.ContractNegotiation,
 								providerPid: "urn:contract-negotiation:00aa11bb.......ffff",
 								consumerPid: "urn:contract-negotiation:22aa11bb.......ffff",
@@ -185,11 +185,11 @@ export function generateRestRoutesPolicyNegotiationPoint(
 								id: "urn:contract-negotiation:00aa11bb.......ffff"
 							},
 							body: {
-								"@context": [DataspaceProtocolContexts.ContextRoot],
+								"@context": [DataspaceProtocolContexts.JsonLdContext],
 								"@type": DataspaceProtocolContractNegotiationTypes.ContractRequestMessage,
 								consumerPid: "urn:contract-negotiation:22aa11bb.......ffff",
 								offer: {
-									"@context": OdrlContexts.ContextRoot,
+									"@context": OdrlContexts.JsonLdContext,
 									"@type": OdrlTypes.Offer,
 									uid: "urn:offer-1",
 									assigner: "urn:provider:node:1"
@@ -238,7 +238,7 @@ export function generateRestRoutesPolicyNegotiationPoint(
 							id: "urn:contract-negotiation:00aa11bb.......ffff"
 						},
 						body: {
-							"@context": [DataspaceProtocolContexts.ContextRoot],
+							"@context": [DataspaceProtocolContexts.JsonLdContext],
 							"@type": DataspaceProtocolContractNegotiationTypes.ContractRequestMessage,
 							providerPid: "urn:contract-negotiation:00aa11bb.......ffff",
 							consumerPid: "urn:contract-negotiation:22aa11bb.......ffff",
@@ -290,7 +290,7 @@ export function generateRestRoutesPolicyNegotiationPoint(
 							id: "urn:contract-negotiation:00aa11bb.......ffff"
 						},
 						body: {
-							"@context": [DataspaceProtocolContexts.ContextRoot],
+							"@context": [DataspaceProtocolContexts.JsonLdContext],
 							"@type": DataspaceProtocolContractNegotiationTypes.ContractRequestMessage,
 							providerPid: "urn:contract-negotiation:00aa11bb.......ffff",
 							consumerPid: "urn:contract-negotiation:22aa11bb.......ffff"
@@ -338,7 +338,7 @@ export function generateRestRoutesPolicyNegotiationPoint(
 							id: "urn:contract-negotiation:00aa11bb.......ffff"
 						},
 						body: {
-							"@context": [DataspaceProtocolContexts.ContextRoot],
+							"@context": [DataspaceProtocolContexts.JsonLdContext],
 							"@type": DataspaceProtocolContractNegotiationTypes.ContractRequestMessage,
 							providerPid: "urn:contract-negotiation:00aa11bb.......ffff",
 							consumerPid: "urn:contract-negotiation:22aa11bb.......ffff"
@@ -386,12 +386,12 @@ export function generateRestRoutesPolicyNegotiationPoint(
 							[HeaderTypes.Authorization]: "z3Vcuh2BP9ShC.z3Vcuh2BP9ShC.z3Vcuh2BP9ShC"
 						},
 						body: {
-							"@context": [DataspaceProtocolContexts.ContextRoot],
+							"@context": [DataspaceProtocolContexts.JsonLdContext],
 							"@type": DataspaceProtocolContractNegotiationTypes.ContractRequestMessage,
 							providerPid: "urn:contract-negotiation:00aa11bb.......ffff",
 							consumerPid: "urn:contract-negotiation:22aa11bb.......ffff",
 							offer: {
-								"@context": OdrlContexts.ContextRoot,
+								"@context": OdrlContexts.JsonLdContext,
 								"@type": OdrlTypes.Offer,
 								uid: "urn:offer-1",
 								assigner: "urn:provider:node:1"
@@ -409,7 +409,7 @@ export function generateRestRoutesPolicyNegotiationPoint(
 						id: "pnpNegotiationOfferResponseExample",
 						response: {
 							body: {
-								"@context": [DataspaceProtocolContexts.ContextRoot],
+								"@context": [DataspaceProtocolContexts.JsonLdContext],
 								"@type": DataspaceProtocolContractNegotiationTypes.ContractRequestMessage,
 								providerPid: "urn:contract-negotiation:00aa11bb.......ffff",
 								consumerPid: "urn:contract-negotiation:22aa11bb.......ffff"
@@ -445,12 +445,12 @@ export function generateRestRoutesPolicyNegotiationPoint(
 							id: "urn:contract-negotiation:22aa11bb.......ffff"
 						},
 						body: {
-							"@context": [DataspaceProtocolContexts.ContextRoot],
+							"@context": [DataspaceProtocolContexts.JsonLdContext],
 							"@type": DataspaceProtocolContractNegotiationTypes.ContractRequestMessage,
 							providerPid: "urn:contract-negotiation:00aa11bb.......ffff",
 							consumerPid: "urn:contract-negotiation:22aa11bb.......ffff",
 							offer: {
-								"@context": OdrlContexts.ContextRoot,
+								"@context": OdrlContexts.JsonLdContext,
 								"@type": OdrlTypes.Offer,
 								uid: "urn:offer-1",
 								assigner: "urn:provider:node:1"
@@ -468,7 +468,7 @@ export function generateRestRoutesPolicyNegotiationPoint(
 						id: "pnpNegotiationConsumerOfferResponseExample",
 						response: {
 							body: {
-								"@context": [DataspaceProtocolContexts.ContextRoot],
+								"@context": [DataspaceProtocolContexts.JsonLdContext],
 								"@type": DataspaceProtocolContractNegotiationTypes.ContractNegotiation,
 								providerPid: "urn:contract-negotiation:00aa11bb.......ffff",
 								consumerPid: "urn:contract-negotiation:22aa11bb.......ffff"
@@ -504,12 +504,12 @@ export function generateRestRoutesPolicyNegotiationPoint(
 							id: "urn:contract-negotiation:22aa11bb.......ffff"
 						},
 						body: {
-							"@context": [DataspaceProtocolContexts.ContextRoot],
+							"@context": [DataspaceProtocolContexts.JsonLdContext],
 							"@type": DataspaceProtocolContractNegotiationTypes.ContractRequestMessage,
 							providerPid: "urn:contract-negotiation:00aa11bb.......ffff",
 							consumerPid: "urn:contract-negotiation:22aa11bb.......ffff",
 							agreement: {
-								"@context": OdrlContexts.ContextRoot,
+								"@context": OdrlContexts.JsonLdContext,
 								"@type": OdrlTypes.Agreement,
 								uid: "urn:offer-1",
 								assigner: "urn:provider:node:1",

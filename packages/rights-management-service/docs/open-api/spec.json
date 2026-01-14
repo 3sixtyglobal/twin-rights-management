@@ -2622,6 +2622,227 @@
 	},
 	"components": {
 		"schemas": {
+			"CatalogRecordOptionalContext": {
+				"type": "object",
+				"additionalProperties": false,
+				"properties": {
+					"@context": {
+						"$ref": "#/components/schemas/DcatContextType"
+					},
+					"@type": {
+						"type": "string",
+						"const": "dcat:CatalogRecord",
+						"description": "The type identifier, typically \"CatalogRecord\"."
+					},
+					"dcterms:title": {
+						"$ref": "#/components/schemas/DcatLiteralType"
+					},
+					"dcterms:description": {
+						"$ref": "#/components/schemas/DcatLiteralType"
+					},
+					"dcterms:issued": {
+						"$ref": "#/components/schemas/DcatDateTimeType"
+					},
+					"dcterms:modified": {
+						"$ref": "#/components/schemas/DcatDateTimeType"
+					},
+					"dcterms:conformsTo": {
+						"description": "Object or array data type",
+						"anyOf": [
+							{
+								"type": "string"
+							},
+							{
+								"type": "array",
+								"items": {
+									"type": "string"
+								}
+							}
+						]
+					},
+					"foaf:primaryTopic": {
+						"$ref": "#/components/schemas/DcatResource"
+					},
+					"@id": {
+						"anyOf": [
+							{
+								"$ref": "https://schema.twindev.org/json-ld/JsonLdNodePrimitive"
+							},
+							{
+								"type": "array",
+								"items": {
+									"$ref": "https://schema.twindev.org/json-ld/JsonLdNodePrimitive"
+								}
+							},
+							{
+								"$ref": "https://schema.twindev.org/json-ld/JsonLdLanguageMap"
+							},
+							{
+								"$ref": "https://schema.twindev.org/json-ld/JsonLdIndexMap"
+							},
+							{
+								"$ref": "https://schema.twindev.org/json-ld/JsonLdIncludedBlock"
+							},
+							{
+								"$ref": "https://schema.twindev.org/json-ld/JsonLdIdMap"
+							},
+							{
+								"$ref": "https://schema.twindev.org/json-ld/JsonLdTypeMap"
+							}
+						]
+					},
+					"@included": {
+						"anyOf": [
+							{
+								"$ref": "https://schema.twindev.org/json-ld/JsonLdNodePrimitive"
+							},
+							{
+								"type": "array",
+								"items": {
+									"$ref": "https://schema.twindev.org/json-ld/JsonLdNodePrimitive"
+								}
+							},
+							{
+								"$ref": "https://schema.twindev.org/json-ld/JsonLdLanguageMap"
+							},
+							{
+								"$ref": "https://schema.twindev.org/json-ld/JsonLdIndexMap"
+							},
+							{
+								"$ref": "https://schema.twindev.org/json-ld/JsonLdIncludedBlock"
+							},
+							{
+								"$ref": "https://schema.twindev.org/json-ld/JsonLdIdMap"
+							},
+							{
+								"$ref": "https://schema.twindev.org/json-ld/JsonLdTypeMap"
+							}
+						]
+					},
+					"@graph": {
+						"anyOf": [
+							{
+								"$ref": "https://schema.twindev.org/json-ld/JsonLdNodePrimitive"
+							},
+							{
+								"type": "array",
+								"items": {
+									"$ref": "https://schema.twindev.org/json-ld/JsonLdNodePrimitive"
+								}
+							},
+							{
+								"$ref": "https://schema.twindev.org/json-ld/JsonLdLanguageMap"
+							},
+							{
+								"$ref": "https://schema.twindev.org/json-ld/JsonLdIndexMap"
+							},
+							{
+								"$ref": "https://schema.twindev.org/json-ld/JsonLdIncludedBlock"
+							},
+							{
+								"$ref": "https://schema.twindev.org/json-ld/JsonLdIdMap"
+							},
+							{
+								"$ref": "https://schema.twindev.org/json-ld/JsonLdTypeMap"
+							}
+						]
+					},
+					"@nest": {
+						"anyOf": [
+							{
+								"$ref": "https://schema.twindev.org/json-ld/JsonLdNodePrimitive"
+							},
+							{
+								"type": "array",
+								"items": {
+									"$ref": "https://schema.twindev.org/json-ld/JsonLdNodePrimitive"
+								}
+							},
+							{
+								"$ref": "https://schema.twindev.org/json-ld/JsonLdLanguageMap"
+							},
+							{
+								"$ref": "https://schema.twindev.org/json-ld/JsonLdIndexMap"
+							},
+							{
+								"$ref": "https://schema.twindev.org/json-ld/JsonLdIncludedBlock"
+							},
+							{
+								"$ref": "https://schema.twindev.org/json-ld/JsonLdIdMap"
+							},
+							{
+								"$ref": "https://schema.twindev.org/json-ld/JsonLdTypeMap"
+							}
+						]
+					},
+					"@reverse": {
+						"anyOf": [
+							{
+								"$ref": "https://schema.twindev.org/json-ld/JsonLdNodePrimitive"
+							},
+							{
+								"type": "array",
+								"items": {
+									"$ref": "https://schema.twindev.org/json-ld/JsonLdNodePrimitive"
+								}
+							},
+							{
+								"$ref": "https://schema.twindev.org/json-ld/JsonLdLanguageMap"
+							},
+							{
+								"$ref": "https://schema.twindev.org/json-ld/JsonLdIndexMap"
+							},
+							{
+								"$ref": "https://schema.twindev.org/json-ld/JsonLdIncludedBlock"
+							},
+							{
+								"$ref": "https://schema.twindev.org/json-ld/JsonLdIdMap"
+							},
+							{
+								"$ref": "https://schema.twindev.org/json-ld/JsonLdTypeMap"
+							}
+						]
+					},
+					"@index": {
+						"anyOf": [
+							{
+								"$ref": "https://schema.twindev.org/json-ld/JsonLdNodePrimitive"
+							},
+							{
+								"type": "array",
+								"items": {
+									"$ref": "https://schema.twindev.org/json-ld/JsonLdNodePrimitive"
+								}
+							},
+							{
+								"$ref": "https://schema.twindev.org/json-ld/JsonLdLanguageMap"
+							},
+							{
+								"$ref": "https://schema.twindev.org/json-ld/JsonLdIndexMap"
+							},
+							{
+								"$ref": "https://schema.twindev.org/json-ld/JsonLdIncludedBlock"
+							},
+							{
+								"$ref": "https://schema.twindev.org/json-ld/JsonLdIdMap"
+							},
+							{
+								"$ref": "https://schema.twindev.org/json-ld/JsonLdTypeMap"
+							}
+						]
+					}
+				},
+				"required": [
+					"@graph",
+					"@id",
+					"@included",
+					"@index",
+					"@nest",
+					"@reverse",
+					"@type"
+				],
+				"description": "Record omitting LD Context"
+			},
 			"Comparator": {
 				"type": "object",
 				"properties": {
@@ -2713,6 +2934,482 @@
 					}
 				],
 				"description": "The types of comparisons."
+			},
+			"DataspaceProtocolCatalog": {
+				"type": "object",
+				"properties": {
+					"foaf:homepage": {
+						"type": "string",
+						"description": "A homepage of the catalog (a public Web document usually available in HTML)."
+					},
+					"dcat:themeTaxonomy": {
+						"description": "Object or array data type",
+						"anyOf": [
+							{
+								"$ref": "#/components/schemas/DcatResource"
+							},
+							{
+								"type": "array",
+								"items": {
+									"$ref": "#/components/schemas/DcatResource"
+								}
+							}
+						]
+					},
+					"dcat:resource": {
+						"description": "Object or array data type",
+						"anyOf": [
+							{
+								"$ref": "#/components/schemas/DcatResource"
+							},
+							{
+								"type": "array",
+								"items": {
+									"$ref": "#/components/schemas/DcatResource"
+								}
+							}
+						]
+					},
+					"dcat:record": {
+						"description": "Object or array data type",
+						"anyOf": [
+							{
+								"$ref": "#/components/schemas/CatalogRecordOptionalContext"
+							},
+							{
+								"type": "array",
+								"items": {
+									"$ref": "#/components/schemas/CatalogRecordOptionalContext"
+								}
+							}
+						]
+					},
+					"dcterms:accrualPeriodicity": {
+						"type": "string",
+						"description": "The frequency at which the dataset is published."
+					},
+					"dcat:inSeries": {
+						"type": "string",
+						"description": "A dataset series of which the dataset is part."
+					},
+					"dcterms:spatial": {
+						"anyOf": [
+							{
+								"$ref": "https://schema.twindev.org/json-ld/JsonLdNodeObject"
+							},
+							{
+								"anyOf": [
+									{
+										"type": "string"
+									},
+									{
+										"type": "array",
+										"items": {
+											"type": "string"
+										}
+									}
+								],
+								"description": "Object or array data type"
+							}
+						],
+						"description": "The geographical area covered by the dataset."
+					},
+					"dcat:spatialResolutionInMeters": {
+						"$ref": "#/components/schemas/DcatDecimalType"
+					},
+					"dcterms:temporal": {
+						"$ref": "#/components/schemas/DublinCorePeriodOfTime"
+					},
+					"dcat:temporalResolution": {
+						"$ref": "#/components/schemas/DcatDurationType"
+					},
+					"prov:wasGeneratedBy": {
+						"anyOf": [
+							{
+								"$ref": "https://schema.twindev.org/json-ld/JsonLdNodeObject"
+							},
+							{
+								"type": "string"
+							}
+						],
+						"description": "An activity that generated, or provides the business context for, the creation of the dataset."
+					},
+					"dcterms:title": {
+						"$ref": "#/components/schemas/DcatLiteralType"
+					},
+					"dcterms:description": {
+						"$ref": "#/components/schemas/DcatLiteralType"
+					},
+					"dcterms:identifier": {
+						"$ref": "#/components/schemas/DcatLiteralType"
+					},
+					"dcterms:issued": {
+						"$ref": "#/components/schemas/DcatDateTimeType"
+					},
+					"dcterms:modified": {
+						"$ref": "#/components/schemas/DcatDateTimeType"
+					},
+					"dcterms:language": {
+						"description": "Object or array data type",
+						"anyOf": [
+							{
+								"type": "string"
+							},
+							{
+								"type": "array",
+								"items": {
+									"type": "string"
+								}
+							}
+						]
+					},
+					"dcterms:publisher": {
+						"anyOf": [
+							{
+								"$ref": "#/components/schemas/FoafAgent"
+							},
+							{
+								"type": "string"
+							}
+						],
+						"description": "An entity responsible for making the resource available."
+					},
+					"dcterms:creator": {
+						"$ref": "#/components/schemas/FoafAgent"
+					},
+					"dcterms:accessRights": {
+						"anyOf": [
+							{
+								"$ref": "https://schema.twindev.org/json-ld/JsonLdNodeObject"
+							},
+							{
+								"type": "string"
+							}
+						],
+						"description": "Information about who can access the resource or an indication of its security status."
+					},
+					"dcterms:license": {
+						"anyOf": [
+							{
+								"$ref": "https://schema.twindev.org/json-ld/JsonLdNodeObject"
+							},
+							{
+								"type": "string"
+							}
+						],
+						"description": "A legal document under which the resource is made available."
+					},
+					"dcterms:rights": {
+						"anyOf": [
+							{
+								"$ref": "https://schema.twindev.org/json-ld/JsonLdNodeObject"
+							},
+							{
+								"type": "string"
+							}
+						],
+						"description": "Information about rights held in and over the resource."
+					},
+					"dcterms:conformsTo": {
+						"description": "Object or array data type",
+						"anyOf": [
+							{
+								"type": "string"
+							},
+							{
+								"type": "array",
+								"items": {
+									"type": "string"
+								}
+							}
+						]
+					},
+					"dcterms:type": {
+						"type": "string",
+						"description": "The nature or genre of the resource."
+					},
+					"dcat:contactPoint": {
+						"anyOf": [
+							{
+								"$ref": "https://schema.twindev.org/json-ld/JsonLdNodeObject"
+							},
+							{
+								"type": "string"
+							}
+						],
+						"description": "Relevant contact information for the catalogued resource."
+					},
+					"dcat:keyword": {
+						"$ref": "#/components/schemas/DcatLiteralType"
+					},
+					"dcat:theme": {
+						"description": "Object or array data type",
+						"anyOf": [
+							{
+								"type": "string"
+							},
+							{
+								"type": "array",
+								"items": {
+									"type": "string"
+								}
+							}
+						]
+					},
+					"dcat:landingPage": {
+						"description": "Object or array data type",
+						"anyOf": [
+							{
+								"type": "string"
+							},
+							{
+								"type": "array",
+								"items": {
+									"type": "string"
+								}
+							}
+						]
+					},
+					"dcat:qualifiedRelation": {
+						"anyOf": [
+							{
+								"$ref": "#/components/schemas/DcatRelationship"
+							},
+							{
+								"type": "string"
+							}
+						],
+						"description": "Link to a description of a relationship with another resource."
+					},
+					"odrl:hasPolicy": {
+						"$ref": "https://schema.twindev.org/w3c-odrl/OdrlPolicy"
+					},
+					"@id": {
+						"type": "string",
+						"description": "Unique identifier for the dataset. REQUIRED per Eclipse Data Space Protocol."
+					},
+					"@included": {
+						"anyOf": [
+							{
+								"$ref": "https://schema.twindev.org/json-ld/JsonLdNodePrimitive"
+							},
+							{
+								"type": "array",
+								"items": {
+									"$ref": "https://schema.twindev.org/json-ld/JsonLdNodePrimitive"
+								}
+							},
+							{
+								"$ref": "https://schema.twindev.org/json-ld/JsonLdLanguageMap"
+							},
+							{
+								"$ref": "https://schema.twindev.org/json-ld/JsonLdIndexMap"
+							},
+							{
+								"$ref": "https://schema.twindev.org/json-ld/JsonLdIncludedBlock"
+							},
+							{
+								"$ref": "https://schema.twindev.org/json-ld/JsonLdIdMap"
+							},
+							{
+								"$ref": "https://schema.twindev.org/json-ld/JsonLdTypeMap"
+							}
+						]
+					},
+					"@graph": {
+						"anyOf": [
+							{
+								"$ref": "https://schema.twindev.org/json-ld/JsonLdNodePrimitive"
+							},
+							{
+								"type": "array",
+								"items": {
+									"$ref": "https://schema.twindev.org/json-ld/JsonLdNodePrimitive"
+								}
+							},
+							{
+								"$ref": "https://schema.twindev.org/json-ld/JsonLdLanguageMap"
+							},
+							{
+								"$ref": "https://schema.twindev.org/json-ld/JsonLdIndexMap"
+							},
+							{
+								"$ref": "https://schema.twindev.org/json-ld/JsonLdIncludedBlock"
+							},
+							{
+								"$ref": "https://schema.twindev.org/json-ld/JsonLdIdMap"
+							},
+							{
+								"$ref": "https://schema.twindev.org/json-ld/JsonLdTypeMap"
+							}
+						]
+					},
+					"@nest": {
+						"anyOf": [
+							{
+								"$ref": "https://schema.twindev.org/json-ld/JsonLdNodePrimitive"
+							},
+							{
+								"type": "array",
+								"items": {
+									"$ref": "https://schema.twindev.org/json-ld/JsonLdNodePrimitive"
+								}
+							},
+							{
+								"$ref": "https://schema.twindev.org/json-ld/JsonLdLanguageMap"
+							},
+							{
+								"$ref": "https://schema.twindev.org/json-ld/JsonLdIndexMap"
+							},
+							{
+								"$ref": "https://schema.twindev.org/json-ld/JsonLdIncludedBlock"
+							},
+							{
+								"$ref": "https://schema.twindev.org/json-ld/JsonLdIdMap"
+							},
+							{
+								"$ref": "https://schema.twindev.org/json-ld/JsonLdTypeMap"
+							}
+						]
+					},
+					"@reverse": {
+						"anyOf": [
+							{
+								"$ref": "https://schema.twindev.org/json-ld/JsonLdNodePrimitive"
+							},
+							{
+								"type": "array",
+								"items": {
+									"$ref": "https://schema.twindev.org/json-ld/JsonLdNodePrimitive"
+								}
+							},
+							{
+								"$ref": "https://schema.twindev.org/json-ld/JsonLdLanguageMap"
+							},
+							{
+								"$ref": "https://schema.twindev.org/json-ld/JsonLdIndexMap"
+							},
+							{
+								"$ref": "https://schema.twindev.org/json-ld/JsonLdIncludedBlock"
+							},
+							{
+								"$ref": "https://schema.twindev.org/json-ld/JsonLdIdMap"
+							},
+							{
+								"$ref": "https://schema.twindev.org/json-ld/JsonLdTypeMap"
+							}
+						]
+					},
+					"@index": {
+						"anyOf": [
+							{
+								"$ref": "https://schema.twindev.org/json-ld/JsonLdNodePrimitive"
+							},
+							{
+								"type": "array",
+								"items": {
+									"$ref": "https://schema.twindev.org/json-ld/JsonLdNodePrimitive"
+								}
+							},
+							{
+								"$ref": "https://schema.twindev.org/json-ld/JsonLdLanguageMap"
+							},
+							{
+								"$ref": "https://schema.twindev.org/json-ld/JsonLdIndexMap"
+							},
+							{
+								"$ref": "https://schema.twindev.org/json-ld/JsonLdIncludedBlock"
+							},
+							{
+								"$ref": "https://schema.twindev.org/json-ld/JsonLdIdMap"
+							},
+							{
+								"$ref": "https://schema.twindev.org/json-ld/JsonLdTypeMap"
+							}
+						]
+					},
+					"@context": {
+						"$ref": "#/components/schemas/DataspaceProtocolContextType"
+					},
+					"@type": {
+						"type": "string",
+						"const": "Catalog",
+						"description": "The type identifier for the Catalog. REQUIRED per Eclipse Data Space Protocol."
+					},
+					"participantId": {
+						"type": "string",
+						"description": "Participant Id"
+					},
+					"catalog": {
+						"description": "Object or array data type",
+						"anyOf": [
+							{
+								"$ref": "#/components/schemas/DataspaceProtocolCatalog"
+							},
+							{
+								"type": "array",
+								"items": {
+									"$ref": "#/components/schemas/DataspaceProtocolCatalog"
+								}
+							}
+						]
+					},
+					"dataset": {
+						"description": "Object or array data type",
+						"anyOf": [
+							{
+								"$ref": "#/components/schemas/DataspaceProtocolDataset"
+							},
+							{
+								"type": "array",
+								"items": {
+									"$ref": "#/components/schemas/DataspaceProtocolDataset"
+								}
+							}
+						]
+					},
+					"distribution": {
+						"description": "Object or array data type",
+						"anyOf": [
+							{
+								"$ref": "#/components/schemas/DataspaceProtocolDistribution"
+							},
+							{
+								"type": "array",
+								"items": {
+									"$ref": "#/components/schemas/DataspaceProtocolDistribution"
+								}
+							}
+						]
+					},
+					"service": {
+						"description": "Object or array data type",
+						"anyOf": [
+							{
+								"$ref": "#/components/schemas/DataspaceProtocolDataService"
+							},
+							{
+								"type": "array",
+								"items": {
+									"$ref": "#/components/schemas/DataspaceProtocolDataService"
+								}
+							}
+						]
+					}
+				},
+				"required": [
+					"@context",
+					"@graph",
+					"@id",
+					"@included",
+					"@index",
+					"@nest",
+					"@reverse",
+					"@type",
+					"participantId"
+				],
+				"additionalProperties": false,
+				"description": "Catalog interface compliant with Eclipse Data Space Protocol.\n\nThis interface extends ICatalog  and enforces DS Protocol-specific requirements by overriding properties with more specific types and constraints.\n\n**Requirements per DS Protocol:**\n- `@id` MUST be present for dataset identification (REQUIRED)\n- participantId MUST be present (REQUIRED)\n\n**Type System Design:**\n- Interface extension allows TypeScript to override inherited property types\n- Standards packages (@twin.org/standards-w3c-*) follow W3C specs exactly\n- DS Protocol-specific constraints are defined here"
 			},
 			"DataspaceProtocolContextType": {
 				"anyOf": [
@@ -3087,6 +3784,1697 @@
 				"additionalProperties": false,
 				"description": "Interface for Dataspace Protocol Contract Request Messages. https://eclipse-dataspace-protocol-base.github.io/DataspaceProtocol/2025-1/#contract-request-message"
 			},
+			"DataspaceProtocolDataService": {
+				"type": "object",
+				"properties": {
+					"dcat:endpointDescription": {
+						"type": "string",
+						"description": "A description of the services available via the end-points, including their operations, parameters, etc."
+					},
+					"dcterms:title": {
+						"$ref": "#/components/schemas/DcatLiteralType"
+					},
+					"dcterms:description": {
+						"$ref": "#/components/schemas/DcatLiteralType"
+					},
+					"dcterms:identifier": {
+						"$ref": "#/components/schemas/DcatLiteralType"
+					},
+					"dcterms:issued": {
+						"$ref": "#/components/schemas/DcatDateTimeType"
+					},
+					"dcterms:modified": {
+						"$ref": "#/components/schemas/DcatDateTimeType"
+					},
+					"dcterms:language": {
+						"description": "Object or array data type",
+						"anyOf": [
+							{
+								"type": "string"
+							},
+							{
+								"type": "array",
+								"items": {
+									"type": "string"
+								}
+							}
+						]
+					},
+					"dcterms:publisher": {
+						"anyOf": [
+							{
+								"$ref": "#/components/schemas/FoafAgent"
+							},
+							{
+								"type": "string"
+							}
+						],
+						"description": "An entity responsible for making the resource available."
+					},
+					"dcterms:creator": {
+						"$ref": "#/components/schemas/FoafAgent"
+					},
+					"dcterms:accessRights": {
+						"anyOf": [
+							{
+								"$ref": "https://schema.twindev.org/json-ld/JsonLdNodeObject"
+							},
+							{
+								"type": "string"
+							}
+						],
+						"description": "Information about who can access the resource or an indication of its security status."
+					},
+					"dcterms:license": {
+						"anyOf": [
+							{
+								"$ref": "https://schema.twindev.org/json-ld/JsonLdNodeObject"
+							},
+							{
+								"type": "string"
+							}
+						],
+						"description": "A legal document under which the resource is made available."
+					},
+					"dcterms:rights": {
+						"anyOf": [
+							{
+								"$ref": "https://schema.twindev.org/json-ld/JsonLdNodeObject"
+							},
+							{
+								"type": "string"
+							}
+						],
+						"description": "Information about rights held in and over the resource."
+					},
+					"dcterms:conformsTo": {
+						"description": "Object or array data type",
+						"anyOf": [
+							{
+								"type": "string"
+							},
+							{
+								"type": "array",
+								"items": {
+									"type": "string"
+								}
+							}
+						]
+					},
+					"dcterms:type": {
+						"type": "string",
+						"description": "The nature or genre of the resource."
+					},
+					"dcat:contactPoint": {
+						"anyOf": [
+							{
+								"$ref": "https://schema.twindev.org/json-ld/JsonLdNodeObject"
+							},
+							{
+								"type": "string"
+							}
+						],
+						"description": "Relevant contact information for the catalogued resource."
+					},
+					"dcat:keyword": {
+						"$ref": "#/components/schemas/DcatLiteralType"
+					},
+					"dcat:theme": {
+						"description": "Object or array data type",
+						"anyOf": [
+							{
+								"type": "string"
+							},
+							{
+								"type": "array",
+								"items": {
+									"type": "string"
+								}
+							}
+						]
+					},
+					"dcat:landingPage": {
+						"description": "Object or array data type",
+						"anyOf": [
+							{
+								"type": "string"
+							},
+							{
+								"type": "array",
+								"items": {
+									"type": "string"
+								}
+							}
+						]
+					},
+					"dcat:qualifiedRelation": {
+						"anyOf": [
+							{
+								"$ref": "#/components/schemas/DcatRelationship"
+							},
+							{
+								"type": "string"
+							}
+						],
+						"description": "Link to a description of a relationship with another resource."
+					},
+					"odrl:hasPolicy": {
+						"$ref": "https://schema.twindev.org/w3c-odrl/OdrlPolicy"
+					},
+					"@id": {
+						"type": "string",
+						"description": "Unique identifier for the dataset. REQUIRED per Eclipse Data Space Protocol."
+					},
+					"@included": {
+						"anyOf": [
+							{
+								"$ref": "https://schema.twindev.org/json-ld/JsonLdNodePrimitive"
+							},
+							{
+								"type": "array",
+								"items": {
+									"$ref": "https://schema.twindev.org/json-ld/JsonLdNodePrimitive"
+								}
+							},
+							{
+								"$ref": "https://schema.twindev.org/json-ld/JsonLdLanguageMap"
+							},
+							{
+								"$ref": "https://schema.twindev.org/json-ld/JsonLdIndexMap"
+							},
+							{
+								"$ref": "https://schema.twindev.org/json-ld/JsonLdIncludedBlock"
+							},
+							{
+								"$ref": "https://schema.twindev.org/json-ld/JsonLdIdMap"
+							},
+							{
+								"$ref": "https://schema.twindev.org/json-ld/JsonLdTypeMap"
+							}
+						]
+					},
+					"@graph": {
+						"anyOf": [
+							{
+								"$ref": "https://schema.twindev.org/json-ld/JsonLdNodePrimitive"
+							},
+							{
+								"type": "array",
+								"items": {
+									"$ref": "https://schema.twindev.org/json-ld/JsonLdNodePrimitive"
+								}
+							},
+							{
+								"$ref": "https://schema.twindev.org/json-ld/JsonLdLanguageMap"
+							},
+							{
+								"$ref": "https://schema.twindev.org/json-ld/JsonLdIndexMap"
+							},
+							{
+								"$ref": "https://schema.twindev.org/json-ld/JsonLdIncludedBlock"
+							},
+							{
+								"$ref": "https://schema.twindev.org/json-ld/JsonLdIdMap"
+							},
+							{
+								"$ref": "https://schema.twindev.org/json-ld/JsonLdTypeMap"
+							}
+						]
+					},
+					"@nest": {
+						"anyOf": [
+							{
+								"$ref": "https://schema.twindev.org/json-ld/JsonLdNodePrimitive"
+							},
+							{
+								"type": "array",
+								"items": {
+									"$ref": "https://schema.twindev.org/json-ld/JsonLdNodePrimitive"
+								}
+							},
+							{
+								"$ref": "https://schema.twindev.org/json-ld/JsonLdLanguageMap"
+							},
+							{
+								"$ref": "https://schema.twindev.org/json-ld/JsonLdIndexMap"
+							},
+							{
+								"$ref": "https://schema.twindev.org/json-ld/JsonLdIncludedBlock"
+							},
+							{
+								"$ref": "https://schema.twindev.org/json-ld/JsonLdIdMap"
+							},
+							{
+								"$ref": "https://schema.twindev.org/json-ld/JsonLdTypeMap"
+							}
+						]
+					},
+					"@reverse": {
+						"anyOf": [
+							{
+								"$ref": "https://schema.twindev.org/json-ld/JsonLdNodePrimitive"
+							},
+							{
+								"type": "array",
+								"items": {
+									"$ref": "https://schema.twindev.org/json-ld/JsonLdNodePrimitive"
+								}
+							},
+							{
+								"$ref": "https://schema.twindev.org/json-ld/JsonLdLanguageMap"
+							},
+							{
+								"$ref": "https://schema.twindev.org/json-ld/JsonLdIndexMap"
+							},
+							{
+								"$ref": "https://schema.twindev.org/json-ld/JsonLdIncludedBlock"
+							},
+							{
+								"$ref": "https://schema.twindev.org/json-ld/JsonLdIdMap"
+							},
+							{
+								"$ref": "https://schema.twindev.org/json-ld/JsonLdTypeMap"
+							}
+						]
+					},
+					"@index": {
+						"anyOf": [
+							{
+								"$ref": "https://schema.twindev.org/json-ld/JsonLdNodePrimitive"
+							},
+							{
+								"type": "array",
+								"items": {
+									"$ref": "https://schema.twindev.org/json-ld/JsonLdNodePrimitive"
+								}
+							},
+							{
+								"$ref": "https://schema.twindev.org/json-ld/JsonLdLanguageMap"
+							},
+							{
+								"$ref": "https://schema.twindev.org/json-ld/JsonLdIndexMap"
+							},
+							{
+								"$ref": "https://schema.twindev.org/json-ld/JsonLdIncludedBlock"
+							},
+							{
+								"$ref": "https://schema.twindev.org/json-ld/JsonLdIdMap"
+							},
+							{
+								"$ref": "https://schema.twindev.org/json-ld/JsonLdTypeMap"
+							}
+						]
+					},
+					"@context": {
+						"$ref": "#/components/schemas/DataspaceProtocolContextType"
+					},
+					"@type": {
+						"type": "string",
+						"const": "DataService",
+						"description": "The type identifier for the Data Service. REQUIRED per Eclipse Data Space Protocol."
+					},
+					"endpointURL": {
+						"type": "string",
+						"description": "Endpoint URL"
+					},
+					"servesDataset": {
+						"description": "Object or array data type",
+						"anyOf": [
+							{
+								"$ref": "#/components/schemas/DataspaceProtocolDataset"
+							},
+							{
+								"type": "array",
+								"items": {
+									"$ref": "#/components/schemas/DataspaceProtocolDataset"
+								}
+							}
+						]
+					}
+				},
+				"required": [
+					"@context",
+					"@graph",
+					"@id",
+					"@included",
+					"@index",
+					"@nest",
+					"@reverse",
+					"@type",
+					"endpointURL"
+				],
+				"additionalProperties": false,
+				"description": "Data Service interface compliant with Eclipse Data Space Protocol.\n\nThis interface extends IDataService  and enforces DS Protocol-specific requirements by overriding properties with more specific types and constraints.\n\n**Requirements per DS Protocol:**\n- `@id` MUST be present for dataset identification (REQUIRED)\n- endpointURL MUST be present (REQUIRED)\n\n**Type System Design:**\n- Interface extension allows TypeScript to override inherited property types\n- Standards packages (@twin.org/standards-w3c-*) follow W3C specs exactly\n- DS Protocol-specific constraints are defined here"
+			},
+			"DataspaceProtocolDataset": {
+				"type": "object",
+				"properties": {
+					"dcterms:accrualPeriodicity": {
+						"type": "string",
+						"description": "The frequency at which the dataset is published."
+					},
+					"dcat:inSeries": {
+						"type": "string",
+						"description": "A dataset series of which the dataset is part."
+					},
+					"dcterms:spatial": {
+						"anyOf": [
+							{
+								"$ref": "https://schema.twindev.org/json-ld/JsonLdNodeObject"
+							},
+							{
+								"anyOf": [
+									{
+										"type": "string"
+									},
+									{
+										"type": "array",
+										"items": {
+											"type": "string"
+										}
+									}
+								],
+								"description": "Object or array data type"
+							}
+						],
+						"description": "The geographical area covered by the dataset."
+					},
+					"dcat:spatialResolutionInMeters": {
+						"$ref": "#/components/schemas/DcatDecimalType"
+					},
+					"dcterms:temporal": {
+						"$ref": "#/components/schemas/DublinCorePeriodOfTime"
+					},
+					"dcat:temporalResolution": {
+						"$ref": "#/components/schemas/DcatDurationType"
+					},
+					"prov:wasGeneratedBy": {
+						"anyOf": [
+							{
+								"$ref": "https://schema.twindev.org/json-ld/JsonLdNodeObject"
+							},
+							{
+								"type": "string"
+							}
+						],
+						"description": "An activity that generated, or provides the business context for, the creation of the dataset."
+					},
+					"dcterms:title": {
+						"$ref": "#/components/schemas/DcatLiteralType"
+					},
+					"dcterms:description": {
+						"$ref": "#/components/schemas/DcatLiteralType"
+					},
+					"dcterms:identifier": {
+						"$ref": "#/components/schemas/DcatLiteralType"
+					},
+					"dcterms:issued": {
+						"$ref": "#/components/schemas/DcatDateTimeType"
+					},
+					"dcterms:modified": {
+						"$ref": "#/components/schemas/DcatDateTimeType"
+					},
+					"dcterms:language": {
+						"description": "Object or array data type",
+						"anyOf": [
+							{
+								"type": "string"
+							},
+							{
+								"type": "array",
+								"items": {
+									"type": "string"
+								}
+							}
+						]
+					},
+					"dcterms:publisher": {
+						"anyOf": [
+							{
+								"$ref": "#/components/schemas/FoafAgent"
+							},
+							{
+								"type": "string"
+							}
+						],
+						"description": "An entity responsible for making the resource available."
+					},
+					"dcterms:creator": {
+						"$ref": "#/components/schemas/FoafAgent"
+					},
+					"dcterms:accessRights": {
+						"anyOf": [
+							{
+								"$ref": "https://schema.twindev.org/json-ld/JsonLdNodeObject"
+							},
+							{
+								"type": "string"
+							}
+						],
+						"description": "Information about who can access the resource or an indication of its security status."
+					},
+					"dcterms:license": {
+						"anyOf": [
+							{
+								"$ref": "https://schema.twindev.org/json-ld/JsonLdNodeObject"
+							},
+							{
+								"type": "string"
+							}
+						],
+						"description": "A legal document under which the resource is made available."
+					},
+					"dcterms:rights": {
+						"anyOf": [
+							{
+								"$ref": "https://schema.twindev.org/json-ld/JsonLdNodeObject"
+							},
+							{
+								"type": "string"
+							}
+						],
+						"description": "Information about rights held in and over the resource."
+					},
+					"dcterms:conformsTo": {
+						"description": "Object or array data type",
+						"anyOf": [
+							{
+								"type": "string"
+							},
+							{
+								"type": "array",
+								"items": {
+									"type": "string"
+								}
+							}
+						]
+					},
+					"dcterms:type": {
+						"type": "string",
+						"description": "The nature or genre of the resource."
+					},
+					"dcat:contactPoint": {
+						"anyOf": [
+							{
+								"$ref": "https://schema.twindev.org/json-ld/JsonLdNodeObject"
+							},
+							{
+								"type": "string"
+							}
+						],
+						"description": "Relevant contact information for the catalogued resource."
+					},
+					"dcat:keyword": {
+						"$ref": "#/components/schemas/DcatLiteralType"
+					},
+					"dcat:theme": {
+						"description": "Object or array data type",
+						"anyOf": [
+							{
+								"type": "string"
+							},
+							{
+								"type": "array",
+								"items": {
+									"type": "string"
+								}
+							}
+						]
+					},
+					"dcat:landingPage": {
+						"description": "Object or array data type",
+						"anyOf": [
+							{
+								"type": "string"
+							},
+							{
+								"type": "array",
+								"items": {
+									"type": "string"
+								}
+							}
+						]
+					},
+					"dcat:qualifiedRelation": {
+						"anyOf": [
+							{
+								"$ref": "#/components/schemas/DcatRelationship"
+							},
+							{
+								"type": "string"
+							}
+						],
+						"description": "Link to a description of a relationship with another resource."
+					},
+					"@id": {
+						"type": "string",
+						"description": "Unique identifier for the dataset. REQUIRED per Eclipse Data Space Protocol."
+					},
+					"@included": {
+						"anyOf": [
+							{
+								"$ref": "https://schema.twindev.org/json-ld/JsonLdNodePrimitive"
+							},
+							{
+								"type": "array",
+								"items": {
+									"$ref": "https://schema.twindev.org/json-ld/JsonLdNodePrimitive"
+								}
+							},
+							{
+								"$ref": "https://schema.twindev.org/json-ld/JsonLdLanguageMap"
+							},
+							{
+								"$ref": "https://schema.twindev.org/json-ld/JsonLdIndexMap"
+							},
+							{
+								"$ref": "https://schema.twindev.org/json-ld/JsonLdIncludedBlock"
+							},
+							{
+								"$ref": "https://schema.twindev.org/json-ld/JsonLdIdMap"
+							},
+							{
+								"$ref": "https://schema.twindev.org/json-ld/JsonLdTypeMap"
+							}
+						]
+					},
+					"@graph": {
+						"anyOf": [
+							{
+								"$ref": "https://schema.twindev.org/json-ld/JsonLdNodePrimitive"
+							},
+							{
+								"type": "array",
+								"items": {
+									"$ref": "https://schema.twindev.org/json-ld/JsonLdNodePrimitive"
+								}
+							},
+							{
+								"$ref": "https://schema.twindev.org/json-ld/JsonLdLanguageMap"
+							},
+							{
+								"$ref": "https://schema.twindev.org/json-ld/JsonLdIndexMap"
+							},
+							{
+								"$ref": "https://schema.twindev.org/json-ld/JsonLdIncludedBlock"
+							},
+							{
+								"$ref": "https://schema.twindev.org/json-ld/JsonLdIdMap"
+							},
+							{
+								"$ref": "https://schema.twindev.org/json-ld/JsonLdTypeMap"
+							}
+						]
+					},
+					"@nest": {
+						"anyOf": [
+							{
+								"$ref": "https://schema.twindev.org/json-ld/JsonLdNodePrimitive"
+							},
+							{
+								"type": "array",
+								"items": {
+									"$ref": "https://schema.twindev.org/json-ld/JsonLdNodePrimitive"
+								}
+							},
+							{
+								"$ref": "https://schema.twindev.org/json-ld/JsonLdLanguageMap"
+							},
+							{
+								"$ref": "https://schema.twindev.org/json-ld/JsonLdIndexMap"
+							},
+							{
+								"$ref": "https://schema.twindev.org/json-ld/JsonLdIncludedBlock"
+							},
+							{
+								"$ref": "https://schema.twindev.org/json-ld/JsonLdIdMap"
+							},
+							{
+								"$ref": "https://schema.twindev.org/json-ld/JsonLdTypeMap"
+							}
+						]
+					},
+					"@reverse": {
+						"anyOf": [
+							{
+								"$ref": "https://schema.twindev.org/json-ld/JsonLdNodePrimitive"
+							},
+							{
+								"type": "array",
+								"items": {
+									"$ref": "https://schema.twindev.org/json-ld/JsonLdNodePrimitive"
+								}
+							},
+							{
+								"$ref": "https://schema.twindev.org/json-ld/JsonLdLanguageMap"
+							},
+							{
+								"$ref": "https://schema.twindev.org/json-ld/JsonLdIndexMap"
+							},
+							{
+								"$ref": "https://schema.twindev.org/json-ld/JsonLdIncludedBlock"
+							},
+							{
+								"$ref": "https://schema.twindev.org/json-ld/JsonLdIdMap"
+							},
+							{
+								"$ref": "https://schema.twindev.org/json-ld/JsonLdTypeMap"
+							}
+						]
+					},
+					"@index": {
+						"anyOf": [
+							{
+								"$ref": "https://schema.twindev.org/json-ld/JsonLdNodePrimitive"
+							},
+							{
+								"type": "array",
+								"items": {
+									"$ref": "https://schema.twindev.org/json-ld/JsonLdNodePrimitive"
+								}
+							},
+							{
+								"$ref": "https://schema.twindev.org/json-ld/JsonLdLanguageMap"
+							},
+							{
+								"$ref": "https://schema.twindev.org/json-ld/JsonLdIndexMap"
+							},
+							{
+								"$ref": "https://schema.twindev.org/json-ld/JsonLdIncludedBlock"
+							},
+							{
+								"$ref": "https://schema.twindev.org/json-ld/JsonLdIdMap"
+							},
+							{
+								"$ref": "https://schema.twindev.org/json-ld/JsonLdTypeMap"
+							}
+						]
+					},
+					"@context": {
+						"$ref": "#/components/schemas/DataspaceProtocolContextType"
+					},
+					"@type": {
+						"type": "string",
+						"const": "Dataset",
+						"description": "The type identifier for the dataset. REQUIRED per Eclipse Data Space Protocol."
+					},
+					"hasPolicy": {
+						"description": "Object or array data type",
+						"anyOf": [
+							{
+								"$ref": "https://schema.twindev.org/w3c-odrl/OdrlOffer"
+							},
+							{
+								"type": "array",
+								"items": {
+									"$ref": "https://schema.twindev.org/w3c-odrl/OdrlOffer"
+								}
+							}
+						]
+					},
+					"distribution": {
+						"description": "Object or array data type",
+						"anyOf": [
+							{
+								"$ref": "#/components/schemas/DataspaceProtocolDistribution"
+							},
+							{
+								"type": "array",
+								"items": {
+									"$ref": "#/components/schemas/DataspaceProtocolDistribution"
+								}
+							}
+						]
+					}
+				},
+				"required": [
+					"@context",
+					"@graph",
+					"@id",
+					"@included",
+					"@index",
+					"@nest",
+					"@reverse",
+					"@type",
+					"distribution",
+					"hasPolicy"
+				],
+				"additionalProperties": false,
+				"description": "Dataset interface compliant with Eclipse Data Space Protocol.\n\nThis interface extends IDataset and enforces DS Protocol-specific requirements by overriding properties with more specific types and constraints.\n\n**Requirements per DS Protocol:**\n- `@id` MUST be present for dataset identification (REQUIRED)\n- `odrl:hasPolicy` MUST be present as an array of ODRL Offers (REQUIRED)\n- Array MUST contain at least one IOdrlOffer\n- Each Offer MUST have `@type`: \"Offer\"\n- Each Offer MUST have `@id` or `uid` for identification\n- `dcat:distribution` MUST be present (REQUIRED)\n\n**Type System Design:**\n- W3C DCAT spec defines `odrl:hasPolicy` as optional singular `IOdrlPolicy`\n- DS Protocol requires it as a REQUIRED array of `IOdrlOffer`\n- Interface extension allows TypeScript to override inherited property types\n- Standards packages (@twin.org/standards-w3c-*) follow W3C specs exactly\n- DS Protocol-specific constraints are defined here\n\n**Future Compatibility:**\n- Currently only one Offer per dataset is supported\n- Array structure allows future support for multiple offers"
+			},
+			"DataspaceProtocolDistribution": {
+				"type": "object",
+				"properties": {
+					"dcterms:title": {
+						"$ref": "#/components/schemas/DcatLiteralType"
+					},
+					"dcterms:description": {
+						"$ref": "#/components/schemas/DcatLiteralType"
+					},
+					"dcterms:issued": {
+						"$ref": "#/components/schemas/DcatDateTimeType"
+					},
+					"dcterms:modified": {
+						"$ref": "#/components/schemas/DcatDateTimeType"
+					},
+					"dcterms:license": {
+						"type": "string",
+						"description": "A legal document under which the distribution is made available."
+					},
+					"dcterms:accessRights": {
+						"type": "string",
+						"description": "Information about who can access the distribution."
+					},
+					"dcterms:rights": {
+						"type": "string",
+						"description": "Information about rights held in and over the distribution."
+					},
+					"dcat:accessURL": {
+						"type": "string",
+						"description": "A URL of the resource that gives access to a distribution of the dataset."
+					},
+					"dcat:accessService": {
+						"type": "string",
+						"description": "A data service that gives access to the distribution."
+					},
+					"dcat:downloadURL": {
+						"type": "string",
+						"description": "The URL of the downloadable file in a given format."
+					},
+					"dcat:byteSize": {
+						"$ref": "#/components/schemas/DcatNonNegativeIntegerType"
+					},
+					"dcat:spatialResolutionInMeters": {
+						"$ref": "#/components/schemas/DcatDecimalType"
+					},
+					"dcat:temporalResolution": {
+						"$ref": "#/components/schemas/DcatDurationType"
+					},
+					"dcterms:conformsTo": {
+						"description": "Object or array data type",
+						"anyOf": [
+							{
+								"type": "string"
+							},
+							{
+								"type": "array",
+								"items": {
+									"type": "string"
+								}
+							}
+						]
+					},
+					"dcat:mediaType": {
+						"type": "string",
+						"description": "The media type of the distribution as defined by IANA."
+					},
+					"dcat:compressFormat": {
+						"type": "string",
+						"description": "The compression format of the distribution."
+					},
+					"dcat:packageFormat": {
+						"type": "string",
+						"description": "The package format of the distribution."
+					},
+					"spdx:checksum": {
+						"type": "string",
+						"description": "The checksum property provides a mechanism to verify the data integrity."
+					},
+					"@id": {
+						"type": "string",
+						"description": "Unique identifier for the dataset. REQUIRED per Eclipse Data Space Protocol."
+					},
+					"@included": {
+						"anyOf": [
+							{
+								"$ref": "https://schema.twindev.org/json-ld/JsonLdNodePrimitive"
+							},
+							{
+								"type": "array",
+								"items": {
+									"$ref": "https://schema.twindev.org/json-ld/JsonLdNodePrimitive"
+								}
+							},
+							{
+								"$ref": "https://schema.twindev.org/json-ld/JsonLdLanguageMap"
+							},
+							{
+								"$ref": "https://schema.twindev.org/json-ld/JsonLdIndexMap"
+							},
+							{
+								"$ref": "https://schema.twindev.org/json-ld/JsonLdIncludedBlock"
+							},
+							{
+								"$ref": "https://schema.twindev.org/json-ld/JsonLdIdMap"
+							},
+							{
+								"$ref": "https://schema.twindev.org/json-ld/JsonLdTypeMap"
+							}
+						]
+					},
+					"@graph": {
+						"anyOf": [
+							{
+								"$ref": "https://schema.twindev.org/json-ld/JsonLdNodePrimitive"
+							},
+							{
+								"type": "array",
+								"items": {
+									"$ref": "https://schema.twindev.org/json-ld/JsonLdNodePrimitive"
+								}
+							},
+							{
+								"$ref": "https://schema.twindev.org/json-ld/JsonLdLanguageMap"
+							},
+							{
+								"$ref": "https://schema.twindev.org/json-ld/JsonLdIndexMap"
+							},
+							{
+								"$ref": "https://schema.twindev.org/json-ld/JsonLdIncludedBlock"
+							},
+							{
+								"$ref": "https://schema.twindev.org/json-ld/JsonLdIdMap"
+							},
+							{
+								"$ref": "https://schema.twindev.org/json-ld/JsonLdTypeMap"
+							}
+						]
+					},
+					"@nest": {
+						"anyOf": [
+							{
+								"$ref": "https://schema.twindev.org/json-ld/JsonLdNodePrimitive"
+							},
+							{
+								"type": "array",
+								"items": {
+									"$ref": "https://schema.twindev.org/json-ld/JsonLdNodePrimitive"
+								}
+							},
+							{
+								"$ref": "https://schema.twindev.org/json-ld/JsonLdLanguageMap"
+							},
+							{
+								"$ref": "https://schema.twindev.org/json-ld/JsonLdIndexMap"
+							},
+							{
+								"$ref": "https://schema.twindev.org/json-ld/JsonLdIncludedBlock"
+							},
+							{
+								"$ref": "https://schema.twindev.org/json-ld/JsonLdIdMap"
+							},
+							{
+								"$ref": "https://schema.twindev.org/json-ld/JsonLdTypeMap"
+							}
+						]
+					},
+					"@reverse": {
+						"anyOf": [
+							{
+								"$ref": "https://schema.twindev.org/json-ld/JsonLdNodePrimitive"
+							},
+							{
+								"type": "array",
+								"items": {
+									"$ref": "https://schema.twindev.org/json-ld/JsonLdNodePrimitive"
+								}
+							},
+							{
+								"$ref": "https://schema.twindev.org/json-ld/JsonLdLanguageMap"
+							},
+							{
+								"$ref": "https://schema.twindev.org/json-ld/JsonLdIndexMap"
+							},
+							{
+								"$ref": "https://schema.twindev.org/json-ld/JsonLdIncludedBlock"
+							},
+							{
+								"$ref": "https://schema.twindev.org/json-ld/JsonLdIdMap"
+							},
+							{
+								"$ref": "https://schema.twindev.org/json-ld/JsonLdTypeMap"
+							}
+						]
+					},
+					"@index": {
+						"anyOf": [
+							{
+								"$ref": "https://schema.twindev.org/json-ld/JsonLdNodePrimitive"
+							},
+							{
+								"type": "array",
+								"items": {
+									"$ref": "https://schema.twindev.org/json-ld/JsonLdNodePrimitive"
+								}
+							},
+							{
+								"$ref": "https://schema.twindev.org/json-ld/JsonLdLanguageMap"
+							},
+							{
+								"$ref": "https://schema.twindev.org/json-ld/JsonLdIndexMap"
+							},
+							{
+								"$ref": "https://schema.twindev.org/json-ld/JsonLdIncludedBlock"
+							},
+							{
+								"$ref": "https://schema.twindev.org/json-ld/JsonLdIdMap"
+							},
+							{
+								"$ref": "https://schema.twindev.org/json-ld/JsonLdTypeMap"
+							}
+						]
+					},
+					"@context": {
+						"$ref": "#/components/schemas/DataspaceProtocolContextType"
+					},
+					"@type": {
+						"type": "string",
+						"const": "Distribution",
+						"description": "The type identifier for the Distribution. REQUIRED per Eclipse Data Space Protocol."
+					},
+					"hasPolicy": {
+						"description": "Object or array data type",
+						"anyOf": [
+							{
+								"$ref": "https://schema.twindev.org/w3c-odrl/OdrlOffer"
+							},
+							{
+								"type": "array",
+								"items": {
+									"$ref": "https://schema.twindev.org/w3c-odrl/OdrlOffer"
+								}
+							}
+						]
+					},
+					"accessService": {
+						"anyOf": [
+							{
+								"type": "string"
+							},
+							{
+								"$ref": "#/components/schemas/DataspaceProtocolDataService"
+							}
+						],
+						"description": "Access service. It can be a URI pointing to an access service or inline the access service itself"
+					},
+					"format": {
+						"type": "string",
+						"description": "Distribution format. REQUIRED per Eclipse Data Space Protocol."
+					}
+				},
+				"required": [
+					"@context",
+					"@graph",
+					"@id",
+					"@included",
+					"@index",
+					"@nest",
+					"@reverse",
+					"@type",
+					"accessService",
+					"format"
+				],
+				"additionalProperties": false,
+				"description": "Distribution interface compliant with Eclipse Data Space Protocol.\n\nThis interface extends IDistribution  and enforces DS Protocol-specific requirements by overriding properties with more specific types and constraints.\n\n**Requirements per DS Protocol:**\n- `@id` MUST be present for dataset identification (REQUIRED)\n- `odrl:hasPolicy` MIGHT be present as an array of ODRL Offers (OPTIONAL)\n- Array MUST contain at least one IOdrlOffer\n- Each Offer MUST have `@type`: \"Offer\"\n- `format` is REQUIRED.\n\n**Type System Design:**\n- W3C DCAT spec defines `odrl:hasPolicy` as optional singular `IOdrlPolicy`\n- DS Protocol requires it as a REQUIRED array of `IOdrlOffer`\n- Interface extension allows TypeScript to override inherited property types\n- Standards packages (@twin.org/standards-w3c-*) follow W3C specs exactly\n- DS Protocol-specific constraints are defined here\n\n**Future Compatibility:**\n- Currently only one Offer per dataset is supported\n- Array structure allows future support for multiple offers"
+			},
+			"DcatContextType": {
+				"type": "object",
+				"additionalProperties": {
+					"anyOf": [
+						{
+							"$ref": "https://schema.twindev.org/json-ld/JsonLdExpandedTermDefinition"
+						},
+						{
+							"type": [
+								"null",
+								"string"
+							]
+						}
+					]
+				},
+				"properties": {
+					"@base": {
+						"type": [
+							"string",
+							"null"
+						]
+					},
+					"@direction": {
+						"type": [
+							"string",
+							"null"
+						],
+						"enum": [
+							"ltr",
+							"rtl",
+							null
+						]
+					},
+					"@import": {
+						"type": "string"
+					},
+					"@language": {
+						"type": "string"
+					},
+					"@propagate": {
+						"type": "boolean"
+					},
+					"@protected": {
+						"type": "boolean"
+					},
+					"@type": {
+						"type": "object",
+						"properties": {
+							"@container": {
+								"type": "string",
+								"const": "@set"
+							},
+							"@protected": {
+								"type": "boolean"
+							}
+						},
+						"required": [
+							"@container"
+						],
+						"additionalProperties": false
+					},
+					"@version": {
+						"type": "string",
+						"const": "1.1"
+					},
+					"@vocab": {
+						"type": [
+							"string",
+							"null"
+						]
+					},
+					"dcat": {
+						"type": "string",
+						"const": "http://www.w3.org/ns/dcat#"
+					},
+					"dcterms": {
+						"type": "string",
+						"const": "http://purl.org/dc/terms/"
+					},
+					"odrl": {
+						"type": "string",
+						"const": "http://www.w3.org/ns/odrl/2/"
+					},
+					"foaf": {
+						"type": "string",
+						"const": "https://xmlns.com/foaf/0.1/"
+					}
+				},
+				"required": [
+					"dcat",
+					"dcterms"
+				],
+				"description": "The DCAT JSON-LD context type. Supports the DCAT context URL or arrays with additional context definitions."
+			},
+			"DcatDateTimeType": {
+				"type": "string",
+				"description": "Date/time values in ISO 8601 format. Can be xsd:date, xsd:dateTime, or xsd:gYear."
+			},
+			"DcatDecimalType": {
+				"type": "number",
+				"description": "Decimal number values (xsd:decimal)."
+			},
+			"DcatDurationType": {
+				"type": "string",
+				"description": "Duration values in ISO 8601 duration format (xsd:duration)."
+			},
+			"DcatLiteralType": {
+				"anyOf": [
+					{
+						"type": "string"
+					},
+					{
+						"type": "array",
+						"items": {
+							"type": "string"
+						}
+					}
+				],
+				"description": "Literal values can be strings or arrays of strings (for multi-valued properties)."
+			},
+			"DcatNonNegativeIntegerType": {
+				"type": "number",
+				"description": "Non-negative integer values (xsd:nonNegativeInteger)."
+			},
+			"DcatRelationship": {
+				"type": "object",
+				"properties": {
+					"@context": {
+						"$ref": "#/components/schemas/DcatContextType"
+					},
+					"@id": {
+						"anyOf": [
+							{
+								"type": "string"
+							},
+							{
+								"type": "array",
+								"items": {
+									"type": "string"
+								}
+							}
+						]
+					},
+					"@included": {
+						"$ref": "https://schema.twindev.org/json-ld/JsonLdIncludedBlock"
+					},
+					"@graph": {
+						"anyOf": [
+							{
+								"$ref": "https://schema.twindev.org/json-ld/JsonLdNodeObject"
+							},
+							{
+								"type": "array",
+								"items": {
+									"$ref": "https://schema.twindev.org/json-ld/JsonLdNodeObject"
+								}
+							}
+						]
+					},
+					"@nest": {
+						"anyOf": [
+							{
+								"$ref": "https://schema.twindev.org/json-ld/JsonLdJsonObject"
+							},
+							{
+								"type": "array",
+								"items": {
+									"$ref": "https://schema.twindev.org/json-ld/JsonLdJsonObject"
+								}
+							}
+						]
+					},
+					"@type": {
+						"type": "string",
+						"const": "dcat:Relationship",
+						"description": "The type identifier, typically \"Relationship\"."
+					},
+					"@reverse": {
+						"type": "object",
+						"additionalProperties": {
+							"type": "string"
+						}
+					},
+					"@index": {
+						"type": "string"
+					},
+					"dcterms:relation": {
+						"type": "string",
+						"description": "The link to a related resource."
+					},
+					"dcat:hadRole": {
+						"$ref": "#/components/schemas/DcatRole"
+					}
+				},
+				"required": [
+					"@context",
+					"@type"
+				],
+				"additionalProperties": {
+					"anyOf": [
+						{
+							"$ref": "https://schema.twindev.org/json-ld/JsonLdNodePrimitive"
+						},
+						{
+							"$ref": "https://schema.twindev.org/json-ld/JsonLdLanguageMap"
+						},
+						{
+							"$ref": "https://schema.twindev.org/json-ld/JsonLdIndexMap"
+						},
+						{
+							"$ref": "https://schema.twindev.org/json-ld/JsonLdIncludedBlock"
+						},
+						{
+							"$ref": "https://schema.twindev.org/json-ld/JsonLdIdMap"
+						},
+						{
+							"$ref": "https://schema.twindev.org/json-ld/JsonLdTypeMap"
+						},
+						{
+							"type": "array"
+						}
+					]
+				},
+				"description": "Interface for DCAT Relationship. An association class for attaching additional information to a relationship between DCAT Resources."
+			},
+			"DcatResource": {
+				"type": "object",
+				"properties": {
+					"@context": {
+						"$ref": "#/components/schemas/DcatContextType"
+					},
+					"@id": {
+						"anyOf": [
+							{
+								"type": "string"
+							},
+							{
+								"type": "array",
+								"items": {
+									"type": "string"
+								}
+							}
+						]
+					},
+					"@included": {
+						"$ref": "https://schema.twindev.org/json-ld/JsonLdIncludedBlock"
+					},
+					"@graph": {
+						"anyOf": [
+							{
+								"$ref": "https://schema.twindev.org/json-ld/JsonLdNodeObject"
+							},
+							{
+								"type": "array",
+								"items": {
+									"$ref": "https://schema.twindev.org/json-ld/JsonLdNodeObject"
+								}
+							}
+						]
+					},
+					"@nest": {
+						"anyOf": [
+							{
+								"$ref": "https://schema.twindev.org/json-ld/JsonLdJsonObject"
+							},
+							{
+								"type": "array",
+								"items": {
+									"$ref": "https://schema.twindev.org/json-ld/JsonLdJsonObject"
+								}
+							}
+						]
+					},
+					"@type": {
+						"type": "string",
+						"enum": [
+							"dcat:Resource",
+							"dcat:Dataset",
+							"dcat:DataService",
+							"dcat:Catalog",
+							"dcat:DatasetSeries"
+						],
+						"description": "The type of the resource. Typically \"Catalog\", \"Dataset\", \"DataService\", \"DatasetSeries\", or the base \"Resource\"."
+					},
+					"@reverse": {
+						"type": "object",
+						"additionalProperties": {
+							"type": "string"
+						}
+					},
+					"@index": {
+						"type": "string"
+					},
+					"dcterms:title": {
+						"$ref": "#/components/schemas/DcatLiteralType"
+					},
+					"dcterms:description": {
+						"$ref": "#/components/schemas/DcatLiteralType"
+					},
+					"dcterms:identifier": {
+						"$ref": "#/components/schemas/DcatLiteralType"
+					},
+					"dcterms:issued": {
+						"$ref": "#/components/schemas/DcatDateTimeType"
+					},
+					"dcterms:modified": {
+						"$ref": "#/components/schemas/DcatDateTimeType"
+					},
+					"dcterms:language": {
+						"description": "Object or array data type",
+						"anyOf": [
+							{
+								"type": "string"
+							},
+							{
+								"type": "array",
+								"items": {
+									"type": "string"
+								}
+							}
+						]
+					},
+					"dcterms:publisher": {
+						"anyOf": [
+							{
+								"$ref": "#/components/schemas/FoafAgent"
+							},
+							{
+								"type": "string"
+							}
+						],
+						"description": "An entity responsible for making the resource available."
+					},
+					"dcterms:creator": {
+						"$ref": "#/components/schemas/FoafAgent"
+					},
+					"dcterms:accessRights": {
+						"anyOf": [
+							{
+								"$ref": "https://schema.twindev.org/json-ld/JsonLdNodeObject"
+							},
+							{
+								"type": "string"
+							}
+						],
+						"description": "Information about who can access the resource or an indication of its security status."
+					},
+					"dcterms:license": {
+						"anyOf": [
+							{
+								"$ref": "https://schema.twindev.org/json-ld/JsonLdNodeObject"
+							},
+							{
+								"type": "string"
+							}
+						],
+						"description": "A legal document under which the resource is made available."
+					},
+					"dcterms:rights": {
+						"anyOf": [
+							{
+								"$ref": "https://schema.twindev.org/json-ld/JsonLdNodeObject"
+							},
+							{
+								"type": "string"
+							}
+						],
+						"description": "Information about rights held in and over the resource."
+					},
+					"dcterms:conformsTo": {
+						"description": "Object or array data type",
+						"anyOf": [
+							{
+								"type": "string"
+							},
+							{
+								"type": "array",
+								"items": {
+									"type": "string"
+								}
+							}
+						]
+					},
+					"dcterms:type": {
+						"type": "string",
+						"description": "The nature or genre of the resource."
+					},
+					"dcat:contactPoint": {
+						"anyOf": [
+							{
+								"$ref": "https://schema.twindev.org/json-ld/JsonLdNodeObject"
+							},
+							{
+								"type": "string"
+							}
+						],
+						"description": "Relevant contact information for the catalogued resource."
+					},
+					"dcat:keyword": {
+						"$ref": "#/components/schemas/DcatLiteralType"
+					},
+					"dcat:theme": {
+						"description": "Object or array data type",
+						"anyOf": [
+							{
+								"type": "string"
+							},
+							{
+								"type": "array",
+								"items": {
+									"type": "string"
+								}
+							}
+						]
+					},
+					"dcat:landingPage": {
+						"description": "Object or array data type",
+						"anyOf": [
+							{
+								"type": "string"
+							},
+							{
+								"type": "array",
+								"items": {
+									"type": "string"
+								}
+							}
+						]
+					},
+					"dcat:qualifiedRelation": {
+						"anyOf": [
+							{
+								"$ref": "#/components/schemas/DcatRelationship"
+							},
+							{
+								"type": "string"
+							}
+						],
+						"description": "Link to a description of a relationship with another resource."
+					},
+					"odrl:hasPolicy": {
+						"$ref": "https://schema.twindev.org/w3c-odrl/OdrlPolicy"
+					}
+				},
+				"required": [
+					"@context",
+					"@type"
+				],
+				"additionalProperties": {
+					"anyOf": [
+						{
+							"$ref": "https://schema.twindev.org/json-ld/JsonLdNodePrimitive"
+						},
+						{
+							"$ref": "https://schema.twindev.org/json-ld/JsonLdLanguageMap"
+						},
+						{
+							"$ref": "https://schema.twindev.org/json-ld/JsonLdIndexMap"
+						},
+						{
+							"$ref": "https://schema.twindev.org/json-ld/JsonLdIncludedBlock"
+						},
+						{
+							"$ref": "https://schema.twindev.org/json-ld/JsonLdIdMap"
+						},
+						{
+							"$ref": "https://schema.twindev.org/json-ld/JsonLdTypeMap"
+						},
+						{
+							"type": "array"
+						}
+					]
+				},
+				"description": "Base interface for DCAT catalogued resources. This is the parent class of dcat:Dataset, dcat:DataService, and dcat:Catalog."
+			},
+			"DcatRole": {
+				"type": "object",
+				"properties": {
+					"@context": {
+						"$ref": "#/components/schemas/DcatContextType"
+					},
+					"@id": {
+						"anyOf": [
+							{
+								"type": "string"
+							},
+							{
+								"type": "array",
+								"items": {
+									"type": "string"
+								}
+							}
+						]
+					},
+					"@included": {
+						"$ref": "https://schema.twindev.org/json-ld/JsonLdIncludedBlock"
+					},
+					"@graph": {
+						"anyOf": [
+							{
+								"$ref": "https://schema.twindev.org/json-ld/JsonLdNodeObject"
+							},
+							{
+								"type": "array",
+								"items": {
+									"$ref": "https://schema.twindev.org/json-ld/JsonLdNodeObject"
+								}
+							}
+						]
+					},
+					"@nest": {
+						"anyOf": [
+							{
+								"$ref": "https://schema.twindev.org/json-ld/JsonLdJsonObject"
+							},
+							{
+								"type": "array",
+								"items": {
+									"$ref": "https://schema.twindev.org/json-ld/JsonLdJsonObject"
+								}
+							}
+						]
+					},
+					"@type": {
+						"type": "string",
+						"const": "dcat:Role",
+						"description": "The type identifier, typically \"Role\"."
+					},
+					"@reverse": {
+						"type": "object",
+						"additionalProperties": {
+							"type": "string"
+						}
+					},
+					"@index": {
+						"type": "string"
+					},
+					"dcterms:title": {
+						"$ref": "#/components/schemas/DcatLiteralType"
+					}
+				},
+				"required": [
+					"@context",
+					"@type"
+				],
+				"additionalProperties": {
+					"anyOf": [
+						{
+							"$ref": "https://schema.twindev.org/json-ld/JsonLdNodePrimitive"
+						},
+						{
+							"$ref": "https://schema.twindev.org/json-ld/JsonLdLanguageMap"
+						},
+						{
+							"$ref": "https://schema.twindev.org/json-ld/JsonLdIndexMap"
+						},
+						{
+							"$ref": "https://schema.twindev.org/json-ld/JsonLdIncludedBlock"
+						},
+						{
+							"$ref": "https://schema.twindev.org/json-ld/JsonLdIdMap"
+						},
+						{
+							"$ref": "https://schema.twindev.org/json-ld/JsonLdTypeMap"
+						},
+						{
+							"type": "array"
+						}
+					]
+				},
+				"description": "Interface for DCAT Role. A role is the function of a resource or agent with respect to another resource, in the context of resource attribution or resource relationships."
+			},
+			"DublinCorePeriodOfTime": {
+				"type": "object",
+				"properties": {
+					"@context": {
+						"$ref": "https://schema.twindev.org/json-ld/JsonLdContextDefinitionRoot"
+					},
+					"@id": {
+						"anyOf": [
+							{
+								"type": "string"
+							},
+							{
+								"type": "array",
+								"items": {
+									"type": "string"
+								}
+							}
+						]
+					},
+					"@included": {
+						"$ref": "https://schema.twindev.org/json-ld/JsonLdIncludedBlock"
+					},
+					"@graph": {
+						"anyOf": [
+							{
+								"$ref": "https://schema.twindev.org/json-ld/JsonLdNodeObject"
+							},
+							{
+								"type": "array",
+								"items": {
+									"$ref": "https://schema.twindev.org/json-ld/JsonLdNodeObject"
+								}
+							}
+						]
+					},
+					"@nest": {
+						"anyOf": [
+							{
+								"$ref": "https://schema.twindev.org/json-ld/JsonLdJsonObject"
+							},
+							{
+								"type": "array",
+								"items": {
+									"$ref": "https://schema.twindev.org/json-ld/JsonLdJsonObject"
+								}
+							}
+						]
+					},
+					"@type": {
+						"type": "string",
+						"const": "PeriodOfTime",
+						"description": "The type identifier for PeriodOfTime."
+					},
+					"@reverse": {
+						"type": "object",
+						"additionalProperties": {
+							"type": "string"
+						}
+					},
+					"@index": {
+						"type": "string"
+					},
+					"dcat:startDate": {
+						"type": "string",
+						"description": "The start date of the period."
+					},
+					"dcat:endDate": {
+						"type": "string",
+						"description": "The end date of the period."
+					},
+					"time:hasBeginning": {
+						"type": "string",
+						"description": "The beginning of a period or interval."
+					},
+					"time:hasEnd": {
+						"type": "string",
+						"description": "The end of a period or interval."
+					}
+				},
+				"additionalProperties": {
+					"anyOf": [
+						{
+							"$ref": "https://schema.twindev.org/json-ld/JsonLdNodePrimitive"
+						},
+						{
+							"$ref": "https://schema.twindev.org/json-ld/JsonLdLanguageMap"
+						},
+						{
+							"$ref": "https://schema.twindev.org/json-ld/JsonLdIndexMap"
+						},
+						{
+							"$ref": "https://schema.twindev.org/json-ld/JsonLdIncludedBlock"
+						},
+						{
+							"$ref": "https://schema.twindev.org/json-ld/JsonLdIdMap"
+						},
+						{
+							"$ref": "https://schema.twindev.org/json-ld/JsonLdTypeMap"
+						},
+						{
+							"type": "array"
+						}
+					]
+				},
+				"description": "Interface for Dublin Core Terms Period of Time. An interval of time that is named or defined by its start and end dates."
+			},
 			"EntityCondition<JsonLdNodeObject>": {
 				"anyOf": [
 					{
@@ -3132,6 +5520,455 @@
 				],
 				"additionalProperties": false,
 				"description": "Model to describe serialized error."
+			},
+			"FoafAgent": {
+				"type": "object",
+				"properties": {
+					"@context": {
+						"$ref": "#/components/schemas/FoafContextType"
+					},
+					"@id": {
+						"anyOf": [
+							{
+								"type": "string"
+							},
+							{
+								"type": "array",
+								"items": {
+									"type": "string"
+								}
+							}
+						]
+					},
+					"@included": {
+						"$ref": "https://schema.twindev.org/json-ld/JsonLdIncludedBlock"
+					},
+					"@graph": {
+						"anyOf": [
+							{
+								"$ref": "https://schema.twindev.org/json-ld/JsonLdNodeObject"
+							},
+							{
+								"type": "array",
+								"items": {
+									"$ref": "https://schema.twindev.org/json-ld/JsonLdNodeObject"
+								}
+							}
+						]
+					},
+					"@nest": {
+						"anyOf": [
+							{
+								"$ref": "https://schema.twindev.org/json-ld/JsonLdJsonObject"
+							},
+							{
+								"type": "array",
+								"items": {
+									"$ref": "https://schema.twindev.org/json-ld/JsonLdJsonObject"
+								}
+							}
+						]
+					},
+					"@type": {
+						"type": "string",
+						"description": "Type."
+					},
+					"@reverse": {
+						"type": "object",
+						"additionalProperties": {
+							"type": "string"
+						}
+					},
+					"@index": {
+						"type": "string"
+					},
+					"name": {
+						"type": "string",
+						"description": "A name for some thing."
+					},
+					"title": {
+						"type": "string",
+						"description": "Title (Mr, Mrs, Ms, Dr. etc)"
+					},
+					"mbox": {
+						"type": "string",
+						"description": "A personal mailbox, ie. an Internet mailbox associated with exactly one owner, the first owner of this mailbox"
+					},
+					"homepage": {
+						"type": "string",
+						"description": "A homepage for some thing."
+					},
+					"depiction": {
+						"$ref": "#/components/schemas/FoafImage"
+					},
+					"age": {
+						"type": "number",
+						"description": "The age in years of some agent."
+					},
+					"made": {
+						"description": "Object or array data type",
+						"anyOf": [
+							{
+								"$ref": "https://schema.twindev.org/json-ld/JsonLdNodeObject"
+							},
+							{
+								"type": "array",
+								"items": {
+									"$ref": "https://schema.twindev.org/json-ld/JsonLdNodeObject"
+								}
+							}
+						]
+					},
+					"weblog": {
+						"$ref": "#/components/schemas/FoafDocument"
+					},
+					"openid": {
+						"$ref": "#/components/schemas/FoafDocument"
+					},
+					"interest": {
+						"$ref": "#/components/schemas/FoafDocument"
+					},
+					"topic_interest": {
+						"$ref": "https://schema.twindev.org/json-ld/JsonLdNodeObject"
+					}
+				},
+				"required": [
+					"@type"
+				],
+				"additionalProperties": {
+					"anyOf": [
+						{
+							"$ref": "https://schema.twindev.org/json-ld/JsonLdNodePrimitive"
+						},
+						{
+							"$ref": "https://schema.twindev.org/json-ld/JsonLdLanguageMap"
+						},
+						{
+							"$ref": "https://schema.twindev.org/json-ld/JsonLdIndexMap"
+						},
+						{
+							"$ref": "https://schema.twindev.org/json-ld/JsonLdIncludedBlock"
+						},
+						{
+							"$ref": "https://schema.twindev.org/json-ld/JsonLdIdMap"
+						},
+						{
+							"$ref": "https://schema.twindev.org/json-ld/JsonLdTypeMap"
+						},
+						{
+							"type": "array"
+						}
+					]
+				},
+				"description": "A FOAF Agent."
+			},
+			"FoafContextType": {
+				"anyOf": [
+					{
+						"type": "string",
+						"const": "https://xmlns.com/foaf/0.1/"
+					},
+					{
+						"type": "array",
+						"items": {
+							"type": "string",
+							"const": "https://xmlns.com/foaf/0.1/"
+						},
+						"minItems": 1,
+						"maxItems": 1
+					},
+					{
+						"type": "array",
+						"minItems": 1,
+						"prefixItems": [
+							{
+								"type": "string",
+								"const": "https://xmlns.com/foaf/0.1/"
+							}
+						],
+						"items": {
+							"$ref": "https://schema.twindev.org/json-ld/JsonLdContextDefinitionElement"
+						}
+					}
+				],
+				"description": "The FOAF JSON-LD context type."
+			},
+			"FoafDocument": {
+				"type": "object",
+				"properties": {
+					"@context": {
+						"$ref": "#/components/schemas/FoafContextType"
+					},
+					"@id": {
+						"anyOf": [
+							{
+								"type": "string"
+							},
+							{
+								"type": "array",
+								"items": {
+									"type": "string"
+								}
+							}
+						]
+					},
+					"@included": {
+						"$ref": "https://schema.twindev.org/json-ld/JsonLdIncludedBlock"
+					},
+					"@graph": {
+						"anyOf": [
+							{
+								"$ref": "https://schema.twindev.org/json-ld/JsonLdNodeObject"
+							},
+							{
+								"type": "array",
+								"items": {
+									"$ref": "https://schema.twindev.org/json-ld/JsonLdNodeObject"
+								}
+							}
+						]
+					},
+					"@nest": {
+						"anyOf": [
+							{
+								"$ref": "https://schema.twindev.org/json-ld/JsonLdJsonObject"
+							},
+							{
+								"type": "array",
+								"items": {
+									"$ref": "https://schema.twindev.org/json-ld/JsonLdJsonObject"
+								}
+							}
+						]
+					},
+					"@type": {
+						"type": "string",
+						"enum": [
+							"Document",
+							"Image"
+						],
+						"description": "Type."
+					},
+					"@reverse": {
+						"type": "object",
+						"additionalProperties": {
+							"type": "string"
+						}
+					},
+					"@index": {
+						"type": "string"
+					},
+					"name": {
+						"type": "string",
+						"description": "A name for some thing."
+					},
+					"title": {
+						"type": "string",
+						"description": "Title (Mr, Mrs, Ms, Dr. etc)"
+					},
+					"mbox": {
+						"type": "string",
+						"description": "A personal mailbox, ie. an Internet mailbox associated with exactly one owner, the first owner of this mailbox"
+					},
+					"homepage": {
+						"type": "string",
+						"description": "A homepage for some thing."
+					},
+					"depiction": {
+						"$ref": "#/components/schemas/FoafImage"
+					},
+					"topic": {
+						"type": "string",
+						"description": "A topic of some page or document."
+					},
+					"primaryTopic": {
+						"description": "Object or array data type",
+						"anyOf": [
+							{
+								"$ref": "https://schema.twindev.org/json-ld/JsonLdNodeObject"
+							},
+							{
+								"type": "array",
+								"items": {
+									"$ref": "https://schema.twindev.org/json-ld/JsonLdNodeObject"
+								}
+							}
+						]
+					},
+					"sha1": {
+						"type": "string",
+						"description": "A sha1sum hash, in hex."
+					}
+				},
+				"required": [
+					"@type"
+				],
+				"additionalProperties": {
+					"anyOf": [
+						{
+							"$ref": "https://schema.twindev.org/json-ld/JsonLdNodePrimitive"
+						},
+						{
+							"$ref": "https://schema.twindev.org/json-ld/JsonLdLanguageMap"
+						},
+						{
+							"$ref": "https://schema.twindev.org/json-ld/JsonLdIndexMap"
+						},
+						{
+							"$ref": "https://schema.twindev.org/json-ld/JsonLdIncludedBlock"
+						},
+						{
+							"$ref": "https://schema.twindev.org/json-ld/JsonLdIdMap"
+						},
+						{
+							"$ref": "https://schema.twindev.org/json-ld/JsonLdTypeMap"
+						},
+						{
+							"type": "array"
+						}
+					]
+				},
+				"description": "A FOAF Document"
+			},
+			"FoafImage": {
+				"type": "object",
+				"properties": {
+					"@context": {
+						"$ref": "#/components/schemas/FoafContextType"
+					},
+					"@id": {
+						"anyOf": [
+							{
+								"type": "string"
+							},
+							{
+								"type": "array",
+								"items": {
+									"type": "string"
+								}
+							}
+						]
+					},
+					"@included": {
+						"$ref": "https://schema.twindev.org/json-ld/JsonLdIncludedBlock"
+					},
+					"@graph": {
+						"anyOf": [
+							{
+								"$ref": "https://schema.twindev.org/json-ld/JsonLdNodeObject"
+							},
+							{
+								"type": "array",
+								"items": {
+									"$ref": "https://schema.twindev.org/json-ld/JsonLdNodeObject"
+								}
+							}
+						]
+					},
+					"@nest": {
+						"anyOf": [
+							{
+								"$ref": "https://schema.twindev.org/json-ld/JsonLdJsonObject"
+							},
+							{
+								"type": "array",
+								"items": {
+									"$ref": "https://schema.twindev.org/json-ld/JsonLdJsonObject"
+								}
+							}
+						]
+					},
+					"@type": {
+						"type": "string",
+						"const": "Image",
+						"description": "Type."
+					},
+					"@reverse": {
+						"type": "object",
+						"additionalProperties": {
+							"type": "string"
+						}
+					},
+					"@index": {
+						"type": "string"
+					},
+					"name": {
+						"type": "string",
+						"description": "A name for some thing."
+					},
+					"title": {
+						"type": "string",
+						"description": "Title (Mr, Mrs, Ms, Dr. etc)"
+					},
+					"mbox": {
+						"type": "string",
+						"description": "A personal mailbox, ie. an Internet mailbox associated with exactly one owner, the first owner of this mailbox"
+					},
+					"homepage": {
+						"type": "string",
+						"description": "A homepage for some thing."
+					},
+					"depiction": {
+						"$ref": "#/components/schemas/FoafImage"
+					},
+					"topic": {
+						"type": "string",
+						"description": "A topic of some page or document."
+					},
+					"primaryTopic": {
+						"description": "Object or array data type",
+						"anyOf": [
+							{
+								"$ref": "https://schema.twindev.org/json-ld/JsonLdNodeObject"
+							},
+							{
+								"type": "array",
+								"items": {
+									"$ref": "https://schema.twindev.org/json-ld/JsonLdNodeObject"
+								}
+							}
+						]
+					},
+					"sha1": {
+						"type": "string",
+						"description": "A sha1sum hash, in hex."
+					},
+					"depicts": {
+						"$ref": "https://schema.twindev.org/json-ld/JsonLdNodeObject"
+					},
+					"thumbnail": {
+						"$ref": "#/components/schemas/FoafImage"
+					}
+				},
+				"required": [
+					"@type"
+				],
+				"additionalProperties": {
+					"anyOf": [
+						{
+							"$ref": "https://schema.twindev.org/json-ld/JsonLdNodePrimitive"
+						},
+						{
+							"$ref": "https://schema.twindev.org/json-ld/JsonLdLanguageMap"
+						},
+						{
+							"$ref": "https://schema.twindev.org/json-ld/JsonLdIndexMap"
+						},
+						{
+							"$ref": "https://schema.twindev.org/json-ld/JsonLdIncludedBlock"
+						},
+						{
+							"$ref": "https://schema.twindev.org/json-ld/JsonLdIdMap"
+						},
+						{
+							"$ref": "https://schema.twindev.org/json-ld/JsonLdTypeMap"
+						},
+						{
+							"type": "array"
+						}
+					]
+				},
+				"description": "A FOAF image."
 			},
 			"LogicalOperator": {
 				"anyOf": [

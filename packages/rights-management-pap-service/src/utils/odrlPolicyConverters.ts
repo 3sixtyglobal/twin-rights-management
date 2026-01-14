@@ -37,7 +37,7 @@ export function convertFromStoragePolicy(storagePolicy: OdrlPolicy): IOdrlPolicy
 	const policy: IOdrlPolicy = {
 		uid: storagePolicy.uid,
 		"@type": storagePolicy["@type"],
-		"@context": OdrlContexts.ContextRoot
+		"@context": OdrlContexts.JsonLdContext
 	};
 
 	policy.profile = storagePolicy.profile;

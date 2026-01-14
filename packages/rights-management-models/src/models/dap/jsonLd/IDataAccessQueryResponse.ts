@@ -11,7 +11,7 @@ export interface IDataAccessQueryResponse {
 	/**
 	 * The JSON-LD context.
 	 */
-	"@context": typeof RightsManagementContexts.ContextRoot;
+	"@context": typeof RightsManagementContexts.Namespace;
 
 	/**
 	 * The type of the request.

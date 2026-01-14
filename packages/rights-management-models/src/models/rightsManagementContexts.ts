@@ -7,9 +7,9 @@
 // eslint-disable-next-line @typescript-eslint/naming-convention
 export const RightsManagementContexts = {
 	/**
-	 * The Rights Management LD Context.
+	 * The Namespace.
 	 */
-	ContextRoot: "https://schema.twindev.org/rights-management"
+	Namespace: "https://schema.twindev.org/rights-management"
 } as const;
 
 /**

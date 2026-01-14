@@ -153,7 +153,7 @@ describe("PolicyNegotiationPointService", () => {
 		);
 
 		mockOffer = {
-			"@context": OdrlContexts.ContextRoot,
+			"@context": OdrlContexts.JsonLdContext,
 			"@type": OdrlTypes.Offer,
 			uid: "urn:policy:offer-1",
 			assigner: testIdentityProvider
@@ -221,7 +221,7 @@ describe("PolicyNegotiationPointService", () => {
 				interventionRequired: false
 			})),
 			createAgreement: vi.fn(async (offer: IOdrlOffer, information?: IPolicyInformation) => ({
-				"@context": OdrlContexts.ContextRoot,
+				"@context": OdrlContexts.JsonLdContext,
 				"@type": OdrlTypes.Agreement,
 				uid: "urn:policy:agreement-1",
 				assigner: testIdentityProvider,
