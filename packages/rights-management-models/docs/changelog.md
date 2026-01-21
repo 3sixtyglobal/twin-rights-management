@@ -1,5 +1,12 @@
 # @twin.org/rights-management-models - Changelog
 
+## [0.0.3-next.8](https://github.com/twinfoundation/rights-management/compare/rights-management-models-v0.0.3-next.7...rights-management-models-v0.0.3-next.8) (2026-01-21)
+
+
+### Features
+
+* update contexts ([#63](https://github.com/twinfoundation/rights-management/issues/63)) ([e55200f](https://github.com/twinfoundation/rights-management/commit/e55200f9929eaced6c446be25969dbe0f95ee909))
+
 ## [0.0.3-next.7](https://github.com/twinfoundation/rights-management/compare/rights-management-models-v0.0.3-next.6...rights-management-models-v0.0.3-next.7) (2026-01-14)
 
 

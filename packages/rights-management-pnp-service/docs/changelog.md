@@ -1,5 +1,22 @@
 # Changelog
 
+## [0.0.3-next.8](https://github.com/twinfoundation/rights-management/compare/rights-management-pnp-service-v0.0.3-next.7...rights-management-pnp-service-v0.0.3-next.8) (2026-01-21)
+
+
+### Features
+
+* update contexts ([#63](https://github.com/twinfoundation/rights-management/issues/63)) ([e55200f](https://github.com/twinfoundation/rights-management/commit/e55200f9929eaced6c446be25969dbe0f95ee909))
+
+
+### Dependencies
+
+* The following workspace dependencies were updated
+  * dependencies
+    * @twin.org/rights-management-models bumped from 0.0.3-next.7 to 0.0.3-next.8
+  * devDependencies
+    * @twin.org/rights-management-pap-service bumped from 0.0.3-next.7 to 0.0.3-next.8
+    * @twin.org/rights-management-pip-service bumped from 0.0.3-next.7 to 0.0.3-next.8
+
 ## [0.0.3-next.7](https://github.com/twinfoundation/rights-management/compare/rights-management-pnp-service-v0.0.3-next.6...rights-management-pnp-service-v0.0.3-next.7) (2026-01-14)
 
 
