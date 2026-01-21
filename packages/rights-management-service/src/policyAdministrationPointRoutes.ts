@@ -63,7 +63,7 @@ export function generateRestRoutesPolicyAdministrationPoint(
 					id: "papCreateRequestExample",
 					request: {
 						body: {
-							"@context": OdrlContexts.JsonLdContext,
+							"@context": OdrlContexts.Context,
 							"@type": "Set",
 							permission: [
 								{
@@ -112,7 +112,7 @@ export function generateRestRoutesPolicyAdministrationPoint(
 							id: "urn:rights-management:abc123def456"
 						},
 						body: {
-							"@context": OdrlContexts.JsonLdContext,
+							"@context": OdrlContexts.Context,
 							"@type": "Set",
 							uid: "urn:rights-management:abc123def456",
 							permission: [
@@ -162,7 +162,7 @@ export function generateRestRoutesPolicyAdministrationPoint(
 						id: "papGetResponseExample",
 						response: {
 							body: {
-								"@context": OdrlContexts.JsonLdContext,
+								"@context": OdrlContexts.Context,
 								"@type": "Set",
 								uid: "urn:rights-management:abc123def456",
 								permission: [
@@ -239,7 +239,7 @@ export function generateRestRoutesPolicyAdministrationPoint(
 								cursor: "next-page-cursor",
 								policies: [
 									{
-										"@context": OdrlContexts.JsonLdContext,
+										"@context": OdrlContexts.Context,
 										"@type": "Set",
 										uid: "urn:rights-management:abc123def456",
 										permission: [

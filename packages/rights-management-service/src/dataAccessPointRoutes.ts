@@ -70,7 +70,7 @@ export function generateRestRoutesDataAccessPoint(
 							assetType: "contacts"
 						},
 						body: {
-							"@context": RightsManagementContexts.Namespace,
+							"@context": RightsManagementContexts.Context,
 							type: RightsManagementTypes.DataAccessRequestWithObject,
 							assetType: "contacts",
 							object: {
@@ -171,7 +171,7 @@ export function generateRestRoutesDataAccessPoint(
 							id: "urn:contacts:abc123def456"
 						},
 						body: {
-							"@context": RightsManagementContexts.Namespace,
+							"@context": RightsManagementContexts.Context,
 							type: RightsManagementTypes.DataAccessRequestWithObject,
 							assetType: "contacts",
 							object: {
@@ -248,7 +248,7 @@ export function generateRestRoutesDataAccessPoint(
 							assetType: "contacts"
 						},
 						body: {
-							"@context": RightsManagementContexts.Namespace,
+							"@context": RightsManagementContexts.Context,
 							type: RightsManagementTypes.DataAccessQuery,
 							assetType: "contacts"
 						}
@@ -264,7 +264,7 @@ export function generateRestRoutesDataAccessPoint(
 						id: "IDapQueryResponseExample",
 						response: {
 							body: {
-								"@context": RightsManagementContexts.Namespace,
+								"@context": RightsManagementContexts.Context,
 								type: RightsManagementTypes.DataAccessQueryResponse,
 								items: [
 									{
@@ -472,7 +472,7 @@ export async function dapQuery(
 			[HeaderTypes.ContentType]: mimeType === "json" ? MimeTypes.Json : MimeTypes.JsonLd
 		},
 		body: {
-			"@context": RightsManagementContexts.Namespace,
+			"@context": RightsManagementContexts.Context,
 			type: RightsManagementTypes.DataAccessQueryResponse,
 			...result
 		}

@@ -7,7 +7,7 @@ describe("OdrlPolicyHelper", () => {
 	describe("findExpirationDate", () => {
 		test("returns expiration date when valid constraint exists", () => {
 			const policy: IOdrlPolicy = {
-				"@context": OdrlContexts.JsonLdContext,
+				"@context": OdrlContexts.Context,
 				"@type": "Agreement",
 				uid: "test-policy",
 				permission: [
@@ -31,7 +31,7 @@ describe("OdrlPolicyHelper", () => {
 
 		test("returns undefined when no permissions exist", () => {
 			const policy: IOdrlPolicy = {
-				"@context": OdrlContexts.JsonLdContext,
+				"@context": OdrlContexts.Context,
 				"@type": "Agreement",
 				uid: "test-policy"
 			};
@@ -42,7 +42,7 @@ describe("OdrlPolicyHelper", () => {
 
 		test("returns undefined when permissions is not an array", () => {
 			const policy: IOdrlPolicy = {
-				"@context": OdrlContexts.JsonLdContext,
+				"@context": OdrlContexts.Context,
 				"@type": "Agreement",
 				uid: "test-policy",
 				permission: {
@@ -58,7 +58,7 @@ describe("OdrlPolicyHelper", () => {
 
 		test("returns undefined when no constraints exist", () => {
 			const policy: IOdrlPolicy = {
-				"@context": OdrlContexts.JsonLdContext,
+				"@context": OdrlContexts.Context,
 				"@type": "Agreement",
 				uid: "test-policy",
 				permission: [
@@ -75,7 +75,7 @@ describe("OdrlPolicyHelper", () => {
 
 		test("returns undefined when constraints is not an array", () => {
 			const policy: IOdrlPolicy = {
-				"@context": OdrlContexts.JsonLdContext,
+				"@context": OdrlContexts.Context,
 				"@type": "Agreement",
 				uid: "test-policy",
 				permission: [
@@ -98,7 +98,7 @@ describe("OdrlPolicyHelper", () => {
 
 		test("matches any asset type when assetType parameter is undefined", () => {
 			const policy: IOdrlPolicy = {
-				"@context": OdrlContexts.JsonLdContext,
+				"@context": OdrlContexts.Context,
 				"@type": "Agreement",
 				uid: "test-policy",
 				permission: [
@@ -123,7 +123,7 @@ describe("OdrlPolicyHelper", () => {
 
 		test("matches any action when action parameter is undefined", () => {
 			const policy: IOdrlPolicy = {
-				"@context": OdrlContexts.JsonLdContext,
+				"@context": OdrlContexts.Context,
 				"@type": "Agreement",
 				uid: "test-policy",
 				permission: [
@@ -148,7 +148,7 @@ describe("OdrlPolicyHelper", () => {
 
 		test("matches any asset type when assetType parameter is undefined", () => {
 			const policy: IOdrlPolicy = {
-				"@context": OdrlContexts.JsonLdContext,
+				"@context": OdrlContexts.Context,
 				"@type": "Agreement",
 				uid: "test-policy",
 				permission: [
@@ -173,7 +173,7 @@ describe("OdrlPolicyHelper", () => {
 
 		test("matches any action when action parameter is undefined", () => {
 			const policy: IOdrlPolicy = {
-				"@context": OdrlContexts.JsonLdContext,
+				"@context": OdrlContexts.Context,
 				"@type": "Agreement",
 				uid: "test-policy",
 				permission: [
@@ -198,7 +198,7 @@ describe("OdrlPolicyHelper", () => {
 
 		test("returns undefined when assetType does not match", () => {
 			const policy: IOdrlPolicy = {
-				"@context": OdrlContexts.JsonLdContext,
+				"@context": OdrlContexts.Context,
 				"@type": "Agreement",
 				uid: "test-policy",
 				permission: [
@@ -223,7 +223,7 @@ describe("OdrlPolicyHelper", () => {
 
 		test("returns undefined when action does not match", () => {
 			const policy: IOdrlPolicy = {
-				"@context": OdrlContexts.JsonLdContext,
+				"@context": OdrlContexts.Context,
 				"@type": "Agreement",
 				uid: "test-policy",
 				permission: [
@@ -248,7 +248,7 @@ describe("OdrlPolicyHelper", () => {
 
 		test("returns undefined when leftOperand is not dateTime", () => {
 			const policy: IOdrlPolicy = {
-				"@context": OdrlContexts.JsonLdContext,
+				"@context": OdrlContexts.Context,
 				"@type": "Agreement",
 				uid: "test-policy",
 				permission: [
@@ -272,7 +272,7 @@ describe("OdrlPolicyHelper", () => {
 
 		test("returns undefined when operator is not lteq", () => {
 			const policy: IOdrlPolicy = {
-				"@context": OdrlContexts.JsonLdContext,
+				"@context": OdrlContexts.Context,
 				"@type": "Agreement",
 				uid: "test-policy",
 				permission: [
@@ -296,7 +296,7 @@ describe("OdrlPolicyHelper", () => {
 
 		test("returns undefined when rightOperand is not a valid dateTime string", () => {
 			const policy: IOdrlPolicy = {
-				"@context": OdrlContexts.JsonLdContext,
+				"@context": OdrlContexts.Context,
 				"@type": "Agreement",
 				uid: "test-policy",
 				permission: [
@@ -320,7 +320,7 @@ describe("OdrlPolicyHelper", () => {
 
 		test("returns first matching expiration date when multiple exist", () => {
 			const policy: IOdrlPolicy = {
-				"@context": OdrlContexts.JsonLdContext,
+				"@context": OdrlContexts.Context,
 				"@type": "Agreement",
 				uid: "test-policy",
 				permission: [
@@ -349,7 +349,7 @@ describe("OdrlPolicyHelper", () => {
 
 		test("searches through multiple permissions", () => {
 			const policy: IOdrlPolicy = {
-				"@context": OdrlContexts.JsonLdContext,
+				"@context": OdrlContexts.Context,
 				"@type": "Agreement",
 				uid: "test-policy",
 				permission: [
@@ -384,7 +384,7 @@ describe("OdrlPolicyHelper", () => {
 
 		test("handles complex policy with multiple permissions and constraints", () => {
 			const policy: IOdrlPolicy = {
-				"@context": OdrlContexts.JsonLdContext,
+				"@context": OdrlContexts.Context,
 				"@type": "Agreement",
 				uid: "complex-policy",
 				permission: [

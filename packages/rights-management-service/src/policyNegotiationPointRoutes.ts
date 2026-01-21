@@ -88,7 +88,7 @@ export function generateRestRoutesPolicyNegotiationPoint(
 						id: "pnpGetNegotiationResponseExample",
 						response: {
 							body: {
-								"@context": [DataspaceProtocolContexts.JsonLdContext],
+								"@context": [DataspaceProtocolContexts.Context],
 								"@type": DataspaceProtocolContractNegotiationTypes.ContractNegotiation,
 								providerPid: "urn:contract-negotiation:002aa11bb.......ffff",
 								consumerPid: "urn:contract-negotiation:22aa11bb.......ffff",
@@ -125,11 +125,11 @@ export function generateRestRoutesPolicyNegotiationPoint(
 							[HeaderTypes.Authorization]: "z3Vcuh2BP9ShC.z3Vcuh2BP9ShC.z3Vcuh2BP9ShC"
 						},
 						body: {
-							"@context": [DataspaceProtocolContexts.JsonLdContext],
+							"@context": [DataspaceProtocolContexts.Context],
 							"@type": DataspaceProtocolContractNegotiationTypes.ContractRequestMessage,
 							consumerPid: "urn:contract-negotiation:22aa11bb.......ffff",
 							offer: {
-								"@context": OdrlContexts.JsonLdContext,
+								"@context": OdrlContexts.Context,
 								"@type": OdrlTypes.Offer,
 								uid: "urn:offer-1",
 								assigner: "urn:provider:node:1"
@@ -147,7 +147,7 @@ export function generateRestRoutesPolicyNegotiationPoint(
 						id: "IPnpNegotiationRequestResponseExample",
 						response: {
 							body: {
-								"@context": [DataspaceProtocolContexts.JsonLdContext],
+								"@context": [DataspaceProtocolContexts.Context],
 								"@type": DataspaceProtocolContractNegotiationTypes.ContractNegotiation,
 								providerPid: "urn:contract-negotiation:00aa11bb.......ffff",
 								consumerPid: "urn:contract-negotiation:22aa11bb.......ffff",
@@ -162,58 +162,60 @@ export function generateRestRoutesPolicyNegotiationPoint(
 	};
 
 	// https://eclipse-dataspace-protocol-base.github.io/DataspaceProtocol/2025-1/#negotiations-providerpid-request-post
-	const pnpNegotiationProviderRequestRoute: IRestRoute<IPnpNegotiateRequest, IPnpContractResponse> =
-		{
-			operationId: "pnpNegotiationProviderRequest",
-			summary: "Negotiate a policy with an existing provider id",
-			tag: pnpTags[0].name,
-			method: "POST",
-			path: `${baseRouteName}/negotiations/:id/request`,
-			handler: async (httpRequestContext, request) =>
-				pnpNegotiationRequest(httpRequestContext, componentName, request),
-			requestType: {
-				type: nameof<IPnpNegotiateRequest>(),
-				examples: [
-					{
-						id: "pnpNegotiationProviderRequestExample",
-						request: {
-							headers: {
-								[HeaderTypes.Accept]: MimeTypes.JsonLd,
-								[HeaderTypes.Authorization]: "z3Vcuh2BP9ShC.z3Vcuh2BP9ShC.z3Vcuh2BP9ShC"
-							},
-							pathParams: {
-								id: "urn:contract-negotiation:00aa11bb.......ffff"
-							},
-							body: {
-								"@context": [DataspaceProtocolContexts.JsonLdContext],
-								"@type": DataspaceProtocolContractNegotiationTypes.ContractRequestMessage,
-								consumerPid: "urn:contract-negotiation:22aa11bb.......ffff",
-								offer: {
-									"@context": OdrlContexts.JsonLdContext,
-									"@type": OdrlTypes.Offer,
-									uid: "urn:offer-1",
-									assigner: "urn:provider:node:1"
-								}
+	const pnpNegotiationProviderRequestRoute: IRestRoute<
+		IPnpNegotiateRequest,
+		IPnpContractNegotiationResponse | IPnpContractResponse
+	> = {
+		operationId: "pnpNegotiationProviderRequest",
+		summary: "Negotiate a policy with an existing provider id",
+		tag: pnpTags[0].name,
+		method: "POST",
+		path: `${baseRouteName}/negotiations/:id/request`,
+		handler: async (httpRequestContext, request) =>
+			pnpNegotiationRequest(httpRequestContext, componentName, request),
+		requestType: {
+			type: nameof<IPnpNegotiateRequest>(),
+			examples: [
+				{
+					id: "pnpNegotiationProviderRequestExample",
+					request: {
+						headers: {
+							[HeaderTypes.Accept]: MimeTypes.JsonLd,
+							[HeaderTypes.Authorization]: "z3Vcuh2BP9ShC.z3Vcuh2BP9ShC.z3Vcuh2BP9ShC"
+						},
+						pathParams: {
+							id: "urn:contract-negotiation:00aa11bb.......ffff"
+						},
+						body: {
+							"@context": [DataspaceProtocolContexts.Context],
+							"@type": DataspaceProtocolContractNegotiationTypes.ContractRequestMessage,
+							consumerPid: "urn:contract-negotiation:22aa11bb.......ffff",
+							offer: {
+								"@context": OdrlContexts.Context,
+								"@type": OdrlTypes.Offer,
+								uid: "urn:offer-1",
+								assigner: "urn:provider:node:1"
 							}
 						}
 					}
-				]
-			},
-			responseType: [
-				{
-					type: nameof<IPnpContractResponse>(),
-					examples: [
-						{
-							id: "IPnpNegotiationProviderRequestResponseExample",
-							response: {
-								body: undefined
-							}
-						}
-					]
 				}
-			],
-			skipAuth: true
-		};
+			]
+		},
+		responseType: [
+			{
+				type: nameof<IPnpContractResponse>(),
+				examples: [
+					{
+						id: "IPnpNegotiationProviderRequestResponseExample",
+						response: {
+							body: undefined
+						}
+					}
+				]
+			}
+		],
+		skipAuth: true
+	};
 
 	// https://eclipse-dataspace-protocol-base.github.io/DataspaceProtocol/2025-1/#negotiations-providerpid-events-post
 	const pnpNegotiationEventsRoute: IRestRoute<IPnpEventRequest, IPnpContractResponse> = {
@@ -238,8 +240,8 @@ export function generateRestRoutesPolicyNegotiationPoint(
 							id: "urn:contract-negotiation:00aa11bb.......ffff"
 						},
 						body: {
-							"@context": [DataspaceProtocolContexts.JsonLdContext],
-							"@type": DataspaceProtocolContractNegotiationTypes.ContractRequestMessage,
+							"@context": [DataspaceProtocolContexts.Context],
+							"@type": DataspaceProtocolContractNegotiationTypes.ContractNegotiationEventMessage,
 							providerPid: "urn:contract-negotiation:00aa11bb.......ffff",
 							consumerPid: "urn:contract-negotiation:22aa11bb.......ffff",
 							event: DataspaceProtocolContractNegotiationEventType.ACCEPTED
@@ -290,8 +292,9 @@ export function generateRestRoutesPolicyNegotiationPoint(
 							id: "urn:contract-negotiation:00aa11bb.......ffff"
 						},
 						body: {
-							"@context": [DataspaceProtocolContexts.JsonLdContext],
-							"@type": DataspaceProtocolContractNegotiationTypes.ContractRequestMessage,
+							"@context": [DataspaceProtocolContexts.Context],
+							"@type":
+								DataspaceProtocolContractNegotiationTypes.ContractAgreementVerificationMessage,
 							providerPid: "urn:contract-negotiation:00aa11bb.......ffff",
 							consumerPid: "urn:contract-negotiation:22aa11bb.......ffff"
 						}
@@ -338,8 +341,9 @@ export function generateRestRoutesPolicyNegotiationPoint(
 							id: "urn:contract-negotiation:00aa11bb.......ffff"
 						},
 						body: {
-							"@context": [DataspaceProtocolContexts.JsonLdContext],
-							"@type": DataspaceProtocolContractNegotiationTypes.ContractRequestMessage,
+							"@context": [DataspaceProtocolContexts.Context],
+							"@type":
+								DataspaceProtocolContractNegotiationTypes.ContractNegotiationTerminationMessage,
 							providerPid: "urn:contract-negotiation:00aa11bb.......ffff",
 							consumerPid: "urn:contract-negotiation:22aa11bb.......ffff"
 						}
@@ -386,12 +390,12 @@ export function generateRestRoutesPolicyNegotiationPoint(
 							[HeaderTypes.Authorization]: "z3Vcuh2BP9ShC.z3Vcuh2BP9ShC.z3Vcuh2BP9ShC"
 						},
 						body: {
-							"@context": [DataspaceProtocolContexts.JsonLdContext],
-							"@type": DataspaceProtocolContractNegotiationTypes.ContractRequestMessage,
+							"@context": [DataspaceProtocolContexts.Context],
+							"@type": DataspaceProtocolContractNegotiationTypes.ContractOfferMessage,
 							providerPid: "urn:contract-negotiation:00aa11bb.......ffff",
 							consumerPid: "urn:contract-negotiation:22aa11bb.......ffff",
 							offer: {
-								"@context": OdrlContexts.JsonLdContext,
+								"@context": OdrlContexts.Context,
 								"@type": OdrlTypes.Offer,
 								uid: "urn:offer-1",
 								assigner: "urn:provider:node:1"
@@ -409,8 +413,8 @@ export function generateRestRoutesPolicyNegotiationPoint(
 						id: "pnpNegotiationOfferResponseExample",
 						response: {
 							body: {
-								"@context": [DataspaceProtocolContexts.JsonLdContext],
-								"@type": DataspaceProtocolContractNegotiationTypes.ContractRequestMessage,
+								"@context": [DataspaceProtocolContexts.Context],
+								"@type": DataspaceProtocolContractNegotiationTypes.ContractNegotiationError,
 								providerPid: "urn:contract-negotiation:00aa11bb.......ffff",
 								consumerPid: "urn:contract-negotiation:22aa11bb.......ffff"
 							}
@@ -423,7 +427,10 @@ export function generateRestRoutesPolicyNegotiationPoint(
 	};
 
 	// https://eclipse-dataspace-protocol-base.github.io/DataspaceProtocol/2025-1/#negotiations-consumerpid-offers-post
-	const pnpNegotiationConsumerOfferRoute: IRestRoute<IPnpOfferRequest, IPnpContractResponse> = {
+	const pnpNegotiationConsumerOfferRoute: IRestRoute<
+		IPnpOfferRequest,
+		IPnpContractNegotiationResponse | IPnpContractResponse
+	> = {
 		operationId: "pnpNegotiationConsumerOffer",
 		summary: "Send the offer to the consumer with existing id",
 		tag: pnpTags[0].name,
@@ -445,12 +452,12 @@ export function generateRestRoutesPolicyNegotiationPoint(
 							id: "urn:contract-negotiation:22aa11bb.......ffff"
 						},
 						body: {
-							"@context": [DataspaceProtocolContexts.JsonLdContext],
-							"@type": DataspaceProtocolContractNegotiationTypes.ContractRequestMessage,
+							"@context": [DataspaceProtocolContexts.Context],
+							"@type": DataspaceProtocolContractNegotiationTypes.ContractOfferMessage,
 							providerPid: "urn:contract-negotiation:00aa11bb.......ffff",
 							consumerPid: "urn:contract-negotiation:22aa11bb.......ffff",
 							offer: {
-								"@context": OdrlContexts.JsonLdContext,
+								"@context": OdrlContexts.Context,
 								"@type": OdrlTypes.Offer,
 								uid: "urn:offer-1",
 								assigner: "urn:provider:node:1"
@@ -468,8 +475,8 @@ export function generateRestRoutesPolicyNegotiationPoint(
 						id: "pnpNegotiationConsumerOfferResponseExample",
 						response: {
 							body: {
-								"@context": [DataspaceProtocolContexts.JsonLdContext],
-								"@type": DataspaceProtocolContractNegotiationTypes.ContractNegotiation,
+								"@context": [DataspaceProtocolContexts.Context],
+								"@type": DataspaceProtocolContractNegotiationTypes.ContractNegotiationError,
 								providerPid: "urn:contract-negotiation:00aa11bb.......ffff",
 								consumerPid: "urn:contract-negotiation:22aa11bb.......ffff"
 							}
@@ -504,12 +511,12 @@ export function generateRestRoutesPolicyNegotiationPoint(
 							id: "urn:contract-negotiation:22aa11bb.......ffff"
 						},
 						body: {
-							"@context": [DataspaceProtocolContexts.JsonLdContext],
-							"@type": DataspaceProtocolContractNegotiationTypes.ContractRequestMessage,
+							"@context": [DataspaceProtocolContexts.Context],
+							"@type": DataspaceProtocolContractNegotiationTypes.ContractAgreementMessage,
 							providerPid: "urn:contract-negotiation:00aa11bb.......ffff",
 							consumerPid: "urn:contract-negotiation:22aa11bb.......ffff",
 							agreement: {
-								"@context": OdrlContexts.JsonLdContext,
+								"@context": OdrlContexts.Context,
 								"@type": OdrlTypes.Agreement,
 								uid: "urn:offer-1",
 								assigner: "urn:provider:node:1",

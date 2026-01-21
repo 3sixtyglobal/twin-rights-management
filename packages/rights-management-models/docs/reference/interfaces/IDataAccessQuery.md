@@ -6,7 +6,7 @@ The JSON-LD definition for the data access request.
 
 ### @context
 
-> **@context**: `"https://schema.twindev.org/rights-management"`
+> **@context**: `"https://schema.twindev.org/rights-management/"`
 
 The JSON-LD context.
 

@@ -77,7 +77,7 @@ export class DataAccessPointRestClient extends BaseRestClient implements IDataAc
 					assetType
 				},
 				body: {
-					"@context": RightsManagementContexts.Namespace,
+					"@context": RightsManagementContexts.Context,
 					type: RightsManagementTypes.DataAccessRequestWithObject,
 					object: item
 				}
@@ -148,7 +148,7 @@ export class DataAccessPointRestClient extends BaseRestClient implements IDataAc
 				id: item.id
 			},
 			body: {
-				"@context": RightsManagementContexts.Namespace,
+				"@context": RightsManagementContexts.Context,
 				type: RightsManagementTypes.DataAccessRequestWithObject,
 				object: item
 			}
@@ -213,7 +213,7 @@ export class DataAccessPointRestClient extends BaseRestClient implements IDataAc
 					assetType
 				},
 				body: {
-					"@context": RightsManagementContexts.Namespace,
+					"@context": RightsManagementContexts.Context,
 					type: RightsManagementTypes.DataAccessQuery,
 					conditions,
 					cursor,

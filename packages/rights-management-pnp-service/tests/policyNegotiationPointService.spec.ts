@@ -81,7 +81,7 @@ async function waitForState(
 		}
 		await new Promise(resolve => setTimeout(resolve, 100));
 	}
-	console.log(storage.getStore()[0]);
+	console.debug(storage.getStore()[0]);
 	throw new Error(`Timeout waiting for state ${state} for ${entity}`);
 }
 
@@ -153,7 +153,7 @@ describe("PolicyNegotiationPointService", () => {
 		);
 
 		mockOffer = {
-			"@context": OdrlContexts.JsonLdContext,
+			"@context": OdrlContexts.Context,
 			"@type": OdrlTypes.Offer,
 			uid: "urn:policy:offer-1",
 			assigner: testIdentityProvider
@@ -221,7 +221,7 @@ describe("PolicyNegotiationPointService", () => {
 				interventionRequired: false
 			})),
 			createAgreement: vi.fn(async (offer: IOdrlOffer, information?: IPolicyInformation) => ({
-				"@context": OdrlContexts.JsonLdContext,
+				"@context": OdrlContexts.Context,
 				"@type": OdrlTypes.Agreement,
 				uid: "urn:policy:agreement-1",
 				assigner: testIdentityProvider,
