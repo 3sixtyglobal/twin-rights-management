@@ -1,5 +1,27 @@
 # @twin.org/rights-management-pap-service - Changelog
 
+## [0.0.3-next.9](https://github.com/twinfoundation/rights-management/compare/rights-management-service-v0.0.3-next.8...rights-management-service-v0.0.3-next.9) (2026-01-26)
+
+
+### Features
+
+* change callback url to callback path ([#65](https://github.com/twinfoundation/rights-management/issues/65)) ([f02ceaf](https://github.com/twinfoundation/rights-management/commit/f02ceaf0a53083f088690c7d3a384045b1061821))
+
+
+### Dependencies
+
+* The following workspace dependencies were updated
+  * dependencies
+    * @twin.org/rights-management-models bumped from 0.0.3-next.8 to 0.0.3-next.9
+  * devDependencies
+    * @twin.org/rights-management-pap-service bumped from 0.0.3-next.8 to 0.0.3-next.9
+    * @twin.org/rights-management-pdp-service bumped from 0.0.3-next.8 to 0.0.3-next.9
+    * @twin.org/rights-management-pep-service bumped from 0.0.3-next.8 to 0.0.3-next.9
+    * @twin.org/rights-management-pip-service bumped from 0.0.3-next.8 to 0.0.3-next.9
+    * @twin.org/rights-management-pmp-service bumped from 0.0.3-next.8 to 0.0.3-next.9
+    * @twin.org/rights-management-pnp-service bumped from 0.0.3-next.8 to 0.0.3-next.9
+    * @twin.org/rights-management-pxp-service bumped from 0.0.3-next.8 to 0.0.3-next.9
+
 ## [0.0.3-next.8](https://github.com/twinfoundation/rights-management/compare/rights-management-service-v0.0.3-next.7...rights-management-service-v0.0.3-next.8) (2026-01-21)
 
 

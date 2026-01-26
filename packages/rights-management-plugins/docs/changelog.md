@@ -1,5 +1,19 @@
 # Changelog
 
+## [0.0.3-next.9](https://github.com/twinfoundation/rights-management/compare/rights-management-plugins-v0.0.3-next.8...rights-management-plugins-v0.0.3-next.9) (2026-01-26)
+
+
+### Miscellaneous Chores
+
+* **rights-management-plugins:** Synchronize repo versions
+
+
+### Dependencies
+
+* The following workspace dependencies were updated
+  * dependencies
+    * @twin.org/rights-management-models bumped from 0.0.3-next.8 to 0.0.3-next.9
+
 ## [0.0.3-next.8](https://github.com/twinfoundation/rights-management/compare/rights-management-plugins-v0.0.3-next.7...rights-management-plugins-v0.0.3-next.8) (2026-01-21)
 
 

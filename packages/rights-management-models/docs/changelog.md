@@ -1,5 +1,12 @@
 # @twin.org/rights-management-models - Changelog
 
+## [0.0.3-next.9](https://github.com/twinfoundation/rights-management/compare/rights-management-models-v0.0.3-next.8...rights-management-models-v0.0.3-next.9) (2026-01-26)
+
+
+### Features
+
+* change callback url to callback path ([#65](https://github.com/twinfoundation/rights-management/issues/65)) ([f02ceaf](https://github.com/twinfoundation/rights-management/commit/f02ceaf0a53083f088690c7d3a384045b1061821))
+
 ## [0.0.3-next.8](https://github.com/twinfoundation/rights-management/compare/rights-management-models-v0.0.3-next.7...rights-management-models-v0.0.3-next.8) (2026-01-21)
 
 
