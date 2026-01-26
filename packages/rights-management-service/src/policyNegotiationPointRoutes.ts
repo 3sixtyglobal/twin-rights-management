@@ -613,8 +613,6 @@ export async function pnpGetNegotiation(
 		request.pathParams
 	);
 
-	const mimeType = request.headers[HeaderTypes.Accept] === MimeTypes.JsonLd ? "jsonld" : "json";
-
 	const component = ComponentFactory.get<IPolicyNegotiationPointComponent>(componentName);
 	const result = await component.getNegotiation(
 		request.pathParams.id,
@@ -624,7 +622,10 @@ export async function pnpGetNegotiation(
 	return {
 		statusCode: mapError(result),
 		headers: {
-			[HeaderTypes.ContentType]: mimeType === "json" ? MimeTypes.Json : MimeTypes.JsonLd
+			[HeaderTypes.ContentType]:
+				request.headers?.[HeaderTypes.Accept] === MimeTypes.JsonLd
+					? MimeTypes.JsonLd
+					: MimeTypes.Json
 		},
 		body: result
 	};
@@ -650,16 +651,14 @@ export async function pnpNegotiationRequest(
 	);
 	Guards.object<IPnpNegotiateRequest["body"]>(ROUTES_SOURCE, nameof(request.body), request.body);
 
-	const hostingService = ComponentFactory.get<IHostingComponent>(
+	const hostingComponent = ComponentFactory.get<IHostingComponent>(
 		httpRequestContext.hostingComponentType ?? "hosting"
 	);
-
-	const mimeType = request.headers[HeaderTypes.Accept] === MimeTypes.JsonLd ? "jsonld" : "json";
 
 	const component = ComponentFactory.get<IPolicyNegotiationPointComponent>(componentName);
 	const result = await component.requestFromConsumer(
 		request.body,
-		await hostingService.getPublicOrigin(httpRequestContext.serverRequest.url),
+		await hostingComponent.getPublicOrigin(httpRequestContext.serverRequest.url),
 		HeaderHelper.extractBearer(request.headers?.[HeaderTypes.Authorization])
 	);
 
@@ -669,14 +668,20 @@ export async function pnpNegotiationRequest(
 		return {
 			statusCode: mapError(result),
 			headers: {
-				[HeaderTypes.ContentType]: mimeType === "json" ? MimeTypes.Json : MimeTypes.JsonLd
+				[HeaderTypes.ContentType]:
+					request.headers?.[HeaderTypes.Accept] === MimeTypes.JsonLd
+						? MimeTypes.JsonLd
+						: MimeTypes.Json
 			}
 		};
 	}
 	return {
 		statusCode: mapError(result) ?? HttpStatusCode.created,
 		headers: {
-			[HeaderTypes.ContentType]: mimeType === "json" ? MimeTypes.Json : MimeTypes.JsonLd
+			[HeaderTypes.ContentType]:
+				request.headers?.[HeaderTypes.Accept] === MimeTypes.JsonLd
+					? MimeTypes.JsonLd
+					: MimeTypes.Json
 		},
 		body: result
 	};
@@ -707,24 +712,25 @@ export async function pnpNegotiationProviderEvents(
 	);
 	Guards.object<IPnpEventRequest["body"]>(ROUTES_SOURCE, nameof(request.body), request.body);
 
-	const hostingService = ComponentFactory.get<IHostingComponent>(
+	const hostingComponent = ComponentFactory.get<IHostingComponent>(
 		httpRequestContext.hostingComponentType ?? "hosting"
 	);
-
-	const mimeType = request.headers[HeaderTypes.Accept] === MimeTypes.JsonLd ? "jsonld" : "json";
 
 	const component = ComponentFactory.get<IPolicyNegotiationPointComponent>(componentName);
 	const result = await component.event(
 		request.body,
 		request.pathParams.id === request.body.providerPid ? "provider" : "consumer",
-		await hostingService.getPublicOrigin(httpRequestContext.serverRequest.url),
+		await hostingComponent.getPublicOrigin(httpRequestContext.serverRequest.url),
 		HeaderHelper.extractBearer(request.headers?.[HeaderTypes.Authorization])
 	);
 
 	return {
 		statusCode: mapError(result),
 		headers: {
-			[HeaderTypes.ContentType]: mimeType === "json" ? MimeTypes.Json : MimeTypes.JsonLd
+			[HeaderTypes.ContentType]:
+				request.headers?.[HeaderTypes.Accept] === MimeTypes.JsonLd
+					? MimeTypes.JsonLd
+					: MimeTypes.Json
 		},
 		body: result
 	};
@@ -759,23 +765,24 @@ export async function pnpNegotiationAgreementVerification(
 		request.body
 	);
 
-	const hostingService = ComponentFactory.get<IHostingComponent>(
+	const hostingComponent = ComponentFactory.get<IHostingComponent>(
 		httpRequestContext.hostingComponentType ?? "hosting"
 	);
-
-	const mimeType = request.headers[HeaderTypes.Accept] === MimeTypes.JsonLd ? "jsonld" : "json";
 
 	const component = ComponentFactory.get<IPolicyNegotiationPointComponent>(componentName);
 	const result = await component.agreementVerificationFromConsumer(
 		request.body,
-		await hostingService.getPublicOrigin(httpRequestContext.serverRequest.url),
+		await hostingComponent.getPublicOrigin(httpRequestContext.serverRequest.url),
 		HeaderHelper.extractBearer(request.headers?.[HeaderTypes.Authorization])
 	);
 
 	return {
 		statusCode: mapError(result),
 		headers: {
-			[HeaderTypes.ContentType]: mimeType === "json" ? MimeTypes.Json : MimeTypes.JsonLd
+			[HeaderTypes.ContentType]:
+				request.headers?.[HeaderTypes.Accept] === MimeTypes.JsonLd
+					? MimeTypes.JsonLd
+					: MimeTypes.Json
 		},
 		body: result
 	};
@@ -806,8 +813,6 @@ export async function pnpNegotiationTermination(
 	);
 	Guards.object<IPnpTerminateRequest["body"]>(ROUTES_SOURCE, nameof(request.body), request.body);
 
-	const mimeType = request.headers[HeaderTypes.Accept] === MimeTypes.JsonLd ? "jsonld" : "json";
-
 	const component = ComponentFactory.get<IPolicyNegotiationPointComponent>(componentName);
 	const result = await component.terminate(
 		request.body,
@@ -818,7 +823,10 @@ export async function pnpNegotiationTermination(
 	return {
 		statusCode: mapError(result),
 		headers: {
-			[HeaderTypes.ContentType]: mimeType === "json" ? MimeTypes.Json : MimeTypes.JsonLd
+			[HeaderTypes.ContentType]:
+				request.headers?.[HeaderTypes.Accept] === MimeTypes.JsonLd
+					? MimeTypes.JsonLd
+					: MimeTypes.Json
 		},
 		body: result
 	};
@@ -844,16 +852,14 @@ export async function pnpNegotiationOffer(
 	);
 	Guards.object<IPnpOfferRequest["body"]>(ROUTES_SOURCE, nameof(request.body), request.body);
 
-	const hostingService = ComponentFactory.get<IHostingComponent>(
+	const hostingComponent = ComponentFactory.get<IHostingComponent>(
 		httpRequestContext.hostingComponentType ?? "hosting"
 	);
-
-	const mimeType = request.headers[HeaderTypes.Accept] === MimeTypes.JsonLd ? "jsonld" : "json";
 
 	const component = ComponentFactory.get<IPolicyNegotiationPointComponent>(componentName);
 	const result = await component.offerFromProvider(
 		request.body,
-		await hostingService.getPublicOrigin(httpRequestContext.serverRequest.url),
+		await hostingComponent.getPublicOrigin(httpRequestContext.serverRequest.url),
 		HeaderHelper.extractBearer(request.headers?.[HeaderTypes.Authorization])
 	);
 
@@ -863,14 +869,20 @@ export async function pnpNegotiationOffer(
 		return {
 			statusCode: mapError(result),
 			headers: {
-				[HeaderTypes.ContentType]: mimeType === "json" ? MimeTypes.Json : MimeTypes.JsonLd
+				[HeaderTypes.ContentType]:
+					request.headers?.[HeaderTypes.Accept] === MimeTypes.JsonLd
+						? MimeTypes.JsonLd
+						: MimeTypes.Json
 			}
 		};
 	}
 	return {
 		statusCode: mapError(result) ?? HttpStatusCode.created,
 		headers: {
-			[HeaderTypes.ContentType]: mimeType === "json" ? MimeTypes.Json : MimeTypes.JsonLd
+			[HeaderTypes.ContentType]:
+				request.headers?.[HeaderTypes.Accept] === MimeTypes.JsonLd
+					? MimeTypes.JsonLd
+					: MimeTypes.Json
 		},
 		body: result
 	};
@@ -901,23 +913,24 @@ export async function pnpNegotiationAgreement(
 		request.body
 	);
 
-	const hostingService = ComponentFactory.get<IHostingComponent>(
+	const hostingComponent = ComponentFactory.get<IHostingComponent>(
 		httpRequestContext.hostingComponentType ?? "hosting"
 	);
-
-	const mimeType = request.headers[HeaderTypes.Accept] === MimeTypes.JsonLd ? "jsonld" : "json";
 
 	const component = ComponentFactory.get<IPolicyNegotiationPointComponent>(componentName);
 	const result = await component.agreementFromProvider(
 		request.body,
-		await hostingService.getPublicOrigin(httpRequestContext.serverRequest.url),
+		await hostingComponent.getPublicOrigin(httpRequestContext.serverRequest.url),
 		HeaderHelper.extractBearer(request.headers?.[HeaderTypes.Authorization])
 	);
 
 	return {
 		statusCode: mapError(result),
 		headers: {
-			[HeaderTypes.ContentType]: mimeType === "json" ? MimeTypes.Json : MimeTypes.JsonLd
+			[HeaderTypes.ContentType]:
+				request.headers?.[HeaderTypes.Accept] === MimeTypes.JsonLd
+					? MimeTypes.JsonLd
+					: MimeTypes.Json
 		},
 		body: result
 	};

@@ -345,8 +345,6 @@ export async function dapGet(
 		request.pathParams
 	);
 
-	const mimeType = request.headers[HeaderTypes.Accept] === MimeTypes.JsonLd ? "jsonld" : "json";
-
 	const component = ComponentFactory.get<IDataAccessPointComponent>(componentName);
 	const result = await component.get(
 		request.pathParams.assetType,
@@ -356,7 +354,10 @@ export async function dapGet(
 
 	return {
 		headers: {
-			[HeaderTypes.ContentType]: mimeType === "json" ? MimeTypes.Json : MimeTypes.JsonLd
+			[HeaderTypes.ContentType]:
+				request.headers?.[HeaderTypes.Accept] === MimeTypes.JsonLd
+					? MimeTypes.JsonLd
+					: MimeTypes.Json
 		},
 		body: result
 	};
@@ -456,8 +457,6 @@ export async function dapQuery(
 	);
 	Guards.object<IDapQueryRequest["body"]>(ROUTES_SOURCE, nameof(request.body), request.body);
 
-	const mimeType = request.headers[HeaderTypes.Accept] === MimeTypes.JsonLd ? "jsonld" : "json";
-
 	const component = ComponentFactory.get<IDataAccessPointComponent>(componentName);
 	const result = await component.query(
 		request.pathParams.assetType,
@@ -469,7 +468,10 @@ export async function dapQuery(
 
 	return {
 		headers: {
-			[HeaderTypes.ContentType]: mimeType === "json" ? MimeTypes.Json : MimeTypes.JsonLd
+			[HeaderTypes.ContentType]:
+				request.headers?.[HeaderTypes.Accept] === MimeTypes.JsonLd
+					? MimeTypes.JsonLd
+					: MimeTypes.Json
 		},
 		body: {
 			"@context": RightsManagementContexts.Context,
