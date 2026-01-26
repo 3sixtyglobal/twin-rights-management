@@ -1,6 +1,11 @@
 // Copyright 2025 IOTA Stiftung.
 // SPDX-License-Identifier: Apache-2.0.
-import type { IHttpRequestContext, IRestRoute, ITag } from "@twin.org/api-models";
+import type {
+	IHostingComponent,
+	IHttpRequestContext,
+	IRestRoute,
+	ITag
+} from "@twin.org/api-models";
 import { ComponentFactory, Guards, Is } from "@twin.org/core";
 import { nameof } from "@twin.org/nameof";
 import type {
@@ -645,11 +650,16 @@ export async function pnpNegotiationRequest(
 	);
 	Guards.object<IPnpNegotiateRequest["body"]>(ROUTES_SOURCE, nameof(request.body), request.body);
 
+	const hostingService = ComponentFactory.get<IHostingComponent>(
+		httpRequestContext.hostingComponentType ?? "hosting"
+	);
+
 	const mimeType = request.headers[HeaderTypes.Accept] === MimeTypes.JsonLd ? "jsonld" : "json";
 
 	const component = ComponentFactory.get<IPolicyNegotiationPointComponent>(componentName);
 	const result = await component.requestFromConsumer(
 		request.body,
+		await hostingService.getPublicOrigin(httpRequestContext.serverRequest.url),
 		HeaderHelper.extractBearer(request.headers?.[HeaderTypes.Authorization])
 	);
 
@@ -697,12 +707,17 @@ export async function pnpNegotiationProviderEvents(
 	);
 	Guards.object<IPnpEventRequest["body"]>(ROUTES_SOURCE, nameof(request.body), request.body);
 
+	const hostingService = ComponentFactory.get<IHostingComponent>(
+		httpRequestContext.hostingComponentType ?? "hosting"
+	);
+
 	const mimeType = request.headers[HeaderTypes.Accept] === MimeTypes.JsonLd ? "jsonld" : "json";
 
 	const component = ComponentFactory.get<IPolicyNegotiationPointComponent>(componentName);
 	const result = await component.event(
 		request.body,
 		request.pathParams.id === request.body.providerPid ? "provider" : "consumer",
+		await hostingService.getPublicOrigin(httpRequestContext.serverRequest.url),
 		HeaderHelper.extractBearer(request.headers?.[HeaderTypes.Authorization])
 	);
 
@@ -744,11 +759,16 @@ export async function pnpNegotiationAgreementVerification(
 		request.body
 	);
 
+	const hostingService = ComponentFactory.get<IHostingComponent>(
+		httpRequestContext.hostingComponentType ?? "hosting"
+	);
+
 	const mimeType = request.headers[HeaderTypes.Accept] === MimeTypes.JsonLd ? "jsonld" : "json";
 
 	const component = ComponentFactory.get<IPolicyNegotiationPointComponent>(componentName);
 	const result = await component.agreementVerificationFromConsumer(
 		request.body,
+		await hostingService.getPublicOrigin(httpRequestContext.serverRequest.url),
 		HeaderHelper.extractBearer(request.headers?.[HeaderTypes.Authorization])
 	);
 
@@ -824,11 +844,16 @@ export async function pnpNegotiationOffer(
 	);
 	Guards.object<IPnpOfferRequest["body"]>(ROUTES_SOURCE, nameof(request.body), request.body);
 
+	const hostingService = ComponentFactory.get<IHostingComponent>(
+		httpRequestContext.hostingComponentType ?? "hosting"
+	);
+
 	const mimeType = request.headers[HeaderTypes.Accept] === MimeTypes.JsonLd ? "jsonld" : "json";
 
 	const component = ComponentFactory.get<IPolicyNegotiationPointComponent>(componentName);
 	const result = await component.offerFromProvider(
 		request.body,
+		await hostingService.getPublicOrigin(httpRequestContext.serverRequest.url),
 		HeaderHelper.extractBearer(request.headers?.[HeaderTypes.Authorization])
 	);
 
@@ -876,11 +901,16 @@ export async function pnpNegotiationAgreement(
 		request.body
 	);
 
+	const hostingService = ComponentFactory.get<IHostingComponent>(
+		httpRequestContext.hostingComponentType ?? "hosting"
+	);
+
 	const mimeType = request.headers[HeaderTypes.Accept] === MimeTypes.JsonLd ? "jsonld" : "json";
 
 	const component = ComponentFactory.get<IPolicyNegotiationPointComponent>(componentName);
 	const result = await component.agreementFromProvider(
 		request.body,
+		await hostingService.getPublicOrigin(httpRequestContext.serverRequest.url),
 		HeaderHelper.extractBearer(request.headers?.[HeaderTypes.Authorization])
 	);
 

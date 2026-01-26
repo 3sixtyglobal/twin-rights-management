@@ -41,7 +41,7 @@ The current state of the negotiation or an error.
 
 ### sendRequestToProvider()
 
-> **sendRequestToProvider**(`url`, `requesterId`, `odrlOfferId`): `Promise`\<`string`\>
+> **sendRequestToProvider**(`url`, `requesterId`, `odrlOfferId`, `publicOrigin`): `Promise`\<`string`\>
 
 Send a request to a provider.
 
@@ -65,6 +65,12 @@ The id of the requester to use for the request, will use the registered requeste
 
 The id of the offer to request.
 
+##### publicOrigin
+
+`string`
+
+The public origin url of this PNP service.
+
 #### Returns
 
 `Promise`\<`string`\>
@@ -75,7 +81,7 @@ The negotiation id.
 
 ### requestFromConsumer()
 
-> **requestFromConsumer**(`message`, `trustPayload`): `Promise`\<`IDataspaceProtocolContractNegotiation` \| `IDataspaceProtocolContractNegotiationError`\>
+> **requestFromConsumer**(`message`, `publicOrigin`, `trustPayload`): `Promise`\<`IDataspaceProtocolContractNegotiation` \| `IDataspaceProtocolContractNegotiationError`\>
 
 Processes an incoming request on a provider from a consumer.
 
@@ -86,6 +92,12 @@ Processes an incoming request on a provider from a consumer.
 `IDataspaceProtocolContractRequestMessage`
 
 The negotiation request.
+
+##### publicOrigin
+
+`string`
+
+The public origin url of this PNP service.
 
 ##### trustPayload
 
@@ -103,7 +115,7 @@ The current state of the contract negotiation or an error.
 
 ### offerFromProvider()
 
-> **offerFromProvider**(`message`, `trustPayload`): `Promise`\<`IDataspaceProtocolContractNegotiation` \| `IDataspaceProtocolContractNegotiationError`\>
+> **offerFromProvider**(`message`, `publicOrigin`, `trustPayload`): `Promise`\<`IDataspaceProtocolContractNegotiation` \| `IDataspaceProtocolContractNegotiationError`\>
 
 An offer has been received by a consumer.
 
@@ -114,6 +126,12 @@ An offer has been received by a consumer.
 `IDataspaceProtocolContractOfferMessage`
 
 The offer being received by the consumer.
+
+##### publicOrigin
+
+`string`
+
+The public origin url of this PNP service.
 
 ##### trustPayload
 
@@ -131,7 +149,7 @@ The current state of the contract negotiation or an error.
 
 ### agreementFromProvider()
 
-> **agreementFromProvider**(`message`, `trustPayload`): `Promise`\<`IDataspaceProtocolContractNegotiationError` \| `undefined`\>
+> **agreementFromProvider**(`message`, `publicOrigin`, `trustPayload`): `Promise`\<`IDataspaceProtocolContractNegotiationError` \| `undefined`\>
 
 An agreement has been received by a consumer.
 
@@ -142,6 +160,12 @@ An agreement has been received by a consumer.
 `IDataspaceProtocolContractAgreementMessage`
 
 The agreement message to send.
+
+##### publicOrigin
+
+`string`
+
+The public origin url of this PNP service.
 
 ##### trustPayload
 
@@ -159,7 +183,7 @@ The error if there is one.
 
 ### agreementVerificationFromConsumer()
 
-> **agreementVerificationFromConsumer**(`message`, `trustPayload`): `Promise`\<`IDataspaceProtocolContractNegotiationError` \| `undefined`\>
+> **agreementVerificationFromConsumer**(`message`, `publicOrigin`, `trustPayload`): `Promise`\<`IDataspaceProtocolContractNegotiationError` \| `undefined`\>
 
 An agreement verification has been received by a provider.
 
@@ -170,6 +194,12 @@ An agreement verification has been received by a provider.
 `IDataspaceProtocolContractAgreementVerificationMessage`
 
 The agreement verification message to send.
+
+##### publicOrigin
+
+`string`
+
+The public origin url of this PNP service.
 
 ##### trustPayload
 
@@ -187,7 +217,7 @@ The error if there is one.
 
 ### event()
 
-> **event**(`message`, `destination`, `trustPayload`): `Promise`\<`IDataspaceProtocolContractNegotiationError` \| `undefined`\>
+> **event**(`message`, `destination`, `publicOrigin`, `trustPayload`): `Promise`\<`IDataspaceProtocolContractNegotiationError` \| `undefined`\>
 
 An event has been received by the provider or consumer.
 
@@ -204,6 +234,12 @@ The event message to send.
 The destination is provider or consumer.
 
 `"provider"` | `"consumer"`
+
+##### publicOrigin
+
+`string`
+
+The public origin url of this PNP service.
 
 ##### trustPayload
 

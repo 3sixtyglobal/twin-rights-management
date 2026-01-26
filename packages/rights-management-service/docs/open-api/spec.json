@@ -3401,11 +3401,11 @@
 					},
 					"odrl": {
 						"type": "string",
-						"const": "http://www.w3.org/ns/odrl.jsonld"
+						"const": "http://www.w3.org/ns/odrl/2/"
 					},
 					"foaf": {
 						"type": "string",
-						"const": "https://schema.twindev.org/foaf/types.jsonld"
+						"const": "https://xmlns.com/foaf/0.1/"
 					}
 				},
 				"required": [

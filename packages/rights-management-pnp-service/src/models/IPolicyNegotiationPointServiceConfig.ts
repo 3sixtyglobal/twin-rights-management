@@ -7,10 +7,10 @@ import type { IPolicyNegotiationPointComponent } from "@twin.org/rights-manageme
  */
 export interface IPolicyNegotiationPointServiceConfig {
 	/**
-	 * The url to send in negotiation messages as the callback address.
-	 * This should be the externally reachable url of this PNP service.
+	 * The path to send in negotiation messages as the callback address.
+	 * Will be combined with the public origin url from hosting component.
 	 */
-	baseCallbackUrl: string;
+	callbackPath: string;
 
 	/**
 	 * A method for creating a new instance of the policy negotiation point component.

@@ -257,7 +257,7 @@ describe("PolicyNegotiationPointService", () => {
 		const policyNegotiationPoint = new PolicyNegotiationPointService({
 			policyNegotiationAdministrationPointComponentType: "policy-negotiation-provider-admin-point",
 			config: {
-				baseCallbackUrl: "http://localhost:3000",
+				callbackPath: "/callback",
 				negotiationComponentCreator: async () => ({}) as IPolicyNegotiationPointComponent
 			}
 		});
@@ -270,7 +270,7 @@ describe("PolicyNegotiationPointService", () => {
 		const policyNegotiationConsumerPoint = new PolicyNegotiationPointService({
 			policyNegotiationAdministrationPointComponentType: "policy-negotiation-consumer-admin-point",
 			config: {
-				baseCallbackUrl: "http://localhost:3000",
+				callbackPath: "/callback",
 				negotiationComponentCreator: async () => providerPoints.provider
 			}
 		});
@@ -278,7 +278,7 @@ describe("PolicyNegotiationPointService", () => {
 		const policyNegotiationProviderPoint = new PolicyNegotiationPointService({
 			policyNegotiationAdministrationPointComponentType: "policy-negotiation-provider-admin-point",
 			config: {
-				baseCallbackUrl: "http://localhost:4000",
+				callbackPath: "/callback",
 				negotiationComponentCreator: async () => providerPoints.consumer
 			}
 		});
@@ -289,7 +289,8 @@ describe("PolicyNegotiationPointService", () => {
 			policyNegotiationConsumerPoint.sendRequestToProvider(
 				"http://localhost:3000",
 				"requester-1",
-				"urn:policy:offer-1"
+				"urn:policy:offer-1",
+				"http://localhost:4000"
 			)
 		).rejects.toMatchObject({
 			name: "GeneralError",
@@ -303,7 +304,7 @@ describe("PolicyNegotiationPointService", () => {
 		const policyNegotiationConsumerPoint = new PolicyNegotiationPointService({
 			policyNegotiationAdministrationPointComponentType: "policy-negotiation-consumer-admin-point",
 			config: {
-				baseCallbackUrl: "http://localhost:3000",
+				callbackPath: "/callback",
 				negotiationComponentCreator: async () => providerPoints.provider
 			}
 		});
@@ -311,7 +312,7 @@ describe("PolicyNegotiationPointService", () => {
 		const policyNegotiationProviderPoint = new PolicyNegotiationPointService({
 			policyNegotiationAdministrationPointComponentType: "policy-negotiation-provider-admin-point",
 			config: {
-				baseCallbackUrl: "http://localhost:4000",
+				callbackPath: "/callback",
 				negotiationComponentCreator: async () => providerPoints.consumer
 			}
 		});
@@ -326,7 +327,8 @@ describe("PolicyNegotiationPointService", () => {
 			policyNegotiationConsumerPoint.sendRequestToProvider(
 				"http://localhost:3000",
 				"requester-1",
-				"urn:policy:offer-1"
+				"urn:policy:offer-1",
+				"http://localhost:4000"
 			)
 		).rejects.toMatchObject({
 			name: "GeneralError",
@@ -340,7 +342,7 @@ describe("PolicyNegotiationPointService", () => {
 		const policyNegotiationConsumerPoint = new PolicyNegotiationPointService({
 			policyNegotiationAdministrationPointComponentType: "policy-negotiation-consumer-admin-point",
 			config: {
-				baseCallbackUrl: "http://localhost:3000",
+				callbackPath: "/callback",
 				negotiationComponentCreator: async () => providerPoints.provider
 			}
 		});
@@ -348,7 +350,7 @@ describe("PolicyNegotiationPointService", () => {
 		const policyNegotiationProviderPoint = new PolicyNegotiationPointService({
 			policyNegotiationAdministrationPointComponentType: "policy-negotiation-provider-admin-point",
 			config: {
-				baseCallbackUrl: "http://localhost:4000",
+				callbackPath: "/callback",
 				negotiationComponentCreator: async () => providerPoints.consumer
 			}
 		});
@@ -366,7 +368,8 @@ describe("PolicyNegotiationPointService", () => {
 			policyNegotiationConsumerPoint.sendRequestToProvider(
 				"http://localhost:3000",
 				"requester-1",
-				"urn:policy:offer-1"
+				"urn:policy:offer-1",
+				"http://localhost:4000"
 			)
 		).rejects.toMatchObject({
 			name: "GeneralError",
@@ -380,7 +383,7 @@ describe("PolicyNegotiationPointService", () => {
 		const policyNegotiationConsumerPoint = new PolicyNegotiationPointService({
 			policyNegotiationAdministrationPointComponentType: "policy-negotiation-consumer-admin-point",
 			config: {
-				baseCallbackUrl: "http://localhost:3000",
+				callbackPath: "/callback",
 				negotiationComponentCreator: async () => providerPoints.provider
 			}
 		});
@@ -388,7 +391,7 @@ describe("PolicyNegotiationPointService", () => {
 		const policyNegotiationProviderPoint = new PolicyNegotiationPointService({
 			policyNegotiationAdministrationPointComponentType: "policy-negotiation-provider-admin-point",
 			config: {
-				baseCallbackUrl: "http://localhost:4000",
+				callbackPath: "/callback",
 				negotiationComponentCreator: async () => providerPoints.consumer
 			}
 		});
@@ -405,7 +408,8 @@ describe("PolicyNegotiationPointService", () => {
 		const consumerPid = await policyNegotiationConsumerPoint.sendRequestToProvider(
 			"http://localhost:3000",
 			"requester-1",
-			"urn:policy:offer-1"
+			"urn:policy:offer-1",
+			"http://localhost:4000"
 		);
 
 		const consumerStore = policyNegotiationConsumerMemoryEntityStorage.getStore();
@@ -447,7 +451,7 @@ describe("PolicyNegotiationPointService", () => {
 		const policyNegotiationConsumerPoint = new PolicyNegotiationPointService({
 			policyNegotiationAdministrationPointComponentType: "policy-negotiation-consumer-admin-point",
 			config: {
-				baseCallbackUrl: "http://localhost:3000",
+				callbackPath: "/callback",
 				negotiationComponentCreator: async () => providerPoints.provider
 			}
 		});
@@ -455,7 +459,7 @@ describe("PolicyNegotiationPointService", () => {
 		const policyNegotiationProviderPoint = new PolicyNegotiationPointService({
 			policyNegotiationAdministrationPointComponentType: "policy-negotiation-provider-admin-point",
 			config: {
-				baseCallbackUrl: "http://localhost:4000",
+				callbackPath: "/callback",
 				negotiationComponentCreator: async () => providerPoints.consumer
 			}
 		});
@@ -472,7 +476,8 @@ describe("PolicyNegotiationPointService", () => {
 		const consumerPid = await policyNegotiationConsumerPoint.sendRequestToProvider(
 			"http://localhost:3000",
 			"requester-2",
-			"urn:policy:offer-1"
+			"urn:policy:offer-1",
+			"http://localhost:4000"
 		);
 
 		const consumerStore = policyNegotiationConsumerMemoryEntityStorage.getStore();

@@ -4,12 +4,12 @@ Options for the Policy Negotiation Point Component.
 
 ## Properties
 
-### baseCallbackUrl
+### callbackPath
 
-> **baseCallbackUrl**: `string`
+> **callbackPath**: `string`
 
-The url to send in negotiation messages as the callback address.
-This should be the externally reachable url of this PNP service.
+The path to send in negotiation messages as the callback address.
+Will be combined with the public origin url from hosting component.
 
 ***
 

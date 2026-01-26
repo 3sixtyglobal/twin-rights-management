@@ -35,51 +35,65 @@ export interface IPolicyNegotiationPointComponent extends IComponent {
 	 * @param url The url of the provider to send the request to.
 	 * @param requesterId The id of the requester to use for the request, will use the registered requester to provide update.
 	 * @param odrlOfferId The id of the offer to request.
+	 * @param publicOrigin The public origin url of this PNP service.
 	 * @returns The negotiation id.
 	 */
-	sendRequestToProvider(url: string, requesterId: string, odrlOfferId: string): Promise<string>;
+	sendRequestToProvider(
+		url: string,
+		requesterId: string,
+		odrlOfferId: string,
+		publicOrigin: string
+	): Promise<string>;
 
 	/**
 	 * Processes an incoming request on a provider from a consumer.
 	 * @param message The negotiation request.
+	 * @param publicOrigin The public origin url of this PNP service.
 	 * @param trustPayload Trust payload to verify the requesters identity.
 	 * @returns The current state of the contract negotiation or an error.
 	 */
 	requestFromConsumer(
 		message: IDataspaceProtocolContractRequestMessage,
+		publicOrigin: string,
 		trustPayload: unknown
 	): Promise<IDataspaceProtocolContractNegotiation | IDataspaceProtocolContractNegotiationError>;
 
 	/**
 	 * An offer has been received by a consumer.
 	 * @param message The offer being received by the consumer.
+	 * @param publicOrigin The public origin url of this PNP service.
 	 * @param trustPayload Trust payload to verify the requesters identity.
 	 * @returns The current state of the contract negotiation or an error.
 	 */
 	offerFromProvider(
 		message: IDataspaceProtocolContractOfferMessage,
+		publicOrigin: string,
 		trustPayload: unknown
 	): Promise<IDataspaceProtocolContractNegotiation | IDataspaceProtocolContractNegotiationError>;
 
 	/**
 	 * An agreement has been received by a consumer.
 	 * @param message The agreement message to send.
+	 * @param publicOrigin The public origin url of this PNP service.
 	 * @param trustPayload Trust payload to verify the requesters identity.
 	 * @returns The error if there is one.
 	 */
 	agreementFromProvider(
 		message: IDataspaceProtocolContractAgreementMessage,
+		publicOrigin: string,
 		trustPayload: unknown
 	): Promise<IDataspaceProtocolContractNegotiationError | undefined>;
 
 	/**
 	 * An agreement verification has been received by a provider.
 	 * @param message The agreement verification message to send.
+	 * @param publicOrigin The public origin url of this PNP service.
 	 * @param trustPayload Trust payload to verify the requesters identity.
 	 * @returns The error if there is one.
 	 */
 	agreementVerificationFromConsumer(
 		message: IDataspaceProtocolContractAgreementVerificationMessage,
+		publicOrigin: string,
 		trustPayload: unknown
 	): Promise<IDataspaceProtocolContractNegotiationError | undefined>;
 
@@ -87,12 +101,14 @@ export interface IPolicyNegotiationPointComponent extends IComponent {
 	 * An event has been received by the provider or consumer.
 	 * @param message The event message to send.
 	 * @param destination The destination is provider or consumer.
+	 * @param publicOrigin The public origin url of this PNP service.
 	 * @param trustPayload Trust payload to verify the requesters identity.
 	 * @returns The error if there is one.
 	 */
 	event(
 		message: IDataspaceProtocolContractNegotiationEventMessage,
 		destination: "provider" | "consumer",
+		publicOrigin: string,
 		trustPayload: unknown
 	): Promise<IDataspaceProtocolContractNegotiationError | undefined>;
 
