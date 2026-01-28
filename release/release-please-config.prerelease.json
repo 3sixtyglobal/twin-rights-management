@@ -42,10 +42,6 @@
 			"package-name": "rights-management-pnp-service",
 			"changelog-path": "docs/changelog.md"
 		},
-		"packages/rights-management-dap-service": {
-			"package-name": "rights-management-dap-service",
-			"changelog-path": "docs/changelog.md"
-		},
 		"packages/rights-management-service": {
 			"package-name": "rights-management-service",
 			"changelog-path": "docs/changelog.md"
@@ -73,7 +69,6 @@
 				"rights-management-pdp-service",
 				"rights-management-pep-service",
 				"rights-management-pnp-service",
-				"rights-management-dap-service",
 				"rights-management-service",
 				"rights-management-rest-client",
 				"rights-management-plugins"

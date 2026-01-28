@@ -2,7 +2,6 @@
 
 ## Variables
 
-- [dapTags](variables/dapTags.md)
 - [papTags](variables/papTags.md)
 - [pnapTags](variables/pnapTags.md)
 - [pnpTags](variables/pnpTags.md)
@@ -10,12 +9,6 @@
 
 ## Functions
 
-- [generateRestRoutesDataAccessPoint](functions/generateRestRoutesDataAccessPoint.md)
-- [dapCreate](functions/dapCreate.md)
-- [dapGet](functions/dapGet.md)
-- [dapUpdate](functions/dapUpdate.md)
-- [dapRemove](functions/dapRemove.md)
-- [dapQuery](functions/dapQuery.md)
 - [generateRestRoutesPolicyAdministrationPoint](functions/generateRestRoutesPolicyAdministrationPoint.md)
 - [papCreate](functions/papCreate.md)
 - [papUpdate](functions/papUpdate.md)

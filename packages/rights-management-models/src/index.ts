@@ -1,19 +1,11 @@
 // Copyright 2025 IOTA Stiftung.
 // SPDX-License-Identifier: Apache-2.0.
-export * from "./factories/dataAccessHandlerFactory.js";
 export * from "./factories/policyArbiterFactory.js";
 export * from "./factories/policyEnforcementProcessorFactory.js";
 export * from "./factories/policyExecutionActionFactory.js";
 export * from "./factories/policyInformationSourceFactory.js";
 export * from "./factories/policyNegotiatorFactory.js";
 export * from "./factories/policyRequesterFactory.js";
-export * from "./models/api/dap/IDapCreateRequest.js";
-export * from "./models/api/dap/IDapGetRequest.js";
-export * from "./models/api/dap/IDapGetResponse.js";
-export * from "./models/api/dap/IDapQueryRequest.js";
-export * from "./models/api/dap/IDapQueryResponse.js";
-export * from "./models/api/dap/IDapRemoveRequest.js";
-export * from "./models/api/dap/IDapUpdateRequest.js";
 export * from "./models/api/pap/IPapCreateRequest.js";
 export * from "./models/api/pap/IPapGetRequest.js";
 export * from "./models/api/pap/IPapGetResponse.js";
@@ -36,13 +28,6 @@ export * from "./models/api/pnp/IPnpNegotiateRequest.js";
 export * from "./models/api/pnp/IPnpNegotiationGetRequest.js";
 export * from "./models/api/pnp/IPnpOfferRequest.js";
 export * from "./models/api/pnp/IPnpTerminateRequest.js";
-export * from "./models/dap/IDataAccessHandler.js";
-export * from "./models/dap/IDataAccessPointComponent.js";
-export * from "./models/dap/IDataAccessRequestPointComponent.js";
-export * from "./models/dap/jsonLd/IDataAccessQuery.js";
-export * from "./models/dap/jsonLd/IDataAccessQueryResponse.js";
-export * from "./models/dap/jsonLd/IDataAccessRequest.js";
-export * from "./models/dap/jsonLd/IDataAccessRequestWithObject.js";
 export * from "./models/IPolicyLocator.js";
 export * from "./models/pap/IPolicyAdministrationPointComponent.js";
 export * from "./models/pdp/IPolicyArbiter.js";

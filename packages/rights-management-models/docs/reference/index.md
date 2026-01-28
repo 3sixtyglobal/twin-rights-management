@@ -8,13 +8,6 @@
 ## Interfaces
 
 - [IPolicyLocator](interfaces/IPolicyLocator.md)
-- [IDapCreateRequest](interfaces/IDapCreateRequest.md)
-- [IDapGetRequest](interfaces/IDapGetRequest.md)
-- [IDapGetResponse](interfaces/IDapGetResponse.md)
-- [IDapQueryRequest](interfaces/IDapQueryRequest.md)
-- [IDapQueryResponse](interfaces/IDapQueryResponse.md)
-- [IDapRemoveRequest](interfaces/IDapRemoveRequest.md)
-- [IDapUpdateRequest](interfaces/IDapUpdateRequest.md)
 - [IPapCreateRequest](interfaces/IPapCreateRequest.md)
 - [IPapGetRequest](interfaces/IPapGetRequest.md)
 - [IPapGetResponse](interfaces/IPapGetResponse.md)
@@ -37,13 +30,6 @@
 - [IPnpNegotiationGetRequest](interfaces/IPnpNegotiationGetRequest.md)
 - [IPnpOfferRequest](interfaces/IPnpOfferRequest.md)
 - [IPnpTerminateRequest](interfaces/IPnpTerminateRequest.md)
-- [IDataAccessHandler](interfaces/IDataAccessHandler.md)
-- [IDataAccessPointComponent](interfaces/IDataAccessPointComponent.md)
-- [IDataAccessRequestPointComponent](interfaces/IDataAccessRequestPointComponent.md)
-- [IDataAccessQuery](interfaces/IDataAccessQuery.md)
-- [IDataAccessQueryResponse](interfaces/IDataAccessQueryResponse.md)
-- [IDataAccessRequest](interfaces/IDataAccessRequest.md)
-- [IDataAccessRequestWithObject](interfaces/IDataAccessRequestWithObject.md)
 - [IPolicyAdministrationPointComponent](interfaces/IPolicyAdministrationPointComponent.md)
 - [IPolicyArbiter](interfaces/IPolicyArbiter.md)
 - [IPolicyDecision](interfaces/IPolicyDecision.md)
@@ -74,7 +60,6 @@
 
 ## Variables
 
-- [DataAccessHandlerFactory](variables/DataAccessHandlerFactory.md)
 - [PolicyArbiterFactory](variables/PolicyArbiterFactory.md)
 - [PolicyEnforcementProcessorFactory](variables/PolicyEnforcementProcessorFactory.md)
 - [PolicyExecutionActionFactory](variables/PolicyExecutionActionFactory.md)

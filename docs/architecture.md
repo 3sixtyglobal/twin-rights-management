@@ -22,40 +22,6 @@ Implemented architectural components:
 - [Policy Enforcement Point (PEP)](#policy-enforcement-point-pep)
 - [Policy Negotiation Point (PNP)](#policy-negotiation-point-pnp)
 - [Policy Negotiation Admin Point (PNAP)](#policy-negotiation-admin-point-pnap)
-- [Data Access Point (DAP)](#data-access-point-dap)
-- [Data Access Request Point (DARP)](#data-access-request-point-darp)
-
-## Component Overview Diagram
-
-```mermaid
-flowchart LR
-  subgraph Authoring
-    PAP["PAP - Policy Administration"]
-    PMP["PMP - Policy Management"]
-  end
-  subgraph Decision
-    PIP["PIP - Information"]
-    PDP["PDP - Decision"]
-    PXP["PXP - Execution Hooks"]
-    PEP["PEP - Enforcement"]
-  end
-  subgraph Negotiation
-    PNP["PNP - Negotiation"]
-    PNAP["PNAP - Negotiation Admin"]
-  end
-  subgraph Data
-    DAP["DAP - Data Access"]
-    DARP["DARP - Data Access Request"]
-  end
-  ID["Identity Connector"]:::ext --> PAP
-  ID --> PNP
-  ID --> DAP
-  PAP --> PMP --> PDP
-  PIP --> PDP
-  PDP --> PXP --> PEP --> DAP
-  PNP --> PAP
-  DARP --> DAP
-```
 
 ## Concepts
 
@@ -216,8 +182,6 @@ const processedAigDocument = await pep.intercept({
 
 Embedding the PEP directly inside component‑specific REST endpoints constrains cross‑node interoperability: authorization remains bound to the nodes internal credential domain, preventing external nodes from invoking those endpoints via standardized rights‑management tokens.
 
-For broader external exposure of a component's data without modifying its internal implementation, prefer the [DAP](#data-access-point-dap) which provides a method for registering a handler for a services asset classes.
-
 ## Policy Negotiation Point (PNP)
 
 The PNP implements the [IDS Contract Negotiation](https://docs.internationaldataspaces.org/ids-knowledgebase/dataspace-protocol/contract-negotiation/contract.negotiation.protocol) state machine, producing Agreements from Offers through bilateral interaction.
@@ -250,63 +214,6 @@ Functions:
 - Apply administrative decisions (approve, reject, inject amended terms).
 - Resume or terminate negotiations with auditable rationale.
 
-## Data Access Point (DAP)
-
-DAP mediates data asset CRUD + query operations and integrates PEP enforcement.
-
-Responsibilities:
-
-- Register asset-type specific `Handlers` implementing canonical CRUD + query contract.
-- Authorize inbound operations by invoking PEP (which cascades to PDP) prior to handler execution (except where explicitly marked public).
-- Propagate enforcement-modified data (e.g. redactions) back to the caller.
-
-e.g. Auditable Item Graph (AIG)
-
-The AIG registers an asset-type specific `Handler` via the DAP to expose its data through the unified rights-management enforcement pipeline.
-
-Benefits:
-
-1. External (cross-node) consumers cannot rely on the AIG's internal/auth-local routes; instead they traverse a path protected by standardized authorization + PDP/PEP evaluation.
-2. Enforcement (permit/deny, redaction, obligation-triggered transformations) is applied centrally by the DAP/PEP chain without invasive modifications to existing AIG domain logic.
-
-Illustrative registration:
-
-```ts
-dap.registerHandler({
-  supportedAssetTypes(): ["aig:AuditableItemGraphVertex"],
-  async create(assetType: string, item: IJsonLdNodeObject): Promise<string>,
-  async read(assetType: string, id: string): Promise<IJsonLdNodeObject>,
-  async update(assetType: string, item: IJsonLdNodeObject): Promise<void>),
-  async remove(assetType: string, id: string),
-  async query(assetType: string, conditions, cursor?: string, options?: unknown): Promise<{items: IJsonLdNodeObject[], cursor?: string}>
-});
-```
-
-The query method has an `options` parameter which can be handler specific, for example the AIG can accept include `id` and `idMode` in a query.
-
-## DAP Runtime Enforcement
-
-At runtime the DAP invokes enforcement at the following points:
-
-| Operation | ODRL Pre Action | ODRL Post Action | Enforcement Effect                                                              |
-| --------- | --------------- | ---------------- | ------------------------------------------------------------------------------- |
-| Create    | `write`         | -                | Policy may transform or validate input prior to persistence.                    |
-| Read      | `use`           | `read`           | Authorization; response may be filtered, redacted or augmented.                 |
-| Update    | `modify`        | -                | Policy may constrain or transform the updated content.                          |
-| Remove    | `delete`        | -                | Authorization check permits deletion.                                           |
-| Query     | `use`           | `read`           | Authorization; per-item filtering/redaction/augmentation applied to result set. |
-
-## Data Access Request Point (DARP)
-
-DARP acts as an outbound client for remote DAP endpoints. Given the target Node URL and desired `assetType` (plus operation parameters), it:
-
-1. Constructs and signs the required authorization token (see Authorization section).
-2. Performs any required negotiation bootstrap if no valid Agreement exists (future enhancement if not yet implemented).
-3. Issues the HTTP request with appropriate headers.
-4. Validates response (status, signature/attestation if provided) and returns data to caller.
-
-Error handling includes classification of network, authorization, negotiation, and remote enforcement failures.
-
 ## Extensibility Patterns
 
 | Extension             | Interface                     | Register Via               | Notes                                                                                 |
@@ -314,7 +221,6 @@ Error handling includes classification of network, authorization, negotiation, a
 | Arbiter               | `IPolicyArbiter`              | `registerArbiter` (PDP)    | Multiple arbiters aggregated; conflict resolution strategy documented per deployment. |
 | Negotiator            | `IPolicyNegotiator`           | `registerNegotiator` (PNP) | First supporting negotiator selected (ordered probing).                               |
 | Requester             | `IPolicyRequester`            | `registerRequester` (PNP)  | Receives lifecycle callbacks (offer, agreement, finalised, terminated).               |
-| Data Handler          | `IDataAccessHandler`          | `registerHandler` (DAP)    | Asset-type specific CRUD + query.                                                     |
 | Information Source    | `IPolicyInformationSource`    | `registerSource` (PIP)     | Provides contextual facts (public/private partition).                                 |
 | Enforcement Processor | `IPolicyEnforcementProcessor` | `registerProcessor` (PEP)  | Sequential data transformation; ordering deterministic.                               |
 | Execution Action      | `IPolicyExecutionAction`      | `registerAction` (PXP)     | Pre-/post-evaluation interception.                                                    |

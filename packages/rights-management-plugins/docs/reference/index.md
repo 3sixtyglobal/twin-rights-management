@@ -2,7 +2,6 @@
 
 ## Classes
 
-- [ExampleDataAccessHandler](classes/ExampleDataAccessHandler.md)
 - [ExamplePolicyArbiter](classes/ExamplePolicyArbiter.md)
 - [ExamplePolicyEnforcementProcessor](classes/ExamplePolicyEnforcementProcessor.md)
 - [LoggingPolicyExecutionAction](classes/LoggingPolicyExecutionAction.md)

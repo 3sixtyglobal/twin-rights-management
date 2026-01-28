@@ -7,7 +7,6 @@
 	"packages/rights-management-pmp-service": "0.0.3-next.9",
 	"packages/rights-management-pnp-service": "0.0.3-next.9",
 	"packages/rights-management-pxp-service": "0.0.3-next.9",
-	"packages/rights-management-dap-service": "0.0.3-next.9",
 	"packages/rights-management-service": "0.0.3-next.9",
 	"packages/rights-management-rest-client": "0.0.3-next.9",
 	"packages/rights-management-plugins": "0.0.3-next.9"

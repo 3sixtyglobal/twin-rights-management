@@ -1,6 +1,5 @@
 // Copyright 2025 IOTA Stiftung.
 // SPDX-License-Identifier: Apache-2.0.
-export * from "./dataAccessHandlers/examplePolicyRequester.js";
 export * from "./models/IExampleDataAccessHandlerConstructorOptions.js";
 export * from "./models/IExamplePolicyArbiterConstructorOptions.js";
 export * from "./models/IExamplePolicyEnforcementProcessorConstructorOptions.js";
