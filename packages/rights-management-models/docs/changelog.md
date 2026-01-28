@@ -1,5 +1,12 @@
 # @twin.org/rights-management-models - Changelog
 
+## [0.0.3-next.10](https://github.com/twinfoundation/rights-management/compare/rights-management-models-v0.0.3-next.9...rights-management-models-v0.0.3-next.10) (2026-01-28)
+
+
+### Features
+
+* remove data access point ([#67](https://github.com/twinfoundation/rights-management/issues/67)) ([8573676](https://github.com/twinfoundation/rights-management/commit/8573676862c9f1634a66a0677b225b4de16a89cd))
+
 ## [0.0.3-next.9](https://github.com/twinfoundation/rights-management/compare/rights-management-models-v0.0.3-next.8...rights-management-models-v0.0.3-next.9) (2026-01-26)
 
 

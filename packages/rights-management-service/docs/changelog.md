@@ -1,5 +1,28 @@
 # @twin.org/rights-management-pap-service - Changelog
 
+## [0.0.3-next.10](https://github.com/twinfoundation/rights-management/compare/rights-management-service-v0.0.3-next.9...rights-management-service-v0.0.3-next.10) (2026-01-28)
+
+
+### Features
+
+* remove data access point ([#67](https://github.com/twinfoundation/rights-management/issues/67)) ([8573676](https://github.com/twinfoundation/rights-management/commit/8573676862c9f1634a66a0677b225b4de16a89cd))
+* update naming ([e75ae80](https://github.com/twinfoundation/rights-management/commit/e75ae80dcf3d8099a1dea32ef498efb640de52ef))
+
+
+### Dependencies
+
+* The following workspace dependencies were updated
+  * dependencies
+    * @twin.org/rights-management-models bumped from 0.0.3-next.9 to 0.0.3-next.10
+  * devDependencies
+    * @twin.org/rights-management-pap-service bumped from 0.0.3-next.9 to 0.0.3-next.10
+    * @twin.org/rights-management-pdp-service bumped from 0.0.3-next.9 to 0.0.3-next.10
+    * @twin.org/rights-management-pep-service bumped from 0.0.3-next.9 to 0.0.3-next.10
+    * @twin.org/rights-management-pip-service bumped from 0.0.3-next.9 to 0.0.3-next.10
+    * @twin.org/rights-management-pmp-service bumped from 0.0.3-next.9 to 0.0.3-next.10
+    * @twin.org/rights-management-pnp-service bumped from 0.0.3-next.9 to 0.0.3-next.10
+    * @twin.org/rights-management-pxp-service bumped from 0.0.3-next.9 to 0.0.3-next.10
+
 ## [0.0.3-next.9](https://github.com/twinfoundation/rights-management/compare/rights-management-service-v0.0.3-next.8...rights-management-service-v0.0.3-next.9) (2026-01-26)
 
 
