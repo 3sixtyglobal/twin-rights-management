@@ -61,4 +61,3 @@ export * from "./models/rightsManagementNamespaces.js";
 export * from "./models/rightsManagementTypes.js";
 export * from "./utils/locatorHelper.js";
 export * from "./utils/odrlPolicyHelper.js";
-
