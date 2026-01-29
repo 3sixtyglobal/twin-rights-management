@@ -1,6 +1,7 @@
 // Copyright 2025 IOTA Stiftung.
 // SPDX-License-Identifier: Apache-2.0.
 import {
+	BaseError,
 	ComponentFactory,
 	GeneralError,
 	Guards,
@@ -22,7 +23,14 @@ import {
 	RightsManagementNamespaces,
 	type IPolicyAdministrationPointComponent
 } from "@twin.org/rights-management-models";
-import { OdrlDataTypes, type IOdrlPolicy } from "@twin.org/standards-w3c-odrl";
+import {
+	type IOdrlAgreement,
+	type IOdrlOffer,
+	type IOdrlSet,
+	OdrlDataTypes,
+	PolicyType,
+	type IOdrlPolicy
+} from "@twin.org/standards-w3c-odrl";
 import type { OdrlPolicy } from "./entities/odrlPolicy.js";
 import type { IPolicyAdministrationPointServiceConstructorOptions } from "./models/IPolicyAdministrationPointServiceConstructorOptions.js";
 import { convertFromStoragePolicy, convertToStoragePolicy } from "./utils/odrlPolicyConverters.js";
@@ -155,15 +163,129 @@ export class PolicyAdministrationPointService implements IPolicyAdministrationPo
 	public async get(policyId: string): Promise<IOdrlPolicy> {
 		Guards.stringValue(PolicyAdministrationPointService.CLASS_NAME, nameof(policyId), policyId);
 
-		const storagePolicy = await this._odrlPolicyEntityStorage.get(policyId);
-		if (!storagePolicy) {
+		let policy;
+		try {
+			policy = await this._odrlPolicyEntityStorage.get(policyId);
+		} catch (err) {
+			if (!BaseError.isErrorName(err, NotFoundError.CLASS_NAME)) {
+				throw err;
+			}
+		}
+
+		if (Is.empty(policy)) {
 			throw new NotFoundError(
 				PolicyAdministrationPointService.CLASS_NAME,
 				"policyNotFound",
 				policyId
 			);
 		}
-		return convertFromStoragePolicy(storagePolicy);
+
+		return convertFromStoragePolicy<IOdrlAgreement>(policy);
+	}
+
+	/**
+	 * Get an agreement from the entity storage.
+	 * @param agreementId The ID of the agreement to get.
+	 * @returns The agreement.
+	 */
+	public async getAgreement(agreementId: string): Promise<IOdrlAgreement> {
+		Guards.stringValue(
+			PolicyAdministrationPointService.CLASS_NAME,
+			nameof(agreementId),
+			agreementId
+		);
+
+		let policy;
+		try {
+			policy = await this._odrlPolicyEntityStorage.get(agreementId);
+		} catch (err) {
+			if (!BaseError.isErrorName(err, NotFoundError.CLASS_NAME)) {
+				throw err;
+			}
+		}
+
+		if (Is.empty(policy)) {
+			throw new NotFoundError(
+				PolicyAdministrationPointService.CLASS_NAME,
+				"agreementNotFound",
+				agreementId
+			);
+		}
+
+		if (policy["@type"] !== PolicyType.Agreement) {
+			throw new GeneralError(PolicyAdministrationPointService.CLASS_NAME, "agreementTypeMismatch", {
+				agreementId,
+				type: policy["@type"]
+			});
+		}
+
+		return convertFromStoragePolicy<IOdrlAgreement>(policy);
+	}
+
+	/**
+	 * Get an offer from the entity storage.
+	 * @param offerId The ID of the offer to get.
+	 * @returns The offer.
+	 */
+	public async getOffer(offerId: string): Promise<IOdrlOffer> {
+		Guards.stringValue(PolicyAdministrationPointService.CLASS_NAME, nameof(offerId), offerId);
+
+		let policy;
+		try {
+			policy = await this._odrlPolicyEntityStorage.get(offerId);
+		} catch (err) {
+			if (!BaseError.isErrorName(err, NotFoundError.CLASS_NAME)) {
+				throw err;
+			}
+		}
+
+		if (Is.empty(policy)) {
+			throw new NotFoundError(
+				PolicyAdministrationPointService.CLASS_NAME,
+				"offerNotFound",
+				offerId
+			);
+		}
+
+		if (policy["@type"] !== PolicyType.Offer) {
+			throw new GeneralError(PolicyAdministrationPointService.CLASS_NAME, "offerTypeMismatch", {
+				offerId,
+				type: policy["@type"]
+			});
+		}
+
+		return convertFromStoragePolicy<IOdrlOffer>(policy);
+	}
+
+	/**
+	 * Get a set from the entity storage.
+	 * @param setId The ID of the set to get.
+	 * @returns The set.
+	 */
+	public async getSet(setId: string): Promise<IOdrlSet> {
+		Guards.stringValue(PolicyAdministrationPointService.CLASS_NAME, nameof(setId), setId);
+
+		let policy;
+		try {
+			policy = await this._odrlPolicyEntityStorage.get(setId);
+		} catch (err) {
+			if (!BaseError.isErrorName(err, NotFoundError.CLASS_NAME)) {
+				throw err;
+			}
+		}
+
+		if (Is.empty(policy)) {
+			throw new NotFoundError(PolicyAdministrationPointService.CLASS_NAME, "setNotFound", setId);
+		}
+
+		if (policy["@type"] !== PolicyType.Offer) {
+			throw new GeneralError(PolicyAdministrationPointService.CLASS_NAME, "setTypeMismatch", {
+				setId,
+				type: policy["@type"]
+			});
+		}
+
+		return convertFromStoragePolicy<IOdrlSet>(policy);
 	}
 
 	/**

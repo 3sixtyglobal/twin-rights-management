@@ -17,9 +17,20 @@ import type {
 	IPapGetRequest,
 	IPapGetResponse,
 	IPapUpdateRequest,
-	IPolicyAdministrationPointComponent
+	IPolicyAdministrationPointComponent,
+	IPapGetAgreementRequest,
+	IPapGetAgreementResponse,
+	IPapGetSetRequest,
+	IPapGetSetResponse,
+	IPapGetOfferRequest,
+	IPapGetOfferResponse
 } from "@twin.org/rights-management-models";
-import type { IOdrlPolicy } from "@twin.org/standards-w3c-odrl";
+import type {
+	IOdrlAgreement,
+	IOdrlOffer,
+	IOdrlPolicy,
+	IOdrlSet
+} from "@twin.org/standards-w3c-odrl";
 
 /**
  * Client for performing Rights Management Policy Administration through to REST endpoints.
@@ -102,6 +113,73 @@ export class PolicyAdministrationPointRestClient
 				id: policyId
 			}
 		});
+
+		return response.body;
+	}
+
+	/**
+	 * Get an agreement.
+	 * @param agreementId The id of the agreement to get.
+	 * @returns The agreement.
+	 */
+	public async getAgreement(agreementId: string): Promise<IOdrlAgreement> {
+		Guards.stringValue(
+			PolicyAdministrationPointRestClient.CLASS_NAME,
+			nameof(agreementId),
+			agreementId
+		);
+
+		const response = await this.fetch<IPapGetAgreementRequest, IPapGetAgreementResponse>(
+			"/policy/admin/agreement/:id",
+			"GET",
+			{
+				pathParams: {
+					id: agreementId
+				}
+			}
+		);
+
+		return response.body;
+	}
+
+	/**
+	 * Get a set.
+	 * @param setId The id of the set to get.
+	 * @returns The set.
+	 */
+	public async getSet(setId: string): Promise<IOdrlSet> {
+		Guards.stringValue(PolicyAdministrationPointRestClient.CLASS_NAME, nameof(setId), setId);
+
+		const response = await this.fetch<IPapGetSetRequest, IPapGetSetResponse>(
+			"/policy/admin/set/:id",
+			"GET",
+			{
+				pathParams: {
+					id: setId
+				}
+			}
+		);
+
+		return response.body;
+	}
+
+	/**
+	 * Get an offer.
+	 * @param offerId The id of the offer to get.
+	 * @returns The offer.
+	 */
+	public async getOffer(offerId: string): Promise<IOdrlOffer> {
+		Guards.stringValue(PolicyAdministrationPointRestClient.CLASS_NAME, nameof(offerId), offerId);
+
+		const response = await this.fetch<IPapGetOfferRequest, IPapGetOfferResponse>(
+			"/policy/admin/offer/:id",
+			"GET",
+			{
+				pathParams: {
+					id: offerId
+				}
+			}
+		);
 
 		return response.body;
 	}

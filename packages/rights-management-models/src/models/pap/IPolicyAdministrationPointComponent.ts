@@ -2,7 +2,12 @@
 // SPDX-License-Identifier: Apache-2.0.
 import type { IComponent } from "@twin.org/core";
 import type { EntityCondition } from "@twin.org/entity";
-import type { IOdrlPolicy } from "@twin.org/standards-w3c-odrl";
+import type {
+	IOdrlAgreement,
+	IOdrlOffer,
+	IOdrlPolicy,
+	IOdrlSet
+} from "@twin.org/standards-w3c-odrl";
 
 /**
  * Interface describing a Policy Administration Point (PAP) component that manages ODRL policies.
@@ -28,6 +33,27 @@ export interface IPolicyAdministrationPointComponent extends IComponent {
 	 * @returns The policy.
 	 */
 	get(policyId: string): Promise<IOdrlPolicy>;
+
+	/**
+	 * Get an agreement.
+	 * @param agreementId The id of the agreement to get.
+	 * @returns The agreement.
+	 */
+	getAgreement(agreementId: string): Promise<IOdrlAgreement>;
+
+	/**
+	 * Get a set.
+	 * @param setId The id of the set to get.
+	 * @returns The set.
+	 */
+	getSet(setId: string): Promise<IOdrlSet>;
+
+	/**
+	 * Get an offer.
+	 * @param offerId The id of the offer to get.
+	 * @returns The offer.
+	 */
+	getOffer(offerId: string): Promise<IOdrlOffer>;
 
 	/**
 	 * Remove a policy.

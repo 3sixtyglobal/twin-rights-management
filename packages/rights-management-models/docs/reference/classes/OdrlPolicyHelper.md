@@ -12,6 +12,14 @@ Helper methods for Odrl Policies.
 
 `OdrlPolicyHelper`
 
+## Properties
+
+### CLASS\_NAME
+
+> `readonly` `static` **CLASS\_NAME**: `string`
+
+The class name of the Policy Administration Point Service.
+
 ## Methods
 
 ### findExpirationDate()
@@ -209,3 +217,55 @@ The locator to match resource id if provided.
 `boolean`
 
 True if the complete locator matches, false otherwise.
+
+***
+
+### extractAssigneeIdentity()
+
+> `static` **extractAssigneeIdentity**(`policy`): `string`
+
+Extract assignee identity from policy.
+
+#### Parameters
+
+##### policy
+
+`IOdrlPolicy`
+
+The policy to extract the assignee from.
+
+#### Returns
+
+`string`
+
+Assignee id.
+
+#### Throws
+
+GeneralError if assignee is missing or invalid.
+
+***
+
+### extractAssignerIdentity()
+
+> `static` **extractAssignerIdentity**(`policy`): `string`
+
+Extract assigner identity from policy.
+
+#### Parameters
+
+##### policy
+
+`IOdrlPolicy`
+
+The policy to extract the assigner from.
+
+#### Returns
+
+`string`
+
+Assigner id.
+
+#### Throws
+
+GeneralError if assigner is missing or invalid.

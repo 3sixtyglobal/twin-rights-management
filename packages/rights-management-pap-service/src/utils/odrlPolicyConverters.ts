@@ -9,7 +9,7 @@ import { OdrlPolicy } from "../entities/odrlPolicy.js";
  * @param policy The policy to convert.
  * @returns The converted policy.
  */
-export function convertToStoragePolicy(policy: IOdrlPolicy): OdrlPolicy {
+export function convertToStoragePolicy<T extends IOdrlPolicy>(policy: T): OdrlPolicy {
 	const storagePolicy = new OdrlPolicy();
 	storagePolicy.uid = policy.uid;
 	storagePolicy["@type"] = policy["@type"];
@@ -33,7 +33,7 @@ export function convertToStoragePolicy(policy: IOdrlPolicy): OdrlPolicy {
  * @param storagePolicy The storage policy to convert.
  * @returns The converted IOdrlPolicy.
  */
-export function convertFromStoragePolicy(storagePolicy: OdrlPolicy): IOdrlPolicy {
+export function convertFromStoragePolicy<T extends IOdrlPolicy>(storagePolicy: OdrlPolicy): T {
 	const policy: IOdrlPolicy = {
 		uid: storagePolicy.uid,
 		"@type": storagePolicy["@type"],
@@ -51,5 +51,5 @@ export function convertFromStoragePolicy(storagePolicy: OdrlPolicy): IOdrlPolicy
 	policy.prohibition = storagePolicy.prohibition;
 	policy.obligation = storagePolicy.obligation;
 
-	return policy;
+	return policy as T;
 }

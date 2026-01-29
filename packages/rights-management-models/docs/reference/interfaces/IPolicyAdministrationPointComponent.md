@@ -74,6 +74,72 @@ The policy.
 
 ***
 
+### getAgreement()
+
+> **getAgreement**(`agreementId`): `Promise`\<`IOdrlAgreement`\>
+
+Get an agreement.
+
+#### Parameters
+
+##### agreementId
+
+`string`
+
+The id of the agreement to get.
+
+#### Returns
+
+`Promise`\<`IOdrlAgreement`\>
+
+The agreement.
+
+***
+
+### getSet()
+
+> **getSet**(`setId`): `Promise`\<`IOdrlSet`\>
+
+Get a set.
+
+#### Parameters
+
+##### setId
+
+`string`
+
+The id of the set to get.
+
+#### Returns
+
+`Promise`\<`IOdrlSet`\>
+
+The set.
+
+***
+
+### getOffer()
+
+> **getOffer**(`offerId`): `Promise`\<`IOdrlOffer`\>
+
+Get an offer.
+
+#### Parameters
+
+##### offerId
+
+`string`
+
+The id of the offer to get.
+
+#### Returns
+
+`Promise`\<`IOdrlOffer`\>
+
+The offer.
+
+***
+
 ### remove()
 
 > **remove**(`policyId`): `Promise`\<`void`\>

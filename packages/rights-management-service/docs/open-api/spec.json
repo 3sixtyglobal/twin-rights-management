@@ -580,6 +580,345 @@
 				}
 			}
 		},
+		"/rights-management/policy/admin/agreement/{id}": {
+			"get": {
+				"operationId": "papGetAgreement",
+				"summary": "Get a policy agreement",
+				"tags": [
+					"Policy Administration Point"
+				],
+				"parameters": [
+					{
+						"name": "id",
+						"description": "The ID of the agreement to get.",
+						"in": "path",
+						"required": true,
+						"schema": {
+							"type": "string"
+						},
+						"style": "simple",
+						"example": "urn:rights-management:abc123def456"
+					}
+				],
+				"security": [
+					{
+						"jwtBearerAuthScheme": []
+					}
+				],
+				"responses": {
+					"200": {
+						"description": "The response structure for getting an agreement.",
+						"content": {
+							"application/json": {
+								"schema": {
+									"$ref": "https://schema.twindev.org/w3c-odrl/OdrlAgreement"
+								},
+								"examples": {
+									"papGetResponseExample": {
+										"value": {
+											"@context": "http://www.w3.org/ns/odrl.jsonld",
+											"@type": "Agreement",
+											"uid": "urn:rights-management:abc123def456",
+											"permission": [
+												{
+													"target": "http://example.com/asset/1",
+													"action": "use"
+												}
+											],
+											"assignee": "did:example:receiver",
+											"assigner": "did:example:sender"
+										}
+									}
+								}
+							}
+						}
+					},
+					"400": {
+						"description": "The server cannot process the request, see the content for more details.",
+						"content": {
+							"application/json": {
+								"schema": {
+									"$ref": "#/components/schemas/Error"
+								},
+								"examples": {
+									"exampleResponse": {
+										"value": {
+											"name": "GeneralError",
+											"message": "errorMessage",
+											"properties": {
+												"foo": "bar"
+											}
+										}
+									}
+								}
+							}
+						}
+					},
+					"401": {
+						"description": "You are not authorized to use the API or no credentials were supplied, see the content for more details.",
+						"content": {
+							"application/json": {
+								"schema": {
+									"$ref": "#/components/schemas/Error"
+								},
+								"examples": {
+									"exampleResponse": {
+										"value": {
+											"name": "UnauthorizedError",
+											"message": "errorMessage"
+										}
+									}
+								}
+							}
+						}
+					},
+					"500": {
+						"description": "The server has encountered a situation it does not know how to handle, see the content for more details.",
+						"content": {
+							"application/json": {
+								"schema": {
+									"$ref": "#/components/schemas/Error"
+								},
+								"examples": {
+									"exampleResponse": {
+										"value": {
+											"name": "InternalServerError",
+											"message": "errorMessage"
+										}
+									}
+								}
+							}
+						}
+					}
+				}
+			}
+		},
+		"/rights-management/policy/admin/offer/{id}": {
+			"get": {
+				"operationId": "papGetOffer",
+				"summary": "Get a policy offer",
+				"tags": [
+					"Policy Administration Point"
+				],
+				"parameters": [
+					{
+						"name": "id",
+						"description": "The ID of the offer to get.",
+						"in": "path",
+						"required": true,
+						"schema": {
+							"type": "string"
+						},
+						"style": "simple",
+						"example": "urn:rights-management:abc123def456"
+					}
+				],
+				"security": [
+					{
+						"jwtBearerAuthScheme": []
+					}
+				],
+				"responses": {
+					"200": {
+						"description": "The response structure for getting an offer.",
+						"content": {
+							"application/json": {
+								"schema": {
+									"$ref": "https://schema.twindev.org/w3c-odrl/OdrlOffer"
+								},
+								"examples": {
+									"papGetResponseExample": {
+										"value": {
+											"@context": "http://www.w3.org/ns/odrl.jsonld",
+											"@type": "Offer",
+											"uid": "urn:rights-management:abc123def456",
+											"permission": [
+												{
+													"target": "http://example.com/asset/1",
+													"action": "use"
+												}
+											],
+											"assignee": "did:example:receiver",
+											"assigner": "did:example:sender"
+										}
+									}
+								}
+							}
+						}
+					},
+					"400": {
+						"description": "The server cannot process the request, see the content for more details.",
+						"content": {
+							"application/json": {
+								"schema": {
+									"$ref": "#/components/schemas/Error"
+								},
+								"examples": {
+									"exampleResponse": {
+										"value": {
+											"name": "GeneralError",
+											"message": "errorMessage",
+											"properties": {
+												"foo": "bar"
+											}
+										}
+									}
+								}
+							}
+						}
+					},
+					"401": {
+						"description": "You are not authorized to use the API or no credentials were supplied, see the content for more details.",
+						"content": {
+							"application/json": {
+								"schema": {
+									"$ref": "#/components/schemas/Error"
+								},
+								"examples": {
+									"exampleResponse": {
+										"value": {
+											"name": "UnauthorizedError",
+											"message": "errorMessage"
+										}
+									}
+								}
+							}
+						}
+					},
+					"500": {
+						"description": "The server has encountered a situation it does not know how to handle, see the content for more details.",
+						"content": {
+							"application/json": {
+								"schema": {
+									"$ref": "#/components/schemas/Error"
+								},
+								"examples": {
+									"exampleResponse": {
+										"value": {
+											"name": "InternalServerError",
+											"message": "errorMessage"
+										}
+									}
+								}
+							}
+						}
+					}
+				}
+			}
+		},
+		"/rights-management/policy/admin/set/{id}": {
+			"get": {
+				"operationId": "papGetSet",
+				"summary": "Get a policy set",
+				"tags": [
+					"Policy Administration Point"
+				],
+				"parameters": [
+					{
+						"name": "id",
+						"description": "The ID of the set to get.",
+						"in": "path",
+						"required": true,
+						"schema": {
+							"type": "string"
+						},
+						"style": "simple",
+						"example": "urn:rights-management:abc123def456"
+					}
+				],
+				"security": [
+					{
+						"jwtBearerAuthScheme": []
+					}
+				],
+				"responses": {
+					"200": {
+						"description": "The response structure for getting a set.",
+						"content": {
+							"application/json": {
+								"schema": {
+									"$ref": "https://schema.twindev.org/w3c-odrl/OdrlSet"
+								},
+								"examples": {
+									"papGetResponseExample": {
+										"value": {
+											"@context": "http://www.w3.org/ns/odrl.jsonld",
+											"@type": "Set",
+											"uid": "urn:rights-management:abc123def456",
+											"permission": [
+												{
+													"target": "http://example.com/asset/1",
+													"action": "use"
+												}
+											],
+											"assignee": "did:example:receiver",
+											"assigner": "did:example:sender"
+										}
+									}
+								}
+							}
+						}
+					},
+					"400": {
+						"description": "The server cannot process the request, see the content for more details.",
+						"content": {
+							"application/json": {
+								"schema": {
+									"$ref": "#/components/schemas/Error"
+								},
+								"examples": {
+									"exampleResponse": {
+										"value": {
+											"name": "GeneralError",
+											"message": "errorMessage",
+											"properties": {
+												"foo": "bar"
+											}
+										}
+									}
+								}
+							}
+						}
+					},
+					"401": {
+						"description": "You are not authorized to use the API or no credentials were supplied, see the content for more details.",
+						"content": {
+							"application/json": {
+								"schema": {
+									"$ref": "#/components/schemas/Error"
+								},
+								"examples": {
+									"exampleResponse": {
+										"value": {
+											"name": "UnauthorizedError",
+											"message": "errorMessage"
+										}
+									}
+								}
+							}
+						}
+					},
+					"500": {
+						"description": "The server has encountered a situation it does not know how to handle, see the content for more details.",
+						"content": {
+							"application/json": {
+								"schema": {
+									"$ref": "#/components/schemas/Error"
+								},
+								"examples": {
+									"exampleResponse": {
+										"value": {
+											"name": "InternalServerError",
+											"message": "errorMessage"
+										}
+									}
+								}
+							}
+						}
+					}
+				}
+			}
+		},
 		"/rights-management/negotiations/{id}": {
 			"get": {
 				"operationId": "pnpGetNegotiation",

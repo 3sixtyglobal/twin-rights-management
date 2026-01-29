@@ -2,7 +2,13 @@
 	"error": {
 		"policyAdministrationPointService": {
 			"namespaceMismatch": "The namespace in the urn \"{id}\" does not match the namespace of the rights management components \"{namespace}\"",
-			"policyNotFound": "Policy not found with id: \"{notFoundId}\""
+			"policyNotFound": "Policy not found with id: \"{notFoundId}\"",
+			"agreementNotFound": "Agreement not found with id: \"{notFoundId}\"",
+			"agreementTypeMismatch": "The policy with id: \"{agreementId}\" is not of type Agreement, it is of type: \"{type}\".",
+			"offerNotFound": "Offer not found with id: \"{notFoundId}\"",
+			"offerTypeMismatch": "The policy with id: \"{offerId}\" is not of type Offer, it is of type: \"{type}\".",
+			"setNotFound": "Set not found with id: \"{notFoundId}\"",
+			"setTypeMismatch": "The policy with id: \"{setId}\" is not of type Set, it is of type: \"{type}\"."
 		}
 	}
 }

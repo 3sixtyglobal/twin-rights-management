@@ -1,14 +1,20 @@
 # Function: convertToStoragePolicy()
 
-> **convertToStoragePolicy**(`policy`): [`OdrlPolicy`](../classes/OdrlPolicy.md)
+> **convertToStoragePolicy**\<`T`\>(`policy`): [`OdrlPolicy`](../classes/OdrlPolicy.md)
 
 Converts an IOdrlPolicy to an OdrlPolicy for storage.
+
+## Type Parameters
+
+### T
+
+`T` *extends* `IOdrlPolicy`
 
 ## Parameters
 
 ### policy
 
-`IOdrlPolicy`
+`T`
 
 The policy to convert.
 

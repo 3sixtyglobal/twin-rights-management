@@ -1,6 +1,7 @@
 // Copyright 2025 IOTA Stiftung.
 // SPDX-License-Identifier: Apache-2.0.
-import { Is } from "@twin.org/core";
+import { GeneralError, Guards, Is } from "@twin.org/core";
+import { nameof } from "@twin.org/nameof";
 import type { IOdrlPolicy } from "@twin.org/standards-w3c-odrl";
 import type { IPolicyLocator } from "../models/IPolicyLocator.js";
 
@@ -8,6 +9,11 @@ import type { IPolicyLocator } from "../models/IPolicyLocator.js";
  * Helper methods for Odrl Policies.
  */
 export class OdrlPolicyHelper {
+	/**
+	 * The class name of the Policy Administration Point Service.
+	 */
+	public static readonly CLASS_NAME: string = nameof<OdrlPolicyHelper>();
+
 	/**
 	 * Find the expiration date of the policy.
 	 * @param policy The policy to check.
@@ -162,5 +168,49 @@ export class OdrlPolicyHelper {
 		const assigneeMatch = OdrlPolicyHelper.matchAssignee(assignee, locator?.assignee);
 		const actionMatch = OdrlPolicyHelper.matchAction(action, locator?.action);
 		return assetTypeMatch && assigneeMatch && actionMatch;
+	}
+
+	/**
+	 * Extract assignee identity from policy.
+	 * @param policy The policy to extract the assignee from.
+	 * @returns Assignee id.
+	 * @throws GeneralError if assignee is missing or invalid.
+	 */
+	public static extractAssigneeIdentity(policy: IOdrlPolicy): string {
+		if (Is.empty(policy.assignee)) {
+			throw new GeneralError(OdrlPolicyHelper.CLASS_NAME, "policyMissingAssignee", {
+				policyType: policy.type,
+				policyId: policy.uid
+			});
+		}
+
+		// Handle both string and IOdrlParty formats
+		const assignee = Is.string(policy.assignee) ? policy.assignee : policy.assignee.uid;
+
+		Guards.stringValue(OdrlPolicyHelper.CLASS_NAME, nameof(assignee), assignee);
+
+		return assignee;
+	}
+
+	/**
+	 * Extract assigner identity from policy.
+	 * @param policy The policy to extract the assigner from.
+	 * @returns Assigner id.
+	 * @throws GeneralError if assigner is missing or invalid.
+	 */
+	public static extractAssignerIdentity(policy: IOdrlPolicy): string {
+		if (Is.empty(policy.assigner)) {
+			throw new GeneralError(OdrlPolicyHelper.CLASS_NAME, "policyMissingAssigner", {
+				policyType: policy.type,
+				policyId: policy.uid
+			});
+		}
+
+		// Handle both string and IOdrlParty formats
+		const assigner = Is.string(policy.assigner) ? policy.assigner : policy.assigner.uid;
+
+		Guards.stringValue(OdrlPolicyHelper.CLASS_NAME, nameof(assigner), assigner);
+
+		return assigner;
 	}
 }

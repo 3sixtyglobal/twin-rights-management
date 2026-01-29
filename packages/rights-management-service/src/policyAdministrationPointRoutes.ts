@@ -12,8 +12,14 @@ import { Coerce, ComponentFactory, Guards } from "@twin.org/core";
 import { nameof } from "@twin.org/nameof";
 import type {
 	IPapCreateRequest,
+	IPapGetAgreementRequest,
+	IPapGetAgreementResponse,
+	IPapGetOfferRequest,
+	IPapGetOfferResponse,
 	IPapGetRequest,
 	IPapGetResponse,
+	IPapGetSetRequest,
+	IPapGetSetResponse,
 	IPapQueryRequest,
 	IPapQueryResponse,
 	IPapRemoveRequest,
@@ -179,6 +185,150 @@ export function generateRestRoutesPolicyAdministrationPoint(
 		]
 	};
 
+	const papGetAgreementRoute: IRestRoute<IPapGetAgreementRequest, IPapGetAgreementResponse> = {
+		operationId: "papGetAgreement",
+		summary: "Get a policy agreement",
+		tag: papTags[0].name,
+		method: "GET",
+		path: `${baseRouteName}/policy/admin/agreement/:id`,
+		handler: async (httpRequestContext, request) =>
+			papGetAgreement(httpRequestContext, componentName, request),
+		requestType: {
+			type: nameof<IPapGetAgreementRequest>(),
+			examples: [
+				{
+					id: "papGetAgreementRequestExample",
+					request: {
+						pathParams: {
+							id: "urn:rights-management:abc123def456"
+						}
+					}
+				}
+			]
+		},
+		responseType: [
+			{
+				type: nameof<IPapGetAgreementResponse>(),
+				examples: [
+					{
+						id: "papGetResponseExample",
+						response: {
+							body: {
+								"@context": OdrlContexts.Context,
+								"@type": "Agreement",
+								uid: "urn:rights-management:abc123def456",
+								permission: [
+									{
+										target: "http://example.com/asset/1",
+										action: "use"
+									}
+								],
+								assignee: "did:example:receiver",
+								assigner: "did:example:sender"
+							}
+						}
+					}
+				]
+			}
+		]
+	};
+
+	const papGetOfferRoute: IRestRoute<IPapGetOfferRequest, IPapGetOfferResponse> = {
+		operationId: "papGetOffer",
+		summary: "Get a policy offer",
+		tag: papTags[0].name,
+		method: "GET",
+		path: `${baseRouteName}/policy/admin/offer/:id`,
+		handler: async (httpRequestContext, request) =>
+			papGetOffer(httpRequestContext, componentName, request),
+		requestType: {
+			type: nameof<IPapGetOfferRequest>(),
+			examples: [
+				{
+					id: "papGetOfferRequestExample",
+					request: {
+						pathParams: {
+							id: "urn:rights-management:abc123def456"
+						}
+					}
+				}
+			]
+		},
+		responseType: [
+			{
+				type: nameof<IPapGetOfferResponse>(),
+				examples: [
+					{
+						id: "papGetResponseExample",
+						response: {
+							body: {
+								"@context": OdrlContexts.Context,
+								"@type": "Offer",
+								uid: "urn:rights-management:abc123def456",
+								permission: [
+									{
+										target: "http://example.com/asset/1",
+										action: "use"
+									}
+								],
+								assignee: "did:example:receiver",
+								assigner: "did:example:sender"
+							}
+						}
+					}
+				]
+			}
+		]
+	};
+
+	const papGetSetRoute: IRestRoute<IPapGetSetRequest, IPapGetSetResponse> = {
+		operationId: "papGetSet",
+		summary: "Get a policy set",
+		tag: papTags[0].name,
+		method: "GET",
+		path: `${baseRouteName}/policy/admin/set/:id`,
+		handler: async (httpRequestContext, request) =>
+			papGetSet(httpRequestContext, componentName, request),
+		requestType: {
+			type: nameof<IPapGetSetRequest>(),
+			examples: [
+				{
+					id: "papGetSetRequestExample",
+					request: {
+						pathParams: {
+							id: "urn:rights-management:abc123def456"
+						}
+					}
+				}
+			]
+		},
+		responseType: [
+			{
+				type: nameof<IPapGetSetResponse>(),
+				examples: [
+					{
+						id: "papGetResponseExample",
+						response: {
+							body: {
+								"@context": OdrlContexts.Context,
+								"@type": "Set",
+								uid: "urn:rights-management:abc123def456",
+								permission: [
+									{
+										target: "http://example.com/asset/1",
+										action: "use"
+									}
+								],
+								assignee: "did:example:receiver",
+								assigner: "did:example:sender"
+							}
+						}
+					}
+				]
+			}
+		]
+	};
+
 	const papRemoveRoute: IRestRoute<IPapRemoveRequest, INoContentResponse> = {
 		operationId: "papRemove",
 		summary: "Remove a policy",
@@ -258,7 +408,16 @@ export function generateRestRoutesPolicyAdministrationPoint(
 		]
 	};
 
-	return [papCreateRoute, papUpdateRoute, papGetRoute, papRemoveRoute, papQueryRoute];
+	return [
+		papCreateRoute,
+		papUpdateRoute,
+		papGetRoute,
+		papGetAgreementRoute,
+		papGetOfferRoute,
+		papGetSetRoute,
+		papRemoveRoute,
+		papQueryRoute
+	];
 }
 
 /**
@@ -336,6 +495,90 @@ export async function papGet(
 
 	const component = ComponentFactory.get<IPolicyAdministrationPointComponent>(componentName);
 	const policy = await component.get(request.pathParams.id);
+
+	return {
+		body: policy
+	};
+}
+
+/**
+ * PAP: Get a agreement.
+ * @param httpRequestContext The request context for the API.
+ * @param componentName The name of the component to use in the routes.
+ * @param request The request.
+ * @returns The response object with additional http response properties.
+ */
+export async function papGetAgreement(
+	httpRequestContext: IHttpRequestContext,
+	componentName: string,
+	request: IPapGetAgreementRequest
+): Promise<IPapGetAgreementResponse> {
+	Guards.object<IPapGetAgreementRequest>(ROUTES_SOURCE, nameof(request), request);
+	Guards.object<IPapGetAgreementRequest["pathParams"]>(
+		ROUTES_SOURCE,
+		nameof(request.pathParams),
+		request.pathParams
+	);
+	Guards.stringValue(ROUTES_SOURCE, nameof(request.pathParams.id), request.pathParams.id);
+
+	const component = ComponentFactory.get<IPolicyAdministrationPointComponent>(componentName);
+	const policy = await component.getAgreement(request.pathParams.id);
+
+	return {
+		body: policy
+	};
+}
+
+/**
+ * PAP: Get an offer.
+ * @param httpRequestContext The request context for the API.
+ * @param componentName The name of the component to use in the routes.
+ * @param request The request.
+ * @returns The response object with additional http response properties.
+ */
+export async function papGetOffer(
+	httpRequestContext: IHttpRequestContext,
+	componentName: string,
+	request: IPapGetOfferRequest
+): Promise<IPapGetOfferResponse> {
+	Guards.object<IPapGetOfferRequest>(ROUTES_SOURCE, nameof(request), request);
+	Guards.object<IPapGetOfferRequest["pathParams"]>(
+		ROUTES_SOURCE,
+		nameof(request.pathParams),
+		request.pathParams
+	);
+	Guards.stringValue(ROUTES_SOURCE, nameof(request.pathParams.id), request.pathParams.id);
+
+	const component = ComponentFactory.get<IPolicyAdministrationPointComponent>(componentName);
+	const policy = await component.getOffer(request.pathParams.id);
+
+	return {
+		body: policy
+	};
+}
+
+/**
+ * PAP: Get a set.
+ * @param httpRequestContext The request context for the API.
+ * @param componentName The name of the component to use in the routes.
+ * @param request The request.
+ * @returns The response object with additional http response properties.
+ */
+export async function papGetSet(
+	httpRequestContext: IHttpRequestContext,
+	componentName: string,
+	request: IPapGetSetRequest
+): Promise<IPapGetSetResponse> {
+	Guards.object<IPapGetSetRequest>(ROUTES_SOURCE, nameof(request), request);
+	Guards.object<IPapGetSetRequest["pathParams"]>(
+		ROUTES_SOURCE,
+		nameof(request.pathParams),
+		request.pathParams
+	);
+	Guards.stringValue(ROUTES_SOURCE, nameof(request.pathParams.id), request.pathParams.id);
+
+	const component = ComponentFactory.get<IPolicyAdministrationPointComponent>(componentName);
+	const policy = await component.getSet(request.pathParams.id);
 
 	return {
 		body: policy

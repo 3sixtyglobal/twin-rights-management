@@ -132,6 +132,84 @@ The policy.
 
 ***
 
+### getAgreement()
+
+> **getAgreement**(`agreementId`): `Promise`\<`IOdrlAgreement`\>
+
+Get an agreement from the entity storage.
+
+#### Parameters
+
+##### agreementId
+
+`string`
+
+The ID of the agreement to get.
+
+#### Returns
+
+`Promise`\<`IOdrlAgreement`\>
+
+The agreement.
+
+#### Implementation of
+
+`IPolicyAdministrationPointComponent.getAgreement`
+
+***
+
+### getOffer()
+
+> **getOffer**(`offerId`): `Promise`\<`IOdrlOffer`\>
+
+Get an offer from the entity storage.
+
+#### Parameters
+
+##### offerId
+
+`string`
+
+The ID of the offer to get.
+
+#### Returns
+
+`Promise`\<`IOdrlOffer`\>
+
+The offer.
+
+#### Implementation of
+
+`IPolicyAdministrationPointComponent.getOffer`
+
+***
+
+### getSet()
+
+> **getSet**(`setId`): `Promise`\<`IOdrlSet`\>
+
+Get a set from the entity storage.
+
+#### Parameters
+
+##### setId
+
+`string`
+
+The ID of the set to get.
+
+#### Returns
+
+`Promise`\<`IOdrlSet`\>
+
+The set.
+
+#### Implementation of
+
+`IPolicyAdministrationPointComponent.getSet`
+
+***
+
 ### remove()
 
 > **remove**(`policyId`): `Promise`\<`void`\>
