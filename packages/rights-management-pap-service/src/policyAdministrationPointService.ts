@@ -180,7 +180,7 @@ export class PolicyAdministrationPointService implements IPolicyAdministrationPo
 			);
 		}
 
-		return convertFromStoragePolicy<IOdrlAgreement>(policy);
+		return convertFromStoragePolicy(policy);
 	}
 
 	/**
@@ -278,7 +278,7 @@ export class PolicyAdministrationPointService implements IPolicyAdministrationPo
 			throw new NotFoundError(PolicyAdministrationPointService.CLASS_NAME, "setNotFound", setId);
 		}
 
-		if (policy["@type"] !== PolicyType.Offer) {
+		if (policy["@type"] !== PolicyType.Set) {
 			throw new GeneralError(PolicyAdministrationPointService.CLASS_NAME, "setTypeMismatch", {
 				setId,
 				type: policy["@type"]
