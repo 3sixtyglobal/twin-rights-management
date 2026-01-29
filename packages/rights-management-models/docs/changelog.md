@@ -1,5 +1,13 @@
 # @twin.org/rights-management-models - Changelog
 
+## [0.0.3-next.11](https://github.com/twinfoundation/rights-management/compare/rights-management-models-v0.0.3-next.10...rights-management-models-v0.0.3-next.11) (2026-01-29)
+
+
+### Features
+
+* additional pap features ([50e60e6](https://github.com/twinfoundation/rights-management/commit/50e60e68c2c86a020fef3edc71b16bad85a9f87c))
+* additional pap features ([#69](https://github.com/twinfoundation/rights-management/issues/69)) ([a80d511](https://github.com/twinfoundation/rights-management/commit/a80d511ace8fad9fbf4c02cb82ead261a5944b34))
+
 ## [0.0.3-next.10](https://github.com/twinfoundation/rights-management/compare/rights-management-models-v0.0.3-next.9...rights-management-models-v0.0.3-next.10) (2026-01-28)
 
 
