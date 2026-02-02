@@ -1,6 +1,6 @@
 {
 	"name": "@twin.org/rights-management-plugins",
-	"version": "0.0.3-next.12",
+	"version": "0.0.3-next.13",
 	"description": "Rights management plugin implementations",
 	"repository": {
 		"type": "git",
@@ -38,7 +38,7 @@
 		"@twin.org/data-json-path": "next",
 		"@twin.org/logging-models": "next",
 		"@twin.org/nameof": "next",
-		"@twin.org/rights-management-models": "0.0.3-next.12",
+		"@twin.org/rights-management-models": "0.0.3-next.13",
 		"@twin.org/standards-w3c-odrl": "next"
 	},
 	"devDependencies": {

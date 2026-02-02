@@ -1,5 +1,19 @@
 # Changelog
 
+## [0.0.3-next.13](https://github.com/twinfoundation/rights-management/compare/rights-management-plugins-v0.0.3-next.12...rights-management-plugins-v0.0.3-next.13) (2026-02-02)
+
+
+### Features
+
+* add default enforcement processor ([#73](https://github.com/twinfoundation/rights-management/issues/73)) ([0c64d49](https://github.com/twinfoundation/rights-management/commit/0c64d49bab363b3da6d197536a605f7929a7c584))
+
+
+### Dependencies
+
+* The following workspace dependencies were updated
+  * dependencies
+    * @twin.org/rights-management-models bumped from 0.0.3-next.12 to 0.0.3-next.13
+
 ## [0.0.3-next.12](https://github.com/twinfoundation/rights-management/compare/rights-management-plugins-v0.0.3-next.11...rights-management-plugins-v0.0.3-next.12) (2026-02-02)
 
 

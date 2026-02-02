@@ -1,5 +1,19 @@
 # Changelog
 
+## [0.0.3-next.13](https://github.com/twinfoundation/rights-management/compare/rights-management-pxp-service-v0.0.3-next.12...rights-management-pxp-service-v0.0.3-next.13) (2026-02-02)
+
+
+### Miscellaneous Chores
+
+* **rights-management-pxp-service:** Synchronize repo versions
+
+
+### Dependencies
+
+* The following workspace dependencies were updated
+  * dependencies
+    * @twin.org/rights-management-models bumped from 0.0.3-next.12 to 0.0.3-next.13
+
 ## [0.0.3-next.12](https://github.com/twinfoundation/rights-management/compare/rights-management-pxp-service-v0.0.3-next.11...rights-management-pxp-service-v0.0.3-next.12) (2026-02-02)
 
 
