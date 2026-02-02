@@ -11,9 +11,85 @@ be returned.
 
 ## Methods
 
-### intercept()
+### interceptWithPolicy()
 
-> **intercept**\<`D`, `R`\>(`locator`, `data?`): `Promise`\<`R`\>
+> **interceptWithPolicy**\<`D`, `R`\>(`policy`, `data?`): `Promise`\<`R`\>
+
+Process the data using Policy Decision Point (PDP) and return the manipulated data.
+
+#### Type Parameters
+
+##### D
+
+`D` = `unknown`
+
+##### R
+
+`R` = `D`
+
+#### Parameters
+
+##### policy
+
+`IOdrlPolicy`
+
+The policy to enforce.
+
+##### data?
+
+`D`
+
+The data to process.
+
+#### Returns
+
+`Promise`\<`R`\>
+
+The manipulated data with any policies applied.
+
+***
+
+### interceptWithId()
+
+> **interceptWithId**\<`D`, `R`\>(`uid`, `data?`): `Promise`\<`R`\>
+
+Process the data using Policy Decision Point (PDP) and return the manipulated data.
+
+#### Type Parameters
+
+##### D
+
+`D` = `unknown`
+
+##### R
+
+`R` = `D`
+
+#### Parameters
+
+##### uid
+
+`string`
+
+The uid of the policy to look up.
+
+##### data?
+
+`D`
+
+The data to process.
+
+#### Returns
+
+`Promise`\<`R`\>
+
+The manipulated data with any policies applied.
+
+***
+
+### interceptWithLocator()
+
+> **interceptWithLocator**\<`D`, `R`\>(`locator`, `data?`): `Promise`\<`R`\>
 
 Process the data using Policy Decision Point (PDP) and return the manipulated data.
 
@@ -31,9 +107,31 @@ Process the data using Policy Decision Point (PDP) and return the manipulated da
 
 ##### locator
 
-[`IPolicyLocator`](IPolicyLocator.md)
+The match criteria to look up policies.
 
-The locator to find relevant policies.
+###### assigner?
+
+`string`
+
+The assigner attribute to match.
+
+###### assignee?
+
+`string`
+
+The assignee attribute to match.
+
+###### target?
+
+`string`
+
+The target attribute to match.
+
+###### action?
+
+`string`
+
+The action attribute to match.
 
 ##### data?
 

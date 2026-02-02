@@ -1,6 +1,6 @@
-# Class: ExamplePolicyEnforcementProcessor
+# Class: PassThroughPolicyEnforcementProcessor
 
-Example Policy Enforcement Processor.
+Pass Through Policy Enforcement Processor.
 
 ## Implements
 
@@ -10,21 +10,21 @@ Example Policy Enforcement Processor.
 
 ### Constructor
 
-> **new ExamplePolicyEnforcementProcessor**(`options?`): `ExamplePolicyEnforcementProcessor`
+> **new PassThroughPolicyEnforcementProcessor**(`options?`): `PassThroughPolicyEnforcementProcessor`
 
-Create a new instance of ExamplePolicyEnforcementProcessor.
+Create a new instance of PassThroughPolicyEnforcementProcessor.
 
 #### Parameters
 
 ##### options?
 
-[`IExamplePolicyEnforcementProcessorConstructorOptions`](../interfaces/IExamplePolicyEnforcementProcessorConstructorOptions.md)
+[`IPassThroughPolicyEnforcementProcessorConstructorOptions`](../interfaces/IPassThroughPolicyEnforcementProcessorConstructorOptions.md)
 
-The options for the example policy enforcement processor.
+The options for the pass through policy enforcement processor.
 
 #### Returns
 
-`ExamplePolicyEnforcementProcessor`
+`PassThroughPolicyEnforcementProcessor`
 
 ## Properties
 
@@ -32,7 +32,7 @@ The options for the example policy enforcement processor.
 
 > `readonly` `static` **CLASS\_NAME**: `string`
 
-The class name of the Example Policy Enforcement Processor.
+The class name of the Pass Through Policy Enforcement Processor.
 
 ## Methods
 
@@ -56,7 +56,7 @@ The class name of the component.
 
 ### process()
 
-> **process**\<`D`, `R`\>(`locator`, `decisions`, `data?`): `Promise`\<`R`\>
+> **process**\<`D`, `R`\>(`policy`, `decisions`, `data?`): `Promise`\<`R`\>
 
 Process the response from the policy decision point.
 
@@ -72,11 +72,11 @@ Process the response from the policy decision point.
 
 #### Parameters
 
-##### locator
+##### policy
 
-`IPolicyLocator`
+`IOdrlPolicy`
 
-The locator to find relevant policies.
+The policy to process.
 
 ##### decisions
 

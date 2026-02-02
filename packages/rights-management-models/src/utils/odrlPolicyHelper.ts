@@ -1,9 +1,13 @@
 // Copyright 2025 IOTA Stiftung.
 // SPDX-License-Identifier: Apache-2.0.
-import { GeneralError, Guards, Is } from "@twin.org/core";
+import { ArrayHelper, GeneralError, Guards, Is } from "@twin.org/core";
 import { nameof } from "@twin.org/nameof";
-import type { IOdrlPolicy } from "@twin.org/standards-w3c-odrl";
-import type { IPolicyLocator } from "../models/IPolicyLocator.js";
+import type {
+	ActionType,
+	IOdrlAction,
+	IOdrlAsset,
+	IOdrlPolicy
+} from "@twin.org/standards-w3c-odrl";
 
 /**
  * Helper methods for Odrl Policies.
@@ -13,162 +17,6 @@ export class OdrlPolicyHelper {
 	 * The class name of the Policy Administration Point Service.
 	 */
 	public static readonly CLASS_NAME: string = nameof<OdrlPolicyHelper>();
-
-	/**
-	 * Find the expiration date of the policy.
-	 * @param policy The policy to check.
-	 * @param assetType The type of the asset, if undefined will match any asset type.
-	 * @param action The action to check, if undefined will match any action.
-	 * @returns The expiration date of the policy, or undefined if not found.
-	 */
-	public static findExpirationDate(
-		policy: IOdrlPolicy,
-		assetType?: string,
-		action?: string
-	): string | undefined {
-		if (Is.arrayValue(policy.permission)) {
-			for (const permission of policy.permission) {
-				const matchesPermission = OdrlPolicyHelper.matchTargetAndAction(
-					permission.target,
-					permission.action,
-					{
-						assetType,
-						action
-					}
-				);
-				if (matchesPermission && Is.arrayValue(permission.constraint)) {
-					for (const constraint of permission.constraint) {
-						if (
-							constraint.leftOperand === "dateTime" &&
-							constraint.operator === "lteq" &&
-							Is.dateTimeString(constraint.rightOperand)
-						) {
-							return constraint.rightOperand as string;
-						}
-					}
-				}
-			}
-		}
-	}
-
-	/**
-	 * Match the target to the requested asset type.
-	 * @param target The target to match.
-	 * @param matchAssetType The asset type to match.
-	 * @param matchResourceId The resource id to match.
-	 * @returns True if the target is empty, the target matches the requested asset, false otherwise.
-	 */
-	public static matchAsset(
-		target?: IOdrlPolicy["target"],
-		matchAssetType?: string,
-		matchResourceId?: string
-	): boolean {
-		if (Is.empty(target) || Is.empty(matchAssetType)) {
-			return true;
-		}
-
-		if (Is.arrayValue(target)) {
-			return target.some(t => OdrlPolicyHelper.matchAsset(t, matchAssetType));
-		}
-
-		if (Is.stringValue(target)) {
-			return target === matchAssetType;
-		}
-
-		// TODO: This currently only handles the simple case of matching a single asset type.
-		// we need further processing if the target is more complex.
-		// we also need to support the resource id matching.
-		return false;
-	}
-
-	/**
-	 * Match the action to the asset type.
-	 * @param action The action to match.
-	 * @param matchAction The action to match.
-	 * @returns True if the action is empty, the action matches the asset type, false otherwise.
-	 */
-	public static matchAction(action?: IOdrlPolicy["action"], matchAction?: string): boolean {
-		if (Is.empty(action) || Is.empty(matchAction)) {
-			return true;
-		}
-
-		if (Is.arrayValue(action)) {
-			return action.some(a => OdrlPolicyHelper.matchAction(a, matchAction));
-		}
-
-		if (Is.stringValue(action)) {
-			return action === matchAction;
-		}
-
-		// TODO: This currently only handles the simple case of matching a single action type.
-		// we need further processing if the action is more complex.
-		return false;
-	}
-
-	/**
-	 * Match the assignee.
-	 * @param assignee The assignee to match.
-	 * @param matchAssignee The assignee to match.
-	 * @returns True if the assignee is empty, the assignee matches the asset type, false otherwise.
-	 */
-	public static matchAssignee(assignee?: IOdrlPolicy["assignee"], matchAssignee?: string): boolean {
-		if (Is.empty(assignee) || Is.empty(matchAssignee)) {
-			return true;
-		}
-
-		if (Is.stringValue(assignee)) {
-			return assignee === matchAssignee;
-		}
-
-		// TODO: This currently only handles the simple case of matching a single assignee.
-		// we need further processing if the assignee is more complex.
-		return false;
-	}
-
-	/**
-	 * Match the target and action to the requested asset type and action.
-	 * @param target The target to match.
-	 * @param action The action to match.
-	 * @param locator The locator to match resource id if provided.
-	 * @returns True if the target and action match the requested asset type and action, false otherwise.
-	 */
-	public static matchTargetAndAction(
-		target?: IOdrlPolicy["target"],
-		action?: IOdrlPolicy["action"],
-		locator?: Omit<IPolicyLocator, "assignee">
-	): boolean {
-		const assetTypeMatch = OdrlPolicyHelper.matchAsset(
-			target,
-			locator?.assetType,
-			locator?.resourceId
-		);
-		const actionMatch = OdrlPolicyHelper.matchAction(action, locator?.action);
-		return assetTypeMatch && actionMatch;
-	}
-
-	/**
-	 * Match the complete locator.
-	 * @param assignee The assignee to match.
-	 * @param target The target to match.
-	 * @param action The action to match.
-	 * @param locator The locator to match resource id if provided.
-	 * @returns True if the complete locator matches, false otherwise.
-	 */
-	public static matchLocator(
-		assignee?: IOdrlPolicy["assignee"],
-		target?: IOdrlPolicy["target"],
-		action?: IOdrlPolicy["action"],
-		locator?: IPolicyLocator
-	): boolean {
-		const assetTypeMatch = OdrlPolicyHelper.matchAsset(
-			target,
-			locator?.assetType,
-			locator?.resourceId
-		);
-		const assigneeMatch = OdrlPolicyHelper.matchAssignee(assignee, locator?.assignee);
-		const actionMatch = OdrlPolicyHelper.matchAction(action, locator?.action);
-		return assetTypeMatch && assigneeMatch && actionMatch;
-	}
 
 	/**
 	 * Extract assignee identity from policy.
@@ -212,5 +60,121 @@ export class OdrlPolicyHelper {
 		Guards.stringValue(OdrlPolicyHelper.CLASS_NAME, nameof(assigner), assigner);
 
 		return assigner;
+	}
+
+	/**
+	 * Get assignee identity from policy.
+	 * @param policy The policy to extract the assignee from.
+	 * @returns Assignee id.
+	 * @throws GeneralError if assignee is missing or invalid.
+	 */
+	public static getAssigneeIdentity(policy: IOdrlPolicy): string | undefined {
+		return Is.string(policy.assignee) ? policy.assignee : policy.assignee?.uid;
+	}
+
+	/**
+	 * Get assigner identity from policy.
+	 * @param policy The policy to extract the assigner from.
+	 * @returns Assigner id.
+	 * @throws GeneralError if assigner is missing or invalid.
+	 */
+	public static getAssignerIdentity(policy: IOdrlPolicy): string | undefined {
+		return Is.string(policy.assigner) ? policy.assigner : policy.assigner?.uid;
+	}
+
+	/**
+	 * Get targets from policy.
+	 * @param policy The policy to extract the targets from.
+	 * @returns Targets.
+	 */
+	public static getTargets(policy: IOdrlPolicy): string[] {
+		const targetIds: string[] = [];
+		const policyTargets = ArrayHelper.fromObjectOrArray<IOdrlAsset | string>(policy.target ?? []);
+		for (const target of policyTargets) {
+			if (Is.object<IOdrlAsset>(target)) {
+				if (Is.stringValue(target.uid)) {
+					targetIds.push(target.uid);
+				}
+			} else if (Is.stringValue(target)) {
+				targetIds.push(target);
+			}
+		}
+		return Array.from(new Set(targetIds));
+	}
+
+	/**
+	 * Get actions from policy.
+	 * @param policy The policy to extract the actions from.
+	 * @returns Actions.
+	 */
+	public static getActions(policy: IOdrlPolicy): string[] {
+		const actions: string[] = [];
+		const policyActions = ArrayHelper.fromObjectOrArray<ActionType | string | IOdrlAction>(
+			policy.action ?? []
+		);
+		for (const action of policyActions) {
+			if (Is.object<IOdrlAction>(action)) {
+				if (Is.stringValue(action.uid)) {
+					actions.push(action.uid);
+				}
+			} else if (Is.stringValue(action)) {
+				actions.push(action);
+			}
+		}
+		return Array.from(new Set(actions));
+	}
+
+	/**
+	 * Does the policy match.
+	 * @param policy The policy to try and match.
+	 * @param options The matching options.
+	 * @param options.assignee The assignee to match.
+	 * @param options.assigner The assigner to match.
+	 * @param options.target The target to match.
+	 * @returns True if the policy matches.
+	 * @param options.action The action to match.
+	 */
+	public static matchPolicy(
+		policy: IOdrlPolicy | undefined,
+		options: {
+			assignee?: string;
+			assigner?: string;
+			target?: string;
+			action?: string;
+		}
+	): boolean {
+		if (Is.empty(policy)) {
+			return false;
+		}
+
+		if (Is.stringValue(options.assignee)) {
+			const assignee = OdrlPolicyHelper.getAssigneeIdentity(policy);
+			if (assignee !== options.assignee) {
+				return false;
+			}
+		}
+
+		if (Is.stringValue(options.assigner)) {
+			const assigner = OdrlPolicyHelper.getAssignerIdentity(policy);
+			if (assigner !== options.assigner) {
+				return false;
+			}
+		}
+
+		if (Is.stringValue(options.target)) {
+			const targets = OdrlPolicyHelper.getTargets(policy);
+			if (!targets.includes(options.target)) {
+				return false;
+			}
+		}
+
+		if (Is.stringValue(options.action)) {
+			const actions = OdrlPolicyHelper.getActions(policy);
+			if (!actions.includes(options.action)) {
+				return false;
+			}
+		}
+
+		return true;
 	}
 }

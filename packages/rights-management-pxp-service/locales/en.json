@@ -1,13 +1,13 @@
 {
 	"error": {
 		"policyExecutionPointService": {
-			"actionExecutionFailed": "Action execution failed for id: \"{actionId}\", at stage \"{stage}\", with locator: \"{locator}\""
+			"actionExecutionFailed": "Action execution failed for id: \"{actionId}\", at stage \"{stage}\", policy id: \"{policyId}\""
 		}
 	},
 	"info": {
 		"policyExecutionPointService": {
-			"executingActions": "Executing actions for stage: \"{stage}\", locator: \"{locator}\"",
-			"executingAction": "Executing action for stage: \"{stage}\", locator: \"{locator}\""
+			"executingActions": "Executing actions for stage: \"{stage}\", policy id: \"{policyId}\"",
+			"executingAction": "Executing action for stage: \"{stage}\", policy id: \"{policyId}\""
 		}
 	}
 }

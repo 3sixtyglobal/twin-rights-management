@@ -86,11 +86,11 @@ The agreement being established if the negotiation was successful.
 
 ***
 
-### information?
+### trustVerificationInfo?
 
-> `optional` **information**: `IPolicyInformation`
+> `optional` **trustVerificationInfo**: `ITrustVerificationInfo`
 
-Additional information supplied by the consumer to help with negotiation.
+The information from the trust provider.
 
 ***
 

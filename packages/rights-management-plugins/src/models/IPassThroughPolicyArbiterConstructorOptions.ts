@@ -2,9 +2,9 @@
 // SPDX-License-Identifier: Apache-2.0.
 
 /**
- * Options for the Example Policy Arbiter.
+ * Options for the Pass Through Policy Arbiter.
  */
-export interface IExamplePolicyArbiterConstructorOptions {
+export interface IPassThroughPolicyArbiterConstructorOptions {
 	/**
 	 * The logging component for policy arbiter.
 	 * @default logging

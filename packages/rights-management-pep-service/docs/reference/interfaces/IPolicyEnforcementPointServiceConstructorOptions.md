@@ -29,3 +29,31 @@ The type of the policy decision point component.
 ```ts
 policy-decision-point
 ```
+
+***
+
+### policyAdministrationPointComponentType?
+
+> `optional` **policyAdministrationPointComponentType**: `string`
+
+The type of the policy administration point component.
+
+#### Default
+
+```ts
+policy-administration-point
+```
+
+***
+
+### policyManagementPointComponentType?
+
+> `optional` **policyManagementPointComponentType**: `string`
+
+The type of the policy management point component.
+
+#### Default
+
+```ts
+policy-management-point
+```

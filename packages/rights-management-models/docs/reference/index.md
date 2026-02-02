@@ -2,12 +2,10 @@
 
 ## Classes
 
-- [LocatorHelper](classes/LocatorHelper.md)
 - [OdrlPolicyHelper](classes/OdrlPolicyHelper.md)
 
 ## Interfaces
 
-- [IPolicyLocator](interfaces/IPolicyLocator.md)
 - [IPapCreateRequest](interfaces/IPapCreateRequest.md)
 - [IPapGetAgreementRequest](interfaces/IPapGetAgreementRequest.md)
 - [IPapGetAgreementResponse](interfaces/IPapGetAgreementResponse.md)
@@ -42,7 +40,6 @@
 - [IPolicyDecisionPointComponent](interfaces/IPolicyDecisionPointComponent.md)
 - [IPolicyEnforcementPointComponent](interfaces/IPolicyEnforcementPointComponent.md)
 - [IPolicyEnforcementProcessor](interfaces/IPolicyEnforcementProcessor.md)
-- [IPolicyInformation](interfaces/IPolicyInformation.md)
 - [IPolicyInformationPointComponent](interfaces/IPolicyInformationPointComponent.md)
 - [IPolicyInformationSource](interfaces/IPolicyInformationSource.md)
 - [IPolicyManagementPointComponent](interfaces/IPolicyManagementPointComponent.md)
@@ -58,7 +55,6 @@
 
 - [PolicyDecision](type-aliases/PolicyDecision.md)
 - [PolicyDecisionStage](type-aliases/PolicyDecisionStage.md)
-- [IPolicyInformationItems](type-aliases/IPolicyInformationItems.md)
 - [PolicyInformationAccessMode](type-aliases/PolicyInformationAccessMode.md)
 - [RightsManagementContexts](type-aliases/RightsManagementContexts.md)
 - [RightsManagementNamespaces](type-aliases/RightsManagementNamespaces.md)

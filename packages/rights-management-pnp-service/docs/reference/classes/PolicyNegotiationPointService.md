@@ -88,7 +88,7 @@ The current state of the negotiation or an error.
 
 ### sendRequestToProvider()
 
-> **sendRequestToProvider**(`url`, `requesterId`, `odrlOfferId`, `publicOrigin`): `Promise`\<`string`\>
+> **sendRequestToProvider**(`url`, `requesterType`, `odrlOfferId`, `publicOrigin`): `Promise`\<`string`\>
 
 Send a request to a provider.
 
@@ -100,11 +100,11 @@ Send a request to a provider.
 
 The url of the provider to send the request to.
 
-##### requesterId
+##### requesterType
 
 `string`
 
-The id of the requester to use for the request, will use the registered requester to provide update.
+The type of the requester to use for the request, will use the registered requester to provide update.
 
 ##### odrlOfferId
 

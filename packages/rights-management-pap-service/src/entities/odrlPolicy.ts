@@ -79,4 +79,28 @@ export class OdrlPolicy {
 	 */
 	@property({ type: "array", optional: true })
 	public obligation?: IOdrlPolicy["obligation"];
+
+	/**
+	 * The assignerIndex.
+	 */
+	@property({ type: "string" })
+	public assignerIndex!: string;
+
+	/**
+	 * The assigneeIndex.
+	 */
+	@property({ type: "string" })
+	public assigneeIndex!: string;
+
+	/**
+	 * The targetIndex.
+	 */
+	@property({ type: "string" })
+	public targetIndex!: string;
+
+	/**
+	 * The actionIndex.
+	 */
+	@property({ type: "string" })
+	public actionIndex!: string;
 }

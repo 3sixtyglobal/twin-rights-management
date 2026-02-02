@@ -58,7 +58,10 @@ describe("PolicyNegotiationAdminPointService", () => {
 			id: "pid",
 			correlationId: "cid",
 			dateCreated: new Date().toISOString(),
-			state: DataspaceProtocolContractNegotiationStateType.REQUESTED
+			state: DataspaceProtocolContractNegotiationStateType.REQUESTED,
+			trustVerificationInfo: {
+				identity: "identity"
+			}
 		};
 		await service.set(negotiation);
 		const result = await service.get("pid");
@@ -73,7 +76,10 @@ describe("PolicyNegotiationAdminPointService", () => {
 			correlationId: "cid",
 			dateCreated: new Date().toISOString(),
 			state: DataspaceProtocolContractNegotiationStateType.REQUESTED,
-			interventionRequired: true
+			interventionRequired: true,
+			trustVerificationInfo: {
+				identity: "identity"
+			}
 		};
 		await service.set(negotiation);
 		const result = await service.get("pid");
@@ -94,7 +100,10 @@ describe("PolicyNegotiationAdminPointService", () => {
 			id: "pid",
 			correlationId: "cid",
 			dateCreated: new Date().toISOString(),
-			state: DataspaceProtocolContractNegotiationStateType.REQUESTED
+			state: DataspaceProtocolContractNegotiationStateType.REQUESTED,
+			trustVerificationInfo: {
+				identity: "identity"
+			}
 		};
 		await service.set(negotiation);
 		await service.remove("pid");
@@ -113,7 +122,10 @@ describe("PolicyNegotiationAdminPointService", () => {
 			id: "pid",
 			correlationId: "cid",
 			dateCreated: new Date().toISOString(),
-			state: DataspaceProtocolContractNegotiationStateType.REQUESTED
+			state: DataspaceProtocolContractNegotiationStateType.REQUESTED,
+			trustVerificationInfo: {
+				identity: "identity"
+			}
 		};
 
 		Date.now = vi.fn().mockImplementation(() => now - msInDay);
@@ -123,7 +135,10 @@ describe("PolicyNegotiationAdminPointService", () => {
 			id: "pid2",
 			correlationId: "cid2",
 			dateCreated: new Date().toISOString(),
-			state: DataspaceProtocolContractNegotiationStateType.REQUESTED
+			state: DataspaceProtocolContractNegotiationStateType.REQUESTED,
+			trustVerificationInfo: {
+				identity: "identity"
+			}
 		};
 
 		Date.now = vi.fn().mockImplementation(() => now + msInDay);

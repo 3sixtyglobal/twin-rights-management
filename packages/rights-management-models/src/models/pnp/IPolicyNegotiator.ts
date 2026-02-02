@@ -1,8 +1,8 @@
 // Copyright 2025 IOTA Stiftung.
 // SPDX-License-Identifier: Apache-2.0.
 import type { IComponent } from "@twin.org/core";
-import type { IOdrlAgreement, IOdrlOffer } from "@twin.org/standards-w3c-odrl";
-import type { IPolicyInformation } from "../pip/IPolicyInformation.js";
+import type { IJsonLdNodeObject } from "@twin.org/data-json-ld";
+import type { IOdrlAgreement, IOdrlOffer, IOdrlParty } from "@twin.org/standards-w3c-odrl";
 
 /**
  * Interface describing a Policy Negotiator.
@@ -23,7 +23,7 @@ export interface IPolicyNegotiator extends IComponent {
 	 */
 	handleOffer(
 		offer: IOdrlOffer,
-		information?: IPolicyInformation
+		information?: { [id: string]: IJsonLdNodeObject }
 	): Promise<{
 		accepted: boolean;
 		interventionRequired: boolean;
@@ -32,11 +32,13 @@ export interface IPolicyNegotiator extends IComponent {
 	/**
 	 * Create an agreement based on the offer.
 	 * @param offer The offer to create the agreement from.
+	 * @param assignee The assignee of the agreement.
 	 * @param information Information provided by the requester to aid in the creation of the agreement.
 	 * @returns The agreement created from the offer or undefined if an agreement could not be created.
 	 */
 	createAgreement(
 		offer: IOdrlOffer,
-		information?: IPolicyInformation
+		assignee: string | IOdrlParty,
+		information?: { [id: string]: IJsonLdNodeObject }
 	): Promise<IOdrlAgreement | undefined>;
 }

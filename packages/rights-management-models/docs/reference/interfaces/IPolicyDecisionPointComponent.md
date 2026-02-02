@@ -14,7 +14,7 @@ Point (PEP) will execute any registered actions.
 
 ### evaluate()
 
-> **evaluate**\<`D`\>(`locator`, `data?`): `Promise`\<[`IPolicyDecision`](IPolicyDecision.md)[]\>
+> **evaluate**\<`D`\>(`policy`, `data?`): `Promise`\<[`IPolicyDecision`](IPolicyDecision.md)[]\>
 
 Evaluate requests from a Policy Enforcement Point (PEP).
 Uses the Policy Management Point (PMP) to retrieve the policies and the
@@ -29,11 +29,11 @@ Executes any actions on the Policy Execution Point (PXP) before and after decisi
 
 #### Parameters
 
-##### locator
+##### policy
 
-[`IPolicyLocator`](IPolicyLocator.md)
+`IOdrlPolicy`
 
-The locator to find relevant policies.
+The policy to evaluate.
 
 ##### data?
 

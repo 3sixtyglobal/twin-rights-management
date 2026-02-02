@@ -56,29 +56,39 @@ The class name of the component.
 
 ### retrieve()
 
-> **retrieve**\<`D`\>(`locator`, `data?`, `cursor?`): `Promise`\<\{ `policies`: `IOdrlPolicy`[]; `cursor?`: `string`; \}\>
+> **retrieve**(`options?`, `cursor?`): `Promise`\<\{ `policies`: `IOdrlPolicy`[]; `cursor?`: `string`; \}\>
 
 Get the policies from a PAP based on the data and identities.
 
-#### Type Parameters
-
-##### D
-
-`D` = `unknown`
-
 #### Parameters
 
-##### locator
+##### options?
 
-`IPolicyLocator`
+Optional options to filter by assigner or assignee.
 
-The locator to find relevant policies.
+###### assigner?
 
-##### data?
+`string`
 
-`D`
+The assigner to filter by.
 
-The data to retrieve the policies for.
+###### assignee?
+
+`string`
+
+The assignee to filter by.
+
+###### target?
+
+`string`
+
+The target to filter by.
+
+###### action?
+
+`string`
+
+The action to filter by.
 
 ##### cursor?
 

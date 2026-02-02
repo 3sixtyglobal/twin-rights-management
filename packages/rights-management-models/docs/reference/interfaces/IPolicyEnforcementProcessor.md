@@ -10,7 +10,7 @@ Interface for policy enforcement processors.
 
 ### process()
 
-> **process**\<`D`, `R`\>(`locator`, `decisions`, `data?`): `Promise`\<`R`\>
+> **process**\<`D`, `R`\>(`policy`, `decisions`, `data?`): `Promise`\<`R`\>
 
 Process the response from the policy decision point.
 
@@ -26,11 +26,11 @@ Process the response from the policy decision point.
 
 #### Parameters
 
-##### locator
+##### policy
 
-[`IPolicyLocator`](IPolicyLocator.md)
+`IOdrlPolicy`
 
-The locator to find relevant policies.
+The policy to process.
 
 ##### decisions
 

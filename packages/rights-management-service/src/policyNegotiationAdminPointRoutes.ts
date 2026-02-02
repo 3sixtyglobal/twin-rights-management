@@ -1,12 +1,13 @@
 // Copyright 2025 IOTA Stiftung.
 // SPDX-License-Identifier: Apache-2.0.
 import type {
+	IHostingComponent,
 	IHttpRequestContext,
 	INoContentResponse,
 	IRestRoute,
 	ITag
 } from "@twin.org/api-models";
-import { ComponentFactory, Guards } from "@twin.org/core";
+import { ComponentFactory, Guards, Is } from "@twin.org/core";
 import { nameof } from "@twin.org/nameof";
 import type {
 	IPnapGetRequest,
@@ -18,7 +19,7 @@ import type {
 	IPolicyNegotiationAdminPointComponent
 } from "@twin.org/rights-management-models";
 import { DataspaceProtocolContractNegotiationStateType } from "@twin.org/standards-dataspace-protocol";
-import { HttpMethod, HttpStatusCode } from "@twin.org/web";
+import { HeaderHelper, HeaderTypes, HttpMethod, HttpStatusCode } from "@twin.org/web";
 
 /**
  * The source used when communicating about these routes.
@@ -164,17 +165,14 @@ export function generateRestRoutesPolicyNegotiationAdminPoint(
 					{
 						id: "pnapQueryResponseExample",
 						response: {
-							body: {
-								items: [
-									{
-										id: "pid",
-										correlationId: "cid",
-										dateCreated: "2025-09-03T00:00:00.000Z",
-										state: DataspaceProtocolContractNegotiationStateType.REQUESTED
-									}
-								],
-								cursor: "next-cursor"
-							}
+							body: [
+								{
+									id: "pid",
+									correlationId: "cid",
+									dateCreated: "2025-09-03T00:00:00.000Z",
+									state: DataspaceProtocolContractNegotiationStateType.REQUESTED
+								}
+							]
 						}
 					}
 				]
@@ -284,16 +282,28 @@ export async function pnapQuery(
 ): Promise<IPnapQueryResponse> {
 	Guards.object<IPnapQueryRequest>(ROUTES_SOURCE, nameof(request), request);
 
+	const hostingComponent = ComponentFactory.get<IHostingComponent>(
+		httpRequestContext.hostingComponentType ?? "hosting"
+	);
+
 	const component = ComponentFactory.get<IPolicyNegotiationAdminPointComponent>(componentName);
 	const result = await component.query(
 		request.query?.state as DataspaceProtocolContractNegotiationStateType,
 		request.query?.cursor
 	);
 
+	const headers: IPnapQueryResponse["headers"] = {};
+
+	if (Is.stringValue(result.cursor)) {
+		headers[HeaderTypes.Link] = HeaderHelper.createLinkHeader(
+			await hostingComponent.buildPublicUrl(httpRequestContext.serverRequest.url),
+			{ cursor: result.cursor },
+			"next"
+		);
+	}
+
 	return {
-		body: {
-			items: result.items,
-			cursor: result.cursor
-		}
+		headers,
+		body: result.items
 	};
 }

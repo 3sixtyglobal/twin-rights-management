@@ -1,6 +1,6 @@
-# Interface: IExamplePolicyNegotiatorConstructorOptions
+# Interface: IPassThroughPolicyNegotiatorConstructorOptions
 
-Options for the Example Policy Negotiator.
+Options for the Pass Through Policy Negotiator.
 
 ## Properties
 

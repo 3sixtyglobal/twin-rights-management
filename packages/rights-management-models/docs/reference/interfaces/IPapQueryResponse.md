@@ -4,20 +4,20 @@ The response structure for querying policies.
 
 ## Properties
 
+### headers?
+
+> `optional` **headers**: `object`
+
+The headers which can be used to determine the response data type.
+
+#### link?
+
+> `optional` **link**: `string` \| `string`[]
+
+***
+
 ### body
 
-> **body**: `object`
+> **body**: `IOdrlPolicy`[]
 
 The body of the response.
-
-#### cursor?
-
-> `optional` **cursor**: `string`
-
-The cursor for the next page of results, if there are more results available.
-
-#### policies
-
-> **policies**: `IOdrlPolicy`[]
-
-The policies matching the query.

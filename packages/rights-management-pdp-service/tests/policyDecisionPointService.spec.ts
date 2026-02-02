@@ -20,10 +20,27 @@ import {
 import { PolicyInformationPointService } from "@twin.org/rights-management-pip-service";
 import { PolicyManagementPointService } from "@twin.org/rights-management-pmp-service";
 import { PolicyExecutionPointService } from "@twin.org/rights-management-pxp-service";
+import { type IOdrlPolicy, OdrlContexts, PolicyType } from "@twin.org/standards-w3c-odrl";
 import { PolicyDecisionPointService } from "../src/policyDecisionPointService.js";
 
 let loggingMemoryEntityStorage: MemoryEntityStorageConnector<LogEntry>;
 let odrlPolicyMemoryEntityStorage: MemoryEntityStorageConnector<OdrlPolicy>;
+
+function createPolicy(options?: {
+	uid?: string;
+	action?: string;
+	assetType?: string;
+	assignee?: string;
+}): IOdrlPolicy {
+	return {
+		"@context": OdrlContexts.Context,
+		"@type": PolicyType.Set,
+		uid: options?.uid ?? "policy123",
+		action: options?.action ?? "action",
+		assetType: options?.assetType ?? "assetType",
+		assignee: options?.assignee ?? "assignee"
+	};
+}
 
 describe("PolicyDecisionPointService", () => {
 	beforeEach(() => {
@@ -61,8 +78,8 @@ describe("PolicyDecisionPointService", () => {
 
 	test("evaluate returns empty array if no arbiters registered", async () => {
 		const pdp = new PolicyDecisionPointService();
-		const locator = { assetType: "asset:1234", action: "read", assignee: "node1" };
-		await expect(pdp.evaluate(locator)).rejects.toThrow("noSupportedArbiters");
+		const policy = createPolicy({ assetType: "asset:1234", action: "read", assignee: "node1" });
+		await expect(pdp.evaluate(policy)).rejects.toThrow("noArbiters");
 	});
 
 	test("evaluate returns decisions from registered arbiter", async () => {
@@ -73,8 +90,8 @@ describe("PolicyDecisionPointService", () => {
 			decide: async () => [{ decision: PolicyDecision.Granted, target: "asset:1234" }]
 		};
 		PolicyArbiterFactory.register("arbiter1", () => mockArbiter);
-		const locator = { assetType: "asset:1234", action: "read", assignee: "node1" };
-		const result = await pdp.evaluate(locator);
+		const policy = createPolicy({ assetType: "asset:1234", action: "read", assignee: "node1" });
+		const result = await pdp.evaluate(policy);
 		expect(result).toHaveLength(1);
 		expect(result[0].decision).toBe(PolicyDecision.Granted);
 		expect(result[0].target).toBe("asset:1234");
@@ -90,7 +107,7 @@ describe("PolicyDecisionPointService", () => {
 			}
 		};
 		PolicyArbiterFactory.register("arbiter1", () => mockArbiter);
-		const locator = { assetType: "asset:1234", action: "read", assignee: "node1" };
-		await expect(pdp.evaluate(locator)).rejects.toThrow("decidingFailed");
+		const policy = createPolicy({ assetType: "asset:1234", action: "read", assignee: "node1" });
+		await expect(pdp.evaluate(policy)).rejects.toThrow("decidingFailed");
 	});
 });

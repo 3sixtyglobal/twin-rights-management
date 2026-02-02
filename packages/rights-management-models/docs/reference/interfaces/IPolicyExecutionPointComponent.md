@@ -13,7 +13,7 @@ registered actions based on the decision.
 
 ### executeActions()
 
-> **executeActions**\<`D`\>(`stage`, `locator`, `policies?`, `decisions?`, `data?`): `Promise`\<`void`\>
+> **executeActions**\<`D`\>(`policy`, `decisions`, `data`, `stage`): `Promise`\<`void`\>
 
 Execute actions based on the PDP's decisions.
 
@@ -25,35 +25,29 @@ Execute actions based on the PDP's decisions.
 
 #### Parameters
 
-##### stage
+##### policy
 
-[`PolicyDecisionStage`](../type-aliases/PolicyDecisionStage.md)
+`IOdrlPolicy`
 
-The stage at which the PXP is executed in the PDP.
+The policy that applied to the data.
 
-##### locator
-
-[`IPolicyLocator`](IPolicyLocator.md)
-
-The locator to find relevant policies.
-
-##### policies?
-
-`IOdrlPolicy`[]
-
-The policies that apply to the data.
-
-##### decisions?
+##### decisions
 
 [`IPolicyDecision`](IPolicyDecision.md)[]
 
 The decisions made by the PDP.
 
-##### data?
-
-`D`
+##### data
 
 The data used in the decision by the PDP.
+
+`D` | `undefined`
+
+##### stage
+
+[`PolicyDecisionStage`](../type-aliases/PolicyDecisionStage.md)
+
+The stage at which the PXP is executed in the PDP.
 
 #### Returns
 

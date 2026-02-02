@@ -1,13 +1,11 @@
 // Copyright 2025 IOTA Stiftung.
 // SPDX-License-Identifier: Apache-2.0.
 import { BaseError, ComponentFactory, Guards, Is } from "@twin.org/core";
+import type { IJsonLdNodeObject } from "@twin.org/data-json-ld";
 import type { ILoggingComponent } from "@twin.org/logging-models";
 import { nameof } from "@twin.org/nameof";
 import {
-	type IPolicyInformation,
 	type IPolicyInformationPointComponent,
-	type IPolicyLocator,
-	LocatorHelper,
 	PolicyInformationAccessMode,
 	PolicyInformationSourceFactory
 } from "@twin.org/rights-management-models";
@@ -49,23 +47,16 @@ export class PolicyInformationPointService implements IPolicyInformationPointCom
 
 	/**
 	 * Retrieve additional information which is relevant in the PDP decision making.
-	 * @param locator The locator to find relevant policies.
+	 * @param policy The policy to retrieve the information for if available.
 	 * @param accessMode The access mode to use for the retrieval.
-	 * @param policies The policies that apply to the data.
 	 * @param data The data to get any additional information for.
 	 * @returns Returns additional information based on the data and identities.
 	 */
 	public async retrieve<D = unknown>(
-		locator: IPolicyLocator,
+		policy: IOdrlPolicy | undefined,
 		accessMode: PolicyInformationAccessMode,
-		policies?: IOdrlPolicy[],
 		data?: D
-	): Promise<IPolicyInformation> {
-		Guards.object<IPolicyLocator>(
-			PolicyInformationPointService.CLASS_NAME,
-			nameof(locator),
-			locator
-		);
+	): Promise<{ [id: string]: IJsonLdNodeObject }> {
 		Guards.arrayOneOf(
 			PolicyInformationPointService.CLASS_NAME,
 			nameof(accessMode),
@@ -73,7 +64,7 @@ export class PolicyInformationPointService implements IPolicyInformationPointCom
 			Object.values(PolicyInformationAccessMode)
 		);
 
-		const information: IPolicyInformation = {};
+		let information: { [id: string]: IJsonLdNodeObject } = {};
 
 		const sourceNames = PolicyInformationSourceFactory.names();
 		const sources = sourceNames.map(sourceName => PolicyInformationSourceFactory.get(sourceName));
@@ -81,10 +72,10 @@ export class PolicyInformationPointService implements IPolicyInformationPointCom
 		await Promise.all(
 			sources.map(async source => {
 				try {
-					const result = await source.retrieve(locator, accessMode, policies, data);
+					const result = await source.retrieve(policy, accessMode, data);
 
-					if (Is.arrayValue(result)) {
-						information[source.className()] = result;
+					if (Is.objectValue(result)) {
+						information = { ...information, ...result };
 					}
 				} catch (error) {
 					await this._logging?.log({
@@ -94,7 +85,7 @@ export class PolicyInformationPointService implements IPolicyInformationPointCom
 						message: "sourceRetrieveFailed",
 						data: {
 							sourceId: source.className(),
-							locator: LocatorHelper.toString(locator)
+							policyId: policy?.uid ?? ""
 						},
 						error: BaseError.fromError(error)
 					});

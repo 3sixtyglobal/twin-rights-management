@@ -56,7 +56,7 @@ The class name of the component.
 
 ### evaluate()
 
-> **evaluate**\<`D`\>(`locator`, `data?`): `Promise`\<`IPolicyDecision`[]\>
+> **evaluate**\<`D`\>(`policy`, `data?`): `Promise`\<`IPolicyDecision`[]\>
 
 Evaluate requests from a Policy Enforcement Point (PEP).
 Uses the Policy Management Point (PMP) to retrieve the policies and the
@@ -71,11 +71,11 @@ Executes any actions on the Policy Execution Point (PXP) before and after decisi
 
 #### Parameters
 
-##### locator
+##### policy
 
-`IPolicyLocator`
+`IOdrlPolicy`
 
-The locator to find relevant policies.
+The policy to evaluate.
 
 ##### data?
 

@@ -1,9 +1,9 @@
 // Copyright 2025 IOTA Stiftung.
 // SPDX-License-Identifier: Apache-2.0.
 import { entity, property } from "@twin.org/entity";
-import type { IPolicyInformation } from "@twin.org/rights-management-models";
 import type { DataspaceProtocolContractNegotiationStateType } from "@twin.org/standards-dataspace-protocol";
 import type { IOdrlAgreement, IOdrlOffer } from "@twin.org/standards-w3c-odrl";
+import type { ITrustVerificationInfo } from "@twin.org/trust-models";
 
 /**
  * Class describing a rights management policy negotiation.
@@ -65,10 +65,10 @@ export class PolicyNegotiation {
 	public agreement?: IOdrlAgreement;
 
 	/**
-	 * Additional information supplied by the consumer to help with negotiation.
+	 * The information from the trust provider.
 	 */
 	@property({ type: "object", optional: true })
-	public information?: IPolicyInformation;
+	public trustVerificationInfo?: ITrustVerificationInfo;
 
 	/**
 	 * A reason code for when the negotiation errors.

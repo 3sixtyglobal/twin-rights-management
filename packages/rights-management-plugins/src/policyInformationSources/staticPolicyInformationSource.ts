@@ -5,10 +5,9 @@ import type { IJsonLdNodeObject } from "@twin.org/data-json-ld";
 import type { ILoggingComponent } from "@twin.org/logging-models";
 import { nameof } from "@twin.org/nameof";
 import {
-	LocatorHelper,
+	OdrlPolicyHelper,
 	PolicyInformationAccessMode,
-	type IPolicyInformationSource,
-	type IPolicyLocator
+	type IPolicyInformationSource
 } from "@twin.org/rights-management-models";
 import type { IOdrlPolicy } from "@twin.org/standards-w3c-odrl";
 import type { IStaticPolicyInformationSource } from "../models/IStaticPolicyInformationSource.js";
@@ -56,36 +55,24 @@ export class StaticPolicyInformationSource implements IPolicyInformationSource {
 
 	/**
 	 * Retrieve information from the sources.
-	 * @param locator The locator to find relevant policies.
+	 * @param policy The policy to retrieve information for if available.
 	 * @param accessMode The access mode to use for the retrieval.
-	 * @param policies The policies that apply to the data.
 	 * @param data The data to process.
 	 * @returns The objects containing relevant information or undefined if nothing relevant is found.
 	 */
 	public async retrieve<D = unknown>(
-		locator: IPolicyLocator,
+		policy: IOdrlPolicy | undefined,
 		accessMode: PolicyInformationAccessMode,
-		policies: IOdrlPolicy[],
 		data?: D
-	): Promise<IJsonLdNodeObject[] | undefined> {
-		Guards.objectValue<IPolicyLocator>(
-			StaticPolicyInformationSource.CLASS_NAME,
-			nameof(locator),
-			locator
-		);
+	): Promise<{ [id: string]: IJsonLdNodeObject } | undefined> {
 		Guards.arrayOneOf(
 			StaticPolicyInformationSource.CLASS_NAME,
 			nameof(accessMode),
 			accessMode,
 			Object.values(PolicyInformationAccessMode)
 		);
-		Guards.stringValue(
-			StaticPolicyInformationSource.CLASS_NAME,
-			nameof(locator.assignee),
-			locator.assignee
-		);
 
-		const information: IJsonLdNodeObject[] = [];
+		let information: { [id: string]: IJsonLdNodeObject } = {};
 
 		await this._logging?.log({
 			level: "info",
@@ -93,7 +80,7 @@ export class StaticPolicyInformationSource implements IPolicyInformationSource {
 			ts: Date.now(),
 			message: "staticRetrieving",
 			data: {
-				locator: LocatorHelper.toString(locator),
+				policyId: policy?.uid ?? "",
 				accessMode
 			}
 		});
@@ -104,11 +91,15 @@ export class StaticPolicyInformationSource implements IPolicyInformationSource {
 				accessMode === PolicyInformationAccessMode.Any ||
 				info.accessMode === PolicyInformationAccessMode.Any
 			) {
+				const matchLocators = info.matchLocators;
 				if (
-					!Is.arrayValue(info.matchLocators) ||
-					!Is.empty(LocatorHelper.findMatchingLocator(info.matchLocators, locator))
+					!Is.arrayValue(matchLocators) ||
+					matchLocators.some(locator => OdrlPolicyHelper.matchPolicy(policy, locator))
 				) {
-					information.push(...info.objects);
+					information = {
+						...information,
+						...info.objects
+					};
 				}
 			}
 		}
@@ -119,13 +110,13 @@ export class StaticPolicyInformationSource implements IPolicyInformationSource {
 			ts: Date.now(),
 			message: "staticRetrieved",
 			data: {
-				locator: LocatorHelper.toString(locator),
+				policyId: policy?.uid ?? "",
 				accessMode,
-				itemCount: information.length
+				itemCount: Object.keys(information).length
 			}
 		});
 
-		return information.length > 0 ? information : undefined;
+		return Object.keys(information).length > 0 ? information : undefined;
 	}
 
 	/**
@@ -139,7 +130,7 @@ export class StaticPolicyInformationSource implements IPolicyInformationSource {
 			info.accessMode,
 			Object.values(PolicyInformationAccessMode)
 		);
-		Guards.arrayValue<IJsonLdNodeObject>(
+		Guards.objectValue<{ [id: string]: IJsonLdNodeObject }>(
 			StaticPolicyInformationSource.CLASS_NAME,
 			nameof(info.objects),
 			info.objects

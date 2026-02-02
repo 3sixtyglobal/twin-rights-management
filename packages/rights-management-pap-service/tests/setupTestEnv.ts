@@ -1,10 +1,11 @@
 // Copyright 2025 IOTA Stiftung.
 // SPDX-License-Identifier: Apache-2.0.
 import path from "node:path";
-import { Converter, RandomHelper } from "@twin.org/core";
+import { Converter, RandomHelper, Urn } from "@twin.org/core";
 import { MemoryEntityStorageConnector } from "@twin.org/entity-storage-connector-memory";
 import { EntityStorageConnectorFactory } from "@twin.org/entity-storage-models";
 import { nameof } from "@twin.org/nameof";
+import { RightsManagementNamespaces } from "@twin.org/rights-management-models";
 import {
 	type ActionType,
 	OdrlContexts,
@@ -26,7 +27,7 @@ dotenv.config({
 export const TEST_DIRECTORY_ROOT = "./.tmp/";
 export const TEST_DIRECTORY = `${TEST_DIRECTORY_ROOT}test-data-${Converter.bytesToHex(RandomHelper.generate(8))}`;
 
-export const TEST_POLICY_ID = "http://example.com/policy/1";
+export const TEST_POLICY_ID = Urn.generateRandom(RightsManagementNamespaces.Policy).toString(false);
 export const TEST_ASSET_ID = "http://example.com/asset/1";
 export const TEST_USER_IDENTITY = "user:1234";
 export const TEST_NODE_IDENTITY = "node:5678";

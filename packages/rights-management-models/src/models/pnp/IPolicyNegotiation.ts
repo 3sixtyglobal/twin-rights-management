@@ -2,13 +2,12 @@
 // SPDX-License-Identifier: Apache-2.0.
 import type { DataspaceProtocolContractNegotiationStateType } from "@twin.org/standards-dataspace-protocol";
 import type { IOdrlAgreement, IOdrlOffer } from "@twin.org/standards-w3c-odrl";
-import type { IPolicyLocator } from "../IPolicyLocator.js";
-import type { IPolicyInformation } from "../pip/IPolicyInformation.js";
+import type { ITrustVerificationInfo } from "@twin.org/trust-models";
 
 /**
  * Interface describing a rights management policy negotiation.
  */
-export interface IPolicyNegotiation extends IPolicyLocator {
+export interface IPolicyNegotiation {
 	/**
 	 * The primary id used by the provider.
 	 */
@@ -55,9 +54,9 @@ export interface IPolicyNegotiation extends IPolicyLocator {
 	agreement?: IOdrlAgreement;
 
 	/**
-	 * Additional information supplied by the consumer to help with negotiation.
+	 * The information from the trust provider.
 	 */
-	information?: IPolicyInformation;
+	trustVerificationInfo?: ITrustVerificationInfo;
 
 	/**
 	 * A reason code for when the negotiation errors.

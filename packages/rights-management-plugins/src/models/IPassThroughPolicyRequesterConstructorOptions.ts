@@ -2,9 +2,9 @@
 // SPDX-License-Identifier: Apache-2.0.
 
 /**
- * Options for the Example Policy Requester.
+ * Options for the Pass Through Policy Requester.
  */
-export interface IExamplePolicyRequesterConstructorOptions {
+export interface IPassThroughPolicyRequesterConstructorOptions {
 	/**
 	 * The logging component for policy requester.
 	 * @default logging

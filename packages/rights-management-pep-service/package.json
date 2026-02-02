@@ -32,7 +32,8 @@
 		"@twin.org/core": "next",
 		"@twin.org/rights-management-models": "0.0.3-next.11",
 		"@twin.org/logging-models": "next",
-		"@twin.org/nameof": "next"
+		"@twin.org/nameof": "next",
+		"@twin.org/standards-w3c-odrl": "next"
 	},
 	"devDependencies": {
 		"@twin.org/entity-storage-connector-memory": "next",

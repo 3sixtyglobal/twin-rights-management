@@ -164,11 +164,39 @@ Nothing.
 
 ### query()
 
-> **query**(`conditions?`, `cursor?`, `limit?`): `Promise`\<\{ `cursor?`: `string`; `policies`: `IOdrlPolicy`[]; \}\>
+> **query**(`options?`, `conditions?`, `cursor?`, `limit?`): `Promise`\<\{ `cursor?`: `string`; `policies`: `IOdrlPolicy`[]; \}\>
 
 Query the policies using the specified conditions.
 
 #### Parameters
+
+##### options?
+
+Optional options to filter by assigner or assignee.
+
+###### assigner?
+
+`string`
+
+The assigner to filter by.
+
+###### assignee?
+
+`string`
+
+The assignee to filter by.
+
+###### target?
+
+`string`
+
+The target to filter by.
+
+###### action?
+
+`string`
+
+The action to filter by.
 
 ##### conditions?
 

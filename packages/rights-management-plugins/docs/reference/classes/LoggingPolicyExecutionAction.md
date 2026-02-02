@@ -74,7 +74,7 @@ List of stages.
 
 ### execute()
 
-> **execute**\<`D`\>(`stage`, `locator`, `policies?`, `decisions?`, `data?`): `Promise`\<`void`\>
+> **execute**\<`D`\>(`policy`, `decisions`, `data`, `stage`): `Promise`\<`void`\>
 
 Execute function type for policy actions.
 
@@ -86,35 +86,29 @@ Execute function type for policy actions.
 
 #### Parameters
 
-##### stage
+##### policy
 
-`PolicyDecisionStage`
+`IOdrlPolicy`
 
-The stage of the policy decision.
+The policy that applied to the data.
 
-##### locator
-
-`IPolicyLocator`
-
-The locator to find relevant policies.
-
-##### policies?
-
-`IOdrlPolicy`[]
-
-The policies that apply to the data.
-
-##### decisions?
+##### decisions
 
 `IPolicyDecision`[]
 
 The decisions made by the PDP.
 
-##### data?
-
-`D`
+##### data
 
 The data to process.
+
+`D` | `undefined`
+
+##### stage
+
+`PolicyDecisionStage`
+
+The stage of the policy decision.
 
 #### Returns
 

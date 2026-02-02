@@ -26,11 +26,11 @@ false
 
 ***
 
-### includePolicies?
+### includePolicy?
 
-> `optional` **includePolicies**: `boolean`
+> `optional` **includePolicy**: `boolean`
 
-Whether to include the policies in the log.
+Whether to include the policy in the log.
 
 #### Default
 

@@ -2,13 +2,14 @@
 // SPDX-License-Identifier: Apache-2.0.
 import {
 	HttpParameterHelper,
+	type IHostingComponent,
 	type ICreatedResponse,
 	type IHttpRequestContext,
 	type INoContentResponse,
 	type IRestRoute,
 	type ITag
 } from "@twin.org/api-models";
-import { Coerce, ComponentFactory, Guards } from "@twin.org/core";
+import { Coerce, ComponentFactory, Guards, Is } from "@twin.org/core";
 import { nameof } from "@twin.org/nameof";
 import type {
 	IPapCreateRequest,
@@ -27,7 +28,7 @@ import type {
 	IPolicyAdministrationPointComponent
 } from "@twin.org/rights-management-models";
 import { OdrlContexts } from "@twin.org/standards-w3c-odrl";
-import { HttpStatusCode } from "@twin.org/web";
+import { HeaderHelper, HeaderTypes, HttpStatusCode } from "@twin.org/web";
 
 /**
  * The source used when communicating about these routes.
@@ -385,22 +386,19 @@ export function generateRestRoutesPolicyAdministrationPoint(
 					{
 						id: "papQueryResponseExample",
 						response: {
-							body: {
-								cursor: "next-page-cursor",
-								policies: [
-									{
-										"@context": OdrlContexts.Context,
-										"@type": "Set",
-										uid: "urn:rights-management:abc123def456",
-										permission: [
-											{
-												target: "http://example.com/asset/1",
-												action: "use"
-											}
-										]
-									}
-								]
-							}
+							body: [
+								{
+									"@context": OdrlContexts.Context,
+									"@type": "Set",
+									uid: "urn:rights-management:abc123def456",
+									permission: [
+										{
+											target: "http://example.com/asset/1",
+											action: "use"
+										}
+									]
+								}
+							]
 						}
 					}
 				]
@@ -627,17 +625,35 @@ export async function papQuery(
 ): Promise<IPapQueryResponse> {
 	Guards.object<IPapQueryRequest>(ROUTES_SOURCE, nameof(request), request);
 
+	const hostingComponent = ComponentFactory.get<IHostingComponent>(
+		httpRequestContext.hostingComponentType ?? "hosting"
+	);
+
 	const component = ComponentFactory.get<IPolicyAdministrationPointComponent>(componentName);
 	const result = await component.query(
+		{
+			assigner: request.query?.assigner,
+			assignee: request.query?.assignee,
+			target: request.query?.target,
+			action: request.query?.action
+		},
 		HttpParameterHelper.objectFromString(request.query?.conditions),
 		request.query?.cursor,
 		Coerce.integer(request.query?.limit)
 	);
 
+	const headers: IPapQueryResponse["headers"] = {};
+
+	if (Is.stringValue(result.cursor)) {
+		headers[HeaderTypes.Link] = HeaderHelper.createLinkHeader(
+			await hostingComponent.buildPublicUrl(httpRequestContext.serverRequest.url),
+			{ cursor: result.cursor },
+			"next"
+		);
+	}
+
 	return {
-		body: {
-			cursor: result.cursor,
-			policies: result.policies
-		}
+		headers,
+		body: result.policies
 	};
 }

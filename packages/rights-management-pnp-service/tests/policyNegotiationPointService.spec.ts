@@ -22,7 +22,6 @@ import { nameof } from "@twin.org/nameof";
 import {
 	PolicyNegotiatorFactory,
 	PolicyRequesterFactory,
-	type IPolicyInformation,
 	type IPolicyNegotiationPointComponent,
 	type IPolicyNegotiator,
 	type IPolicyRequester
@@ -206,7 +205,6 @@ describe("PolicyNegotiationPointService", () => {
 
 		mockPolicyRequester = {
 			className: () => "MockPolicyRequester",
-			requesterId: () => "requester-1",
 			offer: vi.fn(async (negotiationId, offer) => true),
 			agreement: vi.fn(async (negotiationId, agreement) => true),
 			finalised: vi.fn(async negotiationId => {}),
@@ -216,11 +214,11 @@ describe("PolicyNegotiationPointService", () => {
 		mockNegotiator = {
 			className: () => "MockPolicyNegotiator",
 			supportsOffer: vi.fn((offer: IOdrlOffer) => true),
-			handleOffer: vi.fn(async (offer: IOdrlOffer, information?: IPolicyInformation) => ({
+			handleOffer: vi.fn(async (offer: IOdrlOffer) => ({
 				accepted: true,
 				interventionRequired: false
 			})),
-			createAgreement: vi.fn(async (offer: IOdrlOffer, information?: IPolicyInformation) => ({
+			createAgreement: vi.fn(async (offer: IOdrlOffer) => ({
 				"@context": OdrlContexts.Context,
 				"@type": OdrlTypes.Agreement,
 				uid: "urn:policy:agreement-1",
@@ -293,7 +291,7 @@ describe("PolicyNegotiationPointService", () => {
 				"http://localhost:4000"
 			)
 		).rejects.toMatchObject({
-			name: "GeneralError",
+			name: "NotFoundError",
 			message: "policyNegotiationPointService.noRequesterFound"
 		});
 	});
@@ -423,7 +421,6 @@ describe("PolicyNegotiationPointService", () => {
 			dateCreated: expect.any(String),
 			expires: expect.any(Number),
 			handlerId: "requester-1",
-			information: {},
 			offer: undefined,
 			state: "REQUESTED"
 		});
@@ -434,7 +431,6 @@ describe("PolicyNegotiationPointService", () => {
 			dateCreated: expect.any(String),
 			expires: expect.any(Number),
 			handlerId: "MockPolicyNegotiator",
-			information: {},
 			offer: {
 				"@context": "http://www.w3.org/ns/odrl.jsonld",
 				"@type": "Offer",
@@ -494,7 +490,6 @@ describe("PolicyNegotiationPointService", () => {
 			dateCreated: expect.any(String),
 			expires: expect.any(Number),
 			handlerId: "requester-2",
-			information: {},
 			offer: {
 				"@context": "http://www.w3.org/ns/odrl.jsonld",
 				"@type": "Offer",
@@ -513,7 +508,6 @@ describe("PolicyNegotiationPointService", () => {
 			dateCreated: expect.any(String),
 			expires: expect.any(Number),
 			handlerId: "MockPolicyNegotiator",
-			information: {},
 			offer: {
 				"@context": "http://www.w3.org/ns/odrl.jsonld",
 				"@type": "Offer",
@@ -533,7 +527,6 @@ describe("PolicyNegotiationPointService", () => {
 			dateCreated: expect.any(String),
 			expires: expect.any(Number),
 			handlerId: "MockPolicyNegotiator",
-			information: {},
 			offer: {
 				"@context": "http://www.w3.org/ns/odrl.jsonld",
 				"@type": "Offer",
@@ -553,7 +546,6 @@ describe("PolicyNegotiationPointService", () => {
 			dateCreated: expect.any(String),
 			expires: expect.any(Number),
 			handlerId: "requester-2",
-			information: {},
 			offer: {
 				"@context": "http://www.w3.org/ns/odrl.jsonld",
 				"@type": "Offer",
@@ -579,7 +571,6 @@ describe("PolicyNegotiationPointService", () => {
 			dateCreated: expect.any(String),
 			expires: expect.any(Number),
 			handlerId: "MockPolicyNegotiator",
-			information: {},
 			offer: {
 				"@context": "http://www.w3.org/ns/odrl.jsonld",
 				"@type": "Offer",
@@ -606,7 +597,6 @@ describe("PolicyNegotiationPointService", () => {
 			dateCreated: expect.any(String),
 			expires: expect.any(Number),
 			handlerId: "requester-2",
-			information: {},
 			offer: {
 				"@context": "http://www.w3.org/ns/odrl.jsonld",
 				"@type": "Offer",
@@ -631,7 +621,6 @@ describe("PolicyNegotiationPointService", () => {
 			dateCreated: expect.any(String),
 			expires: expect.any(Number),
 			handlerId: "MockPolicyNegotiator",
-			information: {},
 			offer: {
 				"@context": "http://www.w3.org/ns/odrl.jsonld",
 				"@type": "Offer",
@@ -657,7 +646,6 @@ describe("PolicyNegotiationPointService", () => {
 			dateCreated: expect.any(String),
 			expires: expect.any(Number),
 			handlerId: "requester-2",
-			information: {},
 			offer: {
 				"@context": "http://www.w3.org/ns/odrl.jsonld",
 				"@type": "Offer",
@@ -682,7 +670,6 @@ describe("PolicyNegotiationPointService", () => {
 			dateCreated: expect.any(String),
 			expires: expect.any(Number),
 			handlerId: "MockPolicyNegotiator",
-			information: {},
 			offer: {
 				"@context": "http://www.w3.org/ns/odrl.jsonld",
 				"@type": "Offer",

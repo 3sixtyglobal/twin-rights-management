@@ -10,6 +10,26 @@ export interface IPapQueryRequest {
 	 */
 	query?: {
 		/**
+		 * The assigner to filter by.
+		 */
+		assigner?: string;
+
+		/**
+		 * The assignee to filter by.
+		 */
+		assignee?: string;
+
+		/**
+		 * The action to filter by.
+		 */
+		action?: string;
+
+		/**
+		 * The target to filter by.
+		 */
+		target?: string;
+
+		/**
 		 * The condition for the query.
 		 */
 		conditions?: string;

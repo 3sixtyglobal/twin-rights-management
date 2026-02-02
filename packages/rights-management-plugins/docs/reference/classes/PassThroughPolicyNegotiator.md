@@ -1,6 +1,6 @@
-# Class: ExamplePolicyNegotiator
+# Class: PassThroughPolicyNegotiator
 
-Example Policy Negotiator.
+Pass Through Policy Negotiator.
 
 ## Implements
 
@@ -10,21 +10,21 @@ Example Policy Negotiator.
 
 ### Constructor
 
-> **new ExamplePolicyNegotiator**(`options?`): `ExamplePolicyNegotiator`
+> **new PassThroughPolicyNegotiator**(`options?`): `PassThroughPolicyNegotiator`
 
-Create a new instance of ExamplePolicyNegotiator.
+Create a new instance of PassThroughPolicyNegotiator.
 
 #### Parameters
 
 ##### options?
 
-[`IExamplePolicyNegotiatorConstructorOptions`](../interfaces/IExamplePolicyNegotiatorConstructorOptions.md)
+[`IPassThroughPolicyNegotiatorConstructorOptions`](../interfaces/IPassThroughPolicyNegotiatorConstructorOptions.md)
 
-The options for the example policy negotiator.
+The options for the pass through policy negotiator.
 
 #### Returns
 
-`ExamplePolicyNegotiator`
+`PassThroughPolicyNegotiator`
 
 ## Properties
 
@@ -32,7 +32,7 @@ The options for the example policy negotiator.
 
 > `readonly` `static` **CLASS\_NAME**: `string`
 
-The class name of the Example Policy Negotiator.
+The class name of the Pass Through Policy Negotiator.
 
 ## Methods
 
@@ -96,8 +96,6 @@ The offer to check.
 
 ##### information?
 
-`IPolicyInformation`
-
 Information provided by the requester to determine if a policy can be created.
 
 #### Returns
@@ -114,7 +112,7 @@ Sets the accepted flag if it can be offered, and the interventionRequired flag i
 
 ### createAgreement()
 
-> **createAgreement**(`offer`, `information?`): `Promise`\<`IOdrlAgreement` \| `undefined`\>
+> **createAgreement**(`offer`, `assignee`, `information?`): `Promise`\<`IOdrlAgreement` \| `undefined`\>
 
 Create an agreement based on the offer.
 
@@ -126,9 +124,13 @@ Create an agreement based on the offer.
 
 The offer to create the agreement from.
 
-##### information?
+##### assignee
 
-`IPolicyInformation`
+The assignee of the agreement.
+
+`string` | `IOdrlParty`
+
+##### information?
 
 Information provided by the requester to aid in the creation of the agreement.
 

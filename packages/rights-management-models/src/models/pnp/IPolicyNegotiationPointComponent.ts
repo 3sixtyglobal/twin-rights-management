@@ -33,14 +33,14 @@ export interface IPolicyNegotiationPointComponent extends IComponent {
 	/**
 	 * Send a request to a provider.
 	 * @param url The url of the provider to send the request to.
-	 * @param requesterId The id of the requester to use for the request, will use the registered requester to provide update.
+	 * @param requesterType The type of the requester to use for the request, will use the registered requester to provide update.
 	 * @param odrlOfferId The id of the offer to request.
 	 * @param publicOrigin The public origin url of this PNP service.
 	 * @returns The negotiation id.
 	 */
 	sendRequestToProvider(
 		url: string,
-		requesterId: string,
+		requesterType: string,
 		odrlOfferId: string,
 		publicOrigin: string
 	): Promise<string>;

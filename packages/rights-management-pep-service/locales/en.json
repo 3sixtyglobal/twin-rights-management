@@ -1,13 +1,16 @@
 {
 	"error": {
 		"policyEnforcementPointService": {
-			"processingFailed": "Failed to process information using processor with id: \"{processorId}\", locator: \"{locator}\""
+			"noProcessors": "No processors available to process information",
+			"processingFailed": "Failed to process information using processor with id: \"{processorId}\", policy id: \"{policyId}\"",
+			"noPoliciesFound": "No policies found for locator: \"{locator}\"",
+			"multiplePoliciesFound": "Multiple policies found for locator: \"{locator}\""
 		}
 	},
 	"info": {
 		"policyEnforcementPointService": {
-			"processing": "Processing information using processor with id: \"{processorId}\", locator: \"{locator}\"",
-			"intercepting": "Intercepting information for locator: \"{locator}\""
+			"processing": "Processing information using processor with id: \"{processorId}\", policy id: \"{policyId}\"",
+			"intercepting": "Intercepting information for policy id: \"{policyId}\""
 		}
 	}
 }

@@ -1,14 +1,12 @@
 // Copyright 2025 IOTA Stiftung.
 // SPDX-License-Identifier: Apache-2.0.
-import { BaseError, ComponentFactory, Guards } from "@twin.org/core";
-import type { IJsonLdNodeObject } from "@twin.org/data-json-ld";
+import { BaseError, ComponentFactory, Guards, Is } from "@twin.org/core";
+import { type IJsonLdNodeObject, JsonLdHelper } from "@twin.org/data-json-ld";
 import type { IIdentityResolverComponent } from "@twin.org/identity-models";
 import type { ILoggingComponent } from "@twin.org/logging-models";
 import { nameof } from "@twin.org/nameof";
 import {
 	type IPolicyInformationSource,
-	type IPolicyLocator,
-	LocatorHelper,
 	PolicyInformationAccessMode
 } from "@twin.org/rights-management-models";
 import type { IOdrlPolicy } from "@twin.org/standards-w3c-odrl";
@@ -58,60 +56,63 @@ export class IdentityPolicyInformationSource implements IPolicyInformationSource
 
 	/**
 	 * Retrieve information from the sources.
-	 * @param locator The locator to find relevant policies.
+	 * @param policy The policy to retrieve information for if available.
 	 * @param accessMode The access mode to use for the retrieval.
-	 * @param policies The policies that apply to the data.
 	 * @param data The data to process.
 	 * @returns The objects containing relevant information or undefined if nothing relevant is found.
 	 */
 	public async retrieve<D = unknown>(
-		locator: IPolicyLocator,
+		policy: IOdrlPolicy | undefined,
 		accessMode: PolicyInformationAccessMode,
-		policies: IOdrlPolicy[],
 		data?: D
-	): Promise<IJsonLdNodeObject[] | undefined> {
-		Guards.objectValue<IPolicyLocator>(
-			IdentityPolicyInformationSource.CLASS_NAME,
-			nameof(locator),
-			locator
-		);
+	): Promise<{ [id: string]: IJsonLdNodeObject } | undefined> {
 		Guards.arrayOneOf(
 			IdentityPolicyInformationSource.CLASS_NAME,
 			nameof(accessMode),
 			accessMode,
 			Object.values(PolicyInformationAccessMode)
 		);
-		Guards.stringValue(
-			IdentityPolicyInformationSource.CLASS_NAME,
-			nameof(locator.assignee),
-			locator.assignee
-		);
 
-		const information: IJsonLdNodeObject[] = [];
+		const information: { [id: string]: IJsonLdNodeObject } = {};
 
-		try {
-			await this._logging?.log({
-				level: "info",
-				source: IdentityPolicyInformationSource.CLASS_NAME,
-				ts: Date.now(),
-				message: "identityRetrieving",
-				data: {
-					locator: LocatorHelper.toString(locator)
+		if (Is.object<IOdrlPolicy>(policy)) {
+			const ids = [];
+
+			if (Is.stringValue(policy.assignee)) {
+				ids.push(policy.assignee);
+			}
+			if (Is.stringValue(policy.assigner)) {
+				ids.push(policy.assigner);
+			}
+
+			for (const id of ids) {
+				try {
+					await this._logging?.log({
+						level: "info",
+						source: IdentityPolicyInformationSource.CLASS_NAME,
+						ts: Date.now(),
+						message: "identityRetrieving",
+						data: {
+							policyId: policy.uid,
+							id
+						}
+					});
+					const idDoc = await this._identityResolver.identityResolve(id);
+					information[id] = JsonLdHelper.toNodeObject(idDoc);
+				} catch (err) {
+					await this._logging?.log({
+						level: "error",
+						source: IdentityPolicyInformationSource.CLASS_NAME,
+						ts: Date.now(),
+						message: "identityRetrievalFailed",
+						data: {
+							policyId: policy.uid,
+							id
+						},
+						error: BaseError.fromError(err)
+					});
 				}
-			});
-			const idDoc = await this._identityResolver.identityResolve(locator.assignee);
-			information.push(idDoc as unknown as IJsonLdNodeObject);
-		} catch (err) {
-			await this._logging?.log({
-				level: "error",
-				source: IdentityPolicyInformationSource.CLASS_NAME,
-				ts: Date.now(),
-				message: "identityRetrievalFailed",
-				data: {
-					locator: LocatorHelper.toString(locator)
-				},
-				error: BaseError.fromError(err)
-			});
+			}
 		}
 
 		return information;

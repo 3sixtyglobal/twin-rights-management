@@ -56,7 +56,7 @@ The class name of the component.
 
 ### retrieve()
 
-> **retrieve**\<`D`\>(`locator`, `accessMode`, `policies?`, `data?`): `Promise`\<`IPolicyInformation`\>
+> **retrieve**\<`D`\>(`policy`, `accessMode`, `data?`): `Promise`\<\{\[`id`: `string`\]: `IJsonLdNodeObject`; \}\>
 
 Retrieve additional information which is relevant in the PDP decision making.
 
@@ -68,23 +68,17 @@ Retrieve additional information which is relevant in the PDP decision making.
 
 #### Parameters
 
-##### locator
+##### policy
 
-`IPolicyLocator`
+The policy to retrieve the information for if available.
 
-The locator to find relevant policies.
+`IOdrlPolicy` | `undefined`
 
 ##### accessMode
 
 `PolicyInformationAccessMode`
 
 The access mode to use for the retrieval.
-
-##### policies?
-
-`IOdrlPolicy`[]
-
-The policies that apply to the data.
 
 ##### data?
 
@@ -94,7 +88,7 @@ The data to get any additional information for.
 
 #### Returns
 
-`Promise`\<`IPolicyInformation`\>
+`Promise`\<\{\[`id`: `string`\]: `IJsonLdNodeObject`; \}\>
 
 Returns additional information based on the data and identities.
 

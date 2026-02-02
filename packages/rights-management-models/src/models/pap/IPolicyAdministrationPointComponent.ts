@@ -64,12 +64,23 @@ export interface IPolicyAdministrationPointComponent extends IComponent {
 
 	/**
 	 * Query the policies using the specified conditions.
+	 * @param options Optional options to filter by assigner or assignee.
+	 * @param options.assigner The assigner to filter by.
+	 * @param options.assignee The assignee to filter by.
+	 * @param options.target The target to filter by.
+	 * @param options.action The action to filter by.
 	 * @param conditions The conditions to use for the query.
 	 * @param cursor The cursor to use for pagination.
 	 * @param limit The number of results to return per page.
 	 * @returns Cursor for next page of results and the policies matching the query.
 	 */
 	query(
+		options?: {
+			assigner?: string;
+			assignee?: string;
+			target?: string;
+			action?: string;
+		},
 		conditions?: EntityCondition<IOdrlPolicy>,
 		cursor?: string,
 		limit?: number

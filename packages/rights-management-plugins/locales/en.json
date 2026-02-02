@@ -1,20 +1,36 @@
 {
 	"error": {
 		"identityPolicyInformationSource": {
-			"identityRetrievalFailed": "Failed to retrieve identity information for locator: \"{locator}\""
+			"identityRetrievalFailed": "Failed to retrieve identity \"{id}\" information for policy id: \"{policyId}\""
 		}
 	},
 	"info": {
 		"identityPolicyInformationSource": {
-			"identityRetrieving": "Retrieving identity information for locator: \"{locator}\""
+			"identityRetrieving": "Retrieving identity \"{id}\" information for policy id: \"{policyId}\""
 		},
 		"staticPolicyInformationSource": {
-			"staticRetrieving": "Retrieving static policy information for locator \"{locator}\" with access mode: \"{accessMode}\"",
-			"staticRetrieved": "Retrieved static policy information for locator: \"{locator}\" with access mode: \"{accessMode}\", item count: {itemCount}"
+			"staticRetrieving": "Retrieving static policy information for policy id: \"{policyId}\" with access mode: \"{accessMode}\"",
+			"staticRetrieved": "Retrieved static policy information for policy id: \"{policyId}\" with access mode: \"{accessMode}\", item count: {itemCount}"
 		},
 		"loggingPolicyExecutionAction": {
-			"policyActionExecutedBefore": "Policy executed for locator: \"{locator}\", stage: \"{stage}\", data: \"{data}\", policies: \"{policies}\"",
-			"policyActionExecutedAfter": "Policy executed for locator: \"{locator}\", stage: \"{stage}\", data: \"{data}\", policies: \"{policies}\", decisions: \"{decisions}\""
+			"policyActionExecutedBefore": "Policy executed for policyId: \"{policyId}\", stage: \"{stage}\", data: \"{data}\", policy: \"{policy}\", decisions: \"{decisions}\"",
+			"policyActionExecutedAfter": "Policy executed for policyId: \"{policyId}\", stage: \"{stage}\", data: \"{data}\", policy: \"{policy}\", decisions: \"{decisions}\""
+		},
+		"passThroughPolicyEnforcementProcessor": {
+			"processingPolicy": "Processing policy enforcement for policy id: \"{policyId}\""
+		},
+		"passThroughPolicyArbiter": {
+			"decidingPolicy": "Deciding policy for policy id: \"{policyId}\""
+		},
+		"passThroughPolicyNegotiator": {
+			"handlingOffer": "Handling offer negotiation for offer id: \"{offerId}\"",
+			"createAgreement": "Creating agreement for policy id: \"{offerId}\""
+		},
+		"passThroughPolicyRequester": {
+			"offer": "Logging offer request for offer id: \"{offerId}\", negotiation id: \"{negotiationId}\"",
+			"agreement": "Logging agreement request for agreement id: \"{agreementId}\", negotiation id: \"{negotiationId}\"",
+			"finalised": "Logging finalised request for negotiation id: \"{negotiationId}\"",
+			"terminated": "Logging terminated request for negotiation id: \"{negotiationId}\""
 		}
 	}
 }

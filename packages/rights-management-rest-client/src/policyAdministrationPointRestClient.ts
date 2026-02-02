@@ -31,6 +31,7 @@ import type {
 	IOdrlPolicy,
 	IOdrlSet
 } from "@twin.org/standards-w3c-odrl";
+import { HeaderHelper, HeaderTypes } from "@twin.org/web";
 
 /**
  * Client for performing Rights Management Policy Administration through to REST endpoints.
@@ -201,12 +202,23 @@ export class PolicyAdministrationPointRestClient
 
 	/**
 	 * Query the policies using the specified conditions.
+	 * @param options Optional options to filter by assigner or assignee.
+	 * @param options.assigner The assigner to filter by.
+	 * @param options.assignee The assignee to filter by.
+	 * @param options.target The target to filter by.
+	 * @param options.action The action to filter by.
 	 * @param conditions The conditions to use for the query.
 	 * @param cursor The cursor to use for pagination.
 	 * @param limit The number of results to return per page.
 	 * @returns Cursor for next page of results and the policies matching the query.
 	 */
 	public async query(
+		options?: {
+			assigner?: string;
+			assignee?: string;
+			target?: string;
+			action?: string;
+		},
 		conditions?: EntityCondition<IOdrlPolicy>,
 		cursor?: string,
 		limit?: number
@@ -216,12 +228,20 @@ export class PolicyAdministrationPointRestClient
 	}> {
 		const response = await this.fetch<IPapQueryRequest, IPapQueryResponse>("/policy/admin", "GET", {
 			query: {
+				assigner: options?.assigner,
+				assignee: options?.assignee,
+				target: options?.target,
+				action: options?.action,
 				cursor,
 				conditions: HttpParameterHelper.objectToString(conditions),
 				limit: Coerce.string(limit)
 			}
 		});
 
-		return response.body;
+		return {
+			policies: response.body,
+			cursor: HeaderHelper.extractLinkHeaderRelation(response.headers?.[HeaderTypes.Link], "next")
+				?.urlQueryParams?.cursor
+		};
 	}
 }

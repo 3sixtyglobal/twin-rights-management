@@ -1,6 +1,6 @@
-# Class: ExamplePolicyRequester
+# Class: PassThroughPolicyRequester
 
-Example Policy Requester.
+Pass Through Policy Requester.
 
 ## Implements
 
@@ -10,21 +10,21 @@ Example Policy Requester.
 
 ### Constructor
 
-> **new ExamplePolicyRequester**(`options?`): `ExamplePolicyRequester`
+> **new PassThroughPolicyRequester**(`options?`): `PassThroughPolicyRequester`
 
-Create a new instance of ExamplePolicyRequester.
+Create a new instance of PassThroughPolicyRequester.
 
 #### Parameters
 
 ##### options?
 
-[`IExamplePolicyRequesterConstructorOptions`](../interfaces/IExamplePolicyRequesterConstructorOptions.md)
+[`IPassThroughPolicyRequesterConstructorOptions`](../interfaces/IPassThroughPolicyRequesterConstructorOptions.md)
 
-The options for the example policy Requester.
+The options for the pass through policy Requester.
 
 #### Returns
 
-`ExamplePolicyRequester`
+`PassThroughPolicyRequester`
 
 ## Properties
 
@@ -32,7 +32,7 @@ The options for the example policy Requester.
 
 > `readonly` `static` **CLASS\_NAME**: `string`
 
-The class name of the Example Policy Requester.
+The class name of the Pass Through Policy Requester.
 
 ## Methods
 
@@ -54,29 +54,11 @@ The class name of the component.
 
 ***
 
-### requesterId()
-
-> **requesterId**(): `string`
-
-The unique id of the requester.
-
-#### Returns
-
-`string`
-
-The requester id.
-
-#### Implementation of
-
-`IPolicyRequester.requesterId`
-
-***
-
 ### offer()
 
 > **offer**(`negotiationId`, `offer`): `Promise`\<`boolean`\>
 
-A policy has been offered by a provider, let the requester know about it.
+A policy has been offered by a provider, let the request handler know about it.
 
 #### Parameters
 
@@ -108,7 +90,7 @@ True if the offer was accepted, false otherwise.
 
 > **agreement**(`negotiationId`, `agreement`): `Promise`\<`boolean`\>
 
-A policy agreement has been sent by a provider, let the requester know about it.
+A policy agreement has been sent by a provider, let the request handler know about it.
 
 #### Parameters
 
@@ -140,7 +122,7 @@ True if the agreement was accepted, false otherwise.
 
 > **finalised**(`negotiationId`): `Promise`\<`void`\>
 
-A policy finalisation has been sent by a provider, let the requester know about it.
+A policy finalisation has been sent by a provider, let the request handler know about it.
 
 #### Parameters
 
@@ -166,7 +148,7 @@ Nothing.
 
 > **terminated**(`negotiationId`): `Promise`\<`void`\>
 
-A policy termination has been sent by a provider, let the requester know about it.
+A policy termination has been sent by a provider, let the request handler know about it.
 
 #### Parameters
 

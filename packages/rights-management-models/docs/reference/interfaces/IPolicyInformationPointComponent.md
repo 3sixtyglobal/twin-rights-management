@@ -12,7 +12,7 @@ it is making decisions.
 
 ### retrieve()
 
-> **retrieve**\<`D`\>(`locator`, `accessMode`, `policies?`, `data?`): `Promise`\<[`IPolicyInformation`](IPolicyInformation.md)\>
+> **retrieve**\<`D`\>(`policy`, `accessMode`, `data?`): `Promise`\<\{\[`id`: `string`\]: `IJsonLdNodeObject`; \}\>
 
 Retrieve additional information which is relevant in the PDP decision making.
 
@@ -24,23 +24,17 @@ Retrieve additional information which is relevant in the PDP decision making.
 
 #### Parameters
 
-##### locator
+##### policy
 
-[`IPolicyLocator`](IPolicyLocator.md)
+The policy to retrieve the information for if available.
 
-The locator to find relevant policies.
+`IOdrlPolicy` | `undefined`
 
 ##### accessMode
 
 [`PolicyInformationAccessMode`](../type-aliases/PolicyInformationAccessMode.md)
 
 The access mode to use for the retrieval.
-
-##### policies?
-
-`IOdrlPolicy`[]
-
-The policies that apply to the data.
 
 ##### data?
 
@@ -50,6 +44,6 @@ The data to get any additional information for.
 
 #### Returns
 
-`Promise`\<[`IPolicyInformation`](IPolicyInformation.md)\>
+`Promise`\<\{\[`id`: `string`\]: `IJsonLdNodeObject`; \}\>
 
 Returns additional information based on the data and identities.

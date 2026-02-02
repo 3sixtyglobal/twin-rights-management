@@ -10,6 +10,30 @@ The request structure for querying policies.
 
 The query parameters of the request.
 
+#### assigner?
+
+> `optional` **assigner**: `string`
+
+The assigner to filter by.
+
+#### assignee?
+
+> `optional` **assignee**: `string`
+
+The assignee to filter by.
+
+#### action?
+
+> `optional` **action**: `string`
+
+The action to filter by.
+
+#### target?
+
+> `optional` **target**: `string`
+
+The target to filter by.
+
 #### conditions?
 
 > `optional` **conditions**: `string`

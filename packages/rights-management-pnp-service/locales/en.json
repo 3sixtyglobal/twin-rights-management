@@ -3,7 +3,7 @@
 		"policyNegotiationPointService": {
 			"noOfferFound": "No offer found with id: \"{offerId}\"",
 			"noNegotiatorFound": "No negotiator found which support offer id: \"{offerId}\"",
-			"noRequesterFound": "No requester found with id: \"{requesterId}\"",
+			"noRequesterFound": "No requester found with type: \"{notFoundId}\"",
 			"negotiationFailed": "Negotiation failed for offer id: \"{offerId}\"",
 			"agreementMissing": "The agreement is missing",
 			"negotiationNotFound": "No negotiation found with id: \"{notFoundId}\"",

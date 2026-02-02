@@ -69,8 +69,8 @@ describe("PolicyInformationPointService", () => {
 
 	test("can retrieve information from a registered source", async () => {
 		const policyInformationPoint = new PolicyInformationPointService();
-		const mockInformation: IJsonLdNodeObject[] = [
-			{
+		const mockInformation: { [id: string]: IJsonLdNodeObject } = {
+			mock: {
 				"@context": "http://www.w3.org/ns/did/v1",
 				"@type": "VerifiableCredential",
 				"@id": "did:example:user123",
@@ -79,7 +79,7 @@ describe("PolicyInformationPointService", () => {
 					role: "admin"
 				}
 			}
-		];
+		};
 
 		const mockSource = new MockPolicyInformationSource("identitySource");
 		mockSource.retrieve.mockResolvedValue(mockInformation);
@@ -87,39 +87,40 @@ describe("PolicyInformationPointService", () => {
 		PolicyInformationSourceFactory.register("identitySource", () => mockSource);
 		const information = await policyInformationPoint.retrieve(
 			{
+				"@context": "http://www.w3.org/ns/odrl.jsonld",
+				"@type": "Set",
+				uid: "policy123",
 				assetType: "document",
 				action: "read",
 				assignee: "node456"
 			},
 			PolicyInformationAccessMode.Any,
-			[],
 			{ foo: "bar" }
 		);
 
 		expect(mockSource.retrieve).toHaveBeenCalledWith(
 			{
+				"@context": "http://www.w3.org/ns/odrl.jsonld",
+				"@type": "Set",
+				uid: "policy123",
 				assetType: "document",
 				action: "read",
 				assignee: "node456"
 			},
 			PolicyInformationAccessMode.Any,
-			[],
 			{ foo: "bar" }
 		);
-		expect(information).toEqual({
-			identitySource: mockInformation
-		});
+		expect(information).toEqual(mockInformation);
 	});
 
 	test("can retrieve information from multiple sources", async () => {
 		const policyInformationPoint = new PolicyInformationPointService();
-		const identityInfo: IJsonLdNodeObject[] = [
-			{ "@type": "Identity", "@id": "user123", role: "admin" }
-		];
-		const contextInfo: IJsonLdNodeObject[] = [
-			{ "@type": "Context", "@id": "context1", location: "EU", timeZone: "UTC+1" }
-		];
-
+		const identityInfo: { [id: string]: IJsonLdNodeObject } = {
+			identity: { "@type": "Identity", "@id": "user123", role: "admin" }
+		};
+		const contextInfo: { [id: string]: IJsonLdNodeObject } = {
+			context: { "@type": "Context", "@id": "context1", location: "EU", timeZone: "UTC+1" }
+		};
 		const identitySource = new MockPolicyInformationSource("identity");
 		const contextSource = new MockPolicyInformationSource("context");
 		identitySource.retrieve.mockResolvedValue(identityInfo);
@@ -130,36 +131,42 @@ describe("PolicyInformationPointService", () => {
 
 		const information = await policyInformationPoint.retrieve(
 			{
+				"@context": "http://www.w3.org/ns/odrl.jsonld",
+				"@type": "Set",
+				uid: "policy123",
 				assetType: "image",
 				action: "edit",
 				assignee: "node456"
 			},
 			PolicyInformationAccessMode.Any,
-			[],
 			{ foo: "bar" }
 		);
 
 		expect(identitySource.retrieve).toHaveBeenCalledWith(
 			{
+				"@context": "http://www.w3.org/ns/odrl.jsonld",
+				"@type": "Set",
+				uid: "policy123",
 				assetType: "image",
 				action: "edit",
 				assignee: "node456"
 			},
 			PolicyInformationAccessMode.Any,
-			[],
 			{ foo: "bar" }
 		);
 		expect(contextSource.retrieve).toHaveBeenCalledWith(
 			{
+				"@context": "http://www.w3.org/ns/odrl.jsonld",
+				"@type": "Set",
+				uid: "policy123",
 				assetType: "image",
 				action: "edit",
 				assignee: "node456"
 			},
 			PolicyInformationAccessMode.Any,
-			[],
 			{ foo: "bar" }
 		);
-		expect(information).toEqual({ context: contextInfo, identity: identityInfo });
+		expect(information).toEqual({ ...contextInfo, ...identityInfo });
 	});
 
 	test("handles source returning undefined", async () => {
@@ -170,12 +177,14 @@ describe("PolicyInformationPointService", () => {
 		PolicyInformationSourceFactory.register("emptySource", () => mockSource);
 		const information = await policyInformationPoint.retrieve(
 			{
+				"@context": "http://www.w3.org/ns/odrl.jsonld",
+				"@type": "Set",
+				uid: "policy123",
 				assetType: "test",
 				action: "action",
 				assignee: "node456"
 			},
 			PolicyInformationAccessMode.Any,
-			[],
 			{ foo: "bar" }
 		);
 
@@ -187,7 +196,9 @@ describe("PolicyInformationPointService", () => {
 		const workingSource = new MockPolicyInformationSource("working");
 		const failingSource = new MockPolicyInformationSource("failing");
 
-		const workingInfo: IJsonLdNodeObject[] = [{ "@id": "working-info", "@type": "Info" }];
+		const workingInfo: { [id: string]: IJsonLdNodeObject } = {
+			working: { "@id": "working-info", "@type": "Info" }
+		};
 		workingSource.retrieve.mockResolvedValue(workingInfo);
 		failingSource.retrieve.mockRejectedValue(new Error("Source error"));
 
@@ -196,18 +207,20 @@ describe("PolicyInformationPointService", () => {
 
 		const information = await policyInformationPoint.retrieve(
 			{
+				"@context": "http://www.w3.org/ns/odrl.jsonld",
+				"@type": "Set",
+				uid: "policy123",
 				assetType: "database",
 				action: "query",
 				assignee: "node456"
 			},
 			PolicyInformationAccessMode.Any,
-			[],
 			{ foo: "bar" }
 		);
 
 		expect(workingSource.retrieve).toHaveBeenCalled();
 		expect(failingSource.retrieve).toHaveBeenCalled();
-		expect(information).toEqual({ working: workingInfo });
+		expect(information).toEqual({ ...workingInfo });
 	});
 
 	test("logs error when information source fails", async () => {
@@ -217,9 +230,15 @@ describe("PolicyInformationPointService", () => {
 
 		PolicyInformationSourceFactory.register("failing", () => failingSource);
 		await policyInformationPoint.retrieve(
-			{ assetType: "file", action: "upload", assignee: "node456" },
+			{
+				"@context": "http://www.w3.org/ns/odrl.jsonld",
+				"@type": "Set",
+				uid: "policy123",
+				assetType: "file",
+				action: "upload",
+				assignee: "node456"
+			},
 			PolicyInformationAccessMode.Any,
-			[],
 			{ foo: "bar" }
 		);
 
@@ -229,7 +248,7 @@ describe("PolicyInformationPointService", () => {
 		expect(logEntries[0].message).toBe("sourceRetrieveFailed");
 		expect(logEntries[0].data).toEqual({
 			sourceId: "failing",
-			locator: "Assignee: node456, Action: upload, Asset Type: file"
+			policyId: "policy123"
 		});
 	});
 });

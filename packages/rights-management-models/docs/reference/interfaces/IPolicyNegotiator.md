@@ -46,8 +46,6 @@ The offer to check.
 
 ##### information?
 
-[`IPolicyInformation`](IPolicyInformation.md)
-
 Information provided by the requester to determine if a policy can be created.
 
 #### Returns
@@ -60,7 +58,7 @@ Sets the accepted flag if it can be offered, and the interventionRequired flag i
 
 ### createAgreement()
 
-> **createAgreement**(`offer`, `information?`): `Promise`\<`IOdrlAgreement` \| `undefined`\>
+> **createAgreement**(`offer`, `assignee`, `information?`): `Promise`\<`IOdrlAgreement` \| `undefined`\>
 
 Create an agreement based on the offer.
 
@@ -72,9 +70,13 @@ Create an agreement based on the offer.
 
 The offer to create the agreement from.
 
-##### information?
+##### assignee
 
-[`IPolicyInformation`](IPolicyInformation.md)
+The assignee of the agreement.
+
+`string` | `IOdrlParty`
+
+##### information?
 
 Information provided by the requester to aid in the creation of the agreement.
 

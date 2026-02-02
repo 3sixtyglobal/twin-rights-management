@@ -2,9 +2,9 @@
 // SPDX-License-Identifier: Apache-2.0.
 
 /**
- * Options for the Example Policy Negotiator.
+ * Options for the Pass Through Policy Negotiator.
  */
-export interface IExamplePolicyNegotiatorConstructorOptions {
+export interface IPassThroughPolicyNegotiatorConstructorOptions {
 	/**
 	 * The logging component for policy negotiator.
 	 * @default logging

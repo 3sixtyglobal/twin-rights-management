@@ -4,12 +4,13 @@ import { BaseError, ComponentFactory, GeneralError, Guards, ObjectHelper } from 
 import type { ILoggingComponent } from "@twin.org/logging-models";
 import { nameof } from "@twin.org/nameof";
 import {
-	LocatorHelper,
+	type IPolicyAdministrationPointComponent,
 	PolicyEnforcementProcessorFactory,
 	type IPolicyDecisionPointComponent,
 	type IPolicyEnforcementPointComponent,
-	type IPolicyLocator
+	type IPolicyManagementPointComponent
 } from "@twin.org/rights-management-models";
+import type { IOdrlPolicy } from "@twin.org/standards-w3c-odrl";
 import type { IPolicyEnforcementPointServiceConstructorOptions } from "./models/IPolicyEnforcementPointServiceConstructorOptions.js";
 
 /**
@@ -34,6 +35,18 @@ export class PolicyEnforcementPointService implements IPolicyEnforcementPointCom
 	private readonly _policyDecisionPointComponent: IPolicyDecisionPointComponent;
 
 	/**
+	 * The policy administration point component.
+	 * @internal
+	 */
+	private readonly _policyAdministrationPointComponent: IPolicyAdministrationPointComponent;
+
+	/**
+	 * The policy management point component.
+	 * @internal
+	 */
+	private readonly _policyManagementPointComponent: IPolicyManagementPointComponent;
+
+	/**
 	 * Create a new instance of PolicyEnforcementPointService (PEP).
 	 * @param options The options for the component.
 	 */
@@ -43,6 +56,13 @@ export class PolicyEnforcementPointService implements IPolicyEnforcementPointCom
 		);
 		this._policyDecisionPointComponent = ComponentFactory.get<IPolicyDecisionPointComponent>(
 			options?.policyDecisionPointComponentType ?? "policy-decision-point"
+		);
+		this._policyAdministrationPointComponent =
+			ComponentFactory.get<IPolicyAdministrationPointComponent>(
+				options?.policyAdministrationPointComponentType ?? "policy-administration-point"
+			);
+		this._policyManagementPointComponent = ComponentFactory.get<IPolicyManagementPointComponent>(
+			options?.policyManagementPointComponentType ?? "policy-management-point"
 		);
 	}
 
@@ -56,15 +76,15 @@ export class PolicyEnforcementPointService implements IPolicyEnforcementPointCom
 
 	/**
 	 * Process the data using Policy Decision Point (PDP) and return the manipulated data.
-	 * @param locator The locator to find relevant policies.
+	 * @param policy The policy to enforce.
 	 * @param data The data to process.
 	 * @returns The manipulated data with any policies applied.
 	 */
-	public async intercept<D = unknown, R = D>(locator: IPolicyLocator, data?: D): Promise<R> {
-		Guards.objectValue<IPolicyLocator>(
+	public async interceptWithPolicy<D = unknown, R = D>(policy: IOdrlPolicy, data?: D): Promise<R> {
+		Guards.objectValue<IOdrlPolicy>(
 			PolicyEnforcementPointService.CLASS_NAME,
-			nameof(locator),
-			locator
+			nameof(policy),
+			policy
 		);
 
 		await this._logging?.log({
@@ -73,16 +93,20 @@ export class PolicyEnforcementPointService implements IPolicyEnforcementPointCom
 			ts: Date.now(),
 			message: "intercepting",
 			data: {
-				locator: LocatorHelper.toString(locator)
+				policyId: policy.uid
 			}
 		});
 
-		const decisions = await this._policyDecisionPointComponent.evaluate(locator, data);
+		const decisions = await this._policyDecisionPointComponent.evaluate(policy, data);
 
 		let processedData: unknown = ObjectHelper.clone(data);
 
 		const processorNames = PolicyEnforcementProcessorFactory.names();
 		const processors = processorNames.map(name => PolicyEnforcementProcessorFactory.get(name));
+
+		if (processors.length === 0) {
+			throw new GeneralError(PolicyEnforcementPointService.CLASS_NAME, "noProcessors");
+		}
 
 		for (const processor of processors) {
 			try {
@@ -92,12 +116,12 @@ export class PolicyEnforcementPointService implements IPolicyEnforcementPointCom
 					ts: Date.now(),
 					message: "processing",
 					data: {
-						locator: LocatorHelper.toString(locator),
+						policyId: policy.uid,
 						processorId: processor.className()
 					}
 				});
 
-				processedData = await processor.process(locator, decisions, processedData);
+				processedData = await processor.process(policy, decisions, processedData);
 			} catch (error) {
 				await this._logging?.log({
 					level: "error",
@@ -106,19 +130,67 @@ export class PolicyEnforcementPointService implements IPolicyEnforcementPointCom
 					message: "processingFailed",
 					data: {
 						processorId: processor.className(),
-						locator: LocatorHelper.toString(locator)
+						policyId: policy.uid
 					},
 					error: BaseError.fromError(error)
 				});
 				throw new GeneralError(
 					PolicyEnforcementPointService.CLASS_NAME,
 					"processingFailed",
-					{ processorId: processor.className(), locator: LocatorHelper.toString(locator) },
+					{ processorId: processor.className(), policyId: policy.uid },
 					error
 				);
 			}
 		}
 
 		return processedData as R;
+	}
+
+	/**
+	 * Process the data using Policy Decision Point (PDP) and return the manipulated data.
+	 * @param uid The uid of the policy to look up.
+	 * @param data The data to process.
+	 * @returns The manipulated data with any policies applied.
+	 */
+	public async interceptWithId<D = unknown, R = D>(uid: string, data?: D): Promise<R> {
+		Guards.stringValue(PolicyEnforcementPointService.CLASS_NAME, nameof(uid), uid);
+
+		const policy = await this._policyAdministrationPointComponent.get(uid);
+
+		return this.interceptWithPolicy<D, R>(policy, data);
+	}
+
+	/**
+	 * Process the data using Policy Decision Point (PDP) and return the manipulated data.
+	 * @param locator The match criteria to look up policies.
+	 * @param locator.assigner The assigner attribute to match.
+	 * @param locator.assignee The assignee attribute to match.
+	 * @param locator.target The target attribute to match.
+	 * @param locator.action The action attribute to match.
+	 * @param data The data to process.
+	 * @returns The manipulated data with any policies applied.
+	 */
+	public async interceptWithLocator<D = unknown, R = D>(
+		locator: {
+			assigner?: string;
+			assignee?: string;
+			target?: string;
+			action?: string;
+		},
+		data?: D
+	): Promise<R> {
+		const policiesResult = await this._policyManagementPointComponent.retrieve(locator);
+
+		if (policiesResult.policies.length === 0) {
+			throw new GeneralError(PolicyEnforcementPointService.CLASS_NAME, "noPoliciesFound", {
+				locator: JSON.stringify(locator)
+			});
+		} else if (policiesResult.policies.length > 1) {
+			throw new GeneralError(PolicyEnforcementPointService.CLASS_NAME, "multiplePoliciesFound", {
+				locator: JSON.stringify(locator)
+			});
+		}
+
+		return this.interceptWithPolicy<D, R>(policiesResult.policies[0], data);
 	}
 }

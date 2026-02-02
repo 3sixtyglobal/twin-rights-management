@@ -21,7 +21,6 @@ import {
 	PolicyRequesterFactory,
 	RightsManagementNamespaces,
 	type IPolicyAdministrationPointComponent,
-	type IPolicyInformation,
 	type IPolicyInformationPointComponent,
 	type IPolicyNegotiation,
 	type IPolicyNegotiationAdminPointComponent,
@@ -42,7 +41,11 @@ import {
 	type IDataspaceProtocolContractRequestMessage
 } from "@twin.org/standards-dataspace-protocol";
 import { OdrlContexts, OdrlTypes, type IOdrlOffer } from "@twin.org/standards-w3c-odrl";
-import { TrustHelper, type ITrustComponent } from "@twin.org/trust-models";
+import {
+	type ITrustVerificationInfo,
+	TrustHelper,
+	type ITrustComponent
+} from "@twin.org/trust-models";
 import type { IPolicyNegotiationPointServiceConfig } from "./models/IPolicyNegotiationPointServiceConfig.js";
 import type { IPolicyNegotiationPointServiceConstructorOptions } from "./models/IPolicyNegotiationPointServiceConstructorOptions.js";
 
@@ -197,34 +200,40 @@ export class PolicyNegotiationPointService implements IPolicyNegotiationPointCom
 	/**
 	 * Send a request to a provider.
 	 * @param url The url of the provider to send the request to.
-	 * @param requesterId The id of the requester to use for the request, will use the registered requester to provide update.
+	 * @param requesterType The type of the requester to use for the request, will use the registered requester to provide update.
 	 * @param odrlOfferId The id of the offer to request.
 	 * @param publicOrigin The public origin url of this PNP service.
 	 * @returns The negotiation id.
 	 */
 	public async sendRequestToProvider(
 		url: string,
-		requesterId: string,
+		requesterType: string,
 		odrlOfferId: string,
 		publicOrigin: string
 	): Promise<string> {
 		Url.guard(PolicyNegotiationPointService.CLASS_NAME, nameof(url), url);
-		Guards.stringValue(PolicyNegotiationPointService.CLASS_NAME, nameof(requesterId), requesterId);
+		Guards.stringValue(
+			PolicyNegotiationPointService.CLASS_NAME,
+			nameof(requesterType),
+			requesterType
+		);
 		Guards.stringValue(PolicyNegotiationPointService.CLASS_NAME, nameof(odrlOfferId), odrlOfferId);
 
-		const policyRequester = PolicyRequesterFactory.getIfExists(requesterId);
+		const policyRequester = PolicyRequesterFactory.getIfExists(requesterType);
 		if (Is.empty(policyRequester)) {
-			throw new GeneralError(PolicyNegotiationPointService.CLASS_NAME, "noRequesterFound", {
-				requesterId
-			});
+			throw new NotFoundError(
+				PolicyNegotiationPointService.CLASS_NAME,
+				"noRequesterFound",
+				requesterType
+			);
 		}
 
 		const consumerPid = Urn.generateRandom(RightsManagementNamespaces.ContractNegotiation).toString(
 			false
 		);
 
-		const policyInformation = await this._policyInformationPointComponent.retrieve(
-			{},
+		const policyData = await this._policyInformationPointComponent.retrieve(
+			undefined,
 			PolicyInformationAccessMode.Public
 		);
 
@@ -236,7 +245,7 @@ export class PolicyNegotiationPointService implements IPolicyNegotiationPointCom
 			organizationId,
 			this._overrideTrustGeneratorType,
 			{
-				subject: policyInformation
+				subject: policyData
 			}
 		);
 
@@ -279,8 +288,11 @@ export class PolicyNegotiationPointService implements IPolicyNegotiationPointCom
 			correlationId: response.providerPid,
 			state: DataspaceProtocolContractNegotiationStateType.REQUESTED,
 			dateCreated: new Date(Date.now()).toISOString(),
-			handlerId: requesterId,
-			information: policyInformation
+			handlerId: requesterType,
+			trustVerificationInfo: {
+				identity: organizationId,
+				data: policyData
+			}
 		};
 
 		await this._policyNegotiationAdminPointComponent.set(policyNegotiation);
@@ -384,7 +396,7 @@ export class PolicyNegotiationPointService implements IPolicyNegotiationPointCom
 
 			// On an initial request a consumer can send additional information to support the negotiation
 			// this could include information such as the geography of the consumer
-			const policyInformation = trustInfo?.subject as IPolicyInformation;
+			const policyInformation = trustInfo.data;
 
 			// Construct a new negotiation or update an existing one
 			if (Is.stringValue(message.providerPid)) {
@@ -424,7 +436,7 @@ export class PolicyNegotiationPointService implements IPolicyNegotiationPointCom
 				}
 
 				policyNegotiation.offer = providerOffer;
-				policyNegotiation.information = policyInformation;
+				policyNegotiation.trustVerificationInfo = trustInfo;
 				policyNegotiation.handlerId = negotiator.className();
 			} else {
 				policyNegotiation = {
@@ -434,7 +446,7 @@ export class PolicyNegotiationPointService implements IPolicyNegotiationPointCom
 					offer: providerOffer,
 					state: DataspaceProtocolContractNegotiationStateType.REQUESTED,
 					callbackAddress: message.callbackAddress,
-					information: policyInformation,
+					trustVerificationInfo: trustInfo,
 					handlerId: negotiator.className()
 				};
 			}
@@ -512,7 +524,11 @@ export class PolicyNegotiationPointService implements IPolicyNegotiationPointCom
 		let consumerPid;
 		let policyNegotiation: IPolicyNegotiation | undefined;
 		try {
-			await TrustHelper.verifyTrust(this._trustComponent, trustPayload, "offerFromProvider");
+			const trustInfo = await TrustHelper.verifyTrust(
+				this._trustComponent,
+				trustPayload,
+				"offerFromProvider"
+			);
 
 			// If the consumer id is set then we load an existing negotiation
 			// if it is not set then we need to create a new negotiation
@@ -557,15 +573,16 @@ export class PolicyNegotiationPointService implements IPolicyNegotiationPointCom
 					id: consumerPid,
 					correlationId: message.providerPid,
 					dateCreated: new Date(Date.now()).toISOString(),
-					state: DataspaceProtocolContractNegotiationStateType.OFFERED
+					state: DataspaceProtocolContractNegotiationStateType.OFFERED,
+					trustVerificationInfo: trustInfo
 				};
 			}
 
 			// If we have an associated requester id then notify
-			const requesterId = policyNegotiation.handlerId;
-			if (Is.stringValue(requesterId)) {
+			const requesterType = policyNegotiation.handlerId;
+			if (Is.stringValue(requesterType)) {
 				// Try and find the original requester of the negotiation
-				const policyRequester = PolicyRequesterFactory.getIfExists(requesterId);
+				const policyRequester = PolicyRequesterFactory.getIfExists(requesterType);
 
 				// We can't find the requester, so error
 				if (Is.empty(policyRequester)) {
@@ -576,14 +593,14 @@ export class PolicyNegotiationPointService implements IPolicyNegotiationPointCom
 						new NotFoundError(
 							PolicyNegotiationPointService.CLASS_NAME,
 							"requesterNotFound",
-							requesterId
+							requesterType
 						)
 					);
 					return err;
 				}
 
 				// Tell the requester about the offer
-				const accepted = await policyRequester.offer(requesterId, message.offer);
+				const accepted = await policyRequester.offer(requesterType, message.offer);
 
 				if (!accepted) {
 					const err = await this.setErrorState(
@@ -708,10 +725,10 @@ export class PolicyNegotiationPointService implements IPolicyNegotiationPointCom
 			}
 
 			// If we have an associated requester then notify it
-			const requesterId = policyNegotiation.handlerId;
-			if (Is.stringValue(requesterId)) {
+			const requesterType = policyNegotiation.handlerId;
+			if (Is.stringValue(requesterType)) {
 				// Try and find the original requester of the negotiation
-				const policyRequester = PolicyRequesterFactory.getIfExists(requesterId);
+				const policyRequester = PolicyRequesterFactory.getIfExists(requesterType);
 
 				// We can't find the requester, so error
 				if (Is.empty(policyRequester)) {
@@ -722,14 +739,14 @@ export class PolicyNegotiationPointService implements IPolicyNegotiationPointCom
 						new NotFoundError(
 							PolicyNegotiationPointService.CLASS_NAME,
 							"requesterNotFound",
-							requesterId
+							requesterType
 						)
 					);
 					return err;
 				}
 
 				// Tell the requester about the offer
-				const accepted = await policyRequester.agreement(requesterId, message.agreement);
+				const accepted = await policyRequester.agreement(requesterType, message.agreement);
 
 				if (!accepted) {
 					const err = await this.setErrorState(
@@ -972,9 +989,9 @@ export class PolicyNegotiationPointService implements IPolicyNegotiationPointCom
 			) {
 				// Try and find the original requester of the negotiation
 				// this will only happen on the consumer side
-				const requesterId = policyNegotiation.handlerId;
-				if (Is.stringValue(requesterId)) {
-					const policyRequester = PolicyRequesterFactory.getIfExists(requesterId);
+				const requesterType = policyNegotiation.handlerId;
+				if (Is.stringValue(requesterType)) {
+					const policyRequester = PolicyRequesterFactory.getIfExists(requesterType);
 
 					// We can't find the requester, so error
 					if (Is.empty(policyRequester)) {
@@ -985,14 +1002,14 @@ export class PolicyNegotiationPointService implements IPolicyNegotiationPointCom
 							new NotFoundError(
 								PolicyNegotiationPointService.CLASS_NAME,
 								"requesterNotFound",
-								requesterId
+								requesterType
 							)
 						);
 						return err;
 					}
 
 					// Tell the requester about the finalisation
-					await policyRequester.finalised(requesterId);
+					await policyRequester.finalised(requesterType);
 				}
 			} else if (
 				destination === "provider" &&
@@ -1077,10 +1094,10 @@ export class PolicyNegotiationPointService implements IPolicyNegotiationPointCom
 			// If the target is a consumer we should notify the original
 			// requester that the negotiation has been terminated
 			if (destination === "consumer") {
-				const requesterId = policyNegotiation.handlerId;
-				if (Is.stringValue(requesterId)) {
+				const requesterType = policyNegotiation.handlerId;
+				if (Is.stringValue(requesterType)) {
 					// Try and find the original requester of the negotiation
-					const policyRequester = PolicyRequesterFactory.getIfExists(requesterId);
+					const policyRequester = PolicyRequesterFactory.getIfExists(requesterType);
 
 					// We can't find the requester, so error
 					if (Is.empty(policyRequester)) {
@@ -1091,14 +1108,14 @@ export class PolicyNegotiationPointService implements IPolicyNegotiationPointCom
 							new NotFoundError(
 								PolicyNegotiationPointService.CLASS_NAME,
 								"requesterNotFound",
-								requesterId
+								requesterType
 							)
 						);
 						return err;
 					}
 
 					// Tell the requester about the termination
-					await policyRequester.terminated(requesterId);
+					await policyRequester.terminated(requesterType);
 				}
 			}
 
@@ -1349,6 +1366,12 @@ export class PolicyNegotiationPointService implements IPolicyNegotiationPointCom
 			const offer = policyNegotiation.offer;
 			Guards.object<IOdrlOffer>(PolicyNegotiationPointService.CLASS_NAME, nameof(offer), offer);
 
+			Guards.object<ITrustVerificationInfo>(
+				PolicyNegotiationPointService.CLASS_NAME,
+				nameof(policyNegotiation.trustVerificationInfo),
+				policyNegotiation.trustVerificationInfo
+			);
+
 			const negotiatorNames = PolicyNegotiatorFactory.names();
 			const negotiators = negotiatorNames.map(name => PolicyNegotiatorFactory.get(name));
 			const negotiator = negotiators.find(n => n.supportsOffer(offer));
@@ -1364,7 +1387,11 @@ export class PolicyNegotiationPointService implements IPolicyNegotiationPointCom
 				);
 			} else {
 				// Use the negotiator to create the agreement for the offer
-				const agreement = await negotiator.createAgreement(offer, policyNegotiation.information);
+				const agreement = await negotiator.createAgreement(
+					offer,
+					policyNegotiation.trustVerificationInfo.identity,
+					policyNegotiation.trustVerificationInfo.data
+				);
 
 				if (Is.empty(agreement)) {
 					// No agreement, so set the error on the negotiation

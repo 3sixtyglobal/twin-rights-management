@@ -1,5 +1,6 @@
 // Copyright 2025 IOTA Stiftung.
 // SPDX-License-Identifier: Apache-2.0.
+import type { HeaderTypes } from "@twin.org/web";
 import type { IPolicyNegotiation } from "../../pnp/IPolicyNegotiation.js";
 
 /**
@@ -7,17 +8,14 @@ import type { IPolicyNegotiation } from "../../pnp/IPolicyNegotiation.js";
  */
 export interface IPnapQueryResponse {
 	/**
+	 * The headers which can be used to determine the response data type.
+	 */
+	headers?: {
+		[HeaderTypes.Link]?: string | string[];
+	};
+
+	/**
 	 * The body of the response.
 	 */
-	body: {
-		/**
-		 * The list of policy negotiations.
-		 */
-		items: IPolicyNegotiation[];
-
-		/**
-		 * The cursor for pagination.
-		 */
-		cursor?: string;
-	};
+	body: IPolicyNegotiation[];
 }

@@ -18,10 +18,10 @@ export interface ILoggingPolicyExecutionActionConfig {
 	includeData?: boolean;
 
 	/**
-	 * Whether to include the policies in the log.
+	 * Whether to include the policy in the log.
 	 * @default false
 	 */
-	includePolicies?: boolean;
+	includePolicy?: boolean;
 
 	/**
 	 * Whether to include the decisions in the log.

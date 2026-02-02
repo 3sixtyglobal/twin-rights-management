@@ -14,15 +14,34 @@ Is the information public, if so it will be shared with negotiation requests.
 
 ### matchLocators?
 
-> `optional` **matchLocators**: `IPolicyLocator`[]
+> `optional` **matchLocators**: `object`[]
 
 Information is only provided for the specified locator combination.
-If undefined is provided matches all resources.
+
+#### assignee?
+
+> `optional` **assignee**: `string`
+
+#### assigner?
+
+> `optional` **assigner**: `string`
+
+#### target?
+
+> `optional` **target**: `string`
+
+#### action?
+
+> `optional` **action**: `string`
 
 ***
 
 ### objects
 
-> **objects**: `IJsonLdNodeObject`[]
+> **objects**: `object`
 
 The objects containing the information.
+
+#### Index Signature
+
+\[`id`: `string`\]: `IJsonLdNodeObject`

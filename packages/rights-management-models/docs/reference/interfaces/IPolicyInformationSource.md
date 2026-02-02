@@ -10,7 +10,7 @@ Interface for policy information sources.
 
 ### retrieve()
 
-> **retrieve**\<`D`\>(`locator`, `accessMode`, `policies?`, `data?`): `Promise`\<[`IPolicyInformationItems`](../type-aliases/IPolicyInformationItems.md) \| `undefined`\>
+> **retrieve**\<`D`\>(`policy`, `accessMode`, `data?`): `Promise`\<\{\[`id`: `string`\]: `IJsonLdNodeObject`; \} \| `undefined`\>
 
 Retrieve information from the sources.
 
@@ -22,23 +22,17 @@ Retrieve information from the sources.
 
 #### Parameters
 
-##### locator
+##### policy
 
-[`IPolicyLocator`](IPolicyLocator.md)
+The policy to retrieve information for if available.
 
-The locator to find relevant policies.
+`IOdrlPolicy` | `undefined`
 
 ##### accessMode
 
 [`PolicyInformationAccessMode`](../type-aliases/PolicyInformationAccessMode.md)
 
 The access mode to use for the retrieval.
-
-##### policies?
-
-`IOdrlPolicy`[]
-
-The policies that apply to the data.
 
 ##### data?
 
@@ -48,6 +42,6 @@ The data to process.
 
 #### Returns
 
-`Promise`\<[`IPolicyInformationItems`](../type-aliases/IPolicyInformationItems.md) \| `undefined`\>
+`Promise`\<\{\[`id`: `string`\]: `IJsonLdNodeObject`; \} \| `undefined`\>
 
 The objects containing relevant information or undefined if nothing relevant is found.

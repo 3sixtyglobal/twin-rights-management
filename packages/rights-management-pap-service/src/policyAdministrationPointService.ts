@@ -12,7 +12,7 @@ import {
 	type IValidationFailure
 } from "@twin.org/core";
 import { JsonLdHelper } from "@twin.org/data-json-ld";
-import type { EntityCondition } from "@twin.org/entity";
+import { ComparisonOperator, LogicalOperator, type EntityCondition } from "@twin.org/entity";
 import {
 	EntityStorageConnectorFactory,
 	type IEntityStorageConnector
@@ -300,12 +300,23 @@ export class PolicyAdministrationPointService implements IPolicyAdministrationPo
 
 	/**
 	 * Query the entity storage for policies.
+	 * @param options Optional options to filter by assigner or assignee.
+	 * @param options.assigner The assigner to filter by.
+	 * @param options.assignee The assignee to filter by.
+	 * @param options.target The target to filter by.
+	 * @param options.action The action to filter by.
 	 * @param conditions The conditions to query the entity storage with.
 	 * @param cursor The cursor to use for pagination.
 	 * @param limit The number of results to return per page.
 	 * @returns The policies.
 	 */
 	public async query(
+		options?: {
+			assigner?: string;
+			assignee?: string;
+			target?: string;
+			action?: string;
+		},
 		conditions?: EntityCondition<IOdrlPolicy>,
 		cursor?: string,
 		limit?: number
@@ -323,8 +334,49 @@ export class PolicyAdministrationPointService implements IPolicyAdministrationPo
 			Guards.integer(PolicyAdministrationPointService.CLASS_NAME, nameof(limit), limit);
 		}
 
+		const allConditions: EntityCondition<IOdrlPolicy> = {
+			conditions: [],
+			logicalOperator: LogicalOperator.And
+		};
+
+		if (Is.stringValue(options?.assigner)) {
+			allConditions.conditions.push({
+				property: "assignerIndex",
+				comparison: ComparisonOperator.Includes,
+				value: `|${options.assigner}|`
+			});
+		}
+
+		if (Is.stringValue(options?.assignee)) {
+			allConditions.conditions.push({
+				property: "assigneeIndex",
+				comparison: ComparisonOperator.Includes,
+				value: `|${options.assignee}|`
+			});
+		}
+
+		if (Is.stringValue(options?.target)) {
+			allConditions.conditions.push({
+				property: "targetIndex",
+				comparison: ComparisonOperator.Includes,
+				value: `|${options.target}|`
+			});
+		}
+
+		if (Is.stringValue(options?.action)) {
+			allConditions.conditions.push({
+				property: "actionIndex",
+				comparison: ComparisonOperator.Includes,
+				value: `|${options.action}|`
+			});
+		}
+
+		if (!Is.empty(conditions)) {
+			allConditions.conditions.push(conditions);
+		}
+
 		const result = await this._odrlPolicyEntityStorage.query(
-			conditions,
+			allConditions.conditions.length > 0 ? allConditions : undefined,
 			undefined,
 			undefined,
 			cursor,

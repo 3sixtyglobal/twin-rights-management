@@ -1,6 +1,6 @@
-# Interface: IExamplePolicyArbiterConstructorOptions
+# Interface: IPassThroughPolicyArbiterConstructorOptions
 
-Options for the Example Policy Arbiter.
+Options for the Pass Through Policy Arbiter.
 
 ## Properties
 

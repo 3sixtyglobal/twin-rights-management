@@ -13,9 +13,26 @@ import { LoggingConnectorFactory } from "@twin.org/logging-models";
 import { LoggingService } from "@twin.org/logging-service";
 import { nameof } from "@twin.org/nameof";
 import { PolicyInformationAccessMode } from "@twin.org/rights-management-models";
+import { type IOdrlPolicy, OdrlContexts, PolicyType } from "@twin.org/standards-w3c-odrl";
 import { StaticPolicyInformationSource } from "../src/policyInformationSources/staticPolicyInformationSource.js";
 
 let loggingMemoryEntityStorage: MemoryEntityStorageConnector<LogEntry>;
+
+function createPolicy(options?: {
+	uid?: string;
+	action?: string;
+	assetType?: string;
+	assignee?: string;
+}): IOdrlPolicy {
+	return {
+		"@context": OdrlContexts.Context,
+		"@type": PolicyType.Set,
+		uid: options?.uid ?? "policy123",
+		action: options?.action ?? "action",
+		target: options?.assetType ?? "assetType",
+		assignee: options?.assignee ?? "assignee"
+	};
+}
 
 describe("StaticPolicyInformationSource", () => {
 	beforeEach(() => {
@@ -32,108 +49,88 @@ describe("StaticPolicyInformationSource", () => {
 	test("can create the source", async () => {
 		const policyInformationSource = new StaticPolicyInformationSource();
 		expect(policyInformationSource).toBeInstanceOf(StaticPolicyInformationSource);
+		expect(policyInformationSource.className()).toBe(StaticPolicyInformationSource.CLASS_NAME);
 	});
 
-	test("can create the source with custom options", async () => {
-		const staticInfo: IJsonLdNodeObject[] = [
-			{ "@id": "info1", "@type": "StaticInfo", value: "data1" },
-			{ "@id": "info2", "@type": "StaticInfo", value: "data2" }
-		];
-
-		const options = {
-			loggingComponentType: "custom-logging",
-			information: [{ accessMode: PolicyInformationAccessMode.Any, objects: staticInfo }]
-		};
-		const policyInformationSource = new StaticPolicyInformationSource(options);
-		expect(policyInformationSource).toBeInstanceOf(StaticPolicyInformationSource);
-	});
-
-	test("returns static information when configured", async () => {
-		const staticInfo: IJsonLdNodeObject[] = [
-			{ "@id": "info1", "@type": "StaticInfo", value: "data1" },
-			{ "@id": "info2", "@type": "StaticInfo", value: "data2" }
-		];
-
+	test("returns undefined when no information is configured", async () => {
 		const policyInformationSource = new StaticPolicyInformationSource({
-			config: {
-				information: [{ accessMode: PolicyInformationAccessMode.Any, objects: staticInfo }]
-			}
+			config: { information: [] }
 		});
 
 		const result = await policyInformationSource.retrieve(
-			{
-				assetType: "document",
-				action: "read",
-				assignee: "node123"
-			},
+			createPolicy({ assetType: "document", action: "read", assignee: "node123" }),
 			PolicyInformationAccessMode.Any,
-			[],
 			{ content: "test" }
 		);
 
-		expect(result).toEqual(staticInfo);
+		expect(result).toBeUndefined();
 	});
 
-	test("returns information matching Public access mode", async () => {
-		const publicInfo: IJsonLdNodeObject[] = [
-			{ "@id": "public1", "@type": "PublicInfo", visibility: "public" }
-		];
-		const privateInfo: IJsonLdNodeObject[] = [
-			{ "@id": "private1", "@type": "PrivateInfo", visibility: "private" }
-		];
-
-		const policyInformationSource = new StaticPolicyInformationSource({
-			config: {
-				information: [
-					{ accessMode: PolicyInformationAccessMode.Public, objects: publicInfo },
-					{ accessMode: PolicyInformationAccessMode.Private, objects: privateInfo }
-				]
-			}
-		});
-
-		const result = await policyInformationSource.retrieve(
-			{
-				assetType: "document",
-				action: "read",
-				assignee: "node123"
-			},
+	test.each([
+		[
+			"Public",
 			PolicyInformationAccessMode.Public,
-			[],
-			{ content: "test" }
-		);
-
-		expect(result).toEqual(publicInfo);
-	});
-
-	test("returns information matching Private access mode", async () => {
-		const publicInfo: IJsonLdNodeObject[] = [
-			{ "@id": "public1", "@type": "PublicInfo", visibility: "public" }
-		];
-		const privateInfo: IJsonLdNodeObject[] = [
-			{ "@id": "private1", "@type": "PrivateInfo", visibility: "private" }
-		];
-
-		const policyInformationSource = new StaticPolicyInformationSource({
-			config: {
-				information: [
-					{ accessMode: PolicyInformationAccessMode.Public, objects: publicInfo },
-					{ accessMode: PolicyInformationAccessMode.Private, objects: privateInfo }
-				]
+			{ public1: { "@id": "public1", "@type": "PublicInfo", visibility: "public" } },
+			{ private1: { "@id": "private1", "@type": "PrivateInfo", visibility: "private" } },
+			{ any1: { "@id": "any1", "@type": "AnyInfo", visibility: "any" } },
+			{
+				public1: { "@id": "public1", "@type": "PublicInfo", visibility: "public" },
+				any1: { "@id": "any1", "@type": "AnyInfo", visibility: "any" }
 			}
-		});
-
-		const result = await policyInformationSource.retrieve(
-			{ assetType: "document", action: "read", assignee: "node123" },
+		],
+		[
+			"Private",
 			PolicyInformationAccessMode.Private,
-			[],
-			{ content: "test" }
-		);
+			{ public1: { "@id": "public1", "@type": "PublicInfo", visibility: "public" } },
+			{ private1: { "@id": "private1", "@type": "PrivateInfo", visibility: "private" } },
+			{ any1: { "@id": "any1", "@type": "AnyInfo", visibility: "any" } },
+			{
+				private1: { "@id": "private1", "@type": "PrivateInfo", visibility: "private" },
+				any1: { "@id": "any1", "@type": "AnyInfo", visibility: "any" }
+			}
+		],
+		[
+			"Any",
+			PolicyInformationAccessMode.Any,
+			{ public1: { "@id": "public1", "@type": "PublicInfo", visibility: "public" } },
+			{ private1: { "@id": "private1", "@type": "PrivateInfo", visibility: "private" } },
+			{ any1: { "@id": "any1", "@type": "AnyInfo", visibility: "any" } },
+			{
+				public1: { "@id": "public1", "@type": "PublicInfo", visibility: "public" },
+				private1: { "@id": "private1", "@type": "PrivateInfo", visibility: "private" },
+				any1: { "@id": "any1", "@type": "AnyInfo", visibility: "any" }
+			}
+		]
+	])(
+		"returns merged information for accessMode %s",
+		async (_accessModeName, accessMode, publicMap, privateMap, anyMap, expected) => {
+			const policyInformationSource = new StaticPolicyInformationSource({
+				config: {
+					information: [
+						{ accessMode: PolicyInformationAccessMode.Public, objects: publicMap },
+						{ accessMode: PolicyInformationAccessMode.Private, objects: privateMap },
+						{ accessMode: PolicyInformationAccessMode.Any, objects: anyMap }
+					]
+				}
+			});
 
-		expect(result).toEqual(privateInfo);
-	});
+			const result = await policyInformationSource.retrieve(
+				createPolicy({ assetType: "document", action: "read", assignee: "node123" }),
+				accessMode,
+				{ content: "test" }
+			);
 
-	test("returns Any access mode information when specific Public/Private mode not found", async () => {
-		const anyInfo: IJsonLdNodeObject[] = [{ "@id": "any1", "@type": "AnyInfo", visibility: "any" }];
+			expect(result).toEqual(expected);
+		}
+	);
+
+	test.each([
+		["Public", PolicyInformationAccessMode.Public],
+		["Private", PolicyInformationAccessMode.Private]
+	])("falls back to Any when only Any configured (%s)", async (_name, accessMode) => {
+		const anyInfo: { [id: string]: IJsonLdNodeObject } = {
+			any1: { "@id": "any1", "@type": "AnyInfo", visibility: "any" }
+		};
 
 		const policyInformationSource = new StaticPolicyInformationSource({
 			config: {
@@ -141,142 +138,82 @@ describe("StaticPolicyInformationSource", () => {
 			}
 		});
 
-		const publicResult = await policyInformationSource.retrieve(
-			{ assetType: "document", action: "read", assignee: "node123" },
-			PolicyInformationAccessMode.Public,
-			[],
-			{ content: "test" }
-		);
-
-		const privateResult = await policyInformationSource.retrieve(
-			{ assetType: "document", action: "read", assignee: "node123" },
-			PolicyInformationAccessMode.Private,
-			[],
-			{ content: "test" }
-		);
-
-		expect(publicResult).toEqual(anyInfo);
-		expect(privateResult).toEqual(anyInfo);
-	});
-
-	test("returns undefined when no matching Public access mode found", async () => {
-		const privateInfo: IJsonLdNodeObject[] = [
-			{ "@id": "private1", "@type": "PrivateInfo", visibility: "private" }
-		];
-
-		const policyInformationSource = new StaticPolicyInformationSource({
-			config: {
-				information: [{ accessMode: PolicyInformationAccessMode.Private, objects: privateInfo }]
-			}
-		});
-
 		const result = await policyInformationSource.retrieve(
-			{ assetType: "document", action: "read", assignee: "node123" },
-			PolicyInformationAccessMode.Public,
-			[],
+			createPolicy({ assetType: "document", action: "read", assignee: "node123" }),
+			accessMode,
 			{ content: "test" }
 		);
 
-		expect(result).toBeUndefined();
+		expect(result).toEqual(anyInfo);
 	});
 
-	test("returns undefined when no matching Private access mode found", async () => {
-		const publicInfo: IJsonLdNodeObject[] = [
-			{ "@id": "public1", "@type": "PublicInfo", visibility: "public" }
-		];
+	test.each([
+		["Public", PolicyInformationAccessMode.Public],
+		["Private", PolicyInformationAccessMode.Private]
+	])(
+		"returns undefined when no accessMode match and no Any configured (%s)",
+		async (_name, accessMode) => {
+			const policyInformationSource = new StaticPolicyInformationSource({
+				config: {
+					information: [
+						{
+							accessMode:
+								accessMode === PolicyInformationAccessMode.Public
+									? PolicyInformationAccessMode.Private
+									: PolicyInformationAccessMode.Public,
+							objects: {
+								other1: { "@id": "other1", "@type": "OtherInfo", value: "other" }
+							}
+						}
+					]
+				}
+			});
 
-		const policyInformationSource = new StaticPolicyInformationSource({
-			config: {
-				information: [{ accessMode: PolicyInformationAccessMode.Public, objects: publicInfo }]
-			}
-		});
+			const result = await policyInformationSource.retrieve(
+				createPolicy({ assetType: "document", action: "read", assignee: "node123" }),
+				accessMode,
+				{ content: "test" }
+			);
 
-		const result = await policyInformationSource.retrieve(
-			{ assetType: "document", action: "read", assignee: "node123" },
-			PolicyInformationAccessMode.Private,
-			[],
-			{ content: "test" }
-		);
+			expect(result).toBeUndefined();
+		}
+	);
 
-		expect(result).toBeUndefined();
-	});
-
-	test("handles multiple information objects with different access modes", async () => {
-		const publicInfo: IJsonLdNodeObject[] = [
-			{ "@id": "public1", "@type": "PublicInfo", data: "public data" }
-		];
-		const privateInfo: IJsonLdNodeObject[] = [
-			{ "@id": "private1", "@type": "PrivateInfo", data: "private data" }
-		];
-		const anyInfo: IJsonLdNodeObject[] = [{ "@id": "any1", "@type": "AnyInfo", data: "any data" }];
-
+	test("later entries override earlier when ids collide", async () => {
 		const policyInformationSource = new StaticPolicyInformationSource({
 			config: {
 				information: [
-					{ accessMode: PolicyInformationAccessMode.Public, objects: publicInfo },
-					{ accessMode: PolicyInformationAccessMode.Private, objects: privateInfo },
-					{ accessMode: PolicyInformationAccessMode.Any, objects: anyInfo }
-				]
-			}
-		});
-
-		const publicResult = await policyInformationSource.retrieve(
-			{ assetType: "document", action: "read", assignee: "node123" },
-			PolicyInformationAccessMode.Public,
-			[],
-			{ content: "test" }
-		);
-
-		const privateResult = await policyInformationSource.retrieve(
-			{ assetType: "document", action: "read", assignee: "node123" },
-			PolicyInformationAccessMode.Private,
-			[],
-			{ content: "test" }
-		);
-
-		const anyResult = await policyInformationSource.retrieve(
-			{ assetType: "document", action: "read", assignee: "node123" },
-			PolicyInformationAccessMode.Any,
-			[],
-			{ content: "test" }
-		);
-
-		expect(publicResult).toEqual([...publicInfo, ...anyInfo]);
-		expect(privateResult).toEqual([...privateInfo, ...anyInfo]);
-		expect(anyResult).toEqual([...publicInfo, ...privateInfo, ...anyInfo]);
-	});
-
-	test("prioritizes exact access mode match over Any", async () => {
-		const publicInfo: IJsonLdNodeObject[] = [
-			{ "@id": "public1", "@type": "PublicInfo", data: "specific public" }
-		];
-		const anyInfo: IJsonLdNodeObject[] = [
-			{ "@id": "any1", "@type": "AnyInfo", data: "fallback any" }
-		];
-
-		const policyInformationSource = new StaticPolicyInformationSource({
-			config: {
-				information: [
-					{ accessMode: PolicyInformationAccessMode.Any, objects: anyInfo },
-					{ accessMode: PolicyInformationAccessMode.Public, objects: publicInfo }
+					{
+						accessMode: PolicyInformationAccessMode.Any,
+						objects: {
+							overlap: { "@id": "overlap", "@type": "AnyInfo", value: "any" }
+						}
+					},
+					{
+						accessMode: PolicyInformationAccessMode.Public,
+						objects: {
+							overlap: { "@id": "overlap", "@type": "PublicInfo", value: "public" }
+						}
+					}
 				]
 			}
 		});
 
 		const result = await policyInformationSource.retrieve(
-			{ assetType: "document", action: "read", assignee: "node123" },
+			createPolicy({ assetType: "document", action: "read", assignee: "node123" }),
 			PolicyInformationAccessMode.Public,
-			[],
 			{ content: "test" }
 		);
 
-		expect(result).toEqual([...anyInfo, ...publicInfo]);
+		expect(result).toEqual({
+			overlap: { "@id": "overlap", "@type": "PublicInfo", value: "public" }
+		});
 	});
 
 	test("returns information when matchLocators is undefined (matches all)", async () => {
-		const allInfo: IJsonLdNodeObject[] = [
-			{ "@id": "all1", "@type": "AllInfo", data: "matches everything" }
-		];
+		const allMap: { [id: string]: IJsonLdNodeObject } = {
+			all1: { "@id": "all1", "@type": "AllInfo", data: "matches everything" }
+		};
 
 		const policyInformationSource = new StaticPolicyInformationSource({
 			config: {
@@ -284,76 +221,72 @@ describe("StaticPolicyInformationSource", () => {
 					{
 						accessMode: PolicyInformationAccessMode.Any,
 						matchLocators: undefined,
-						objects: allInfo
+						objects: allMap
 					}
 				]
 			}
 		});
 
 		const result1 = await policyInformationSource.retrieve(
-			{ assetType: "document", action: "read", assignee: "node123" },
+			createPolicy({ assetType: "document", action: "read", assignee: "node123" }),
 			PolicyInformationAccessMode.Any,
-			[],
 			{ content: "test" }
 		);
 
 		const result2 = await policyInformationSource.retrieve(
-			{ assetType: "image", action: "write", assignee: "node123" },
+			createPolicy({ assetType: "image", action: "write", assignee: "node123" }),
 			PolicyInformationAccessMode.Any,
-			[],
 			{ content: "test" }
 		);
 
-		expect(result1).toEqual(allInfo);
-		expect(result2).toEqual(allInfo);
+		expect(result1).toEqual(allMap);
+		expect(result2).toEqual(allMap);
 	});
 
 	test("returns information for specific assetType and action combination", async () => {
-		const specificInfo: IJsonLdNodeObject[] = [
-			{ "@id": "specific1", "@type": "SpecificInfo", data: "document-read only" }
-		];
+		const specificMap: { [id: string]: IJsonLdNodeObject } = {
+			specific1: { "@id": "specific1", "@type": "SpecificInfo", data: "document-read only" }
+		};
 
 		const policyInformationSource = new StaticPolicyInformationSource({
 			config: {
 				information: [
 					{
 						accessMode: PolicyInformationAccessMode.Any,
-						matchLocators: [{ assetType: "document", action: "read" }],
-						objects: specificInfo
+						matchLocators: [{ target: "document", action: "read" }],
+						objects: specificMap
 					}
 				]
 			}
 		});
 
 		const matchingResult = await policyInformationSource.retrieve(
-			{ assetType: "document", action: "read", assignee: "node123" },
+			createPolicy({ assetType: "document", action: "read", assignee: "node123" }),
 			PolicyInformationAccessMode.Any,
-			[],
 			{ content: "test" }
 		);
 
 		const nonMatchingResult = await policyInformationSource.retrieve(
-			{ assetType: "document", action: "write", assignee: "node123" },
+			createPolicy({ assetType: "document", action: "write", assignee: "node123" }),
 			PolicyInformationAccessMode.Any,
-			[],
 			{ content: "test" }
 		);
 
-		expect(matchingResult).toEqual(specificInfo);
+		expect(matchingResult).toEqual(specificMap);
 		expect(nonMatchingResult).toBeUndefined();
 	});
 
 	test("returns information when assetType is undefined (matches all asset types)", async () => {
-		const readInfo: IJsonLdNodeObject[] = [
-			{ "@id": "read1", "@type": "ReadInfo", data: "all assets read action" }
-		];
+		const readInfo: { [id: string]: IJsonLdNodeObject } = {
+			read1: { "@id": "read1", "@type": "ReadInfo", data: "all assets read action" }
+		};
 
 		const policyInformationSource = new StaticPolicyInformationSource({
 			config: {
 				information: [
 					{
 						accessMode: PolicyInformationAccessMode.Any,
-						matchLocators: [{ assetType: undefined, action: "read" }],
+						matchLocators: [{ action: "read" }],
 						objects: readInfo
 					}
 				]
@@ -361,23 +294,20 @@ describe("StaticPolicyInformationSource", () => {
 		});
 
 		const documentReadResult = await policyInformationSource.retrieve(
-			{ assetType: "document", action: "read", assignee: "node123" },
+			createPolicy({ assetType: "document", action: "read", assignee: "node123" }),
 			PolicyInformationAccessMode.Any,
-			[],
 			{ content: "test" }
 		);
 
 		const imageReadResult = await policyInformationSource.retrieve(
-			{ assetType: "image", action: "read", assignee: "node123" },
+			createPolicy({ assetType: "image", action: "read", assignee: "node123" }),
 			PolicyInformationAccessMode.Any,
-			[],
 			{ content: "test" }
 		);
 
 		const documentWriteResult = await policyInformationSource.retrieve(
-			{ assetType: "document", action: "write", assignee: "node123" },
+			createPolicy({ assetType: "document", action: "write", assignee: "node123" }),
 			PolicyInformationAccessMode.Any,
-			[],
 			{ content: "test" }
 		);
 
@@ -387,87 +317,82 @@ describe("StaticPolicyInformationSource", () => {
 	});
 
 	test("returns information when action is undefined (matches all actions)", async () => {
-		const documentInfo: IJsonLdNodeObject[] = [
-			{ "@id": "doc1", "@type": "DocumentInfo", data: "all document actions" }
-		];
+		const documentMap: { [id: string]: IJsonLdNodeObject } = {
+			doc1: { "@id": "doc1", "@type": "DocumentInfo", data: "all document actions" }
+		};
 
 		const policyInformationSource = new StaticPolicyInformationSource({
 			config: {
 				information: [
 					{
 						accessMode: PolicyInformationAccessMode.Any,
-						matchLocators: [{ assetType: "document", action: undefined }],
-						objects: documentInfo
+						matchLocators: [{ target: "document" }],
+						objects: documentMap
 					}
 				]
 			}
 		});
 
 		const documentReadResult = await policyInformationSource.retrieve(
-			{ assetType: "document", action: "read", assignee: "node123" },
+			createPolicy({ assetType: "document", action: "read", assignee: "node123" }),
 			PolicyInformationAccessMode.Any,
-			[],
 			{ content: "test" }
 		);
 
 		const documentWriteResult = await policyInformationSource.retrieve(
-			{ assetType: "document", action: "write", assignee: "node123" },
+			createPolicy({ assetType: "document", action: "write", assignee: "node123" }),
 			PolicyInformationAccessMode.Any,
-			[],
 			{ content: "test" }
 		);
 
 		const imageReadResult = await policyInformationSource.retrieve(
-			{ assetType: "image", action: "read", assignee: "node123" },
+			createPolicy({ assetType: "image", action: "read", assignee: "node123" }),
 			PolicyInformationAccessMode.Any,
-			[],
 			{ content: "test" }
 		);
 
-		expect(documentReadResult).toEqual(documentInfo);
-		expect(documentWriteResult).toEqual(documentInfo);
+		expect(documentReadResult).toEqual(documentMap);
+		expect(documentWriteResult).toEqual(documentMap);
 		expect(imageReadResult).toBeUndefined();
 	});
 
 	test("returns information when both assetType and action are undefined (matches all)", async () => {
-		const universalInfo: IJsonLdNodeObject[] = [
-			{ "@id": "universal1", "@type": "UniversalInfo", data: "matches everything" }
-		];
+		const universalMap: { [id: string]: IJsonLdNodeObject } = {
+			universal1: { "@id": "universal1", "@type": "UniversalInfo", data: "matches everything" }
+		};
 
 		const policyInformationSource = new StaticPolicyInformationSource({
 			config: {
 				information: [
 					{
 						accessMode: PolicyInformationAccessMode.Any,
-						matchLocators: [{ assetType: undefined, action: undefined }],
-						objects: universalInfo
+						matchLocators: [{}],
+						objects: universalMap
 					}
 				]
 			}
 		});
 
 		const result1 = await policyInformationSource.retrieve(
-			{ assetType: "document", action: "read", assignee: "node123" },
+			createPolicy({ assetType: "document", action: "read", assignee: "node123" }),
 			PolicyInformationAccessMode.Any,
-			[],
 			{ content: "test" }
 		);
 
 		const result2 = await policyInformationSource.retrieve(
-			{ assetType: "image", action: "write", assignee: "node123" },
+			createPolicy({ assetType: "image", action: "write", assignee: "node123" }),
 			PolicyInformationAccessMode.Any,
-			[],
 			{ content: "test" }
 		);
 
-		expect(result1).toEqual(universalInfo);
-		expect(result2).toEqual(universalInfo);
+		expect(result1).toEqual(universalMap);
+		expect(result2).toEqual(universalMap);
 	});
 
 	test("handles multiple matchLocators combinations", async () => {
-		const multiInfo: IJsonLdNodeObject[] = [
-			{ "@id": "multi1", "@type": "MultiInfo", data: "multiple combinations" }
-		];
+		const multiMap: { [id: string]: IJsonLdNodeObject } = {
+			multi1: { "@id": "multi1", "@type": "MultiInfo", data: "multiple combinations" }
+		};
 
 		const policyInformationSource = new StaticPolicyInformationSource({
 			config: {
@@ -475,113 +400,105 @@ describe("StaticPolicyInformationSource", () => {
 					{
 						accessMode: PolicyInformationAccessMode.Any,
 						matchLocators: [
-							{ assetType: "document", action: "read" },
-							{ assetType: "image", action: "write" },
-							{ assetType: "video", action: undefined }
+							{ action: "read" },
+							{ target: "image", action: "write" },
+							{ target: "video" }
 						],
-						objects: multiInfo
+						objects: multiMap
 					}
 				]
 			}
 		});
 
 		const documentReadResult = await policyInformationSource.retrieve(
-			{ assetType: "document", action: "read", assignee: "node123" },
+			createPolicy({ assetType: "document", action: "read", assignee: "node123" }),
 			PolicyInformationAccessMode.Any,
-			[],
 			{ content: "test" }
 		);
 
 		const imageWriteResult = await policyInformationSource.retrieve(
-			{ assetType: "image", action: "write", assignee: "node123" },
+			createPolicy({ assetType: "image", action: "write", assignee: "node123" }),
 			PolicyInformationAccessMode.Any,
-			[],
 			{ content: "test" }
 		);
 
 		const videoAnyResult = await policyInformationSource.retrieve(
-			{ assetType: "video", action: "stream", assignee: "node123" },
+			createPolicy({ assetType: "video", action: "stream", assignee: "node123" }),
 			PolicyInformationAccessMode.Any,
-			[],
 			{ content: "test" }
 		);
 
 		const documentWriteResult = await policyInformationSource.retrieve(
-			{ assetType: "document", action: "write", assignee: "node123" },
+			createPolicy({ assetType: "document", action: "write", assignee: "node123" }),
 			PolicyInformationAccessMode.Any,
-			[],
 			{ content: "test" }
 		);
 
-		expect(documentReadResult).toEqual(multiInfo);
-		expect(imageWriteResult).toEqual(multiInfo);
-		expect(videoAnyResult).toEqual(multiInfo);
+		expect(documentReadResult).toEqual(multiMap);
+		expect(imageWriteResult).toEqual(multiMap);
+		expect(videoAnyResult).toEqual(multiMap);
 		expect(documentWriteResult).toBeUndefined();
 	});
 
 	test("combines accessMode and matchLocators filtering", async () => {
-		const publicDocInfo: IJsonLdNodeObject[] = [
-			{ "@id": "pubdoc1", "@type": "PublicDocInfo", data: "public document read" }
-		];
-		const privateImageInfo: IJsonLdNodeObject[] = [
-			{ "@id": "privimg1", "@type": "PrivateImageInfo", data: "private image write" }
-		];
+		const publicDocMap: { [id: string]: IJsonLdNodeObject } = {
+			pubdoc1: { "@id": "pubdoc1", "@type": "PublicDocInfo", data: "public document read" }
+		};
+		const privateImageMap: { [id: string]: IJsonLdNodeObject } = {
+			privimg1: { "@id": "privimg1", "@type": "PrivateImageInfo", data: "private image write" }
+		};
 
 		const policyInformationSource = new StaticPolicyInformationSource({
 			config: {
 				information: [
 					{
 						accessMode: PolicyInformationAccessMode.Public,
-						matchLocators: [{ assetType: "document", action: "read" }],
-						objects: publicDocInfo
+						matchLocators: [{ action: "read" }],
+						objects: publicDocMap
 					},
 					{
 						accessMode: PolicyInformationAccessMode.Private,
-						matchLocators: [{ assetType: "image", action: "write" }],
-						objects: privateImageInfo
+						matchLocators: [{ action: "write" }],
+						objects: privateImageMap
 					}
 				]
 			}
 		});
 
 		const publicDocResult = await policyInformationSource.retrieve(
-			{ assetType: "document", action: "read", assignee: "node123" },
+			createPolicy({ assetType: "document", action: "read", assignee: "node123" }),
 			PolicyInformationAccessMode.Public,
-			[],
 			{ content: "test" }
 		);
 
 		const privateImageResult = await policyInformationSource.retrieve(
-			{ assetType: "image", action: "write", assignee: "node123" },
+			createPolicy({ assetType: "image", action: "write", assignee: "node123" }),
 			PolicyInformationAccessMode.Private,
-			[],
 			{ content: "test" }
 		);
 
 		const wrongAccessModeResult = await policyInformationSource.retrieve(
-			{ assetType: "document", action: "read", assignee: "node123" },
+			createPolicy({ assetType: "document", action: "read", assignee: "node123" }),
 			PolicyInformationAccessMode.Private,
-			[],
 			{ content: "test" }
 		);
 
 		const wrongAssetTypeResult = await policyInformationSource.retrieve(
-			{ assetType: "document", action: "write", assignee: "node123" },
+			createPolicy({ assetType: "document", action: "write", assignee: "node123" }),
 			PolicyInformationAccessMode.Public,
-			[],
 			{ content: "test" }
 		);
 
-		expect(publicDocResult).toEqual(publicDocInfo);
-		expect(privateImageResult).toEqual(privateImageInfo);
+		expect(publicDocResult).toEqual(publicDocMap);
+		expect(privateImageResult).toEqual(privateImageMap);
 		expect(wrongAccessModeResult).toBeUndefined();
 		expect(wrongAssetTypeResult).toBeUndefined();
 	});
 
 	test("returns all entries when matchLocators array is empty", async () => {
-		const emptyMatchInfo: IJsonLdNodeObject[] = [
-			{ "@id": "empty1", "@type": "EmptyMatchInfo", data: "should never match" }
-		];
+		const emptyMatchMap: { [id: string]: IJsonLdNodeObject } = {
+			empty1: { "@id": "empty1", "@type": "EmptyMatchInfo", data: "should never match" }
+		};
 
 		const policyInformationSource = new StaticPolicyInformationSource({
 			config: {
@@ -589,19 +506,70 @@ describe("StaticPolicyInformationSource", () => {
 					{
 						accessMode: PolicyInformationAccessMode.Any,
 						matchLocators: [],
-						objects: emptyMatchInfo
+						objects: emptyMatchMap
 					}
 				]
 			}
 		});
 
 		const result = await policyInformationSource.retrieve(
-			{ assetType: "document", action: "read", assignee: "node123" },
+			createPolicy({ assetType: "document", action: "read", assignee: "node123" }),
 			PolicyInformationAccessMode.Any,
-			[],
 			{ content: "test" }
 		);
 
-		expect(result).toEqual(emptyMatchInfo);
+		expect(result).toEqual(emptyMatchMap);
+	});
+
+	test("can add information dynamically", async () => {
+		const policyInformationSource = new StaticPolicyInformationSource({
+			config: { information: [] }
+		});
+		const dynamicInfo: { [id: string]: IJsonLdNodeObject } = {
+			dyn1: { "@id": "dyn1", "@type": "DynamicInfo", value: "dynamic" }
+		};
+
+		policyInformationSource.addInformation({
+			accessMode: PolicyInformationAccessMode.Any,
+			objects: dynamicInfo
+		});
+
+		const result = await policyInformationSource.retrieve(
+			createPolicy({ assetType: "document", action: "read", assignee: "node123" }),
+			PolicyInformationAccessMode.Any,
+			{ content: "test" }
+		);
+
+		expect(result).toEqual(dynamicInfo);
+	});
+
+	test("throws when retrieve accessMode is invalid", async () => {
+		const policyInformationSource = new StaticPolicyInformationSource();
+		await expect(
+			policyInformationSource.retrieve(
+				createPolicy({ assetType: "document", action: "read", assignee: "node123" }),
+				"invalid" as unknown as PolicyInformationAccessMode,
+				{ content: "test" }
+			)
+		).rejects.toThrow();
+	});
+
+	test("throws when addInformation arguments are invalid", async () => {
+		const policyInformationSource = new StaticPolicyInformationSource();
+		expect(() =>
+			policyInformationSource.addInformation({
+				accessMode: "invalid" as unknown as PolicyInformationAccessMode,
+				objects: {
+					bad: { "@id": "bad", "@type": "BadInfo" }
+				}
+			})
+		).toThrow();
+
+		expect(() =>
+			policyInformationSource.addInformation({
+				accessMode: PolicyInformationAccessMode.Any,
+				objects: [] as unknown as { [id: string]: IJsonLdNodeObject }
+			})
+		).toThrow();
 	});
 });

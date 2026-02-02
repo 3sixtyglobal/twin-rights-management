@@ -1,512 +1,405 @@
 // Copyright 2025 IOTA Stiftung.
 // SPDX-License-Identifier: Apache-2.0.
-import { OdrlContexts, type IOdrlPolicy, ActionType } from "@twin.org/standards-w3c-odrl";
+import type { IOdrlPolicy } from "@twin.org/standards-w3c-odrl";
 import { OdrlPolicyHelper } from "../src/utils/odrlPolicyHelper.js";
 
 describe("OdrlPolicyHelper", () => {
-	describe("findExpirationDate", () => {
-		test("returns expiration date when valid constraint exists", () => {
-			const policy: IOdrlPolicy = {
-				"@context": OdrlContexts.Context,
-				"@type": "Agreement",
-				uid: "test-policy",
-				permission: [
-					{
-						target: "document",
-						action: "read",
-						constraint: [
-							{
-								leftOperand: "dateTime",
-								operator: "lteq",
-								rightOperand: "2024-12-31T23:59:59Z"
-							}
-						]
-					}
-				]
-			};
+	describe("extractAssigneeIdentity", () => {
+		it("returns the assignee when it is a string", () => {
+			const policy = {
+				type: "Set",
+				uid: "policy-1",
+				assignee: "did:example:assignee-1"
+			} as unknown as IOdrlPolicy;
 
-			const result = OdrlPolicyHelper.findExpirationDate(policy, "document", "read");
-			expect(result).toBe("2024-12-31T23:59:59Z");
+			expect(OdrlPolicyHelper.extractAssigneeIdentity(policy)).toBe("did:example:assignee-1");
 		});
 
-		test("returns undefined when no permissions exist", () => {
-			const policy: IOdrlPolicy = {
-				"@context": OdrlContexts.Context,
-				"@type": "Agreement",
-				uid: "test-policy"
-			};
+		it("returns the assignee uid when assignee is an object", () => {
+			const policy = {
+				type: "Set",
+				uid: "policy-2",
+				assignee: { uid: "did:example:assignee-2" }
+			} as unknown as IOdrlPolicy;
 
-			const result = OdrlPolicyHelper.findExpirationDate(policy, "document", "read");
-			expect(result).toBeUndefined();
+			expect(OdrlPolicyHelper.extractAssigneeIdentity(policy)).toBe("did:example:assignee-2");
 		});
 
-		test("returns undefined when permissions is not an array", () => {
-			const policy: IOdrlPolicy = {
-				"@context": OdrlContexts.Context,
-				"@type": "Agreement",
-				uid: "test-policy",
-				permission: {
-					target: "document",
-					action: "read"
-					// eslint-disable-next-line @typescript-eslint/no-explicit-any
-				} as any
-			};
+		it("throws a GeneralError when assignee is missing", () => {
+			const policy = {
+				type: "Set",
+				uid: "policy-3"
+			} as unknown as IOdrlPolicy;
 
-			const result = OdrlPolicyHelper.findExpirationDate(policy, "document", "read");
-			expect(result).toBeUndefined();
+			try {
+				OdrlPolicyHelper.extractAssigneeIdentity(policy);
+				expect.fail("Expected extractAssigneeIdentity to throw");
+			} catch (err) {
+				const error = err as { name?: string; message?: string; properties?: unknown };
+				expect(error.name).toBe("GeneralError");
+				expect(error.message).toMatch(/odrlPolicyHelper\.policyMissingAssignee/);
+				expect(error.properties).toMatchObject({ policyType: "Set", policyId: "policy-3" });
+			}
 		});
 
-		test("returns undefined when no constraints exist", () => {
-			const policy: IOdrlPolicy = {
-				"@context": OdrlContexts.Context,
-				"@type": "Agreement",
-				uid: "test-policy",
-				permission: [
-					{
-						target: "document",
-						action: "read"
-					}
-				]
-			};
+		it("throws a GeneralError when assignee is an empty string", () => {
+			const policy = {
+				type: "Set",
+				uid: "policy-4",
+				assignee: ""
+			} as unknown as IOdrlPolicy;
 
-			const result = OdrlPolicyHelper.findExpirationDate(policy, "document", "read");
-			expect(result).toBeUndefined();
+			expect(() => OdrlPolicyHelper.extractAssigneeIdentity(policy)).toThrowError(
+				/guard\.stringEmpty/
+			);
 		});
 
-		test("returns undefined when constraints is not an array", () => {
-			const policy: IOdrlPolicy = {
-				"@context": OdrlContexts.Context,
-				"@type": "Agreement",
-				uid: "test-policy",
-				permission: [
-					{
-						target: "document",
-						action: "read",
-						constraint: {
-							leftOperand: "dateTime",
-							operator: "lteq",
-							rightOperand: "2024-12-31T23:59:59Z"
-							// eslint-disable-next-line @typescript-eslint/no-explicit-any
-						} as any
-					}
-				]
-			};
+		it("throws a GuardError when assignee object uid is missing", () => {
+			const policy = {
+				type: "Set",
+				uid: "policy-5",
+				assignee: {}
+			} as unknown as IOdrlPolicy;
 
-			const result = OdrlPolicyHelper.findExpirationDate(policy, "document", "read");
-			expect(result).toBeUndefined();
+			expect(() => OdrlPolicyHelper.extractAssigneeIdentity(policy)).toThrowError(/guard\.string/);
 		});
 
-		test("matches any asset type when assetType parameter is undefined", () => {
-			const policy: IOdrlPolicy = {
-				"@context": OdrlContexts.Context,
-				"@type": "Agreement",
-				uid: "test-policy",
-				permission: [
-					{
-						target: "document",
-						action: "read",
-						constraint: [
-							{
-								assetType: "image",
-								leftOperand: "dateTime",
-								operator: "lteq",
-								rightOperand: "2024-12-31T23:59:59Z"
-							}
-						]
-					}
-				]
-			};
+		it("throws a GuardError when assignee object uid is empty", () => {
+			const policy = {
+				type: "Set",
+				uid: "policy-6",
+				assignee: { uid: "" }
+			} as unknown as IOdrlPolicy;
 
-			const result = OdrlPolicyHelper.findExpirationDate(policy, undefined, "read");
-			expect(result).toBe("2024-12-31T23:59:59Z");
-		});
-
-		test("matches any action when action parameter is undefined", () => {
-			const policy: IOdrlPolicy = {
-				"@context": OdrlContexts.Context,
-				"@type": "Agreement",
-				uid: "test-policy",
-				permission: [
-					{
-						target: "document",
-						action: "read",
-						constraint: [
-							{
-								action: "write",
-								leftOperand: "dateTime",
-								operator: "lteq",
-								rightOperand: "2024-12-31T23:59:59Z"
-							}
-						]
-					}
-				]
-			};
-
-			const result = OdrlPolicyHelper.findExpirationDate(policy, "document", undefined);
-			expect(result).toBe("2024-12-31T23:59:59Z");
-		});
-
-		test("matches any asset type when assetType parameter is undefined", () => {
-			const policy: IOdrlPolicy = {
-				"@context": OdrlContexts.Context,
-				"@type": "Agreement",
-				uid: "test-policy",
-				permission: [
-					{
-						target: "document",
-						action: "read",
-						constraint: [
-							{
-								assetType: "image",
-								leftOperand: "dateTime",
-								operator: "lteq",
-								rightOperand: "2024-12-31T23:59:59Z"
-							}
-						]
-					}
-				]
-			};
-
-			const result = OdrlPolicyHelper.findExpirationDate(policy, undefined, "read");
-			expect(result).toBe("2024-12-31T23:59:59Z");
-		});
-
-		test("matches any action when action parameter is undefined", () => {
-			const policy: IOdrlPolicy = {
-				"@context": OdrlContexts.Context,
-				"@type": "Agreement",
-				uid: "test-policy",
-				permission: [
-					{
-						target: "document",
-						action: "read",
-						constraint: [
-							{
-								action: "write",
-								leftOperand: "dateTime",
-								operator: "lteq",
-								rightOperand: "2024-12-31T23:59:59Z"
-							}
-						]
-					}
-				]
-			};
-
-			const result = OdrlPolicyHelper.findExpirationDate(policy, "document", undefined);
-			expect(result).toBe("2024-12-31T23:59:59Z");
-		});
-
-		test("returns undefined when assetType does not match", () => {
-			const policy: IOdrlPolicy = {
-				"@context": OdrlContexts.Context,
-				"@type": "Agreement",
-				uid: "test-policy",
-				permission: [
-					{
-						target: "document",
-						action: "read",
-						constraint: [
-							{
-								assetType: "image",
-								leftOperand: "dateTime",
-								operator: "lteq",
-								rightOperand: "2024-12-31T23:59:59Z"
-							}
-						]
-					}
-				]
-			};
-
-			const result = OdrlPolicyHelper.findExpirationDate(policy, "document2", "read");
-			expect(result).toBeUndefined();
-		});
-
-		test("returns undefined when action does not match", () => {
-			const policy: IOdrlPolicy = {
-				"@context": OdrlContexts.Context,
-				"@type": "Agreement",
-				uid: "test-policy",
-				permission: [
-					{
-						target: "document",
-						action: "read",
-						constraint: [
-							{
-								action: "write",
-								leftOperand: "dateTime",
-								operator: "lteq",
-								rightOperand: "2024-12-31T23:59:59Z"
-							}
-						]
-					}
-				]
-			};
-
-			const result = OdrlPolicyHelper.findExpirationDate(policy, "document", "read2");
-			expect(result).toBeUndefined();
-		});
-
-		test("returns undefined when leftOperand is not dateTime", () => {
-			const policy: IOdrlPolicy = {
-				"@context": OdrlContexts.Context,
-				"@type": "Agreement",
-				uid: "test-policy",
-				permission: [
-					{
-						target: "document",
-						action: "read",
-						constraint: [
-							{
-								leftOperand: "spatial",
-								operator: "lteq",
-								rightOperand: "2024-12-31T23:59:59Z"
-							}
-						]
-					}
-				]
-			};
-
-			const result = OdrlPolicyHelper.findExpirationDate(policy, "document", "read");
-			expect(result).toBeUndefined();
-		});
-
-		test("returns undefined when operator is not lteq", () => {
-			const policy: IOdrlPolicy = {
-				"@context": OdrlContexts.Context,
-				"@type": "Agreement",
-				uid: "test-policy",
-				permission: [
-					{
-						target: "document",
-						action: "read",
-						constraint: [
-							{
-								leftOperand: "dateTime",
-								operator: "gteq",
-								rightOperand: "2024-12-31T23:59:59Z"
-							}
-						]
-					}
-				]
-			};
-
-			const result = OdrlPolicyHelper.findExpirationDate(policy, "document", "read");
-			expect(result).toBeUndefined();
-		});
-
-		test("returns undefined when rightOperand is not a valid dateTime string", () => {
-			const policy: IOdrlPolicy = {
-				"@context": OdrlContexts.Context,
-				"@type": "Agreement",
-				uid: "test-policy",
-				permission: [
-					{
-						target: "document",
-						action: "read",
-						constraint: [
-							{
-								leftOperand: "dateTime",
-								operator: "lteq",
-								rightOperand: "not-a-date"
-							}
-						]
-					}
-				]
-			};
-
-			const result = OdrlPolicyHelper.findExpirationDate(policy, "document", "read");
-			expect(result).toBeUndefined();
-		});
-
-		test("returns first matching expiration date when multiple exist", () => {
-			const policy: IOdrlPolicy = {
-				"@context": OdrlContexts.Context,
-				"@type": "Agreement",
-				uid: "test-policy",
-				permission: [
-					{
-						target: "document",
-						action: "read",
-						constraint: [
-							{
-								leftOperand: "dateTime",
-								operator: "lteq",
-								rightOperand: "2024-06-30T23:59:59Z"
-							},
-							{
-								leftOperand: "dateTime",
-								operator: "lteq",
-								rightOperand: "2024-12-31T23:59:59Z"
-							}
-						]
-					}
-				]
-			};
-
-			const result = OdrlPolicyHelper.findExpirationDate(policy, "document", "read");
-			expect(result).toBe("2024-06-30T23:59:59Z");
-		});
-
-		test("searches through multiple permissions", () => {
-			const policy: IOdrlPolicy = {
-				"@context": OdrlContexts.Context,
-				"@type": "Agreement",
-				uid: "test-policy",
-				permission: [
-					{
-						target: "image",
-						action: "annotate",
-						constraint: [
-							{
-								leftOperand: "spatial",
-								operator: "eq",
-								rightOperand: "EU"
-							}
-						]
-					},
-					{
-						target: "document",
-						action: "read",
-						constraint: [
-							{
-								leftOperand: "dateTime",
-								operator: "lteq",
-								rightOperand: "2024-12-31T23:59:59Z"
-							}
-						]
-					}
-				]
-			};
-
-			const result = OdrlPolicyHelper.findExpirationDate(policy, "document", "read");
-			expect(result).toBe("2024-12-31T23:59:59Z");
-		});
-
-		test("handles complex policy with multiple permissions and constraints", () => {
-			const policy: IOdrlPolicy = {
-				"@context": OdrlContexts.Context,
-				"@type": "Agreement",
-				uid: "complex-policy",
-				permission: [
-					{
-						target: "video",
-						action: "stream",
-						constraint: [
-							{
-								leftOperand: "spatial",
-								operator: "eq",
-								rightOperand: "US"
-							},
-							{
-								leftOperand: "dateTime",
-								operator: "lteq",
-								rightOperand: "2024-06-30T23:59:59Z"
-							}
-						]
-					},
-					{
-						target: "document",
-						action: "read",
-						constraint: [
-							{
-								leftOperand: "count",
-								operator: "lteq",
-								rightOperand: "5"
-							},
-							{
-								leftOperand: "dateTime",
-								operator: "lteq",
-								rightOperand: "2024-12-31T23:59:59Z"
-							}
-						]
-					}
-				]
-			};
-
-			const videoResult = OdrlPolicyHelper.findExpirationDate(policy, "video", "stream");
-			expect(videoResult).toBe("2024-06-30T23:59:59Z");
-
-			const documentResult = OdrlPolicyHelper.findExpirationDate(policy, "document", "read");
-			expect(documentResult).toBe("2024-12-31T23:59:59Z");
-
-			const noMatchResult = OdrlPolicyHelper.findExpirationDate(policy, "image", "view");
-			expect(noMatchResult).toBeUndefined();
-		});
-	});
-
-	describe("matchAsset", () => {
-		test("returns true if target is empty", () => {
-			expect(OdrlPolicyHelper.matchAsset(undefined, "doc")).toBe(true);
-			expect(OdrlPolicyHelper.matchAsset([], "doc")).toBe(false);
-		});
-		test("returns true if matchAssetType is empty", () => {
-			expect(OdrlPolicyHelper.matchAsset("doc", undefined)).toBe(true);
-		});
-		test("returns true if target matches matchAssetType", () => {
-			expect(OdrlPolicyHelper.matchAsset("doc", "doc")).toBe(true);
-		});
-		test("returns false if target does not match matchAssetType", () => {
-			expect(OdrlPolicyHelper.matchAsset("doc", "img")).toBe(false);
-		});
-		test("returns true if any target in array matches matchAssetType", () => {
-			expect(OdrlPolicyHelper.matchAsset(["img", "doc"], "doc")).toBe(true);
-		});
-		test("returns false if no targets in array match matchAssetType", () => {
-			expect(OdrlPolicyHelper.matchAsset(["img", "vid"], "doc")).toBe(false);
-		});
-	});
-
-	describe("matchAction", () => {
-		test("returns true if action is empty", () => {
-			expect(OdrlPolicyHelper.matchAction(undefined, "read")).toBe(true);
-			expect(OdrlPolicyHelper.matchAction([], "read")).toBe(false);
-		});
-		test("returns true if matchAction is empty", () => {
-			expect(OdrlPolicyHelper.matchAction("read", undefined)).toBe(true);
-		});
-		test("returns true if action matches matchAction", () => {
-			expect(OdrlPolicyHelper.matchAction(ActionType.Read, "read")).toBe(true);
-		});
-		test("returns false if action does not match matchAction", () => {
-			expect(OdrlPolicyHelper.matchAction(ActionType.Delete, "read")).toBe(false);
-		});
-		test("returns true if any action in array matches matchAction", () => {
-			expect(OdrlPolicyHelper.matchAction([ActionType.Delete, ActionType.Read], "read")).toBe(true);
-		});
-		test("returns false if no actions in array match matchAction", () => {
-			expect(OdrlPolicyHelper.matchAction([ActionType.Delete, ActionType.Display], "read")).toBe(
-				false
+			expect(() => OdrlPolicyHelper.extractAssigneeIdentity(policy)).toThrowError(
+				/guard\.stringEmpty/
 			);
 		});
 	});
 
-	describe("matchTargetAndAction", () => {
-		test("returns true if both asset and action match", () => {
+	describe("extractAssignerIdentity", () => {
+		it("returns the assigner when it is a string", () => {
+			const policy = {
+				type: "Set",
+				uid: "policy-11",
+				assigner: "did:example:assigner-1"
+			} as unknown as IOdrlPolicy;
+
+			expect(OdrlPolicyHelper.extractAssignerIdentity(policy)).toBe("did:example:assigner-1");
+		});
+
+		it("returns the assigner uid when assigner is an object", () => {
+			const policy = {
+				type: "Set",
+				uid: "policy-12",
+				assigner: { uid: "did:example:assigner-2" }
+			} as unknown as IOdrlPolicy;
+
+			expect(OdrlPolicyHelper.extractAssignerIdentity(policy)).toBe("did:example:assigner-2");
+		});
+
+		it("throws a GeneralError when assigner is missing", () => {
+			const policy = {
+				type: "Set",
+				uid: "policy-13"
+			} as unknown as IOdrlPolicy;
+
+			try {
+				OdrlPolicyHelper.extractAssignerIdentity(policy);
+				expect.fail("Expected extractAssignerIdentity to throw");
+			} catch (err) {
+				const error = err as { name?: string; message?: string; properties?: unknown };
+				expect(error.name).toBe("GeneralError");
+				expect(error.message).toMatch(/odrlPolicyHelper\.policyMissingAssigner/);
+				expect(error.properties).toMatchObject({ policyType: "Set", policyId: "policy-13" });
+			}
+		});
+
+		it("throws a GeneralError when assigner is an empty string", () => {
+			const policy = {
+				type: "Set",
+				uid: "policy-14",
+				assigner: ""
+			} as unknown as IOdrlPolicy;
+
+			expect(() => OdrlPolicyHelper.extractAssignerIdentity(policy)).toThrowError(
+				/guard\.stringEmpty/
+			);
+		});
+
+		it("throws a GuardError when assigner object uid is missing", () => {
+			const policy = {
+				type: "Set",
+				uid: "policy-15",
+				assigner: {}
+			} as unknown as IOdrlPolicy;
+
+			expect(() => OdrlPolicyHelper.extractAssignerIdentity(policy)).toThrowError(/guard\.string/);
+		});
+
+		it("throws a GuardError when assigner object uid is empty", () => {
+			const policy = {
+				type: "Set",
+				uid: "policy-16",
+				assigner: { uid: "" }
+			} as unknown as IOdrlPolicy;
+
+			expect(() => OdrlPolicyHelper.extractAssignerIdentity(policy)).toThrowError(
+				/guard\.stringEmpty/
+			);
+		});
+	});
+
+	describe("getAssigneeIdentity", () => {
+		it("returns the assignee when it is a string", () => {
+			const policy = {
+				type: "Set",
+				uid: "policy-21",
+				assignee: "did:example:assignee-21"
+			} as unknown as IOdrlPolicy;
+
+			expect(OdrlPolicyHelper.getAssigneeIdentity(policy)).toBe("did:example:assignee-21");
+		});
+
+		it("returns the assignee uid when assignee is an object", () => {
+			const policy = {
+				type: "Set",
+				uid: "policy-22",
+				assignee: { uid: "did:example:assignee-22" }
+			} as unknown as IOdrlPolicy;
+
+			expect(OdrlPolicyHelper.getAssigneeIdentity(policy)).toBe("did:example:assignee-22");
+		});
+
+		it("returns undefined when assignee is missing", () => {
+			const policy = {
+				type: "Set",
+				uid: "policy-23"
+			} as unknown as IOdrlPolicy;
+
+			expect(OdrlPolicyHelper.getAssigneeIdentity(policy)).toBeUndefined();
+		});
+
+		it("returns undefined when assignee object has no uid", () => {
+			const policy = {
+				type: "Set",
+				uid: "policy-24",
+				assignee: {}
+			} as unknown as IOdrlPolicy;
+
+			expect(OdrlPolicyHelper.getAssigneeIdentity(policy)).toBeUndefined();
+		});
+	});
+
+	describe("getAssignerIdentity", () => {
+		it("returns the assigner when it is a string", () => {
+			const policy = {
+				type: "Set",
+				uid: "policy-31",
+				assigner: "did:example:assigner-31"
+			} as unknown as IOdrlPolicy;
+
+			expect(OdrlPolicyHelper.getAssignerIdentity(policy)).toBe("did:example:assigner-31");
+		});
+
+		it("returns the assigner uid when assigner is an object", () => {
+			const policy = {
+				type: "Set",
+				uid: "policy-32",
+				assigner: { uid: "did:example:assigner-32" }
+			} as unknown as IOdrlPolicy;
+
+			expect(OdrlPolicyHelper.getAssignerIdentity(policy)).toBe("did:example:assigner-32");
+		});
+
+		it("returns undefined when assigner is missing", () => {
+			const policy = {
+				type: "Set",
+				uid: "policy-33"
+			} as unknown as IOdrlPolicy;
+
+			expect(OdrlPolicyHelper.getAssignerIdentity(policy)).toBeUndefined();
+		});
+
+		it("returns undefined when assigner object has no uid", () => {
+			const policy = {
+				type: "Set",
+				uid: "policy-34",
+				assigner: {}
+			} as unknown as IOdrlPolicy;
+
+			expect(OdrlPolicyHelper.getAssignerIdentity(policy)).toBeUndefined();
+		});
+	});
+
+	describe("getTargets", () => {
+		it("returns a unique list of target ids from string and object targets", () => {
+			const policy = {
+				type: "Set",
+				uid: "policy-41",
+				target: [
+					"asset-1",
+					{ uid: "asset-2" },
+					{ uid: "asset-2" },
+					"asset-1",
+					{ uid: "" },
+					{} as unknown
+				]
+			} as unknown as IOdrlPolicy;
+
+			expect(OdrlPolicyHelper.getTargets(policy).sort()).toEqual(["asset-1", "asset-2"]);
+		});
+
+		it("handles a single target value (non-array)", () => {
+			const policy = {
+				type: "Set",
+				uid: "policy-42",
+				target: { uid: "asset-single" }
+			} as unknown as IOdrlPolicy;
+
+			expect(OdrlPolicyHelper.getTargets(policy)).toEqual(["asset-single"]);
+		});
+
+		it("returns an empty list when targets are missing", () => {
+			const policy = {
+				type: "Set",
+				uid: "policy-43"
+			} as unknown as IOdrlPolicy;
+
+			expect(OdrlPolicyHelper.getTargets(policy)).toEqual([]);
+		});
+	});
+
+	describe("getActions", () => {
+		it("returns a unique list of actions from string and object actions", () => {
+			const policy = {
+				type: "Set",
+				uid: "policy-51",
+				action: ["use", { uid: "read" }, { uid: "read" }, "use", { uid: "" }, {} as unknown]
+			} as unknown as IOdrlPolicy;
+
+			expect(OdrlPolicyHelper.getActions(policy).sort()).toEqual(["read", "use"]);
+		});
+
+		it("handles a single action value (non-array)", () => {
+			const policy = {
+				type: "Set",
+				uid: "policy-52",
+				action: "read"
+			} as unknown as IOdrlPolicy;
+
+			expect(OdrlPolicyHelper.getActions(policy)).toEqual(["read"]);
+		});
+
+		it("returns an empty list when actions are missing", () => {
+			const policy = {
+				type: "Set",
+				uid: "policy-53"
+			} as unknown as IOdrlPolicy;
+
+			expect(OdrlPolicyHelper.getActions(policy)).toEqual([]);
+		});
+	});
+
+	describe("matchPolicy", () => {
+		it("returns false when policy is undefined", () => {
 			expect(
-				OdrlPolicyHelper.matchTargetAndAction("doc", ActionType.Read, {
-					assetType: "doc",
+				OdrlPolicyHelper.matchPolicy(undefined, {
+					assignee: "did:example:assignee",
+					assigner: "did:example:assigner",
+					target: "asset-1",
 					action: "read"
+				})
+			).toBe(false);
+		});
+
+		it("returns true when there are no filter options", () => {
+			const policy = {
+				type: "Set",
+				uid: "policy-61",
+				assignee: "did:example:assignee",
+				assigner: "did:example:assigner",
+				target: "asset-1",
+				action: "read"
+			} as unknown as IOdrlPolicy;
+
+			expect(OdrlPolicyHelper.matchPolicy(policy, {})).toBe(true);
+		});
+
+		it("matches assignee, assigner, target and action", () => {
+			const policy = {
+				type: "Set",
+				uid: "policy-62",
+				assignee: { uid: "did:example:assignee" },
+				assigner: { uid: "did:example:assigner" },
+				target: ["asset-1", { uid: "asset-2" }],
+				action: ["read", { uid: "use" }]
+			} as unknown as IOdrlPolicy;
+
+			expect(
+				OdrlPolicyHelper.matchPolicy(policy, {
+					assignee: "did:example:assignee",
+					assigner: "did:example:assigner",
+					target: "asset-2",
+					action: "use"
 				})
 			).toBe(true);
 		});
-		test("returns false if asset does not match", () => {
+
+		it("returns false when assignee does not match", () => {
+			const policy = {
+				type: "Set",
+				uid: "policy-63",
+				assignee: "did:example:assignee-a"
+			} as unknown as IOdrlPolicy;
+
 			expect(
-				OdrlPolicyHelper.matchTargetAndAction("img", ActionType.Read, {
-					assetType: "doc",
-					action: "read"
+				OdrlPolicyHelper.matchPolicy(policy, {
+					assignee: "did:example:assignee-b"
 				})
 			).toBe(false);
 		});
-		test("returns false if action does not match", () => {
+
+		it("returns false when assigner does not match", () => {
+			const policy = {
+				type: "Set",
+				uid: "policy-64",
+				assigner: "did:example:assigner-a"
+			} as unknown as IOdrlPolicy;
+
 			expect(
-				OdrlPolicyHelper.matchTargetAndAction("doc", ActionType.Delete, {
-					assetType: "doc",
-					action: "read"
+				OdrlPolicyHelper.matchPolicy(policy, {
+					assigner: "did:example:assigner-b"
 				})
 			).toBe(false);
 		});
-		test("returns true if both are empty", () => {
-			expect(OdrlPolicyHelper.matchTargetAndAction(undefined, undefined, undefined)).toBe(true);
+
+		it("returns false when target does not match", () => {
+			const policy = {
+				type: "Set",
+				uid: "policy-65",
+				target: ["asset-1"]
+			} as unknown as IOdrlPolicy;
+
+			expect(
+				OdrlPolicyHelper.matchPolicy(policy, {
+					target: "asset-2"
+				})
+			).toBe(false);
+		});
+
+		it("returns false when action does not match", () => {
+			const policy = {
+				type: "Set",
+				uid: "policy-66",
+				action: ["read"]
+			} as unknown as IOdrlPolicy;
+
+			expect(
+				OdrlPolicyHelper.matchPolicy(policy, {
+					action: "use"
+				})
+			).toBe(false);
 		});
 	});
 });

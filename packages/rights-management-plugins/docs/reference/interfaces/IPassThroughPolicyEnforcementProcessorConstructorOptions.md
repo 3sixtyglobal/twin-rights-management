@@ -1,6 +1,6 @@
-# Interface: IExamplePolicyEnforcementProcessorConstructorOptions
+# Interface: IPassThroughPolicyEnforcementProcessorConstructorOptions
 
-Options for the Example Policy Enforcement Processor.
+Options for the Pass Through Policy Enforcement Processor.
 
 ## Properties
 

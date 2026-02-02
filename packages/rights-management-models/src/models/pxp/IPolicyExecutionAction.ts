@@ -2,7 +2,6 @@
 // SPDX-License-Identifier: Apache-2.0.
 import type { IComponent } from "@twin.org/core";
 import type { IOdrlPolicy } from "@twin.org/standards-w3c-odrl";
-import type { IPolicyLocator } from "../IPolicyLocator.js";
 import type { IPolicyDecision } from "../pdp/IPolicyDecision.js";
 import type { PolicyDecisionStage } from "../pdp/policyDecisionStage.js";
 
@@ -18,18 +17,16 @@ export interface IPolicyExecutionAction extends IComponent {
 
 	/**
 	 * Execute function type for policy actions.
-	 * @param stage The stage of the policy decision.
-	 * @param locator The locator to find relevant policies.
-	 * @param policies The policies that apply to the data.
+	 * @param policy The policy that applied to the data.
 	 * @param decisions The decisions made by the PDP.
 	 * @param data The data to process.
+	 * @param stage The stage of the policy decision.
 	 * @returns A promise that resolves when the action is complete.
 	 */
 	execute<D = unknown>(
-		stage: PolicyDecisionStage,
-		locator: IPolicyLocator,
-		policies?: IOdrlPolicy[],
-		decisions?: IPolicyDecision[],
-		data?: D
+		policy: IOdrlPolicy,
+		decisions: IPolicyDecision[],
+		data: D | undefined,
+		stage: PolicyDecisionStage
 	): Promise<void>;
 }

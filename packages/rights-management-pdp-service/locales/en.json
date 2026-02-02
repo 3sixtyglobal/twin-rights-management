@@ -1,8 +1,8 @@
 {
 	"error": {
 		"policyDecisionPointService": {
-			"decidingFailed": "Deciding on policies for locator \"{locator}\" failed in arbiter with id: \"{arbiterId}\"",
-			"noSupportedArbiters": "No arbiters found that support the given locator: \"{locator}\""
+			"decidingFailed": "Deciding on policies for policy id \"{policyId}\" failed in arbiter with id: \"{arbiterId}\"",
+			"noArbiters": "No policy arbiters are registered in the system."
 		}
 	}
 }

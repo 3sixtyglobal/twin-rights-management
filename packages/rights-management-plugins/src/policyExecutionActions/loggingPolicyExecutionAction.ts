@@ -6,8 +6,6 @@ import { nameof } from "@twin.org/nameof";
 import {
 	type IPolicyDecision,
 	type IPolicyExecutionAction,
-	type IPolicyLocator,
-	LocatorHelper,
 	PolicyDecisionStage
 } from "@twin.org/rights-management-models";
 import type { IOdrlPolicy } from "@twin.org/standards-w3c-odrl";
@@ -40,9 +38,9 @@ export class LoggingPolicyExecutionAction implements IPolicyExecutionAction {
 	private readonly _includeData: boolean;
 
 	/**
-	 * Whether to include the policies in the log.
+	 * Whether to include the policy in the log.
 	 */
-	private readonly _includePolicies: boolean;
+	private readonly _includePolicy: boolean;
 
 	/**
 	 * Whether to include the decisions in the log.
@@ -63,7 +61,7 @@ export class LoggingPolicyExecutionAction implements IPolicyExecutionAction {
 			PolicyDecisionStage.After
 		];
 		this._includeData = options?.config?.includeData ?? false;
-		this._includePolicies = options?.config?.includePolicies ?? false;
+		this._includePolicy = options?.config?.includePolicy ?? false;
 		this._includeDecisions = options?.config?.includeDecisions ?? false;
 	}
 
@@ -85,19 +83,17 @@ export class LoggingPolicyExecutionAction implements IPolicyExecutionAction {
 
 	/**
 	 * Execute function type for policy actions.
-	 * @param stage The stage of the policy decision.
-	 * @param locator The locator to find relevant policies.
-	 * @param policies The policies that apply to the data.
+	 * @param policy The policy that applied to the data.
 	 * @param decisions The decisions made by the PDP.
 	 * @param data The data to process.
+	 * @param stage The stage of the policy decision.
 	 * @returns A promise that resolves when the action is complete.
 	 */
 	public async execute<D = unknown>(
-		stage: PolicyDecisionStage,
-		locator: IPolicyLocator,
-		policies?: IOdrlPolicy[],
-		decisions?: IPolicyDecision[],
-		data?: D
+		policy: IOdrlPolicy,
+		decisions: IPolicyDecision[],
+		data: D | undefined,
+		stage: PolicyDecisionStage
 	): Promise<void> {
 		Guards.arrayOneOf(
 			LoggingPolicyExecutionAction.CLASS_NAME,
@@ -105,20 +101,15 @@ export class LoggingPolicyExecutionAction implements IPolicyExecutionAction {
 			stage,
 			Object.values(PolicyDecisionStage)
 		);
-		Guards.object<IPolicyLocator>(
-			LoggingPolicyExecutionAction.CLASS_NAME,
-			nameof(locator),
-			locator
-		);
 
 		if (this._stages.includes(stage)) {
-			// Even if we don't have the options to include data or include policies we
+			// Even if we don't have the options to include data or include policy we
 			// still create dummy entries, as the logging string still has them embedded
 			let logData;
 			if (!Is.empty(data)) {
 				logData = this._includeData ? data : "{...}";
 			}
-			const logPolicies = this._includePolicies ? policies : "[...]";
+			const logPolicy = this._includePolicy ? policy : "{}";
 			const logDecisions = this._includeDecisions ? decisions : "[...]";
 
 			if (stage === PolicyDecisionStage.Before) {
@@ -128,9 +119,9 @@ export class LoggingPolicyExecutionAction implements IPolicyExecutionAction {
 					ts: Date.now(),
 					message: "policyActionExecutedBefore",
 					data: {
-						locator: LocatorHelper.toString(locator),
+						policyId: policy.uid,
 						data: logData,
-						policies: logPolicies,
+						policy: logPolicy,
 						decisions: logDecisions,
 						stage
 					}
@@ -142,9 +133,9 @@ export class LoggingPolicyExecutionAction implements IPolicyExecutionAction {
 					ts: Date.now(),
 					message: "policyActionExecutedAfter",
 					data: {
-						locator: LocatorHelper.toString(locator),
+						policyId: policy.uid,
 						data: logData,
-						policies: logPolicies,
+						policy: logPolicy,
 						decisions: logDecisions,
 						stage
 					}

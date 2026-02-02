@@ -8,20 +8,6 @@ Interface describing a Policy Requester.
 
 ## Methods
 
-### requesterId()
-
-> **requesterId**(): `string`
-
-The unique id of the requester.
-
-#### Returns
-
-`string`
-
-The requester id.
-
-***
-
 ### offer()
 
 > **offer**(`negotiationId`, `offer`): `Promise`\<`boolean`\>

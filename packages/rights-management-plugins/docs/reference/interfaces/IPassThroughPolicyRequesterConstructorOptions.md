@@ -1,6 +1,6 @@
-# Interface: IExamplePolicyRequesterConstructorOptions
+# Interface: IPassThroughPolicyRequesterConstructorOptions
 
-Options for the Example Policy Requester.
+Options for the Pass Through Policy Requester.
 
 ## Properties
 

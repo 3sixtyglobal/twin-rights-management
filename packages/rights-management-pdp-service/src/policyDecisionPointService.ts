@@ -1,19 +1,17 @@
 // Copyright 2025 IOTA Stiftung.
 // SPDX-License-Identifier: Apache-2.0.
-import { BaseError, ComponentFactory, GeneralError, Guards, Is } from "@twin.org/core";
+import { BaseError, ComponentFactory, GeneralError, Guards } from "@twin.org/core";
 import type { ILoggingComponent } from "@twin.org/logging-models";
 import { nameof } from "@twin.org/nameof";
 import {
-	type IPolicyLocator,
+	PolicyArbiterFactory,
 	PolicyDecisionStage,
 	PolicyInformationAccessMode,
 	type IPolicyDecision,
 	type IPolicyDecisionPointComponent,
 	type IPolicyExecutionPointComponent,
 	type IPolicyInformationPointComponent,
-	type IPolicyManagementPointComponent,
-	LocatorHelper,
-	PolicyArbiterFactory
+	type IPolicyManagementPointComponent
 } from "@twin.org/rights-management-models";
 import type { IOdrlPolicy } from "@twin.org/standards-w3c-odrl";
 import type { IPolicyDecisionPointServiceConstructorOptions } from "./models/IPolicyDecisionPointServiceConstructorOptions.js";
@@ -83,68 +81,39 @@ export class PolicyDecisionPointService implements IPolicyDecisionPointComponent
 	 * Uses the Policy Management Point (PMP) to retrieve the policies and the
 	 * Policy Information Point (PIP) to retrieve additional information.
 	 * Executes any actions on the Policy Execution Point (PXP) before and after decision is made.
-	 * @param locator The locator to find relevant policies.
+	 * @param policy The policy to evaluate.
 	 * @param data The data to make a decision on.
 	 * @returns Returns the policy decisions which apply to the data so that the PEP
 	 * can manipulate the data accordingly.
 	 */
-	public async evaluate<D = unknown>(
-		locator: IPolicyLocator,
-		data?: D
-	): Promise<IPolicyDecision[]> {
-		Guards.objectValue<IPolicyLocator>(
-			PolicyDecisionPointService.CLASS_NAME,
-			nameof(locator),
-			locator
-		);
+	public async evaluate<D = unknown>(policy: IOdrlPolicy, data?: D): Promise<IPolicyDecision[]> {
+		Guards.objectValue<IOdrlPolicy>(PolicyDecisionPointService.CLASS_NAME, nameof(policy), policy);
+
+		const decisions: IPolicyDecision[] = [];
 
 		const arbiterNames = PolicyArbiterFactory.names();
 		const arbiters = arbiterNames.map(name => PolicyArbiterFactory.get(name));
 
-		const supportedArbiters = arbiters.filter(arbiter => {
-			const supportedPolicies = arbiter.supportedPolicies();
-			return (
-				supportedPolicies.length === 0 ||
-				LocatorHelper.findMatchingLocator(supportedPolicies, locator)
-			);
-		});
-
-		if (supportedArbiters.length === 0) {
-			throw new GeneralError(PolicyDecisionPointService.CLASS_NAME, "noSupportedArbiters", {
-				locator: LocatorHelper.toString(locator)
-			});
+		if (arbiters.length === 0) {
+			throw new GeneralError(PolicyDecisionPointService.CLASS_NAME, "noArbiters");
 		}
 
-		const policies: IOdrlPolicy[] = [];
-
-		let cursor;
-		do {
-			const retrieveResult = await this._policyManagementPointComponent.retrieve(locator, data);
-
-			cursor = retrieveResult.cursor;
-			policies.push(...retrieveResult.policies);
-		} while (Is.stringValue(cursor));
-
-		const decisions: IPolicyDecision[] = [];
-
 		await this._policyExecutionPointComponent.executeActions(
-			PolicyDecisionStage.Before,
-			locator,
-			policies,
+			policy,
 			decisions,
-			data
+			data,
+			PolicyDecisionStage.Before
 		);
 
 		const information = await this._policyInformationPointComponent.retrieve(
-			locator,
+			policy,
 			PolicyInformationAccessMode.Any,
-			policies,
 			data
 		);
 
-		for (const arbiter of supportedArbiters) {
+		for (const arbiter of arbiters) {
 			try {
-				const arbiterDecisions = await arbiter.decide(locator, information, policies, data);
+				const arbiterDecisions = await arbiter.decide(policy, information, data);
 				decisions.push(...arbiterDecisions);
 			} catch (error) {
 				await this._logging?.log({
@@ -154,25 +123,24 @@ export class PolicyDecisionPointService implements IPolicyDecisionPointComponent
 					message: "decidingFailed",
 					data: {
 						arbiterId: arbiter.className(),
-						locator: LocatorHelper.toString(locator)
+						policyId: policy.uid
 					},
 					error: BaseError.fromError(error)
 				});
 				throw new GeneralError(
 					PolicyDecisionPointService.CLASS_NAME,
 					"decidingFailed",
-					{ arbiterId: arbiter.className(), locator: LocatorHelper.toString(locator) },
+					{ arbiterId: arbiter.className(), policyId: policy.uid },
 					error
 				);
 			}
 		}
 
 		await this._policyExecutionPointComponent.executeActions(
-			PolicyDecisionStage.After,
-			locator,
-			policies,
+			policy,
 			decisions,
-			data
+			data,
+			PolicyDecisionStage.After
 		);
 
 		return decisions;

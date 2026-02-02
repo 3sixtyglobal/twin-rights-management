@@ -96,7 +96,7 @@ The current state of the negotiation or an error.
 
 ### sendRequestToProvider()
 
-> **sendRequestToProvider**(`url`, `requesterId`, `odrlOfferId`): `Promise`\<`string`\>
+> **sendRequestToProvider**(`url`, `requesterType`, `odrlOfferId`): `Promise`\<`string`\>
 
 Send a request to a provider - not supported in the REST client.
 
@@ -108,11 +108,11 @@ Send a request to a provider - not supported in the REST client.
 
 The url of the provider to send the request to.
 
-##### requesterId
+##### requesterType
 
 `string`
 
-The id of the requester to use for the request, will use the registered requester to provide update.
+The type of the requester to use for the request, will use the registered requester to provide update.
 
 ##### odrlOfferId
 

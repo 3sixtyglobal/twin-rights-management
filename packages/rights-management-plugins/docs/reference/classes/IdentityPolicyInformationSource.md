@@ -56,7 +56,7 @@ The class name of the component.
 
 ### retrieve()
 
-> **retrieve**\<`D`\>(`locator`, `accessMode`, `policies`, `data?`): `Promise`\<`IJsonLdNodeObject`[] \| `undefined`\>
+> **retrieve**\<`D`\>(`policy`, `accessMode`, `data?`): `Promise`\<\{\[`id`: `string`\]: `IJsonLdNodeObject`; \} \| `undefined`\>
 
 Retrieve information from the sources.
 
@@ -68,23 +68,17 @@ Retrieve information from the sources.
 
 #### Parameters
 
-##### locator
+##### policy
 
-`IPolicyLocator`
+The policy to retrieve information for if available.
 
-The locator to find relevant policies.
+`IOdrlPolicy` | `undefined`
 
 ##### accessMode
 
 `PolicyInformationAccessMode`
 
 The access mode to use for the retrieval.
-
-##### policies
-
-`IOdrlPolicy`[]
-
-The policies that apply to the data.
 
 ##### data?
 
@@ -94,7 +88,7 @@ The data to process.
 
 #### Returns
 
-`Promise`\<`IJsonLdNodeObject`[] \| `undefined`\>
+`Promise`\<\{\[`id`: `string`\]: `IJsonLdNodeObject`; \} \| `undefined`\>
 
 The objects containing relevant information or undefined if nothing relevant is found.
 

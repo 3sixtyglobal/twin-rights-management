@@ -11,6 +11,7 @@ import {
 	createTestPolicies,
 	SAMPLE_POLICY,
 	TEST_DIRECTORY_ROOT,
+	TEST_POLICY_ID,
 	testPolicyMapping
 } from "./setupTestEnv.js";
 import type { OdrlPolicy } from "../src/entities/odrlPolicy.js";
@@ -146,7 +147,7 @@ describe("PolicyAdministrationPointService", () => {
 				comparison: "equals"
 			};
 
-			const result = await policyAdminPoint.query(uidCondition);
+			const result = await policyAdminPoint.query(undefined, uidCondition);
 
 			expect(result.policies).toBeDefined();
 			expect(result.policies.length).toEqual(1);
@@ -164,7 +165,7 @@ describe("PolicyAdministrationPointService", () => {
 			comparison: "equals"
 		};
 
-		const result = await policyAdminPoint.query(uidCondition);
+		const result = await policyAdminPoint.query(undefined, uidCondition);
 
 		expect(result.policies).toBeDefined();
 		expect(result.policies.length).toEqual(0);
@@ -173,13 +174,13 @@ describe("PolicyAdministrationPointService", () => {
 	test("should handle pagination with cursor", async () => {
 		await createTestPolicies(policyAdminPoint);
 
-		const result1 = await policyAdminPoint.query(undefined, undefined, 5);
+		const result1 = await policyAdminPoint.query(undefined, undefined, undefined, 5);
 
 		expect(result1.policies).toBeDefined();
 		expect(result1.policies.length).toEqual(5);
 		expect(result1.cursor).toBeDefined();
 
-		const result2 = await policyAdminPoint.query(undefined, result1.cursor, 5);
+		const result2 = await policyAdminPoint.query(undefined, undefined, result1.cursor, 5);
 
 		expect(result2.policies).toBeDefined();
 		expect(result2.policies.length).toEqual(5);
@@ -192,7 +193,7 @@ describe("PolicyAdministrationPointService", () => {
 	test("should handle invalid cursor gracefully", async () => {
 		await createTestPolicies(policyAdminPoint);
 
-		const result = await policyAdminPoint.query(undefined, "invalid-cursor", 5);
+		const result = await policyAdminPoint.query(undefined, undefined, "invalid-cursor", 5);
 
 		expect(result.policies).toBeDefined();
 	});
@@ -513,5 +514,162 @@ describe("PolicyAdministrationPointService", () => {
 			expect(retrievedPolicy.permission[0].action).toEqual("modify");
 		}
 		expect(retrievedPolicy.assigner).toEqual("http://example.com/party/assigner");
+	});
+
+	test("should build pipe-delimited index fields on create", async () => {
+		const policy: IOdrlPolicy = {
+			"@context": OdrlContexts.Context,
+			"@type": "Offer",
+			uid: TEST_POLICY_ID,
+			assigner: "user:assigner-1",
+			assignee: {
+				uid: "user:assignee-1",
+				"@type": "Person"
+			},
+			target: "http://example.com/asset/alpha",
+			action: "use",
+			permission: [
+				{
+					target: "http://example.com/asset/not-indexed",
+					action: "display"
+				}
+			]
+		};
+
+		const uid = await policyAdminPoint.create(policy);
+		const store = odrlPolicyEntityStorage.getStore();
+		expect(store).toHaveLength(1);
+		const stored = store[0];
+		expect(stored.uid).toEqual(uid);
+		expect(stored.assignerIndex).toEqual("|user:assigner-1|");
+		expect(stored.assigneeIndex).toEqual("|user:assignee-1|");
+		expect(stored.targetIndex).toEqual("|http://example.com/asset/alpha|");
+		expect(stored.actionIndex).toEqual("|use|");
+	});
+
+	test("should query policies by assigner index", async () => {
+		const uid1 = await policyAdminPoint.create({
+			"@context": OdrlContexts.Context,
+			"@type": "Offer",
+			assigner: "user:assigner-a",
+			permission: [
+				{
+					target: "http://example.com/asset/a",
+					action: "use"
+				}
+			]
+		});
+
+		await policyAdminPoint.create({
+			"@context": OdrlContexts.Context,
+			"@type": "Offer",
+			assigner: "user:assigner-b",
+			permission: [
+				{
+					target: "http://example.com/asset/b",
+					action: "use"
+				}
+			]
+		});
+
+		const result = await policyAdminPoint.query({ assigner: "user:assigner-a" });
+		expect(result.policies).toHaveLength(1);
+		expect(result.policies[0].uid).toEqual(uid1);
+	});
+
+	test("should query policies by top-level target and action indexes", async () => {
+		const uid1 = await policyAdminPoint.create({
+			"@context": OdrlContexts.Context,
+			"@type": "Set",
+			target: "http://example.com/asset/t1",
+			action: "use",
+			permission: [
+				{
+					target: "http://example.com/asset/not-indexed",
+					action: "display"
+				}
+			]
+		});
+
+		await policyAdminPoint.create({
+			"@context": OdrlContexts.Context,
+			"@type": "Set",
+			target: "http://example.com/asset/t2",
+			action: "display",
+			permission: [
+				{
+					target: "http://example.com/asset/not-indexed-2",
+					action: "use"
+				}
+			]
+		});
+
+		const byTarget = await policyAdminPoint.query({ target: "http://example.com/asset/t1" });
+		expect(byTarget.policies).toHaveLength(1);
+		expect(byTarget.policies[0].uid).toEqual(uid1);
+
+		const byAction = await policyAdminPoint.query({ action: "display" });
+		expect(byAction.policies).toHaveLength(1);
+		expect(byAction.policies[0].uid).toBeDefined();
+	});
+
+	test("should index multiple top-level targets and actions", async () => {
+		const uid = await policyAdminPoint.create({
+			"@context": OdrlContexts.Context,
+			"@type": "Set",
+			target: ["http://example.com/asset/a", "http://example.com/asset/b"],
+			action: ["use", "read"],
+			permission: [
+				{
+					target: "http://example.com/asset/a",
+					action: "use"
+				},
+				{
+					target: "http://example.com/asset/b",
+					action: "read"
+				}
+			]
+		});
+
+		const store = odrlPolicyEntityStorage.getStore();
+		expect(store).toHaveLength(1);
+		expect(store[0].targetIndex).toContain("|http://example.com/asset/a|");
+		expect(store[0].targetIndex).toContain("|http://example.com/asset/b|");
+		expect(store[0].actionIndex).toContain("|use|");
+		expect(store[0].actionIndex).toContain("|read|");
+
+		const byTargetB = await policyAdminPoint.query({ target: "http://example.com/asset/b" });
+		expect(byTargetB.policies).toHaveLength(1);
+		expect(byTargetB.policies[0].uid).toEqual(uid);
+
+		const byActionRead = await policyAdminPoint.query({ action: "read" });
+		expect(byActionRead.policies).toHaveLength(1);
+		expect(byActionRead.policies[0].uid).toEqual(uid);
+	});
+
+	test("should not query by permission target/action when top-level fields missing", async () => {
+		await policyAdminPoint.create({
+			"@context": OdrlContexts.Context,
+			"@type": "Set",
+			permission: [
+				{
+					target: "http://example.com/asset/only-in-permission",
+					action: "use"
+				}
+			]
+		});
+
+		const store = odrlPolicyEntityStorage.getStore();
+		expect(store).toHaveLength(1);
+		expect(store[0].targetIndex).toEqual("||");
+		expect(store[0].actionIndex).toEqual("||");
+
+		const byTarget = await policyAdminPoint.query({
+			target: "http://example.com/asset/only-in-permission"
+		});
+		expect(byTarget.policies).toHaveLength(0);
+
+		const byAction = await policyAdminPoint.query({ action: "use" });
+		expect(byAction.policies).toHaveLength(0);
 	});
 });

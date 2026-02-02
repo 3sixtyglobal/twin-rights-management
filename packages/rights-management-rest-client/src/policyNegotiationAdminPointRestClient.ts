@@ -15,6 +15,7 @@ import type {
 	IPolicyNegotiationAdminPointComponent
 } from "@twin.org/rights-management-models";
 import type { DataspaceProtocolContractNegotiationStateType } from "@twin.org/standards-dataspace-protocol";
+import { HeaderHelper, HeaderTypes } from "@twin.org/web";
 
 /**
  * Client for performing Rights Management Policy Negotiation Admin through to REST endpoints.
@@ -136,6 +137,10 @@ export class PolicyNegotiationAdminPointRestClient
 			}
 		);
 
-		return response.body;
+		return {
+			items: response.body,
+			cursor: HeaderHelper.extractLinkHeaderRelation(response.headers?.[HeaderTypes.Link], "next")
+				?.urlQueryParams?.cursor
+		};
 	}
 }

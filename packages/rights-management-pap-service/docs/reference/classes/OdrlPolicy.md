@@ -107,3 +107,35 @@ The prohibitions in the policy.
 > `optional` **obligation**: `IOdrlDuty`[]
 
 The obligations in the policy.
+
+***
+
+### assignerIndex
+
+> **assignerIndex**: `string`
+
+The assignerIndex.
+
+***
+
+### assigneeIndex
+
+> **assigneeIndex**: `string`
+
+The assigneeIndex.
+
+***
+
+### targetIndex
+
+> **targetIndex**: `string`
+
+The targetIndex.
+
+***
+
+### actionIndex
+
+> **actionIndex**: `string`
+
+The actionIndex.

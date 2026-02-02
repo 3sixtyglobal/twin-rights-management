@@ -2,24 +2,23 @@
 
 ## Classes
 
-- [ExamplePolicyArbiter](classes/ExamplePolicyArbiter.md)
-- [ExamplePolicyEnforcementProcessor](classes/ExamplePolicyEnforcementProcessor.md)
+- [PassThroughPolicyArbiter](classes/PassThroughPolicyArbiter.md)
+- [PassThroughPolicyEnforcementProcessor](classes/PassThroughPolicyEnforcementProcessor.md)
 - [LoggingPolicyExecutionAction](classes/LoggingPolicyExecutionAction.md)
 - [IdentityPolicyInformationSource](classes/IdentityPolicyInformationSource.md)
 - [StaticPolicyInformationSource](classes/StaticPolicyInformationSource.md)
-- [ExamplePolicyNegotiator](classes/ExamplePolicyNegotiator.md)
-- [ExamplePolicyRequester](classes/ExamplePolicyRequester.md)
+- [PassThroughPolicyNegotiator](classes/PassThroughPolicyNegotiator.md)
+- [PassThroughPolicyRequester](classes/PassThroughPolicyRequester.md)
 
 ## Interfaces
 
-- [IExampleDataAccessHandlerConstructorOptions](interfaces/IExampleDataAccessHandlerConstructorOptions.md)
-- [IExamplePolicyArbiterConstructorOptions](interfaces/IExamplePolicyArbiterConstructorOptions.md)
-- [IExamplePolicyEnforcementProcessorConstructorOptions](interfaces/IExamplePolicyEnforcementProcessorConstructorOptions.md)
-- [IExamplePolicyNegotiatorConstructorOptions](interfaces/IExamplePolicyNegotiatorConstructorOptions.md)
-- [IExamplePolicyRequesterConstructorOptions](interfaces/IExamplePolicyRequesterConstructorOptions.md)
 - [IIdentityPolicyInformationSourceConstructorOptions](interfaces/IIdentityPolicyInformationSourceConstructorOptions.md)
 - [ILoggingPolicyExecutionActionConfig](interfaces/ILoggingPolicyExecutionActionConfig.md)
 - [ILoggingPolicyExecutionActionConstructorOptions](interfaces/ILoggingPolicyExecutionActionConstructorOptions.md)
+- [IPassThroughPolicyArbiterConstructorOptions](interfaces/IPassThroughPolicyArbiterConstructorOptions.md)
+- [IPassThroughPolicyEnforcementProcessorConstructorOptions](interfaces/IPassThroughPolicyEnforcementProcessorConstructorOptions.md)
+- [IPassThroughPolicyNegotiatorConstructorOptions](interfaces/IPassThroughPolicyNegotiatorConstructorOptions.md)
+- [IPassThroughPolicyRequesterConstructorOptions](interfaces/IPassThroughPolicyRequesterConstructorOptions.md)
 - [IStaticPolicyInformationSource](interfaces/IStaticPolicyInformationSource.md)
 - [IStaticPolicyInformationSourceConfig](interfaces/IStaticPolicyInformationSourceConfig.md)
 - [IStaticPolicyInformationSourceConstructorOptions](interfaces/IStaticPolicyInformationSourceConstructorOptions.md)

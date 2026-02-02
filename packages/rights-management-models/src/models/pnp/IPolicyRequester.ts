@@ -8,12 +8,6 @@ import type { IOdrlAgreement, IOdrlOffer } from "@twin.org/standards-w3c-odrl";
  */
 export interface IPolicyRequester extends IComponent {
 	/**
-	 * The unique id of the requester.
-	 * @returns The requester id.
-	 */
-	requesterId(): string;
-
-	/**
 	 * A policy has been offered by a provider, let the requester know about it.
 	 * @param negotiationId The id of the negotiation.
 	 * @param offer The offer sent by the provider.
