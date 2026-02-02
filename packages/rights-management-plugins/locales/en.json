@@ -2,6 +2,10 @@
 	"error": {
 		"identityPolicyInformationSource": {
 			"identityRetrievalFailed": "Failed to retrieve identity \"{id}\" information for policy id: \"{policyId}\""
+		},
+		"defaultPolicyEnforcementProcessor": {
+			"targetNotJsonPath": "The policy decision target \"{target}\" is not a valid JSON-path string, it should be a minimum of $.",
+			"replaceValueMissing": "The policy decision replaceValue was not provided for target \"{target}\"."
 		}
 	},
 	"info": {
@@ -17,6 +21,9 @@
 			"policyActionExecutedAfter": "Policy executed for policyId: \"{policyId}\", stage: \"{stage}\", data: \"{data}\", policy: \"{policy}\", decisions: \"{decisions}\""
 		},
 		"passThroughPolicyEnforcementProcessor": {
+			"processingPolicy": "Processing policy enforcement for policy id: \"{policyId}\""
+		},
+		"defaultPolicyEnforcementProcessor": {
 			"processingPolicy": "Processing policy enforcement for policy id: \"{policyId}\""
 		},
 		"passThroughPolicyArbiter": {

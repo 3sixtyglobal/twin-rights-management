@@ -7,14 +7,19 @@
 // eslint-disable-next-line @typescript-eslint/naming-convention
 export const PolicyDecision = {
 	/**
-	 * Granted.
+	 * Granted - the property in the original data can be accessed.
 	 */
 	Granted: "Granted",
 
 	/**
-	 * Denied.
+	 * Denied - the property in the original data can not be accessed.
 	 */
-	Denied: "Denied"
+	Denied: "Denied",
+
+	/**
+	 * Replace - the property should be replaced with a new value.
+	 */
+	Replace: "Replace"
 } as const;
 
 /**

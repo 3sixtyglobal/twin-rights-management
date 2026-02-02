@@ -71,7 +71,7 @@ export class PassThroughPolicyArbiter implements IPolicyArbiter {
 
 		return [
 			{
-				target: "*",
+				target: "$",
 				decision: PolicyDecision.Granted
 			}
 		];

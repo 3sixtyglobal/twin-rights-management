@@ -7,7 +7,7 @@ import type { PolicyDecision } from "./policyDecision.js";
  */
 export interface IPolicyDecision {
 	/**
-	 * The target object for the decision.
+	 * The target object for the decision, using JSON-path syntax.
 	 */
 	target: string;
 
@@ -15,4 +15,9 @@ export interface IPolicyDecision {
 	 * The type of the proof.
 	 */
 	decision: PolicyDecision;
+
+	/**
+	 * The value to replace with, if decision is Replace.
+	 */
+	replaceValue?: unknown;
 }

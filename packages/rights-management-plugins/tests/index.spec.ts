@@ -13,17 +13,10 @@ import { LoggingConnectorFactory } from "@twin.org/logging-models";
 import { LoggingService } from "@twin.org/logging-service";
 import { nameof } from "@twin.org/nameof";
 import {
-	type IPolicyArbiter,
-	type IPolicyDecision,
-	type IPolicyEnforcementProcessor,
-	type IPolicyExecutionAction,
-	type IPolicyInformationSource,
 	PolicyArbiterFactory,
-	type PolicyInformationAccessMode,
-	PolicyDecision,
-	PolicyDecisionStage,
 	PolicyEnforcementProcessorFactory,
 	PolicyExecutionActionFactory,
+	PolicyInformationAccessMode,
 	PolicyInformationSourceFactory
 } from "@twin.org/rights-management-models";
 import {
@@ -37,6 +30,10 @@ import { PolicyInformationPointService } from "@twin.org/rights-management-pip-s
 import { PolicyManagementPointService } from "@twin.org/rights-management-pmp-service";
 import { PolicyExecutionPointService } from "@twin.org/rights-management-pxp-service";
 import { OdrlContexts, PolicyType, type IOdrlPolicy } from "@twin.org/standards-w3c-odrl";
+import { PassThroughPolicyArbiter } from "../src/policyArbiters/passThroughPolicyArbiter.js";
+import { PassThroughPolicyEnforcementProcessor } from "../src/policyEnforcementProcessor/passThroughPolicyEnforcementProcessor.js";
+import { LoggingPolicyExecutionAction } from "../src/policyExecutionActions/loggingPolicyExecutionAction.js";
+import { StaticPolicyInformationSource } from "../src/policyInformationSources/staticPolicyInformationSource.js";
 
 let loggingMemoryEntityStorage: MemoryEntityStorageConnector<LogEntry>;
 let odrlPolicyMemoryEntityStorage: MemoryEntityStorageConnector<OdrlPolicy>;
@@ -75,57 +72,40 @@ describe("RightsManagementService", () => {
 
 		ComponentFactory.register("policy-decision-point", () => new PolicyDecisionPointService());
 
-		const mockArbiter: IPolicyArbiter = {
-			className: () => "mock-arbiter",
-			decide: async (): Promise<IPolicyDecision[]> => [
-				{ target: "$", decision: PolicyDecision.Granted }
-			]
-		};
-		PolicyArbiterFactory.register("mock-arbiter", () => mockArbiter);
+		PolicyArbiterFactory.register("pass-through-arbiter", () => new PassThroughPolicyArbiter());
 
-		const mockExecutionAction: IPolicyExecutionAction = {
-			className: () => "mock-execution-action",
-			supportedStages: () => [PolicyDecisionStage.Before, PolicyDecisionStage.After],
-			execute: async <D = unknown>(
-				policy: IOdrlPolicy,
-				decisions: IPolicyDecision[],
-				data: D | undefined,
-				stage: PolicyDecisionStage
-			): Promise<void> => {
-				console.log(`Executing mock action at stage ${stage}`);
-			}
-		};
-		PolicyExecutionActionFactory.register("mock-execution-action", () => mockExecutionAction);
+		PolicyExecutionActionFactory.register(
+			"logging-execution-action",
+			() => new LoggingPolicyExecutionAction()
+		);
 
-		const mockInformationSource: IPolicyInformationSource = {
-			className: () => "mock-information-source",
-			retrieve: async <D = unknown>(
-				policy: IOdrlPolicy | undefined,
-				accessMode: PolicyInformationAccessMode,
-				data?: D
-			): Promise<
-				| {
-						[id: string]: IJsonLdNodeObject;
-				  }
-				| undefined
-			> => {
-				console.debug(`Retrieving information with access mode ${accessMode}`);
-				return {};
-			}
-		};
-		PolicyInformationSourceFactory.register("mock-information-source", () => mockInformationSource);
+		PolicyInformationSourceFactory.register(
+			"static-information-source",
+			() =>
+				new StaticPolicyInformationSource({
+					config: {
+						information: [
+							{
+								accessMode: PolicyInformationAccessMode.Public,
+								objects: {
+									"info:org-address": {
+										"@context": "https://schema.org/",
+										"@type": "Organization",
+										address: {
+											"@type": "PostalAddress",
+											addressCountry: "KE"
+										}
+									}
+								}
+							}
+						]
+					}
+				})
+		);
 
-		const mockEnforcementProcessor: IPolicyEnforcementProcessor = {
-			className: () => "mock-enforcement-processor",
-			process: async <D = unknown, R = D>(
-				policy: IOdrlPolicy,
-				decisions: IPolicyDecision[],
-				data?: D
-			): Promise<R> => data as R
-		};
 		PolicyEnforcementProcessorFactory.register(
-			"mock-enforcement-processor",
-			() => mockEnforcementProcessor
+			"pass-through-enforcement-processor",
+			() => new PassThroughPolicyEnforcementProcessor()
 		);
 	});
 
@@ -155,5 +135,20 @@ describe("RightsManagementService", () => {
 		);
 
 		expect(response).toEqual(testData);
+
+		expect(loggingMemoryEntityStorage.getStore().map(l => `${l.source}:${l.message}`)).toEqual([
+			"PolicyEnforcementPointService:intercepting",
+			"PolicyExecutionPointService:executingActions",
+			"PolicyExecutionPointService:executingAction",
+			"LoggingPolicyExecutionAction:policyActionExecutedBefore",
+			"StaticPolicyInformationSource:staticRetrieving",
+			"StaticPolicyInformationSource:staticRetrieved",
+			"PassThroughPolicyArbiter:decidingPolicy",
+			"PolicyExecutionPointService:executingActions",
+			"PolicyExecutionPointService:executingAction",
+			"LoggingPolicyExecutionAction:policyActionExecutedAfter",
+			"PolicyEnforcementPointService:processing",
+			"PassThroughPolicyEnforcementProcessor:processingPolicy"
+		]);
 	});
 });

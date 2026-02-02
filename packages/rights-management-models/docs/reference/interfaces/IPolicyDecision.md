@@ -8,7 +8,7 @@ The information regarding a policy decision.
 
 > **target**: `string`
 
-The target object for the decision.
+The target object for the decision, using JSON-path syntax.
 
 ***
 
@@ -17,3 +17,11 @@ The target object for the decision.
 > **decision**: [`PolicyDecision`](../type-aliases/PolicyDecision.md)
 
 The type of the proof.
+
+***
+
+### replaceValue?
+
+> `optional` **replaceValue**: `unknown`
+
+The value to replace with, if decision is Replace.
