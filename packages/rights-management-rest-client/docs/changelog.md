@@ -1,5 +1,19 @@
 # @twin.org/rights-management-rest-client - Changelog
 
+## [0.0.3-next.12](https://github.com/twinfoundation/rights-management/compare/rights-management-rest-client-v0.0.3-next.11...rights-management-rest-client-v0.0.3-next.12) (2026-02-02)
+
+
+### Features
+
+* update processors ([#71](https://github.com/twinfoundation/rights-management/issues/71)) ([d6e8c1e](https://github.com/twinfoundation/rights-management/commit/d6e8c1e593acb28556674d5180123f220766eb6b))
+
+
+### Dependencies
+
+* The following workspace dependencies were updated
+  * dependencies
+    * @twin.org/rights-management-models bumped from 0.0.3-next.11 to 0.0.3-next.12
+
 ## [0.0.3-next.11](https://github.com/twinfoundation/rights-management/compare/rights-management-rest-client-v0.0.3-next.10...rights-management-rest-client-v0.0.3-next.11) (2026-01-29)
 
 
