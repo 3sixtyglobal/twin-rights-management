@@ -7,7 +7,7 @@ import type {
 	IPolicyDecision,
 	IPolicyEnforcementProcessor
 } from "@twin.org/rights-management-models";
-import type { IOdrlPolicy } from "@twin.org/standards-w3c-odrl";
+import type { ActionType, IOdrlAgreement } from "@twin.org/standards-w3c-odrl";
 import type { IPassThroughPolicyEnforcementProcessorConstructorOptions } from "../models/IPassThroughPolicyEnforcementProcessorConstructorOptions.js";
 
 /**
@@ -45,20 +45,22 @@ export class PassThroughPolicyEnforcementProcessor implements IPolicyEnforcement
 
 	/**
 	 * Process the response from the policy decision point.
-	 * @param policy The policy to process.
+	 * @param agreement The agreement to process.
 	 * @param decisions The decisions made by the policy decision point.
 	 * @param data The data to process.
+	 * @param action Optional action to make a decision on, if not provided, the arbiter will evaluate all actions in the agreement.
 	 * @returns The data after processing.
 	 */
 	public async process<D = unknown, R = D>(
-		policy: IOdrlPolicy,
+		agreement: IOdrlAgreement,
 		decisions: IPolicyDecision[],
-		data?: D
+		data?: D,
+		action?: ActionType | string
 	): Promise<R> {
-		Guards.object<IOdrlPolicy>(
+		Guards.object<IOdrlAgreement>(
 			PassThroughPolicyEnforcementProcessor.CLASS_NAME,
-			nameof(policy),
-			policy
+			nameof(agreement),
+			agreement
 		);
 
 		await this._logging.log({
@@ -67,7 +69,7 @@ export class PassThroughPolicyEnforcementProcessor implements IPolicyEnforcement
 			ts: Date.now(),
 			message: "processingPolicy",
 			data: {
-				policyId: policy.uid
+				policyId: agreement.uid
 			}
 		});
 

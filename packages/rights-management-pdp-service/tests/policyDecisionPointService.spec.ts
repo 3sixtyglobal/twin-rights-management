@@ -20,7 +20,7 @@ import {
 import { PolicyInformationPointService } from "@twin.org/rights-management-pip-service";
 import { PolicyManagementPointService } from "@twin.org/rights-management-pmp-service";
 import { PolicyExecutionPointService } from "@twin.org/rights-management-pxp-service";
-import { type IOdrlPolicy, OdrlContexts, PolicyType } from "@twin.org/standards-w3c-odrl";
+import { type IOdrlAgreement, OdrlContexts, PolicyType } from "@twin.org/standards-w3c-odrl";
 import { PolicyDecisionPointService } from "../src/policyDecisionPointService.js";
 
 let loggingMemoryEntityStorage: MemoryEntityStorageConnector<LogEntry>;
@@ -31,10 +31,11 @@ function createPolicy(options?: {
 	action?: string;
 	assetType?: string;
 	assignee?: string;
-}): IOdrlPolicy {
+}): IOdrlAgreement {
 	return {
 		"@context": OdrlContexts.Context,
-		"@type": PolicyType.Set,
+		"@type": PolicyType.Agreement,
+		assigner: "assigner",
 		uid: options?.uid ?? "policy123",
 		action: options?.action ?? "action",
 		assetType: options?.assetType ?? "assetType",

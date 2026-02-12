@@ -1,6 +1,7 @@
 // Copyright 2025 IOTA Stiftung.
 // SPDX-License-Identifier: Apache-2.0.
 import { ArrayHelper, GeneralError, Guards, Is } from "@twin.org/core";
+import type { ObjectOrArray } from "@twin.org/core";
 import { nameof } from "@twin.org/nameof";
 import type {
 	ActionType,
@@ -24,7 +25,7 @@ export class OdrlPolicyHelper {
 	 * @returns Assignee id.
 	 * @throws GeneralError if assignee is missing or invalid.
 	 */
-	public static extractAssigneeIdentity(policy: IOdrlPolicy): string {
+	public static extractAssigneeIdentity(policy: IOdrlPolicy): ObjectOrArray<string> {
 		if (Is.empty(policy.assignee)) {
 			throw new GeneralError(OdrlPolicyHelper.CLASS_NAME, "policyMissingAssignee", {
 				policyType: policy.type,
@@ -32,12 +33,15 @@ export class OdrlPolicyHelper {
 			});
 		}
 
-		// Handle both string and IOdrlParty formats
-		const assignee = Is.string(policy.assignee) ? policy.assignee : policy.assignee.uid;
+		const assignees = ArrayHelper.fromObjectOrArray(policy.assignee);
+		const assigneeIds: string[] = [];
+		for (const assignee of assignees) {
+			const assigneeId = Is.string(assignee) ? assignee : assignee.uid;
+			Guards.stringValue(OdrlPolicyHelper.CLASS_NAME, nameof(assigneeId), assigneeId);
+			assigneeIds.push(assigneeId);
+		}
 
-		Guards.stringValue(OdrlPolicyHelper.CLASS_NAME, nameof(assignee), assignee);
-
-		return assignee;
+		return assigneeIds.length <= 1 ? assigneeIds[0] : assigneeIds;
 	}
 
 	/**
@@ -46,7 +50,7 @@ export class OdrlPolicyHelper {
 	 * @returns Assigner id.
 	 * @throws GeneralError if assigner is missing or invalid.
 	 */
-	public static extractAssignerIdentity(policy: IOdrlPolicy): string {
+	public static extractAssignerIdentity(policy: IOdrlPolicy): ObjectOrArray<string> {
 		if (Is.empty(policy.assigner)) {
 			throw new GeneralError(OdrlPolicyHelper.CLASS_NAME, "policyMissingAssigner", {
 				policyType: policy.type,
@@ -54,12 +58,16 @@ export class OdrlPolicyHelper {
 			});
 		}
 
-		// Handle both string and IOdrlParty formats
-		const assigner = Is.string(policy.assigner) ? policy.assigner : policy.assigner.uid;
+		const assigners = ArrayHelper.fromObjectOrArray(policy.assigner);
+		const assignerIds: string[] = [];
 
-		Guards.stringValue(OdrlPolicyHelper.CLASS_NAME, nameof(assigner), assigner);
+		for (const assigner of assigners) {
+			const assignerId = Is.string(assigner) ? assigner : assigner.uid;
+			Guards.stringValue(OdrlPolicyHelper.CLASS_NAME, nameof(assignerId), assignerId);
+			assignerIds.push(assignerId);
+		}
 
-		return assigner;
+		return assignerIds.length <= 1 ? assignerIds[0] : assignerIds;
 	}
 
 	/**
@@ -68,8 +76,20 @@ export class OdrlPolicyHelper {
 	 * @returns Assignee id.
 	 * @throws GeneralError if assignee is missing or invalid.
 	 */
-	public static getAssigneeIdentity(policy: IOdrlPolicy): string | undefined {
-		return Is.string(policy.assignee) ? policy.assignee : policy.assignee?.uid;
+	public static getAssigneeIdentity(policy: IOdrlPolicy): ObjectOrArray<string> | undefined {
+		const assignees = ArrayHelper.fromObjectOrArray(policy.assignee);
+		const assigneeIds: string[] = [];
+
+		if (Is.arrayValue(assignees)) {
+			for (const assignee of assignees) {
+				const assigneeId = Is.string(assignee) ? assignee : assignee?.uid;
+				if (!Is.empty(assigneeId)) {
+					assigneeIds.push(assigneeId);
+				}
+			}
+		}
+
+		return assigneeIds.length <= 1 ? assigneeIds[0] : assigneeIds;
 	}
 
 	/**
@@ -78,8 +98,20 @@ export class OdrlPolicyHelper {
 	 * @returns Assigner id.
 	 * @throws GeneralError if assigner is missing or invalid.
 	 */
-	public static getAssignerIdentity(policy: IOdrlPolicy): string | undefined {
-		return Is.string(policy.assigner) ? policy.assigner : policy.assigner?.uid;
+	public static getAssignerIdentity(policy: IOdrlPolicy): ObjectOrArray<string> | undefined {
+		const assigners = ArrayHelper.fromObjectOrArray(policy.assigner);
+		const assignerIds: string[] = [];
+
+		if (Is.arrayValue(assigners)) {
+			for (const assigner of assigners) {
+				const assignerId = Is.string(assigner) ? assigner : assigner?.uid;
+				if (!Is.empty(assignerId)) {
+					assignerIds.push(assignerId);
+				}
+			}
+		}
+
+		return assignerIds.length <= 1 ? assignerIds[0] : assignerIds;
 	}
 
 	/**

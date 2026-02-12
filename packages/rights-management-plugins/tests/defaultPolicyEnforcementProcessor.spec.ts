@@ -12,17 +12,23 @@ import { LoggingConnectorFactory } from "@twin.org/logging-models";
 import { LoggingService } from "@twin.org/logging-service";
 import { nameof } from "@twin.org/nameof";
 import { PolicyDecision, type IPolicyDecision } from "@twin.org/rights-management-models";
-import type { IOdrlPolicy } from "@twin.org/standards-w3c-odrl";
+import { OdrlContexts, PolicyType, type IOdrlAgreement } from "@twin.org/standards-w3c-odrl";
 import { DefaultPolicyEnforcementProcessor } from "../src/policyEnforcementProcessor/defaultPolicyEnforcementProcessor.js";
 
 let loggingMemoryEntityStorage: MemoryEntityStorageConnector<LogEntry>;
 
 describe("DefaultPolicyEnforcementProcessor", () => {
-	function createPolicy(uid: string = "policy123"): IOdrlPolicy {
+	function createAgreement(uid: string = "policy123"): IOdrlAgreement {
 		return {
-			uid
-		} as IOdrlPolicy;
+			"@context": OdrlContexts.Context,
+			"@type": PolicyType.Agreement,
+			uid,
+			assigner: "did:example:assigner",
+			assignee: "did:example:assignee"
+		};
 	}
+
+	const createPolicy = createAgreement;
 
 	beforeEach(() => {
 		initSchema();
@@ -41,10 +47,10 @@ describe("DefaultPolicyEnforcementProcessor", () => {
 		expect(policyInformationSource.className()).toBe(DefaultPolicyEnforcementProcessor.CLASS_NAME);
 	});
 
-	test("logs processingPolicy with the policy id", async () => {
+	test("logs processingPolicy with the agreement id", async () => {
 		const processor = new DefaultPolicyEnforcementProcessor();
 
-		await processor.process(createPolicy("policy:abc"), [], { a: 1 });
+		await processor.process(createAgreement("policy:abc"), [], { a: 1 });
 
 		const logs = loggingMemoryEntityStorage.getStore();
 		expect(logs).toHaveLength(1);
@@ -61,7 +67,7 @@ describe("DefaultPolicyEnforcementProcessor", () => {
 	test("returns an empty object when decisions is undefined", async () => {
 		const processor = new DefaultPolicyEnforcementProcessor();
 		const result = await processor.process(
-			createPolicy(),
+			createAgreement(),
 			undefined as unknown as IPolicyDecision[],
 			{ a: 1 }
 		);
@@ -71,7 +77,7 @@ describe("DefaultPolicyEnforcementProcessor", () => {
 	test("returns true for a single Granted decision with no data", async () => {
 		const processor = new DefaultPolicyEnforcementProcessor();
 
-		const result = await processor.process<undefined, boolean>(createPolicy(), [
+		const result = await processor.process<undefined, boolean>(createAgreement(), [
 			{ decision: PolicyDecision.Granted, target: "$" }
 		] as IPolicyDecision[]);
 
@@ -81,7 +87,7 @@ describe("DefaultPolicyEnforcementProcessor", () => {
 	test("returns false for a single Denied decision with no data", async () => {
 		const processor = new DefaultPolicyEnforcementProcessor();
 
-		const result = await processor.process<undefined, boolean>(createPolicy(), [
+		const result = await processor.process<undefined, boolean>(createAgreement(), [
 			{ decision: PolicyDecision.Denied, target: "$" }
 		] as IPolicyDecision[]);
 
@@ -319,7 +325,7 @@ describe("DefaultPolicyEnforcementProcessor", () => {
 		const processor = new DefaultPolicyEnforcementProcessor();
 
 		await expect(
-			processor.process(undefined as unknown as IOdrlPolicy, [], { a: 1 })
+			processor.process(undefined as unknown as IOdrlAgreement, [], { a: 1 })
 		).rejects.toThrow();
 	});
 });

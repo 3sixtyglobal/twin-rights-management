@@ -13,7 +13,7 @@ import {
 	type IPolicyInformationPointComponent,
 	type IPolicyManagementPointComponent
 } from "@twin.org/rights-management-models";
-import type { IOdrlPolicy } from "@twin.org/standards-w3c-odrl";
+import type { ActionType, IOdrlAgreement } from "@twin.org/standards-w3c-odrl";
 import type { IPolicyDecisionPointServiceConstructorOptions } from "./models/IPolicyDecisionPointServiceConstructorOptions.js";
 
 /**
@@ -81,13 +81,22 @@ export class PolicyDecisionPointService implements IPolicyDecisionPointComponent
 	 * Uses the Policy Management Point (PMP) to retrieve the policies and the
 	 * Policy Information Point (PIP) to retrieve additional information.
 	 * Executes any actions on the Policy Execution Point (PXP) before and after decision is made.
-	 * @param policy The policy to evaluate.
+	 * @param agreement The agreement to evaluate.
 	 * @param data The data to make a decision on.
+	 * @param action Optional action to make a decision on, if not provided, the PDP will evaluate all actions in the agreement.
 	 * @returns Returns the policy decisions which apply to the data so that the PEP
 	 * can manipulate the data accordingly.
 	 */
-	public async evaluate<D = unknown>(policy: IOdrlPolicy, data?: D): Promise<IPolicyDecision[]> {
-		Guards.objectValue<IOdrlPolicy>(PolicyDecisionPointService.CLASS_NAME, nameof(policy), policy);
+	public async evaluate<D = unknown>(
+		agreement: IOdrlAgreement,
+		data?: D,
+		action?: ActionType | string
+	): Promise<IPolicyDecision[]> {
+		Guards.objectValue<IOdrlAgreement>(
+			PolicyDecisionPointService.CLASS_NAME,
+			nameof(agreement),
+			agreement
+		);
 
 		const decisions: IPolicyDecision[] = [];
 
@@ -99,21 +108,23 @@ export class PolicyDecisionPointService implements IPolicyDecisionPointComponent
 		}
 
 		await this._policyExecutionPointComponent.executeActions(
-			policy,
+			agreement,
 			decisions,
 			data,
+			action,
 			PolicyDecisionStage.Before
 		);
 
 		const information = await this._policyInformationPointComponent.retrieve(
-			policy,
+			agreement,
 			PolicyInformationAccessMode.Any,
-			data
+			data,
+			action
 		);
 
 		for (const arbiter of arbiters) {
 			try {
-				const arbiterDecisions = await arbiter.decide(policy, information, data);
+				const arbiterDecisions = await arbiter.decide(agreement, information, data, action);
 				decisions.push(...arbiterDecisions);
 			} catch (error) {
 				await this._logging?.log({
@@ -123,23 +134,24 @@ export class PolicyDecisionPointService implements IPolicyDecisionPointComponent
 					message: "decidingFailed",
 					data: {
 						arbiterId: arbiter.className(),
-						policyId: policy.uid
+						policyId: agreement.uid
 					},
 					error: BaseError.fromError(error)
 				});
 				throw new GeneralError(
 					PolicyDecisionPointService.CLASS_NAME,
 					"decidingFailed",
-					{ arbiterId: arbiter.className(), policyId: policy.uid },
+					{ arbiterId: arbiter.className(), policyId: agreement.uid },
 					error
 				);
 			}
 		}
 
 		await this._policyExecutionPointComponent.executeActions(
-			policy,
+			agreement,
 			decisions,
 			data,
+			action,
 			PolicyDecisionStage.After
 		);
 

@@ -1,6 +1,6 @@
-# Class: PassThroughPolicyArbiter
+# Class: DefaultPolicyArbiter
 
-Pass Through Policy Arbiter.
+Default Policy Arbiter.
 
 ## Implements
 
@@ -10,21 +10,21 @@ Pass Through Policy Arbiter.
 
 ### Constructor
 
-> **new PassThroughPolicyArbiter**(`options?`): `PassThroughPolicyArbiter`
+> **new DefaultPolicyArbiter**(`options?`): `DefaultPolicyArbiter`
 
-Create a new instance of PassThroughPolicyArbiter.
+Create a new instance of DefaultPolicyArbiter.
 
 #### Parameters
 
 ##### options?
 
-[`IPassThroughPolicyArbiterConstructorOptions`](../interfaces/IPassThroughPolicyArbiterConstructorOptions.md)
+[`IDefaultPolicyArbiterConstructorOptions`](../interfaces/IDefaultPolicyArbiterConstructorOptions.md)
 
-The options for the pass through policy arbiter.
+The options for the default policy arbiter.
 
 #### Returns
 
-`PassThroughPolicyArbiter`
+`DefaultPolicyArbiter`
 
 ## Properties
 
@@ -32,7 +32,7 @@ The options for the pass through policy arbiter.
 
 > `readonly` `static` **CLASS\_NAME**: `string`
 
-The class name of the Pass Through Policy Arbiter.
+The class name of the Default Policy Arbiter.
 
 ## Methods
 

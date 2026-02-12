@@ -9,7 +9,7 @@ import {
 	PolicyDecisionStage,
 	PolicyExecutionActionFactory
 } from "@twin.org/rights-management-models";
-import type { IOdrlPolicy } from "@twin.org/standards-w3c-odrl";
+import type { ActionType, IOdrlPolicy } from "@twin.org/standards-w3c-odrl";
 import type { IPolicyExecutionPointServiceConstructorOptions } from "./models/IPolicyExecutionPointServiceConstructorOptions.js";
 
 /**
@@ -50,6 +50,7 @@ export class PolicyExecutionPointService implements IPolicyExecutionPointCompone
 	 * @param policy The policy that applied to the data.
 	 * @param decisions The decisions made by the PDP.
 	 * @param data The data used in the decision by the PDP.
+	 * @param action The action used in the decision by the PDP.
 	 * @param stage The stage at which the PXP is executed in the PDP.
 	 * @returns Nothing.
 	 */
@@ -57,6 +58,7 @@ export class PolicyExecutionPointService implements IPolicyExecutionPointCompone
 		policy: IOdrlPolicy,
 		decisions: IPolicyDecision[],
 		data: D | undefined,
+		action: ActionType | string | undefined,
 		stage: PolicyDecisionStage
 	): Promise<void> {
 		Guards.object<IOdrlPolicy>(PolicyExecutionPointService.CLASS_NAME, nameof(policy), policy);
@@ -83,12 +85,12 @@ export class PolicyExecutionPointService implements IPolicyExecutionPointCompone
 			}
 		});
 
-		const actionNames = PolicyExecutionActionFactory.names();
-		const actions = actionNames
+		const executionActionNames = PolicyExecutionActionFactory.names();
+		const executionActions = executionActionNames
 			.map(actionName => PolicyExecutionActionFactory.get(actionName))
 			.filter(a => a.supportedStages().includes(stage));
 
-		for (const action of actions) {
+		for (const executionAction of executionActions) {
 			try {
 				await this._logging?.log({
 					level: "info",
@@ -100,7 +102,7 @@ export class PolicyExecutionPointService implements IPolicyExecutionPointCompone
 						policyId: policy.uid
 					}
 				});
-				await action.execute(policy, decisions, data, stage);
+				await executionAction.execute(policy, decisions, data, action, stage);
 			} catch (error) {
 				await this._logging?.log({
 					level: "error",
@@ -108,7 +110,7 @@ export class PolicyExecutionPointService implements IPolicyExecutionPointCompone
 					ts: Date.now(),
 					message: "actionExecutionFailed",
 					data: {
-						actionId: action.className(),
+						actionId: executionAction.className(),
 						stage,
 						policyId: policy.uid
 					},
@@ -118,7 +120,7 @@ export class PolicyExecutionPointService implements IPolicyExecutionPointCompone
 					PolicyExecutionPointService.CLASS_NAME,
 					"actionExecutionFailed",
 					{
-						actionId: action.className(),
+						actionId: executionAction.className(),
 						stage,
 						policyId: policy.uid
 					},

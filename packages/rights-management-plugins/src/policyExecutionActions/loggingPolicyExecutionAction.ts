@@ -8,7 +8,7 @@ import {
 	type IPolicyExecutionAction,
 	PolicyDecisionStage
 } from "@twin.org/rights-management-models";
-import type { IOdrlPolicy } from "@twin.org/standards-w3c-odrl";
+import type { ActionType, IOdrlPolicy } from "@twin.org/standards-w3c-odrl";
 import type { ILoggingPolicyExecutionActionConstructorOptions } from "../models/ILoggingPolicyExecutionActionConstructorOptions.js";
 
 /**
@@ -86,6 +86,7 @@ export class LoggingPolicyExecutionAction implements IPolicyExecutionAction {
 	 * @param policy The policy that applied to the data.
 	 * @param decisions The decisions made by the PDP.
 	 * @param data The data to process.
+	 * @param action Optional action to make a decision on, if not provided, the arbiter will evaluate all actions in the agreement.
 	 * @param stage The stage of the policy decision.
 	 * @returns A promise that resolves when the action is complete.
 	 */
@@ -93,6 +94,7 @@ export class LoggingPolicyExecutionAction implements IPolicyExecutionAction {
 		policy: IOdrlPolicy,
 		decisions: IPolicyDecision[],
 		data: D | undefined,
+		action: ActionType | string,
 		stage: PolicyDecisionStage
 	): Promise<void> {
 		Guards.arrayOneOf(
@@ -123,6 +125,7 @@ export class LoggingPolicyExecutionAction implements IPolicyExecutionAction {
 						data: logData,
 						policy: logPolicy,
 						decisions: logDecisions,
+						action,
 						stage
 					}
 				});
@@ -137,6 +140,7 @@ export class LoggingPolicyExecutionAction implements IPolicyExecutionAction {
 						data: logData,
 						policy: logPolicy,
 						decisions: logDecisions,
+						action,
 						stage
 					}
 				});

@@ -13,7 +13,7 @@ be returned.
 
 ### interceptWithPolicy()
 
-> **interceptWithPolicy**\<`D`, `R`\>(`policy`, `data?`): `Promise`\<`R`\>
+> **interceptWithPolicy**\<`D`, `R`\>(`agreement`, `data?`, `action?`): `Promise`\<`R`\>
 
 Process the data using Policy Decision Point (PDP) and return the manipulated data.
 
@@ -29,17 +29,23 @@ Process the data using Policy Decision Point (PDP) and return the manipulated da
 
 #### Parameters
 
-##### policy
+##### agreement
 
-`IOdrlPolicy`
+`IOdrlAgreement`
 
-The policy to enforce.
+The agreement to enforce.
 
 ##### data?
 
 `D`
 
 The data to process.
+
+##### action?
+
+`string`
+
+Optional action to make a decision on, if not provided, the arbiter will evaluate all actions in the agreement.
 
 #### Returns
 
@@ -51,7 +57,7 @@ The manipulated data with any policies applied.
 
 ### interceptWithId()
 
-> **interceptWithId**\<`D`, `R`\>(`uid`, `data?`): `Promise`\<`R`\>
+> **interceptWithId**\<`D`, `R`\>(`uid`, `data?`, `action?`): `Promise`\<`R`\>
 
 Process the data using Policy Decision Point (PDP) and return the manipulated data.
 
@@ -71,13 +77,19 @@ Process the data using Policy Decision Point (PDP) and return the manipulated da
 
 `string`
 
-The uid of the policy to look up.
+The uid of the agreement to look up.
 
 ##### data?
 
 `D`
 
 The data to process.
+
+##### action?
+
+`string`
+
+Optional action to make a decision on, if not provided, the arbiter will evaluate all actions in the agreement.
 
 #### Returns
 
@@ -89,7 +101,7 @@ The manipulated data with any policies applied.
 
 ### interceptWithLocator()
 
-> **interceptWithLocator**\<`D`, `R`\>(`locator`, `data?`): `Promise`\<`R`\>
+> **interceptWithLocator**\<`D`, `R`\>(`locator`, `data?`, `action?`): `Promise`\<`R`\>
 
 Process the data using Policy Decision Point (PDP) and return the manipulated data.
 
@@ -107,7 +119,7 @@ Process the data using Policy Decision Point (PDP) and return the manipulated da
 
 ##### locator
 
-The match criteria to look up policies.
+The match criteria to look up agreements.
 
 ###### assigner?
 
@@ -138,6 +150,12 @@ The action attribute to match.
 `D`
 
 The data to process.
+
+##### action?
+
+`string`
+
+Optional action to make a decision on, if not provided, the arbiter will evaluate all actions in the agreement.
 
 #### Returns
 

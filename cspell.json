@@ -27,6 +27,7 @@
 		"Dataspace",
 		"eddsa",
 		"Faucet",
+		"Gteq",
 		"ipfs",
 		"jsonld",
 		"lteq",
@@ -37,7 +38,8 @@
 		"PNRP",
 		"Stiftung",
 		"Unece",
-		"Unrevoke"
+		"Unrevoke",
+		"xone"
 	],
 	"ignoreRegExpList": [
 		"/from\\s+(['\"]).*\\1/",

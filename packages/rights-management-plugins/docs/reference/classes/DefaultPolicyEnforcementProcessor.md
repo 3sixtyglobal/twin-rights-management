@@ -56,7 +56,7 @@ The class name of the component.
 
 ### process()
 
-> **process**\<`D`, `R`\>(`policy`, `decisions`, `data?`): `Promise`\<`R`\>
+> **process**\<`D`, `R`\>(`agreement`, `decisions`, `data?`, `action?`): `Promise`\<`R`\>
 
 Process the response from the policy decision point.
 
@@ -72,11 +72,11 @@ Process the response from the policy decision point.
 
 #### Parameters
 
-##### policy
+##### agreement
 
-`IOdrlPolicy`
+`IOdrlAgreement`
 
-The policy to process.
+The agreement to process.
 
 ##### decisions
 
@@ -89,6 +89,12 @@ The decisions made by the policy decision point.
 `D`
 
 The data to process.
+
+##### action?
+
+`string`
+
+Optional action to make a decision on, if not provided, the arbiter will evaluate all actions in the agreement.
 
 #### Returns
 

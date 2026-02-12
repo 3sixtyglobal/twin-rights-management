@@ -108,7 +108,8 @@ describe("PolicyInformationPointService", () => {
 				assignee: "node456"
 			},
 			PolicyInformationAccessMode.Any,
-			{ foo: "bar" }
+			{ foo: "bar" },
+			undefined
 		);
 		expect(information).toEqual(mockInformation);
 	});
@@ -152,7 +153,8 @@ describe("PolicyInformationPointService", () => {
 				assignee: "node456"
 			},
 			PolicyInformationAccessMode.Any,
-			{ foo: "bar" }
+			{ foo: "bar" },
+			undefined
 		);
 		expect(contextSource.retrieve).toHaveBeenCalledWith(
 			{
@@ -164,7 +166,8 @@ describe("PolicyInformationPointService", () => {
 				assignee: "node456"
 			},
 			PolicyInformationAccessMode.Any,
-			{ foo: "bar" }
+			{ foo: "bar" },
+			undefined
 		);
 		expect(information).toEqual({ ...contextInfo, ...identityInfo });
 	});

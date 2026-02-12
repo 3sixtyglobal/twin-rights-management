@@ -14,7 +14,7 @@ Point (PEP) will execute any registered actions.
 
 ### evaluate()
 
-> **evaluate**\<`D`\>(`policy`, `data?`): `Promise`\<[`IPolicyDecision`](IPolicyDecision.md)[]\>
+> **evaluate**\<`D`\>(`agreement`, `data?`, `action?`): `Promise`\<[`IPolicyDecision`](IPolicyDecision.md)[]\>
 
 Evaluate requests from a Policy Enforcement Point (PEP).
 Uses the Policy Management Point (PMP) to retrieve the policies and the
@@ -29,17 +29,23 @@ Executes any actions on the Policy Execution Point (PXP) before and after decisi
 
 #### Parameters
 
-##### policy
+##### agreement
 
-`IOdrlPolicy`
+`IOdrlAgreement`
 
-The policy to evaluate.
+The agreement to evaluate.
 
 ##### data?
 
 `D`
 
 The data to make a decision on.
+
+##### action?
+
+`string`
+
+Optional action to make a decision on, if not provided, the PDP will evaluate all actions in the agreement.
 
 #### Returns
 

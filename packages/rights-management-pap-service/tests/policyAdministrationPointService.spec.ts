@@ -2,7 +2,7 @@
 // SPDX-License-Identifier: Apache-2.0.
 import { existsSync } from "node:fs";
 import { rm } from "node:fs/promises";
-import { Is, ObjectHelper } from "@twin.org/core";
+import { ArrayHelper, Is, ObjectHelper } from "@twin.org/core";
 import type { EntityCondition } from "@twin.org/entity";
 import type { MemoryEntityStorageConnector } from "@twin.org/entity-storage-connector-memory";
 import { EntityStorageConnectorFactory } from "@twin.org/entity-storage-models";
@@ -82,10 +82,11 @@ describe("PolicyAdministrationPointService", () => {
 		expect(retrievedPolicy.permission).toBeDefined();
 		expect(SAMPLE_POLICY.permission).toBeDefined();
 
-		if (retrievedPolicy.permission && SAMPLE_POLICY.permission) {
-			expect(retrievedPolicy.permission).toHaveLength(1);
-			expect(retrievedPolicy.permission[0].target).toEqual(SAMPLE_POLICY.permission[0].target);
-			expect(retrievedPolicy.permission[0].action).toEqual(SAMPLE_POLICY.permission[0].action);
+		const retrievedPermission = ArrayHelper.fromObjectOrArray(retrievedPolicy.permission);
+		if (Is.array(retrievedPolicy.permission) && Is.array(SAMPLE_POLICY.permission)) {
+			expect(retrievedPermission).toHaveLength(1);
+			expect(retrievedPermission?.[0]?.target).toEqual(SAMPLE_POLICY.permission?.[0]?.target);
+			expect(retrievedPermission?.[0]?.action).toEqual(SAMPLE_POLICY.permission?.[0]?.action);
 		}
 	});
 
@@ -314,9 +315,10 @@ describe("PolicyAdministrationPointService", () => {
 		expect(result).toBeDefined();
 		expect(result.uid).toEqual(policyId);
 		expect(result.permission).toBeDefined();
-		if (result.permission && result.permission.length > 0) {
-			expect(result.permission[0].target).toEqual("http://example.com/asset/updated");
-			expect(result.permission[0].action).toEqual("read");
+		const permission = ArrayHelper.fromObjectOrArray(result.permission);
+		if (Is.arrayValue(permission)) {
+			expect(permission?.[0]?.target).toEqual("http://example.com/asset/updated");
+			expect(permission?.[0]?.action).toEqual("read");
 		}
 	});
 
@@ -455,9 +457,10 @@ describe("PolicyAdministrationPointService", () => {
 		expect(result.uid).toEqual(policyId);
 		expect(result.permission).toBeDefined();
 		expect(result.permission).toHaveLength(1);
-		if (result.permission && result.permission.length > 0) {
-			expect(result.permission[0].target).toEqual("http://example.com/asset/3");
-			expect(result.permission[0].action).toEqual("display");
+		const permission = ArrayHelper.fromObjectOrArray(result.permission);
+		if (Is.arrayValue(permission)) {
+			expect(permission?.[0]?.target).toEqual("http://example.com/asset/3");
+			expect(permission?.[0]?.action).toEqual("display");
 		}
 	});
 
@@ -509,9 +512,10 @@ describe("PolicyAdministrationPointService", () => {
 		expect(retrievedPolicy).toBeDefined();
 		expect(retrievedPolicy.uid).toEqual(policyId);
 		expect(retrievedPolicy["@type"]).toEqual("Offer");
-		if (retrievedPolicy.permission && retrievedPolicy.permission.length > 0) {
-			expect(retrievedPolicy.permission[0].target).toEqual("http://example.com/asset/new");
-			expect(retrievedPolicy.permission[0].action).toEqual("modify");
+		const permission = ArrayHelper.fromObjectOrArray(retrievedPolicy.permission);
+		if (Is.arrayValue(permission)) {
+			expect(permission?.[0]?.target).toEqual("http://example.com/asset/new");
+			expect(permission?.[0]?.action).toEqual("modify");
 		}
 		expect(retrievedPolicy.assigner).toEqual("http://example.com/party/assigner");
 	});

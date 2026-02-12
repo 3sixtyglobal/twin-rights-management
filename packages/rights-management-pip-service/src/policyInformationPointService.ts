@@ -9,7 +9,7 @@ import {
 	PolicyInformationAccessMode,
 	PolicyInformationSourceFactory
 } from "@twin.org/rights-management-models";
-import type { IOdrlPolicy } from "@twin.org/standards-w3c-odrl";
+import type { ActionType, IOdrlPolicy } from "@twin.org/standards-w3c-odrl";
 import type { IPolicyInformationPointServiceConstructorOptions } from "./models/IPolicyInformationPointServiceConstructorOptions.js";
 
 /**
@@ -50,12 +50,14 @@ export class PolicyInformationPointService implements IPolicyInformationPointCom
 	 * @param policy The policy to retrieve the information for if available.
 	 * @param accessMode The access mode to use for the retrieval.
 	 * @param data The data to get any additional information for.
+	 * @param action The action to get any additional information for.
 	 * @returns Returns additional information based on the data and identities.
 	 */
 	public async retrieve<D = unknown>(
 		policy: IOdrlPolicy | undefined,
 		accessMode: PolicyInformationAccessMode,
-		data?: D
+		data?: D,
+		action?: ActionType | string
 	): Promise<{ [id: string]: IJsonLdNodeObject }> {
 		Guards.arrayOneOf(
 			PolicyInformationPointService.CLASS_NAME,
@@ -72,7 +74,7 @@ export class PolicyInformationPointService implements IPolicyInformationPointCom
 		await Promise.all(
 			sources.map(async source => {
 				try {
-					const result = await source.retrieve(policy, accessMode, data);
+					const result = await source.retrieve(policy, accessMode, data, action);
 
 					if (Is.objectValue(result)) {
 						information = { ...information, ...result };

@@ -9,7 +9,7 @@ import {
 	type IPolicyArbiter,
 	type IPolicyDecision
 } from "@twin.org/rights-management-models";
-import type { IOdrlPolicy } from "@twin.org/standards-w3c-odrl";
+import type { ActionType, IOdrlAgreement } from "@twin.org/standards-w3c-odrl";
 import type { IPassThroughPolicyArbiterConstructorOptions } from "../models/IPassThroughPolicyArbiterConstructorOptions.js";
 
 /**
@@ -47,17 +47,23 @@ export class PassThroughPolicyArbiter implements IPolicyArbiter {
 
 	/**
 	 * Makes decisions regarding policy access to data.
-	 * @param policy The policy to evaluate.
+	 * @param agreement The agreement to evaluate.
 	 * @param information Information provided by the requester to determine if a policy can be created.
 	 * @param data The data to make a decision on.
+	 * @param action Optional action to make a decision on, if not provided, the arbiter will evaluate all actions in the agreement.
 	 * @returns The decisions about access to the data.
 	 */
 	public async decide<D = unknown>(
-		policy: IOdrlPolicy,
+		agreement: IOdrlAgreement,
 		information?: { [id: string]: IJsonLdNodeObject },
-		data?: D
+		data?: D,
+		action?: ActionType | string
 	): Promise<IPolicyDecision[]> {
-		Guards.object<IOdrlPolicy>(PassThroughPolicyArbiter.CLASS_NAME, nameof(policy), policy);
+		Guards.object<IOdrlAgreement>(
+			PassThroughPolicyArbiter.CLASS_NAME,
+			nameof(agreement),
+			agreement
+		);
 
 		await this._logging.log({
 			level: "info",
@@ -65,7 +71,7 @@ export class PassThroughPolicyArbiter implements IPolicyArbiter {
 			ts: Date.now(),
 			message: "decidingPolicy",
 			data: {
-				policyId: policy.uid
+				policyId: agreement.uid
 			}
 		});
 

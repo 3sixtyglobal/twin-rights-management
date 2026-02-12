@@ -9,7 +9,7 @@ import {
 	PolicyInformationAccessMode,
 	type IPolicyInformationSource
 } from "@twin.org/rights-management-models";
-import type { IOdrlPolicy } from "@twin.org/standards-w3c-odrl";
+import type { ActionType, IOdrlPolicy } from "@twin.org/standards-w3c-odrl";
 import type { IStaticPolicyInformationSource } from "../models/IStaticPolicyInformationSource.js";
 import type { IStaticPolicyInformationSourceConstructorOptions } from "../models/IStaticPolicyInformationSourceConstructorOptions.js";
 
@@ -58,12 +58,14 @@ export class StaticPolicyInformationSource implements IPolicyInformationSource {
 	 * @param policy The policy to retrieve information for if available.
 	 * @param accessMode The access mode to use for the retrieval.
 	 * @param data The data to process.
+	 * @param action The action to get any additional information for.
 	 * @returns The objects containing relevant information or undefined if nothing relevant is found.
 	 */
 	public async retrieve<D = unknown>(
 		policy: IOdrlPolicy | undefined,
 		accessMode: PolicyInformationAccessMode,
-		data?: D
+		data?: D,
+		action?: ActionType | string
 	): Promise<{ [id: string]: IJsonLdNodeObject } | undefined> {
 		Guards.arrayOneOf(
 			StaticPolicyInformationSource.CLASS_NAME,

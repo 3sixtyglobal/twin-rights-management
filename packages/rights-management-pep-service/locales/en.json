@@ -3,8 +3,8 @@
 		"policyEnforcementPointService": {
 			"noProcessors": "No processors available to process information",
 			"processingFailed": "Failed to process information using processor with id: \"{processorId}\", policy id: \"{policyId}\"",
-			"noPoliciesFound": "No policies found for locator: \"{locator}\"",
-			"multiplePoliciesFound": "Multiple policies found for locator: \"{locator}\""
+			"noAgreementsFound": "No agreements found for locator: \"{locator}\"",
+			"multipleAgreementsFound": "Multiple agreements found for locator: \"{locator}\""
 		}
 	},
 	"info": {

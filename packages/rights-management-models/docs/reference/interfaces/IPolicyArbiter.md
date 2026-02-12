@@ -10,7 +10,7 @@ Interface describing a Policy Arbiter.
 
 ### decide()
 
-> **decide**\<`D`\>(`policy`, `information?`, `data?`): `Promise`\<[`IPolicyDecision`](IPolicyDecision.md)[]\>
+> **decide**\<`D`\>(`agreement`, `information?`, `data?`, `action?`): `Promise`\<[`IPolicyDecision`](IPolicyDecision.md)[]\>
 
 Makes decisions regarding policy access to data.
 
@@ -22,11 +22,11 @@ Makes decisions regarding policy access to data.
 
 #### Parameters
 
-##### policy
+##### agreement
 
-`IOdrlPolicy`
+`IOdrlAgreement`
 
-The policy to evaluate.
+The agreement to evaluate.
 
 ##### information?
 
@@ -37,6 +37,12 @@ Information provided by the requester to determine if a policy can be created.
 `D`
 
 The data to make a decision on.
+
+##### action?
+
+`string`
+
+Optional action to make a decision on, if not provided, the arbiter will evaluate all actions in the agreement.
 
 #### Returns
 

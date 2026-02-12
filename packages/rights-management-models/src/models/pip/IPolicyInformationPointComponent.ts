@@ -2,7 +2,7 @@
 // SPDX-License-Identifier: Apache-2.0.
 import type { IComponent } from "@twin.org/core";
 import type { IJsonLdNodeObject } from "@twin.org/data-json-ld";
-import type { IOdrlPolicy } from "@twin.org/standards-w3c-odrl";
+import type { ActionType, IOdrlPolicy } from "@twin.org/standards-w3c-odrl";
 import type { PolicyInformationAccessMode } from "./policyInformationAccessMode.js";
 
 /**
@@ -16,11 +16,13 @@ export interface IPolicyInformationPointComponent extends IComponent {
 	 * @param policy The policy to retrieve the information for if available.
 	 * @param accessMode The access mode to use for the retrieval.
 	 * @param data The data to get any additional information for.
+	 * @param action Optional action to make a decision on, if not provided, the PIP will evaluate all actions in the policy.
 	 * @returns Returns additional information based on the data and identities.
 	 */
 	retrieve<D = unknown>(
 		policy: IOdrlPolicy | undefined,
 		accessMode: PolicyInformationAccessMode,
-		data?: D
+		data?: D,
+		action?: ActionType | string
 	): Promise<{ [id: string]: IJsonLdNodeObject }>;
 }

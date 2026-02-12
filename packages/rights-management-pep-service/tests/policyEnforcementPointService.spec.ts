@@ -26,7 +26,7 @@ import {
 import { PolicyInformationPointService } from "@twin.org/rights-management-pip-service";
 import { PolicyManagementPointService } from "@twin.org/rights-management-pmp-service";
 import { PolicyExecutionPointService } from "@twin.org/rights-management-pxp-service";
-import { type IOdrlPolicy, OdrlContexts, PolicyType } from "@twin.org/standards-w3c-odrl";
+import { OdrlContexts, PolicyType, type IOdrlAgreement } from "@twin.org/standards-w3c-odrl";
 import { PolicyEnforcementPointService } from "../src/policyEnforcementPointService.js";
 
 /**
@@ -59,15 +59,24 @@ class MockPolicyEnforcementProcessor implements IPolicyEnforcementProcessor {
 	}
 }
 
+/**
+ * Extended policy type for testing that includes custom properties.
+ */
+interface TestPolicy extends IOdrlAgreement {
+	action?: string;
+	assetType?: string;
+}
+
 function createPolicy(options?: {
 	uid?: string;
 	action?: string;
 	assetType?: string;
 	assignee?: string;
-}): IOdrlPolicy {
+}): TestPolicy {
 	return {
 		"@context": OdrlContexts.Context,
-		"@type": PolicyType.Set,
+		"@type": PolicyType.Agreement,
+		assigner: "assigner",
 		uid: options?.uid ?? "policy123",
 		action: options?.action ?? "action",
 		assetType: options?.assetType ?? "assetType",
@@ -169,26 +178,15 @@ describe("PolicyEnforcementPointService", () => {
 		PolicyEnforcementProcessorFactory.register("watermarkProcessor", () => mockProcessor);
 
 		const inputData = { content: "original data" };
-		const result = await policyEnforcementPoint.interceptWithPolicy(
-			createPolicy({ assetType: "document", action: "read", assignee: "assignee123" }),
-			inputData
-		);
+		const policy = createPolicy({ assetType: "document", action: "read", assignee: "assignee123" });
+		const result = await policyEnforcementPoint.interceptWithPolicy(policy, inputData);
 
-		expect(mockPdp.evaluate).toHaveBeenCalledWith(
-			{
-				"@context": "http://www.w3.org/ns/odrl.jsonld",
-				"@type": "Set",
-				action: "read",
-				assetType: "document",
-				assignee: "assignee123",
-				uid: "policy123"
-			},
-			inputData
-		);
+		expect(mockPdp.evaluate).toHaveBeenCalledWith(policy, inputData, undefined);
 		expect(mockProcessor.process).toHaveBeenCalledWith(
-			createPolicy({ assetType: "document", action: "read", assignee: "assignee123" }),
+			policy,
 			mockDecisions,
-			inputData // Should be cloned version
+			inputData, // Should be cloned version
+			undefined
 		);
 		expect(result).toEqual(processedData);
 	});
@@ -213,20 +211,24 @@ describe("PolicyEnforcementPointService", () => {
 		PolicyEnforcementProcessorFactory.register("secondProcessor", () => secondProcessor);
 
 		const inputData = { content: "original" };
-		const result = await policyEnforcementPoint.interceptWithPolicy(
-			createPolicy({ assetType: "document", action: "process", assignee: "processor" }),
-			inputData
-		);
+		const policy = createPolicy({
+			assetType: "document",
+			action: "process",
+			assignee: "processor"
+		});
+		const result = await policyEnforcementPoint.interceptWithPolicy(policy, inputData);
 
 		expect(firstProcessor.process).toHaveBeenCalledWith(
-			createPolicy({ assetType: "document", action: "process", assignee: "processor" }),
+			policy,
 			mockDecisions,
-			inputData
+			inputData,
+			undefined
 		);
 		expect(secondProcessor.process).toHaveBeenCalledWith(
-			createPolicy({ assetType: "document", action: "process", assignee: "processor" }),
+			policy,
 			mockDecisions,
-			firstProcessedData
+			firstProcessedData,
+			undefined
 		);
 		expect(result).toEqual(finalProcessedData);
 	});
@@ -293,20 +295,18 @@ describe("PolicyEnforcementPointService", () => {
 		const mockProcessor = new MockPolicyEnforcementProcessor();
 
 		// Processor modifies the data it receives
-		mockProcessor.process.mockImplementation(async (locator, decisions, data) => {
+		mockProcessor.process.mockImplementation(async (agreement, decisions, data: unknown) => {
 			if (data && typeof data === "object") {
-				data.modified = true;
+				(data as { [key: string]: unknown }).modified = true;
 			}
 			return data;
 		});
 
 		PolicyEnforcementProcessorFactory.register("modifyingProcessor", () => mockProcessor);
 
-		const originalData = { content: "original", modified: false };
-		await policyEnforcementPoint.interceptWithPolicy(
-			createPolicy({ assetType: "document", action: "modify", assignee: "assignee" }),
-			originalData
-		);
+		const originalData: { [key: string]: unknown } = { content: "original", modified: false };
+		const policy = createPolicy({ assetType: "document", action: "modify", assignee: "assignee" });
+		await policyEnforcementPoint.interceptWithPolicy(policy, originalData);
 
 		// Original data should remain unchanged
 		expect(originalData.modified).toBe(false);
@@ -321,28 +321,42 @@ describe("PolicyEnforcementPointService", () => {
 		const selectiveProcessor = new MockPolicyEnforcementProcessor();
 
 		// Processor only handles "document" asset type
-		selectiveProcessor.process.mockImplementation(async (locator, decisions, data) => {
-			if (locator.assetType === "document") {
-				return { ...data, processed: true, processorType: "document-processor" };
+		selectiveProcessor.process.mockImplementation(
+			async (agreement: unknown, decisions, data: unknown) => {
+				const testAgreement = agreement as TestPolicy;
+				if (testAgreement.assetType === "document") {
+					return {
+						...(data as { [key: string]: unknown }),
+						processed: true,
+						processorType: "document-processor"
+					};
+				}
+				// Return data unchanged for non-matching asset types
+				return data;
 			}
-			// Return data unchanged for non-matching asset types
-			return data;
-		});
+		);
 
 		PolicyEnforcementProcessorFactory.register("documentProcessor", () => selectiveProcessor);
 
-		const documentData = { content: "document content" };
-		const imageData = { content: "image content" };
+		const documentData: { [key: string]: unknown } = { content: "document content" };
+		const imageData: { [key: string]: unknown } = { content: "image content" };
+
+		const documentPolicy = createPolicy({
+			assetType: "document",
+			action: "read",
+			assignee: "assignee123"
+		});
+		const imagePolicy = createPolicy({
+			assetType: "image",
+			action: "view",
+			assignee: "assignee123"
+		});
 
 		const documentResult = await policyEnforcementPoint.interceptWithPolicy(
-			createPolicy({ assetType: "document", action: "read", assignee: "assignee123" }),
+			documentPolicy,
 			documentData
 		);
-
-		const imageResult = await policyEnforcementPoint.interceptWithPolicy(
-			createPolicy({ assetType: "image", action: "view", assignee: "assignee123" }),
-			imageData
-		);
+		const imageResult = await policyEnforcementPoint.interceptWithPolicy(imagePolicy, imageData);
 
 		expect(selectiveProcessor.process).toHaveBeenCalledTimes(2);
 		expect(documentResult).toEqual({
@@ -361,26 +375,36 @@ describe("PolicyEnforcementPointService", () => {
 		const encryptionProcessor = new MockPolicyEnforcementProcessor();
 
 		// Processor only handles "transmit" action
-		encryptionProcessor.process.mockImplementation(async (locator, decisions, data) => {
-			if (locator.action === "transmit") {
-				return { ...data, encrypted: true, algorithm: "AES-256" };
+		encryptionProcessor.process.mockImplementation(
+			async (agreement: unknown, decisions, data: unknown) => {
+				const testAgreement = agreement as TestPolicy;
+				if (testAgreement.action === "transmit") {
+					return { ...(data as { [key: string]: unknown }), encrypted: true, algorithm: "AES-256" };
+				}
+				return data;
 			}
-			return data;
-		});
+		);
 
 		PolicyEnforcementProcessorFactory.register("encryptionProcessor", () => encryptionProcessor);
 
 		const testData = { content: "sensitive data" };
 
-		const transmitResult = await policyEnforcementPoint.interceptWithPolicy(
-			createPolicy({ assetType: "document", action: "transmit", assignee: "assigneeSender" }),
-			testData
-		);
+		const transmitPolicy = createPolicy({
+			assetType: "document",
+			action: "transmit",
+			assignee: "assigneeSender"
+		});
+		const readPolicy = createPolicy({
+			assetType: "document",
+			action: "read",
+			assignee: "assigneeReader"
+		});
 
-		const readResult = await policyEnforcementPoint.interceptWithPolicy(
-			createPolicy({ assetType: "document", action: "read", assignee: "assigneeReader" }),
+		const transmitResult = await policyEnforcementPoint.interceptWithPolicy(
+			transmitPolicy,
 			testData
 		);
+		const readResult = await policyEnforcementPoint.interceptWithPolicy(readPolicy, testData);
 
 		expect(encryptionProcessor.process).toHaveBeenCalledTimes(2);
 		expect(transmitResult).toEqual({
@@ -399,35 +423,46 @@ describe("PolicyEnforcementPointService", () => {
 		const watermarkProcessor = new MockPolicyEnforcementProcessor();
 
 		// Processor only handles "image" + "share" combination
-		watermarkProcessor.process.mockImplementation(async (locator, decisions, data) => {
-			if (locator.assetType === "image" && locator.action === "share") {
-				return {
-					...data,
-					watermarked: true,
-					watermark: `© ${locator.assignee ?? "Unknown"}`
-				};
+		watermarkProcessor.process.mockImplementation(
+			async (agreement: unknown, decisions, data: unknown) => {
+				const agr = agreement as TestPolicy;
+				if (agr.assetType === "image" && agr.action === "share") {
+					const assigneeStr = typeof agr.assignee === "string" ? agr.assignee : "Unknown";
+					return {
+						...(data as { [key: string]: unknown }),
+						watermarked: true,
+						watermark: `© ${assigneeStr}`
+					};
+				}
+				return data;
 			}
-			return data;
-		});
+		);
 
 		PolicyEnforcementProcessorFactory.register("watermarkProcessor", () => watermarkProcessor);
 
 		const imageData = { filename: "photo.jpg", content: "image data" };
 
-		const shareResult = await policyEnforcementPoint.interceptWithPolicy(
-			createPolicy({ assetType: "image", action: "share", assignee: "assigneePhotographer" }),
-			imageData
-		);
+		const sharePolicy = createPolicy({
+			assetType: "image",
+			action: "share",
+			assignee: "assigneePhotographer"
+		});
+		const viewPolicy = createPolicy({
+			assetType: "image",
+			action: "view",
+			assignee: "assigneePhotographer"
+		});
+		const shareDocPolicy = createPolicy({
+			assetType: "document",
+			action: "share",
+			assignee: "assigneePhotographer"
+		});
 
-		const viewResult = await policyEnforcementPoint.interceptWithPolicy(
-			createPolicy({ assetType: "image", action: "view", assignee: "assigneePhotographer" }),
-			imageData
-		);
-
-		const shareDocumentResult = await policyEnforcementPoint.interceptWithPolicy(
-			createPolicy({ assetType: "document", action: "share", assignee: "assigneePhotographer" }),
-			{ content: "document data" }
-		);
+		const shareResult = await policyEnforcementPoint.interceptWithPolicy(sharePolicy, imageData);
+		const viewResult = await policyEnforcementPoint.interceptWithPolicy(viewPolicy, imageData);
+		const shareDocResult = await policyEnforcementPoint.interceptWithPolicy(shareDocPolicy, {
+			content: "document data"
+		});
 
 		expect(watermarkProcessor.process).toHaveBeenCalledTimes(3);
 		expect(shareResult).toEqual({
@@ -437,7 +472,7 @@ describe("PolicyEnforcementPointService", () => {
 			watermark: "© assigneePhotographer"
 		});
 		expect(viewResult).toEqual(imageData); // Unchanged
-		expect(shareDocumentResult).toEqual({ content: "document data" }); // Unchanged
+		expect(shareDocResult).toEqual({ content: "document data" }); // Unchanged
 	});
 
 	test("multiple processors with different matching criteria", async () => {
@@ -451,32 +486,42 @@ describe("PolicyEnforcementPointService", () => {
 		const encryptionProcessor = new MockPolicyEnforcementProcessor();
 
 		// Audit processor logs all "download" actions
-		auditProcessor.process.mockImplementation(async (locator, decisions, data) => {
-			if (locator.action === "download") {
-				return {
-					...data,
-					audited: true,
-					auditLog: `${locator.assignee} downloaded ${locator.assetType}`
-				};
+		auditProcessor.process.mockImplementation(
+			async (agreement: unknown, decisions, data: unknown) => {
+				const agr = agreement as TestPolicy;
+				if (agr.action === "download") {
+					const assigneeStr = typeof agr.assignee === "string" ? agr.assignee : "Unknown";
+					return {
+						...(data as { [key: string]: unknown }),
+						audited: true,
+						auditLog: `${assigneeStr} downloaded ${agr.assetType}`
+					};
+				}
+				return data;
 			}
-			return data;
-		});
+		);
 
 		// Compression processor handles large files
-		compressionProcessor.process.mockImplementation(async (locator, decisions, data) => {
-			if (locator.assetType === "video" || locator.assetType === "archive") {
-				return { ...data, compressed: true, algorithm: "gzip" };
+		compressionProcessor.process.mockImplementation(
+			async (agreement: unknown, decisions, data: unknown) => {
+				const agr = agreement as TestPolicy;
+				if (agr.assetType === "video" || agr.assetType === "archive") {
+					return { ...(data as { [key: string]: unknown }), compressed: true, algorithm: "gzip" };
+				}
+				return data;
 			}
-			return data;
-		});
+		);
 
 		// Encryption processor handles sensitive documents
-		encryptionProcessor.process.mockImplementation(async (locator, decisions, data) => {
-			if (locator.assetType === "sensitive-document") {
-				return { ...data, encrypted: true, key: "secret-key" };
+		encryptionProcessor.process.mockImplementation(
+			async (agreement: unknown, decisions, data: unknown) => {
+				const agr = agreement as TestPolicy;
+				if (agr.assetType === "sensitive-document") {
+					return { ...(data as { [key: string]: unknown }), encrypted: true, key: "secret-key" };
+				}
+				return data;
 			}
-			return data;
-		});
+		);
 
 		PolicyEnforcementProcessorFactory.register("auditProcessor", () => auditProcessor);
 		PolicyEnforcementProcessorFactory.register("compressionProcessor", () => compressionProcessor);
@@ -484,19 +529,22 @@ describe("PolicyEnforcementPointService", () => {
 
 		// Test video download (should be audited AND compressed)
 		const videoData = { filename: "movie.mp4", size: "2GB" };
-		const videoResult = await policyEnforcementPoint.interceptWithPolicy(
-			createPolicy({ assetType: "video", action: "download", assignee: "assigneeViewer" }),
-			videoData
-		);
+		const videoPolicy = createPolicy({
+			assetType: "video",
+			action: "download",
+			assignee: "assigneeViewer"
+		});
+		const videoResult = await policyEnforcementPoint.interceptWithPolicy(videoPolicy, videoData);
 
 		// Test sensitive document read (should be encrypted only)
 		const sensitiveData = { content: "classified information" };
+		const sensitivePolicy = createPolicy({
+			assetType: "sensitive-document",
+			action: "read",
+			assignee: "assigneeAnalyst"
+		});
 		const sensitiveResult = await policyEnforcementPoint.interceptWithPolicy(
-			createPolicy({
-				assetType: "sensitive-document",
-				action: "read",
-				assignee: "assigneeAnalyst"
-			}),
+			sensitivePolicy,
 			sensitiveData
 		);
 

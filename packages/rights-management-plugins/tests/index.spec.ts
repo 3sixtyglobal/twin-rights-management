@@ -112,8 +112,10 @@ describe("RightsManagementService", () => {
 	test("can perform a full workflow", async () => {
 		const testPolicy: IOdrlPolicy = {
 			"@context": OdrlContexts.Context,
-			"@type": PolicyType.Policy,
-			uid: "policy:test-policy-uid"
+			"@type": PolicyType.Agreement,
+			uid: "policy:test-policy-uid",
+			assigner: "did:example:assigner",
+			assignee: "did:example:assignee"
 		};
 
 		await policyAdministrationPointService.create(testPolicy);

@@ -13,7 +13,7 @@ registered actions based on the decision.
 
 ### executeActions()
 
-> **executeActions**\<`D`\>(`policy`, `decisions`, `data`, `stage`): `Promise`\<`void`\>
+> **executeActions**\<`D`\>(`policy`, `decisions`, `data`, `action`, `stage`): `Promise`\<`void`\>
 
 Execute actions based on the PDP's decisions.
 
@@ -42,6 +42,12 @@ The decisions made by the PDP.
 The data used in the decision by the PDP.
 
 `D` | `undefined`
+
+##### action
+
+The action that was evaluated.
+
+`string` | `undefined`
 
 ##### stage
 

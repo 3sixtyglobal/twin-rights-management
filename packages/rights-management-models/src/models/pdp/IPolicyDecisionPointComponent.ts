@@ -1,7 +1,7 @@
 // Copyright 2025 IOTA Stiftung.
 // SPDX-License-Identifier: Apache-2.0.
 import type { IComponent } from "@twin.org/core";
-import type { IOdrlPolicy } from "@twin.org/standards-w3c-odrl";
+import type { IOdrlAgreement, ActionType } from "@twin.org/standards-w3c-odrl";
 import type { IPolicyDecision } from "./IPolicyDecision.js";
 
 /**
@@ -17,10 +17,15 @@ export interface IPolicyDecisionPointComponent extends IComponent {
 	 * Uses the Policy Management Point (PMP) to retrieve the policies and the
 	 * Policy Information Point (PIP) to retrieve additional information.
 	 * Executes any actions on the Policy Execution Point (PXP) before and after decision is made.
-	 * @param policy The policy to evaluate.
+	 * @param agreement The agreement to evaluate.
 	 * @param data The data to make a decision on.
+	 * @param action Optional action to make a decision on, if not provided, the PDP will evaluate all actions in the agreement.
 	 * @returns Returns the policy decisions which apply to the data so that the PEP
 	 * can manipulate the data accordingly.
 	 */
-	evaluate<D = unknown>(policy: IOdrlPolicy, data?: D): Promise<IPolicyDecision[]>;
+	evaluate<D = unknown>(
+		agreement: IOdrlAgreement,
+		data?: D,
+		action?: ActionType | string
+	): Promise<IPolicyDecision[]>;
 }

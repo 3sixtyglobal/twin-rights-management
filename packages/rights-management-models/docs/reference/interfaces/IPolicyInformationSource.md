@@ -10,7 +10,7 @@ Interface for policy information sources.
 
 ### retrieve()
 
-> **retrieve**\<`D`\>(`policy`, `accessMode`, `data?`): `Promise`\<\{\[`id`: `string`\]: `IJsonLdNodeObject`; \} \| `undefined`\>
+> **retrieve**\<`D`\>(`policy`, `accessMode`, `data?`, `action?`): `Promise`\<\{\[`id`: `string`\]: `IJsonLdNodeObject`; \} \| `undefined`\>
 
 Retrieve information from the sources.
 
@@ -39,6 +39,12 @@ The access mode to use for the retrieval.
 `D`
 
 The data to process.
+
+##### action?
+
+`string`
+
+Optional action to make a decision on, if not provided, the PIP will evaluate all actions in the policy.
 
 #### Returns
 

@@ -1,7 +1,7 @@
 // Copyright 2025 IOTA Stiftung.
 // SPDX-License-Identifier: Apache-2.0.
 import type { IComponent } from "@twin.org/core";
-import type { IOdrlPolicy } from "@twin.org/standards-w3c-odrl";
+import type { ActionType, IOdrlAgreement } from "@twin.org/standards-w3c-odrl";
 import type { IPolicyDecision } from "../pdp/IPolicyDecision.js";
 
 /**
@@ -10,14 +10,16 @@ import type { IPolicyDecision } from "../pdp/IPolicyDecision.js";
 export interface IPolicyEnforcementProcessor extends IComponent {
 	/**
 	 * Process the response from the policy decision point.
-	 * @param policy The policy to process.
+	 * @param agreement The agreement to process.
 	 * @param decisions The decisions made by the policy decision point.
 	 * @param data The data to process.
+	 * @param action Optional action to make a decision on, if not provided, the arbiter will evaluate all actions in the agreement.
 	 * @returns The data after processing.
 	 */
 	process<D = unknown, R = D>(
-		policy: IOdrlPolicy,
+		agreement: IOdrlAgreement,
 		decisions: IPolicyDecision[],
-		data?: D
+		data?: D,
+		action?: ActionType | string
 	): Promise<R>;
 }

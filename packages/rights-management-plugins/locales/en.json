@@ -3,6 +3,16 @@
 		"identityPolicyInformationSource": {
 			"identityRetrievalFailed": "Failed to retrieve identity \"{id}\" information for policy id: \"{policyId}\""
 		},
+		"defaultPolicyArbiter": {
+			"jsonPathOperandMissingTarget": "The operand \"{operand}\" is missing a JSONPath target after the twin:jsonpath: prefix.",
+			"informationTargetMissing": "The permission target references information key \"{key}\" but it does not exist.",
+			"multipleTargetsNotSupported": "Multiple targets in a single permission are not supported.",
+			"circularInheritanceDetected": "Circular inheritance detected: policy \"{policyId}\" inherits from \"{inheritFromId}\" which creates a cycle.",
+			"logicalConstraintOperandNotUnique": "Logical constraint operand is not unique within the policy, each operand must be unique.",
+			"inheritedPolicyNotFound": "The inherited policy with id \"{inheritFromId}\" could not be found in the Policy Administration Point.",
+			"noObligationEnforcersRegistered": "No Policy Obligation Enforcers are registered and they are required to enforce duties.",
+			"maxInheritanceDepthExceeded": "The maximum inheritance depth of {maxInheritanceDepth} has been exceeded when processing policy \"{policyId}\"."
+		},
 		"defaultPolicyEnforcementProcessor": {
 			"targetNotJsonPath": "The policy decision target \"{target}\" is not a valid JSON-path string, it should be a minimum of $.",
 			"replaceValueMissing": "The policy decision replaceValue was not provided for target \"{target}\"."
@@ -29,6 +39,9 @@
 		"passThroughPolicyArbiter": {
 			"decidingPolicy": "Deciding policy for policy id: \"{policyId}\""
 		},
+		"defaultPolicyArbiter": {
+			"decidingPolicy": "Deciding policy for policy id: \"{policyId}\""
+		},
 		"passThroughPolicyNegotiator": {
 			"handlingOffer": "Handling offer negotiation for offer id: \"{offerId}\"",
 			"createAgreement": "Creating agreement for policy id: \"{offerId}\""
@@ -38,6 +51,9 @@
 			"agreement": "Logging agreement request for agreement id: \"{agreementId}\", negotiation id: \"{negotiationId}\"",
 			"finalised": "Logging finalised request for negotiation id: \"{negotiationId}\"",
 			"terminated": "Logging terminated request for negotiation id: \"{negotiationId}\""
+		},
+		"passThroughPolicyObligationEnforcer": {
+			"enforcingDuty": "Enforcing duty for policy id: \"{policyId}\""
 		}
 	}
 }

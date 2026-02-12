@@ -54,7 +54,7 @@ class MockPolicyExecutionAction {
 		this._supportedStages = supportedStages;
 		this.throwError = false;
 		this.supportedStages = vi.fn().mockReturnValue(this._supportedStages);
-		this.execute = vi.fn(async (policy, decisions, data, stage) => {
+		this.execute = vi.fn(async (policy, decisions, data, action, stage) => {
 			if (this.throwError) {
 				throw new Error("Test error");
 			}
@@ -135,8 +135,20 @@ describe("PolicyExecutionPointService", () => {
 		const mockAction = new MockPolicyExecutionAction();
 		PolicyExecutionActionFactory.register("testAction", () => mockAction);
 		const policy = createPolicy();
-		await policyExecutionPoint.executeActions(policy, [], {}, PolicyDecisionStage.Before);
-		expect(mockAction.execute).toHaveBeenCalledWith(policy, [], {}, PolicyDecisionStage.Before);
+		await policyExecutionPoint.executeActions(
+			policy,
+			[],
+			{},
+			undefined,
+			PolicyDecisionStage.Before
+		);
+		expect(mockAction.execute).toHaveBeenCalledWith(
+			policy,
+			[],
+			{},
+			undefined,
+			PolicyDecisionStage.Before
+		);
 	});
 
 	test("can register an action and expect it to be called when executed after", async () => {
@@ -144,8 +156,14 @@ describe("PolicyExecutionPointService", () => {
 		const mockAction = new MockPolicyExecutionAction();
 		PolicyExecutionActionFactory.register("testAction", () => mockAction);
 		const policy = createPolicy();
-		await policyExecutionPoint.executeActions(policy, [], {}, PolicyDecisionStage.After);
-		expect(mockAction.execute).toHaveBeenCalledWith(policy, [], {}, PolicyDecisionStage.After);
+		await policyExecutionPoint.executeActions(policy, [], {}, undefined, PolicyDecisionStage.After);
+		expect(mockAction.execute).toHaveBeenCalledWith(
+			policy,
+			[],
+			{},
+			undefined,
+			PolicyDecisionStage.After
+		);
 	});
 
 	test("can register multiple actions and all are executed", async () => {
@@ -159,7 +177,13 @@ describe("PolicyExecutionPointService", () => {
 		PolicyExecutionActionFactory.register("testAction1", () => mockAction1);
 		PolicyExecutionActionFactory.register("testAction2", () => mockAction2);
 
-		await policyExecutionPoint.executeActions(createPolicy(), [], {}, PolicyDecisionStage.Before);
+		await policyExecutionPoint.executeActions(
+			createPolicy(),
+			[],
+			{},
+			undefined,
+			PolicyDecisionStage.Before
+		);
 
 		expect(mockAction1.execute).toHaveBeenCalledOnce();
 		expect(mockAction2.execute).toHaveBeenCalledOnce();
@@ -171,7 +195,13 @@ describe("PolicyExecutionPointService", () => {
 
 		PolicyExecutionActionFactory.register("testAction", () => mockAction);
 		PolicyExecutionActionFactory.unregister("testAction");
-		await policyExecutionPoint.executeActions(createPolicy(), [], {}, PolicyDecisionStage.Before);
+		await policyExecutionPoint.executeActions(
+			createPolicy(),
+			[],
+			{},
+			undefined,
+			PolicyDecisionStage.Before
+		);
 
 		expect(mockAction.execute).not.toHaveBeenCalled();
 	});
@@ -184,7 +214,13 @@ describe("PolicyExecutionPointService", () => {
 		PolicyExecutionActionFactory.register("testAction", () => mockAction1);
 		PolicyExecutionActionFactory.register("testAction", () => mockAction2);
 
-		await policyExecutionPoint.executeActions(createPolicy(), [], {}, PolicyDecisionStage.Before);
+		await policyExecutionPoint.executeActions(
+			createPolicy(),
+			[],
+			{},
+			undefined,
+			PolicyDecisionStage.Before
+		);
 
 		expect(mockAction1.execute).not.toHaveBeenCalled();
 		expect(mockAction2.execute).toHaveBeenCalledOnce();
@@ -200,7 +236,13 @@ describe("PolicyExecutionPointService", () => {
 		PolicyExecutionActionFactory.register("successAction", () => successAction);
 
 		await expect(
-			policyExecutionPoint.executeActions(createPolicy(), [], {}, PolicyDecisionStage.Before)
+			policyExecutionPoint.executeActions(
+				createPolicy(),
+				[],
+				{},
+				undefined,
+				PolicyDecisionStage.Before
+			)
 		).rejects.toBeInstanceOf(GeneralError);
 
 		expect(errorAction.execute).toHaveBeenCalledOnce();
@@ -215,7 +257,13 @@ describe("PolicyExecutionPointService", () => {
 
 		PolicyExecutionActionFactory.register("errorAction", () => errorAction);
 		await expect(
-			policyExecutionPoint.executeActions(createPolicy(), [], {}, PolicyDecisionStage.Before)
+			policyExecutionPoint.executeActions(
+				createPolicy(),
+				[],
+				{},
+				undefined,
+				PolicyDecisionStage.Before
+			)
 		).rejects.toBeInstanceOf(GeneralError);
 
 		const logEntries = loggingMemoryEntityStorage.getStore();
@@ -241,6 +289,7 @@ describe("PolicyExecutionPointService", () => {
 			testPolicy,
 			testDecisions,
 			testData,
+			undefined,
 			PolicyDecisionStage.Before
 		);
 
@@ -248,6 +297,7 @@ describe("PolicyExecutionPointService", () => {
 			testPolicy,
 			testDecisions,
 			testData,
+			undefined,
 			PolicyDecisionStage.Before
 		);
 	});
@@ -272,6 +322,7 @@ describe("PolicyExecutionPointService", () => {
 			testPolicy,
 			testDecisions,
 			{ endpoint: "/users" },
+			undefined,
 			PolicyDecisionStage.Before
 		);
 
@@ -308,6 +359,7 @@ describe("PolicyExecutionPointService", () => {
 			testPolicy,
 			testDecisions,
 			testData,
+			undefined,
 			PolicyDecisionStage.Before
 		);
 
@@ -346,6 +398,7 @@ describe("PolicyExecutionPointService", () => {
 			testPolicy,
 			testDecisions,
 			null,
+			undefined,
 			PolicyDecisionStage.After
 		);
 
@@ -374,6 +427,7 @@ describe("PolicyExecutionPointService", () => {
 			createPolicy({ action: "delete", assetType: "video", assignee: "mainNode" }),
 			[],
 			{},
+			undefined,
 			PolicyDecisionStage.Before
 		);
 
@@ -405,12 +459,14 @@ describe("PolicyExecutionPointService", () => {
 			testPolicy,
 			testDecisions,
 			{ size: 1024 },
+			undefined,
 			PolicyDecisionStage.Before
 		);
 		await policyExecutionPoint.executeActions(
 			testPolicy,
 			testDecisions,
 			{ size: 1024 },
+			undefined,
 			PolicyDecisionStage.After
 		);
 
@@ -446,6 +502,7 @@ describe("PolicyExecutionPointService", () => {
 			testPolicy,
 			testDecisions,
 			sensitiveData,
+			undefined,
 			PolicyDecisionStage.Before
 		);
 

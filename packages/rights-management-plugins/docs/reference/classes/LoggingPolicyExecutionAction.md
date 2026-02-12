@@ -74,7 +74,7 @@ List of stages.
 
 ### execute()
 
-> **execute**\<`D`\>(`policy`, `decisions`, `data`, `stage`): `Promise`\<`void`\>
+> **execute**\<`D`\>(`policy`, `decisions`, `data`, `action`, `stage`): `Promise`\<`void`\>
 
 Execute function type for policy actions.
 
@@ -103,6 +103,12 @@ The decisions made by the PDP.
 The data to process.
 
 `D` | `undefined`
+
+##### action
+
+`string`
+
+Optional action to make a decision on, if not provided, the arbiter will evaluate all actions in the agreement.
 
 ##### stage
 

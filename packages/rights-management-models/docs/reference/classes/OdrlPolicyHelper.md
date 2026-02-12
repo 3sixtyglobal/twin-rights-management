@@ -24,7 +24,7 @@ The class name of the Policy Administration Point Service.
 
 ### extractAssigneeIdentity()
 
-> `static` **extractAssigneeIdentity**(`policy`): `string`
+> `static` **extractAssigneeIdentity**(`policy`): `ObjectOrArray`\<`string`\>
 
 Extract assignee identity from policy.
 
@@ -38,7 +38,7 @@ The policy to extract the assignee from.
 
 #### Returns
 
-`string`
+`ObjectOrArray`\<`string`\>
 
 Assignee id.
 
@@ -50,7 +50,7 @@ GeneralError if assignee is missing or invalid.
 
 ### extractAssignerIdentity()
 
-> `static` **extractAssignerIdentity**(`policy`): `string`
+> `static` **extractAssignerIdentity**(`policy`): `ObjectOrArray`\<`string`\>
 
 Extract assigner identity from policy.
 
@@ -64,7 +64,7 @@ The policy to extract the assigner from.
 
 #### Returns
 
-`string`
+`ObjectOrArray`\<`string`\>
 
 Assigner id.
 
@@ -76,7 +76,7 @@ GeneralError if assigner is missing or invalid.
 
 ### getAssigneeIdentity()
 
-> `static` **getAssigneeIdentity**(`policy`): `string` \| `undefined`
+> `static` **getAssigneeIdentity**(`policy`): `ObjectOrArray`\<`string`\> \| `undefined`
 
 Get assignee identity from policy.
 
@@ -90,7 +90,7 @@ The policy to extract the assignee from.
 
 #### Returns
 
-`string` \| `undefined`
+`ObjectOrArray`\<`string`\> \| `undefined`
 
 Assignee id.
 
@@ -102,7 +102,7 @@ GeneralError if assignee is missing or invalid.
 
 ### getAssignerIdentity()
 
-> `static` **getAssignerIdentity**(`policy`): `string` \| `undefined`
+> `static` **getAssignerIdentity**(`policy`): `ObjectOrArray`\<`string`\> \| `undefined`
 
 Get assigner identity from policy.
 
@@ -116,7 +116,7 @@ The policy to extract the assigner from.
 
 #### Returns
 
-`string` \| `undefined`
+`ObjectOrArray`\<`string`\> \| `undefined`
 
 Assigner id.
 

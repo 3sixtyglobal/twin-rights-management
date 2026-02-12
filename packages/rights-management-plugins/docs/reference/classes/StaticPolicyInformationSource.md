@@ -56,7 +56,7 @@ The class name of the component.
 
 ### retrieve()
 
-> **retrieve**\<`D`\>(`policy`, `accessMode`, `data?`): `Promise`\<\{\[`id`: `string`\]: `IJsonLdNodeObject`; \} \| `undefined`\>
+> **retrieve**\<`D`\>(`policy`, `accessMode`, `data?`, `action?`): `Promise`\<\{\[`id`: `string`\]: `IJsonLdNodeObject`; \} \| `undefined`\>
 
 Retrieve information from the sources.
 
@@ -85,6 +85,12 @@ The access mode to use for the retrieval.
 `D`
 
 The data to process.
+
+##### action?
+
+`string`
+
+The action to get any additional information for.
 
 #### Returns
 

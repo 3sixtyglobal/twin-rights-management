@@ -40,7 +40,7 @@ The profile(s) this policy conforms to.
 
 ### assigner?
 
-> `optional` **assigner**: `string` \| `IOdrlParty`
+> `optional` **assigner**: `string` \| `IOdrlParty` \| `IOdrlPartyCollection` \| (`string` \| `IOdrlParty` \| `IOdrlPartyCollection`)[]
 
 The assigner of the policy.
 
@@ -48,7 +48,7 @@ The assigner of the policy.
 
 ### assignee?
 
-> `optional` **assignee**: `string` \| `IOdrlParty`
+> `optional` **assignee**: `string` \| `IOdrlParty` \| `IOdrlPartyCollection` \| (`string` \| `IOdrlParty` \| `IOdrlPartyCollection`)[]
 
 The assignee of the policy.
 
@@ -56,7 +56,7 @@ The assignee of the policy.
 
 ### target?
 
-> `optional` **target**: `string` \| `IOdrlAsset` \| (`string` \| `IOdrlAsset`)[]
+> `optional` **target**: `string` \| `IOdrlAsset` \| `IOdrlAssetCollection` \| (`string` \| `IOdrlAsset` \| `IOdrlAssetCollection`)[]
 
 The target asset for the rule.
 
@@ -88,7 +88,7 @@ The conflict resolution strategy.
 
 ### permission?
 
-> `optional` **permission**: `IOdrlPermission`[]
+> `optional` **permission**: `IOdrlPermission` \| `IOdrlPermission`[]
 
 The permissions in the policy.
 
@@ -96,7 +96,7 @@ The permissions in the policy.
 
 ### prohibition?
 
-> `optional` **prohibition**: `IOdrlProhibition`[]
+> `optional` **prohibition**: `IOdrlProhibition` \| `IOdrlProhibition`[]
 
 The prohibitions in the policy.
 
@@ -104,7 +104,7 @@ The prohibitions in the policy.
 
 ### obligation?
 
-> `optional` **obligation**: `IOdrlDuty`[]
+> `optional` **obligation**: `IOdrlDuty` \| `IOdrlDuty`[]
 
 The obligations in the policy.
 

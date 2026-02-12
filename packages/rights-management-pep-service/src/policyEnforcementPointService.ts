@@ -10,7 +10,7 @@ import {
 	type IPolicyEnforcementPointComponent,
 	type IPolicyManagementPointComponent
 } from "@twin.org/rights-management-models";
-import type { IOdrlPolicy } from "@twin.org/standards-w3c-odrl";
+import { PolicyType, type ActionType, type IOdrlAgreement } from "@twin.org/standards-w3c-odrl";
 import type { IPolicyEnforcementPointServiceConstructorOptions } from "./models/IPolicyEnforcementPointServiceConstructorOptions.js";
 
 /**
@@ -76,15 +76,20 @@ export class PolicyEnforcementPointService implements IPolicyEnforcementPointCom
 
 	/**
 	 * Process the data using Policy Decision Point (PDP) and return the manipulated data.
-	 * @param policy The policy to enforce.
+	 * @param agreement The agreement to enforce.
 	 * @param data The data to process.
+	 * @param action Optional action to make a decision on, if not provided, the arbiter will evaluate all actions in the agreement.
 	 * @returns The manipulated data with any policies applied.
 	 */
-	public async interceptWithPolicy<D = unknown, R = D>(policy: IOdrlPolicy, data?: D): Promise<R> {
-		Guards.objectValue<IOdrlPolicy>(
+	public async interceptWithPolicy<D = unknown, R = D>(
+		agreement: IOdrlAgreement,
+		data?: D,
+		action?: ActionType | string
+	): Promise<R> {
+		Guards.objectValue<IOdrlAgreement>(
 			PolicyEnforcementPointService.CLASS_NAME,
-			nameof(policy),
-			policy
+			nameof(agreement),
+			agreement
 		);
 
 		await this._logging?.log({
@@ -93,11 +98,11 @@ export class PolicyEnforcementPointService implements IPolicyEnforcementPointCom
 			ts: Date.now(),
 			message: "intercepting",
 			data: {
-				policyId: policy.uid
+				policyId: agreement.uid
 			}
 		});
 
-		const decisions = await this._policyDecisionPointComponent.evaluate(policy, data);
+		const decisions = await this._policyDecisionPointComponent.evaluate(agreement, data, action);
 
 		let processedData: unknown = ObjectHelper.clone(data);
 
@@ -116,12 +121,12 @@ export class PolicyEnforcementPointService implements IPolicyEnforcementPointCom
 					ts: Date.now(),
 					message: "processing",
 					data: {
-						policyId: policy.uid,
+						policyId: agreement.uid,
 						processorId: processor.className()
 					}
 				});
 
-				processedData = await processor.process(policy, decisions, processedData);
+				processedData = await processor.process(agreement, decisions, processedData, action);
 			} catch (error) {
 				await this._logging?.log({
 					level: "error",
@@ -130,14 +135,14 @@ export class PolicyEnforcementPointService implements IPolicyEnforcementPointCom
 					message: "processingFailed",
 					data: {
 						processorId: processor.className(),
-						policyId: policy.uid
+						policyId: agreement.uid
 					},
 					error: BaseError.fromError(error)
 				});
 				throw new GeneralError(
 					PolicyEnforcementPointService.CLASS_NAME,
 					"processingFailed",
-					{ processorId: processor.className(), policyId: policy.uid },
+					{ processorId: processor.className(), policyId: agreement.uid },
 					error
 				);
 			}
@@ -150,24 +155,30 @@ export class PolicyEnforcementPointService implements IPolicyEnforcementPointCom
 	 * Process the data using Policy Decision Point (PDP) and return the manipulated data.
 	 * @param uid The uid of the policy to look up.
 	 * @param data The data to process.
+	 * @param action Optional action to make a decision on, if not provided, the arbiter will evaluate all actions in the agreement.
 	 * @returns The manipulated data with any policies applied.
 	 */
-	public async interceptWithId<D = unknown, R = D>(uid: string, data?: D): Promise<R> {
+	public async interceptWithId<D = unknown, R = D>(
+		uid: string,
+		data?: D,
+		action?: ActionType | string
+	): Promise<R> {
 		Guards.stringValue(PolicyEnforcementPointService.CLASS_NAME, nameof(uid), uid);
 
-		const policy = await this._policyAdministrationPointComponent.get(uid);
+		const agreement = await this._policyAdministrationPointComponent.getAgreement(uid);
 
-		return this.interceptWithPolicy<D, R>(policy, data);
+		return this.interceptWithPolicy<D, R>(agreement, data, action);
 	}
 
 	/**
 	 * Process the data using Policy Decision Point (PDP) and return the manipulated data.
-	 * @param locator The match criteria to look up policies.
+	 * @param locator The match criteria to look up agreements.
 	 * @param locator.assigner The assigner attribute to match.
 	 * @param locator.assignee The assignee attribute to match.
 	 * @param locator.target The target attribute to match.
 	 * @param locator.action The action attribute to match.
 	 * @param data The data to process.
+	 * @param action Optional action to make a decision on, if not provided, the arbiter will evaluate all actions in the agreement.
 	 * @returns The manipulated data with any policies applied.
 	 */
 	public async interceptWithLocator<D = unknown, R = D>(
@@ -177,20 +188,25 @@ export class PolicyEnforcementPointService implements IPolicyEnforcementPointCom
 			target?: string;
 			action?: string;
 		},
-		data?: D
+		data?: D,
+		action?: ActionType | string
 	): Promise<R> {
 		const policiesResult = await this._policyManagementPointComponent.retrieve(locator);
 
-		if (policiesResult.policies.length === 0) {
-			throw new GeneralError(PolicyEnforcementPointService.CLASS_NAME, "noPoliciesFound", {
+		const agreements = policiesResult.policies.filter(
+			p => p.type === PolicyType.Agreement
+		) as IOdrlAgreement[];
+
+		if (agreements.length === 0) {
+			throw new GeneralError(PolicyEnforcementPointService.CLASS_NAME, "noAgreementsFound", {
 				locator: JSON.stringify(locator)
 			});
-		} else if (policiesResult.policies.length > 1) {
-			throw new GeneralError(PolicyEnforcementPointService.CLASS_NAME, "multiplePoliciesFound", {
+		} else if (agreements.length > 1) {
+			throw new GeneralError(PolicyEnforcementPointService.CLASS_NAME, "multipleAgreementsFound", {
 				locator: JSON.stringify(locator)
 			});
 		}
 
-		return this.interceptWithPolicy<D, R>(policiesResult.policies[0], data);
+		return this.interceptWithPolicy<D, R>(agreements[0], data, action);
 	}
 }
