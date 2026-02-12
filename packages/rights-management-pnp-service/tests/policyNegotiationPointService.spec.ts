@@ -2,7 +2,7 @@
 // SPDX-License-Identifier: Apache-2.0.
 import { TaskSchedulerService } from "@twin.org/background-task-scheduler";
 import { ContextIdStore } from "@twin.org/context";
-import { ComponentFactory, Factory } from "@twin.org/core";
+import { ComponentFactory, Factory, Is } from "@twin.org/core";
 import { MemoryEntityStorageConnector } from "@twin.org/entity-storage-connector-memory";
 import { EntityStorageConnectorFactory } from "@twin.org/entity-storage-models";
 import {
@@ -100,7 +100,9 @@ function createRemoteComponent(
  * This is set in the beforeEach of the tests to return the correct component based on the url.
  * @throws If the url is not recognized or if the resolver is not configured.
  */
-let remoteComponentResolver: (url: string) => IPolicyNegotiationPointComponent = () => {
+let remoteComponentResolver: (params: {
+	endpoint: string;
+}) => IPolicyNegotiationPointComponent = () => {
 	throw new Error("Remote negotiation component resolver not configured");
 };
 
@@ -246,10 +248,11 @@ describe("PolicyNegotiationPointService", () => {
 		ComponentFactory.register("policy-information-point", () => informationPointComponent);
 
 		ComponentFactory.register("pnp-remote", (args?: unknown) => {
-			if (typeof args !== "string") {
-				throw new TypeError("pnp-remote expects a url string argument");
+			// eslint-disable-next-line @typescript-eslint/no-explicit-any
+			if (!Is.string((args as any)?.endpoint)) {
+				throw new TypeError("pnp-remote expects an argument of { endpoint: string }");
 			}
-			return remoteComponentResolver(args);
+			return remoteComponentResolver(args as { endpoint: string });
 		});
 
 		mockPolicyRequester = {
@@ -303,7 +306,7 @@ describe("PolicyNegotiationPointService", () => {
 	test("can create the service", async () => {
 		const policyNegotiationPoint = new PolicyNegotiationPointService({
 			policyNegotiationAdministrationPointComponentType: "policy-negotiation-provider-admin-point",
-			remoteNegotiationComponentType: "pnp-remote",
+			policyNegotiationPointRemoteComponentType: "pnp-remote",
 			config: {
 				callbackPath: "/callback"
 			}
@@ -316,7 +319,7 @@ describe("PolicyNegotiationPointService", () => {
 
 		const policyNegotiationConsumerPoint = new PolicyNegotiationPointService({
 			policyNegotiationAdministrationPointComponentType: "policy-negotiation-consumer-admin-point",
-			remoteNegotiationComponentType: "pnp-remote",
+			policyNegotiationPointRemoteComponentType: "pnp-remote",
 			config: {
 				callbackPath: "/callback"
 			}
@@ -324,21 +327,21 @@ describe("PolicyNegotiationPointService", () => {
 
 		const policyNegotiationProviderPoint = new PolicyNegotiationPointService({
 			policyNegotiationAdministrationPointComponentType: "policy-negotiation-provider-admin-point",
-			remoteNegotiationComponentType: "pnp-remote",
+			policyNegotiationPointRemoteComponentType: "pnp-remote",
 			config: {
 				callbackPath: "/callback"
 			}
 		});
 		providerPoints.provider = policyNegotiationProviderPoint;
 		providerPoints.consumer = policyNegotiationConsumerPoint;
-		remoteComponentResolver = (url: string) => {
-			if (url.startsWith(providerOrigin)) {
+		remoteComponentResolver = (params: { endpoint: string }) => {
+			if (params.endpoint.startsWith(providerOrigin)) {
 				return createRemoteComponent(providerPoints.provider, providerOrigin);
 			}
-			if (url.startsWith(consumerOrigin)) {
+			if (params.endpoint.startsWith(consumerOrigin)) {
 				return createRemoteComponent(providerPoints.consumer, consumerOrigin);
 			}
-			throw new TypeError(`Unknown remote url ${url}`);
+			throw new TypeError(`Unknown remote url ${params.endpoint}`);
 		};
 
 		await expect(
@@ -359,7 +362,7 @@ describe("PolicyNegotiationPointService", () => {
 
 		const policyNegotiationConsumerPoint = new PolicyNegotiationPointService({
 			policyNegotiationAdministrationPointComponentType: "policy-negotiation-consumer-admin-point",
-			remoteNegotiationComponentType: "pnp-remote",
+			policyNegotiationPointRemoteComponentType: "pnp-remote",
 			config: {
 				callbackPath: "/callback"
 			}
@@ -367,21 +370,21 @@ describe("PolicyNegotiationPointService", () => {
 
 		const policyNegotiationProviderPoint = new PolicyNegotiationPointService({
 			policyNegotiationAdministrationPointComponentType: "policy-negotiation-provider-admin-point",
-			remoteNegotiationComponentType: "pnp-remote",
+			policyNegotiationPointRemoteComponentType: "pnp-remote",
 			config: {
 				callbackPath: "/callback"
 			}
 		});
 		providerPoints.provider = policyNegotiationProviderPoint;
 		providerPoints.consumer = policyNegotiationConsumerPoint;
-		remoteComponentResolver = (url: string) => {
-			if (url.startsWith(providerOrigin)) {
+		remoteComponentResolver = (params: { endpoint: string }) => {
+			if (params.endpoint.startsWith(providerOrigin)) {
 				return createRemoteComponent(providerPoints.provider, providerOrigin);
 			}
-			if (url.startsWith(consumerOrigin)) {
+			if (params.endpoint.startsWith(consumerOrigin)) {
 				return createRemoteComponent(providerPoints.consumer, consumerOrigin);
 			}
-			throw new TypeError(`Unknown remote url ${url}`);
+			throw new TypeError(`Unknown remote url ${params.endpoint}`);
 		};
 
 		testOrganizationId = testIdentityConsumer;
@@ -406,7 +409,7 @@ describe("PolicyNegotiationPointService", () => {
 
 		const policyNegotiationConsumerPoint = new PolicyNegotiationPointService({
 			policyNegotiationAdministrationPointComponentType: "policy-negotiation-consumer-admin-point",
-			remoteNegotiationComponentType: "pnp-remote",
+			policyNegotiationPointRemoteComponentType: "pnp-remote",
 			config: {
 				callbackPath: "/callback"
 			}
@@ -414,21 +417,21 @@ describe("PolicyNegotiationPointService", () => {
 
 		const policyNegotiationProviderPoint = new PolicyNegotiationPointService({
 			policyNegotiationAdministrationPointComponentType: "policy-negotiation-provider-admin-point",
-			remoteNegotiationComponentType: "pnp-remote",
+			policyNegotiationPointRemoteComponentType: "pnp-remote",
 			config: {
 				callbackPath: "/callback"
 			}
 		});
 		providerPoints.provider = policyNegotiationProviderPoint;
 		providerPoints.consumer = policyNegotiationConsumerPoint;
-		remoteComponentResolver = (url: string) => {
-			if (url.startsWith(providerOrigin)) {
+		remoteComponentResolver = (params: { endpoint: string }) => {
+			if (params.endpoint.startsWith(providerOrigin)) {
 				return createRemoteComponent(providerPoints.provider, providerOrigin);
 			}
-			if (url.startsWith(consumerOrigin)) {
+			if (params.endpoint.startsWith(consumerOrigin)) {
 				return createRemoteComponent(providerPoints.consumer, consumerOrigin);
 			}
-			throw new TypeError(`Unknown remote url ${url}`);
+			throw new TypeError(`Unknown remote url ${params.endpoint}`);
 		};
 
 		PolicyRequesterFactory.register("requester-1", () => mockPolicyRequester);
@@ -453,7 +456,7 @@ describe("PolicyNegotiationPointService", () => {
 
 		const policyNegotiationConsumerPoint = new PolicyNegotiationPointService({
 			policyNegotiationAdministrationPointComponentType: "policy-negotiation-consumer-admin-point",
-			remoteNegotiationComponentType: "pnp-remote",
+			policyNegotiationPointRemoteComponentType: "pnp-remote",
 			config: {
 				callbackPath: "/callback"
 			}
@@ -461,21 +464,21 @@ describe("PolicyNegotiationPointService", () => {
 
 		const policyNegotiationProviderPoint = new PolicyNegotiationPointService({
 			policyNegotiationAdministrationPointComponentType: "policy-negotiation-provider-admin-point",
-			remoteNegotiationComponentType: "pnp-remote",
+			policyNegotiationPointRemoteComponentType: "pnp-remote",
 			config: {
 				callbackPath: "/callback"
 			}
 		});
 		providerPoints.provider = policyNegotiationProviderPoint;
 		providerPoints.consumer = policyNegotiationConsumerPoint;
-		remoteComponentResolver = (url: string) => {
-			if (url.startsWith(providerOrigin)) {
+		remoteComponentResolver = (params: { endpoint: string }) => {
+			if (params.endpoint.startsWith(providerOrigin)) {
 				return createRemoteComponent(providerPoints.provider, providerOrigin);
 			}
-			if (url.startsWith(consumerOrigin)) {
+			if (params.endpoint.startsWith(consumerOrigin)) {
 				return createRemoteComponent(providerPoints.consumer, consumerOrigin);
 			}
-			throw new TypeError(`Unknown remote url ${url}`);
+			throw new TypeError(`Unknown remote url ${params.endpoint}`);
 		};
 
 		PolicyRequesterFactory.register("requester-1", () => mockPolicyRequester);
@@ -525,7 +528,7 @@ describe("PolicyNegotiationPointService", () => {
 
 		const policyNegotiationConsumerPoint = new PolicyNegotiationPointService({
 			policyNegotiationAdministrationPointComponentType: "policy-negotiation-consumer-admin-point",
-			remoteNegotiationComponentType: "pnp-remote",
+			policyNegotiationPointRemoteComponentType: "pnp-remote",
 			config: {
 				callbackPath: "/callback"
 			}
@@ -533,21 +536,21 @@ describe("PolicyNegotiationPointService", () => {
 
 		const policyNegotiationProviderPoint = new PolicyNegotiationPointService({
 			policyNegotiationAdministrationPointComponentType: "policy-negotiation-provider-admin-point",
-			remoteNegotiationComponentType: "pnp-remote",
+			policyNegotiationPointRemoteComponentType: "pnp-remote",
 			config: {
 				callbackPath: "/callback"
 			}
 		});
 		providerPoints.provider = policyNegotiationProviderPoint;
 		providerPoints.consumer = policyNegotiationConsumerPoint;
-		remoteComponentResolver = (url: string) => {
-			if (url.startsWith(providerOrigin)) {
+		remoteComponentResolver = (params: { endpoint: string }) => {
+			if (params.endpoint.startsWith(providerOrigin)) {
 				return createRemoteComponent(providerPoints.provider, providerOrigin);
 			}
-			if (url.startsWith(consumerOrigin)) {
+			if (params.endpoint.startsWith(consumerOrigin)) {
 				return createRemoteComponent(providerPoints.consumer, consumerOrigin);
 			}
-			throw new TypeError(`Unknown remote url ${url}`);
+			throw new TypeError(`Unknown remote url ${params.endpoint}`);
 		};
 
 		PolicyRequesterFactory.register("requester-2", () => mockPolicyRequester);

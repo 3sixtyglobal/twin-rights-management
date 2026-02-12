@@ -99,7 +99,7 @@ export class PolicyNegotiationPointService implements IPolicyNegotiationPointCom
 	 * The type of the remote negotiation component.
 	 * @internal
 	 */
-	private readonly _remoteNegotiationComponentType: string;
+	private readonly _policyNegotiationPointRemoteComponentType: string;
 
 	/**
 	 * Override the default trust generator.
@@ -121,11 +121,6 @@ export class PolicyNegotiationPointService implements IPolicyNegotiationPointCom
 			PolicyNegotiationPointService.CLASS_NAME,
 			nameof(options.config),
 			options.config
-		);
-		Guards.stringValue(
-			PolicyNegotiationPointService.CLASS_NAME,
-			nameof(options.remoteNegotiationComponentType),
-			options.remoteNegotiationComponentType
 		);
 
 		this._logging = ComponentFactory.getIfExists<ILoggingComponent>(
@@ -149,7 +144,8 @@ export class PolicyNegotiationPointService implements IPolicyNegotiationPointCom
 		this._callbackPath = Is.stringValue(options.config.callbackPath)
 			? StringHelper.trimLeadingSlashes(options.config.callbackPath)
 			: "";
-		this._remoteNegotiationComponentType = options.remoteNegotiationComponentType;
+		this._policyNegotiationPointRemoteComponentType =
+			options.policyNegotiationPointRemoteComponentType ?? "policy-negotiation-point-remote";
 		this._overrideTrustGeneratorType = options.config.overrideTrustGeneratorType;
 	}
 
@@ -248,8 +244,8 @@ export class PolicyNegotiationPointService implements IPolicyNegotiationPointCom
 		);
 
 		const negotiationComponent = ComponentFactory.create<IPolicyNegotiationPointComponent>(
-			this._remoteNegotiationComponentType,
-			url
+			this._policyNegotiationPointRemoteComponentType,
+			{ endpoint: url }
 		);
 
 		const requestMessage: IDataspaceProtocolContractRequestMessage = {
@@ -1247,8 +1243,8 @@ export class PolicyNegotiationPointService implements IPolicyNegotiationPointCom
 			await this._policyNegotiationAdminPointComponent.set(policyNegotiation);
 
 			const negotiationComponent = ComponentFactory.create<IPolicyNegotiationPointComponent>(
-				this._remoteNegotiationComponentType,
-				callbackAddress
+				this._policyNegotiationPointRemoteComponentType,
+				{ endpoint: callbackAddress }
 			);
 
 			const response = await negotiationComponent.offerFromProvider(
@@ -1324,8 +1320,8 @@ export class PolicyNegotiationPointService implements IPolicyNegotiationPointCom
 			await this._policyNegotiationAdminPointComponent.set(policyNegotiation);
 
 			const negotiationComponent = ComponentFactory.create<IPolicyNegotiationPointComponent>(
-				this._remoteNegotiationComponentType,
-				callbackAddress
+				this._policyNegotiationPointRemoteComponentType,
+				{ endpoint: callbackAddress }
 			);
 
 			const response = await negotiationComponent.event(
@@ -1435,8 +1431,8 @@ export class PolicyNegotiationPointService implements IPolicyNegotiationPointCom
 					await this._policyNegotiationAdminPointComponent.set(policyNegotiation);
 
 					const negotiationComponent = ComponentFactory.create<IPolicyNegotiationPointComponent>(
-						this._remoteNegotiationComponentType,
-						callbackAddress
+						this._policyNegotiationPointRemoteComponentType,
+						{ endpoint: callbackAddress }
 					);
 
 					const response = await negotiationComponent.agreementFromProvider(
@@ -1504,8 +1500,8 @@ export class PolicyNegotiationPointService implements IPolicyNegotiationPointCom
 			await this._policyNegotiationAdminPointComponent.set(policyNegotiation);
 
 			const negotiationComponent = ComponentFactory.create<IPolicyNegotiationPointComponent>(
-				this._remoteNegotiationComponentType,
-				callbackAddress
+				this._policyNegotiationPointRemoteComponentType,
+				{ endpoint: callbackAddress }
 			);
 
 			const response = await negotiationComponent.agreementVerificationFromConsumer(

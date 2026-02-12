@@ -74,12 +74,18 @@ trust
 
 ***
 
-### remoteNegotiationComponentType
+### policyNegotiationPointRemoteComponentType?
 
-> **remoteNegotiationComponentType**: `string`
+> `optional` **policyNegotiationPointRemoteComponentType**: `string`
 
 The type of the negotiation component which can be constructed with a url.
 To be used when sending request remotely to another node.
+
+#### Default
+
+```ts
+policy-negotiation-point-remote
+```
 
 ***
 
