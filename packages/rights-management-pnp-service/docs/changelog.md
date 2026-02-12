@@ -1,5 +1,22 @@
 # Changelog
 
+## [0.0.3-next.14](https://github.com/twinfoundation/rights-management/compare/rights-management-pnp-service-v0.0.3-next.13...rights-management-pnp-service-v0.0.3-next.14) (2026-02-12)
+
+
+### Features
+
+* policy negotiator callback ([#77](https://github.com/twinfoundation/rights-management/issues/77)) ([6566ed0](https://github.com/twinfoundation/rights-management/commit/6566ed0e2186b6445f1669f9b2f88a6ce059ab83))
+
+
+### Dependencies
+
+* The following workspace dependencies were updated
+  * dependencies
+    * @twin.org/rights-management-models bumped from 0.0.3-next.13 to 0.0.3-next.14
+  * devDependencies
+    * @twin.org/rights-management-pap-service bumped from 0.0.3-next.13 to 0.0.3-next.14
+    * @twin.org/rights-management-pip-service bumped from 0.0.3-next.13 to 0.0.3-next.14
+
 ## [0.0.3-next.13](https://github.com/twinfoundation/rights-management/compare/rights-management-pnp-service-v0.0.3-next.12...rights-management-pnp-service-v0.0.3-next.13) (2026-02-02)
 
 

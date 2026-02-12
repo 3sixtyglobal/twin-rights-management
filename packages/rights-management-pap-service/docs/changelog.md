@@ -1,5 +1,20 @@
 # @twin.org/rights-management-pap-service - Changelog
 
+## [0.0.3-next.14](https://github.com/twinfoundation/rights-management/compare/rights-management-pap-service-v0.0.3-next.13...rights-management-pap-service-v0.0.3-next.14) (2026-02-12)
+
+
+### Features
+
+* add default policy arbiter ([#76](https://github.com/twinfoundation/rights-management/issues/76)) ([b62ff9c](https://github.com/twinfoundation/rights-management/commit/b62ff9ce1b3400c4a95909da01863af47f430dbf))
+* policy negotiator callback ([#77](https://github.com/twinfoundation/rights-management/issues/77)) ([6566ed0](https://github.com/twinfoundation/rights-management/commit/6566ed0e2186b6445f1669f9b2f88a6ce059ab83))
+
+
+### Dependencies
+
+* The following workspace dependencies were updated
+  * dependencies
+    * @twin.org/rights-management-models bumped from 0.0.3-next.13 to 0.0.3-next.14
+
 ## [0.0.3-next.13](https://github.com/twinfoundation/rights-management/compare/rights-management-pap-service-v0.0.3-next.12...rights-management-pap-service-v0.0.3-next.13) (2026-02-02)
 
 
