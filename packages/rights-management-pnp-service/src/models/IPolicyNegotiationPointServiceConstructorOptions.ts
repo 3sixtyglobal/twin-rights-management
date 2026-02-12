@@ -37,6 +37,12 @@ export interface IPolicyNegotiationPointServiceConstructorOptions {
 	trustComponentType?: string;
 
 	/**
+	 * The type of the negotiation component which can be constructed with a url.
+	 * To be used when sending request remotely to another node.
+	 */
+	remoteNegotiationComponentType: string;
+
+	/**
 	 * Configuration options for the policy negotiation point service.
 	 */
 	config: IPolicyNegotiationPointServiceConfig;

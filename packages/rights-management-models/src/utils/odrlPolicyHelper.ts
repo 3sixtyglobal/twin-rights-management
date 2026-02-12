@@ -1,12 +1,14 @@
 // Copyright 2025 IOTA Stiftung.
 // SPDX-License-Identifier: Apache-2.0.
-import { ArrayHelper, GeneralError, Guards, Is } from "@twin.org/core";
 import type { ObjectOrArray } from "@twin.org/core";
+import { ArrayHelper, GeneralError, Guards, Is } from "@twin.org/core";
 import { nameof } from "@twin.org/nameof";
 import type {
 	ActionType,
 	IOdrlAction,
 	IOdrlAsset,
+	IOdrlParty,
+	IOdrlPartyCollection,
 	IOdrlPolicy
 } from "@twin.org/standards-w3c-odrl";
 
@@ -71,47 +73,52 @@ export class OdrlPolicyHelper {
 	}
 
 	/**
-	 * Get assignee identity from policy.
-	 * @param policy The policy to extract the assignee from.
-	 * @returns Assignee id.
-	 * @throws GeneralError if assignee is missing or invalid.
+	 * Normalize party value(s) into identifier strings when possible.
+	 * Handles single parties or arrays of parties by returning all discovered identifiers.
+	 * @param party The party to normalize.
+	 * @returns The party identifiers, or undefined when not available.
 	 */
-	public static getAssigneeIdentity(policy: IOdrlPolicy): ObjectOrArray<string> | undefined {
-		const assignees = ArrayHelper.fromObjectOrArray(policy.assignee);
-		const assigneeIds: string[] = [];
+	public static getPartyIds(
+		party?:
+			| string
+			| IOdrlParty
+			| IOdrlPartyCollection
+			| (string | IOdrlParty | IOdrlPartyCollection)[]
+	): string[] {
+		const ids: string[] = [];
 
-		if (Is.arrayValue(assignees)) {
-			for (const assignee of assignees) {
-				const assigneeId = Is.string(assignee) ? assignee : assignee?.uid;
-				if (!Is.empty(assigneeId)) {
-					assigneeIds.push(assigneeId);
+		if (Is.empty(party)) {
+			return ids;
+		}
+
+		if (Is.stringValue(party)) {
+			ids.push(party);
+			return ids;
+		}
+
+		if (Is.arrayValue(party)) {
+			for (const item of party) {
+				const childIds = OdrlPolicyHelper.getPartyIds(item);
+				if (!Is.empty(childIds)) {
+					for (const childId of childIds) {
+						if (!ids.includes(childId)) {
+							ids.push(childId);
+						}
+					}
 				}
+			}
+			return ids;
+		}
+
+		if (Is.object<IOdrlParty>(party)) {
+			if (Is.stringValue(party.uid) && !ids.includes(party.uid)) {
+				ids.push(party.uid);
+			} else if (Is.stringValue(party["@id"]) && !ids.includes(party["@id"])) {
+				ids.push(party["@id"]);
 			}
 		}
 
-		return assigneeIds.length <= 1 ? assigneeIds[0] : assigneeIds;
-	}
-
-	/**
-	 * Get assigner identity from policy.
-	 * @param policy The policy to extract the assigner from.
-	 * @returns Assigner id.
-	 * @throws GeneralError if assigner is missing or invalid.
-	 */
-	public static getAssignerIdentity(policy: IOdrlPolicy): ObjectOrArray<string> | undefined {
-		const assigners = ArrayHelper.fromObjectOrArray(policy.assigner);
-		const assignerIds: string[] = [];
-
-		if (Is.arrayValue(assigners)) {
-			for (const assigner of assigners) {
-				const assignerId = Is.string(assigner) ? assigner : assigner?.uid;
-				if (!Is.empty(assignerId)) {
-					assignerIds.push(assignerId);
-				}
-			}
-		}
-
-		return assignerIds.length <= 1 ? assignerIds[0] : assignerIds;
+		return ids;
 	}
 
 	/**
@@ -180,15 +187,15 @@ export class OdrlPolicyHelper {
 		}
 
 		if (Is.stringValue(options.assignee)) {
-			const assignee = OdrlPolicyHelper.getAssigneeIdentity(policy);
-			if (assignee !== options.assignee) {
+			const assigneeIds = OdrlPolicyHelper.getPartyIds(policy.assignee);
+			if (!assigneeIds.includes(options.assignee)) {
 				return false;
 			}
 		}
 
 		if (Is.stringValue(options.assigner)) {
-			const assigner = OdrlPolicyHelper.getAssignerIdentity(policy);
-			if (assigner !== options.assigner) {
+			const assignerIds = OdrlPolicyHelper.getPartyIds(policy.assigner);
+			if (!assignerIds.includes(options.assigner)) {
 				return false;
 			}
 		}

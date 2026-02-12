@@ -74,6 +74,15 @@ trust
 
 ***
 
+### remoteNegotiationComponentType
+
+> **remoteNegotiationComponentType**: `string`
+
+The type of the negotiation component which can be constructed with a url.
+To be used when sending request remotely to another node.
+
+***
+
 ### config
 
 > **config**: [`IPolicyNegotiationPointServiceConfig`](IPolicyNegotiationPointServiceConfig.md)

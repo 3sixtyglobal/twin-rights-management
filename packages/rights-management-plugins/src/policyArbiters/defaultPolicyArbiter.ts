@@ -14,6 +14,7 @@ import { JsonPathHelper } from "@twin.org/data-json-path";
 import type { ILoggingComponent } from "@twin.org/logging-models";
 import { nameof } from "@twin.org/nameof";
 import {
+	OdrlPolicyHelper,
 	PolicyDecision,
 	PolicyObligationEnforcerFactory,
 	type IPolicyAdministrationPointComponent,
@@ -25,13 +26,11 @@ import {
 	LogicalConstraintType,
 	OperatorType,
 	type ActionType,
-	type IOdrlLogicalConstraintOperand,
 	type IOdrlAgreement,
 	type IOdrlConstraint,
 	type IOdrlDuty,
 	type IOdrlLogicalConstraint,
-	type IOdrlParty,
-	type IOdrlPartyCollection,
+	type IOdrlLogicalConstraintOperand,
 	type IOdrlPermission,
 	type IOdrlPolicy,
 	type IOdrlProhibition,
@@ -146,8 +145,8 @@ export class DefaultPolicyArbiter implements IPolicyArbiter {
 		const mergedPolicy = await this.mergeInheritedPolicies(agreement);
 
 		// Extract agreement parties once for use in rule evaluation
-		const agreementAssigner = this.getPartyIds(agreement.assigner);
-		const agreementAssignee = this.getPartyIds(agreement.assignee);
+		const agreementAssigner = OdrlPolicyHelper.getPartyIds(agreement.assigner);
+		const agreementAssignee = OdrlPolicyHelper.getPartyIds(agreement.assignee);
 
 		// ODRL-style rule evaluation:
 		// - Permission rules authorize if ANY applicable permission matches (OR across permissions).
@@ -401,10 +400,10 @@ export class DefaultPolicyArbiter implements IPolicyArbiter {
 		const assigner = Is.empty(rule.assigner) ? policy.assigner : rule.assigner;
 		const assignee = Is.empty(rule.assignee) ? policy.assignee : rule.assignee;
 
-		const assignerIds = this.getPartyIds(assigner);
-		const ruleAssignerIds = this.getPartyIds(rule.assigner);
-		const assigneeIds = this.getPartyIds(assignee);
-		const ruleAssigneeIds = this.getPartyIds(rule.assignee);
+		const assignerIds = OdrlPolicyHelper.getPartyIds(assigner);
+		const ruleAssignerIds = OdrlPolicyHelper.getPartyIds(rule.assigner);
+		const assigneeIds = OdrlPolicyHelper.getPartyIds(assignee);
+		const ruleAssigneeIds = OdrlPolicyHelper.getPartyIds(rule.assignee);
 
 		let assignerEqual = false;
 		if (Is.empty(assignerIds) && Is.empty(ruleAssignerIds)) {
@@ -448,8 +447,8 @@ export class DefaultPolicyArbiter implements IPolicyArbiter {
 		agreementAssigner: string[] | undefined,
 		agreementAssignee: string[] | undefined
 	): boolean {
-		const ruleAssigners = this.getPartyIds(rule.assigner);
-		const ruleAssignees = this.getPartyIds(rule.assignee);
+		const ruleAssigners = OdrlPolicyHelper.getPartyIds(rule.assigner);
+		const ruleAssignees = OdrlPolicyHelper.getPartyIds(rule.assignee);
 
 		if (!this.isPartyApplicable(ruleAssigners, agreementAssigner)) {
 			return false;
@@ -539,61 +538,6 @@ export class DefaultPolicyArbiter implements IPolicyArbiter {
 		}
 
 		return false;
-	}
-
-	/**
-	 * Normalize party value(s) into identifier strings when possible.
-	 * Handles single parties or arrays of parties by returning all discovered identifiers.
-	 * @param party The party to normalize.
-	 * @returns The party identifiers, or undefined when not available.
-	 * @internal
-	 */
-	private getPartyIds(
-		party?:
-			| string
-			| IOdrlParty
-			| IOdrlPartyCollection
-			| (string | IOdrlParty | IOdrlPartyCollection)[]
-	): string[] | undefined {
-		const ids: string[] = [];
-
-		if (Is.empty(party)) {
-			return undefined;
-		}
-
-		if (Is.stringValue(party)) {
-			ids.push(party);
-			return ids;
-		}
-
-		if (Is.arrayValue(party)) {
-			for (const item of party) {
-				const childIds = this.getPartyIds(item);
-				if (!Is.empty(childIds)) {
-					for (const childId of childIds) {
-						if (!ids.includes(childId)) {
-							ids.push(childId);
-						}
-					}
-				}
-			}
-			return ids.length > 0 ? ids : undefined;
-		}
-
-		if (Is.object(party)) {
-			const obj = party as IJsonLdNodeObject;
-			const uid = (obj as IOdrlParty).uid;
-			if (Is.stringValue(uid) && !ids.includes(uid)) {
-				ids.push(uid);
-			}
-
-			const jsonLdId = obj["@id"];
-			if (Is.stringValue(jsonLdId) && !ids.includes(jsonLdId)) {
-				ids.push(jsonLdId);
-			}
-		}
-
-		return ids.length > 0 ? ids : undefined;
 	}
 
 	/**

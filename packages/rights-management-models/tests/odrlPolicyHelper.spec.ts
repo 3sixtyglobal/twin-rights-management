@@ -1,6 +1,6 @@
 // Copyright 2025 IOTA Stiftung.
 // SPDX-License-Identifier: Apache-2.0.
-import type { IOdrlPolicy } from "@twin.org/standards-w3c-odrl";
+import type { IOdrlParty, IOdrlPolicy } from "@twin.org/standards-w3c-odrl";
 import { OdrlPolicyHelper } from "../src/utils/odrlPolicyHelper.js";
 
 describe("OdrlPolicyHelper", () => {
@@ -150,85 +150,47 @@ describe("OdrlPolicyHelper", () => {
 		});
 	});
 
-	describe("getAssigneeIdentity", () => {
-		it("returns the assignee when it is a string", () => {
-			const policy = {
-				type: "Set",
-				uid: "policy-21",
-				assignee: "did:example:assignee-21"
-			} as unknown as IOdrlPolicy;
-
-			expect(OdrlPolicyHelper.getAssigneeIdentity(policy)).toBe("did:example:assignee-21");
+	describe("getPartyIds", () => {
+		it("returns an empty array when party is missing", () => {
+			expect(OdrlPolicyHelper.getPartyIds()).toEqual([]);
 		});
 
-		it("returns the assignee uid when assignee is an object", () => {
-			const policy = {
-				type: "Set",
-				uid: "policy-22",
-				assignee: { uid: "did:example:assignee-22" }
-			} as unknown as IOdrlPolicy;
-
-			expect(OdrlPolicyHelper.getAssigneeIdentity(policy)).toBe("did:example:assignee-22");
+		it("returns the id when party is a string", () => {
+			expect(OdrlPolicyHelper.getPartyIds("did:example:party-1")).toEqual(["did:example:party-1"]);
 		});
 
-		it("returns undefined when assignee is missing", () => {
-			const policy = {
-				type: "Set",
-				uid: "policy-23"
-			} as unknown as IOdrlPolicy;
-
-			expect(OdrlPolicyHelper.getAssigneeIdentity(policy)).toBeUndefined();
+		it("returns uid when party is an object with uid", () => {
+			expect(
+				OdrlPolicyHelper.getPartyIds({ uid: "did:example:party-2" } as unknown as IOdrlParty)
+			).toEqual(["did:example:party-2"]);
 		});
 
-		it("returns undefined when assignee object has no uid", () => {
-			const policy = {
-				type: "Set",
-				uid: "policy-24",
-				assignee: {}
-			} as unknown as IOdrlPolicy;
-
-			expect(OdrlPolicyHelper.getAssigneeIdentity(policy)).toBeUndefined();
-		});
-	});
-
-	describe("getAssignerIdentity", () => {
-		it("returns the assigner when it is a string", () => {
-			const policy = {
-				type: "Set",
-				uid: "policy-31",
-				assigner: "did:example:assigner-31"
-			} as unknown as IOdrlPolicy;
-
-			expect(OdrlPolicyHelper.getAssignerIdentity(policy)).toBe("did:example:assigner-31");
+		it("returns @id when party is an object with @id", () => {
+			expect(
+				OdrlPolicyHelper.getPartyIds({ "@id": "did:example:party-3" } as unknown as IOdrlParty)
+			).toEqual(["did:example:party-3"]);
 		});
 
-		it("returns the assigner uid when assigner is an object", () => {
-			const policy = {
-				type: "Set",
-				uid: "policy-32",
-				assigner: { uid: "did:example:assigner-32" }
-			} as unknown as IOdrlPolicy;
-
-			expect(OdrlPolicyHelper.getAssignerIdentity(policy)).toBe("did:example:assigner-32");
+		it("prefers uid over @id when both are present", () => {
+			expect(
+				OdrlPolicyHelper.getPartyIds({
+					uid: "did:example:party-4",
+					"@id": "did:example:party-ignored"
+				} as unknown as IOdrlParty)
+			).toEqual(["did:example:party-4"]);
 		});
 
-		it("returns undefined when assigner is missing", () => {
-			const policy = {
-				type: "Set",
-				uid: "policy-33"
-			} as unknown as IOdrlPolicy;
-
-			expect(OdrlPolicyHelper.getAssignerIdentity(policy)).toBeUndefined();
-		});
-
-		it("returns undefined when assigner object has no uid", () => {
-			const policy = {
-				type: "Set",
-				uid: "policy-34",
-				assigner: {}
-			} as unknown as IOdrlPolicy;
-
-			expect(OdrlPolicyHelper.getAssignerIdentity(policy)).toBeUndefined();
+		it("returns a unique list when party is an array", () => {
+			expect(
+				OdrlPolicyHelper.getPartyIds([
+					"did:example:party-a",
+					{ uid: "did:example:party-b" } as unknown as IOdrlParty,
+					{ "@id": "did:example:party-b" } as unknown as IOdrlParty,
+					"did:example:party-a",
+					{ uid: "" } as unknown as IOdrlParty,
+					{} as unknown as IOdrlParty
+				])
+			).toEqual(["did:example:party-a", "did:example:party-b"]);
 		});
 	});
 

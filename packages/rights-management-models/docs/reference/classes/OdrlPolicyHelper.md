@@ -74,55 +74,26 @@ GeneralError if assigner is missing or invalid.
 
 ***
 
-### getAssigneeIdentity()
+### getPartyIds()
 
-> `static` **getAssigneeIdentity**(`policy`): `ObjectOrArray`\<`string`\> \| `undefined`
+> `static` **getPartyIds**(`party?`): `string`[]
 
-Get assignee identity from policy.
-
-#### Parameters
-
-##### policy
-
-`IOdrlPolicy`
-
-The policy to extract the assignee from.
-
-#### Returns
-
-`ObjectOrArray`\<`string`\> \| `undefined`
-
-Assignee id.
-
-#### Throws
-
-GeneralError if assignee is missing or invalid.
-
-***
-
-### getAssignerIdentity()
-
-> `static` **getAssignerIdentity**(`policy`): `ObjectOrArray`\<`string`\> \| `undefined`
-
-Get assigner identity from policy.
+Normalize party value(s) into identifier strings when possible.
+Handles single parties or arrays of parties by returning all discovered identifiers.
 
 #### Parameters
 
-##### policy
+##### party?
 
-`IOdrlPolicy`
+The party to normalize.
 
-The policy to extract the assigner from.
+`string` | `IOdrlParty` | `IOdrlPartyCollection` | (`string` \| `IOdrlParty` \| `IOdrlPartyCollection`)[]
 
 #### Returns
 
-`ObjectOrArray`\<`string`\> \| `undefined`
+`string`[]
 
-Assigner id.
-
-#### Throws
-
-GeneralError if assigner is missing or invalid.
+The party identifiers, or undefined when not available.
 
 ***
 
