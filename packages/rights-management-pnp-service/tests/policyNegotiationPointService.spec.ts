@@ -1,6 +1,10 @@
 // Copyright 2025 IOTA Stiftung.
 // SPDX-License-Identifier: Apache-2.0.
-import { TaskSchedulerService } from "@twin.org/background-task-scheduler";
+import {
+	TaskSchedulerService,
+	initSchema as initSchemaScheduler,
+	type ScheduledTask
+} from "@twin.org/background-task-scheduler";
 import { ContextIdStore } from "@twin.org/context";
 import { ComponentFactory, Factory, Is } from "@twin.org/core";
 import { MemoryEntityStorageConnector } from "@twin.org/entity-storage-connector-memory";
@@ -136,6 +140,7 @@ describe("PolicyNegotiationPointService", () => {
 		vi.clearAllMocks();
 
 		initSchemaLogging();
+		initSchemaScheduler();
 		initSchemaPolicyAdministrationPoint();
 		initSchemaVault();
 		initSchemaIdentity();
@@ -148,7 +153,15 @@ describe("PolicyNegotiationPointService", () => {
 		LoggingConnectorFactory.register("logging", () => new EntityStorageLoggingConnector());
 		ComponentFactory.register("logging", () => new LoggingService());
 
-		const taskSchedulerComponent = new TaskSchedulerService({ config: { overrideInterval: 0.5 } });
+		EntityStorageConnectorFactory.register(
+			"scheduled-task",
+			() =>
+				new MemoryEntityStorageConnector<ScheduledTask>({
+					entitySchema: nameof<ScheduledTask>()
+				})
+		);
+
+		const taskSchedulerComponent = new TaskSchedulerService({ config: { intervalMs: 500 } });
 		ComponentFactory.register("task-scheduler", () => taskSchedulerComponent);
 
 		EntityStorageConnectorFactory.register(
@@ -779,8 +792,20 @@ describe("PolicyNegotiationPointService", () => {
 		expect(mockNegotiator.handleOffer).toHaveBeenCalledTimes(1);
 
 		expect(mockPolicyRequester.offer).toHaveBeenCalledTimes(1);
+		expect(mockPolicyRequester.offer).toHaveBeenCalledWith(
+			consumerPid,
+			expect.objectContaining({ "@type": "Offer" })
+		);
+
 		expect(mockPolicyRequester.agreement).toHaveBeenCalledTimes(1);
+		expect(mockPolicyRequester.agreement).toHaveBeenCalledWith(
+			consumerPid,
+			expect.objectContaining({ "@type": "Agreement" })
+		);
+
 		expect(mockPolicyRequester.finalised).toHaveBeenCalledTimes(1);
+		expect(mockPolicyRequester.finalised).toHaveBeenCalledWith(consumerPid);
+
 		expect(mockPolicyRequester.terminated).toHaveBeenCalledTimes(0);
 	});
 });

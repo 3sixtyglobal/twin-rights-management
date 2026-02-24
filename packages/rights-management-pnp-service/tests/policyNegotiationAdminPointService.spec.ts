@@ -1,6 +1,10 @@
 // Copyright 2025 IOTA Stiftung.
 // SPDX-License-Identifier: Apache-2.0.
-import { TaskSchedulerService } from "@twin.org/background-task-scheduler";
+import {
+	TaskSchedulerService,
+	initSchema as initSchemaScheduler,
+	type ScheduledTask
+} from "@twin.org/background-task-scheduler";
 import { ContextIdStore } from "@twin.org/context";
 import { ComponentFactory } from "@twin.org/core";
 import { MemoryEntityStorageConnector } from "@twin.org/entity-storage-connector-memory";
@@ -24,6 +28,7 @@ let policyNegotiationMemoryEntityStorage: MemoryEntityStorageConnector<PolicyNeg
 describe("PolicyNegotiationAdminPointService", () => {
 	beforeEach(async () => {
 		initSchemaLogging();
+		initSchemaScheduler();
 		initSchema();
 
 		loggingMemoryEntityStorage = new MemoryEntityStorageConnector<LogEntry>({
@@ -33,7 +38,15 @@ describe("PolicyNegotiationAdminPointService", () => {
 		LoggingConnectorFactory.register("logging", () => new EntityStorageLoggingConnector());
 		ComponentFactory.register("logging", () => new LoggingService());
 
-		const taskSchedulerComponent = new TaskSchedulerService({ config: { overrideInterval: 0.5 } });
+		EntityStorageConnectorFactory.register(
+			"scheduled-task",
+			() =>
+				new MemoryEntityStorageConnector<ScheduledTask>({
+					entitySchema: nameof<ScheduledTask>()
+				})
+		);
+
+		const taskSchedulerComponent = new TaskSchedulerService({ config: { intervalMs: 500 } });
 		ComponentFactory.register("task-scheduler", () => taskSchedulerComponent);
 		policyNegotiationMemoryEntityStorage = new MemoryEntityStorageConnector<PolicyNegotiation>({
 			entitySchema: nameof<PolicyNegotiation>()

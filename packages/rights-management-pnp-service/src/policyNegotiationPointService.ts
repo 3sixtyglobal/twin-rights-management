@@ -597,7 +597,7 @@ export class PolicyNegotiationPointService implements IPolicyNegotiationPointCom
 				}
 
 				// Tell the requester about the offer
-				const accepted = await policyRequester.offer(requesterType, message.offer);
+				const accepted = await policyRequester.offer(policyNegotiation.id, message.offer);
 
 				if (!accepted) {
 					const err = await this.setErrorState(
@@ -743,7 +743,7 @@ export class PolicyNegotiationPointService implements IPolicyNegotiationPointCom
 				}
 
 				// Tell the requester about the offer
-				const accepted = await policyRequester.agreement(requesterType, message.agreement);
+				const accepted = await policyRequester.agreement(policyNegotiation.id, message.agreement);
 
 				if (!accepted) {
 					const err = await this.setErrorState(
@@ -1006,7 +1006,7 @@ export class PolicyNegotiationPointService implements IPolicyNegotiationPointCom
 					}
 
 					// Tell the requester about the finalisation
-					await policyRequester.finalised(requesterType);
+					await policyRequester.finalised(policyNegotiation.id);
 				}
 			} else if (
 				destination === "provider" &&
@@ -1112,7 +1112,7 @@ export class PolicyNegotiationPointService implements IPolicyNegotiationPointCom
 					}
 
 					// Tell the requester about the termination
-					await policyRequester.terminated(requesterType);
+					await policyRequester.terminated(policyNegotiation.id);
 				}
 			}
 
