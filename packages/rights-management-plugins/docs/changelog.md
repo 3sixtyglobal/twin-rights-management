@@ -1,5 +1,35 @@
 # Changelog
 
+## [0.0.3-next.17](https://github.com/twinfoundation/rights-management/compare/rights-management-plugins-v0.0.3-next.16...rights-management-plugins-v0.0.3-next.17) (2026-02-25)
+
+
+### Features
+
+* add default enforcement processor ([#73](https://github.com/twinfoundation/rights-management/issues/73)) ([0c64d49](https://github.com/twinfoundation/rights-management/commit/0c64d49bab363b3da6d197536a605f7929a7c584))
+* add default policy arbiter ([#76](https://github.com/twinfoundation/rights-management/issues/76)) ([b62ff9c](https://github.com/twinfoundation/rights-management/commit/b62ff9ce1b3400c4a95909da01863af47f430dbf))
+* add factory pattern ([d26b4c0](https://github.com/twinfoundation/rights-management/commit/d26b4c08a2f3ba5758df66a1c48203b8d8e3638e))
+* add missing dependency ([f7c8e0e](https://github.com/twinfoundation/rights-management/commit/f7c8e0e4819c945ef823b853139440ad7999b9b9))
+* add missing dependency ([c62a098](https://github.com/twinfoundation/rights-management/commit/c62a0983e912c252ab0c27261c9bb92a63c06f96))
+* consistent uid usage ([#83](https://github.com/twinfoundation/rights-management/issues/83)) ([bdfb9f9](https://github.com/twinfoundation/rights-management/commit/bdfb9f92777cbfdb65b5b7df5660b70d869ed19d))
+* policy negotiator callback ([#77](https://github.com/twinfoundation/rights-management/issues/77)) ([6566ed0](https://github.com/twinfoundation/rights-management/commit/6566ed0e2186b6445f1669f9b2f88a6ce059ab83))
+* remove data access point ([#67](https://github.com/twinfoundation/rights-management/issues/67)) ([8573676](https://github.com/twinfoundation/rights-management/commit/8573676862c9f1634a66a0677b225b4de16a89cd))
+* update processors ([#71](https://github.com/twinfoundation/rights-management/issues/71)) ([d6e8c1e](https://github.com/twinfoundation/rights-management/commit/d6e8c1e593acb28556674d5180123f220766eb6b))
+
+
+### Dependencies
+
+* The following workspace dependencies were updated
+  * dependencies
+    * @twin.org/rights-management-models bumped from 0.0.3-next.16 to 0.0.3-next.17
+  * devDependencies
+    * @twin.org/rights-management-pap-service bumped from 0.0.3-next.16 to 0.0.3-next.17
+    * @twin.org/rights-management-pdp-service bumped from 0.0.3-next.16 to 0.0.3-next.17
+    * @twin.org/rights-management-pep-service bumped from 0.0.3-next.16 to 0.0.3-next.17
+    * @twin.org/rights-management-pip-service bumped from 0.0.3-next.16 to 0.0.3-next.17
+    * @twin.org/rights-management-pmp-service bumped from 0.0.3-next.16 to 0.0.3-next.17
+    * @twin.org/rights-management-pnp-service bumped from 0.0.3-next.16 to 0.0.3-next.17
+    * @twin.org/rights-management-pxp-service bumped from 0.0.3-next.16 to 0.0.3-next.17
+
 ## [0.0.3-next.16](https://github.com/twinfoundation/rights-management/compare/rights-management-plugins-v0.0.3-next.15...rights-management-plugins-v0.0.3-next.16) (2026-02-24)
 
 

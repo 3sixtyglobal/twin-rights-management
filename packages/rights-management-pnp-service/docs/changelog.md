@@ -1,5 +1,45 @@
 # Changelog
 
+## [0.0.3-next.17](https://github.com/twinfoundation/rights-management/compare/rights-management-pnp-service-v0.0.3-next.16...rights-management-pnp-service-v0.0.3-next.17) (2026-02-25)
+
+
+### Features
+
+* add context id features ([#51](https://github.com/twinfoundation/rights-management/issues/51)) ([239922c](https://github.com/twinfoundation/rights-management/commit/239922c82a7fa94b66c8ee0e924bc58ddaaba395))
+* add DAP (Data Access Point) ([#40](https://github.com/twinfoundation/rights-management/issues/40)) ([f3e684b](https://github.com/twinfoundation/rights-management/commit/f3e684ba1f9a934394c64635f393fbb6709ff480))
+* add factory pattern ([d26b4c0](https://github.com/twinfoundation/rights-management/commit/d26b4c08a2f3ba5758df66a1c48203b8d8e3638e))
+* add JSON-LD types for negotiation ([6be61f8](https://github.com/twinfoundation/rights-management/commit/6be61f890537cb9d22d4fad90092b858de2c9c2d))
+* add policy negotiation point PNP, PNAP and PNRP ([#32](https://github.com/twinfoundation/rights-management/issues/32)) ([90f0659](https://github.com/twinfoundation/rights-management/commit/90f06593a1126df3c2f4ca23cf95a08260fd6415))
+* add validate-locales ([78f30cf](https://github.com/twinfoundation/rights-management/commit/78f30cf61054655c815e5fc42972ee39502e3687))
+* change callback url to callback path ([#65](https://github.com/twinfoundation/rights-management/issues/65)) ([f02ceaf](https://github.com/twinfoundation/rights-management/commit/f02ceaf0a53083f088690c7d3a384045b1061821))
+* consistent uid usage ([#83](https://github.com/twinfoundation/rights-management/issues/83)) ([bdfb9f9](https://github.com/twinfoundation/rights-management/commit/bdfb9f92777cbfdb65b5b7df5660b70d869ed19d))
+* engine compatibility updates ([490e015](https://github.com/twinfoundation/rights-management/commit/490e015901d6a5ac6563da484a18fc5f285556b1))
+* international dataspaces contract negotiation ([#41](https://github.com/twinfoundation/rights-management/issues/41)) ([41ed515](https://github.com/twinfoundation/rights-management/commit/41ed5154d6cef48bc99db3158dbde6ec88523a0b))
+* move create and verify proofs to helper ([a4e1f4a](https://github.com/twinfoundation/rights-management/commit/a4e1f4afe01ea12c36f29672197128e65819c875))
+* pass negotiationId instead of requesterType to IPolicyRequester callbacks ([#80](https://github.com/twinfoundation/rights-management/issues/80)) ([1dbaa42](https://github.com/twinfoundation/rights-management/commit/1dbaa422b2d419829ca0d307a4072bab6d69c2fe))
+* pdp add ([#39](https://github.com/twinfoundation/rights-management/issues/39)) ([68b9a8a](https://github.com/twinfoundation/rights-management/commit/68b9a8a7a3cf2902f9eecb590ca3316c6b1671f0))
+* policy negotiation point remote optional in config ([01ad107](https://github.com/twinfoundation/rights-management/commit/01ad10773f4de3dfb13a43e53ba366cbcd4add1a))
+* policy negotiator callback ([#77](https://github.com/twinfoundation/rights-management/issues/77)) ([6566ed0](https://github.com/twinfoundation/rights-management/commit/6566ed0e2186b6445f1669f9b2f88a6ce059ab83))
+* separate rest routes ([538b86b](https://github.com/twinfoundation/rights-management/commit/538b86be26b46711279101aa01fec119419d8149))
+* update contexts ([#63](https://github.com/twinfoundation/rights-management/issues/63)) ([e55200f](https://github.com/twinfoundation/rights-management/commit/e55200f9929eaced6c446be25969dbe0f95ee909))
+* update dataspace protocol dependencies ([9dcc477](https://github.com/twinfoundation/rights-management/commit/9dcc47755c2f5a7fd3ef30e656f1988944cd4b54))
+* update dataspace standards packages ([dbd5bf6](https://github.com/twinfoundation/rights-management/commit/dbd5bf62403a97c758ee2320d9cac378c568165b))
+* update dspace dependencies ([072917b](https://github.com/twinfoundation/rights-management/commit/072917bcfa052a6d61e6cd3676e275ba7fc4ec25))
+* update namespaces and contexts ([#61](https://github.com/twinfoundation/rights-management/issues/61)) ([033446b](https://github.com/twinfoundation/rights-management/commit/033446b91ccf0c7664061afda9a1ad49d3c671ec))
+* update naming ([46accce](https://github.com/twinfoundation/rights-management/commit/46accce4bee443453c1bc4c1c1863cf2b755efea))
+* update processors ([#71](https://github.com/twinfoundation/rights-management/issues/71)) ([d6e8c1e](https://github.com/twinfoundation/rights-management/commit/d6e8c1e593acb28556674d5180123f220766eb6b))
+* update to use built in vc authentication ([f982b86](https://github.com/twinfoundation/rights-management/commit/f982b8676a7d21add85195c73558ef4f0fd9be29))
+
+
+### Dependencies
+
+* The following workspace dependencies were updated
+  * dependencies
+    * @twin.org/rights-management-models bumped from 0.0.3-next.16 to 0.0.3-next.17
+  * devDependencies
+    * @twin.org/rights-management-pap-service bumped from 0.0.3-next.16 to 0.0.3-next.17
+    * @twin.org/rights-management-pip-service bumped from 0.0.3-next.16 to 0.0.3-next.17
+
 ## [0.0.3-next.16](https://github.com/twinfoundation/rights-management/compare/rights-management-pnp-service-v0.0.3-next.15...rights-management-pnp-service-v0.0.3-next.16) (2026-02-24)
 
 
