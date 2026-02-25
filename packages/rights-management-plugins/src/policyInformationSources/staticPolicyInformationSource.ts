@@ -82,7 +82,7 @@ export class StaticPolicyInformationSource implements IPolicyInformationSource {
 			ts: Date.now(),
 			message: "staticRetrieving",
 			data: {
-				policyId: policy?.uid ?? "",
+				policyId: OdrlPolicyHelper.getUid(policy) ?? "",
 				accessMode
 			}
 		});
@@ -112,7 +112,7 @@ export class StaticPolicyInformationSource implements IPolicyInformationSource {
 			ts: Date.now(),
 			message: "staticRetrieved",
 			data: {
-				policyId: policy?.uid ?? "",
+				policyId: OdrlPolicyHelper.getUid(policy) ?? "",
 				accessMode,
 				itemCount: Object.keys(information).length
 			}

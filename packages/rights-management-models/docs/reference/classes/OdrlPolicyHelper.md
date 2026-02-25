@@ -22,6 +22,50 @@ The class name of the Policy Administration Point Service.
 
 ## Methods
 
+### getUid()
+
+> `static` **getUid**(`object`): `string` \| `undefined`
+
+Get the UID of an ODRL policy or related object if available.
+
+#### Parameters
+
+##### object
+
+The ODRL policy or related object to get the UID from.
+
+`object` | `undefined`
+
+#### Returns
+
+`string` \| `undefined`
+
+The UID of the object if available, otherwise undefined.
+
+***
+
+### getType()
+
+> `static` **getType**(`object`): `string` \| `undefined`
+
+Get the type of an ODRL policy or related object if available.
+
+#### Parameters
+
+##### object
+
+The ODRL policy or related object to get the type from.
+
+`object` | `undefined`
+
+#### Returns
+
+`string` \| `undefined`
+
+The type of the object if available, otherwise undefined.
+
+***
+
 ### extractAssigneeIdentity()
 
 > `static` **extractAssigneeIdentity**(`policy`): `ObjectOrArray`\<`string`\>

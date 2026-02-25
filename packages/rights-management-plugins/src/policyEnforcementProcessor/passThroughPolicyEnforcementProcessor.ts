@@ -3,9 +3,10 @@
 import { ComponentFactory, Guards } from "@twin.org/core";
 import type { ILoggingComponent } from "@twin.org/logging-models";
 import { nameof } from "@twin.org/nameof";
-import type {
-	IPolicyDecision,
-	IPolicyEnforcementProcessor
+import {
+	OdrlPolicyHelper,
+	type IPolicyDecision,
+	type IPolicyEnforcementProcessor
 } from "@twin.org/rights-management-models";
 import type { ActionType, IOdrlAgreement } from "@twin.org/standards-w3c-odrl";
 import type { IPassThroughPolicyEnforcementProcessorConstructorOptions } from "../models/IPassThroughPolicyEnforcementProcessorConstructorOptions.js";
@@ -69,7 +70,7 @@ export class PassThroughPolicyEnforcementProcessor implements IPolicyEnforcement
 			ts: Date.now(),
 			message: "processingPolicy",
 			data: {
-				policyId: agreement.uid
+				policyId: OdrlPolicyHelper.getUid(agreement) ?? ""
 			}
 		});
 

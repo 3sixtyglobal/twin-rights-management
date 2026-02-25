@@ -90,7 +90,7 @@ describe("PolicyInformationPointService", () => {
 				"@context": "http://www.w3.org/ns/odrl.jsonld",
 				"@type": "Set",
 				uid: "policy123",
-				assetType: "document",
+				target: "document",
 				action: "read",
 				assignee: "node456"
 			},
@@ -103,7 +103,7 @@ describe("PolicyInformationPointService", () => {
 				"@context": "http://www.w3.org/ns/odrl.jsonld",
 				"@type": "Set",
 				uid: "policy123",
-				assetType: "document",
+				target: "document",
 				action: "read",
 				assignee: "node456"
 			},
@@ -135,7 +135,7 @@ describe("PolicyInformationPointService", () => {
 				"@context": "http://www.w3.org/ns/odrl.jsonld",
 				"@type": "Set",
 				uid: "policy123",
-				assetType: "image",
+				target: "image",
 				action: "edit",
 				assignee: "node456"
 			},
@@ -148,7 +148,7 @@ describe("PolicyInformationPointService", () => {
 				"@context": "http://www.w3.org/ns/odrl.jsonld",
 				"@type": "Set",
 				uid: "policy123",
-				assetType: "image",
+				target: "image",
 				action: "edit",
 				assignee: "node456"
 			},
@@ -161,7 +161,7 @@ describe("PolicyInformationPointService", () => {
 				"@context": "http://www.w3.org/ns/odrl.jsonld",
 				"@type": "Set",
 				uid: "policy123",
-				assetType: "image",
+				target: "image",
 				action: "edit",
 				assignee: "node456"
 			},
@@ -183,7 +183,7 @@ describe("PolicyInformationPointService", () => {
 				"@context": "http://www.w3.org/ns/odrl.jsonld",
 				"@type": "Set",
 				uid: "policy123",
-				assetType: "test",
+				target: "test",
 				action: "action",
 				assignee: "node456"
 			},
@@ -213,7 +213,7 @@ describe("PolicyInformationPointService", () => {
 				"@context": "http://www.w3.org/ns/odrl.jsonld",
 				"@type": "Set",
 				uid: "policy123",
-				assetType: "database",
+				target: "database",
 				action: "query",
 				assignee: "node456"
 			},
@@ -237,7 +237,7 @@ describe("PolicyInformationPointService", () => {
 				"@context": "http://www.w3.org/ns/odrl.jsonld",
 				"@type": "Set",
 				uid: "policy123",
-				assetType: "file",
+				target: "file",
 				action: "upload",
 				assignee: "node456"
 			},

@@ -6,6 +6,7 @@ import { nameof } from "@twin.org/nameof";
 import {
 	type IPolicyDecision,
 	type IPolicyExecutionAction,
+	OdrlPolicyHelper,
 	PolicyDecisionStage
 } from "@twin.org/rights-management-models";
 import type { ActionType, IOdrlPolicy } from "@twin.org/standards-w3c-odrl";
@@ -121,7 +122,7 @@ export class LoggingPolicyExecutionAction implements IPolicyExecutionAction {
 					ts: Date.now(),
 					message: "policyActionExecutedBefore",
 					data: {
-						policyId: policy.uid,
+						policyId: OdrlPolicyHelper.getUid(policy) ?? "",
 						data: logData,
 						policy: logPolicy,
 						decisions: logDecisions,
@@ -136,7 +137,7 @@ export class LoggingPolicyExecutionAction implements IPolicyExecutionAction {
 					ts: Date.now(),
 					message: "policyActionExecutedAfter",
 					data: {
-						policyId: policy.uid,
+						policyId: OdrlPolicyHelper.getUid(policy) ?? "",
 						data: logData,
 						policy: logPolicy,
 						decisions: logDecisions,

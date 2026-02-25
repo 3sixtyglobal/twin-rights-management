@@ -5,6 +5,7 @@ import { JsonPathHelper } from "@twin.org/data-json-path";
 import type { ILoggingComponent } from "@twin.org/logging-models";
 import { nameof } from "@twin.org/nameof";
 import {
+	OdrlPolicyHelper,
 	PolicyDecision,
 	type IPolicyDecision,
 	type IPolicyEnforcementProcessor
@@ -71,7 +72,7 @@ export class DefaultPolicyEnforcementProcessor implements IPolicyEnforcementProc
 			ts: Date.now(),
 			message: "processingPolicy",
 			data: {
-				policyId: agreement.uid
+				policyId: OdrlPolicyHelper.getUid(agreement) ?? ""
 			}
 		});
 

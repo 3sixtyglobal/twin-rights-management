@@ -3,7 +3,7 @@
 import { ComponentFactory } from "@twin.org/core";
 import type { ILoggingComponent } from "@twin.org/logging-models";
 import { nameof } from "@twin.org/nameof";
-import type { IPolicyRequester } from "@twin.org/rights-management-models";
+import { OdrlPolicyHelper, type IPolicyRequester } from "@twin.org/rights-management-models";
 import type { IOdrlAgreement, IOdrlOffer } from "@twin.org/standards-w3c-odrl";
 import type { IPassThroughPolicyRequesterConstructorOptions } from "../models/IPassThroughPolicyRequesterConstructorOptions.js";
 
@@ -54,7 +54,7 @@ export class PassThroughPolicyRequester implements IPolicyRequester {
 			message: "offer",
 			data: {
 				negotiationId,
-				offerId: offer.uid
+				offerId: OdrlPolicyHelper.getUid(offer) ?? ""
 			}
 		});
 
@@ -75,7 +75,7 @@ export class PassThroughPolicyRequester implements IPolicyRequester {
 			message: "agreement",
 			data: {
 				negotiationId,
-				agreementId: agreement.uid
+				agreementId: OdrlPolicyHelper.getUid(agreement) ?? ""
 			}
 		});
 

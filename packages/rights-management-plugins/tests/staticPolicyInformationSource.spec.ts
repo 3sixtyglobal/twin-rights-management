@@ -21,7 +21,7 @@ let loggingMemoryEntityStorage: MemoryEntityStorageConnector<LogEntry>;
 function createPolicy(options?: {
 	uid?: string;
 	action?: string;
-	assetType?: string;
+	target?: string;
 	assignee?: string;
 }): IOdrlPolicy {
 	return {
@@ -29,7 +29,7 @@ function createPolicy(options?: {
 		"@type": PolicyType.Set,
 		uid: options?.uid ?? "policy123",
 		action: options?.action ?? "action",
-		target: options?.assetType ?? "assetType",
+		target: options?.target ?? "target",
 		assignee: options?.assignee ?? "assignee"
 	};
 }
@@ -58,7 +58,7 @@ describe("StaticPolicyInformationSource", () => {
 		});
 
 		const result = await policyInformationSource.retrieve(
-			createPolicy({ assetType: "document", action: "read", assignee: "node123" }),
+			createPolicy({ target: "document", action: "read", assignee: "node123" }),
 			PolicyInformationAccessMode.Any,
 			{ content: "test" }
 		);
@@ -115,7 +115,7 @@ describe("StaticPolicyInformationSource", () => {
 			});
 
 			const result = await policyInformationSource.retrieve(
-				createPolicy({ assetType: "document", action: "read", assignee: "node123" }),
+				createPolicy({ target: "document", action: "read", assignee: "node123" }),
 				accessMode,
 				{ content: "test" }
 			);
@@ -139,7 +139,7 @@ describe("StaticPolicyInformationSource", () => {
 		});
 
 		const result = await policyInformationSource.retrieve(
-			createPolicy({ assetType: "document", action: "read", assignee: "node123" }),
+			createPolicy({ target: "document", action: "read", assignee: "node123" }),
 			accessMode,
 			{ content: "test" }
 		);
@@ -170,7 +170,7 @@ describe("StaticPolicyInformationSource", () => {
 			});
 
 			const result = await policyInformationSource.retrieve(
-				createPolicy({ assetType: "document", action: "read", assignee: "node123" }),
+				createPolicy({ target: "document", action: "read", assignee: "node123" }),
 				accessMode,
 				{ content: "test" }
 			);
@@ -200,7 +200,7 @@ describe("StaticPolicyInformationSource", () => {
 		});
 
 		const result = await policyInformationSource.retrieve(
-			createPolicy({ assetType: "document", action: "read", assignee: "node123" }),
+			createPolicy({ target: "document", action: "read", assignee: "node123" }),
 			PolicyInformationAccessMode.Public,
 			{ content: "test" }
 		);
@@ -228,13 +228,13 @@ describe("StaticPolicyInformationSource", () => {
 		});
 
 		const result1 = await policyInformationSource.retrieve(
-			createPolicy({ assetType: "document", action: "read", assignee: "node123" }),
+			createPolicy({ target: "document", action: "read", assignee: "node123" }),
 			PolicyInformationAccessMode.Any,
 			{ content: "test" }
 		);
 
 		const result2 = await policyInformationSource.retrieve(
-			createPolicy({ assetType: "image", action: "write", assignee: "node123" }),
+			createPolicy({ target: "image", action: "write", assignee: "node123" }),
 			PolicyInformationAccessMode.Any,
 			{ content: "test" }
 		);
@@ -243,7 +243,7 @@ describe("StaticPolicyInformationSource", () => {
 		expect(result2).toEqual(allMap);
 	});
 
-	test("returns information for specific assetType and action combination", async () => {
+	test("returns information for specific target and action combination", async () => {
 		const specificMap: { [id: string]: IJsonLdNodeObject } = {
 			specific1: { "@id": "specific1", "@type": "SpecificInfo", data: "document-read only" }
 		};
@@ -261,13 +261,13 @@ describe("StaticPolicyInformationSource", () => {
 		});
 
 		const matchingResult = await policyInformationSource.retrieve(
-			createPolicy({ assetType: "document", action: "read", assignee: "node123" }),
+			createPolicy({ target: "document", action: "read", assignee: "node123" }),
 			PolicyInformationAccessMode.Any,
 			{ content: "test" }
 		);
 
 		const nonMatchingResult = await policyInformationSource.retrieve(
-			createPolicy({ assetType: "document", action: "write", assignee: "node123" }),
+			createPolicy({ target: "document", action: "write", assignee: "node123" }),
 			PolicyInformationAccessMode.Any,
 			{ content: "test" }
 		);
@@ -276,9 +276,9 @@ describe("StaticPolicyInformationSource", () => {
 		expect(nonMatchingResult).toBeUndefined();
 	});
 
-	test("returns information when assetType is undefined (matches all asset types)", async () => {
+	test("returns information when target is undefined (matches all targets)", async () => {
 		const readInfo: { [id: string]: IJsonLdNodeObject } = {
-			read1: { "@id": "read1", "@type": "ReadInfo", data: "all assets read action" }
+			read1: { "@id": "read1", "@type": "ReadInfo", data: "all targets read action" }
 		};
 
 		const policyInformationSource = new StaticPolicyInformationSource({
@@ -294,19 +294,19 @@ describe("StaticPolicyInformationSource", () => {
 		});
 
 		const documentReadResult = await policyInformationSource.retrieve(
-			createPolicy({ assetType: "document", action: "read", assignee: "node123" }),
+			createPolicy({ target: "document", action: "read", assignee: "node123" }),
 			PolicyInformationAccessMode.Any,
 			{ content: "test" }
 		);
 
 		const imageReadResult = await policyInformationSource.retrieve(
-			createPolicy({ assetType: "image", action: "read", assignee: "node123" }),
+			createPolicy({ target: "image", action: "read", assignee: "node123" }),
 			PolicyInformationAccessMode.Any,
 			{ content: "test" }
 		);
 
 		const documentWriteResult = await policyInformationSource.retrieve(
-			createPolicy({ assetType: "document", action: "write", assignee: "node123" }),
+			createPolicy({ target: "document", action: "write", assignee: "node123" }),
 			PolicyInformationAccessMode.Any,
 			{ content: "test" }
 		);
@@ -334,19 +334,19 @@ describe("StaticPolicyInformationSource", () => {
 		});
 
 		const documentReadResult = await policyInformationSource.retrieve(
-			createPolicy({ assetType: "document", action: "read", assignee: "node123" }),
+			createPolicy({ target: "document", action: "read", assignee: "node123" }),
 			PolicyInformationAccessMode.Any,
 			{ content: "test" }
 		);
 
 		const documentWriteResult = await policyInformationSource.retrieve(
-			createPolicy({ assetType: "document", action: "write", assignee: "node123" }),
+			createPolicy({ target: "document", action: "write", assignee: "node123" }),
 			PolicyInformationAccessMode.Any,
 			{ content: "test" }
 		);
 
 		const imageReadResult = await policyInformationSource.retrieve(
-			createPolicy({ assetType: "image", action: "read", assignee: "node123" }),
+			createPolicy({ target: "image", action: "read", assignee: "node123" }),
 			PolicyInformationAccessMode.Any,
 			{ content: "test" }
 		);
@@ -356,7 +356,7 @@ describe("StaticPolicyInformationSource", () => {
 		expect(imageReadResult).toBeUndefined();
 	});
 
-	test("returns information when both assetType and action are undefined (matches all)", async () => {
+	test("returns information when both target and action are undefined (matches all)", async () => {
 		const universalMap: { [id: string]: IJsonLdNodeObject } = {
 			universal1: { "@id": "universal1", "@type": "UniversalInfo", data: "matches everything" }
 		};
@@ -374,13 +374,13 @@ describe("StaticPolicyInformationSource", () => {
 		});
 
 		const result1 = await policyInformationSource.retrieve(
-			createPolicy({ assetType: "document", action: "read", assignee: "node123" }),
+			createPolicy({ target: "document", action: "read", assignee: "node123" }),
 			PolicyInformationAccessMode.Any,
 			{ content: "test" }
 		);
 
 		const result2 = await policyInformationSource.retrieve(
-			createPolicy({ assetType: "image", action: "write", assignee: "node123" }),
+			createPolicy({ target: "image", action: "write", assignee: "node123" }),
 			PolicyInformationAccessMode.Any,
 			{ content: "test" }
 		);
@@ -411,25 +411,25 @@ describe("StaticPolicyInformationSource", () => {
 		});
 
 		const documentReadResult = await policyInformationSource.retrieve(
-			createPolicy({ assetType: "document", action: "read", assignee: "node123" }),
+			createPolicy({ target: "document", action: "read", assignee: "node123" }),
 			PolicyInformationAccessMode.Any,
 			{ content: "test" }
 		);
 
 		const imageWriteResult = await policyInformationSource.retrieve(
-			createPolicy({ assetType: "image", action: "write", assignee: "node123" }),
+			createPolicy({ target: "image", action: "write", assignee: "node123" }),
 			PolicyInformationAccessMode.Any,
 			{ content: "test" }
 		);
 
 		const videoAnyResult = await policyInformationSource.retrieve(
-			createPolicy({ assetType: "video", action: "stream", assignee: "node123" }),
+			createPolicy({ target: "video", action: "stream", assignee: "node123" }),
 			PolicyInformationAccessMode.Any,
 			{ content: "test" }
 		);
 
 		const documentWriteResult = await policyInformationSource.retrieve(
-			createPolicy({ assetType: "document", action: "write", assignee: "node123" }),
+			createPolicy({ target: "document", action: "write", assignee: "node123" }),
 			PolicyInformationAccessMode.Any,
 			{ content: "test" }
 		);
@@ -466,25 +466,25 @@ describe("StaticPolicyInformationSource", () => {
 		});
 
 		const publicDocResult = await policyInformationSource.retrieve(
-			createPolicy({ assetType: "document", action: "read", assignee: "node123" }),
+			createPolicy({ target: "document", action: "read", assignee: "node123" }),
 			PolicyInformationAccessMode.Public,
 			{ content: "test" }
 		);
 
 		const privateImageResult = await policyInformationSource.retrieve(
-			createPolicy({ assetType: "image", action: "write", assignee: "node123" }),
+			createPolicy({ target: "image", action: "write", assignee: "node123" }),
 			PolicyInformationAccessMode.Private,
 			{ content: "test" }
 		);
 
 		const wrongAccessModeResult = await policyInformationSource.retrieve(
-			createPolicy({ assetType: "document", action: "read", assignee: "node123" }),
+			createPolicy({ target: "document", action: "read", assignee: "node123" }),
 			PolicyInformationAccessMode.Private,
 			{ content: "test" }
 		);
 
-		const wrongAssetTypeResult = await policyInformationSource.retrieve(
-			createPolicy({ assetType: "document", action: "write", assignee: "node123" }),
+		const wrongTargetResult = await policyInformationSource.retrieve(
+			createPolicy({ target: "document", action: "write", assignee: "node123" }),
 			PolicyInformationAccessMode.Public,
 			{ content: "test" }
 		);
@@ -492,7 +492,7 @@ describe("StaticPolicyInformationSource", () => {
 		expect(publicDocResult).toEqual(publicDocMap);
 		expect(privateImageResult).toEqual(privateImageMap);
 		expect(wrongAccessModeResult).toBeUndefined();
-		expect(wrongAssetTypeResult).toBeUndefined();
+		expect(wrongTargetResult).toBeUndefined();
 	});
 
 	test("returns all entries when matchLocators array is empty", async () => {
@@ -513,7 +513,7 @@ describe("StaticPolicyInformationSource", () => {
 		});
 
 		const result = await policyInformationSource.retrieve(
-			createPolicy({ assetType: "document", action: "read", assignee: "node123" }),
+			createPolicy({ target: "document", action: "read", assignee: "node123" }),
 			PolicyInformationAccessMode.Any,
 			{ content: "test" }
 		);
@@ -535,7 +535,7 @@ describe("StaticPolicyInformationSource", () => {
 		});
 
 		const result = await policyInformationSource.retrieve(
-			createPolicy({ assetType: "document", action: "read", assignee: "node123" }),
+			createPolicy({ target: "document", action: "read", assignee: "node123" }),
 			PolicyInformationAccessMode.Any,
 			{ content: "test" }
 		);
@@ -547,7 +547,7 @@ describe("StaticPolicyInformationSource", () => {
 		const policyInformationSource = new StaticPolicyInformationSource();
 		await expect(
 			policyInformationSource.retrieve(
-				createPolicy({ assetType: "document", action: "read", assignee: "node123" }),
+				createPolicy({ target: "document", action: "read", assignee: "node123" }),
 				"invalid" as unknown as PolicyInformationAccessMode,
 				{ content: "test" }
 			)

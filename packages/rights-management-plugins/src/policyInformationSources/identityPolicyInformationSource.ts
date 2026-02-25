@@ -7,6 +7,7 @@ import type { ILoggingComponent } from "@twin.org/logging-models";
 import { nameof } from "@twin.org/nameof";
 import {
 	type IPolicyInformationSource,
+	OdrlPolicyHelper,
 	PolicyInformationAccessMode
 } from "@twin.org/rights-management-models";
 import type { ActionType, IOdrlPolicy } from "@twin.org/standards-w3c-odrl";
@@ -95,7 +96,7 @@ export class IdentityPolicyInformationSource implements IPolicyInformationSource
 						ts: Date.now(),
 						message: "identityRetrieving",
 						data: {
-							policyId: policy.uid,
+							policyId: OdrlPolicyHelper.getUid(policy) ?? "",
 							id
 						}
 					});
@@ -108,7 +109,7 @@ export class IdentityPolicyInformationSource implements IPolicyInformationSource
 						ts: Date.now(),
 						message: "identityRetrievalFailed",
 						data: {
-							policyId: policy.uid,
+							policyId: OdrlPolicyHelper.getUid(policy) ?? "",
 							id
 						},
 						error: BaseError.fromError(err)

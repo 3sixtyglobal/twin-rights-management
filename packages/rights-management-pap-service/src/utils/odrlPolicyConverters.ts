@@ -50,9 +50,9 @@ export function convertToStoragePolicy<T extends IOdrlPolicy>(policy: T): OdrlPo
  */
 export function convertFromStoragePolicy<T extends IOdrlPolicy>(storagePolicy: OdrlPolicy): T {
 	const policy: IOdrlPolicy = {
-		uid: storagePolicy.uid,
+		"@context": OdrlContexts.Context,
 		"@type": storagePolicy["@type"],
-		"@context": OdrlContexts.Context
+		uid: storagePolicy.uid
 	};
 
 	policy.profile = storagePolicy.profile;

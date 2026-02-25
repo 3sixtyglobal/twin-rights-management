@@ -4,8 +4,9 @@ import { BaseError, ComponentFactory, GeneralError, Guards, ObjectHelper } from 
 import type { ILoggingComponent } from "@twin.org/logging-models";
 import { nameof } from "@twin.org/nameof";
 import {
-	type IPolicyAdministrationPointComponent,
+	OdrlPolicyHelper,
 	PolicyEnforcementProcessorFactory,
+	type IPolicyAdministrationPointComponent,
 	type IPolicyDecisionPointComponent,
 	type IPolicyEnforcementPointComponent,
 	type IPolicyManagementPointComponent
@@ -98,7 +99,7 @@ export class PolicyEnforcementPointService implements IPolicyEnforcementPointCom
 			ts: Date.now(),
 			message: "intercepting",
 			data: {
-				policyId: agreement.uid
+				policyId: OdrlPolicyHelper.getUid(agreement) ?? ""
 			}
 		});
 
@@ -121,7 +122,7 @@ export class PolicyEnforcementPointService implements IPolicyEnforcementPointCom
 					ts: Date.now(),
 					message: "processing",
 					data: {
-						policyId: agreement.uid,
+						policyId: OdrlPolicyHelper.getUid(agreement) ?? "",
 						processorId: processor.className()
 					}
 				});
@@ -135,14 +136,17 @@ export class PolicyEnforcementPointService implements IPolicyEnforcementPointCom
 					message: "processingFailed",
 					data: {
 						processorId: processor.className(),
-						policyId: agreement.uid
+						policyId: OdrlPolicyHelper.getUid(agreement) ?? ""
 					},
 					error: BaseError.fromError(error)
 				});
 				throw new GeneralError(
 					PolicyEnforcementPointService.CLASS_NAME,
 					"processingFailed",
-					{ processorId: processor.className(), policyId: agreement.uid },
+					{
+						processorId: processor.className(),
+						policyId: OdrlPolicyHelper.getUid(agreement) ?? ""
+					},
 					error
 				);
 			}
@@ -194,7 +198,7 @@ export class PolicyEnforcementPointService implements IPolicyEnforcementPointCom
 		const policiesResult = await this._policyManagementPointComponent.retrieve(locator);
 
 		const agreements = policiesResult.policies.filter(
-			p => p.type === PolicyType.Agreement
+			p => OdrlPolicyHelper.getType(p) === PolicyType.Agreement
 		) as IOdrlAgreement[];
 
 		if (agreements.length === 0) {

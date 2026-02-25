@@ -137,7 +137,7 @@ export class DefaultPolicyArbiter implements IPolicyArbiter {
 			ts: Date.now(),
 			message: "decidingPolicy",
 			data: {
-				policyId: agreement.uid
+				policyId: OdrlPolicyHelper.getUid(agreement) ?? ""
 			}
 		});
 
@@ -250,7 +250,7 @@ export class DefaultPolicyArbiter implements IPolicyArbiter {
 	 */
 	private async mergeInheritedPolicies(policy: IOdrlPolicy): Promise<IOdrlPolicy> {
 		const visitedPolicyIds: string[] = [];
-		visitedPolicyIds.push(policy.uid);
+		visitedPolicyIds.push(OdrlPolicyHelper.getUid(policy) ?? "");
 		const inheritedPolicies = await this.resolveInheritedPolicies(policy, visitedPolicyIds, 0);
 		const conflictStrategies = new Set<string>();
 		if (Is.stringValue(policy.conflict)) {
@@ -350,7 +350,7 @@ export class DefaultPolicyArbiter implements IPolicyArbiter {
 			const nextDepth = currentDepth + 1;
 			if (nextDepth > this._maxInheritanceDepth) {
 				throw new GeneralError(DefaultPolicyArbiter.CLASS_NAME, "maxInheritanceDepthExceeded", {
-					policyId: policy.uid,
+					policyId: OdrlPolicyHelper.getUid(policy) ?? "",
 					inheritFromId,
 					maxInheritanceDepth: this._maxInheritanceDepth
 				});
@@ -359,7 +359,7 @@ export class DefaultPolicyArbiter implements IPolicyArbiter {
 			// Check for circular inheritance
 			if (visitedPolicyIds.includes(inheritFromId)) {
 				throw new GeneralError(DefaultPolicyArbiter.CLASS_NAME, "circularInheritanceDetected", {
-					policyId: policy.uid,
+					policyId: OdrlPolicyHelper.getUid(policy) ?? "",
 					inheritFromId
 				});
 			}
@@ -522,13 +522,10 @@ export class DefaultPolicyArbiter implements IPolicyArbiter {
 
 		// Check if the requested action matches any of the rule's actions
 		for (const ruleAction of ruleActionArray) {
-			const ruleActionId = Is.string(ruleAction)
-				? ruleAction
-				: ((ruleAction as IJsonLdNodeObject).uid ?? (ruleAction as IJsonLdNodeObject)["@id"]);
+			const ruleActionId = Is.string(ruleAction) ? ruleAction : OdrlPolicyHelper.getUid(ruleAction);
 			const requestedActionId = Is.string(requestedAction)
 				? requestedAction
-				: ((requestedAction as IJsonLdNodeObject)?.uid ??
-					(requestedAction as IJsonLdNodeObject)?.["@id"]);
+				: OdrlPolicyHelper.getUid(requestedAction);
 
 			if (Is.stringValue(ruleActionId) && Is.stringValue(requestedActionId)) {
 				if (ruleActionId === requestedActionId) {
@@ -703,7 +700,7 @@ export class DefaultPolicyArbiter implements IPolicyArbiter {
 			return undefined;
 		}
 
-		return Is.string(arr[0]) ? arr[0] : arr[0].uid;
+		return Is.string(arr[0]) ? arr[0] : OdrlPolicyHelper.getUid(arr[0]);
 	}
 
 	/**
@@ -805,18 +802,7 @@ export class DefaultPolicyArbiter implements IPolicyArbiter {
 
 		for (let i = 0; i < constraints.length; i++) {
 			const constraint = constraints[i];
-			let identifier: string | undefined;
-
-			// Try to get identifier from uid property
-			if (Is.stringValue((constraint as IOdrlConstraint).uid)) {
-				identifier = (constraint as IOdrlConstraint).uid;
-			} else {
-				// Try to get identifier from @id property (JSON-LD)
-				const jsonLdId = (constraint as IJsonLdNodeObject)["@id"];
-				if (Is.stringValue(jsonLdId)) {
-					identifier = jsonLdId;
-				}
-			}
+			const identifier = OdrlPolicyHelper.getUid(constraint);
 
 			// If we have an identifier, check for duplicates
 			if (Is.stringValue(identifier)) {

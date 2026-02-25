@@ -1,7 +1,7 @@
 // Copyright 2025 IOTA Stiftung.
 // SPDX-License-Identifier: Apache-2.0.
 import type { ObjectOrArray } from "@twin.org/core";
-import { ArrayHelper, GeneralError, Guards, Is } from "@twin.org/core";
+import { ArrayHelper, GeneralError, Guards, Is, ObjectHelper } from "@twin.org/core";
 import { nameof } from "@twin.org/nameof";
 import type {
 	ActionType,
@@ -22,6 +22,24 @@ export class OdrlPolicyHelper {
 	public static readonly CLASS_NAME: string = nameof<OdrlPolicyHelper>();
 
 	/**
+	 * Get the UID of an ODRL policy or related object if available.
+	 * @param object The ODRL policy or related object to get the UID from.
+	 * @returns The UID of the object if available, otherwise undefined.
+	 */
+	public static getUid(object: object | undefined): string | undefined {
+		return ObjectHelper.extractProperty<string>(object, ["uid", "@id", "id"], false);
+	}
+
+	/**
+	 * Get the type of an ODRL policy or related object if available.
+	 * @param object The ODRL policy or related object to get the type from.
+	 * @returns The type of the object if available, otherwise undefined.
+	 */
+	public static getType(object: object | undefined): string | undefined {
+		return ObjectHelper.extractProperty<string>(object, ["@type", "type"], false);
+	}
+
+	/**
 	 * Extract assignee identity from policy.
 	 * @param policy The policy to extract the assignee from.
 	 * @returns Assignee id.
@@ -30,15 +48,15 @@ export class OdrlPolicyHelper {
 	public static extractAssigneeIdentity(policy: IOdrlPolicy): ObjectOrArray<string> {
 		if (Is.empty(policy.assignee)) {
 			throw new GeneralError(OdrlPolicyHelper.CLASS_NAME, "policyMissingAssignee", {
-				policyType: policy.type,
-				policyId: policy.uid
+				policyType: OdrlPolicyHelper.getType(policy) ?? "",
+				policyId: OdrlPolicyHelper.getUid(policy) ?? ""
 			});
 		}
 
 		const assignees = ArrayHelper.fromObjectOrArray(policy.assignee);
 		const assigneeIds: string[] = [];
 		for (const assignee of assignees) {
-			const assigneeId = Is.string(assignee) ? assignee : assignee.uid;
+			const assigneeId = Is.string(assignee) ? assignee : OdrlPolicyHelper.getUid(assignee);
 			Guards.stringValue(OdrlPolicyHelper.CLASS_NAME, nameof(assigneeId), assigneeId);
 			assigneeIds.push(assigneeId);
 		}
@@ -55,8 +73,8 @@ export class OdrlPolicyHelper {
 	public static extractAssignerIdentity(policy: IOdrlPolicy): ObjectOrArray<string> {
 		if (Is.empty(policy.assigner)) {
 			throw new GeneralError(OdrlPolicyHelper.CLASS_NAME, "policyMissingAssigner", {
-				policyType: policy.type,
-				policyId: policy.uid
+				policyType: OdrlPolicyHelper.getType(policy) ?? "",
+				policyId: OdrlPolicyHelper.getUid(policy) ?? ""
 			});
 		}
 
@@ -64,7 +82,7 @@ export class OdrlPolicyHelper {
 		const assignerIds: string[] = [];
 
 		for (const assigner of assigners) {
-			const assignerId = Is.string(assigner) ? assigner : assigner.uid;
+			const assignerId = Is.string(assigner) ? assigner : OdrlPolicyHelper.getUid(assigner);
 			Guards.stringValue(OdrlPolicyHelper.CLASS_NAME, nameof(assignerId), assignerId);
 			assignerIds.push(assignerId);
 		}
@@ -111,10 +129,9 @@ export class OdrlPolicyHelper {
 		}
 
 		if (Is.object<IOdrlParty>(party)) {
-			if (Is.stringValue(party.uid) && !ids.includes(party.uid)) {
-				ids.push(party.uid);
-			} else if (Is.stringValue(party["@id"]) && !ids.includes(party["@id"])) {
-				ids.push(party["@id"]);
+			const uid = OdrlPolicyHelper.getUid(party);
+			if (Is.stringValue(uid) && !ids.includes(uid)) {
+				ids.push(uid);
 			}
 		}
 
@@ -131,8 +148,9 @@ export class OdrlPolicyHelper {
 		const policyTargets = ArrayHelper.fromObjectOrArray<IOdrlAsset | string>(policy.target ?? []);
 		for (const target of policyTargets) {
 			if (Is.object<IOdrlAsset>(target)) {
-				if (Is.stringValue(target.uid)) {
-					targetIds.push(target.uid);
+				const uid = OdrlPolicyHelper.getUid(target);
+				if (Is.stringValue(uid)) {
+					targetIds.push(uid);
 				}
 			} else if (Is.stringValue(target)) {
 				targetIds.push(target);
@@ -153,8 +171,9 @@ export class OdrlPolicyHelper {
 		);
 		for (const action of policyActions) {
 			if (Is.object<IOdrlAction>(action)) {
-				if (Is.stringValue(action.uid)) {
-					actions.push(action.uid);
+				const uid = OdrlPolicyHelper.getUid(action);
+				if (Is.stringValue(uid)) {
+					actions.push(uid);
 				}
 			} else if (Is.stringValue(action)) {
 				actions.push(action);

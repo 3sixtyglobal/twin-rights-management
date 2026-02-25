@@ -4,7 +4,7 @@ import { ComponentFactory, Guards, ObjectHelper } from "@twin.org/core";
 import type { IJsonLdNodeObject } from "@twin.org/data-json-ld";
 import type { ILoggingComponent } from "@twin.org/logging-models";
 import { nameof } from "@twin.org/nameof";
-import type { IPolicyNegotiator } from "@twin.org/rights-management-models";
+import { OdrlPolicyHelper, type IPolicyNegotiator } from "@twin.org/rights-management-models";
 import {
 	type IOdrlPolicy,
 	PolicyType,
@@ -77,7 +77,7 @@ export class PassThroughPolicyNegotiator implements IPolicyNegotiator {
 			ts: Date.now(),
 			message: "handlingOffer",
 			data: {
-				offerId: offer.uid
+				offerId: OdrlPolicyHelper.getUid(offer) ?? ""
 			}
 		});
 
@@ -107,13 +107,13 @@ export class PassThroughPolicyNegotiator implements IPolicyNegotiator {
 			ts: Date.now(),
 			message: "createAgreement",
 			data: {
-				offerId: offer.uid
+				offerId: OdrlPolicyHelper.getUid(offer) ?? ""
 			}
 		});
 
 		const agreement = ObjectHelper.clone<IOdrlPolicy>(offer);
 
-		agreement.type = PolicyType.Agreement;
+		agreement["@type"] = PolicyType.Agreement;
 		agreement.assignee = assignee;
 
 		return agreement as IOdrlAgreement;

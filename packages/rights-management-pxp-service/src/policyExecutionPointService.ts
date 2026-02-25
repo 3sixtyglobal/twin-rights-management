@@ -6,6 +6,7 @@ import { nameof } from "@twin.org/nameof";
 import {
 	type IPolicyDecision,
 	type IPolicyExecutionPointComponent,
+	OdrlPolicyHelper,
 	PolicyDecisionStage,
 	PolicyExecutionActionFactory
 } from "@twin.org/rights-management-models";
@@ -81,7 +82,7 @@ export class PolicyExecutionPointService implements IPolicyExecutionPointCompone
 			message: "executingActions",
 			data: {
 				stage,
-				policyId: policy.uid
+				policyId: OdrlPolicyHelper.getUid(policy) ?? ""
 			}
 		});
 
@@ -99,7 +100,7 @@ export class PolicyExecutionPointService implements IPolicyExecutionPointCompone
 					message: "executingAction",
 					data: {
 						stage,
-						policyId: policy.uid
+						policyId: OdrlPolicyHelper.getUid(policy) ?? ""
 					}
 				});
 				await executionAction.execute(policy, decisions, data, action, stage);
@@ -112,7 +113,7 @@ export class PolicyExecutionPointService implements IPolicyExecutionPointCompone
 					data: {
 						actionId: executionAction.className(),
 						stage,
-						policyId: policy.uid
+						policyId: OdrlPolicyHelper.getUid(policy) ?? ""
 					},
 					error: BaseError.fromError(error)
 				});
@@ -122,7 +123,7 @@ export class PolicyExecutionPointService implements IPolicyExecutionPointCompone
 					{
 						actionId: executionAction.className(),
 						stage,
-						policyId: policy.uid
+						policyId: OdrlPolicyHelper.getUid(policy) ?? ""
 					},
 					error
 				);

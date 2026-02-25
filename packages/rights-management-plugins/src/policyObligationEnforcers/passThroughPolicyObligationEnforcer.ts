@@ -4,7 +4,10 @@ import { ComponentFactory, Guards } from "@twin.org/core";
 import type { IJsonLdNodeObject } from "@twin.org/data-json-ld";
 import type { ILoggingComponent } from "@twin.org/logging-models";
 import { nameof } from "@twin.org/nameof";
-import type { IPolicyObligationEnforcer } from "@twin.org/rights-management-models";
+import {
+	OdrlPolicyHelper,
+	type IPolicyObligationEnforcer
+} from "@twin.org/rights-management-models";
 import type { ActionType, IOdrlDuty, IOdrlPolicy } from "@twin.org/standards-w3c-odrl";
 import type { IPassThroughPolicyObligationEnforcerConstructorOptions } from "../models/IPassThroughPolicyObligationEnforcerConstructorOptions.js";
 
@@ -70,7 +73,7 @@ export class PassThroughPolicyObligationEnforcer implements IPolicyObligationEnf
 			ts: Date.now(),
 			message: "enforcingDuty",
 			data: {
-				policyId: policy.uid
+				policyId: OdrlPolicyHelper.getUid(policy) ?? ""
 			}
 		});
 

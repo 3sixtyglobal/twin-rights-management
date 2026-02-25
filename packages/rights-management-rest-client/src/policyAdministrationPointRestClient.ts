@@ -9,21 +9,22 @@ import {
 import { Coerce, Guards } from "@twin.org/core";
 import type { EntityCondition } from "@twin.org/entity";
 import { nameof } from "@twin.org/nameof";
-import type {
-	IPapCreateRequest,
-	IPapQueryRequest,
-	IPapQueryResponse,
-	IPapRemoveRequest,
-	IPapGetRequest,
-	IPapGetResponse,
-	IPapUpdateRequest,
-	IPolicyAdministrationPointComponent,
-	IPapGetAgreementRequest,
-	IPapGetAgreementResponse,
-	IPapGetSetRequest,
-	IPapGetSetResponse,
-	IPapGetOfferRequest,
-	IPapGetOfferResponse
+import {
+	type IPapCreateRequest,
+	type IPapQueryRequest,
+	type IPapQueryResponse,
+	type IPapRemoveRequest,
+	type IPapGetRequest,
+	type IPapGetResponse,
+	type IPapUpdateRequest,
+	type IPolicyAdministrationPointComponent,
+	type IPapGetAgreementRequest,
+	type IPapGetAgreementResponse,
+	type IPapGetSetRequest,
+	type IPapGetSetResponse,
+	type IPapGetOfferRequest,
+	type IPapGetOfferResponse,
+	OdrlPolicyHelper
 } from "@twin.org/rights-management-models";
 import type {
 	IOdrlAgreement,
@@ -87,15 +88,13 @@ export class PolicyAdministrationPointRestClient
 	 */
 	public async update(policy: IOdrlPolicy): Promise<void> {
 		Guards.object(PolicyAdministrationPointRestClient.CLASS_NAME, nameof(policy), policy);
-		Guards.stringValue(
-			PolicyAdministrationPointRestClient.CLASS_NAME,
-			nameof(policy.uid),
-			policy.uid
-		);
+
+		const policyId = OdrlPolicyHelper.getUid(policy);
+		Guards.stringValue(PolicyAdministrationPointRestClient.CLASS_NAME, nameof(policyId), policyId);
 
 		await this.fetch<IPapUpdateRequest, never>("/policy/admin/:id", "PUT", {
 			pathParams: {
-				id: policy.uid
+				id: policyId
 			},
 			body: policy
 		});

@@ -16,6 +16,7 @@ import {
 import type { ILoggingComponent } from "@twin.org/logging-models";
 import { nameof } from "@twin.org/nameof";
 import {
+	OdrlPolicyHelper,
 	PolicyInformationAccessMode,
 	PolicyNegotiatorFactory,
 	PolicyRequesterFactory,
@@ -320,16 +321,13 @@ export class PolicyNegotiationPointService implements IPolicyNegotiationPointCom
 			nameof(message.consumerPid),
 			message.consumerPid
 		);
-		Guards.object<IOdrlOffer["offer"]>(
+		Guards.object<IOdrlOffer>(
 			PolicyNegotiationPointService.CLASS_NAME,
 			nameof(message.offer),
 			message.offer
 		);
-		Guards.stringValue(
-			PolicyNegotiationPointService.CLASS_NAME,
-			nameof(message.offer.uid),
-			message.offer.uid
-		);
+		const offerUid = OdrlPolicyHelper.getUid(message.offer);
+		Guards.stringValue(PolicyNegotiationPointService.CLASS_NAME, nameof(offerUid), offerUid);
 		Url.guard(
 			PolicyNegotiationPointService.CLASS_NAME,
 			nameof(message.callbackAddress),
@@ -355,7 +353,7 @@ export class PolicyNegotiationPointService implements IPolicyNegotiationPointCom
 
 			try {
 				providerOffer = (await this._policyAdministrationPointComponent.get(
-					message.offer.uid
+					offerUid
 				)) as IOdrlOffer;
 			} catch {}
 
@@ -367,7 +365,7 @@ export class PolicyNegotiationPointService implements IPolicyNegotiationPointCom
 					message.consumerPid,
 					undefined,
 					new GeneralError(PolicyNegotiationPointService.CLASS_NAME, "noOfferFound", {
-						offerId: message.offer.uid
+						offerId: offerUid
 					})
 				);
 				return err;
@@ -385,7 +383,7 @@ export class PolicyNegotiationPointService implements IPolicyNegotiationPointCom
 					message.consumerPid,
 					undefined,
 					new GeneralError(PolicyNegotiationPointService.CLASS_NAME, "noNegotiatorFound", {
-						offerId: message.offer.uid
+						offerId: offerUid
 					})
 				);
 				return err;
@@ -481,7 +479,7 @@ export class PolicyNegotiationPointService implements IPolicyNegotiationPointCom
 				message.consumerPid,
 				policyNegotiation,
 				new GeneralError(PolicyNegotiationPointService.CLASS_NAME, "negotiationFailed", {
-					offerId: providerOffer.uid
+					offerId: OdrlPolicyHelper.getUid(providerOffer) ?? ""
 				})
 			);
 			return err;
@@ -605,7 +603,7 @@ export class PolicyNegotiationPointService implements IPolicyNegotiationPointCom
 						consumerPid,
 						policyNegotiation,
 						new GeneralError(PolicyNegotiationPointService.CLASS_NAME, "offerNotAccepted", {
-							offerId: message.offer.uid
+							offerId: OdrlPolicyHelper.getUid(message.offer) ?? ""
 						})
 					);
 					return err;
@@ -751,7 +749,7 @@ export class PolicyNegotiationPointService implements IPolicyNegotiationPointCom
 						message.consumerPid,
 						policyNegotiation,
 						new GeneralError(PolicyNegotiationPointService.CLASS_NAME, "agreementNotAccepted", {
-							agreementId: message.agreement.uid
+							agreementId: OdrlPolicyHelper.getUid(message.agreement) ?? ""
 						})
 					);
 					return err;
@@ -1145,7 +1143,7 @@ export class PolicyNegotiationPointService implements IPolicyNegotiationPointCom
 		error: unknown
 	): Promise<IDataspaceProtocolContractNegotiationError> {
 		const err = BaseError.fromError(error);
-		const translated = ErrorHelper.formatErrors(error);
+		const translated = ErrorHelper.formatErrors(error, true);
 
 		const errMessage: IDataspaceProtocolContractNegotiationError = {
 			"@context": [DataspaceProtocolContexts.Context],
@@ -1386,7 +1384,7 @@ export class PolicyNegotiationPointService implements IPolicyNegotiationPointCom
 					policyNegotiation.correlationId,
 					policyNegotiation,
 					new GeneralError(PolicyNegotiationPointService.CLASS_NAME, "noNegotiatorFound", {
-						offerId: offer.uid
+						offerId: OdrlPolicyHelper.getUid(offer) ?? ""
 					})
 				);
 			} else {
@@ -1404,7 +1402,7 @@ export class PolicyNegotiationPointService implements IPolicyNegotiationPointCom
 						policyNegotiation.correlationId,
 						policyNegotiation,
 						new GeneralError(PolicyNegotiationPointService.CLASS_NAME, "noAgreementCreated", {
-							offerId: offer.uid
+							offerId: OdrlPolicyHelper.getUid(offer) ?? ""
 						})
 					);
 				} else {

@@ -12,6 +12,7 @@ import { LoggingConnectorFactory } from "@twin.org/logging-models";
 import { LoggingService } from "@twin.org/logging-service";
 import { nameof } from "@twin.org/nameof";
 import {
+	OdrlPolicyHelper,
 	PolicyDecision,
 	PolicyDecisionStage,
 	PolicyExecutionActionFactory
@@ -22,7 +23,7 @@ import { PolicyExecutionPointService } from "../src/policyExecutionPointService.
 function createPolicy(options?: {
 	uid?: string;
 	action?: string;
-	assetType?: string;
+	target?: string;
 	assignee?: string;
 }): IOdrlPolicy {
 	return {
@@ -30,7 +31,7 @@ function createPolicy(options?: {
 		"@type": PolicyType.Set,
 		uid: options?.uid ?? "policy123",
 		action: options?.action ?? "action",
-		assetType: options?.assetType ?? "assetType",
+		target: options?.target ?? "target",
 		assignee: options?.assignee ?? "assignee"
 	};
 }
@@ -81,7 +82,7 @@ class MockPolicyExecutionAction {
 					source: "",
 					message: "policyActionExecutedBefore",
 					data: {
-						policyId: policy.uid,
+						policyId: OdrlPolicyHelper.getUid(policy) ?? "",
 						stage,
 						data: data === null ? undefined : "{...}",
 						decisions: decisions?.length ? decisions : "[...]"
@@ -95,7 +96,7 @@ class MockPolicyExecutionAction {
 					source: "",
 					message: "policyActionExecutedAfter",
 					data: {
-						policyId: policy.uid,
+						policyId: OdrlPolicyHelper.getUid(policy) ?? "",
 						stage,
 						data: data === null ? undefined : "{...}",
 						decisions: decisions?.length ? decisions : "[...]"
@@ -424,7 +425,7 @@ describe("PolicyExecutionPointService", () => {
 
 		PolicyExecutionActionFactory.register("loggingAction", () => mockLoggingAction);
 		await policyExecutionPoint.executeActions(
-			createPolicy({ action: "delete", assetType: "video", assignee: "mainNode" }),
+			createPolicy({ action: "delete", target: "video", assignee: "mainNode" }),
 			[],
 			{},
 			undefined,

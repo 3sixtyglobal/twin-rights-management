@@ -29,7 +29,7 @@ let odrlPolicyMemoryEntityStorage: MemoryEntityStorageConnector<OdrlPolicy>;
 function createPolicy(options?: {
 	uid?: string;
 	action?: string;
-	assetType?: string;
+	target?: string;
 	assignee?: string;
 }): IOdrlAgreement {
 	return {
@@ -38,7 +38,7 @@ function createPolicy(options?: {
 		assigner: "assigner",
 		uid: options?.uid ?? "policy123",
 		action: options?.action ?? "action",
-		assetType: options?.assetType ?? "assetType",
+		target: options?.target ?? "target",
 		assignee: options?.assignee ?? "assignee"
 	};
 }
@@ -79,7 +79,7 @@ describe("PolicyDecisionPointService", () => {
 
 	test("evaluate returns empty array if no arbiters registered", async () => {
 		const pdp = new PolicyDecisionPointService();
-		const policy = createPolicy({ assetType: "asset:1234", action: "read", assignee: "node1" });
+		const policy = createPolicy({ target: "asset:1234", action: "read", assignee: "node1" });
 		await expect(pdp.evaluate(policy)).rejects.toThrow("noArbiters");
 	});
 
@@ -91,7 +91,7 @@ describe("PolicyDecisionPointService", () => {
 			decide: async () => [{ decision: PolicyDecision.Granted, target: "asset:1234" }]
 		};
 		PolicyArbiterFactory.register("arbiter1", () => mockArbiter);
-		const policy = createPolicy({ assetType: "asset:1234", action: "read", assignee: "node1" });
+		const policy = createPolicy({ target: "asset:1234", action: "read", assignee: "node1" });
 		const result = await pdp.evaluate(policy);
 		expect(result).toHaveLength(1);
 		expect(result[0].decision).toBe(PolicyDecision.Granted);
@@ -108,7 +108,7 @@ describe("PolicyDecisionPointService", () => {
 			}
 		};
 		PolicyArbiterFactory.register("arbiter1", () => mockArbiter);
-		const policy = createPolicy({ assetType: "asset:1234", action: "read", assignee: "node1" });
+		const policy = createPolicy({ target: "asset:1234", action: "read", assignee: "node1" });
 		await expect(pdp.evaluate(policy)).rejects.toThrow("decidingFailed");
 	});
 });

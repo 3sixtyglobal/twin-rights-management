@@ -20,16 +20,17 @@ import {
 import type { ILoggingComponent } from "@twin.org/logging-models";
 import { nameof } from "@twin.org/nameof";
 import {
+	OdrlPolicyHelper,
 	RightsManagementNamespaces,
 	type IPolicyAdministrationPointComponent
 } from "@twin.org/rights-management-models";
 import {
-	type IOdrlAgreement,
-	type IOdrlOffer,
-	type IOdrlSet,
 	OdrlDataTypes,
 	PolicyType,
-	type IOdrlPolicy
+	type IOdrlAgreement,
+	type IOdrlOffer,
+	type IOdrlPolicy,
+	type IOdrlSet
 } from "@twin.org/standards-w3c-odrl";
 import type { OdrlPolicy } from "./entities/odrlPolicy.js";
 import type { IPolicyAdministrationPointServiceConstructorOptions } from "./models/IPolicyAdministrationPointServiceConstructorOptions.js";
@@ -91,19 +92,20 @@ export class PolicyAdministrationPointService implements IPolicyAdministrationPo
 
 		// We allow the caller to provide a uid, but if they don't we generate one for them.
 		// if they provide one, we still validate it is a proper URN with the correct namespace.
-		if (Is.string(policy.uid)) {
-			Urn.guard(PolicyAdministrationPointService.CLASS_NAME, nameof(policy.uid), policy.uid);
-			const urnParsed = Urn.fromValidString(policy.uid);
+		const policyUid = OdrlPolicyHelper.getUid(policy);
+		if (Is.string(policyUid)) {
+			Urn.guard(PolicyAdministrationPointService.CLASS_NAME, nameof(policyUid), policyUid);
+			const urnParsed = Urn.fromValidString(policyUid);
 
 			if (urnParsed.namespaceIdentifier() !== RightsManagementNamespaces.Policy) {
 				throw new GeneralError(PolicyAdministrationPointService.CLASS_NAME, "namespaceMismatch", {
 					namespace: RightsManagementNamespaces.Policy,
-					id: policy.uid
+					id: policyUid
 				});
 			}
 		}
 
-		const uid = policy.uid ?? Urn.generateRandom(RightsManagementNamespaces.Policy).toString(false);
+		const uid = policyUid ?? Urn.generateRandom(RightsManagementNamespaces.Policy).toString(false);
 
 		const completePolicy: IOdrlPolicy = {
 			...policy,
@@ -131,15 +133,16 @@ export class PolicyAdministrationPointService implements IPolicyAdministrationPo
 	 */
 	public async update(policy: IOdrlPolicy): Promise<void> {
 		Guards.object(PolicyAdministrationPointService.CLASS_NAME, nameof(policy), policy);
-		Guards.stringValue(PolicyAdministrationPointService.CLASS_NAME, nameof(policy.uid), policy.uid);
 
-		const policyId = policy.uid;
-		const existingStoragePolicy = await this._odrlPolicyEntityStorage.get(policyId);
+		const policyUid = OdrlPolicyHelper.getUid(policy);
+		Guards.stringValue(PolicyAdministrationPointService.CLASS_NAME, nameof(policyUid), policyUid);
+
+		const existingStoragePolicy = await this._odrlPolicyEntityStorage.get(policyUid);
 		if (!existingStoragePolicy) {
 			throw new NotFoundError(
 				PolicyAdministrationPointService.CLASS_NAME,
 				"policyNotFound",
-				policyId
+				policyUid
 			);
 		}
 
@@ -151,7 +154,10 @@ export class PolicyAdministrationPointService implements IPolicyAdministrationPo
 			validationFailures
 		);
 
-		const storagePolicy = convertToStoragePolicy(policy);
+		const storagePolicy = convertToStoragePolicy({
+			...policy,
+			uid: policyUid
+		});
 		await this._odrlPolicyEntityStorage.set(storagePolicy);
 	}
 

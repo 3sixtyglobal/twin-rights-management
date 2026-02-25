@@ -6,7 +6,7 @@ import { ArrayHelper, Is, ObjectHelper } from "@twin.org/core";
 import type { EntityCondition } from "@twin.org/entity";
 import type { MemoryEntityStorageConnector } from "@twin.org/entity-storage-connector-memory";
 import { EntityStorageConnectorFactory } from "@twin.org/entity-storage-models";
-import { OdrlContexts, type IOdrlPolicy } from "@twin.org/standards-w3c-odrl";
+import { OdrlContexts, PolicyType, type IOdrlPolicy } from "@twin.org/standards-w3c-odrl";
 import {
 	createTestPolicies,
 	SAMPLE_POLICY,
@@ -217,7 +217,7 @@ describe("PolicyAdministrationPointService", () => {
 	test("should successfully validate and create a valid ODRL policy", async () => {
 		const validPolicy = {
 			"@context": OdrlContexts.Context,
-			"@type": "Set",
+			"@type": PolicyType.Set,
 			permission: [
 				{
 					target: "http://example.com/asset/123",
@@ -239,7 +239,7 @@ describe("PolicyAdministrationPointService", () => {
 		// Create a policy with all required fields but invalid ODRL structure
 		const invalidOdrlPolicy = {
 			"@context": OdrlContexts.Context,
-			"@type": "InvalidPolicyType",
+			"@type": "InvalidPolicyType" as PolicyType,
 			permission: [
 				{
 					target: "http://example.com/asset/123",
@@ -255,7 +255,7 @@ describe("PolicyAdministrationPointService", () => {
 	test("should auto-generate UID when not provided", async () => {
 		const policyWithoutUid = {
 			"@context": OdrlContexts.Context,
-			"@type": "Set",
+			"@type": PolicyType.Set,
 			permission: [
 				{
 					target: "http://example.com/asset/123",
@@ -358,9 +358,9 @@ describe("PolicyAdministrationPointService", () => {
 
 	test("should replace policy entirely in update", async () => {
 		// Create initial policy with complex structure
-		const initialPolicy = {
+		const initialPolicy: Omit<IOdrlPolicy, "uid"> = {
 			"@context": OdrlContexts.Context,
-			"@type": "Set",
+			"@type": PolicyType.Set,
 			assigner: {
 				uid: "http://example.com/party/1",
 				"@type": "Party"
@@ -385,7 +385,7 @@ describe("PolicyAdministrationPointService", () => {
 
 		const replacementPolicy: IOdrlPolicy = {
 			"@context": OdrlContexts.Context,
-			"@type": "Set",
+			"@type": PolicyType.Set,
 			uid: policyId,
 			assigner: {
 				uid: "http://example.com/party/1",
@@ -422,7 +422,7 @@ describe("PolicyAdministrationPointService", () => {
 	test("should replace arrays entirely in update", async () => {
 		const initialPolicy = {
 			"@context": OdrlContexts.Context,
-			"@type": "Set",
+			"@type": PolicyType.Set,
 			permission: [
 				{
 					target: "http://example.com/asset/1",

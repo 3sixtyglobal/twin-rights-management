@@ -4,6 +4,7 @@ import { BaseError, ComponentFactory, GeneralError, Guards } from "@twin.org/cor
 import type { ILoggingComponent } from "@twin.org/logging-models";
 import { nameof } from "@twin.org/nameof";
 import {
+	OdrlPolicyHelper,
 	PolicyArbiterFactory,
 	PolicyDecisionStage,
 	PolicyInformationAccessMode,
@@ -134,14 +135,14 @@ export class PolicyDecisionPointService implements IPolicyDecisionPointComponent
 					message: "decidingFailed",
 					data: {
 						arbiterId: arbiter.className(),
-						policyId: agreement.uid
+						policyId: OdrlPolicyHelper.getUid(agreement) ?? ""
 					},
 					error: BaseError.fromError(error)
 				});
 				throw new GeneralError(
 					PolicyDecisionPointService.CLASS_NAME,
 					"decidingFailed",
-					{ arbiterId: arbiter.className(), policyId: agreement.uid },
+					{ arbiterId: arbiter.className(), policyId: OdrlPolicyHelper.getUid(agreement) ?? "" },
 					error
 				);
 			}

@@ -5,6 +5,7 @@ import type { IJsonLdNodeObject } from "@twin.org/data-json-ld";
 import type { ILoggingComponent } from "@twin.org/logging-models";
 import { nameof } from "@twin.org/nameof";
 import {
+	OdrlPolicyHelper,
 	PolicyDecision,
 	type IPolicyArbiter,
 	type IPolicyDecision
@@ -71,7 +72,7 @@ export class PassThroughPolicyArbiter implements IPolicyArbiter {
 			ts: Date.now(),
 			message: "decidingPolicy",
 			data: {
-				policyId: agreement.uid
+				policyId: OdrlPolicyHelper.getUid(agreement) ?? ""
 			}
 		});
 

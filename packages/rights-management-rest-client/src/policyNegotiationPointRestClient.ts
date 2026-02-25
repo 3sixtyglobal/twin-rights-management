@@ -4,17 +4,18 @@ import { BaseRestClient } from "@twin.org/api-core";
 import type { IBaseRestClientConfig } from "@twin.org/api-models";
 import { Guards, Is, NotSupportedError, Url } from "@twin.org/core";
 import { nameof } from "@twin.org/nameof";
-import type {
-	IPnpAgreementRequest,
-	IPnpAgreementVerificationRequest,
-	IPnpContractNegotiationResponse,
-	IPnpContractResponse,
-	IPnpEventRequest,
-	IPnpNegotiateRequest,
-	IPnpNegotiationGetRequest,
-	IPnpOfferRequest,
-	IPnpTerminateRequest,
-	IPolicyNegotiationPointComponent
+import {
+	OdrlPolicyHelper,
+	type IPnpAgreementRequest,
+	type IPnpAgreementVerificationRequest,
+	type IPnpContractNegotiationResponse,
+	type IPnpContractResponse,
+	type IPnpEventRequest,
+	type IPnpNegotiateRequest,
+	type IPnpNegotiationGetRequest,
+	type IPnpOfferRequest,
+	type IPnpTerminateRequest,
+	type IPolicyNegotiationPointComponent
 } from "@twin.org/rights-management-models";
 import type {
 	IDataspaceProtocolContractAgreementMessage,
@@ -132,16 +133,13 @@ export class PolicyNegotiationPointRestClient
 			nameof(message.consumerPid),
 			message.consumerPid
 		);
-		Guards.object<IOdrlOffer["offer"]>(
+		Guards.object<IOdrlOffer>(
 			PolicyNegotiationPointRestClient.CLASS_NAME,
 			nameof(message.offer),
 			message.offer
 		);
-		Guards.stringValue(
-			PolicyNegotiationPointRestClient.CLASS_NAME,
-			nameof(message.offer.uid),
-			message.offer.uid
-		);
+		const offerId = OdrlPolicyHelper.getUid(message.offer);
+		Guards.stringValue(PolicyNegotiationPointRestClient.CLASS_NAME, nameof(offerId), offerId);
 		Url.guard(
 			PolicyNegotiationPointRestClient.CLASS_NAME,
 			nameof(message.callbackAddress),

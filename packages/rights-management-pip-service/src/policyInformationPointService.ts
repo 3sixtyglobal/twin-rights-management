@@ -6,6 +6,7 @@ import type { ILoggingComponent } from "@twin.org/logging-models";
 import { nameof } from "@twin.org/nameof";
 import {
 	type IPolicyInformationPointComponent,
+	OdrlPolicyHelper,
 	PolicyInformationAccessMode,
 	PolicyInformationSourceFactory
 } from "@twin.org/rights-management-models";
@@ -87,7 +88,7 @@ export class PolicyInformationPointService implements IPolicyInformationPointCom
 						message: "sourceRetrieveFailed",
 						data: {
 							sourceId: source.className(),
-							policyId: policy?.uid ?? ""
+							policyId: OdrlPolicyHelper.getUid(policy) ?? ""
 						},
 						error: BaseError.fromError(error)
 					});
