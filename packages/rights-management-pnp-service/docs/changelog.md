@@ -1,5 +1,22 @@
 # Changelog
 
+## [0.0.3-next.16](https://github.com/twinfoundation/rights-management/compare/rights-management-pnp-service-v0.0.3-next.15...rights-management-pnp-service-v0.0.3-next.16) (2026-02-24)
+
+
+### Features
+
+* pass negotiationId instead of requesterType to IPolicyRequester callbacks ([#80](https://github.com/twinfoundation/rights-management/issues/80)) ([1dbaa42](https://github.com/twinfoundation/rights-management/commit/1dbaa422b2d419829ca0d307a4072bab6d69c2fe))
+
+
+### Dependencies
+
+* The following workspace dependencies were updated
+  * dependencies
+    * @twin.org/rights-management-models bumped from 0.0.3-next.15 to 0.0.3-next.16
+  * devDependencies
+    * @twin.org/rights-management-pap-service bumped from 0.0.3-next.15 to 0.0.3-next.16
+    * @twin.org/rights-management-pip-service bumped from 0.0.3-next.15 to 0.0.3-next.16
+
 ## [0.0.3-next.15](https://github.com/twinfoundation/rights-management/compare/rights-management-pnp-service-v0.0.3-next.14...rights-management-pnp-service-v0.0.3-next.15) (2026-02-12)
 
 

@@ -1,5 +1,19 @@
 # Changelog
 
+## [0.0.3-next.16](https://github.com/twinfoundation/rights-management/compare/rights-management-pip-service-v0.0.3-next.15...rights-management-pip-service-v0.0.3-next.16) (2026-02-24)
+
+
+### Miscellaneous Chores
+
+* **rights-management-pip-service:** Synchronize repo versions
+
+
+### Dependencies
+
+* The following workspace dependencies were updated
+  * dependencies
+    * @twin.org/rights-management-models bumped from 0.0.3-next.15 to 0.0.3-next.16
+
 ## [0.0.3-next.15](https://github.com/twinfoundation/rights-management/compare/rights-management-pip-service-v0.0.3-next.14...rights-management-pip-service-v0.0.3-next.15) (2026-02-12)
 
 
