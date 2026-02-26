@@ -28,10 +28,10 @@ import {
 	type IPolicyNegotiationPointComponent
 } from "@twin.org/rights-management-models";
 import {
+	DataspaceProtocolContexts,
 	DataspaceProtocolContractNegotiationEventType,
 	DataspaceProtocolContractNegotiationStateType,
 	DataspaceProtocolContractNegotiationTypes,
-	DataspaceProtocolContexts,
 	type IDataspaceProtocolContractAgreementMessage,
 	type IDataspaceProtocolContractAgreementVerificationMessage,
 	type IDataspaceProtocolContractNegotiation,
@@ -1162,6 +1162,50 @@ export class PolicyNegotiationPointService implements IPolicyNegotiationPointCom
 				BaseError.fromError(error)
 			);
 		}
+	}
+
+	/**
+	 * Send a terminate message to a consumer at the given callback address.
+	 * Used by stall cleanup to notify consumers that their negotiation has been terminated.
+	 * @param callbackAddress The consumer callback URL to send the termination to.
+	 * @param providerPid The provider negotiation id.
+	 * @param consumerPid The consumer negotiation id.
+	 */
+	public async sendTerminateToConsumer(
+		callbackAddress: string,
+		providerPid: string,
+		consumerPid: string
+	): Promise<void> {
+		Guards.stringValue(
+			PolicyNegotiationPointService.CLASS_NAME,
+			nameof(callbackAddress),
+			callbackAddress
+		);
+		Url.guard(PolicyNegotiationPointService.CLASS_NAME, nameof(callbackAddress), callbackAddress);
+		Guards.stringValue(PolicyNegotiationPointService.CLASS_NAME, nameof(providerPid), providerPid);
+		Guards.stringValue(PolicyNegotiationPointService.CLASS_NAME, nameof(consumerPid), consumerPid);
+
+		const terminationMessage: IDataspaceProtocolContractNegotiationTerminationMessage = {
+			"@context": [DataspaceProtocolContexts.Context],
+			"@type": DataspaceProtocolContractNegotiationTypes.ContractNegotiationTerminationMessage,
+			providerPid,
+			consumerPid
+		};
+
+		const contextIds = await ContextIdStore.getContextIds();
+		ContextIdHelper.guard(contextIds, ContextIdKeys.Organization);
+
+		const trustPayload = await this._trustComponent.generate(
+			contextIds[ContextIdKeys.Organization],
+			this._overrideTrustGeneratorType
+		);
+
+		const negotiationComponent = ComponentFactory.create<IPolicyNegotiationPointComponent>(
+			this._policyNegotiationPointRemoteComponentType,
+			{ endpoint: callbackAddress }
+		);
+
+		await negotiationComponent.terminate(terminationMessage, "consumer", trustPayload);
 	}
 
 	/**

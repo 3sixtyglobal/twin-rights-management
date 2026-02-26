@@ -124,4 +124,18 @@ export interface IPolicyNegotiationPointComponent extends IComponent {
 		destination: "provider" | "consumer",
 		trustPayload: unknown
 	): Promise<IDataspaceProtocolContractNegotiationError | undefined>;
+
+	/**
+	 * Send a terminate message to a consumer at the given callback address.
+	 * Used by stall cleanup to notify consumers that their negotiation has been terminated.
+	 * @param callbackAddress The consumer callback URL to send the termination to.
+	 * @param providerPid The provider negotiation id.
+	 * @param consumerPid The consumer negotiation id.
+	 * @returns Resolves when the terminate message has been sent.
+	 */
+	sendTerminateToConsumer(
+		callbackAddress: string,
+		providerPid: string,
+		consumerPid: string
+	): Promise<void>;
 }

@@ -16,5 +16,10 @@
 		"policyNegotiationAdminPointService": {
 			"policyNotFound": "Policy with id: \"{notFoundId}\" not found"
 		}
+	},
+	"warn": {
+		"policyNegotiationAdminPointService": {
+			"sendTerminateFailed": "Failed to send terminate to consumer for negotiation id: \"{id}\", correlation id: \"{correlationId}\""
+		}
 	}
 }

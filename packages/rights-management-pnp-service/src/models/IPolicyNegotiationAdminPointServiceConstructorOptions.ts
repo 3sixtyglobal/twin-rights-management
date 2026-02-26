@@ -36,6 +36,13 @@ export interface IPolicyNegotiationAdminPointServiceConstructorOptions {
 	partitionContextIds?: string[];
 
 	/**
+	 * If set, stall cleanup will use this component to send terminate to consumer callbacks.
+	 * If not set, stall cleanup will only mark negotiations as TERMINATED locally (no outbound notification).
+	 * @default undefined
+	 */
+	policyNegotiationPointComponentType?: string;
+
+	/**
 	 * Configuration options for the policy negotiation point service.
 	 */
 	config?: IPolicyNegotiationAdminPointServiceConfig;

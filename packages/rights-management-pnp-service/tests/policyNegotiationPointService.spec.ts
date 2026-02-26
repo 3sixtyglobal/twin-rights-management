@@ -95,7 +95,9 @@ function createRemoteComponent(
 		event: async (message, destination, _publicOrigin, trustPayload) =>
 			target.event(message, destination, targetOrigin, trustPayload),
 		terminate: async (message, destination, trustPayload) =>
-			target.terminate(message, destination, trustPayload)
+			target.terminate(message, destination, trustPayload),
+		sendTerminateToConsumer: async (callbackAddress, providerPid, consumerPid) =>
+			target.sendTerminateToConsumer(callbackAddress, providerPid, consumerPid)
 	};
 }
 

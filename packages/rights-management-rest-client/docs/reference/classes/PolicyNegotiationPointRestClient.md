@@ -333,3 +333,40 @@ The error if there is one.
 #### Implementation of
 
 `IPolicyNegotiationPointComponent.terminate`
+
+***
+
+### sendTerminateToConsumer()
+
+> **sendTerminateToConsumer**(`callbackAddress`, `providerPid`, `consumerPid`): `Promise`\<`void`\>
+
+Send a terminate message to a consumer at the given callback address.
+Not supported on the REST client; use the policy negotiation point service when stall cleanup needs to notify consumers.
+
+#### Parameters
+
+##### callbackAddress
+
+`string`
+
+The consumer callback URL to send the termination to.
+
+##### providerPid
+
+`string`
+
+The provider negotiation id.
+
+##### consumerPid
+
+`string`
+
+The consumer negotiation id.
+
+#### Returns
+
+`Promise`\<`void`\>
+
+#### Implementation of
+
+`IPolicyNegotiationPointComponent.sendTerminateToConsumer`

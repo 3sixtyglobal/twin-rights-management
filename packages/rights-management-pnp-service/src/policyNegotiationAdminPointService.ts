@@ -2,7 +2,7 @@
 // SPDX-License-Identifier: Apache-2.0.
 import type { ITaskSchedulerComponent } from "@twin.org/background-task-models";
 import { ContextIdKeys, ContextIdStore } from "@twin.org/context";
-import { ComponentFactory, Guards, Is, NotFoundError } from "@twin.org/core";
+import { BaseError, ComponentFactory, Guards, Is, NotFoundError } from "@twin.org/core";
 import { ComparisonOperator, LogicalOperator, SortDirection } from "@twin.org/entity";
 import {
 	EntityStorageConnectorFactory,
@@ -12,7 +12,8 @@ import type { ILoggingComponent } from "@twin.org/logging-models";
 import { nameof } from "@twin.org/nameof";
 import type {
 	IPolicyNegotiation,
-	IPolicyNegotiationAdminPointComponent
+	IPolicyNegotiationAdminPointComponent,
+	IPolicyNegotiationPointComponent
 } from "@twin.org/rights-management-models";
 import { DataspaceProtocolContractNegotiationStateType } from "@twin.org/standards-dataspace-protocol";
 import type { PolicyNegotiation } from "./entities/policyNegotiation.js";
@@ -70,6 +71,12 @@ export class PolicyNegotiationAdminPointService implements IPolicyNegotiationAdm
 	private readonly _partitionContextIds?: string[];
 
 	/**
+	 * Optional PNP component type for sending terminate to consumer callbacks during expired cleanup.
+	 * @internal
+	 */
+	private readonly _policyNegotiationPointComponentType?: string;
+
+	/**
 	 * Create a new instance of PolicyNegotiationPointService (PNP).
 	 * @param options The options for the component.
 	 */
@@ -90,6 +97,7 @@ export class PolicyNegotiationAdminPointService implements IPolicyNegotiationAdm
 			1000;
 		this._activeTenants = [];
 		this._partitionContextIds = options?.partitionContextIds;
+		this._policyNegotiationPointComponentType = options?.policyNegotiationPointComponentType;
 	}
 
 	/**
@@ -115,7 +123,7 @@ export class PolicyNegotiationAdminPointService implements IPolicyNegotiationAdm
 				}
 			],
 			async () => {
-				// Clean up old negotiation states
+				// Clean up old negotiation states (expired); sends terminate to consumer when configured
 				await this.cleanupOldStates();
 			}
 		);
@@ -264,14 +272,18 @@ export class PolicyNegotiationAdminPointService implements IPolicyNegotiationAdm
 
 	/**
 	 * Cleans up old negotiation states for a specific partition (tenant).
-	 * @param now The current timestamp.
-	 * @param cursor The pagination cursor.
-	 * @returns Nothing.
+	 * Sends terminate to consumer callbacks when PNP component is configured, then removes.
 	 * @internal
 	 */
 	private async cleanupOldStatesPartition(): Promise<void> {
 		let cursor: string | undefined;
 		const now = Date.now();
+
+		const pnpComponent = Is.stringValue(this._policyNegotiationPointComponentType)
+			? ComponentFactory.getIfExists<IPolicyNegotiationPointComponent>(
+					this._policyNegotiationPointComponentType
+				)
+			: undefined;
 
 		do {
 			const result = await this._policyNegotiationEntityStorage.query({
@@ -290,8 +302,33 @@ export class PolicyNegotiationAdminPointService implements IPolicyNegotiationAdm
 				logicalOperator: LogicalOperator.And
 			});
 			if (Is.arrayValue(result.entities)) {
-				for (const item of result.entities) {
+				for (const item of result.entities as PolicyNegotiation[]) {
 					if (Is.stringValue(item.id)) {
+						if (
+							pnpComponent !== undefined &&
+							pnpComponent !== null &&
+							Is.stringValue(item.callbackAddress)
+						) {
+							try {
+								await pnpComponent.sendTerminateToConsumer(
+									item.callbackAddress,
+									item.id,
+									item.correlationId
+								);
+							} catch (error) {
+								await this._logging?.log({
+									level: "warn",
+									source: PolicyNegotiationAdminPointService.CLASS_NAME,
+									ts: Date.now(),
+									message: "sendTerminateFailed",
+									data: {
+										id: item.id,
+										correlationId: item.correlationId
+									},
+									error: BaseError.fromError(error)
+								});
+							}
+						}
 						await this._policyNegotiationEntityStorage.remove(item.id);
 					}
 				}

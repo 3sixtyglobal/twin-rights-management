@@ -23,6 +23,7 @@
 		"autorelease",
 		"bech",
 		"cryptosuite",
+		"cutoff",
 		"DARP",
 		"Dataspace",
 		"eddsa",

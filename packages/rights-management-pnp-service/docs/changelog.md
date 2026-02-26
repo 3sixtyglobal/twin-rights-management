@@ -1,21 +1,10 @@
 # Changelog
 
-## [0.0.3-next.18](https://github.com/twinfoundation/rights-management/compare/rights-management-pnp-service-v0.0.3-next.17...rights-management-pnp-service-v0.0.3-next.18) (2026-02-26)
-
+## [Unreleased]
 
 ### Features
 
-* add includeErrorDetails config ([4e5cb52](https://github.com/twinfoundation/rights-management/commit/4e5cb52b6fa5a5915e36053cfc48bec763070e29))
-
-
-### Dependencies
-
-* The following workspace dependencies were updated
-  * dependencies
-    * @twin.org/rights-management-models bumped from 0.0.3-next.17 to 0.0.3-next.18
-  * devDependencies
-    * @twin.org/rights-management-pap-service bumped from 0.0.3-next.17 to 0.0.3-next.18
-    * @twin.org/rights-management-pip-service bumped from 0.0.3-next.17 to 0.0.3-next.18
+* expired negotiation cleanup now sends terminate to consumer when `policyNegotiationPointComponentType` is configured
 
 ## [0.0.3-next.17](https://github.com/twinfoundation/rights-management/compare/rights-management-pnp-service-v0.0.3-next.16...rights-management-pnp-service-v0.0.3-next.17) (2026-02-25)
 

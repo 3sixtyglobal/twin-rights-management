@@ -68,6 +68,21 @@ The keys to use from the context ids to cleanup partitions.
 
 ***
 
+### policyNegotiationPointComponentType?
+
+> `optional` **policyNegotiationPointComponentType**: `string`
+
+If set, stall cleanup will use this component to send terminate to consumer callbacks.
+If not set, stall cleanup will only mark negotiations as TERMINATED locally (no outbound notification).
+
+#### Default
+
+```ts
+undefined
+```
+
+***
+
 ### config?
 
 > `optional` **config**: [`IPolicyNegotiationAdminPointServiceConfig`](IPolicyNegotiationAdminPointServiceConfig.md)

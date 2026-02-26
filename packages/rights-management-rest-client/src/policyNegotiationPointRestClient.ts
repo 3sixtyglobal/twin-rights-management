@@ -432,4 +432,45 @@ export class PolicyNegotiationPointRestClient
 
 		return response.body;
 	}
+
+	/**
+	 * Send a terminate message to a consumer at the given callback address.
+	 * Not supported on the REST client; use the policy negotiation point service when stall cleanup needs to notify consumers.
+	 * @param callbackAddress The consumer callback URL to send the termination to.
+	 * @param providerPid The provider negotiation id.
+	 * @param consumerPid The consumer negotiation id.
+	 */
+	public async sendTerminateToConsumer(
+		callbackAddress: string,
+		providerPid: string,
+		consumerPid: string
+	): Promise<void> {
+		Guards.stringValue(
+			PolicyNegotiationPointRestClient.CLASS_NAME,
+			nameof(callbackAddress),
+			callbackAddress
+		);
+		Url.guard(
+			PolicyNegotiationPointRestClient.CLASS_NAME,
+			nameof(callbackAddress),
+			callbackAddress
+		);
+		Guards.stringValue(
+			PolicyNegotiationPointRestClient.CLASS_NAME,
+			nameof(providerPid),
+			providerPid
+		);
+		Guards.stringValue(
+			PolicyNegotiationPointRestClient.CLASS_NAME,
+			nameof(consumerPid),
+			consumerPid
+		);
+		throw new NotSupportedError(
+			PolicyNegotiationPointRestClient.CLASS_NAME,
+			"notSupportedOnClient",
+			{
+				methodName: "sendTerminateToConsumer"
+			}
+		);
+	}
 }
