@@ -1,5 +1,24 @@
 # Changelog
 
+## [0.0.3-next.18](https://github.com/twinfoundation/rights-management/compare/rights-management-pdp-service-v0.0.3-next.17...rights-management-pdp-service-v0.0.3-next.18) (2026-02-26)
+
+
+### Miscellaneous Chores
+
+* **rights-management-pdp-service:** Synchronize repo versions
+
+
+### Dependencies
+
+* The following workspace dependencies were updated
+  * dependencies
+    * @twin.org/rights-management-models bumped from 0.0.3-next.17 to 0.0.3-next.18
+  * devDependencies
+    * @twin.org/rights-management-pap-service bumped from 0.0.3-next.17 to 0.0.3-next.18
+    * @twin.org/rights-management-pip-service bumped from 0.0.3-next.17 to 0.0.3-next.18
+    * @twin.org/rights-management-pmp-service bumped from 0.0.3-next.17 to 0.0.3-next.18
+    * @twin.org/rights-management-pxp-service bumped from 0.0.3-next.17 to 0.0.3-next.18
+
 ## [0.0.3-next.17](https://github.com/twinfoundation/rights-management/compare/rights-management-pdp-service-v0.0.3-next.16...rights-management-pdp-service-v0.0.3-next.17) (2026-02-25)
 
 
