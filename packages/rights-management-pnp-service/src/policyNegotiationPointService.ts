@@ -109,6 +109,12 @@ export class PolicyNegotiationPointService implements IPolicyNegotiationPointCom
 	private readonly _overrideTrustGeneratorType?: string;
 
 	/**
+	 * Whether to include error details in the error responses.
+	 * @internal
+	 */
+	private readonly _includeErrorDetails: boolean;
+
+	/**
 	 * Create a new instance of PolicyNegotiationPointService (PNP).
 	 * @param options The options for the component.
 	 */
@@ -148,6 +154,7 @@ export class PolicyNegotiationPointService implements IPolicyNegotiationPointCom
 		this._policyNegotiationPointRemoteComponentType =
 			options.policyNegotiationPointRemoteComponentType ?? "policy-negotiation-point-remote";
 		this._overrideTrustGeneratorType = options.config.overrideTrustGeneratorType;
+		this._includeErrorDetails = options.config.includeErrorDetails ?? false;
 	}
 
 	/**
@@ -171,7 +178,13 @@ export class PolicyNegotiationPointService implements IPolicyNegotiationPointCom
 		Guards.stringValue(PolicyNegotiationPointService.CLASS_NAME, nameof(id), id);
 
 		try {
-			await TrustHelper.verifyTrust(this._trustComponent, trustPayload, "getNegotiation");
+			await TrustHelper.verifyTrust(
+				this._trustComponent,
+				trustPayload,
+				"getNegotiation",
+				undefined,
+				this._includeErrorDetails
+			);
 
 			const negotiation = await this._policyNegotiationAdminPointComponent.get(id);
 			if (Is.empty(negotiation)) {
@@ -345,7 +358,9 @@ export class PolicyNegotiationPointService implements IPolicyNegotiationPointCom
 			const trustInfo = await TrustHelper.verifyTrust(
 				this._trustComponent,
 				trustPayload,
-				"requestFromConsumer"
+				"requestFromConsumer",
+				undefined,
+				this._includeErrorDetails
 			);
 
 			// Now lookup the offer being requested
@@ -522,7 +537,9 @@ export class PolicyNegotiationPointService implements IPolicyNegotiationPointCom
 			const trustInfo = await TrustHelper.verifyTrust(
 				this._trustComponent,
 				trustPayload,
-				"offerFromProvider"
+				"offerFromProvider",
+				undefined,
+				this._includeErrorDetails
 			);
 
 			// If the consumer id is set then we load an existing negotiation
@@ -681,7 +698,13 @@ export class PolicyNegotiationPointService implements IPolicyNegotiationPointCom
 
 		let policyNegotiation: IPolicyNegotiation | undefined;
 		try {
-			await TrustHelper.verifyTrust(this._trustComponent, trustPayload, "agreementFromProvider");
+			await TrustHelper.verifyTrust(
+				this._trustComponent,
+				trustPayload,
+				"agreementFromProvider",
+				undefined,
+				this._includeErrorDetails
+			);
 
 			// Load the negotiation if there is one
 			try {
@@ -812,7 +835,9 @@ export class PolicyNegotiationPointService implements IPolicyNegotiationPointCom
 			await TrustHelper.verifyTrust(
 				this._trustComponent,
 				trustPayload,
-				"agreementVerificationFromConsumer"
+				"agreementVerificationFromConsumer",
+				undefined,
+				this._includeErrorDetails
 			);
 			// Load the negotiation if there is one
 			try {
@@ -929,7 +954,13 @@ export class PolicyNegotiationPointService implements IPolicyNegotiationPointCom
 
 		let policyNegotiation: IPolicyNegotiation | undefined;
 		try {
-			await TrustHelper.verifyTrust(this._trustComponent, trustPayload, "event");
+			await TrustHelper.verifyTrust(
+				this._trustComponent,
+				trustPayload,
+				"event",
+				undefined,
+				this._includeErrorDetails
+			);
 
 			// Load the negotiation if there is one, use either the provider or consumer pid based on destination
 			const policyId = destination === "provider" ? message.providerPid : message.consumerPid;
@@ -1064,7 +1095,13 @@ export class PolicyNegotiationPointService implements IPolicyNegotiationPointCom
 
 		let policyNegotiation: IPolicyNegotiation | undefined;
 		try {
-			await TrustHelper.verifyTrust(this._trustComponent, trustPayload, "terminate");
+			await TrustHelper.verifyTrust(
+				this._trustComponent,
+				trustPayload,
+				"terminate",
+				undefined,
+				this._includeErrorDetails
+			);
 			// Load the negotiation if there is one, use either the provider or consumer pid based on destination
 			const policyId = destination === "provider" ? message.providerPid : message.consumerPid;
 			try {
@@ -1143,9 +1180,9 @@ export class PolicyNegotiationPointService implements IPolicyNegotiationPointCom
 		error: unknown
 	): Promise<IDataspaceProtocolContractNegotiationError> {
 		const err = BaseError.fromError(error);
-		const translated = ErrorHelper.formatErrors(error, true);
+		const translated = ErrorHelper.formatErrors(error);
 
-		const errMessage: IDataspaceProtocolContractNegotiationError = {
+		const errMessage: IDataspaceProtocolContractNegotiationError & { details?: unknown } = {
 			"@context": [DataspaceProtocolContexts.Context],
 			"@type": DataspaceProtocolContractNegotiationTypes.ContractNegotiationError,
 			providerPid: providerId,
@@ -1154,7 +1191,8 @@ export class PolicyNegotiationPointService implements IPolicyNegotiationPointCom
 			reason: translated.map(item => ({
 				"@value": item,
 				"@language": "en-US"
-			}))
+			})),
+			details: this._includeErrorDetails ? err.toJsonObject(true) : undefined
 		};
 
 		if (!Is.empty(policyNegotiation)) {

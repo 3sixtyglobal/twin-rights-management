@@ -15,4 +15,10 @@ export interface IPolicyNegotiationPointServiceConfig {
 	 * Override the default trust generator.
 	 */
 	overrideTrustGeneratorType?: string;
+
+	/**
+	 * Whether to include error details in the responses from the admin point.
+	 * @default false
+	 */
+	includeErrorDetails?: boolean;
 }
