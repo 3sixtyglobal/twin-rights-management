@@ -1,5 +1,22 @@
 # Changelog
 
+## [0.0.3-next.19](https://github.com/twinfoundation/rights-management/compare/rights-management-pnp-service-v0.0.3-next.18...rights-management-pnp-service-v0.0.3-next.19) (2026-02-26)
+
+
+### Features
+
+* implementing the schedule cleanup ([#85](https://github.com/twinfoundation/rights-management/issues/85)) ([cf44bc7](https://github.com/twinfoundation/rights-management/commit/cf44bc79c0df9a0a1e60e35849bd46253ce5c8bf))
+
+
+### Dependencies
+
+* The following workspace dependencies were updated
+  * dependencies
+    * @twin.org/rights-management-models bumped from 0.0.3-next.18 to 0.0.3-next.19
+  * devDependencies
+    * @twin.org/rights-management-pap-service bumped from 0.0.3-next.18 to 0.0.3-next.19
+    * @twin.org/rights-management-pip-service bumped from 0.0.3-next.18 to 0.0.3-next.19
+
 ## [Unreleased]
 
 ### Features
