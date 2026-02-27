@@ -1,5 +1,21 @@
 # Changelog
 
+## [0.0.3-next.20](https://github.com/twinfoundation/rights-management/compare/rights-management-pmp-service-v0.0.3-next.19...rights-management-pmp-service-v0.0.3-next.20) (2026-02-27)
+
+
+### Features
+
+* capture organization identity ([#88](https://github.com/twinfoundation/rights-management/issues/88)) ([8fcee6e](https://github.com/twinfoundation/rights-management/commit/8fcee6e676bb5a9a344d83c50567066e447aca76))
+
+
+### Dependencies
+
+* The following workspace dependencies were updated
+  * dependencies
+    * @twin.org/rights-management-models bumped from 0.0.3-next.19 to 0.0.3-next.20
+  * devDependencies
+    * @twin.org/rights-management-pap-service bumped from 0.0.3-next.19 to 0.0.3-next.20
+
 ## [0.0.3-next.19](https://github.com/twinfoundation/rights-management/compare/rights-management-pmp-service-v0.0.3-next.18...rights-management-pmp-service-v0.0.3-next.19) (2026-02-26)
 
 
