@@ -218,10 +218,11 @@ export class PolicyAdministrationPointService implements IPolicyAdministrationPo
 			);
 		}
 
-		if (policy["@type"] !== PolicyType.Agreement) {
+		const policyType = OdrlPolicyHelper.getType(policy);
+		if (policyType !== PolicyType.Agreement) {
 			throw new GeneralError(PolicyAdministrationPointService.CLASS_NAME, "agreementTypeMismatch", {
 				agreementId,
-				type: policy["@type"]
+				type: policyType ?? ""
 			});
 		}
 
@@ -253,10 +254,11 @@ export class PolicyAdministrationPointService implements IPolicyAdministrationPo
 			);
 		}
 
-		if (policy["@type"] !== PolicyType.Offer) {
+		const policyType = OdrlPolicyHelper.getType(policy);
+		if (policyType !== PolicyType.Offer) {
 			throw new GeneralError(PolicyAdministrationPointService.CLASS_NAME, "offerTypeMismatch", {
 				offerId,
-				type: policy["@type"]
+				type: policyType ?? ""
 			});
 		}
 
@@ -284,10 +286,11 @@ export class PolicyAdministrationPointService implements IPolicyAdministrationPo
 			throw new NotFoundError(PolicyAdministrationPointService.CLASS_NAME, "setNotFound", setId);
 		}
 
-		if (policy["@type"] !== PolicyType.Set) {
+		const policyType = OdrlPolicyHelper.getType(policy);
+		if (policyType !== PolicyType.Set) {
 			throw new GeneralError(PolicyAdministrationPointService.CLASS_NAME, "setTypeMismatch", {
 				setId,
-				type: policy["@type"]
+				type: policyType ?? ""
 			});
 		}
 

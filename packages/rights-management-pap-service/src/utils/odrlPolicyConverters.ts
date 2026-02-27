@@ -3,7 +3,7 @@
 import { ArrayHelper } from "@twin.org/core";
 import { OdrlPolicyHelper } from "@twin.org/rights-management-models";
 import type { IOdrlPolicy } from "@twin.org/standards-w3c-odrl";
-import { OdrlContexts } from "@twin.org/standards-w3c-odrl";
+import { OdrlContexts, PolicyType } from "@twin.org/standards-w3c-odrl";
 import { OdrlPolicy } from "../entities/odrlPolicy.js";
 
 /**
@@ -13,8 +13,8 @@ import { OdrlPolicy } from "../entities/odrlPolicy.js";
  */
 export function convertToStoragePolicy<T extends IOdrlPolicy>(policy: T): OdrlPolicy {
 	const storagePolicy = new OdrlPolicy();
-	storagePolicy.uid = policy.uid;
-	storagePolicy["@type"] = policy["@type"];
+	storagePolicy.uid = OdrlPolicyHelper.getUid(policy) ?? "";
+	storagePolicy.type = (OdrlPolicyHelper.getType(policy) as PolicyType) ?? PolicyType.Policy;
 
 	storagePolicy.profile = policy.profile;
 	storagePolicy.assigner = policy.assigner;
@@ -51,7 +51,7 @@ export function convertToStoragePolicy<T extends IOdrlPolicy>(policy: T): OdrlPo
 export function convertFromStoragePolicy<T extends IOdrlPolicy>(storagePolicy: OdrlPolicy): T {
 	const policy: IOdrlPolicy = {
 		"@context": OdrlContexts.Context,
-		"@type": storagePolicy["@type"],
+		"@type": storagePolicy.type,
 		uid: storagePolicy.uid
 	};
 

@@ -22,9 +22,9 @@ The unique identifier for the policy.
 
 ***
 
-### @type
+### type
 
-> **@type**: `PolicyType`
+> **type**: `PolicyType`
 
 The type of policy.
 

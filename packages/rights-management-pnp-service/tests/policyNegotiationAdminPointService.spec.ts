@@ -72,6 +72,7 @@ describe("PolicyNegotiationAdminPointService", () => {
 			correlationId: "cid",
 			dateCreated: new Date().toISOString(),
 			state: DataspaceProtocolContractNegotiationStateType.REQUESTED,
+			organizationIdentity: "identity",
 			trustVerificationInfo: {
 				identity: "identity"
 			}
@@ -90,6 +91,7 @@ describe("PolicyNegotiationAdminPointService", () => {
 			dateCreated: new Date().toISOString(),
 			state: DataspaceProtocolContractNegotiationStateType.REQUESTED,
 			interventionRequired: true,
+			organizationIdentity: "identity",
 			trustVerificationInfo: {
 				identity: "identity"
 			}
@@ -114,6 +116,7 @@ describe("PolicyNegotiationAdminPointService", () => {
 			correlationId: "cid",
 			dateCreated: new Date().toISOString(),
 			state: DataspaceProtocolContractNegotiationStateType.REQUESTED,
+			organizationIdentity: "identity",
 			trustVerificationInfo: {
 				identity: "identity"
 			}
@@ -136,6 +139,7 @@ describe("PolicyNegotiationAdminPointService", () => {
 			correlationId: "cid",
 			dateCreated: new Date().toISOString(),
 			state: DataspaceProtocolContractNegotiationStateType.REQUESTED,
+			organizationIdentity: "identity",
 			trustVerificationInfo: {
 				identity: "identity"
 			}
@@ -149,6 +153,7 @@ describe("PolicyNegotiationAdminPointService", () => {
 			correlationId: "cid2",
 			dateCreated: new Date().toISOString(),
 			state: DataspaceProtocolContractNegotiationStateType.REQUESTED,
+			organizationIdentity: "identity",
 			trustVerificationInfo: {
 				identity: "identity"
 			}
@@ -182,6 +187,7 @@ describe("PolicyNegotiationAdminPointService", () => {
 			correlationId: "expired-cid",
 			dateCreated: new Date().toISOString(),
 			state: DataspaceProtocolContractNegotiationStateType.REQUESTED,
+			organizationIdentity: "identity",
 			trustVerificationInfo: { identity: "identity" }
 		};
 		await service.set(expired);
@@ -194,6 +200,7 @@ describe("PolicyNegotiationAdminPointService", () => {
 			dateCreated: new Date().toISOString(),
 			state: DataspaceProtocolContractNegotiationStateType.REQUESTED,
 			interventionRequired: true,
+			organizationIdentity: "identity",
 			trustVerificationInfo: { identity: "identity" }
 		};
 		await service.set(manual);

@@ -2030,7 +2030,8 @@
 											"id": "pid",
 											"correlationId": "cid",
 											"dateCreated": "2025-09-03T00:00:00.000Z",
-											"state": "REQUESTED"
+											"state": "REQUESTED",
+											"organizationIdentity": "did:iota:123456789abcdefghi"
 										}
 									}
 								}
@@ -2134,7 +2135,8 @@
 										"id": "pid",
 										"correlationId": "cid",
 										"dateCreated": "2025-09-03T00:00:00.000Z",
-										"state": "REQUESTED"
+										"state": "REQUESTED",
+										"organizationIdentity": "did:iota:123456789abcdefghi"
 									}
 								}
 							}
@@ -2341,7 +2343,8 @@
 												"id": "pid",
 												"correlationId": "cid",
 												"dateCreated": "2025-09-03T00:00:00.000Z",
-												"state": "REQUESTED"
+												"state": "REQUESTED",
+												"organizationIdentity": "did:iota:123456789abcdefghi"
 											}
 										]
 									}
@@ -3494,6 +3497,10 @@
 						"type": "string",
 						"description": "The callback address to send updates to the requester."
 					},
+					"organizationIdentity": {
+						"type": "string",
+						"description": "Organization identity to be used when sending trust payloads."
+					},
 					"offer": {
 						"$ref": "https://schema.twindev.org/w3c-odrl/OdrlOffer"
 					},
@@ -3545,6 +3552,9 @@
 						},
 						"description": "A more detailed reason for the negotiation error."
 					},
+					"errorDetails": {
+						"$ref": "#/components/schemas/Error"
+					},
 					"handlerId": {
 						"type": "string",
 						"description": "The id of the handler, on provider side this is the negotiator, on consumer side this is the requester."
@@ -3558,7 +3568,8 @@
 					"id",
 					"correlationId",
 					"dateCreated",
-					"state"
+					"state",
+					"organizationIdentity"
 				],
 				"description": "Interface describing a rights management policy negotiation."
 			},

@@ -8,17 +8,18 @@ import type {
 } from "@twin.org/api-models";
 import { ComponentFactory, Guards, Is } from "@twin.org/core";
 import { nameof } from "@twin.org/nameof";
-import type {
-	IPnpAgreementRequest,
-	IPnpAgreementVerificationRequest,
-	IPnpContractNegotiationResponse,
-	IPnpContractResponse,
-	IPnpEventRequest,
-	IPnpNegotiateRequest,
-	IPnpNegotiationGetRequest,
-	IPnpOfferRequest,
-	IPnpTerminateRequest,
-	IPolicyNegotiationPointComponent
+import {
+	OdrlPolicyHelper,
+	type IPnpAgreementRequest,
+	type IPnpAgreementVerificationRequest,
+	type IPnpContractNegotiationResponse,
+	type IPnpContractResponse,
+	type IPnpEventRequest,
+	type IPnpNegotiateRequest,
+	type IPnpNegotiationGetRequest,
+	type IPnpOfferRequest,
+	type IPnpTerminateRequest,
+	type IPolicyNegotiationPointComponent
 } from "@twin.org/rights-management-models";
 import {
 	DataspaceProtocolContractNegotiationEventType,
@@ -577,7 +578,8 @@ function mapError(
 		| undefined
 ): HttpStatusCode | undefined {
 	if (
-		result?.["@type"] === DataspaceProtocolContractNegotiationTypes.ContractNegotiationError &&
+		OdrlPolicyHelper.getType(result) ===
+			DataspaceProtocolContractNegotiationTypes.ContractNegotiationError &&
 		Is.object<IDataspaceProtocolContractNegotiationError>(result)
 	) {
 		if (Is.stringValue(result.code) && /notfound/i.test(result.code)) {

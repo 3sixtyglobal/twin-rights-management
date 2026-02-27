@@ -1,5 +1,6 @@
 // Copyright 2025 IOTA Stiftung.
 // SPDX-License-Identifier: Apache-2.0.
+import type { IError } from "@twin.org/core";
 import type { DataspaceProtocolContractNegotiationStateType } from "@twin.org/standards-dataspace-protocol";
 import type { IOdrlAgreement, IOdrlOffer } from "@twin.org/standards-w3c-odrl";
 import type { ITrustVerificationInfo } from "@twin.org/trust-models";
@@ -44,6 +45,11 @@ export interface IPolicyNegotiation {
 	callbackAddress?: string;
 
 	/**
+	 * Organization identity to be used when sending trust payloads.
+	 */
+	organizationIdentity: string;
+
+	/**
 	 * The offer being requested.
 	 */
 	offer?: IOdrlOffer;
@@ -78,6 +84,11 @@ export interface IPolicyNegotiation {
 		"@value": string;
 		"@language"?: string;
 	}[];
+
+	/**
+	 * Any additional error details that don't fit in the reason or description fields.
+	 */
+	errorDetails?: IError;
 
 	/**
 	 * The id of the handler, on provider side this is the negotiator, on consumer side this is the requester.

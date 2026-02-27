@@ -77,7 +77,8 @@ export function generateRestRoutesPolicyNegotiationAdminPoint(
 								id: "pid",
 								correlationId: "cid",
 								dateCreated: "2025-09-03T00:00:00.000Z",
-								state: DataspaceProtocolContractNegotiationStateType.REQUESTED
+								state: DataspaceProtocolContractNegotiationStateType.REQUESTED,
+								organizationIdentity: "did:iota:123456789abcdefghi"
 							}
 						}
 					}
@@ -105,7 +106,8 @@ export function generateRestRoutesPolicyNegotiationAdminPoint(
 							id: "pid",
 							correlationId: "cid",
 							dateCreated: "2025-09-03T00:00:00.000Z",
-							state: DataspaceProtocolContractNegotiationStateType.REQUESTED
+							state: DataspaceProtocolContractNegotiationStateType.REQUESTED,
+							organizationIdentity: "did:iota:123456789abcdefghi"
 						}
 					}
 				}
@@ -170,7 +172,8 @@ export function generateRestRoutesPolicyNegotiationAdminPoint(
 									id: "pid",
 									correlationId: "cid",
 									dateCreated: "2025-09-03T00:00:00.000Z",
-									state: DataspaceProtocolContractNegotiationStateType.REQUESTED
+									state: DataspaceProtocolContractNegotiationStateType.REQUESTED,
+									organizationIdentity: "did:iota:123456789abcdefghi"
 								}
 							]
 						}

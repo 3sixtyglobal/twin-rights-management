@@ -17,8 +17,8 @@ export class OdrlPolicy {
 	/**
 	 * The type of policy.
 	 */
-	@property({ type: "string" })
-	public "@type"!: PolicyType;
+	@property({ type: "string", isSecondary: true })
+	public type!: PolicyType;
 
 	/**
 	 * The profile(s) this policy conforms to.

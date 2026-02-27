@@ -27,7 +27,7 @@ import type {
 	IPapUpdateRequest,
 	IPolicyAdministrationPointComponent
 } from "@twin.org/rights-management-models";
-import { OdrlContexts } from "@twin.org/standards-w3c-odrl";
+import { OdrlContexts, PolicyType } from "@twin.org/standards-w3c-odrl";
 import { HeaderHelper, HeaderTypes, HttpStatusCode } from "@twin.org/web";
 
 /**
@@ -71,7 +71,7 @@ export function generateRestRoutesPolicyAdministrationPoint(
 					request: {
 						body: {
 							"@context": OdrlContexts.Context,
-							"@type": "Set",
+							"@type": PolicyType.Set,
 							permission: [
 								{
 									target: "http://example.com/asset/1",
@@ -120,7 +120,7 @@ export function generateRestRoutesPolicyAdministrationPoint(
 						},
 						body: {
 							"@context": OdrlContexts.Context,
-							"@type": "Set",
+							"@type": PolicyType.Set,
 							uid: "urn:rights-management:abc123def456",
 							permission: [
 								{
@@ -170,7 +170,7 @@ export function generateRestRoutesPolicyAdministrationPoint(
 						response: {
 							body: {
 								"@context": OdrlContexts.Context,
-								"@type": "Set",
+								"@type": PolicyType.Set,
 								uid: "urn:rights-management:abc123def456",
 								permission: [
 									{
@@ -216,7 +216,7 @@ export function generateRestRoutesPolicyAdministrationPoint(
 						response: {
 							body: {
 								"@context": OdrlContexts.Context,
-								"@type": "Agreement",
+								"@type": PolicyType.Agreement,
 								uid: "urn:rights-management:abc123def456",
 								permission: [
 									{
@@ -264,7 +264,7 @@ export function generateRestRoutesPolicyAdministrationPoint(
 						response: {
 							body: {
 								"@context": OdrlContexts.Context,
-								"@type": "Offer",
+								"@type": PolicyType.Offer,
 								uid: "urn:rights-management:abc123def456",
 								permission: [
 									{
@@ -312,7 +312,7 @@ export function generateRestRoutesPolicyAdministrationPoint(
 						response: {
 							body: {
 								"@context": OdrlContexts.Context,
-								"@type": "Set",
+								"@type": PolicyType.Set,
 								uid: "urn:rights-management:abc123def456",
 								permission: [
 									{
@@ -389,7 +389,7 @@ export function generateRestRoutesPolicyAdministrationPoint(
 							body: [
 								{
 									"@context": OdrlContexts.Context,
-									"@type": "Set",
+									"@type": PolicyType.Set,
 									uid: "urn:rights-management:abc123def456",
 									permission: [
 										{

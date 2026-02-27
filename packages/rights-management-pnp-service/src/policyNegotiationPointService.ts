@@ -2,6 +2,7 @@
 // SPDX-License-Identifier: Apache-2.0.
 import { ContextIdHelper, ContextIdKeys, ContextIdStore } from "@twin.org/context";
 import {
+	ArrayHelper,
 	BaseError,
 	ComponentFactory,
 	ErrorHelper,
@@ -245,12 +246,16 @@ export class PolicyNegotiationPointService implements IPolicyNegotiationPointCom
 			PolicyInformationAccessMode.Public
 		);
 
+		// The organization id should be available from the current context
+		// but we need to guard against it not being there
+		// we capture it in the negotiation so we can use it to generate the
+		// trust payload for any outgoing messages related to this negotiation
 		const contextIds = await ContextIdStore.getContextIds();
 		ContextIdHelper.guard(contextIds, ContextIdKeys.Organization);
-		const organizationId = contextIds[ContextIdKeys.Organization];
+		const organizationIdentity = contextIds[ContextIdKeys.Organization];
 
 		const trustPayload = await this._trustComponent.generate(
-			organizationId,
+			organizationIdentity,
 			this._overrideTrustGeneratorType,
 			{
 				subject: policyData
@@ -270,7 +275,7 @@ export class PolicyNegotiationPointService implements IPolicyNegotiationPointCom
 				"@context": OdrlContexts.Context,
 				"@type": OdrlTypes.Offer,
 				uid: odrlOfferId,
-				assigner: organizationId
+				assigner: organizationIdentity
 			},
 			callbackAddress: `${publicOrigin}/${this._callbackPath}`
 		};
@@ -282,7 +287,8 @@ export class PolicyNegotiationPointService implements IPolicyNegotiationPointCom
 		);
 
 		if (
-			response["@type"] === DataspaceProtocolContractNegotiationTypes.ContractNegotiationError &&
+			OdrlPolicyHelper.getType(response) ===
+				DataspaceProtocolContractNegotiationTypes.ContractNegotiationError &&
 			Is.object<IDataspaceProtocolContractNegotiationError>(response)
 		) {
 			throw new GeneralError(
@@ -299,9 +305,10 @@ export class PolicyNegotiationPointService implements IPolicyNegotiationPointCom
 			correlationId: response.providerPid,
 			state: DataspaceProtocolContractNegotiationStateType.REQUESTED,
 			dateCreated: new Date(Date.now()).toISOString(),
+			organizationIdentity,
 			handlerId: requesterType,
 			trustVerificationInfo: {
-				identity: organizationId,
+				identity: organizationIdentity,
 				data: policyData
 			}
 		};
@@ -367,13 +374,10 @@ export class PolicyNegotiationPointService implements IPolicyNegotiationPointCom
 			let providerOffer: IOdrlOffer | undefined;
 
 			try {
-				providerOffer = (await this._policyAdministrationPointComponent.get(
-					offerUid
-				)) as IOdrlOffer;
+				providerOffer = await this._policyAdministrationPointComponent.getOffer(offerUid);
 			} catch {}
 
-			const isOffer = providerOffer?.["@type"] === OdrlTypes.Offer;
-			if (Is.empty(providerOffer) || !isOffer) {
+			if (Is.empty(providerOffer)) {
 				// No offer, so error
 				const err = await this.setErrorState(
 					providerPid,
@@ -449,6 +453,15 @@ export class PolicyNegotiationPointService implements IPolicyNegotiationPointCom
 				policyNegotiation.trustVerificationInfo = trustInfo;
 				policyNegotiation.handlerId = negotiator.className();
 			} else {
+				// We need an organization id to generate the trust payload, but we have no context
+				// as this request arrived through a trust channel, so we should use the
+				// assigner from the policy as the organization id in the trust payload
+				const assigner = OdrlPolicyHelper.extractAssignerIdentity(providerOffer);
+				const organizationIdentity = ArrayHelper.fromObjectOrArray(assigner)[0];
+				if (!Is.stringValue(organizationIdentity)) {
+					throw new GeneralError(PolicyNegotiationPointService.CLASS_NAME, "assignerNotIdentity");
+				}
+
 				policyNegotiation = {
 					id: providerPid,
 					correlationId: message.consumerPid,
@@ -456,6 +469,7 @@ export class PolicyNegotiationPointService implements IPolicyNegotiationPointCom
 					offer: providerOffer,
 					state: DataspaceProtocolContractNegotiationStateType.REQUESTED,
 					callbackAddress: message.callbackAddress,
+					organizationIdentity,
 					trustVerificationInfo: trustInfo,
 					handlerId: negotiator.className()
 				};
@@ -534,7 +548,7 @@ export class PolicyNegotiationPointService implements IPolicyNegotiationPointCom
 		let consumerPid;
 		let policyNegotiation: IPolicyNegotiation | undefined;
 		try {
-			const trustInfo = await TrustHelper.verifyTrust(
+			await TrustHelper.verifyTrust(
 				this._trustComponent,
 				trustPayload,
 				"offerFromProvider",
@@ -579,15 +593,10 @@ export class PolicyNegotiationPointService implements IPolicyNegotiationPointCom
 					return err;
 				}
 			} else {
-				// The consumer pid was not set so create a new one
-				consumerPid = Urn.generateRandom(RightsManagementNamespaces.ContractNegotiation).toString();
-				policyNegotiation = {
-					id: consumerPid,
-					correlationId: message.providerPid,
-					dateCreated: new Date(Date.now()).toISOString(),
-					state: DataspaceProtocolContractNegotiationStateType.OFFERED,
-					trustVerificationInfo: trustInfo
-				};
+				throw new GeneralError(
+					PolicyNegotiationPointService.CLASS_NAME,
+					"providerInitiatedNotSupported"
+				);
 			}
 
 			// If we have an associated requester id then notify
@@ -1192,11 +1201,10 @@ export class PolicyNegotiationPointService implements IPolicyNegotiationPointCom
 			consumerPid
 		};
 
-		const contextIds = await ContextIdStore.getContextIds();
-		ContextIdHelper.guard(contextIds, ContextIdKeys.Organization);
+		const policyNegotiation = await this._policyNegotiationAdminPointComponent.get(providerPid);
 
 		const trustPayload = await this._trustComponent.generate(
-			contextIds[ContextIdKeys.Organization],
+			policyNegotiation.organizationIdentity,
 			this._overrideTrustGeneratorType
 		);
 
@@ -1225,6 +1233,7 @@ export class PolicyNegotiationPointService implements IPolicyNegotiationPointCom
 	): Promise<IDataspaceProtocolContractNegotiationError> {
 		const err = BaseError.fromError(error);
 		const translated = ErrorHelper.formatErrors(error);
+		const details = this._includeErrorDetails ? err.toJsonObject(true) : undefined;
 
 		const errMessage: IDataspaceProtocolContractNegotiationError & { details?: unknown } = {
 			"@context": [DataspaceProtocolContexts.Context],
@@ -1236,13 +1245,14 @@ export class PolicyNegotiationPointService implements IPolicyNegotiationPointCom
 				"@value": item,
 				"@language": "en-US"
 			})),
-			details: this._includeErrorDetails ? err.toJsonObject(true) : undefined
+			details
 		};
 
 		if (!Is.empty(policyNegotiation)) {
 			policyNegotiation.code = errMessage.code;
 			policyNegotiation.reason = errMessage.reason;
 			policyNegotiation.state = DataspaceProtocolContractNegotiationStateType.TERMINATED;
+			policyNegotiation.errorDetails = details;
 
 			await this._policyNegotiationAdminPointComponent.set(policyNegotiation);
 		}
@@ -1311,11 +1321,8 @@ export class PolicyNegotiationPointService implements IPolicyNegotiationPointCom
 				callbackAddress: `${publicOrigin}/${this._callbackPath}`
 			};
 
-			const contextIds = await ContextIdStore.getContextIds();
-			ContextIdHelper.guard(contextIds, ContextIdKeys.Organization);
-
 			const trustPayload = await this._trustComponent.generate(
-				contextIds[ContextIdKeys.Organization],
+				policyNegotiation.organizationIdentity,
 				this._overrideTrustGeneratorType
 			);
 
@@ -1388,11 +1395,8 @@ export class PolicyNegotiationPointService implements IPolicyNegotiationPointCom
 				event
 			};
 
-			const contextIds = await ContextIdStore.getContextIds();
-			ContextIdHelper.guard(contextIds, ContextIdKeys.Organization);
-
 			const trustPayload = await this._trustComponent.generate(
-				contextIds[ContextIdKeys.Organization],
+				policyNegotiation.organizationIdentity,
 				this._overrideTrustGeneratorType
 			);
 
@@ -1498,11 +1502,8 @@ export class PolicyNegotiationPointService implements IPolicyNegotiationPointCom
 						callbackAddress: `${publicOrigin}/${this._callbackPath}`
 					};
 
-					const contextIds = await ContextIdStore.getContextIds();
-					ContextIdHelper.guard(contextIds, ContextIdKeys.Organization);
-
 					const trustPayload = await this._trustComponent.generate(
-						contextIds[ContextIdKeys.Organization],
+						policyNegotiation.organizationIdentity,
 						this._overrideTrustGeneratorType
 					);
 
@@ -1568,11 +1569,8 @@ export class PolicyNegotiationPointService implements IPolicyNegotiationPointCom
 				consumerPid: policyNegotiation.id
 			};
 
-			const contextIds = await ContextIdStore.getContextIds();
-			ContextIdHelper.guard(contextIds, ContextIdKeys.Organization);
-
 			const trustPayload = await this._trustComponent.generate(
-				contextIds[ContextIdKeys.Organization],
+				policyNegotiation.organizationIdentity,
 				this._overrideTrustGeneratorType
 			);
 
@@ -1615,7 +1613,8 @@ export class PolicyNegotiationPointService implements IPolicyNegotiationPointCom
 	): Promise<void> {
 		if (
 			Is.object<IDataspaceProtocolContractNegotiationError>(response) &&
-			response?.["@type"] === DataspaceProtocolContractNegotiationTypes.ContractNegotiationError
+			OdrlPolicyHelper.getType(response) ===
+				DataspaceProtocolContractNegotiationTypes.ContractNegotiationError
 		) {
 			policyNegotiation.state = DataspaceProtocolContractNegotiationStateType.TERMINATED;
 			policyNegotiation.reason = response.reason;

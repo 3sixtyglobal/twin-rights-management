@@ -70,6 +70,14 @@ The callback address to send updates to the requester.
 
 ***
 
+### organizationIdentity
+
+> **organizationIdentity**: `string`
+
+Organization identity to be used when sending trust payloads.
+
+***
+
 ### offer?
 
 > `optional` **offer**: `IOdrlOffer`
@@ -115,6 +123,14 @@ A more detailed reason for the negotiation error reason.
 #### @language?
 
 > `optional` **@language**: `string`
+
+***
+
+### errorDetails?
+
+> `optional` **errorDetails**: `IError`
+
+Any additional error details that don't fit in the reason or description fields.
 
 ***
 
