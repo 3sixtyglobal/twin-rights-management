@@ -1,5 +1,27 @@
 # Changelog
 
+## [0.0.3-next.21](https://github.com/twinfoundation/rights-management/compare/rights-management-plugins-v0.0.3-next.20...rights-management-plugins-v0.0.3-next.21) (2026-03-06)
+
+
+### Features
+
+* update to more specific ds odrl types ([c56dc49](https://github.com/twinfoundation/rights-management/commit/c56dc4991d4e1e8ca3beb737d2a70dddf6f5cd44))
+
+
+### Dependencies
+
+* The following workspace dependencies were updated
+  * dependencies
+    * @twin.org/rights-management-models bumped from 0.0.3-next.20 to 0.0.3-next.21
+  * devDependencies
+    * @twin.org/rights-management-pap-service bumped from 0.0.3-next.20 to 0.0.3-next.21
+    * @twin.org/rights-management-pdp-service bumped from 0.0.3-next.20 to 0.0.3-next.21
+    * @twin.org/rights-management-pep-service bumped from 0.0.3-next.20 to 0.0.3-next.21
+    * @twin.org/rights-management-pip-service bumped from 0.0.3-next.20 to 0.0.3-next.21
+    * @twin.org/rights-management-pmp-service bumped from 0.0.3-next.20 to 0.0.3-next.21
+    * @twin.org/rights-management-pnp-service bumped from 0.0.3-next.20 to 0.0.3-next.21
+    * @twin.org/rights-management-pxp-service bumped from 0.0.3-next.20 to 0.0.3-next.21
+
 ## [0.0.3-next.20](https://github.com/twinfoundation/rights-management/compare/rights-management-plugins-v0.0.3-next.19...rights-management-plugins-v0.0.3-next.20) (2026-02-27)
 
 
