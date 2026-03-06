@@ -72,7 +72,7 @@ Retrieve information from the sources.
 
 The policy to retrieve information for if available.
 
-`IOdrlPolicy` | `undefined`
+`IDataspaceProtocolPolicy` | `undefined`
 
 ##### accessMode
 

@@ -2,13 +2,13 @@
 
 > **convertToStoragePolicy**\<`T`\>(`policy`): [`OdrlPolicy`](../classes/OdrlPolicy.md)
 
-Converts an IOdrlPolicy to an OdrlPolicy for storage.
+Converts an IDataspaceProtocolPolicy to an OdrlPolicy for storage.
 
 ## Type Parameters
 
 ### T
 
-`T` *extends* `IOdrlPolicy`
+`T` *extends* `IDataspaceProtocolPolicy`
 
 ## Parameters
 

@@ -70,7 +70,7 @@ Enforces obligations regarding policy access to data.
 
 ##### policy
 
-`IOdrlPolicy`
+`IDataspaceProtocolPolicy`
 
 The policy to evaluate.
 

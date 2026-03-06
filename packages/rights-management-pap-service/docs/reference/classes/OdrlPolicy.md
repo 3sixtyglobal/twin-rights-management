@@ -14,9 +14,9 @@ Class describing an ODRL policy for entity storage.
 
 ## Properties
 
-### uid
+### id
 
-> **uid**: `string`
+> **id**: `string`
 
 The unique identifier for the policy.
 

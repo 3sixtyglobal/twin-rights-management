@@ -70,7 +70,7 @@ Organization identity to be used when sending trust payloads.
 
 ### offer?
 
-> `optional` **offer**: `IOdrlOffer`
+> `optional` **offer**: `IDataspaceProtocolOffer`
 
 The offer being requested.
 
@@ -78,7 +78,7 @@ The offer being requested.
 
 ### agreement?
 
-> `optional` **agreement**: `IOdrlAgreement`
+> `optional` **agreement**: `IDataspaceProtocolAgreement`
 
 The agreement being established if the negotiation was successful.
 

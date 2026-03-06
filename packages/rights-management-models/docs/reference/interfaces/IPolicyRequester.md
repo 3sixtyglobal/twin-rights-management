@@ -24,7 +24,7 @@ The id of the negotiation.
 
 ##### offer
 
-`IOdrlOffer`
+`JsonLdObjectWithOptionalContext`\<`IDataspaceProtocolOffer`\>
 
 The offer sent by the provider.
 
@@ -52,7 +52,7 @@ The id of the negotiation.
 
 ##### agreement
 
-`IOdrlAgreement`
+`JsonLdObjectWithOptionalContext`\<`IDataspaceProtocolAgreement`\>
 
 The agreement sent by the provider.
 

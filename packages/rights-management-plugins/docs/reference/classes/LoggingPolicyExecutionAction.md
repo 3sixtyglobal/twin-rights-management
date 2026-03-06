@@ -88,7 +88,7 @@ Execute function type for policy actions.
 
 ##### policy
 
-`IOdrlPolicy`
+`IDataspaceProtocolPolicy`
 
 The policy that applied to the data.
 

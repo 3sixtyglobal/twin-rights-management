@@ -6,6 +6,6 @@ The response structure for getting an agreement.
 
 ### body
 
-> **body**: `IOdrlAgreement`
+> **body**: `IDataspaceProtocolAgreement`
 
 The body of the response.

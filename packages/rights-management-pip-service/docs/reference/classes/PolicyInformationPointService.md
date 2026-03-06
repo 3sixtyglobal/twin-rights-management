@@ -72,7 +72,7 @@ Retrieve additional information which is relevant in the PDP decision making.
 
 The policy to retrieve the information for if available.
 
-`IOdrlPolicy` | `undefined`
+`IDataspaceProtocolPolicy` | `undefined`
 
 ##### accessMode
 

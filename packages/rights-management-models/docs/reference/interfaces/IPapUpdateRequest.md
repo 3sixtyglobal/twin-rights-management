@@ -20,6 +20,6 @@ The ID of the policy to update.
 
 ### body
 
-> **body**: `IOdrlPolicy`
+> **body**: `IDataspaceProtocolPolicy`
 
 The body of the request.

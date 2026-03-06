@@ -76,7 +76,7 @@ Extract assignee identity from policy.
 
 ##### policy
 
-`IOdrlPolicy`
+`IDataspaceProtocolPolicy`
 
 The policy to extract the assignee from.
 
@@ -102,7 +102,7 @@ Extract assigner identity from policy.
 
 ##### policy
 
-`IOdrlPolicy`
+`IDataspaceProtocolPolicy`
 
 The policy to extract the assigner from.
 
@@ -151,7 +151,7 @@ Get targets from policy.
 
 ##### policy
 
-`IOdrlPolicy`
+`IDataspaceProtocolPolicy`
 
 The policy to extract the targets from.
 
@@ -173,7 +173,7 @@ Get actions from policy.
 
 ##### policy
 
-`IOdrlPolicy`
+`IDataspaceProtocolPolicy`
 
 The policy to extract the actions from.
 
@@ -197,7 +197,7 @@ Does the policy match.
 
 The policy to try and match.
 
-`IOdrlPolicy` | `undefined`
+`IDataspaceProtocolPolicy` | `undefined`
 
 ##### options
 

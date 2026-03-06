@@ -6,6 +6,6 @@ The response structure for getting a set.
 
 ### body
 
-> **body**: `IOdrlSet`
+> **body**: `IDataspaceProtocolSet`
 
 The body of the response.

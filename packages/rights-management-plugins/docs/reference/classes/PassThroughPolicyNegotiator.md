@@ -64,7 +64,7 @@ Determines if the negotiator supports the given offer.
 
 ##### offer
 
-`IOdrlOffer`
+`IDataspaceProtocolOffer`
 
 The offer to check.
 
@@ -90,7 +90,7 @@ Handle the offer.
 
 ##### offer
 
-`IOdrlOffer`
+`IDataspaceProtocolOffer`
 
 The offer to check.
 
@@ -112,7 +112,7 @@ Sets the accepted flag if it can be offered, and the interventionRequired flag i
 
 ### createAgreement()
 
-> **createAgreement**(`offer`, `assignee`, `information?`): `Promise`\<`IOdrlAgreement` \| `undefined`\>
+> **createAgreement**(`offer`, `assignee`, `information?`): `Promise`\<`IDataspaceProtocolAgreement` \| `undefined`\>
 
 Create an agreement based on the offer.
 
@@ -120,7 +120,7 @@ Create an agreement based on the offer.
 
 ##### offer
 
-`IOdrlOffer`
+`IDataspaceProtocolOffer`
 
 The offer to create the agreement from.
 
@@ -136,7 +136,7 @@ Information provided by the requester to aid in the creation of the agreement.
 
 #### Returns
 
-`Promise`\<`IOdrlAgreement` \| `undefined`\>
+`Promise`\<`IDataspaceProtocolAgreement` \| `undefined`\>
 
 The agreement created from the offer or undefined if an agreement could not be created.
 

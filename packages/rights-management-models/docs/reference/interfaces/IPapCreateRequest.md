@@ -6,12 +6,6 @@ The request structure for creating a policy.
 
 ### body
 
-> **body**: `Omit`\<`IOdrlPolicy`, `"uid"`\> & `object`
+> **body**: `JsonLdObjectWithOptionalAtId`\<`IDataspaceProtocolPolicy`\>
 
-The body of the request - the policy to create (uid will be auto-generated).
-
-#### Type Declaration
-
-##### uid?
-
-> `optional` **uid**: `string`
+The body of the request - the policy to create (id will be auto-generated if not provided).

@@ -31,7 +31,7 @@ Executes any actions on the Policy Execution Point (PXP) before and after decisi
 
 ##### agreement
 
-`IOdrlAgreement`
+`IDataspaceProtocolAgreement`
 
 The agreement to evaluate.
 

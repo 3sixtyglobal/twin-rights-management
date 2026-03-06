@@ -28,7 +28,7 @@ Process the response from the policy decision point.
 
 ##### agreement
 
-`IOdrlAgreement`
+`IDataspaceProtocolAgreement`
 
 The agreement to process.
 

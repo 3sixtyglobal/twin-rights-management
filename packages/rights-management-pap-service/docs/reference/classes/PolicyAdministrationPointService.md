@@ -64,7 +64,7 @@ Create a new policy with auto-generated UID.
 
 ##### policy
 
-`Omit`\<`IOdrlPolicy`, `"uid"`\> & `object`
+`JsonLdObjectWithOptionalAtId`\<`IDataspaceProtocolPolicy`\>
 
 The policy to create (uid will be auto-generated).
 
@@ -90,7 +90,7 @@ Update an existing policy.
 
 ##### policy
 
-`IOdrlPolicy`
+`IDataspaceProtocolPolicy`
 
 The policy to update (must include uid).
 
@@ -108,7 +108,7 @@ Nothing.
 
 ### get()
 
-> **get**(`policyId`): `Promise`\<`IOdrlPolicy`\>
+> **get**(`policyId`): `Promise`\<`IDataspaceProtocolPolicy`\>
 
 Get a policy from the entity storage.
 
@@ -122,7 +122,7 @@ The ID of the policy to get.
 
 #### Returns
 
-`Promise`\<`IOdrlPolicy`\>
+`Promise`\<`IDataspaceProtocolPolicy`\>
 
 The policy.
 
@@ -134,7 +134,7 @@ The policy.
 
 ### getAgreement()
 
-> **getAgreement**(`agreementId`): `Promise`\<`IOdrlAgreement`\>
+> **getAgreement**(`agreementId`): `Promise`\<`IDataspaceProtocolAgreement`\>
 
 Get an agreement from the entity storage.
 
@@ -148,7 +148,7 @@ The ID of the agreement to get.
 
 #### Returns
 
-`Promise`\<`IOdrlAgreement`\>
+`Promise`\<`IDataspaceProtocolAgreement`\>
 
 The agreement.
 
@@ -160,7 +160,7 @@ The agreement.
 
 ### getOffer()
 
-> **getOffer**(`offerId`): `Promise`\<`IOdrlOffer`\>
+> **getOffer**(`offerId`): `Promise`\<`IDataspaceProtocolOffer`\>
 
 Get an offer from the entity storage.
 
@@ -174,7 +174,7 @@ The ID of the offer to get.
 
 #### Returns
 
-`Promise`\<`IOdrlOffer`\>
+`Promise`\<`IDataspaceProtocolOffer`\>
 
 The offer.
 
@@ -186,7 +186,7 @@ The offer.
 
 ### getSet()
 
-> **getSet**(`setId`): `Promise`\<`IOdrlSet`\>
+> **getSet**(`setId`): `Promise`\<`IDataspaceProtocolSet`\>
 
 Get a set from the entity storage.
 
@@ -200,7 +200,7 @@ The ID of the set to get.
 
 #### Returns
 
-`Promise`\<`IOdrlSet`\>
+`Promise`\<`IDataspaceProtocolSet`\>
 
 The set.
 
@@ -236,7 +236,7 @@ The ID of the policy to remove.
 
 ### query()
 
-> **query**(`options?`, `conditions?`, `cursor?`, `limit?`): `Promise`\<\{ `cursor?`: `string`; `policies`: `IOdrlPolicy`[]; \}\>
+> **query**(`options?`, `conditions?`, `cursor?`, `limit?`): `Promise`\<\{ `cursor?`: `string`; `policies`: `IDataspaceProtocolPolicy`[]; \}\>
 
 Query the entity storage for policies.
 
@@ -272,7 +272,7 @@ The action to filter by.
 
 ##### conditions?
 
-`EntityCondition`\<`IOdrlPolicy`\>
+`EntityCondition`\<`IDataspaceProtocolPolicy`\>
 
 The conditions to query the entity storage with.
 
@@ -290,7 +290,7 @@ The number of results to return per page.
 
 #### Returns
 
-`Promise`\<\{ `cursor?`: `string`; `policies`: `IOdrlPolicy`[]; \}\>
+`Promise`\<\{ `cursor?`: `string`; `policies`: `IDataspaceProtocolPolicy`[]; \}\>
 
 The policies.
 

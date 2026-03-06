@@ -6,6 +6,6 @@ The response structure for getting a policy.
 
 ### body
 
-> **body**: `IOdrlPolicy`
+> **body**: `IDataspaceProtocolPolicy`
 
 The body of the response.

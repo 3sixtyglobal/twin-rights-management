@@ -2,13 +2,13 @@
 
 > **convertFromStoragePolicy**\<`T`\>(`storagePolicy`): `T`
 
-Converts an OdrlPolicy from storage to an IOdrlPolicy.
+Converts an OdrlPolicy from storage to an IDataspaceProtocolPolicy.
 
 ## Type Parameters
 
 ### T
 
-`T` *extends* `IOdrlPolicy`
+`T` *extends* `IDataspaceProtocolPolicy`
 
 ## Parameters
 
@@ -22,4 +22,4 @@ The storage policy to convert.
 
 `T`
 
-The converted IOdrlPolicy.
+The converted IDataspaceProtocolPolicy.

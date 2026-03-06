@@ -11,7 +11,7 @@ Provide the policies to the Policy Decision Point (PDP) based on the data and id
 
 ### retrieve()
 
-> **retrieve**(`options?`, `cursor?`): `Promise`\<\{ `policies`: `IOdrlPolicy`[]; `cursor?`: `string`; \}\>
+> **retrieve**(`options?`, `cursor?`): `Promise`\<\{ `policies`: `IDataspaceProtocolPolicy`[]; `cursor?`: `string`; \}\>
 
 Get the policies from a PAP based on the data and identities.
 
@@ -53,6 +53,6 @@ An optional cursor to continue a previous query.
 
 #### Returns
 
-`Promise`\<\{ `policies`: `IOdrlPolicy`[]; `cursor?`: `string`; \}\>
+`Promise`\<\{ `policies`: `IDataspaceProtocolPolicy`[]; `cursor?`: `string`; \}\>
 
 Returns the policies which apply to the data and identities so that the PDP can make a decision.

@@ -27,7 +27,7 @@ Execute actions based on the PDP's decisions.
 
 ##### policy
 
-`IOdrlPolicy`
+`IDataspaceProtocolPolicy`
 
 The policy that applied to the data.
 

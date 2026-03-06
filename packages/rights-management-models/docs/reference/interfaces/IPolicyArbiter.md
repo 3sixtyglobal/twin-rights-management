@@ -24,7 +24,7 @@ Makes decisions regarding policy access to data.
 
 ##### agreement
 
-`IOdrlAgreement`
+`IDataspaceProtocolAgreement`
 
 The agreement to evaluate.
 

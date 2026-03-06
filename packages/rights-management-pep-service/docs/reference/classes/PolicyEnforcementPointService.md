@@ -74,7 +74,7 @@ Process the data using Policy Decision Point (PDP) and return the manipulated da
 
 ##### agreement
 
-`IOdrlAgreement`
+`IDataspaceProtocolAgreement`
 
 The agreement to enforce.
 

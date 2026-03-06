@@ -6,6 +6,6 @@ The response structure for getting an offer.
 
 ### body
 
-> **body**: `IOdrlOffer`
+> **body**: `IDataspaceProtocolOffer`
 
 The body of the response.
