@@ -10,7 +10,8 @@ import {
 	OdrlPolicyHelper,
 	PolicyInformationAccessMode
 } from "@twin.org/rights-management-models";
-import type { ActionType, IOdrlPolicy } from "@twin.org/standards-w3c-odrl";
+import type { IDataspaceProtocolPolicy } from "@twin.org/standards-dataspace-protocol";
+import type { ActionType } from "@twin.org/standards-w3c-odrl";
 import type { IIdentityPolicyInformationSourceConstructorOptions } from "../models/IIdentityPolicyInformationSourceConstructorOptions.js";
 
 /**
@@ -64,7 +65,7 @@ export class IdentityPolicyInformationSource implements IPolicyInformationSource
 	 * @returns The objects containing relevant information or undefined if nothing relevant is found.
 	 */
 	public async retrieve<D = unknown>(
-		policy: IOdrlPolicy | undefined,
+		policy: IDataspaceProtocolPolicy | undefined,
 		accessMode: PolicyInformationAccessMode,
 		data?: D,
 		action?: ActionType | string
@@ -78,7 +79,7 @@ export class IdentityPolicyInformationSource implements IPolicyInformationSource
 
 		const information: { [id: string]: IJsonLdNodeObject } = {};
 
-		if (Is.object<IOdrlPolicy>(policy)) {
+		if (Is.object<IDataspaceProtocolPolicy>(policy)) {
 			const ids = [];
 
 			if (Is.stringValue(policy.assignee)) {

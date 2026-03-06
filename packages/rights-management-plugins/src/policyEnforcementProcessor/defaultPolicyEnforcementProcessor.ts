@@ -10,7 +10,8 @@ import {
 	type IPolicyDecision,
 	type IPolicyEnforcementProcessor
 } from "@twin.org/rights-management-models";
-import type { ActionType, IOdrlAgreement } from "@twin.org/standards-w3c-odrl";
+import type { IDataspaceProtocolAgreement } from "@twin.org/standards-dataspace-protocol";
+import type { ActionType } from "@twin.org/standards-w3c-odrl";
 import type { IDefaultPolicyEnforcementProcessorConstructorOptions } from "../models/IDefaultPolicyEnforcementProcessorConstructorOptions.js";
 
 /**
@@ -55,12 +56,12 @@ export class DefaultPolicyEnforcementProcessor implements IPolicyEnforcementProc
 	 * @returns The data after processing.
 	 */
 	public async process<D = unknown, R = D>(
-		agreement: IOdrlAgreement,
+		agreement: IDataspaceProtocolAgreement,
 		decisions: IPolicyDecision[],
 		data?: D,
 		action?: ActionType | string
 	): Promise<R> {
-		Guards.object<IOdrlAgreement>(
+		Guards.object<IDataspaceProtocolAgreement>(
 			DefaultPolicyEnforcementProcessor.CLASS_NAME,
 			nameof(agreement),
 			agreement

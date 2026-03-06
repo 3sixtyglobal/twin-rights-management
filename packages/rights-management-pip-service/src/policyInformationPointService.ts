@@ -10,7 +10,8 @@ import {
 	PolicyInformationAccessMode,
 	PolicyInformationSourceFactory
 } from "@twin.org/rights-management-models";
-import type { ActionType, IOdrlPolicy } from "@twin.org/standards-w3c-odrl";
+import type { IDataspaceProtocolPolicy } from "@twin.org/standards-dataspace-protocol";
+import type { ActionType } from "@twin.org/standards-w3c-odrl";
 import type { IPolicyInformationPointServiceConstructorOptions } from "./models/IPolicyInformationPointServiceConstructorOptions.js";
 
 /**
@@ -55,7 +56,7 @@ export class PolicyInformationPointService implements IPolicyInformationPointCom
 	 * @returns Returns additional information based on the data and identities.
 	 */
 	public async retrieve<D = unknown>(
-		policy: IOdrlPolicy | undefined,
+		policy: IDataspaceProtocolPolicy | undefined,
 		accessMode: PolicyInformationAccessMode,
 		data?: D,
 		action?: ActionType | string

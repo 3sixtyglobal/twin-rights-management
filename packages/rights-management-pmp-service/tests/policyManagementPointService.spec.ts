@@ -56,7 +56,7 @@ describe("PolicyManagementPointService", () => {
 		for (let i = 0; i < 10; i++) {
 			await odrlPolicyMemoryEntityStorage.set({
 				type: OdrlTypes.Policy,
-				uid: `policy${i + 1}`,
+				id: `policy${i + 1}`,
 				assignee: "node1",
 				assignerIndex: "||",
 				assigneeIndex: "|node1|",
@@ -68,7 +68,7 @@ describe("PolicyManagementPointService", () => {
 		for (let i = 0; i < 5; i++) {
 			await odrlPolicyMemoryEntityStorage.set({
 				type: OdrlTypes.Policy,
-				uid: `policy${i + 1}`,
+				id: `policy${i + 1}`,
 				target: "target:1234",
 				action: "read",
 				assignerIndex: "||",
@@ -90,7 +90,7 @@ describe("PolicyManagementPointService", () => {
 		for (let i = 0; i < 10; i++) {
 			await odrlPolicyMemoryEntityStorage.set({
 				type: OdrlTypes.Policy,
-				uid: `policy${i + 1}`,
+				id: `policy${i + 1}`,
 				assignee: "node1",
 				target: "target:1234",
 				action: "read",
@@ -104,7 +104,7 @@ describe("PolicyManagementPointService", () => {
 		for (let i = 0; i < 5; i++) {
 			await odrlPolicyMemoryEntityStorage.set({
 				type: OdrlTypes.Policy,
-				uid: `policy${i + 1}`,
+				id: `policy${i + 1}`,
 				assignee: "node1",
 				action: "write",
 				assignerIndex: "||",
@@ -130,7 +130,7 @@ describe("PolicyManagementPointService", () => {
 		for (let i = 0; i < 10; i++) {
 			await odrlPolicyMemoryEntityStorage.set({
 				type: OdrlTypes.Policy,
-				uid: `policy${i + 1}`,
+				id: `policy${i + 1}`,
 				assignee: "node1",
 				target: "target:1234",
 				action: "read",
@@ -144,7 +144,7 @@ describe("PolicyManagementPointService", () => {
 		for (let i = 0; i < 5; i++) {
 			await odrlPolicyMemoryEntityStorage.set({
 				type: OdrlTypes.Policy,
-				uid: `policy${i + 1}`,
+				id: `policy${i + 1}`,
 				assignee: "node1",
 				target: "target:1234",
 				action: "read",
@@ -157,7 +157,7 @@ describe("PolicyManagementPointService", () => {
 		for (let i = 5; i < 10; i++) {
 			await odrlPolicyMemoryEntityStorage.set({
 				type: OdrlTypes.Policy,
-				uid: `policy${i + 1}`,
+				id: `policy${i + 1}`,
 				assignee: "node1",
 				target: undefined,
 				action: "write",
@@ -180,7 +180,7 @@ describe("PolicyManagementPointService", () => {
 		for (let i = 0; i < 100; i++) {
 			await odrlPolicyMemoryEntityStorage.set({
 				type: OdrlTypes.Policy,
-				uid: `policy${i + 1}`,
+				id: `policy${i + 1}`,
 				assignee: "node1",
 				target: "target:1234",
 				action: "read",
@@ -216,7 +216,7 @@ describe("PolicyManagementPointService", () => {
 		const policyManagementPoint = new PolicyManagementPointService();
 		await odrlPolicyMemoryEntityStorage.set({
 			type: OdrlTypes.Policy,
-			uid: "policy-undef-assignee",
+			id: "policy-undef-assignee",
 			target: "target:1234",
 			action: "read",
 			// assignee is undefined
@@ -237,7 +237,7 @@ describe("PolicyManagementPointService", () => {
 		const policyManagementPoint = new PolicyManagementPointService();
 		await odrlPolicyMemoryEntityStorage.set({
 			type: OdrlTypes.Policy,
-			uid: "policy-undef-target",
+			id: "policy-undef-target",
 			assignee: "node1",
 			action: "read",
 			// target is undefined
@@ -255,7 +255,7 @@ describe("PolicyManagementPointService", () => {
 		const policyManagementPoint = new PolicyManagementPointService();
 		await odrlPolicyMemoryEntityStorage.set({
 			type: OdrlTypes.Policy,
-			uid: "policy-undef-action",
+			id: "policy-undef-action",
 			assignee: "node1",
 			target: "target:1234",
 			// action is undefined

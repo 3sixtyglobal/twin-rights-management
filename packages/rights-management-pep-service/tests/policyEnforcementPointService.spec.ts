@@ -26,7 +26,8 @@ import {
 import { PolicyInformationPointService } from "@twin.org/rights-management-pip-service";
 import { PolicyManagementPointService } from "@twin.org/rights-management-pmp-service";
 import { PolicyExecutionPointService } from "@twin.org/rights-management-pxp-service";
-import { type IOdrlAgreement, OdrlContexts, PolicyType } from "@twin.org/standards-w3c-odrl";
+import type { IDataspaceProtocolAgreement } from "@twin.org/standards-dataspace-protocol";
+import { OdrlContexts, PolicyType } from "@twin.org/standards-w3c-odrl";
 import { PolicyEnforcementPointService } from "../src/policyEnforcementPointService.js";
 
 /**
@@ -73,12 +74,12 @@ function createPolicy(options?: {
 	action?: string;
 	target?: string;
 	assignee?: string;
-}): IOdrlAgreement {
+}): IDataspaceProtocolAgreement {
 	return {
 		"@context": OdrlContexts.Context,
 		"@type": PolicyType.Agreement,
+		"@id": options?.uid ?? "policy123",
 		assigner: "assigner",
-		uid: options?.uid ?? "policy123",
 		action: options?.action ?? "action",
 		target: options?.target ?? "target",
 		assignee: options?.assignee ?? "assignee"
@@ -323,7 +324,7 @@ describe("PolicyEnforcementPointService", () => {
 
 		// Processor only handles "document" asset type
 		selectiveProcessor.process.mockImplementation(
-			async (agreement: IOdrlAgreement, decisions, data: unknown) => {
+			async (agreement: IDataspaceProtocolAgreement, decisions, data: unknown) => {
 				if (agreement.target === "document") {
 					return {
 						...(data as { [key: string]: unknown }),
@@ -376,7 +377,7 @@ describe("PolicyEnforcementPointService", () => {
 
 		// Processor only handles "transmit" action
 		encryptionProcessor.process.mockImplementation(
-			async (agreement: IOdrlAgreement, decisions, data: unknown) => {
+			async (agreement: IDataspaceProtocolAgreement, decisions, data: unknown) => {
 				if (agreement.action === "transmit") {
 					return { ...(data as { [key: string]: unknown }), encrypted: true, algorithm: "AES-256" };
 				}
@@ -423,7 +424,7 @@ describe("PolicyEnforcementPointService", () => {
 
 		// Processor only handles "image" + "share" combination
 		watermarkProcessor.process.mockImplementation(
-			async (agreement: IOdrlAgreement, decisions, data: unknown) => {
+			async (agreement: IDataspaceProtocolAgreement, decisions, data: unknown) => {
 				if (agreement.target === "image" && agreement.action === "share") {
 					const assigneeStr =
 						typeof agreement.assignee === "string" ? agreement.assignee : "Unknown";
@@ -486,7 +487,7 @@ describe("PolicyEnforcementPointService", () => {
 
 		// Audit processor logs all "download" actions
 		auditProcessor.process.mockImplementation(
-			async (agreement: IOdrlAgreement, decisions, data: unknown) => {
+			async (agreement: IDataspaceProtocolAgreement, decisions, data: unknown) => {
 				if (agreement.action === "download") {
 					const assigneeStr =
 						typeof agreement.assignee === "string" ? agreement.assignee : "Unknown";
@@ -502,7 +503,7 @@ describe("PolicyEnforcementPointService", () => {
 
 		// Compression processor handles large files
 		compressionProcessor.process.mockImplementation(
-			async (agreement: IOdrlAgreement, decisions, data: unknown) => {
+			async (agreement: IDataspaceProtocolAgreement, decisions, data: unknown) => {
 				if (agreement.target === "video" || agreement.target === "archive") {
 					return { ...(data as { [key: string]: unknown }), compressed: true, algorithm: "gzip" };
 				}
@@ -512,7 +513,7 @@ describe("PolicyEnforcementPointService", () => {
 
 		// Encryption processor handles sensitive documents
 		encryptionProcessor.process.mockImplementation(
-			async (agreement: IOdrlAgreement, decisions, data: unknown) => {
+			async (agreement: IDataspaceProtocolAgreement, decisions, data: unknown) => {
 				if (agreement.target === "sensitive-document") {
 					return { ...(data as { [key: string]: unknown }), encrypted: true, key: "secret-key" };
 				}

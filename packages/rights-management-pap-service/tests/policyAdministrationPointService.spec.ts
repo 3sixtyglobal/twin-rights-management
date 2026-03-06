@@ -3,10 +3,12 @@
 import { existsSync } from "node:fs";
 import { rm } from "node:fs/promises";
 import { ArrayHelper, Is, ObjectHelper } from "@twin.org/core";
+import type { JsonLdObjectWithOptionalAtId } from "@twin.org/data-json-ld";
 import type { EntityCondition } from "@twin.org/entity";
 import type { MemoryEntityStorageConnector } from "@twin.org/entity-storage-connector-memory";
 import { EntityStorageConnectorFactory } from "@twin.org/entity-storage-models";
-import { OdrlContexts, PolicyType, type IOdrlPolicy } from "@twin.org/standards-w3c-odrl";
+import type { IDataspaceProtocolPolicy } from "@twin.org/standards-dataspace-protocol";
+import { PolicyType, OdrlContexts } from "@twin.org/standards-w3c-odrl";
 import {
 	createTestPolicies,
 	SAMPLE_POLICY,
@@ -43,7 +45,7 @@ describe("PolicyAdministrationPointService", () => {
 	test("should create a policy in entity storage", async () => {
 		// Remove UID from sample policy since create now auto-generates UIDs
 		const policyWithoutUid = ObjectHelper.clone(SAMPLE_POLICY);
-		ObjectHelper.propertyDelete(policyWithoutUid, "uid");
+		ObjectHelper.propertyDelete(policyWithoutUid, "@id");
 		const resultUid = await policyAdminPoint.create(policyWithoutUid);
 
 		expect(resultUid).toBeDefined();
@@ -56,27 +58,26 @@ describe("PolicyAdministrationPointService", () => {
 
 		const storedPolicy = store[0];
 		expect(storedPolicy).toBeDefined();
-		expect(storedPolicy.uid).toEqual(resultUid);
+		expect(storedPolicy.id).toEqual(resultUid);
 		expect(storedPolicy.permission).toBeDefined();
 
 		const retrievedPolicy = await policyAdminPoint.get(resultUid);
 
 		expect(retrievedPolicy).toBeDefined();
-		expect(retrievedPolicy.uid).toEqual(resultUid);
+		expect(retrievedPolicy["@id"]).toEqual(resultUid);
 		expect(retrievedPolicy["@type"]).toEqual("Set");
-		expect(retrievedPolicy["@context"]).toBeDefined();
 		expect(Is.array(retrievedPolicy.permission)).toBeTruthy();
 	});
 
 	test("should retrieve a policy from entity storage", async () => {
 		const policyWithoutUid = ObjectHelper.clone(SAMPLE_POLICY);
-		ObjectHelper.propertyDelete(policyWithoutUid, "uid");
+		ObjectHelper.propertyDelete(policyWithoutUid, "@id");
 		const createdUid = await policyAdminPoint.create(policyWithoutUid);
 
 		const retrievedPolicy = await policyAdminPoint.get(createdUid);
 
 		expect(retrievedPolicy).toBeDefined();
-		expect(retrievedPolicy.uid).toEqual(createdUid);
+		expect(retrievedPolicy["@id"]).toEqual(createdUid);
 		expect(retrievedPolicy["@type"]).toEqual("Set");
 
 		expect(retrievedPolicy.permission).toBeDefined();
@@ -94,7 +95,7 @@ describe("PolicyAdministrationPointService", () => {
 		await expect(
 			policyAdminPoint.create({
 				...SAMPLE_POLICY,
-				uid: "invalid-uid-format"
+				"@id": "invalid-uid-format"
 			})
 		).rejects.toThrow();
 	});
@@ -105,7 +106,7 @@ describe("PolicyAdministrationPointService", () => {
 
 	test("should remove a policy from entity storage", async () => {
 		const policyWithoutUid = ObjectHelper.clone(SAMPLE_POLICY);
-		ObjectHelper.propertyDelete(policyWithoutUid, "uid");
+		ObjectHelper.propertyDelete(policyWithoutUid, "@id");
 		const createdUid = await policyAdminPoint.create(policyWithoutUid);
 
 		let store = odrlPolicyEntityStorage.getStore();
@@ -142,8 +143,8 @@ describe("PolicyAdministrationPointService", () => {
 		expect(expectedUid).toBeDefined();
 
 		if (expectedUid) {
-			const uidCondition: EntityCondition<IOdrlPolicy> = {
-				property: "uid",
+			const uidCondition: EntityCondition<IDataspaceProtocolPolicy> = {
+				property: "id",
 				value: expectedUid,
 				comparison: "equals"
 			};
@@ -153,15 +154,15 @@ describe("PolicyAdministrationPointService", () => {
 			expect(result.policies).toBeDefined();
 			expect(result.policies.length).toEqual(1);
 
-			expect(result.policies[0].uid).toEqual(expectedUid);
+			expect(result.policies[0]["@id"]).toEqual(expectedUid);
 		}
 	});
 
 	test("should return empty result for non-matching conditions", async () => {
 		await createTestPolicies(policyAdminPoint);
 
-		const uidCondition: EntityCondition<IOdrlPolicy> = {
-			property: "uid",
+		const uidCondition: EntityCondition<IDataspaceProtocolPolicy> = {
+			property: "id",
 			value: "non-existent-policy",
 			comparison: "equals"
 		};
@@ -186,8 +187,8 @@ describe("PolicyAdministrationPointService", () => {
 		expect(result2.policies).toBeDefined();
 		expect(result2.policies.length).toEqual(5);
 
-		const firstPageIds = result1.policies.map(p => p.uid);
-		const secondPageIds = result2.policies.map(p => p.uid);
+		const firstPageIds = result1.policies.map(p => p["@id"]);
+		const secondPageIds = result2.policies.map(p => p["@id"]);
 		expect(firstPageIds).not.toEqual(secondPageIds);
 	});
 
@@ -202,14 +203,14 @@ describe("PolicyAdministrationPointService", () => {
 	test("should throw validation error when creating invalid policy", async () => {
 		// Create an invalid policy missing required @context and @type
 		const invalidPolicy = {
-			uid: "http://example.com/invalid-policy",
+			"@id": "http://example.com/invalid-policy",
 			permission: [
 				{
 					target: "http://example.com/asset/9898",
 					action: "use"
 				}
 			]
-		} as unknown as IOdrlPolicy;
+		} as unknown as IDataspaceProtocolPolicy;
 
 		await expect(policyAdminPoint.create(invalidPolicy)).rejects.toThrow();
 	});
@@ -232,7 +233,7 @@ describe("PolicyAdministrationPointService", () => {
 
 		const retrievedPolicy = await policyAdminPoint.get(result);
 		expect(retrievedPolicy).toBeDefined();
-		expect(retrievedPolicy.uid).toEqual(result);
+		expect(retrievedPolicy["@id"]).toEqual(result);
 	});
 
 	test("should validate ODRL policy structure through JSON-LD validation", async () => {
@@ -271,12 +272,12 @@ describe("PolicyAdministrationPointService", () => {
 
 		const retrievedPolicy = await policyAdminPoint.get(result);
 		expect(retrievedPolicy).toBeDefined();
-		expect(retrievedPolicy.uid).toEqual(result);
+		expect(retrievedPolicy["@id"]).toEqual(result);
 	});
 
 	test("should create multiple policies with unique auto-generated UIDs", async () => {
 		const policyWithoutUid = ObjectHelper.clone(SAMPLE_POLICY);
-		ObjectHelper.propertyDelete(policyWithoutUid, "uid");
+		ObjectHelper.propertyDelete(policyWithoutUid, "@id");
 		const uid1 = await policyAdminPoint.create(policyWithoutUid);
 		const uid2 = await policyAdminPoint.create(policyWithoutUid);
 
@@ -287,20 +288,20 @@ describe("PolicyAdministrationPointService", () => {
 		// Both policies should be retrievable
 		const policy1 = await policyAdminPoint.get(uid1);
 		const policy2 = await policyAdminPoint.get(uid2);
-		expect(policy1.uid).toEqual(uid1);
-		expect(policy2.uid).toEqual(uid2);
+		expect(policy1["@id"]).toEqual(uid1);
+		expect(policy2["@id"]).toEqual(uid2);
 	});
 
 	test("should update an existing policy", async () => {
 		const policyWithoutUid = ObjectHelper.clone(SAMPLE_POLICY);
-		ObjectHelper.propertyDelete(policyWithoutUid, "uid");
+		ObjectHelper.propertyDelete(policyWithoutUid, "@id");
 		const createResult = await policyAdminPoint.create(policyWithoutUid);
 		const policyId = createResult;
 
-		const updatedPolicy: IOdrlPolicy = {
+		const updatedPolicy: IDataspaceProtocolPolicy = {
 			"@context": OdrlContexts.Context,
 			"@type": "Set",
-			uid: policyId,
+			"@id": policyId,
 			permission: [
 				{
 					target: "http://example.com/asset/updated",
@@ -313,7 +314,7 @@ describe("PolicyAdministrationPointService", () => {
 		const result = await policyAdminPoint.get(policyId);
 
 		expect(result).toBeDefined();
-		expect(result.uid).toEqual(policyId);
+		expect(result["@id"]).toEqual(policyId);
 		expect(result.permission).toBeDefined();
 		const permission = ArrayHelper.fromObjectOrArray(result.permission);
 		if (Is.arrayValue(permission)) {
@@ -324,10 +325,10 @@ describe("PolicyAdministrationPointService", () => {
 
 	test("should throw error when updating non-existent policy", async () => {
 		const nonExistentId = "http://example.com/non-existent-policy";
-		const updatePolicy: IOdrlPolicy = {
+		const updatePolicy: IDataspaceProtocolPolicy = {
 			"@context": OdrlContexts.Context,
 			"@type": "Set",
-			uid: nonExistentId,
+			"@id": nonExistentId,
 			permission: [
 				{
 					target: "http://example.com/asset/updated",
@@ -341,10 +342,10 @@ describe("PolicyAdministrationPointService", () => {
 
 	test("should throw error when updating with non-existent UID", async () => {
 		// Try to update a policy that doesn't exist
-		const nonExistentPolicy: IOdrlPolicy = {
+		const nonExistentPolicy: IDataspaceProtocolPolicy = {
 			"@context": OdrlContexts.Context,
 			"@type": "Set",
-			uid: "http://example.com/non-existent-uid",
+			"@id": "http://example.com/non-existent-uid",
 			permission: [
 				{
 					target: "http://example.com/asset/updated",
@@ -358,7 +359,7 @@ describe("PolicyAdministrationPointService", () => {
 
 	test("should replace policy entirely in update", async () => {
 		// Create initial policy with complex structure
-		const initialPolicy: Omit<IOdrlPolicy, "uid"> = {
+		const initialPolicy: JsonLdObjectWithOptionalAtId<IDataspaceProtocolPolicy> = {
 			"@context": OdrlContexts.Context,
 			"@type": PolicyType.Set,
 			assigner: {
@@ -383,10 +384,10 @@ describe("PolicyAdministrationPointService", () => {
 		const createResult = await policyAdminPoint.create(initialPolicy);
 		const policyId = createResult;
 
-		const replacementPolicy: IOdrlPolicy = {
+		const replacementPolicy: IDataspaceProtocolPolicy = {
 			"@context": OdrlContexts.Context,
 			"@type": PolicyType.Set,
-			uid: policyId,
+			"@id": policyId,
 			assigner: {
 				uid: "http://example.com/party/1",
 				"@type": "Organization"
@@ -401,7 +402,7 @@ describe("PolicyAdministrationPointService", () => {
 		const result = await policyAdminPoint.get(policyId);
 
 		expect(result).toBeDefined();
-		expect(result.uid).toEqual(policyId);
+		expect(result["@id"]).toEqual(policyId);
 
 		// Check policy was completely replaced
 		expect(result.assigner).toBeDefined();
@@ -421,7 +422,6 @@ describe("PolicyAdministrationPointService", () => {
 
 	test("should replace arrays entirely in update", async () => {
 		const initialPolicy = {
-			"@context": OdrlContexts.Context,
 			"@type": PolicyType.Set,
 			permission: [
 				{
@@ -433,15 +433,15 @@ describe("PolicyAdministrationPointService", () => {
 					action: "read"
 				}
 			]
-		} as Omit<IOdrlPolicy, "uid">;
+		} as Omit<IDataspaceProtocolPolicy, "uid">;
 
 		const createResult = await policyAdminPoint.create(initialPolicy);
 		const policyId = createResult;
 
-		const updateWithNewArray: IOdrlPolicy = {
+		const updateWithNewArray: IDataspaceProtocolPolicy = {
 			"@context": OdrlContexts.Context,
 			"@type": "Set",
-			uid: policyId,
+			"@id": policyId,
 			permission: [
 				{
 					target: "http://example.com/asset/3",
@@ -454,7 +454,7 @@ describe("PolicyAdministrationPointService", () => {
 		const result = await policyAdminPoint.get(policyId);
 
 		expect(result).toBeDefined();
-		expect(result.uid).toEqual(policyId);
+		expect(result["@id"]).toEqual(policyId);
 		expect(result.permission).toBeDefined();
 		expect(result.permission).toHaveLength(1);
 		const permission = ArrayHelper.fromObjectOrArray(result.permission);
@@ -466,21 +466,20 @@ describe("PolicyAdministrationPointService", () => {
 
 	test("should validate updated policy through JSON-LD validation", async () => {
 		const policyWithoutUid = ObjectHelper.clone(SAMPLE_POLICY);
-		ObjectHelper.propertyDelete(policyWithoutUid, "uid");
+		ObjectHelper.propertyDelete(policyWithoutUid, "@id");
 		const createResult = await policyAdminPoint.create(policyWithoutUid);
 		const policyId = createResult;
 
 		const invalidUpdate = {
-			"@context": OdrlContexts.Context,
 			"@type": "InvalidType",
-			uid: policyId,
+			"@id": policyId,
 			permission: [
 				{
 					target: "http://example.com/asset/updated",
 					action: "invalidAction"
 				}
 			]
-		} as unknown as IOdrlPolicy;
+		} as unknown as IDataspaceProtocolPolicy;
 
 		await policyAdminPoint.update(invalidUpdate);
 		const result = await policyAdminPoint.get(policyId);
@@ -489,14 +488,14 @@ describe("PolicyAdministrationPointService", () => {
 
 	test("should update policy and persist changes", async () => {
 		const policyWithoutUid = ObjectHelper.clone(SAMPLE_POLICY);
-		ObjectHelper.propertyDelete(policyWithoutUid, "uid");
+		ObjectHelper.propertyDelete(policyWithoutUid, "@id");
 		const createResult = await policyAdminPoint.create(policyWithoutUid);
 		const policyId = createResult;
 
-		const updatedPolicy: IOdrlPolicy = {
+		const updatedPolicy: IDataspaceProtocolPolicy = {
 			"@context": OdrlContexts.Context,
 			"@type": "Offer",
-			uid: policyId,
+			"@id": policyId,
 			permission: [
 				{
 					target: "http://example.com/asset/new",
@@ -510,7 +509,7 @@ describe("PolicyAdministrationPointService", () => {
 
 		const retrievedPolicy = await policyAdminPoint.get(policyId);
 		expect(retrievedPolicy).toBeDefined();
-		expect(retrievedPolicy.uid).toEqual(policyId);
+		expect(retrievedPolicy["@id"]).toEqual(policyId);
 		expect(retrievedPolicy["@type"]).toEqual("Offer");
 		const permission = ArrayHelper.fromObjectOrArray(retrievedPolicy.permission);
 		if (Is.arrayValue(permission)) {
@@ -521,10 +520,10 @@ describe("PolicyAdministrationPointService", () => {
 	});
 
 	test("should build pipe-delimited index fields on create", async () => {
-		const policy: IOdrlPolicy = {
+		const policy: IDataspaceProtocolPolicy = {
 			"@context": OdrlContexts.Context,
 			"@type": "Offer",
-			uid: TEST_POLICY_ID,
+			"@id": TEST_POLICY_ID,
 			assigner: "user:assigner-1",
 			assignee: {
 				uid: "user:assignee-1",
@@ -544,7 +543,7 @@ describe("PolicyAdministrationPointService", () => {
 		const store = odrlPolicyEntityStorage.getStore();
 		expect(store).toHaveLength(1);
 		const stored = store[0];
-		expect(stored.uid).toEqual(uid);
+		expect(stored.id).toEqual(uid);
 		expect(stored.assignerIndex).toEqual("|user:assigner-1|");
 		expect(stored.assigneeIndex).toEqual("|user:assignee-1|");
 		expect(stored.targetIndex).toEqual("|http://example.com/asset/alpha|");
@@ -578,7 +577,7 @@ describe("PolicyAdministrationPointService", () => {
 
 		const result = await policyAdminPoint.query({ assigner: "user:assigner-a" });
 		expect(result.policies).toHaveLength(1);
-		expect(result.policies[0].uid).toEqual(uid1);
+		expect(result.policies[0]["@id"]).toEqual(uid1);
 	});
 
 	test("should query policies by top-level target and action indexes", async () => {
@@ -610,11 +609,11 @@ describe("PolicyAdministrationPointService", () => {
 
 		const byTarget = await policyAdminPoint.query({ target: "http://example.com/asset/t1" });
 		expect(byTarget.policies).toHaveLength(1);
-		expect(byTarget.policies[0].uid).toEqual(uid1);
+		expect(byTarget.policies[0]["@id"]).toEqual(uid1);
 
 		const byAction = await policyAdminPoint.query({ action: "display" });
 		expect(byAction.policies).toHaveLength(1);
-		expect(byAction.policies[0].uid).toBeDefined();
+		expect(byAction.policies[0]["@id"]).toBeDefined();
 	});
 
 	test("should index multiple top-level targets and actions", async () => {
@@ -644,11 +643,11 @@ describe("PolicyAdministrationPointService", () => {
 
 		const byTargetB = await policyAdminPoint.query({ target: "http://example.com/asset/b" });
 		expect(byTargetB.policies).toHaveLength(1);
-		expect(byTargetB.policies[0].uid).toEqual(uid);
+		expect(byTargetB.policies[0]["@id"]).toEqual(uid);
 
 		const byActionRead = await policyAdminPoint.query({ action: "read" });
 		expect(byActionRead.policies).toHaveLength(1);
-		expect(byActionRead.policies[0].uid).toEqual(uid);
+		expect(byActionRead.policies[0]["@id"]).toEqual(uid);
 	});
 
 	test("should not query by permission target/action when top-level fields missing", async () => {

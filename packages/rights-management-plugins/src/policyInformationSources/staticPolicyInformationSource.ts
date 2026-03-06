@@ -9,7 +9,8 @@ import {
 	PolicyInformationAccessMode,
 	type IPolicyInformationSource
 } from "@twin.org/rights-management-models";
-import type { ActionType, IOdrlPolicy } from "@twin.org/standards-w3c-odrl";
+import type { IDataspaceProtocolPolicy } from "@twin.org/standards-dataspace-protocol";
+import type { ActionType } from "@twin.org/standards-w3c-odrl";
 import type { IStaticPolicyInformationSource } from "../models/IStaticPolicyInformationSource.js";
 import type { IStaticPolicyInformationSourceConstructorOptions } from "../models/IStaticPolicyInformationSourceConstructorOptions.js";
 
@@ -62,7 +63,7 @@ export class StaticPolicyInformationSource implements IPolicyInformationSource {
 	 * @returns The objects containing relevant information or undefined if nothing relevant is found.
 	 */
 	public async retrieve<D = unknown>(
-		policy: IOdrlPolicy | undefined,
+		policy: IDataspaceProtocolPolicy | undefined,
 		accessMode: PolicyInformationAccessMode,
 		data?: D,
 		action?: ActionType | string

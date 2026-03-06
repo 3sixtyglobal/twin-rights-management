@@ -10,7 +10,8 @@ import {
 	type IPolicyArbiter,
 	type IPolicyDecision
 } from "@twin.org/rights-management-models";
-import type { ActionType, IOdrlAgreement } from "@twin.org/standards-w3c-odrl";
+import type { IDataspaceProtocolAgreement } from "@twin.org/standards-dataspace-protocol";
+import type { ActionType } from "@twin.org/standards-w3c-odrl";
 import type { IPassThroughPolicyArbiterConstructorOptions } from "../models/IPassThroughPolicyArbiterConstructorOptions.js";
 
 /**
@@ -55,12 +56,12 @@ export class PassThroughPolicyArbiter implements IPolicyArbiter {
 	 * @returns The decisions about access to the data.
 	 */
 	public async decide<D = unknown>(
-		agreement: IOdrlAgreement,
+		agreement: IDataspaceProtocolAgreement,
 		information?: { [id: string]: IJsonLdNodeObject },
 		data?: D,
 		action?: ActionType | string
 	): Promise<IPolicyDecision[]> {
-		Guards.object<IOdrlAgreement>(
+		Guards.object<IDataspaceProtocolAgreement>(
 			PassThroughPolicyArbiter.CLASS_NAME,
 			nameof(agreement),
 			agreement

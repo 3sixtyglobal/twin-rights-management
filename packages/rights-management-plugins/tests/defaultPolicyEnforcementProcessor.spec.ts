@@ -12,17 +12,18 @@ import { LoggingConnectorFactory } from "@twin.org/logging-models";
 import { LoggingService } from "@twin.org/logging-service";
 import { nameof } from "@twin.org/nameof";
 import { PolicyDecision, type IPolicyDecision } from "@twin.org/rights-management-models";
-import { OdrlContexts, PolicyType, type IOdrlAgreement } from "@twin.org/standards-w3c-odrl";
+import type { IDataspaceProtocolAgreement } from "@twin.org/standards-dataspace-protocol";
+import { OdrlContexts, PolicyType } from "@twin.org/standards-w3c-odrl";
 import { DefaultPolicyEnforcementProcessor } from "../src/policyEnforcementProcessor/defaultPolicyEnforcementProcessor.js";
 
 let loggingMemoryEntityStorage: MemoryEntityStorageConnector<LogEntry>;
 
 describe("DefaultPolicyEnforcementProcessor", () => {
-	function createAgreement(uid: string = "policy123"): IOdrlAgreement {
+	function createAgreement(uid: string = "policy123"): IDataspaceProtocolAgreement {
 		return {
 			"@context": OdrlContexts.Context,
 			"@type": PolicyType.Agreement,
-			uid,
+			"@id": uid,
 			assigner: "did:example:assigner",
 			assignee: "did:example:assignee"
 		};
@@ -325,7 +326,7 @@ describe("DefaultPolicyEnforcementProcessor", () => {
 		const processor = new DefaultPolicyEnforcementProcessor();
 
 		await expect(
-			processor.process(undefined as unknown as IOdrlAgreement, [], { a: 1 })
+			processor.process(undefined as unknown as IDataspaceProtocolAgreement, [], { a: 1 })
 		).rejects.toThrow();
 	});
 });

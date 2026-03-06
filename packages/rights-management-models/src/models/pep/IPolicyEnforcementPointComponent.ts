@@ -1,7 +1,8 @@
 // Copyright 2025 IOTA Stiftung.
 // SPDX-License-Identifier: Apache-2.0.
 import type { IComponent } from "@twin.org/core";
-import type { ActionType, IOdrlAgreement } from "@twin.org/standards-w3c-odrl";
+import type { IDataspaceProtocolAgreement } from "@twin.org/standards-dataspace-protocol";
+import type { ActionType } from "@twin.org/standards-w3c-odrl";
 
 /**
  * Interface describing a Policy Enforcement Point (PEP) contract.
@@ -18,7 +19,7 @@ export interface IPolicyEnforcementPointComponent extends IComponent {
 	 * @returns The manipulated data with any policies applied.
 	 */
 	interceptWithPolicy<D = unknown, R = D>(
-		agreement: IOdrlAgreement,
+		agreement: IDataspaceProtocolAgreement,
 		data?: D,
 		action?: ActionType | string
 	): Promise<R>;

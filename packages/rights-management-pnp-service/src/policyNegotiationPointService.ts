@@ -33,6 +33,7 @@ import {
 	DataspaceProtocolContractNegotiationEventType,
 	DataspaceProtocolContractNegotiationStateType,
 	DataspaceProtocolContractNegotiationTypes,
+	type IDataspaceProtocolOffer,
 	type IDataspaceProtocolContractAgreementMessage,
 	type IDataspaceProtocolContractAgreementVerificationMessage,
 	type IDataspaceProtocolContractNegotiation,
@@ -42,11 +43,11 @@ import {
 	type IDataspaceProtocolContractOfferMessage,
 	type IDataspaceProtocolContractRequestMessage
 } from "@twin.org/standards-dataspace-protocol";
-import { OdrlContexts, OdrlTypes, type IOdrlOffer } from "@twin.org/standards-w3c-odrl";
+import { OdrlContexts, OdrlTypes } from "@twin.org/standards-w3c-odrl";
 import {
-	type ITrustVerificationInfo,
 	TrustHelper,
-	type ITrustComponent
+	type ITrustComponent,
+	type ITrustVerificationInfo
 } from "@twin.org/trust-models";
 import type { IPolicyNegotiationPointServiceConfig } from "./models/IPolicyNegotiationPointServiceConfig.js";
 import type { IPolicyNegotiationPointServiceConstructorOptions } from "./models/IPolicyNegotiationPointServiceConstructorOptions.js";
@@ -272,9 +273,8 @@ export class PolicyNegotiationPointService implements IPolicyNegotiationPointCom
 			"@type": DataspaceProtocolContractNegotiationTypes.ContractRequestMessage,
 			consumerPid,
 			offer: {
-				"@context": OdrlContexts.Context,
 				"@type": OdrlTypes.Offer,
-				uid: odrlOfferId,
+				"@id": odrlOfferId,
 				assigner: organizationIdentity
 			},
 			callbackAddress: `${publicOrigin}/${this._callbackPath}`
@@ -341,7 +341,7 @@ export class PolicyNegotiationPointService implements IPolicyNegotiationPointCom
 			nameof(message.consumerPid),
 			message.consumerPid
 		);
-		Guards.object<IOdrlOffer>(
+		Guards.object<IDataspaceProtocolOffer>(
 			PolicyNegotiationPointService.CLASS_NAME,
 			nameof(message.offer),
 			message.offer
@@ -371,7 +371,7 @@ export class PolicyNegotiationPointService implements IPolicyNegotiationPointCom
 			);
 
 			// Now lookup the offer being requested
-			let providerOffer: IOdrlOffer | undefined;
+			let providerOffer: IDataspaceProtocolOffer | undefined;
 
 			try {
 				providerOffer = await this._policyAdministrationPointComponent.getOffer(offerUid);
@@ -638,7 +638,10 @@ export class PolicyNegotiationPointService implements IPolicyNegotiationPointCom
 
 			// The offer was accepted by the consumer, so update the state
 			policyNegotiation.state = DataspaceProtocolContractNegotiationStateType.ACCEPTED;
-			policyNegotiation.offer = message.offer;
+			policyNegotiation.offer = {
+				"@context": OdrlContexts.Context,
+				...message.offer
+			};
 
 			await this._policyNegotiationAdminPointComponent.set(policyNegotiation);
 
@@ -773,7 +776,10 @@ export class PolicyNegotiationPointService implements IPolicyNegotiationPointCom
 				}
 
 				// Tell the requester about the offer
-				const accepted = await policyRequester.agreement(policyNegotiation.id, message.agreement);
+				const accepted = await policyRequester.agreement(policyNegotiation.id, {
+					"@context": OdrlContexts.Context,
+					...message.agreement
+				});
 
 				if (!accepted) {
 					const err = await this.setErrorState(
@@ -791,7 +797,10 @@ export class PolicyNegotiationPointService implements IPolicyNegotiationPointCom
 			// The agreement was accepted by the consumer, so update the state
 			// and store the agreement
 			policyNegotiation.state = DataspaceProtocolContractNegotiationStateType.AGREED;
-			policyNegotiation.agreement = message.agreement;
+			policyNegotiation.agreement = {
+				"@context": OdrlContexts.Context,
+				...message.agreement
+			};
 
 			await this._policyNegotiationAdminPointComponent.set(policyNegotiation);
 
@@ -1306,7 +1315,7 @@ export class PolicyNegotiationPointService implements IPolicyNegotiationPointCom
 				nameof(policyNegotiation),
 				policyNegotiation
 			);
-			Guards.object<IOdrlOffer>(
+			Guards.object<IDataspaceProtocolOffer>(
 				PolicyNegotiationPointService.CLASS_NAME,
 				nameof(policyNegotiation.offer),
 				policyNegotiation.offer
@@ -1382,7 +1391,11 @@ export class PolicyNegotiationPointService implements IPolicyNegotiationPointCom
 				policyNegotiation
 			);
 			const offer = policyNegotiation.offer;
-			Guards.object<IOdrlOffer>(PolicyNegotiationPointService.CLASS_NAME, nameof(offer), offer);
+			Guards.object<IDataspaceProtocolOffer>(
+				PolicyNegotiationPointService.CLASS_NAME,
+				nameof(offer),
+				offer
+			);
 
 			// Create the finalisation message
 			const eventMessage: IDataspaceProtocolContractNegotiationEventMessage = {
@@ -1452,7 +1465,11 @@ export class PolicyNegotiationPointService implements IPolicyNegotiationPointCom
 				policyNegotiation
 			);
 			const offer = policyNegotiation.offer;
-			Guards.object<IOdrlOffer>(PolicyNegotiationPointService.CLASS_NAME, nameof(offer), offer);
+			Guards.object<IDataspaceProtocolOffer>(
+				PolicyNegotiationPointService.CLASS_NAME,
+				nameof(offer),
+				offer
+			);
 
 			Guards.object<ITrustVerificationInfo>(
 				PolicyNegotiationPointService.CLASS_NAME,

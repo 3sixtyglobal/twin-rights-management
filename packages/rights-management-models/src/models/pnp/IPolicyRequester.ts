@@ -1,7 +1,11 @@
 // Copyright 2025 IOTA Stiftung.
 // SPDX-License-Identifier: Apache-2.0.
 import type { IComponent } from "@twin.org/core";
-import type { IOdrlAgreement, IOdrlOffer } from "@twin.org/standards-w3c-odrl";
+import type { JsonLdObjectWithOptionalContext } from "@twin.org/data-json-ld";
+import type {
+	IDataspaceProtocolAgreement,
+	IDataspaceProtocolOffer
+} from "@twin.org/standards-dataspace-protocol";
 
 /**
  * Interface describing a Policy Requester.
@@ -13,7 +17,10 @@ export interface IPolicyRequester extends IComponent {
 	 * @param offer The offer sent by the provider.
 	 * @returns True if the offer was accepted, false otherwise.
 	 */
-	offer(negotiationId: string, offer: IOdrlOffer): Promise<boolean>;
+	offer(
+		negotiationId: string,
+		offer: JsonLdObjectWithOptionalContext<IDataspaceProtocolOffer>
+	): Promise<boolean>;
 
 	/**
 	 * A policy agreement has been sent by a provider, let the requester know about it.
@@ -21,7 +28,10 @@ export interface IPolicyRequester extends IComponent {
 	 * @param agreement The agreement sent by the provider.
 	 * @returns True if the agreement was accepted, false otherwise.
 	 */
-	agreement(negotiationId: string, agreement: IOdrlAgreement): Promise<boolean>;
+	agreement(
+		negotiationId: string,
+		agreement: JsonLdObjectWithOptionalContext<IDataspaceProtocolAgreement>
+	): Promise<boolean>;
 
 	/**
 	 * A policy finalisation has been sent by a provider, let the requester know about it.

@@ -17,6 +17,7 @@ import {
 	PolicyInformationSourceFactory,
 	type IPolicyInformationSource
 } from "@twin.org/rights-management-models";
+import { OdrlContexts } from "@twin.org/standards-w3c-odrl";
 import { PolicyInformationPointService } from "../src/policyInformationPointService.js";
 
 /**
@@ -87,9 +88,9 @@ describe("PolicyInformationPointService", () => {
 		PolicyInformationSourceFactory.register("identitySource", () => mockSource);
 		const information = await policyInformationPoint.retrieve(
 			{
-				"@context": "http://www.w3.org/ns/odrl.jsonld",
+				"@context": OdrlContexts.Context,
 				"@type": "Set",
-				uid: "policy123",
+				"@id": "policy123",
 				target: "document",
 				action: "read",
 				assignee: "node456"
@@ -102,7 +103,7 @@ describe("PolicyInformationPointService", () => {
 			{
 				"@context": "http://www.w3.org/ns/odrl.jsonld",
 				"@type": "Set",
-				uid: "policy123",
+				"@id": "policy123",
 				target: "document",
 				action: "read",
 				assignee: "node456"
@@ -132,9 +133,9 @@ describe("PolicyInformationPointService", () => {
 
 		const information = await policyInformationPoint.retrieve(
 			{
-				"@context": "http://www.w3.org/ns/odrl.jsonld",
+				"@context": OdrlContexts.Context,
 				"@type": "Set",
-				uid: "policy123",
+				"@id": "policy123",
 				target: "image",
 				action: "edit",
 				assignee: "node456"
@@ -147,7 +148,7 @@ describe("PolicyInformationPointService", () => {
 			{
 				"@context": "http://www.w3.org/ns/odrl.jsonld",
 				"@type": "Set",
-				uid: "policy123",
+				"@id": "policy123",
 				target: "image",
 				action: "edit",
 				assignee: "node456"
@@ -160,7 +161,7 @@ describe("PolicyInformationPointService", () => {
 			{
 				"@context": "http://www.w3.org/ns/odrl.jsonld",
 				"@type": "Set",
-				uid: "policy123",
+				"@id": "policy123",
 				target: "image",
 				action: "edit",
 				assignee: "node456"
@@ -180,9 +181,9 @@ describe("PolicyInformationPointService", () => {
 		PolicyInformationSourceFactory.register("emptySource", () => mockSource);
 		const information = await policyInformationPoint.retrieve(
 			{
-				"@context": "http://www.w3.org/ns/odrl.jsonld",
+				"@context": OdrlContexts.Context,
 				"@type": "Set",
-				uid: "policy123",
+				"@id": "policy123",
 				target: "test",
 				action: "action",
 				assignee: "node456"
@@ -210,9 +211,9 @@ describe("PolicyInformationPointService", () => {
 
 		const information = await policyInformationPoint.retrieve(
 			{
-				"@context": "http://www.w3.org/ns/odrl.jsonld",
+				"@context": OdrlContexts.Context,
 				"@type": "Set",
-				uid: "policy123",
+				"@id": "policy123",
 				target: "database",
 				action: "query",
 				assignee: "node456"
@@ -234,9 +235,9 @@ describe("PolicyInformationPointService", () => {
 		PolicyInformationSourceFactory.register("failing", () => failingSource);
 		await policyInformationPoint.retrieve(
 			{
-				"@context": "http://www.w3.org/ns/odrl.jsonld",
+				"@context": OdrlContexts.Context,
 				"@type": "Set",
-				uid: "policy123",
+				"@id": "policy123",
 				target: "file",
 				action: "upload",
 				assignee: "node456"

@@ -25,9 +25,9 @@ import type {
 	IDataspaceProtocolContractNegotiationEventMessage,
 	IDataspaceProtocolContractNegotiationTerminationMessage,
 	IDataspaceProtocolContractOfferMessage,
-	IDataspaceProtocolContractRequestMessage
+	IDataspaceProtocolContractRequestMessage,
+	IDataspaceProtocolOffer
 } from "@twin.org/standards-dataspace-protocol";
-import type { IOdrlOffer } from "@twin.org/standards-w3c-odrl";
 import { HeaderHelper, HeaderTypes, MimeTypes } from "@twin.org/web";
 
 /**
@@ -133,7 +133,7 @@ export class PolicyNegotiationPointRestClient
 			nameof(message.consumerPid),
 			message.consumerPid
 		);
-		Guards.object<IOdrlOffer>(
+		Guards.object<IDataspaceProtocolOffer>(
 			PolicyNegotiationPointRestClient.CLASS_NAME,
 			nameof(message.offer),
 			message.offer

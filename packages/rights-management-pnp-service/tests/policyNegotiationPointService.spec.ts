@@ -36,7 +36,8 @@ import {
 	type OdrlPolicy
 } from "@twin.org/rights-management-pap-service";
 import { PolicyInformationPointService } from "@twin.org/rights-management-pip-service";
-import { OdrlContexts, OdrlTypes, type IOdrlOffer } from "@twin.org/standards-w3c-odrl";
+import type { IDataspaceProtocolOffer } from "@twin.org/standards-dataspace-protocol";
+import { OdrlContexts, OdrlTypes } from "@twin.org/standards-w3c-odrl";
 import type { ITrustComponent } from "@twin.org/trust-models";
 import {
 	EntityStorageVaultConnector,
@@ -61,7 +62,7 @@ let adminPointComponent: PolicyAdministrationPointService;
 let informationPointComponent: PolicyInformationPointService;
 let testIdentityProvider: string;
 let testIdentityConsumer: string;
-let mockOffer: IOdrlOffer;
+let mockOffer: IDataspaceProtocolOffer;
 let mockNegotiator: IPolicyNegotiator;
 let mockPolicyRequester: IPolicyRequester;
 let mockTrustComponent: ITrustComponent;
@@ -213,7 +214,7 @@ describe("PolicyNegotiationPointService", () => {
 		mockOffer = {
 			"@context": OdrlContexts.Context,
 			"@type": OdrlTypes.Offer,
-			uid: "urn:policy:offer-1",
+			"@id": "urn:policy:offer-1",
 			assigner: testIdentityProvider
 		};
 
@@ -280,15 +281,15 @@ describe("PolicyNegotiationPointService", () => {
 
 		mockNegotiator = {
 			className: () => "MockPolicyNegotiator",
-			supportsOffer: vi.fn((offer: IOdrlOffer) => true),
-			handleOffer: vi.fn(async (offer: IOdrlOffer) => ({
+			supportsOffer: vi.fn((offer: IDataspaceProtocolOffer) => true),
+			handleOffer: vi.fn(async (offer: IDataspaceProtocolOffer) => ({
 				accepted: true,
 				interventionRequired: false
 			})),
-			createAgreement: vi.fn(async (offer: IOdrlOffer) => ({
+			createAgreement: vi.fn(async (offer: IDataspaceProtocolOffer) => ({
 				"@context": OdrlContexts.Context,
 				"@type": OdrlTypes.Agreement,
-				uid: "urn:policy:agreement-1",
+				"@id": "urn:policy:agreement-1",
 				assigner: testIdentityProvider,
 				assignee: testIdentityConsumer
 			}))
@@ -531,8 +532,8 @@ describe("PolicyNegotiationPointService", () => {
 			offer: {
 				"@context": "http://www.w3.org/ns/odrl.jsonld",
 				"@type": "Offer",
-				assigner: testIdentityProvider,
-				uid: "urn:policy:offer-1"
+				"@id": "urn:policy:offer-1",
+				assigner: testIdentityProvider
 			},
 			state: "REQUESTED"
 		});
@@ -596,8 +597,8 @@ describe("PolicyNegotiationPointService", () => {
 			offer: {
 				"@context": "http://www.w3.org/ns/odrl.jsonld",
 				"@type": "Offer",
-				assigner: testIdentityProvider,
-				uid: "urn:policy:offer-1"
+				"@id": "urn:policy:offer-1",
+				assigner: testIdentityProvider
 			},
 			state: "ACCEPTED"
 		});
@@ -614,8 +615,8 @@ describe("PolicyNegotiationPointService", () => {
 			offer: {
 				"@context": "http://www.w3.org/ns/odrl.jsonld",
 				"@type": "Offer",
-				assigner: testIdentityProvider,
-				uid: "urn:policy:offer-1"
+				"@id": "urn:policy:offer-1",
+				assigner: testIdentityProvider
 			},
 			state: "OFFERED"
 		});
@@ -633,8 +634,8 @@ describe("PolicyNegotiationPointService", () => {
 			offer: {
 				"@context": "http://www.w3.org/ns/odrl.jsonld",
 				"@type": "Offer",
-				assigner: testIdentityProvider,
-				uid: "urn:policy:offer-1"
+				"@id": "urn:policy:offer-1",
+				assigner: testIdentityProvider
 			},
 			state: "ACCEPTED"
 		});
@@ -652,13 +653,13 @@ describe("PolicyNegotiationPointService", () => {
 			offer: {
 				"@context": "http://www.w3.org/ns/odrl.jsonld",
 				"@type": "Offer",
-				assigner: testIdentityProvider,
-				uid: "urn:policy:offer-1"
+				"@id": "urn:policy:offer-1",
+				assigner: testIdentityProvider
 			},
 			agreement: {
 				"@context": "http://www.w3.org/ns/odrl.jsonld",
 				"@type": "Agreement",
-				uid: "urn:policy:agreement-1",
+				"@id": "urn:policy:agreement-1",
 				assigner: testIdentityProvider,
 				assignee: testIdentityConsumer
 			},
@@ -677,13 +678,13 @@ describe("PolicyNegotiationPointService", () => {
 			offer: {
 				"@context": "http://www.w3.org/ns/odrl.jsonld",
 				"@type": "Offer",
-				assigner: testIdentityProvider,
-				uid: "urn:policy:offer-1"
+				"@id": "urn:policy:offer-1",
+				assigner: testIdentityProvider
 			},
 			agreement: {
 				"@context": "http://www.w3.org/ns/odrl.jsonld",
 				"@type": "Agreement",
-				uid: "urn:policy:agreement-1",
+				"@id": "urn:policy:agreement-1",
 				assigner: testIdentityProvider,
 				assignee: testIdentityConsumer
 			},
@@ -703,13 +704,13 @@ describe("PolicyNegotiationPointService", () => {
 			offer: {
 				"@context": "http://www.w3.org/ns/odrl.jsonld",
 				"@type": "Offer",
-				assigner: testIdentityProvider,
-				uid: "urn:policy:offer-1"
+				"@id": "urn:policy:offer-1",
+				assigner: testIdentityProvider
 			},
 			agreement: {
 				"@context": "http://www.w3.org/ns/odrl.jsonld",
 				"@type": "Agreement",
-				uid: "urn:policy:agreement-1",
+				"@id": "urn:policy:agreement-1",
 				assigner: testIdentityProvider,
 				assignee: testIdentityConsumer
 			},
@@ -727,13 +728,13 @@ describe("PolicyNegotiationPointService", () => {
 			offer: {
 				"@context": "http://www.w3.org/ns/odrl.jsonld",
 				"@type": "Offer",
-				assigner: testIdentityProvider,
-				uid: "urn:policy:offer-1"
+				"@id": "urn:policy:offer-1",
+				assigner: testIdentityProvider
 			},
 			agreement: {
 				"@context": "http://www.w3.org/ns/odrl.jsonld",
 				"@type": "Agreement",
-				uid: "urn:policy:agreement-1",
+				"@id": "urn:policy:agreement-1",
 				assigner: testIdentityProvider,
 				assignee: testIdentityConsumer
 			},
@@ -752,13 +753,13 @@ describe("PolicyNegotiationPointService", () => {
 			offer: {
 				"@context": "http://www.w3.org/ns/odrl.jsonld",
 				"@type": "Offer",
-				assigner: testIdentityProvider,
-				uid: "urn:policy:offer-1"
+				"@id": "urn:policy:offer-1",
+				assigner: testIdentityProvider
 			},
 			agreement: {
 				"@context": "http://www.w3.org/ns/odrl.jsonld",
 				"@type": "Agreement",
-				uid: "urn:policy:agreement-1",
+				"@id": "urn:policy:agreement-1",
 				assigner: testIdentityProvider,
 				assignee: testIdentityConsumer
 			},
@@ -776,13 +777,13 @@ describe("PolicyNegotiationPointService", () => {
 			offer: {
 				"@context": "http://www.w3.org/ns/odrl.jsonld",
 				"@type": "Offer",
-				assigner: testIdentityProvider,
-				uid: "urn:policy:offer-1"
+				"@id": "urn:policy:offer-1",
+				assigner: testIdentityProvider
 			},
 			agreement: {
 				"@context": "http://www.w3.org/ns/odrl.jsonld",
 				"@type": "Agreement",
-				uid: "urn:policy:agreement-1",
+				"@id": "urn:policy:agreement-1",
 				assigner: testIdentityProvider,
 				assignee: testIdentityConsumer
 			},

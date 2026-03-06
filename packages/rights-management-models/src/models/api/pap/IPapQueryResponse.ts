@@ -1,6 +1,6 @@
 // Copyright 2025 IOTA Stiftung.
 // SPDX-License-Identifier: Apache-2.0.
-import type { IOdrlPolicy } from "@twin.org/standards-w3c-odrl";
+import type { IDataspaceProtocolPolicy } from "@twin.org/standards-dataspace-protocol";
 import type { HeaderTypes } from "@twin.org/web";
 
 /**
@@ -17,5 +17,5 @@ export interface IPapQueryResponse {
 	/**
 	 * The body of the response.
 	 */
-	body: IOdrlPolicy[];
+	body: IDataspaceProtocolPolicy[];
 }

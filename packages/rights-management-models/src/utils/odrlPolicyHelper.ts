@@ -3,13 +3,13 @@
 import type { ObjectOrArray } from "@twin.org/core";
 import { ArrayHelper, GeneralError, Guards, Is, ObjectHelper } from "@twin.org/core";
 import { nameof } from "@twin.org/nameof";
+import type { IDataspaceProtocolPolicy } from "@twin.org/standards-dataspace-protocol";
 import type {
 	ActionType,
 	IOdrlAction,
 	IOdrlAsset,
 	IOdrlParty,
-	IOdrlPartyCollection,
-	IOdrlPolicy
+	IOdrlPartyCollection
 } from "@twin.org/standards-w3c-odrl";
 
 /**
@@ -27,7 +27,7 @@ export class OdrlPolicyHelper {
 	 * @returns The UID of the object if available, otherwise undefined.
 	 */
 	public static getUid(object: object | undefined): string | undefined {
-		return ObjectHelper.extractProperty<string>(object, ["uid", "@id", "id"], false);
+		return ObjectHelper.extractProperty<string>(object, ["@id", "id", "uid"], false);
 	}
 
 	/**
@@ -45,7 +45,7 @@ export class OdrlPolicyHelper {
 	 * @returns Assignee id.
 	 * @throws GeneralError if assignee is missing or invalid.
 	 */
-	public static extractAssigneeIdentity(policy: IOdrlPolicy): ObjectOrArray<string> {
+	public static extractAssigneeIdentity(policy: IDataspaceProtocolPolicy): ObjectOrArray<string> {
 		if (Is.empty(policy.assignee)) {
 			throw new GeneralError(OdrlPolicyHelper.CLASS_NAME, "policyMissingAssignee", {
 				policyType: OdrlPolicyHelper.getType(policy) ?? "",
@@ -70,7 +70,7 @@ export class OdrlPolicyHelper {
 	 * @returns Assigner id.
 	 * @throws GeneralError if assigner is missing or invalid.
 	 */
-	public static extractAssignerIdentity(policy: IOdrlPolicy): ObjectOrArray<string> {
+	public static extractAssignerIdentity(policy: IDataspaceProtocolPolicy): ObjectOrArray<string> {
 		if (Is.empty(policy.assigner)) {
 			throw new GeneralError(OdrlPolicyHelper.CLASS_NAME, "policyMissingAssigner", {
 				policyType: OdrlPolicyHelper.getType(policy) ?? "",
@@ -143,7 +143,7 @@ export class OdrlPolicyHelper {
 	 * @param policy The policy to extract the targets from.
 	 * @returns Targets.
 	 */
-	public static getTargets(policy: IOdrlPolicy): string[] {
+	public static getTargets(policy: IDataspaceProtocolPolicy): string[] {
 		const targetIds: string[] = [];
 		const policyTargets = ArrayHelper.fromObjectOrArray<IOdrlAsset | string>(policy.target ?? []);
 		for (const target of policyTargets) {
@@ -164,7 +164,7 @@ export class OdrlPolicyHelper {
 	 * @param policy The policy to extract the actions from.
 	 * @returns Actions.
 	 */
-	public static getActions(policy: IOdrlPolicy): string[] {
+	public static getActions(policy: IDataspaceProtocolPolicy): string[] {
 		const actions: string[] = [];
 		const policyActions = ArrayHelper.fromObjectOrArray<ActionType | string | IOdrlAction>(
 			policy.action ?? []
@@ -193,7 +193,7 @@ export class OdrlPolicyHelper {
 	 * @param options.action The action to match.
 	 */
 	public static matchPolicy(
-		policy: IOdrlPolicy | undefined,
+		policy: IDataspaceProtocolPolicy | undefined,
 		options: {
 			assignee?: string;
 			assigner?: string;

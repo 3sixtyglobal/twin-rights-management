@@ -121,7 +121,7 @@ export function generateRestRoutesPolicyAdministrationPoint(
 						body: {
 							"@context": OdrlContexts.Context,
 							"@type": PolicyType.Set,
-							uid: "urn:rights-management:abc123def456",
+							"@id": "urn:rights-management:abc123def456",
 							permission: [
 								{
 									target: "http://example.com/asset/2",
@@ -171,7 +171,7 @@ export function generateRestRoutesPolicyAdministrationPoint(
 							body: {
 								"@context": OdrlContexts.Context,
 								"@type": PolicyType.Set,
-								uid: "urn:rights-management:abc123def456",
+								"@id": "urn:rights-management:abc123def456",
 								permission: [
 									{
 										target: "http://example.com/asset/1",
@@ -217,7 +217,7 @@ export function generateRestRoutesPolicyAdministrationPoint(
 							body: {
 								"@context": OdrlContexts.Context,
 								"@type": PolicyType.Agreement,
-								uid: "urn:rights-management:abc123def456",
+								"@id": "urn:rights-management:abc123def456",
 								permission: [
 									{
 										target: "http://example.com/asset/1",
@@ -265,7 +265,7 @@ export function generateRestRoutesPolicyAdministrationPoint(
 							body: {
 								"@context": OdrlContexts.Context,
 								"@type": PolicyType.Offer,
-								uid: "urn:rights-management:abc123def456",
+								"@id": "urn:rights-management:abc123def456",
 								permission: [
 									{
 										target: "http://example.com/asset/1",
@@ -313,7 +313,7 @@ export function generateRestRoutesPolicyAdministrationPoint(
 							body: {
 								"@context": OdrlContexts.Context,
 								"@type": PolicyType.Set,
-								uid: "urn:rights-management:abc123def456",
+								"@id": "urn:rights-management:abc123def456",
 								permission: [
 									{
 										target: "http://example.com/asset/1",
@@ -390,7 +390,7 @@ export function generateRestRoutesPolicyAdministrationPoint(
 								{
 									"@context": OdrlContexts.Context,
 									"@type": PolicyType.Set,
-									uid: "urn:rights-management:abc123def456",
+									"@id": "urn:rights-management:abc123def456",
 									permission: [
 										{
 											target: "http://example.com/asset/1",

@@ -11,7 +11,8 @@ import {
 	type IPolicyEnforcementPointComponent,
 	type IPolicyManagementPointComponent
 } from "@twin.org/rights-management-models";
-import { PolicyType, type ActionType, type IOdrlAgreement } from "@twin.org/standards-w3c-odrl";
+import type { IDataspaceProtocolAgreement } from "@twin.org/standards-dataspace-protocol";
+import { PolicyType, type ActionType } from "@twin.org/standards-w3c-odrl";
 import type { IPolicyEnforcementPointServiceConstructorOptions } from "./models/IPolicyEnforcementPointServiceConstructorOptions.js";
 
 /**
@@ -83,11 +84,11 @@ export class PolicyEnforcementPointService implements IPolicyEnforcementPointCom
 	 * @returns The manipulated data with any policies applied.
 	 */
 	public async interceptWithPolicy<D = unknown, R = D>(
-		agreement: IOdrlAgreement,
+		agreement: IDataspaceProtocolAgreement,
 		data?: D,
 		action?: ActionType | string
 	): Promise<R> {
-		Guards.objectValue<IOdrlAgreement>(
+		Guards.objectValue<IDataspaceProtocolAgreement>(
 			PolicyEnforcementPointService.CLASS_NAME,
 			nameof(agreement),
 			agreement
@@ -199,7 +200,7 @@ export class PolicyEnforcementPointService implements IPolicyEnforcementPointCom
 
 		const agreements = policiesResult.policies.filter(
 			p => OdrlPolicyHelper.getType(p) === PolicyType.Agreement
-		) as IOdrlAgreement[];
+		) as IDataspaceProtocolAgreement[];
 
 		if (agreements.length === 0) {
 			throw new GeneralError(PolicyEnforcementPointService.CLASS_NAME, "noAgreementsFound", {

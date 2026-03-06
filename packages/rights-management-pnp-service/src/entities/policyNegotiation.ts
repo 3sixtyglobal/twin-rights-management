@@ -2,8 +2,11 @@
 // SPDX-License-Identifier: Apache-2.0.
 import type { IError } from "@twin.org/core";
 import { entity, property } from "@twin.org/entity";
-import type { DataspaceProtocolContractNegotiationStateType } from "@twin.org/standards-dataspace-protocol";
-import type { IOdrlAgreement, IOdrlOffer } from "@twin.org/standards-w3c-odrl";
+import type {
+	DataspaceProtocolContractNegotiationStateType,
+	IDataspaceProtocolAgreement,
+	IDataspaceProtocolOffer
+} from "@twin.org/standards-dataspace-protocol";
 import type { ITrustVerificationInfo } from "@twin.org/trust-models";
 
 /**
@@ -63,13 +66,13 @@ export class PolicyNegotiation {
 	 * The offer being requested.
 	 */
 	@property({ type: "object", optional: true })
-	public offer?: IOdrlOffer;
+	public offer?: IDataspaceProtocolOffer;
 
 	/**
 	 * The agreement being established if the negotiation was successful.
 	 */
 	@property({ type: "object", optional: true })
-	public agreement?: IOdrlAgreement;
+	public agreement?: IDataspaceProtocolAgreement;
 
 	/**
 	 * The information from the trust provider.

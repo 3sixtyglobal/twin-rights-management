@@ -2,18 +2,18 @@
 // SPDX-License-Identifier: Apache-2.0.
 import { ArrayHelper } from "@twin.org/core";
 import { OdrlPolicyHelper } from "@twin.org/rights-management-models";
-import type { IOdrlPolicy } from "@twin.org/standards-w3c-odrl";
-import { OdrlContexts, PolicyType } from "@twin.org/standards-w3c-odrl";
+import type { IDataspaceProtocolPolicy } from "@twin.org/standards-dataspace-protocol";
+import { PolicyType, OdrlContexts } from "@twin.org/standards-w3c-odrl";
 import { OdrlPolicy } from "../entities/odrlPolicy.js";
 
 /**
- * Converts an IOdrlPolicy to an OdrlPolicy for storage.
+ * Converts an IDataspaceProtocolPolicy to an OdrlPolicy for storage.
  * @param policy The policy to convert.
  * @returns The converted policy.
  */
-export function convertToStoragePolicy<T extends IOdrlPolicy>(policy: T): OdrlPolicy {
+export function convertToStoragePolicy<T extends IDataspaceProtocolPolicy>(policy: T): OdrlPolicy {
 	const storagePolicy = new OdrlPolicy();
-	storagePolicy.uid = OdrlPolicyHelper.getUid(policy) ?? "";
+	storagePolicy.id = OdrlPolicyHelper.getUid(policy) ?? "";
 	storagePolicy.type = (OdrlPolicyHelper.getType(policy) as PolicyType) ?? PolicyType.Policy;
 
 	storagePolicy.profile = policy.profile;
@@ -44,15 +44,17 @@ export function convertToStoragePolicy<T extends IOdrlPolicy>(policy: T): OdrlPo
 }
 
 /**
- * Converts an OdrlPolicy from storage to an IOdrlPolicy.
+ * Converts an OdrlPolicy from storage to an IDataspaceProtocolPolicy.
  * @param storagePolicy The storage policy to convert.
- * @returns The converted IOdrlPolicy.
+ * @returns The converted IDataspaceProtocolPolicy.
  */
-export function convertFromStoragePolicy<T extends IOdrlPolicy>(storagePolicy: OdrlPolicy): T {
-	const policy: IOdrlPolicy = {
+export function convertFromStoragePolicy<T extends IDataspaceProtocolPolicy>(
+	storagePolicy: OdrlPolicy
+): T {
+	const policy: IDataspaceProtocolPolicy = {
 		"@context": OdrlContexts.Context,
 		"@type": storagePolicy.type,
-		uid: storagePolicy.uid
+		"@id": storagePolicy.id
 	};
 
 	policy.profile = storagePolicy.profile;

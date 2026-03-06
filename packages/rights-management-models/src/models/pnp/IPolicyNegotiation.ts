@@ -1,8 +1,11 @@
 // Copyright 2025 IOTA Stiftung.
 // SPDX-License-Identifier: Apache-2.0.
 import type { IError } from "@twin.org/core";
-import type { DataspaceProtocolContractNegotiationStateType } from "@twin.org/standards-dataspace-protocol";
-import type { IOdrlAgreement, IOdrlOffer } from "@twin.org/standards-w3c-odrl";
+import type {
+	DataspaceProtocolContractNegotiationStateType,
+	IDataspaceProtocolAgreement,
+	IDataspaceProtocolOffer
+} from "@twin.org/standards-dataspace-protocol";
 import type { ITrustVerificationInfo } from "@twin.org/trust-models";
 
 /**
@@ -52,12 +55,12 @@ export interface IPolicyNegotiation {
 	/**
 	 * The offer being requested.
 	 */
-	offer?: IOdrlOffer;
+	offer?: IDataspaceProtocolOffer;
 
 	/**
 	 * The agreement being established if the negotiation was successful.
 	 */
-	agreement?: IOdrlAgreement;
+	agreement?: IDataspaceProtocolAgreement;
 
 	/**
 	 * The information from the trust provider.

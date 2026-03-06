@@ -6,12 +6,9 @@ import { MemoryEntityStorageConnector } from "@twin.org/entity-storage-connector
 import { EntityStorageConnectorFactory } from "@twin.org/entity-storage-models";
 import { nameof } from "@twin.org/nameof";
 import { RightsManagementNamespaces } from "@twin.org/rights-management-models";
-import {
-	type ActionType,
-	OdrlContexts,
-	PolicyType,
-	type IOdrlPolicy
-} from "@twin.org/standards-w3c-odrl";
+import type { IDataspaceProtocolPolicy } from "@twin.org/standards-dataspace-protocol";
+import { type ActionType, PolicyType } from "@twin.org/standards-w3c-odrl";
+import { OdrlContexts } from "@twin.org/standards-w3c-odrl";
 import * as dotenv from "dotenv";
 import type { OdrlPolicy } from "../src/entities/odrlPolicy.js";
 import type { PolicyAdministrationPointService } from "../src/policyAdministrationPointService.js";
@@ -32,10 +29,10 @@ export const TEST_ASSET_ID = "http://example.com/asset/1";
 export const TEST_USER_IDENTITY = "user:1234";
 export const TEST_NODE_IDENTITY = "node:5678";
 
-export const SAMPLE_POLICY: IOdrlPolicy = {
+export const SAMPLE_POLICY: IDataspaceProtocolPolicy = {
 	"@context": OdrlContexts.Context,
 	"@type": "Set",
-	uid: TEST_POLICY_ID,
+	"@id": TEST_POLICY_ID,
 	permission: [
 		{
 			target: TEST_ASSET_ID,
@@ -62,8 +59,8 @@ function createTestPolicy(
 	policyType: PolicyType,
 	assetId: string,
 	action: ActionType
-): Omit<IOdrlPolicy, "uid"> & { uid?: string } {
-	const policy: Omit<IOdrlPolicy, "uid"> & { uid?: string } = {
+): Omit<IDataspaceProtocolPolicy, "@id"> & { "@id"?: string } {
+	const policy: Omit<IDataspaceProtocolPolicy, "@id"> & { "@id"?: string } = {
 		"@context": OdrlContexts.Context,
 		"@type": policyType,
 		permission: [

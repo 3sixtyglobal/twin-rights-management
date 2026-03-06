@@ -10,7 +10,8 @@ import {
 	PolicyDecisionStage,
 	PolicyExecutionActionFactory
 } from "@twin.org/rights-management-models";
-import type { ActionType, IOdrlPolicy } from "@twin.org/standards-w3c-odrl";
+import type { IDataspaceProtocolPolicy } from "@twin.org/standards-dataspace-protocol";
+import type { ActionType } from "@twin.org/standards-w3c-odrl";
 import type { IPolicyExecutionPointServiceConstructorOptions } from "./models/IPolicyExecutionPointServiceConstructorOptions.js";
 
 /**
@@ -56,13 +57,17 @@ export class PolicyExecutionPointService implements IPolicyExecutionPointCompone
 	 * @returns Nothing.
 	 */
 	public async executeActions<D = unknown>(
-		policy: IOdrlPolicy,
+		policy: IDataspaceProtocolPolicy,
 		decisions: IPolicyDecision[],
 		data: D | undefined,
 		action: ActionType | string | undefined,
 		stage: PolicyDecisionStage
 	): Promise<void> {
-		Guards.object<IOdrlPolicy>(PolicyExecutionPointService.CLASS_NAME, nameof(policy), policy);
+		Guards.object<IDataspaceProtocolPolicy>(
+			PolicyExecutionPointService.CLASS_NAME,
+			nameof(policy),
+			policy
+		);
 		Guards.array<IPolicyDecision>(
 			PolicyExecutionPointService.CLASS_NAME,
 			nameof(decisions),

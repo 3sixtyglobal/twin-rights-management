@@ -21,18 +21,20 @@ import {
 	type IPolicyArbiter,
 	type IPolicyDecision
 } from "@twin.org/rights-management-models";
+import type {
+	IDataspaceProtocolAgreement,
+	IDataspaceProtocolPolicy
+} from "@twin.org/standards-dataspace-protocol";
 import {
 	ConflictStrategyType,
 	LogicalConstraintType,
 	OperatorType,
 	type ActionType,
-	type IOdrlAgreement,
 	type IOdrlConstraint,
 	type IOdrlDuty,
 	type IOdrlLogicalConstraint,
 	type IOdrlLogicalConstraintOperand,
 	type IOdrlPermission,
-	type IOdrlPolicy,
 	type IOdrlProhibition,
 	type IOdrlRule
 } from "@twin.org/standards-w3c-odrl";
@@ -124,12 +126,16 @@ export class DefaultPolicyArbiter implements IPolicyArbiter {
 	 * @returns The decisions about access to the data.
 	 */
 	public async decide<D = unknown>(
-		agreement: IOdrlAgreement,
+		agreement: IDataspaceProtocolAgreement,
 		information?: { [id: string]: IJsonLdNodeObject },
 		data?: D,
 		action?: ActionType | string
 	): Promise<IPolicyDecision[]> {
-		Guards.object<IOdrlAgreement>(DefaultPolicyArbiter.CLASS_NAME, nameof(agreement), agreement);
+		Guards.object<IDataspaceProtocolAgreement>(
+			DefaultPolicyArbiter.CLASS_NAME,
+			nameof(agreement),
+			agreement
+		);
 
 		await this._logging.log({
 			level: "info",
@@ -248,7 +254,9 @@ export class DefaultPolicyArbiter implements IPolicyArbiter {
 	 * @returns A new policy with merged rules from all ancestors.
 	 * @internal
 	 */
-	private async mergeInheritedPolicies(policy: IOdrlPolicy): Promise<IOdrlPolicy> {
+	private async mergeInheritedPolicies(
+		policy: IDataspaceProtocolPolicy
+	): Promise<IDataspaceProtocolPolicy> {
 		const visitedPolicyIds: string[] = [];
 		visitedPolicyIds.push(OdrlPolicyHelper.getUid(policy) ?? "");
 		const inheritedPolicies = await this.resolveInheritedPolicies(policy, visitedPolicyIds, 0);
@@ -305,9 +313,9 @@ export class DefaultPolicyArbiter implements IPolicyArbiter {
 			}
 		}
 
-		let mergedConflict: IOdrlPolicy["conflict"] | undefined;
+		let mergedConflict: IDataspaceProtocolPolicy["conflict"] | undefined;
 		if (conflictStrategies.size === 1) {
-			mergedConflict = Array.from(conflictStrategies)[0] as IOdrlPolicy["conflict"];
+			mergedConflict = Array.from(conflictStrategies)[0] as IDataspaceProtocolPolicy["conflict"];
 		} else if (conflictStrategies.size > 1) {
 			mergedConflict = ConflictStrategyType.Invalid;
 		}
@@ -333,11 +341,11 @@ export class DefaultPolicyArbiter implements IPolicyArbiter {
 	 * @internal
 	 */
 	private async resolveInheritedPolicies(
-		policy: IOdrlPolicy,
+		policy: IDataspaceProtocolPolicy,
 		visitedPolicyIds: string[],
 		currentDepth: number
-	): Promise<IOdrlPolicy[]> {
-		const inheritedPolicies: IOdrlPolicy[] = [];
+	): Promise<IDataspaceProtocolPolicy[]> {
+		const inheritedPolicies: IDataspaceProtocolPolicy[] = [];
 
 		// If policy has no inheritFrom, return empty array
 		if (Is.empty(policy.inheritFrom)) {
@@ -396,7 +404,10 @@ export class DefaultPolicyArbiter implements IPolicyArbiter {
 	 * @returns The rule with policy-level assigner/assignee applied.
 	 * @internal
 	 */
-	private applyPolicyPartiesToRule<T extends IOdrlRule>(policy: IOdrlPolicy, rule: T): T {
+	private applyPolicyPartiesToRule<T extends IOdrlRule>(
+		policy: IDataspaceProtocolPolicy,
+		rule: T
+	): T {
 		const assigner = Is.empty(rule.assigner) ? policy.assigner : rule.assigner;
 		const assignee = Is.empty(rule.assignee) ? policy.assignee : rule.assignee;
 
@@ -551,7 +562,7 @@ export class DefaultPolicyArbiter implements IPolicyArbiter {
 	private async evaluatePermission(
 		agreementAssigner: string[] | undefined,
 		agreementAssignee: string[] | undefined,
-		policy: IOdrlPolicy,
+		policy: IDataspaceProtocolPolicy,
 		permission: IOdrlPermission,
 		information?: { [id: string]: IJsonLdNodeObject },
 		data?: unknown,
@@ -598,7 +609,7 @@ export class DefaultPolicyArbiter implements IPolicyArbiter {
 	 * @internal
 	 */
 	private async enforcePermissionDuties(
-		policy: IOdrlPolicy,
+		policy: IDataspaceProtocolPolicy,
 		permission: IOdrlPermission,
 		information?: { [id: string]: IJsonLdNodeObject },
 		data?: unknown
@@ -628,7 +639,7 @@ export class DefaultPolicyArbiter implements IPolicyArbiter {
 	 * @internal
 	 */
 	private async enforceDuty(
-		policy: IOdrlPolicy,
+		policy: IDataspaceProtocolPolicy,
 		duty: IOdrlDuty,
 		information?: { [id: string]: IJsonLdNodeObject },
 		data?: unknown

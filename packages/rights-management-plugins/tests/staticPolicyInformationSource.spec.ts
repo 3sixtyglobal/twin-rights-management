@@ -13,7 +13,8 @@ import { LoggingConnectorFactory } from "@twin.org/logging-models";
 import { LoggingService } from "@twin.org/logging-service";
 import { nameof } from "@twin.org/nameof";
 import { PolicyInformationAccessMode } from "@twin.org/rights-management-models";
-import { type IOdrlPolicy, OdrlContexts, PolicyType } from "@twin.org/standards-w3c-odrl";
+import type { IDataspaceProtocolPolicy } from "@twin.org/standards-dataspace-protocol";
+import { OdrlContexts, PolicyType } from "@twin.org/standards-w3c-odrl";
 import { StaticPolicyInformationSource } from "../src/policyInformationSources/staticPolicyInformationSource.js";
 
 let loggingMemoryEntityStorage: MemoryEntityStorageConnector<LogEntry>;
@@ -23,11 +24,11 @@ function createPolicy(options?: {
 	action?: string;
 	target?: string;
 	assignee?: string;
-}): IOdrlPolicy {
+}): IDataspaceProtocolPolicy {
 	return {
 		"@context": OdrlContexts.Context,
 		"@type": PolicyType.Set,
-		uid: options?.uid ?? "policy123",
+		"@id": options?.uid ?? "policy123",
 		action: options?.action ?? "action",
 		target: options?.target ?? "target",
 		assignee: options?.assignee ?? "assignee"

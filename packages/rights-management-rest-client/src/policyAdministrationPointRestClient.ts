@@ -7,6 +7,7 @@ import {
 	type ICreatedResponse
 } from "@twin.org/api-models";
 import { Coerce, Guards } from "@twin.org/core";
+import type { JsonLdObjectWithOptionalAtId } from "@twin.org/data-json-ld";
 import type { EntityCondition } from "@twin.org/entity";
 import { nameof } from "@twin.org/nameof";
 import {
@@ -27,11 +28,11 @@ import {
 	OdrlPolicyHelper
 } from "@twin.org/rights-management-models";
 import type {
-	IOdrlAgreement,
-	IOdrlOffer,
-	IOdrlPolicy,
-	IOdrlSet
-} from "@twin.org/standards-w3c-odrl";
+	IDataspaceProtocolAgreement,
+	IDataspaceProtocolOffer,
+	IDataspaceProtocolPolicy,
+	IDataspaceProtocolSet
+} from "@twin.org/standards-dataspace-protocol";
 import { HeaderHelper, HeaderTypes } from "@twin.org/web";
 
 /**
@@ -67,7 +68,9 @@ export class PolicyAdministrationPointRestClient
 	 * @param policy The policy to create (uid will be auto-generated).
 	 * @returns The UID of the created policy.
 	 */
-	public async create(policy: Omit<IOdrlPolicy, "uid"> & { uid?: string }): Promise<string> {
+	public async create(
+		policy: JsonLdObjectWithOptionalAtId<IDataspaceProtocolPolicy>
+	): Promise<string> {
 		Guards.object(PolicyAdministrationPointRestClient.CLASS_NAME, nameof(policy), policy);
 
 		const response = await this.fetch<IPapCreateRequest, ICreatedResponse>(
@@ -86,7 +89,7 @@ export class PolicyAdministrationPointRestClient
 	 * @param policy The policy to update (must include uid).
 	 * @returns Nothing.
 	 */
-	public async update(policy: IOdrlPolicy): Promise<void> {
+	public async update(policy: IDataspaceProtocolPolicy): Promise<void> {
 		Guards.object(PolicyAdministrationPointRestClient.CLASS_NAME, nameof(policy), policy);
 
 		const policyId = OdrlPolicyHelper.getUid(policy);
@@ -105,7 +108,7 @@ export class PolicyAdministrationPointRestClient
 	 * @param policyId The id of the policy to get.
 	 * @returns The policy.
 	 */
-	public async get(policyId: string): Promise<IOdrlPolicy> {
+	public async get(policyId: string): Promise<IDataspaceProtocolPolicy> {
 		Guards.stringValue(PolicyAdministrationPointRestClient.CLASS_NAME, nameof(policyId), policyId);
 
 		const response = await this.fetch<IPapGetRequest, IPapGetResponse>("/policy/admin/:id", "GET", {
@@ -122,7 +125,7 @@ export class PolicyAdministrationPointRestClient
 	 * @param agreementId The id of the agreement to get.
 	 * @returns The agreement.
 	 */
-	public async getAgreement(agreementId: string): Promise<IOdrlAgreement> {
+	public async getAgreement(agreementId: string): Promise<IDataspaceProtocolAgreement> {
 		Guards.stringValue(
 			PolicyAdministrationPointRestClient.CLASS_NAME,
 			nameof(agreementId),
@@ -147,7 +150,7 @@ export class PolicyAdministrationPointRestClient
 	 * @param setId The id of the set to get.
 	 * @returns The set.
 	 */
-	public async getSet(setId: string): Promise<IOdrlSet> {
+	public async getSet(setId: string): Promise<IDataspaceProtocolSet> {
 		Guards.stringValue(PolicyAdministrationPointRestClient.CLASS_NAME, nameof(setId), setId);
 
 		const response = await this.fetch<IPapGetSetRequest, IPapGetSetResponse>(
@@ -168,7 +171,7 @@ export class PolicyAdministrationPointRestClient
 	 * @param offerId The id of the offer to get.
 	 * @returns The offer.
 	 */
-	public async getOffer(offerId: string): Promise<IOdrlOffer> {
+	public async getOffer(offerId: string): Promise<IDataspaceProtocolOffer> {
 		Guards.stringValue(PolicyAdministrationPointRestClient.CLASS_NAME, nameof(offerId), offerId);
 
 		const response = await this.fetch<IPapGetOfferRequest, IPapGetOfferResponse>(
@@ -218,12 +221,12 @@ export class PolicyAdministrationPointRestClient
 			target?: string;
 			action?: string;
 		},
-		conditions?: EntityCondition<IOdrlPolicy>,
+		conditions?: EntityCondition<IDataspaceProtocolPolicy>,
 		cursor?: string,
 		limit?: number
 	): Promise<{
 		cursor?: string;
-		policies: IOdrlPolicy[];
+		policies: IDataspaceProtocolPolicy[];
 	}> {
 		const response = await this.fetch<IPapQueryRequest, IPapQueryResponse>("/policy/admin", "GET", {
 			query: {

@@ -2,7 +2,11 @@
 // SPDX-License-Identifier: Apache-2.0.
 import type { IComponent } from "@twin.org/core";
 import type { IJsonLdNodeObject } from "@twin.org/data-json-ld";
-import type { IOdrlAgreement, IOdrlOffer, IOdrlParty } from "@twin.org/standards-w3c-odrl";
+import type {
+	IDataspaceProtocolAgreement,
+	IDataspaceProtocolOffer
+} from "@twin.org/standards-dataspace-protocol";
+import type { IOdrlParty } from "@twin.org/standards-w3c-odrl";
 
 /**
  * Interface describing a Policy Negotiator.
@@ -13,7 +17,7 @@ export interface IPolicyNegotiator extends IComponent {
 	 * @param offer The offer to check.
 	 * @returns Sets the supports flag if it can be offered, and the interventionRequired flag if manual agreement is needed.
 	 */
-	supportsOffer(offer: IOdrlOffer): boolean;
+	supportsOffer(offer: IDataspaceProtocolOffer): boolean;
 
 	/**
 	 * Handle the offer.
@@ -22,7 +26,7 @@ export interface IPolicyNegotiator extends IComponent {
 	 * @returns Sets the accepted flag if it can be offered, and the interventionRequired flag if manual agreement is needed.
 	 */
 	handleOffer(
-		offer: IOdrlOffer,
+		offer: IDataspaceProtocolOffer,
 		information?: { [id: string]: IJsonLdNodeObject }
 	): Promise<{
 		accepted: boolean;
@@ -37,8 +41,8 @@ export interface IPolicyNegotiator extends IComponent {
 	 * @returns The agreement created from the offer or undefined if an agreement could not be created.
 	 */
 	createAgreement(
-		offer: IOdrlOffer,
+		offer: IDataspaceProtocolOffer,
 		assignee: string | IOdrlParty,
 		information?: { [id: string]: IJsonLdNodeObject }
-	): Promise<IOdrlAgreement | undefined>;
+	): Promise<IDataspaceProtocolAgreement | undefined>;
 }

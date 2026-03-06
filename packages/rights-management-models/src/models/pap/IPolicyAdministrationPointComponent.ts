@@ -1,13 +1,14 @@
 // Copyright 2025 IOTA Stiftung.
 // SPDX-License-Identifier: Apache-2.0.
 import type { IComponent } from "@twin.org/core";
+import type { JsonLdObjectWithOptionalAtId } from "@twin.org/data-json-ld";
 import type { EntityCondition } from "@twin.org/entity";
 import type {
-	IOdrlAgreement,
-	IOdrlOffer,
-	IOdrlPolicy,
-	IOdrlSet
-} from "@twin.org/standards-w3c-odrl";
+	IDataspaceProtocolAgreement,
+	IDataspaceProtocolOffer,
+	IDataspaceProtocolPolicy,
+	IDataspaceProtocolSet
+} from "@twin.org/standards-dataspace-protocol";
 
 /**
  * Interface describing a Policy Administration Point (PAP) component that manages ODRL policies.
@@ -18,42 +19,42 @@ export interface IPolicyAdministrationPointComponent extends IComponent {
 	 * @param policy The policy to create (uid will be auto-generated).
 	 * @returns The UID of the created policy.
 	 */
-	create(policy: Omit<IOdrlPolicy, "uid"> & { uid?: string }): Promise<string>;
+	create(policy: JsonLdObjectWithOptionalAtId<IDataspaceProtocolPolicy>): Promise<string>;
 
 	/**
 	 * Update an existing policy.
 	 * @param policy The policy to update (must include uid).
 	 * @returns Nothing.
 	 */
-	update(policy: IOdrlPolicy): Promise<void>;
+	update(policy: IDataspaceProtocolPolicy): Promise<void>;
 
 	/**
 	 * Get a policy.
 	 * @param policyId The id of the policy to get.
 	 * @returns The policy.
 	 */
-	get(policyId: string): Promise<IOdrlPolicy>;
+	get(policyId: string): Promise<IDataspaceProtocolPolicy>;
 
 	/**
 	 * Get an agreement.
 	 * @param agreementId The id of the agreement to get.
 	 * @returns The agreement.
 	 */
-	getAgreement(agreementId: string): Promise<IOdrlAgreement>;
+	getAgreement(agreementId: string): Promise<IDataspaceProtocolAgreement>;
 
 	/**
 	 * Get a set.
 	 * @param setId The id of the set to get.
 	 * @returns The set.
 	 */
-	getSet(setId: string): Promise<IOdrlSet>;
+	getSet(setId: string): Promise<IDataspaceProtocolSet>;
 
 	/**
 	 * Get an offer.
 	 * @param offerId The id of the offer to get.
 	 * @returns The offer.
 	 */
-	getOffer(offerId: string): Promise<IOdrlOffer>;
+	getOffer(offerId: string): Promise<IDataspaceProtocolOffer>;
 
 	/**
 	 * Remove a policy.
@@ -81,7 +82,7 @@ export interface IPolicyAdministrationPointComponent extends IComponent {
 			target?: string;
 			action?: string;
 		},
-		conditions?: EntityCondition<IOdrlPolicy>,
+		conditions?: EntityCondition<IDataspaceProtocolPolicy>,
 		cursor?: string,
 		limit?: number
 	): Promise<{
@@ -93,6 +94,6 @@ export interface IPolicyAdministrationPointComponent extends IComponent {
 		/**
 		 * The policies that match the query.
 		 */
-		policies: IOdrlPolicy[];
+		policies: IDataspaceProtocolPolicy[];
 	}>;
 }

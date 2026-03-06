@@ -5,13 +5,12 @@ import type { IJsonLdNodeObject } from "@twin.org/data-json-ld";
 import type { ILoggingComponent } from "@twin.org/logging-models";
 import { nameof } from "@twin.org/nameof";
 import { OdrlPolicyHelper, type IPolicyNegotiator } from "@twin.org/rights-management-models";
-import {
-	type IOdrlPolicy,
-	PolicyType,
-	type IOdrlAgreement,
-	type IOdrlOffer,
-	type IOdrlParty
-} from "@twin.org/standards-w3c-odrl";
+import type {
+	IDataspaceProtocolAgreement,
+	IDataspaceProtocolOffer,
+	IDataspaceProtocolPolicy
+} from "@twin.org/standards-dataspace-protocol";
+import { PolicyType, type IOdrlParty } from "@twin.org/standards-w3c-odrl";
 import type { IPassThroughPolicyNegotiatorConstructorOptions } from "../models/IPassThroughPolicyNegotiatorConstructorOptions.js";
 
 /**
@@ -52,7 +51,7 @@ export class PassThroughPolicyNegotiator implements IPolicyNegotiator {
 	 * @param offer The offer to check.
 	 * @returns Sets the supports flag if it can be offered, and the interventionRequired flag if manual agreement is needed.
 	 */
-	public supportsOffer(offer: IOdrlOffer): boolean {
+	public supportsOffer(offer: IDataspaceProtocolOffer): boolean {
 		return true;
 	}
 
@@ -63,13 +62,17 @@ export class PassThroughPolicyNegotiator implements IPolicyNegotiator {
 	 * @returns Sets the accepted flag if it can be offered, and the interventionRequired flag if manual agreement is needed.
 	 */
 	public async handleOffer(
-		offer: IOdrlOffer,
+		offer: IDataspaceProtocolOffer,
 		information?: { [id: string]: IJsonLdNodeObject }
 	): Promise<{
 		accepted: boolean;
 		interventionRequired: boolean;
 	}> {
-		Guards.object<IOdrlOffer>(PassThroughPolicyNegotiator.CLASS_NAME, nameof(offer), offer);
+		Guards.object<IDataspaceProtocolOffer>(
+			PassThroughPolicyNegotiator.CLASS_NAME,
+			nameof(offer),
+			offer
+		);
 
 		await this._logging.log({
 			level: "info",
@@ -95,11 +98,15 @@ export class PassThroughPolicyNegotiator implements IPolicyNegotiator {
 	 * @returns The agreement created from the offer or undefined if an agreement could not be created.
 	 */
 	public async createAgreement(
-		offer: IOdrlOffer,
+		offer: IDataspaceProtocolOffer,
 		assignee: string | IOdrlParty,
 		information?: { [id: string]: IJsonLdNodeObject }
-	): Promise<IOdrlAgreement | undefined> {
-		Guards.object<IOdrlOffer>(PassThroughPolicyNegotiator.CLASS_NAME, nameof(offer), offer);
+	): Promise<IDataspaceProtocolAgreement | undefined> {
+		Guards.object<IDataspaceProtocolOffer>(
+			PassThroughPolicyNegotiator.CLASS_NAME,
+			nameof(offer),
+			offer
+		);
 
 		await this._logging.log({
 			level: "info",
@@ -111,11 +118,11 @@ export class PassThroughPolicyNegotiator implements IPolicyNegotiator {
 			}
 		});
 
-		const agreement = ObjectHelper.clone<IOdrlPolicy>(offer);
+		const agreement = ObjectHelper.clone<IDataspaceProtocolPolicy>(offer);
 
 		agreement["@type"] = PolicyType.Agreement;
 		agreement.assignee = assignee;
 
-		return agreement as IOdrlAgreement;
+		return agreement as IDataspaceProtocolAgreement;
 	}
 }

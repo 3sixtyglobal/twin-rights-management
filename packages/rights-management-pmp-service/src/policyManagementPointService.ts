@@ -7,7 +7,7 @@ import type {
 	IPolicyAdministrationPointComponent,
 	IPolicyManagementPointComponent
 } from "@twin.org/rights-management-models";
-import type { IOdrlPolicy } from "@twin.org/standards-w3c-odrl";
+import type { IDataspaceProtocolPolicy } from "@twin.org/standards-dataspace-protocol";
 import type { IPolicyManagementPointServiceConstructorOptions } from "./models/IPolicyManagementPointServiceConstructorOptions.js";
 
 /**
@@ -72,7 +72,7 @@ export class PolicyManagementPointService implements IPolicyManagementPointCompo
 		},
 		cursor?: string
 	): Promise<{
-		policies: IOdrlPolicy[];
+		policies: IDataspaceProtocolPolicy[];
 		cursor?: string;
 	}> {
 		if (!Is.empty(options?.assigner)) {

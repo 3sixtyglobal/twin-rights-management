@@ -1,6 +1,7 @@
 // Copyright 2025 IOTA Stiftung.
 // SPDX-License-Identifier: Apache-2.0.
-import type { IOdrlParty, IOdrlPolicy } from "@twin.org/standards-w3c-odrl";
+import type { IDataspaceProtocolPolicy } from "@twin.org/standards-dataspace-protocol";
+import type { IOdrlParty } from "@twin.org/standards-w3c-odrl";
 import { OdrlPolicyHelper } from "../src/utils/odrlPolicyHelper.js";
 
 describe("OdrlPolicyHelper", () => {
@@ -8,9 +9,9 @@ describe("OdrlPolicyHelper", () => {
 		it("returns the assignee when it is a string", () => {
 			const policy = {
 				type: "Set",
-				uid: "policy-1",
+				"@id": "policy-1",
 				assignee: "did:example:assignee-1"
-			} as unknown as IOdrlPolicy;
+			} as unknown as IDataspaceProtocolPolicy;
 
 			expect(OdrlPolicyHelper.extractAssigneeIdentity(policy)).toBe("did:example:assignee-1");
 		});
@@ -18,9 +19,9 @@ describe("OdrlPolicyHelper", () => {
 		it("returns the assignee uid when assignee is an object", () => {
 			const policy = {
 				type: "Set",
-				uid: "policy-2",
-				assignee: { uid: "did:example:assignee-2" }
-			} as unknown as IOdrlPolicy;
+				"@id": "policy-2",
+				assignee: { "@id": "did:example:assignee-2" }
+			} as unknown as IDataspaceProtocolPolicy;
 
 			expect(OdrlPolicyHelper.extractAssigneeIdentity(policy)).toBe("did:example:assignee-2");
 		});
@@ -28,8 +29,8 @@ describe("OdrlPolicyHelper", () => {
 		it("throws a GeneralError when assignee is missing", () => {
 			const policy = {
 				type: "Set",
-				uid: "policy-3"
-			} as unknown as IOdrlPolicy;
+				"@id": "policy-3"
+			} as unknown as IDataspaceProtocolPolicy;
 
 			try {
 				OdrlPolicyHelper.extractAssigneeIdentity(policy);
@@ -45,9 +46,9 @@ describe("OdrlPolicyHelper", () => {
 		it("throws a GeneralError when assignee is an empty string", () => {
 			const policy = {
 				type: "Set",
-				uid: "policy-4",
+				"@id": "policy-4",
 				assignee: ""
-			} as unknown as IOdrlPolicy;
+			} as unknown as IDataspaceProtocolPolicy;
 
 			expect(() => OdrlPolicyHelper.extractAssigneeIdentity(policy)).toThrowError(
 				/guard\.stringEmpty/
@@ -57,9 +58,9 @@ describe("OdrlPolicyHelper", () => {
 		it("throws a GuardError when assignee object uid is missing", () => {
 			const policy = {
 				type: "Set",
-				uid: "policy-5",
+				"@id": "policy-5",
 				assignee: {}
-			} as unknown as IOdrlPolicy;
+			} as unknown as IDataspaceProtocolPolicy;
 
 			expect(() => OdrlPolicyHelper.extractAssigneeIdentity(policy)).toThrowError(/guard\.string/);
 		});
@@ -67,9 +68,9 @@ describe("OdrlPolicyHelper", () => {
 		it("throws a GuardError when assignee object uid is empty", () => {
 			const policy = {
 				type: "Set",
-				uid: "policy-6",
-				assignee: { uid: "" }
-			} as unknown as IOdrlPolicy;
+				"@id": "policy-6",
+				assignee: { "@id": "" }
+			} as unknown as IDataspaceProtocolPolicy;
 
 			expect(() => OdrlPolicyHelper.extractAssigneeIdentity(policy)).toThrowError(
 				/guard\.stringEmpty/
@@ -81,9 +82,9 @@ describe("OdrlPolicyHelper", () => {
 		it("returns the assigner when it is a string", () => {
 			const policy = {
 				type: "Set",
-				uid: "policy-11",
+				"@id": "policy-11",
 				assigner: "did:example:assigner-1"
-			} as unknown as IOdrlPolicy;
+			} as unknown as IDataspaceProtocolPolicy;
 
 			expect(OdrlPolicyHelper.extractAssignerIdentity(policy)).toBe("did:example:assigner-1");
 		});
@@ -91,9 +92,9 @@ describe("OdrlPolicyHelper", () => {
 		it("returns the assigner uid when assigner is an object", () => {
 			const policy = {
 				type: "Set",
-				uid: "policy-12",
-				assigner: { uid: "did:example:assigner-2" }
-			} as unknown as IOdrlPolicy;
+				"@id": "policy-12",
+				assigner: { "@id": "did:example:assigner-2" }
+			} as unknown as IDataspaceProtocolPolicy;
 
 			expect(OdrlPolicyHelper.extractAssignerIdentity(policy)).toBe("did:example:assigner-2");
 		});
@@ -101,8 +102,8 @@ describe("OdrlPolicyHelper", () => {
 		it("throws a GeneralError when assigner is missing", () => {
 			const policy = {
 				type: "Set",
-				uid: "policy-13"
-			} as unknown as IOdrlPolicy;
+				"@id": "policy-13"
+			} as unknown as IDataspaceProtocolPolicy;
 
 			try {
 				OdrlPolicyHelper.extractAssignerIdentity(policy);
@@ -118,9 +119,9 @@ describe("OdrlPolicyHelper", () => {
 		it("throws a GeneralError when assigner is an empty string", () => {
 			const policy = {
 				type: "Set",
-				uid: "policy-14",
+				"@id": "policy-14",
 				assigner: ""
-			} as unknown as IOdrlPolicy;
+			} as unknown as IDataspaceProtocolPolicy;
 
 			expect(() => OdrlPolicyHelper.extractAssignerIdentity(policy)).toThrowError(
 				/guard\.stringEmpty/
@@ -130,9 +131,9 @@ describe("OdrlPolicyHelper", () => {
 		it("throws a GuardError when assigner object uid is missing", () => {
 			const policy = {
 				type: "Set",
-				uid: "policy-15",
+				"@id": "policy-15",
 				assigner: {}
-			} as unknown as IOdrlPolicy;
+			} as unknown as IDataspaceProtocolPolicy;
 
 			expect(() => OdrlPolicyHelper.extractAssignerIdentity(policy)).toThrowError(/guard\.string/);
 		});
@@ -140,9 +141,9 @@ describe("OdrlPolicyHelper", () => {
 		it("throws a GuardError when assigner object uid is empty", () => {
 			const policy = {
 				type: "Set",
-				uid: "policy-16",
-				assigner: { uid: "" }
-			} as unknown as IOdrlPolicy;
+				"@id": "policy-16",
+				assigner: { "@id": "" }
+			} as unknown as IDataspaceProtocolPolicy;
 
 			expect(() => OdrlPolicyHelper.extractAssignerIdentity(policy)).toThrowError(
 				/guard\.stringEmpty/
@@ -161,7 +162,7 @@ describe("OdrlPolicyHelper", () => {
 
 		it("returns uid when party is an object with uid", () => {
 			expect(
-				OdrlPolicyHelper.getPartyIds({ uid: "did:example:party-2" } as unknown as IOdrlParty)
+				OdrlPolicyHelper.getPartyIds({ "@id": "did:example:party-2" } as unknown as IOdrlParty)
 			).toEqual(["did:example:party-2"]);
 		});
 
@@ -171,11 +172,11 @@ describe("OdrlPolicyHelper", () => {
 			).toEqual(["did:example:party-3"]);
 		});
 
-		it("prefers uid over @id when both are present", () => {
+		it("prefers @id over uid when both are present", () => {
 			expect(
 				OdrlPolicyHelper.getPartyIds({
-					uid: "did:example:party-4",
-					"@id": "did:example:party-ignored"
+					"@id": "did:example:party-4",
+					uid: "did:example:party-ignored"
 				} as unknown as IOdrlParty)
 			).toEqual(["did:example:party-4"]);
 		});
@@ -184,10 +185,10 @@ describe("OdrlPolicyHelper", () => {
 			expect(
 				OdrlPolicyHelper.getPartyIds([
 					"did:example:party-a",
-					{ uid: "did:example:party-b" } as unknown as IOdrlParty,
+					{ "@id": "did:example:party-b" } as unknown as IOdrlParty,
 					{ "@id": "did:example:party-b" } as unknown as IOdrlParty,
 					"did:example:party-a",
-					{ uid: "" } as unknown as IOdrlParty,
+					{ "@id": "" } as unknown as IOdrlParty,
 					{} as unknown as IOdrlParty
 				])
 			).toEqual(["did:example:party-a", "did:example:party-b"]);
@@ -198,16 +199,16 @@ describe("OdrlPolicyHelper", () => {
 		it("returns a unique list of target ids from string and object targets", () => {
 			const policy = {
 				type: "Set",
-				uid: "policy-41",
+				"@id": "policy-41",
 				target: [
 					"asset-1",
-					{ uid: "asset-2" },
-					{ uid: "asset-2" },
+					{ "@id": "asset-2" },
+					{ "@id": "asset-2" },
 					"asset-1",
-					{ uid: "" },
+					{ "@id": "" },
 					{} as unknown
 				]
-			} as unknown as IOdrlPolicy;
+			} as unknown as IDataspaceProtocolPolicy;
 
 			expect(OdrlPolicyHelper.getTargets(policy).sort()).toEqual(["asset-1", "asset-2"]);
 		});
@@ -215,9 +216,9 @@ describe("OdrlPolicyHelper", () => {
 		it("handles a single target value (non-array)", () => {
 			const policy = {
 				type: "Set",
-				uid: "policy-42",
-				target: { uid: "asset-single" }
-			} as unknown as IOdrlPolicy;
+				"@id": "policy-42",
+				target: { "@id": "asset-single" }
+			} as unknown as IDataspaceProtocolPolicy;
 
 			expect(OdrlPolicyHelper.getTargets(policy)).toEqual(["asset-single"]);
 		});
@@ -225,8 +226,8 @@ describe("OdrlPolicyHelper", () => {
 		it("returns an empty list when targets are missing", () => {
 			const policy = {
 				type: "Set",
-				uid: "policy-43"
-			} as unknown as IOdrlPolicy;
+				"@id": "policy-43"
+			} as unknown as IDataspaceProtocolPolicy;
 
 			expect(OdrlPolicyHelper.getTargets(policy)).toEqual([]);
 		});
@@ -236,9 +237,9 @@ describe("OdrlPolicyHelper", () => {
 		it("returns a unique list of actions from string and object actions", () => {
 			const policy = {
 				type: "Set",
-				uid: "policy-51",
-				action: ["use", { uid: "read" }, { uid: "read" }, "use", { uid: "" }, {} as unknown]
-			} as unknown as IOdrlPolicy;
+				"@id": "policy-51",
+				action: ["use", { "@id": "read" }, { "@id": "read" }, "use", { "@id": "" }, {} as unknown]
+			} as unknown as IDataspaceProtocolPolicy;
 
 			expect(OdrlPolicyHelper.getActions(policy).sort()).toEqual(["read", "use"]);
 		});
@@ -246,9 +247,9 @@ describe("OdrlPolicyHelper", () => {
 		it("handles a single action value (non-array)", () => {
 			const policy = {
 				type: "Set",
-				uid: "policy-52",
+				"@id": "policy-52",
 				action: "read"
-			} as unknown as IOdrlPolicy;
+			} as unknown as IDataspaceProtocolPolicy;
 
 			expect(OdrlPolicyHelper.getActions(policy)).toEqual(["read"]);
 		});
@@ -256,8 +257,8 @@ describe("OdrlPolicyHelper", () => {
 		it("returns an empty list when actions are missing", () => {
 			const policy = {
 				type: "Set",
-				uid: "policy-53"
-			} as unknown as IOdrlPolicy;
+				"@id": "policy-53"
+			} as unknown as IDataspaceProtocolPolicy;
 
 			expect(OdrlPolicyHelper.getActions(policy)).toEqual([]);
 		});
@@ -278,12 +279,12 @@ describe("OdrlPolicyHelper", () => {
 		it("returns true when there are no filter options", () => {
 			const policy = {
 				type: "Set",
-				uid: "policy-61",
+				"@id": "policy-61",
 				assignee: "did:example:assignee",
 				assigner: "did:example:assigner",
 				target: "asset-1",
 				action: "read"
-			} as unknown as IOdrlPolicy;
+			} as unknown as IDataspaceProtocolPolicy;
 
 			expect(OdrlPolicyHelper.matchPolicy(policy, {})).toBe(true);
 		});
@@ -291,12 +292,12 @@ describe("OdrlPolicyHelper", () => {
 		it("matches assignee, assigner, target and action", () => {
 			const policy = {
 				type: "Set",
-				uid: "policy-62",
-				assignee: { uid: "did:example:assignee" },
-				assigner: { uid: "did:example:assigner" },
-				target: ["asset-1", { uid: "asset-2" }],
-				action: ["read", { uid: "use" }]
-			} as unknown as IOdrlPolicy;
+				"@id": "policy-62",
+				assignee: { "@id": "did:example:assignee" },
+				assigner: { "@id": "did:example:assigner" },
+				target: ["asset-1", { "@id": "asset-2" }],
+				action: ["read", { "@id": "use" }]
+			} as unknown as IDataspaceProtocolPolicy;
 
 			expect(
 				OdrlPolicyHelper.matchPolicy(policy, {
@@ -311,9 +312,9 @@ describe("OdrlPolicyHelper", () => {
 		it("returns false when assignee does not match", () => {
 			const policy = {
 				type: "Set",
-				uid: "policy-63",
+				"@id": "policy-63",
 				assignee: "did:example:assignee-a"
-			} as unknown as IOdrlPolicy;
+			} as unknown as IDataspaceProtocolPolicy;
 
 			expect(
 				OdrlPolicyHelper.matchPolicy(policy, {
@@ -325,9 +326,9 @@ describe("OdrlPolicyHelper", () => {
 		it("returns false when assigner does not match", () => {
 			const policy = {
 				type: "Set",
-				uid: "policy-64",
+				"@id": "policy-64",
 				assigner: "did:example:assigner-a"
-			} as unknown as IOdrlPolicy;
+			} as unknown as IDataspaceProtocolPolicy;
 
 			expect(
 				OdrlPolicyHelper.matchPolicy(policy, {
@@ -339,9 +340,9 @@ describe("OdrlPolicyHelper", () => {
 		it("returns false when target does not match", () => {
 			const policy = {
 				type: "Set",
-				uid: "policy-65",
+				"@id": "policy-65",
 				target: ["asset-1"]
-			} as unknown as IOdrlPolicy;
+			} as unknown as IDataspaceProtocolPolicy;
 
 			expect(
 				OdrlPolicyHelper.matchPolicy(policy, {
@@ -353,9 +354,9 @@ describe("OdrlPolicyHelper", () => {
 		it("returns false when action does not match", () => {
 			const policy = {
 				type: "Set",
-				uid: "policy-66",
+				"@id": "policy-66",
 				action: ["read"]
-			} as unknown as IOdrlPolicy;
+			} as unknown as IDataspaceProtocolPolicy;
 
 			expect(
 				OdrlPolicyHelper.matchPolicy(policy, {

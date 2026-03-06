@@ -11,6 +11,7 @@ import {
 	Validation,
 	type IValidationFailure
 } from "@twin.org/core";
+import type { JsonLdObjectWithOptionalAtId } from "@twin.org/data-json-ld";
 import { JsonLdHelper } from "@twin.org/data-json-ld";
 import { ComparisonOperator, LogicalOperator, type EntityCondition } from "@twin.org/entity";
 import {
@@ -24,14 +25,13 @@ import {
 	RightsManagementNamespaces,
 	type IPolicyAdministrationPointComponent
 } from "@twin.org/rights-management-models";
-import {
-	OdrlDataTypes,
-	PolicyType,
-	type IOdrlAgreement,
-	type IOdrlOffer,
-	type IOdrlPolicy,
-	type IOdrlSet
-} from "@twin.org/standards-w3c-odrl";
+import type {
+	IDataspaceProtocolAgreement,
+	IDataspaceProtocolOffer,
+	IDataspaceProtocolPolicy,
+	IDataspaceProtocolSet
+} from "@twin.org/standards-dataspace-protocol";
+import { OdrlDataTypes, PolicyType, type IOdrlPolicy } from "@twin.org/standards-w3c-odrl";
 import type { OdrlPolicy } from "./entities/odrlPolicy.js";
 import type { IPolicyAdministrationPointServiceConstructorOptions } from "./models/IPolicyAdministrationPointServiceConstructorOptions.js";
 import { convertFromStoragePolicy, convertToStoragePolicy } from "./utils/odrlPolicyConverters.js";
@@ -87,8 +87,14 @@ export class PolicyAdministrationPointService implements IPolicyAdministrationPo
 	 * @param policy The policy to create (uid will be auto-generated).
 	 * @returns The UID of the created policy.
 	 */
-	public async create(policy: Omit<IOdrlPolicy, "uid"> & { uid?: string }): Promise<string> {
-		Guards.object<IOdrlPolicy>(PolicyAdministrationPointService.CLASS_NAME, nameof(policy), policy);
+	public async create(
+		policy: JsonLdObjectWithOptionalAtId<IDataspaceProtocolPolicy>
+	): Promise<string> {
+		Guards.object<IDataspaceProtocolPolicy>(
+			PolicyAdministrationPointService.CLASS_NAME,
+			nameof(policy),
+			policy
+		);
 
 		// We allow the caller to provide a uid, but if they don't we generate one for them.
 		// if they provide one, we still validate it is a proper URN with the correct namespace.
@@ -105,25 +111,31 @@ export class PolicyAdministrationPointService implements IPolicyAdministrationPo
 			}
 		}
 
-		const uid = policyUid ?? Urn.generateRandom(RightsManagementNamespaces.Policy).toString(false);
+		const id = policyUid ?? Urn.generateRandom(RightsManagementNamespaces.Policy).toString(false);
 
-		const completePolicy: IOdrlPolicy = {
-			...policy,
-			uid
+		// We need to convert to odrl policy for validation as it expects the uid property
+		// eslint-disable-next-line @typescript-eslint/no-unused-vars
+		const { "@id": idUnused, ...policyWithoutId } = policy;
+		const validatePolicy: IOdrlPolicy = {
+			...policyWithoutId,
+			uid: id
 		};
 
 		const validationFailures: IValidationFailure[] = [];
-		await JsonLdHelper.validate(completePolicy, validationFailures);
+		await JsonLdHelper.validate(JsonLdHelper.toNodeObject(validatePolicy), validationFailures);
 		Validation.asValidationError(
 			PolicyAdministrationPointService.CLASS_NAME,
-			nameof(completePolicy),
+			nameof(validatePolicy),
 			validationFailures
 		);
 
-		const storagePolicy = convertToStoragePolicy(completePolicy);
+		const storagePolicy = convertToStoragePolicy({
+			...policy,
+			"@id": id
+		});
 		await this._odrlPolicyEntityStorage.set(storagePolicy);
 
-		return uid;
+		return id;
 	}
 
 	/**
@@ -131,7 +143,7 @@ export class PolicyAdministrationPointService implements IPolicyAdministrationPo
 	 * @param policy The policy to update (must include uid).
 	 * @returns Nothing.
 	 */
-	public async update(policy: IOdrlPolicy): Promise<void> {
+	public async update(policy: IDataspaceProtocolPolicy): Promise<void> {
 		Guards.object(PolicyAdministrationPointService.CLASS_NAME, nameof(policy), policy);
 
 		const policyUid = OdrlPolicyHelper.getUid(policy);
@@ -146,8 +158,16 @@ export class PolicyAdministrationPointService implements IPolicyAdministrationPo
 			);
 		}
 
+		// We need to convert to odrl policy for validation as it expects the uid property
+		// eslint-disable-next-line @typescript-eslint/no-unused-vars
+		const { "@id": idUnused, ...policyWithoutId } = policy;
+		const validatePolicy: IOdrlPolicy = {
+			...policyWithoutId,
+			uid: policyUid
+		};
+
 		const validationFailures: IValidationFailure[] = [];
-		await JsonLdHelper.validate(policy, validationFailures);
+		await JsonLdHelper.validate(JsonLdHelper.toNodeObject(validatePolicy), validationFailures);
 		Validation.asValidationError(
 			PolicyAdministrationPointService.CLASS_NAME,
 			nameof(policy),
@@ -156,7 +176,7 @@ export class PolicyAdministrationPointService implements IPolicyAdministrationPo
 
 		const storagePolicy = convertToStoragePolicy({
 			...policy,
-			uid: policyUid
+			"@id": policyUid
 		});
 		await this._odrlPolicyEntityStorage.set(storagePolicy);
 	}
@@ -166,7 +186,7 @@ export class PolicyAdministrationPointService implements IPolicyAdministrationPo
 	 * @param policyId The ID of the policy to get.
 	 * @returns The policy.
 	 */
-	public async get(policyId: string): Promise<IOdrlPolicy> {
+	public async get(policyId: string): Promise<IDataspaceProtocolPolicy> {
 		Guards.stringValue(PolicyAdministrationPointService.CLASS_NAME, nameof(policyId), policyId);
 
 		let policy;
@@ -194,7 +214,7 @@ export class PolicyAdministrationPointService implements IPolicyAdministrationPo
 	 * @param agreementId The ID of the agreement to get.
 	 * @returns The agreement.
 	 */
-	public async getAgreement(agreementId: string): Promise<IOdrlAgreement> {
+	public async getAgreement(agreementId: string): Promise<IDataspaceProtocolAgreement> {
 		Guards.stringValue(
 			PolicyAdministrationPointService.CLASS_NAME,
 			nameof(agreementId),
@@ -226,7 +246,7 @@ export class PolicyAdministrationPointService implements IPolicyAdministrationPo
 			});
 		}
 
-		return convertFromStoragePolicy<IOdrlAgreement>(policy);
+		return convertFromStoragePolicy<IDataspaceProtocolAgreement>(policy);
 	}
 
 	/**
@@ -234,7 +254,7 @@ export class PolicyAdministrationPointService implements IPolicyAdministrationPo
 	 * @param offerId The ID of the offer to get.
 	 * @returns The offer.
 	 */
-	public async getOffer(offerId: string): Promise<IOdrlOffer> {
+	public async getOffer(offerId: string): Promise<IDataspaceProtocolOffer> {
 		Guards.stringValue(PolicyAdministrationPointService.CLASS_NAME, nameof(offerId), offerId);
 
 		let policy;
@@ -262,7 +282,7 @@ export class PolicyAdministrationPointService implements IPolicyAdministrationPo
 			});
 		}
 
-		return convertFromStoragePolicy<IOdrlOffer>(policy);
+		return convertFromStoragePolicy<IDataspaceProtocolOffer>(policy);
 	}
 
 	/**
@@ -270,7 +290,7 @@ export class PolicyAdministrationPointService implements IPolicyAdministrationPo
 	 * @param setId The ID of the set to get.
 	 * @returns The set.
 	 */
-	public async getSet(setId: string): Promise<IOdrlSet> {
+	public async getSet(setId: string): Promise<IDataspaceProtocolSet> {
 		Guards.stringValue(PolicyAdministrationPointService.CLASS_NAME, nameof(setId), setId);
 
 		let policy;
@@ -294,7 +314,7 @@ export class PolicyAdministrationPointService implements IPolicyAdministrationPo
 			});
 		}
 
-		return convertFromStoragePolicy<IOdrlSet>(policy);
+		return convertFromStoragePolicy<IDataspaceProtocolSet>(policy);
 	}
 
 	/**
@@ -326,12 +346,12 @@ export class PolicyAdministrationPointService implements IPolicyAdministrationPo
 			target?: string;
 			action?: string;
 		},
-		conditions?: EntityCondition<IOdrlPolicy>,
+		conditions?: EntityCondition<IDataspaceProtocolPolicy>,
 		cursor?: string,
 		limit?: number
 	): Promise<{
 		cursor?: string;
-		policies: IOdrlPolicy[];
+		policies: IDataspaceProtocolPolicy[];
 	}> {
 		if (!Is.empty(conditions)) {
 			Guards.object(PolicyAdministrationPointService.CLASS_NAME, nameof(conditions), conditions);
@@ -343,7 +363,7 @@ export class PolicyAdministrationPointService implements IPolicyAdministrationPo
 			Guards.integer(PolicyAdministrationPointService.CLASS_NAME, nameof(limit), limit);
 		}
 
-		const allConditions: EntityCondition<IOdrlPolicy> = {
+		const allConditions: EntityCondition<IDataspaceProtocolPolicy> = {
 			conditions: [],
 			logicalOperator: LogicalOperator.And
 		};

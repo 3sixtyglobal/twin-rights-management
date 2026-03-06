@@ -13,18 +13,18 @@ import { LoggingConnectorFactory } from "@twin.org/logging-models";
 import { LoggingService } from "@twin.org/logging-service";
 import { nameof } from "@twin.org/nameof";
 import {
+	PolicyArbiterFactory,
+	PolicyDecision,
+	PolicyDecisionStage,
+	PolicyEnforcementProcessorFactory,
+	PolicyExecutionActionFactory,
+	PolicyInformationSourceFactory,
 	type IPolicyArbiter,
 	type IPolicyDecision,
 	type IPolicyEnforcementProcessor,
 	type IPolicyExecutionAction,
 	type IPolicyInformationSource,
-	PolicyArbiterFactory,
-	type PolicyInformationAccessMode,
-	PolicyDecision,
-	PolicyDecisionStage,
-	PolicyEnforcementProcessorFactory,
-	PolicyExecutionActionFactory,
-	PolicyInformationSourceFactory
+	type PolicyInformationAccessMode
 } from "@twin.org/rights-management-models";
 import {
 	PolicyAdministrationPointService,
@@ -36,7 +36,8 @@ import { PolicyEnforcementPointService } from "@twin.org/rights-management-pep-s
 import { PolicyInformationPointService } from "@twin.org/rights-management-pip-service";
 import { PolicyManagementPointService } from "@twin.org/rights-management-pmp-service";
 import { PolicyExecutionPointService } from "@twin.org/rights-management-pxp-service";
-import { OdrlContexts, PolicyType, type IOdrlPolicy } from "@twin.org/standards-w3c-odrl";
+import type { IDataspaceProtocolPolicy } from "@twin.org/standards-dataspace-protocol";
+import { OdrlContexts, PolicyType } from "@twin.org/standards-w3c-odrl";
 
 let loggingMemoryEntityStorage: MemoryEntityStorageConnector<LogEntry>;
 let odrlPolicyMemoryEntityStorage: MemoryEntityStorageConnector<OdrlPolicy>;
@@ -87,7 +88,7 @@ describe("RightsManagementService", () => {
 			className: () => "mock-execution-action",
 			supportedStages: () => [PolicyDecisionStage.Before, PolicyDecisionStage.After],
 			execute: async <D = unknown>(
-				policy: IOdrlPolicy,
+				policy: IDataspaceProtocolPolicy,
 				decisions: IPolicyDecision[],
 				data: D | undefined,
 				stage: PolicyDecisionStage
@@ -100,7 +101,7 @@ describe("RightsManagementService", () => {
 		const mockInformationSource: IPolicyInformationSource = {
 			className: () => "mock-information-source",
 			retrieve: async <D = unknown>(
-				policy: IOdrlPolicy | undefined,
+				policy: IDataspaceProtocolPolicy | undefined,
 				accessMode: PolicyInformationAccessMode,
 				data?: D
 			): Promise<
@@ -118,7 +119,7 @@ describe("RightsManagementService", () => {
 		const mockEnforcementProcessor: IPolicyEnforcementProcessor = {
 			className: () => "mock-enforcement-processor",
 			process: async <D = unknown, R = D>(
-				policy: IOdrlPolicy,
+				policy: IDataspaceProtocolPolicy,
 				decisions: IPolicyDecision[],
 				data?: D
 			): Promise<R> => data as R
@@ -130,12 +131,12 @@ describe("RightsManagementService", () => {
 	});
 
 	test("can perform a full workflow", async () => {
-		const testPolicy: IOdrlPolicy = {
+		const testPolicy: IDataspaceProtocolPolicy = {
 			"@context": OdrlContexts.Context,
 			"@type": PolicyType.Agreement,
 			assigner: "did:example:assigner",
 			assignee: "did:example:assignee",
-			uid: "policy:test-policy-uid"
+			"@id": "policy:test-policy-uid"
 		};
 
 		await policyAdministrationPointService.create(testPolicy);

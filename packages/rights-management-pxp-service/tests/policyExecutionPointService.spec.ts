@@ -17,7 +17,8 @@ import {
 	PolicyDecisionStage,
 	PolicyExecutionActionFactory
 } from "@twin.org/rights-management-models";
-import { type IOdrlPolicy, OdrlContexts, PolicyType } from "@twin.org/standards-w3c-odrl";
+import type { IDataspaceProtocolPolicy } from "@twin.org/standards-dataspace-protocol";
+import { OdrlContexts, PolicyType } from "@twin.org/standards-w3c-odrl";
 import { PolicyExecutionPointService } from "../src/policyExecutionPointService.js";
 
 function createPolicy(options?: {
@@ -25,11 +26,11 @@ function createPolicy(options?: {
 	action?: string;
 	target?: string;
 	assignee?: string;
-}): IOdrlPolicy {
+}): IDataspaceProtocolPolicy {
 	return {
 		"@context": OdrlContexts.Context,
 		"@type": PolicyType.Set,
-		uid: options?.uid ?? "policy123",
+		"@id": options?.uid ?? "policy123",
 		action: options?.action ?? "action",
 		target: options?.target ?? "target",
 		assignee: options?.assignee ?? "assignee"
@@ -281,7 +282,7 @@ describe("PolicyExecutionPointService", () => {
 		const testPolicy = {
 			"@context": OdrlContexts.Context,
 			"@type": PolicyType.Agreement,
-			uid: "policy1"
+			"@id": "policy1"
 		};
 		const testDecisions = [{ target: "asset1", decision: PolicyDecision.Granted }];
 
@@ -309,7 +310,7 @@ describe("PolicyExecutionPointService", () => {
 		const testPolicy = {
 			"@context": OdrlContexts.Context,
 			"@type": PolicyType.Agreement,
-			uid: "policy1"
+			"@id": "policy1"
 		};
 		const testDecisions = [{ target: "asset1", decision: PolicyDecision.Granted }];
 
@@ -340,10 +341,10 @@ describe("PolicyExecutionPointService", () => {
 	test("loggingPolicyAction logs policy execution details", async () => {
 		const policyExecutionPoint = new PolicyExecutionPointService();
 		const testData = { sensitiveInfo: "secret" };
-		const testPolicy: IOdrlPolicy = {
+		const testPolicy: IDataspaceProtocolPolicy = {
 			"@context": OdrlContexts.Context,
 			"@type": PolicyType.Agreement,
-			uid: "policy1",
+			"@id": "policy1",
 			permission: [
 				{
 					target: "asset1",
@@ -385,10 +386,10 @@ describe("PolicyExecutionPointService", () => {
 
 	test("loggingPolicyAction handles undefined assignee", async () => {
 		const policyExecutionPoint = new PolicyExecutionPointService();
-		const testPolicy: IOdrlPolicy = {
+		const testPolicy: IDataspaceProtocolPolicy = {
 			"@context": OdrlContexts.Context,
 			"@type": PolicyType.Agreement,
-			uid: "policy2"
+			"@id": "policy2"
 		};
 		const testDecisions = [{ target: "asset1", decision: PolicyDecision.Granted }];
 
@@ -447,7 +448,7 @@ describe("PolicyExecutionPointService", () => {
 		const testPolicy = {
 			"@context": OdrlContexts.Context,
 			"@type": PolicyType.Agreement,
-			uid: "policy1"
+			"@id": "policy1"
 		};
 		const testDecisions = [{ target: "asset1", decision: PolicyDecision.Granted }];
 
@@ -492,7 +493,7 @@ describe("PolicyExecutionPointService", () => {
 		const testPolicy = {
 			"@context": OdrlContexts.Context,
 			"@type": PolicyType.Agreement,
-			uid: "policy1"
+			"@id": "policy1"
 		};
 		const testDecisions = [{ target: "asset1", decision: PolicyDecision.Granted }];
 

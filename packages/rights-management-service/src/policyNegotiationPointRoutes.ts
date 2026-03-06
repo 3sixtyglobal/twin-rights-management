@@ -22,14 +22,14 @@ import {
 	type IPolicyNegotiationPointComponent
 } from "@twin.org/rights-management-models";
 import {
+	DataspaceProtocolContexts,
 	DataspaceProtocolContractNegotiationEventType,
 	DataspaceProtocolContractNegotiationStateType,
 	DataspaceProtocolContractNegotiationTypes,
-	DataspaceProtocolContexts,
 	type IDataspaceProtocolContractNegotiation,
 	type IDataspaceProtocolContractNegotiationError
 } from "@twin.org/standards-dataspace-protocol";
-import { OdrlContexts, OdrlTypes } from "@twin.org/standards-w3c-odrl";
+import { OdrlTypes } from "@twin.org/standards-w3c-odrl";
 import { HeaderHelper, HeaderTypes, HttpStatusCode, MimeTypes } from "@twin.org/web";
 
 /**
@@ -135,9 +135,8 @@ export function generateRestRoutesPolicyNegotiationPoint(
 							"@type": DataspaceProtocolContractNegotiationTypes.ContractRequestMessage,
 							consumerPid: "urn:contract-negotiation:22aa11bb.......ffff",
 							offer: {
-								"@context": OdrlContexts.Context,
 								"@type": OdrlTypes.Offer,
-								uid: "urn:offer-1",
+								"@id": "urn:offer-1",
 								assigner: "urn:provider:node:1"
 							}
 						}
@@ -197,9 +196,8 @@ export function generateRestRoutesPolicyNegotiationPoint(
 							"@type": DataspaceProtocolContractNegotiationTypes.ContractRequestMessage,
 							consumerPid: "urn:contract-negotiation:22aa11bb.......ffff",
 							offer: {
-								"@context": OdrlContexts.Context,
 								"@type": OdrlTypes.Offer,
-								uid: "urn:offer-1",
+								"@id": "urn:offer-1",
 								assigner: "urn:provider:node:1"
 							}
 						}
@@ -401,9 +399,8 @@ export function generateRestRoutesPolicyNegotiationPoint(
 							providerPid: "urn:contract-negotiation:00aa11bb.......ffff",
 							consumerPid: "urn:contract-negotiation:22aa11bb.......ffff",
 							offer: {
-								"@context": OdrlContexts.Context,
 								"@type": OdrlTypes.Offer,
-								uid: "urn:offer-1",
+								"@id": "urn:offer-1",
 								assigner: "urn:provider:node:1"
 							}
 						}
@@ -463,9 +460,8 @@ export function generateRestRoutesPolicyNegotiationPoint(
 							providerPid: "urn:contract-negotiation:00aa11bb.......ffff",
 							consumerPid: "urn:contract-negotiation:22aa11bb.......ffff",
 							offer: {
-								"@context": OdrlContexts.Context,
 								"@type": OdrlTypes.Offer,
-								uid: "urn:offer-1",
+								"@id": "urn:offer-1",
 								assigner: "urn:provider:node:1"
 							}
 						}
@@ -522,9 +518,8 @@ export function generateRestRoutesPolicyNegotiationPoint(
 							providerPid: "urn:contract-negotiation:00aa11bb.......ffff",
 							consumerPid: "urn:contract-negotiation:22aa11bb.......ffff",
 							agreement: {
-								"@context": OdrlContexts.Context,
 								"@type": OdrlTypes.Agreement,
-								uid: "urn:offer-1",
+								"@id": "urn:offer-1",
 								assigner: "urn:provider:node:1",
 								assignee: "urn:consumer:node:1"
 							}
