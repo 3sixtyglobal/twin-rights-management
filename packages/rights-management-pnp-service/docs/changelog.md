@@ -1,5 +1,22 @@
 # Changelog
 
+## [0.0.3-next.22](https://github.com/twinfoundation/rights-management/compare/rights-management-pnp-service-v0.0.3-next.21...rights-management-pnp-service-v0.0.3-next.22) (2026-03-09)
+
+
+### Features
+
+* add identity-based authorization to PNP negotiation endpoints ([#92](https://github.com/twinfoundation/rights-management/issues/92)) ([67c208e](https://github.com/twinfoundation/rights-management/commit/67c208e0c7da637c4194e5412f51a2d084ae1df2))
+
+
+### Dependencies
+
+* The following workspace dependencies were updated
+  * dependencies
+    * @twin.org/rights-management-models bumped from 0.0.3-next.21 to 0.0.3-next.22
+  * devDependencies
+    * @twin.org/rights-management-pap-service bumped from 0.0.3-next.21 to 0.0.3-next.22
+    * @twin.org/rights-management-pip-service bumped from 0.0.3-next.21 to 0.0.3-next.22
+
 ## [0.0.3-next.21](https://github.com/twinfoundation/rights-management/compare/rights-management-pnp-service-v0.0.3-next.20...rights-management-pnp-service-v0.0.3-next.21) (2026-03-06)
 
 

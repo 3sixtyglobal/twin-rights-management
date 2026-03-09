@@ -1,5 +1,25 @@
 # Changelog
 
+## [0.0.3-next.22](https://github.com/twinfoundation/rights-management/compare/rights-management-pep-service-v0.0.3-next.21...rights-management-pep-service-v0.0.3-next.22) (2026-03-09)
+
+
+### Miscellaneous Chores
+
+* **rights-management-pep-service:** Synchronize repo versions
+
+
+### Dependencies
+
+* The following workspace dependencies were updated
+  * dependencies
+    * @twin.org/rights-management-models bumped from 0.0.3-next.21 to 0.0.3-next.22
+  * devDependencies
+    * @twin.org/rights-management-pap-service bumped from 0.0.3-next.21 to 0.0.3-next.22
+    * @twin.org/rights-management-pdp-service bumped from 0.0.3-next.21 to 0.0.3-next.22
+    * @twin.org/rights-management-pip-service bumped from 0.0.3-next.21 to 0.0.3-next.22
+    * @twin.org/rights-management-pmp-service bumped from 0.0.3-next.21 to 0.0.3-next.22
+    * @twin.org/rights-management-pxp-service bumped from 0.0.3-next.21 to 0.0.3-next.22
+
 ## [0.0.3-next.21](https://github.com/twinfoundation/rights-management/compare/rights-management-pep-service-v0.0.3-next.20...rights-management-pep-service-v0.0.3-next.21) (2026-03-06)
 
 
