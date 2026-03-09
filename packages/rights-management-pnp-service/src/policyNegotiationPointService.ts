@@ -11,6 +11,7 @@ import {
 	Is,
 	NotFoundError,
 	StringHelper,
+	UnauthorizedError,
 	Url,
 	Urn
 } from "@twin.org/core";
@@ -180,7 +181,7 @@ export class PolicyNegotiationPointService implements IPolicyNegotiationPointCom
 		Guards.stringValue(PolicyNegotiationPointService.CLASS_NAME, nameof(id), id);
 
 		try {
-			await TrustHelper.verifyTrust(
+			const trustInfo = await TrustHelper.verifyTrust(
 				this._trustComponent,
 				trustPayload,
 				"getNegotiation",
@@ -196,6 +197,8 @@ export class PolicyNegotiationPointService implements IPolicyNegotiationPointCom
 					id
 				);
 			}
+
+			this.validateCallerIsNegotiationParty(negotiation, trustInfo);
 
 			return this.constructNegotiationMessage(
 				negotiation.id,
@@ -306,11 +309,7 @@ export class PolicyNegotiationPointService implements IPolicyNegotiationPointCom
 			state: DataspaceProtocolContractNegotiationStateType.REQUESTED,
 			dateCreated: new Date(Date.now()).toISOString(),
 			organizationIdentity,
-			handlerId: requesterType,
-			trustVerificationInfo: {
-				identity: organizationIdentity,
-				data: policyData
-			}
+			handlerId: requesterType
 		};
 
 		await this._policyNegotiationAdminPointComponent.set(policyNegotiation);
@@ -548,7 +547,7 @@ export class PolicyNegotiationPointService implements IPolicyNegotiationPointCom
 		let consumerPid;
 		let policyNegotiation: IPolicyNegotiation | undefined;
 		try {
-			await TrustHelper.verifyTrust(
+			const trustInfo = await TrustHelper.verifyTrust(
 				this._trustComponent,
 				trustPayload,
 				"offerFromProvider",
@@ -637,6 +636,7 @@ export class PolicyNegotiationPointService implements IPolicyNegotiationPointCom
 			}
 
 			// The offer was accepted by the consumer, so update the state
+			policyNegotiation.trustVerificationInfo = trustInfo;
 			policyNegotiation.state = DataspaceProtocolContractNegotiationStateType.ACCEPTED;
 			policyNegotiation.offer = {
 				"@context": OdrlContexts.Context,
@@ -710,7 +710,7 @@ export class PolicyNegotiationPointService implements IPolicyNegotiationPointCom
 
 		let policyNegotiation: IPolicyNegotiation | undefined;
 		try {
-			await TrustHelper.verifyTrust(
+			const trustInfo = await TrustHelper.verifyTrust(
 				this._trustComponent,
 				trustPayload,
 				"agreementFromProvider",
@@ -753,6 +753,8 @@ export class PolicyNegotiationPointService implements IPolicyNegotiationPointCom
 				);
 				return err;
 			}
+
+			this.validateCallerIsNegotiationParty(policyNegotiation, trustInfo);
 
 			// If we have an associated requester then notify it
 			const requesterType = policyNegotiation.handlerId;
@@ -850,7 +852,7 @@ export class PolicyNegotiationPointService implements IPolicyNegotiationPointCom
 
 		let policyNegotiation: IPolicyNegotiation | undefined;
 		try {
-			await TrustHelper.verifyTrust(
+			const trustInfo = await TrustHelper.verifyTrust(
 				this._trustComponent,
 				trustPayload,
 				"agreementVerificationFromConsumer",
@@ -892,6 +894,8 @@ export class PolicyNegotiationPointService implements IPolicyNegotiationPointCom
 				);
 				return err;
 			}
+
+			this.validateCallerIsNegotiationParty(policyNegotiation, trustInfo);
 
 			if (Is.empty(policyNegotiation.agreement)) {
 				const err = await this.setErrorState(
@@ -972,7 +976,7 @@ export class PolicyNegotiationPointService implements IPolicyNegotiationPointCom
 
 		let policyNegotiation: IPolicyNegotiation | undefined;
 		try {
-			await TrustHelper.verifyTrust(
+			const trustInfo = await TrustHelper.verifyTrust(
 				this._trustComponent,
 				trustPayload,
 				"event",
@@ -1000,6 +1004,8 @@ export class PolicyNegotiationPointService implements IPolicyNegotiationPointCom
 				}
 				throw error;
 			}
+
+			this.validateCallerIsNegotiationParty(policyNegotiation, trustInfo);
 
 			// We can only transition from OFFERED to ACCEPTED or VERIFIED to FINALIZED
 			// https://eclipse-dataspace-protocol-base.github.io/DataspaceProtocol/2025-1/#state-machine
@@ -1113,7 +1119,7 @@ export class PolicyNegotiationPointService implements IPolicyNegotiationPointCom
 
 		let policyNegotiation: IPolicyNegotiation | undefined;
 		try {
-			await TrustHelper.verifyTrust(
+			const trustInfo = await TrustHelper.verifyTrust(
 				this._trustComponent,
 				trustPayload,
 				"terminate",
@@ -1140,6 +1146,8 @@ export class PolicyNegotiationPointService implements IPolicyNegotiationPointCom
 				}
 				throw error;
 			}
+
+			this.validateCallerIsNegotiationParty(policyNegotiation, trustInfo);
 
 			// If the target is a consumer we should notify the original
 			// requester that the negotiation has been terminated
@@ -1223,6 +1231,30 @@ export class PolicyNegotiationPointService implements IPolicyNegotiationPointCom
 		);
 
 		await negotiationComponent.terminate(terminationMessage, "consumer", trustPayload);
+	}
+
+	/**
+	 * Validate that the caller's verified identity matches the counterparty identity
+	 * captured from the first trusted interaction in this negotiation.
+	 * @param negotiation The policy negotiation to check against.
+	 * @param callerTrustInfo The caller's verified identity from trust verification.
+	 * @throws UnauthorizedError if the caller is not the expected counterparty.
+	 * @internal
+	 */
+	private validateCallerIsNegotiationParty(
+		negotiation: IPolicyNegotiation,
+		callerTrustInfo: ITrustVerificationInfo
+	): void {
+		if (
+			!Is.stringValue(negotiation.trustVerificationInfo?.identity) ||
+			!Is.stringValue(callerTrustInfo?.identity) ||
+			negotiation.trustVerificationInfo.identity !== callerTrustInfo.identity
+		) {
+			throw new UnauthorizedError(
+				PolicyNegotiationPointService.CLASS_NAME,
+				"callerNotAuthorizedForNegotiation"
+			);
+		}
 	}
 
 	/**

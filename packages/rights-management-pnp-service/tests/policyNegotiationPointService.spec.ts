@@ -522,6 +522,7 @@ describe("PolicyNegotiationPointService", () => {
 			offer: undefined,
 			state: "REQUESTED"
 		});
+		expect(consumerStore[0].trustVerificationInfo).toBeUndefined();
 
 		expect(providerStore[0]).toMatchObject({
 			id: consumerStore[0].correlationId,
@@ -536,6 +537,9 @@ describe("PolicyNegotiationPointService", () => {
 				assigner: testIdentityProvider
 			},
 			state: "REQUESTED"
+		});
+		expect(providerStore[0].trustVerificationInfo).toEqual({
+			identity: testIdentityConsumer
 		});
 	});
 
@@ -601,6 +605,11 @@ describe("PolicyNegotiationPointService", () => {
 				assigner: testIdentityProvider
 			},
 			state: "ACCEPTED"
+		});
+
+		// After offerFromProvider, trustVerificationInfo should be set to the provider's identity
+		expect(consumerStore[0].trustVerificationInfo).toEqual({
+			identity: testIdentityProvider
 		});
 
 		await waitForState(policyNegotiationProviderMemoryEntityStorage, "OFFERED", "provider");
@@ -810,5 +819,76 @@ describe("PolicyNegotiationPointService", () => {
 		expect(mockPolicyRequester.finalised).toHaveBeenCalledWith(consumerPid);
 
 		expect(mockPolicyRequester.terminated).toHaveBeenCalledTimes(0);
+	});
+
+	test("getNegotiation should return error when caller is not a negotiation party", async () => {
+		const policyNegotiationProviderPoint = new PolicyNegotiationPointService({
+			policyNegotiationAdministrationPointComponentType: "policy-negotiation-provider-admin-point",
+			policyNegotiationPointRemoteComponentType: "pnp-remote",
+			config: {
+				callbackPath: "/callback"
+			}
+		});
+
+		PolicyNegotiatorFactory.register("MockPolicyNegotiator", () => mockNegotiator);
+
+		await negotiationProviderAdminPointComponent.set({
+			id: "provider-pid-auth-test",
+			correlationId: "consumer-pid-auth-test",
+			dateCreated: new Date(Date.now()).toISOString(),
+			offer: mockOffer,
+			state: "REQUESTED",
+			callbackAddress: "http://localhost:4000/callback",
+			organizationIdentity: testIdentityProvider,
+			trustVerificationInfo: {
+				identity: testIdentityConsumer
+			},
+			handlerId: "MockPolicyNegotiator"
+		});
+
+		const unauthorizedToken = "token:did:iota:unauthorized-node";
+		const result = await policyNegotiationProviderPoint.getNegotiation(
+			"provider-pid-auth-test",
+			unauthorizedToken
+		);
+
+		expect(result["@type"]).toBe("ContractNegotiationError");
+		if ("code" in result) {
+			expect(result.code).toBe("policyNegotiationPointService.callerNotAuthorizedForNegotiation");
+		}
+	});
+
+	test("getNegotiation should succeed when caller is a negotiation party", async () => {
+		const policyNegotiationProviderPoint = new PolicyNegotiationPointService({
+			policyNegotiationAdministrationPointComponentType: "policy-negotiation-provider-admin-point",
+			policyNegotiationPointRemoteComponentType: "pnp-remote",
+			config: {
+				callbackPath: "/callback"
+			}
+		});
+
+		PolicyNegotiatorFactory.register("MockPolicyNegotiator", () => mockNegotiator);
+
+		await negotiationProviderAdminPointComponent.set({
+			id: "provider-pid-auth-test-2",
+			correlationId: "consumer-pid-auth-test-2",
+			dateCreated: new Date(Date.now()).toISOString(),
+			offer: mockOffer,
+			state: "REQUESTED",
+			callbackAddress: "http://localhost:4000/callback",
+			organizationIdentity: testIdentityProvider,
+			trustVerificationInfo: {
+				identity: testIdentityConsumer
+			},
+			handlerId: "MockPolicyNegotiator"
+		});
+
+		const consumerToken = `token:${testIdentityConsumer}`;
+		const result = await policyNegotiationProviderPoint.getNegotiation(
+			"provider-pid-auth-test-2",
+			consumerToken
+		);
+
+		expect(result["@type"]).toBe("ContractNegotiation");
 	});
 });
