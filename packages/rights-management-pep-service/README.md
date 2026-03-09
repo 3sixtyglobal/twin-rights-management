@@ -1,12 +1,20 @@
 # TWIN Rights Management Policy Enforcement Point Service
 
-Policy enforcement point implementation.
+This package provides the policy enforcement point service for applying decisions to protected data flows. It turns decision outputs into practical enforcement behaviour for runtime integrations.
 
 ## Installation
 
-```shell
+`shell
 npm install @twin.org/rights-management-pep-service
-```
+`
+
+## Testing
+
+Run the package test suite with:
+
+`shell
+npm test
+`
 
 ## Examples
 

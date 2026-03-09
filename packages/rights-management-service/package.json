@@ -1,7 +1,7 @@
 {
 	"name": "@twin.org/rights-management-service",
 	"version": "0.0.3-next.22",
-	"description": "Rights Management service implementation and REST endpoint definitions",
+	"description": "Unified rights management service exposing policy and negotiation capabilities.",
 	"repository": {
 		"type": "git",
 		"url": "git+https://github.com/twinfoundation/rights-management.git",

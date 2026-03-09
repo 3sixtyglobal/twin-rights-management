@@ -1,7 +1,7 @@
 {
 	"name": "@twin.org/rights-management-pdp-service",
 	"version": "0.0.3-next.22",
-	"description": "Policy decision point implementation",
+	"description": "Policy decision point service for producing authorisation decisions from policies and context.",
 	"repository": {
 		"type": "git",
 		"url": "git+https://github.com/twinfoundation/rights-management.git",

@@ -1,7 +1,7 @@
 {
 	"name": "@twin.org/rights-management-pmp-service",
 	"version": "0.0.3-next.22",
-	"description": "Policy management point implementation",
+	"description": "Policy management point service for locating and preparing candidate policies.",
 	"repository": {
 		"type": "git",
 		"url": "git+https://github.com/twinfoundation/rights-management.git",

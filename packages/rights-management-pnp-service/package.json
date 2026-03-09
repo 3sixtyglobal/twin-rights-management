@@ -1,7 +1,7 @@
 {
 	"name": "@twin.org/rights-management-pnp-service",
 	"version": "0.0.3-next.22",
-	"description": "Policy negotiation point implementation",
+	"description": "Policy negotiation point service for running contract negotiation workflows and outcomes.",
 	"repository": {
 		"type": "git",
 		"url": "git+https://github.com/twinfoundation/rights-management.git",

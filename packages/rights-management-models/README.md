@@ -1,12 +1,20 @@
 # TWIN Rights Management Models
 
-Models which define the structure of the rights management contracts and connectors.
+This package provides data model definitions for rights management policies, negotiations, and service contracts. It is intended to be used as a shared foundation for services and integrations across the repository.
 
 ## Installation
 
-```shell
+`shell
 npm install @twin.org/rights-management-models
-```
+`
+
+## Testing
+
+Run the package test suite with:
+
+`shell
+npm test
+`
 
 ## Examples
 

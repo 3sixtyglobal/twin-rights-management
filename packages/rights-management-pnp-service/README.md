@@ -1,12 +1,20 @@
 # TWIN Rights Management Policy Negotiation Point Service
 
-Policy negotiation point implementation.
+This package provides the policy negotiation point service for running contract negotiation workflows and outcomes. It supports interoperable agreement lifecycles between participating nodes.
 
 ## Installation
 
-```shell
+`shell
 npm install @twin.org/rights-management-pnp-service
-```
+`
+
+## Testing
+
+Run the package test suite with:
+
+`shell
+npm test
+`
 
 ## Examples
 

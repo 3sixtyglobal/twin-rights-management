@@ -1,12 +1,20 @@
 # TWIN Rights Management Plugins
 
-Rights Management plugin implementations.
+This package provides plugin implementations for extending rights management behaviour across components. It supports modular customisation for deployment-specific requirements.
 
 ## Installation
 
-```shell
+`shell
 npm install @twin.org/rights-management-plugins
-```
+`
+
+## Testing
+
+Run the package test suite with:
+
+`shell
+npm test
+`
 
 ## Examples
 

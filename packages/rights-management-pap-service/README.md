@@ -1,12 +1,20 @@
 # TWIN Rights Management Policy Administration Service
 
-Policy administration point implementation.
+This package provides the policy administration point service for storing and managing policy records. It centralises policy lifecycle operations so the wider rights management stack can rely on consistent policy state.
 
 ## Installation
 
-```shell
+`shell
 npm install @twin.org/rights-management-pap-service
-```
+`
+
+## Testing
+
+Run the package test suite with:
+
+`shell
+npm test
+`
 
 ## Examples
 

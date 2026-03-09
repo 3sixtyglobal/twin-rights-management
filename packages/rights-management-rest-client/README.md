@@ -1,12 +1,20 @@
 # TWIN Rights Management REST Client
 
-Rights Management implementation which can connect to REST endpoints.
+This package provides a REST client for integrating rights management workflows with remote endpoints. It simplifies interaction with distributed rights management services over HTTP.
 
 ## Installation
 
-```shell
+`shell
 npm install @twin.org/rights-management-rest-client
-```
+`
+
+## Testing
+
+Run the package test suite with:
+
+`shell
+npm test
+`
 
 ## Examples
 

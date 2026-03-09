@@ -1,7 +1,7 @@
 {
 	"name": "@twin.org/rights-management-pip-service",
 	"version": "0.0.3-next.22",
-	"description": "Policy information point implementation",
+	"description": "Policy information point service for supplying context facts to evaluations.",
 	"repository": {
 		"type": "git",
 		"url": "git+https://github.com/twinfoundation/rights-management.git",

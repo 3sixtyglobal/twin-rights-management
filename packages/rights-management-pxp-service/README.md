@@ -1,12 +1,20 @@
 # TWIN Rights Management Policy Execution Point Service
 
-Policy execution point implementation.
+This package provides the policy execution point service for pre and post evaluation action pipelines. It enables extensible execution hooks around policy decision processing.
 
 ## Installation
 
-```shell
+`shell
 npm install @twin.org/rights-management-pxp-service
-```
+`
+
+## Testing
+
+Run the package test suite with:
+
+`shell
+npm test
+`
 
 ## Examples
 

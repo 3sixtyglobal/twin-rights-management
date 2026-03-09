@@ -1,7 +1,7 @@
 {
 	"name": "@twin.org/rights-management-plugins",
 	"version": "0.0.3-next.22",
-	"description": "Rights management plugin implementations",
+	"description": "Plugin implementations for extending rights management behaviour across components.",
 	"repository": {
 		"type": "git",
 		"url": "git+https://github.com/twinfoundation/rights-management.git",

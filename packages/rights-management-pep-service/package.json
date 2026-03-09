@@ -1,7 +1,7 @@
 {
 	"name": "@twin.org/rights-management-pep-service",
 	"version": "0.0.3-next.22",
-	"description": "Policy enforcement point implementation",
+	"description": "Policy enforcement point service for applying decisions to protected data flows.",
 	"repository": {
 		"type": "git",
 		"url": "git+https://github.com/twinfoundation/rights-management.git",

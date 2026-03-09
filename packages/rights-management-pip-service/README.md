@@ -1,12 +1,20 @@
 # TWIN Rights Management Policy Information Point Service
 
-Policy information point implementation.
+This package provides the policy information point service for supplying context facts to evaluations. It offers an extensible way to gather runtime data used by policy decisions and negotiations.
 
 ## Installation
 
-```shell
+`shell
 npm install @twin.org/rights-management-pip-service
-```
+`
+
+## Testing
+
+Run the package test suite with:
+
+`shell
+npm test
+`
 
 ## Examples
 

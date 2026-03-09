@@ -1,7 +1,7 @@
 {
 	"name": "@twin.org/rights-management-rest-client",
 	"version": "0.0.3-next.22",
-	"description": "Rights management implementation which can connect to REST endpoints",
+	"description": "REST client for integrating rights management workflows with remote endpoints.",
 	"repository": {
 		"type": "git",
 		"url": "git+https://github.com/twinfoundation/rights-management.git",
