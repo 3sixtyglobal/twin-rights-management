@@ -1,4 +1,8 @@
-# Rights Management Components
+---
+category: components
+order: 10
+---
+# Rights Management
 
 This document defines the architecture of the TWIN Foundation Rights Management subsystem. It specifies the responsibility boundaries of core components, the policy and negotiation lifecycle, extensibility contracts, and interaction flows (including integration with IDS Contract Negotiation and ODRL policy semantics). The intent is to precise describe the runtime model so that new extensions can be implemented without ambiguity.
 
