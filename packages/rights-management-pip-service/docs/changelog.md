@@ -526,4 +526,4 @@
   * dependencies
     * @twin.org/rights-management-models bumped from 0.0.2-next.1 to 0.0.2-next.2
 
-## @twin.org/rights-management-pip-service - Changelog
+## Changelog

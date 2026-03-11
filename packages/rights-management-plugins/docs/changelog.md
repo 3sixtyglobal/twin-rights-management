@@ -348,4 +348,4 @@
   * dependencies
     * @twin.org/rights-management-models bumped from 0.0.3-next.3 to 0.0.3-next.4
 
-## @twin.org/rights-management-plugins - Changelog
+## Changelog

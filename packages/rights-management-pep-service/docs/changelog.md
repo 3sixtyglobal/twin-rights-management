@@ -755,4 +755,4 @@
     * @twin.org/rights-management-pmp-service bumped from 0.0.2-next.1 to 0.0.2-next.2
     * @twin.org/rights-management-pxp-service bumped from 0.0.2-next.1 to 0.0.2-next.2
 
-## @twin.org/rights-management-pep-service - Changelog
+## Changelog

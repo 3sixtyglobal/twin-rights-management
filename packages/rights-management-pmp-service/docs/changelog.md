@@ -590,4 +590,4 @@
   * devDependencies
     * @twin.org/rights-management-pap-service bumped from 0.0.2-next.1 to 0.0.2-next.2
 
-## @twin.org/rights-management-pmp-service - Changelog
+## Changelog

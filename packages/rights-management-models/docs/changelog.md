@@ -1,4 +1,4 @@
-# @twin.org/rights-management-models - Changelog
+# Changelog
 
 ## [0.0.3-next.22](https://github.com/twinfoundation/rights-management/compare/rights-management-models-v0.0.3-next.21...rights-management-models-v0.0.3-next.22) (2026-03-09)
 
