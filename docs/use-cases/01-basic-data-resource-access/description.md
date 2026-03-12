@@ -92,7 +92,7 @@ For this use case, we demonstrate application code calling PEP.
 - Translates access request into PAP query using Policy Locator:
   - `assetType`: "DataResource"
   - `action`: "read"
-  - `resourceId`: "https://twin.example.org/data-resources/vet-cert-doc-6ce567"
+  - `resourceId`: `"https://twin.example.org/data-resources/vet-cert-doc-6ce567"`
   - `assignee`: "did:iota:testnet:0x1ee..."
 - Queries PAP and returns the matching Agreement policy
 

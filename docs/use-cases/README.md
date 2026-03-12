@@ -347,7 +347,7 @@ This pattern shows:
 
 Each Phase 1 use case has 7 components demonstrating the negotiation lifecycle:
 
-#### 1. description.md
+#### 1. description.md (UC6)
 
 Complete negotiation scenario with:
 
@@ -389,7 +389,7 @@ Complete IDS state machine audit trail with timestamps and actors
 
 ### Phase 1: Policy Lifecycle (Not demonstrated in UC1-UC5)
 
-```
+```text
 PNP (Policy Negotiation Point)
   ├─ Input: Negotiation request (IDS Contract Negotiation protocol)
   ├─ Process: REQUESTED → OFFERED → AGREED → FINALIZED
@@ -408,7 +408,7 @@ PAP (Policy Administration Point)
 
 ### Phase 2: Access Evaluation (UC1-UC5)
 
-```
+```text
 Application Code (Consumer/Provider)
   ├─ Calls: PEP with access request and context
   └─ Receives: Authorized data or permit/deny decision

@@ -190,7 +190,7 @@ Once the Agreement is in PAP, all Phase 2 components are used:
 
 ## IDS Contract Negotiation State Machine
 
-```
+```text
 REQUESTED → OFFERED → AGREED → FINALIZED
     ↓           ↓         ↓
 TERMINATED  TERMINATED  TERMINATED

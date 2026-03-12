@@ -137,7 +137,7 @@ The application's integrated PMP constructs a Policy Locator for each potential 
 
 The PDP evaluates the Agreement policy with constraints and duty:
 
-**Step 1: Retrieve Agreement Policy**
+##### Step 1: Retrieve Agreement Policy
 
 ```typescript
 // PMP queries PAP with Policy Locator
@@ -150,7 +150,7 @@ const policy = await pap.getPolicy({
 // Returns Agreement with PartyCollection + geographic constraints + duty
 ```
 
-**Step 2: Evaluate PartyCollection Constraint (Certification)**
+##### Step 2: Evaluate PartyCollection Constraint (Certification)
 
 ```typescript
 // INTERNAL PDP PROCESS (not application code):
@@ -162,7 +162,7 @@ const assigneeCerts = /* PIP provides from catalogue source */ ['FSA-Trusted-Not
 const certConstraint = assigneeCerts.includes('FSA-Trusted-Notifier'); // ✓ true
 ```
 
-**Step 3: Evaluate Geographic Constraint**
+##### Step 3: Evaluate Geographic Constraint
 
 ```typescript
 // INTERNAL PDP PROCESS (not application code):
@@ -174,7 +174,7 @@ const destinationCountry = /* PIP provides from resource source */ 'GB';
 const geoConstraint = destinationCountry === 'GB'; // ✓ true
 ```
 
-**Step 4: Extract Duty Obligation**
+##### Step 4: Extract Duty Obligation
 
 ```typescript
 // INTERNAL PDP PROCESS (not application code):
@@ -187,7 +187,7 @@ const duty = policy.permission[0].duty[0];
 // }
 ```
 
-**Step 5: Combine Results**
+##### Step 5: Combine Results
 
 ```typescript
 // INTERNAL PDP PROCESS (not application code):
@@ -257,19 +257,19 @@ dsc.onActivityReceived(async activity => {
 
 ### Failed Notification Scenarios
 
-**Scenario A: Missing Required Certification**
+#### Scenario A: Missing Required Certification
 
 - Assignee certifications: ["ISO27001"]
 - Certification constraint: "FSA-Trusted-Notifier" not present ✗
 - **Result**: Notification denied (not authorized)
 
-**Scenario B: Wrong Destination Country**
+#### Scenario B: Wrong Destination Country
 
 - Destination country: "FR"
 - Geographic constraint: "FR" ≠ "GB" ✗
 - **Result**: Notification denied (not relevant for UK FSA)
 
-**Scenario C: Duty Not Fulfilled**
+#### Scenario C: Duty Not Fulfilled
 
 - Notification delivered ✓
 - Clearing house notification not sent within deadline ✗

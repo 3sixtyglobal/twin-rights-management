@@ -107,7 +107,7 @@ The application's integrated PMP constructs a Policy Locator:
 
 The PDP evaluates ALL constraints with AND logic:
 
-**Step 1: Retrieve Agreement Policy**
+##### Step 1: Retrieve Agreement Policy
 
 ```typescript
 // PMP queries PAP with Policy Locator
@@ -120,7 +120,7 @@ const policy = await pap.getPolicy({
 // Returns Agreement with 3 constraints
 ```
 
-**Step 2: Evaluate Temporal Constraints**
+##### Step 2: Evaluate Temporal Constraints
 
 ```typescript
 // INTERNAL PDP PROCESS (not application code):
@@ -134,7 +134,7 @@ const constraint1 = currentDateTime >= '2025-01-01T00:00:00Z'; // ✓ true
 const constraint2 = currentDateTime <= '2025-12-31T23:59:59Z'; // ✓ true
 ```
 
-**Step 3: Evaluate Attribute Constraint**
+##### Step 3: Evaluate Attribute Constraint
 
 ```typescript
 // INTERNAL PDP PROCESS (not application code):
@@ -146,7 +146,7 @@ const requiredCerts = ['ISO27001', 'SOC2'];
 const constraint3 = assigneeCerts.some(cert => requiredCerts.includes(cert)); // ✓ true
 ```
 
-**Step 4: Combine Constraint Results (AND Logic)**
+##### Step 4: Combine Constraint Results (AND Logic)
 
 ```typescript
 // INTERNAL PDP PROCESS (not application code):
@@ -188,25 +188,25 @@ const certificates = await apiClient.searchCertificates({
 
 ### Failed Access Scenarios
 
-**Scenario A: Before Valid Period**
+#### Scenario A: Before Valid Period
 
 - Current date: 2024-12-15
 - Temporal constraint 1: 2024-12-15 < 2025-01-01 ✗
 - **Result**: Permission denied (not yet valid)
 
-**Scenario B: After Valid Period**
+#### Scenario B: After Valid Period
 
 - Current date: 2026-01-15
 - Temporal constraint 2: 2026-01-15 > 2025-12-31 ✗
 - **Result**: Permission denied (expired)
 
-**Scenario C: Missing Required Certification**
+#### Scenario C: Missing Required Certification
 
 - Assignee certifications: ["ISO9001"]
 - Certification constraint: No overlap with ["ISO27001", "SOC2"] ✗
 - **Result**: Permission denied (insufficient certifications)
 
-**Scenario D: Partial Satisfaction**
+#### Scenario D: Partial Satisfaction
 
 - Temporal constraints: Satisfied ✓
 - Certification constraint: Not satisfied ✗

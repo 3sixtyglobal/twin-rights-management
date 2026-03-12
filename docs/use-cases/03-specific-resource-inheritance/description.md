@@ -130,14 +130,14 @@ The application's integrated PMP constructs a Policy Locator:
 
 The PDP performs hierarchical evaluation with BOTH policies:
 
-**Step 1: Query PAP for Matching Policies**
+##### Step 1: Query PAP for Matching Policies
 
 - PMP queries PAP with Policy Locator
 - PAP returns TWO policies:
   - Set policy (matches assetType + action)
   - Agreement policy (matches assetType + action + resourceId + assignee)
 
-**Step 2: Evaluate Asset Class Policy (Set)**
+##### Step 2: Evaluate Asset Class Policy (Set)
 
 ```typescript
 // INTERNAL PDP PROCESS (not application code):
@@ -150,7 +150,7 @@ const pipContext = {
 // Result: Permit (base permission granted)
 ```
 
-**Step 3: Evaluate Specific Resource Policy (Agreement)**
+##### Step 3: Evaluate Specific Resource Policy (Agreement)
 
 ```typescript
 // INTERNAL PDP PROCESS (not application code):
@@ -160,7 +160,7 @@ const pipContext = {
 // Result: Permit (specific permission granted)
 ```
 
-**Step 4: Combine Results (Inheritance Logic)**
+##### Step 4: Combine Results (Inheritance Logic)
 
 - Both policies evaluate to Permit
 - Agreement (specific) takes precedence over Set (general)
@@ -206,18 +206,18 @@ console.log(consignment); // Complete consignment object
 
 ### Failed Access Scenarios
 
-**Scenario A: Wrong Purpose**
+#### Scenario A: Wrong Purpose
 
 - Asset class constraint: Purpose ≠ "logistics-operation" ✗
 - **Result**: Access denied (base policy not satisfied)
 
-**Scenario B: Expired Specific Policy**
+#### Scenario B: Expired Specific Policy
 
 - Asset class constraint: Satisfied ✓
 - Specific resource constraint: Date > 2025-12-31 ✗
 - **Result**: Access denied (specific policy expired)
 
-**Scenario C: Different Consignment**
+#### Scenario C: Different Consignment
 
 - Request for CONS000002 (different consignment)
 - Only asset class policy applies (no specific policy)
