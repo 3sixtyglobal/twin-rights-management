@@ -1,0 +1,56 @@
+{
+	"$comment": "PMP (Policy Management Point) - Policy locator showing how PMP queries PAP to find relevant agreements. Uses indexed fields from PAP metadata.",
+	"policyQuery": {
+		"assigner": "did:iota:testnet:0xfcfa55894cab90504af7eaf38087addd5f77791a89bd3ebbe76d9c2b1a6ce567",
+		"action": "read",
+		"target": {
+			"uid": "https://twin.example.org/data-resources/vet-cert-doc-6ce567",
+			"type": "Asset"
+		},
+		"assigneeContext": {
+			"did": "did:iota:testnet:0xac534b750ac453d573a55954760af140f87358c7be9a18000a831c452c32f246",
+			"legalAddress": {
+				"countryCode": "PL"
+			}
+		}
+	},
+	"lookupStrategy": {
+		"primaryIndex": "assigner:action:target",
+		"lookupKey": "assigner:did:iota:testnet:0xfcfa55894cab90504af7eaf38087addd5f77791a89bd3ebbe76d9c2b1a6ce567:action:read",
+		"filterCriteria": [
+			{
+				"field": "targetUid",
+				"operator": "eq",
+				"value": "https://twin.example.org/data-resources/vet-cert-doc-6ce567"
+			},
+			{
+				"field": "targetType",
+				"operator": "eq",
+				"value": "Asset"
+			}
+		]
+	},
+	"matchedPolicies": [
+		{
+			"policyUid": "http://example.com/policy-data-resource-giw:1010",
+			"policyType": "Agreement",
+			"matchScore": 1.0,
+			"matchedCriteria": ["assigner", "action", "targetUid", "targetType"],
+			"assigneePattern": "PartyCollection",
+			"requiresRuntimeEvaluation": true,
+			"constraints": [
+				{
+					"type": "PartyCollection.refinement",
+					"leftOperand": "twin:jsonpath:.legalAddress.countryCode",
+					"operator": "eq",
+					"rightOperand": "PL"
+				}
+			]
+		}
+	],
+	"policySelectionResult": {
+		"selectedPolicy": "http://example.com/policy-data-resource-giw:1010",
+		"selectionReason": "Exact match on assigner, action, and target. PartyCollection requires runtime constraint evaluation.",
+		"nextStep": "Forward to PDP for constraint evaluation against assignee context"
+	}
+}

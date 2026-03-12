@@ -1,0 +1,21 @@
+{
+	"$comment": "PIP Context - Runtime facts provided by Information Sources to PDP during policy evaluation (Phase 2). Used for evaluating multiple constraints (temporal + attribute) with AND logic.",
+	"currentDateTime": "2025-09-30T10:00:00Z",
+	"assigneeAttributes": {
+		"@id": "did:iota:testnet:0xac534b750ac453d573a55954760af140f87358c7be9a18000a831c452c32f246",
+		"name": "Certified Logistics Partner Ltd",
+		"certifications": ["ISO27001", "SOC2", "ISO9001"],
+		"securityCompliance": {
+			"dataProtection": "GDPR-compliant",
+			"informationSecurity": "ISO27001:2013",
+			"serviceOrganization": "SOC2-Type2"
+		}
+	},
+	"resourceAttributes": {
+		"uid": "https://twin.example.org/service-offerings/api-access-vet-cert",
+		"type": "ServiceOffering",
+		"name": "Veterinary Certificate API Access",
+		"providedBy": "did:iota:testnet:0xfcfa55894cab90504af7eaf38087addd5f77791a89bd3ebbe76d9c2b1a6ce567",
+		"endpoint": "https://api.twin.example.org/vet-certificates"
+	}
+}

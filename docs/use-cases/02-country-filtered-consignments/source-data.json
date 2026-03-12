@@ -1,0 +1,56 @@
+{
+	"consignments": [
+		{
+			"globalId": "CONS000001",
+			"type": "Consignment",
+			"consignorParty": "did:iota:testnet:0x1ee831611a9fe9877c82e05075d9670c4970b4fd0904c208082ee50e45817a9d",
+			"originCountry": "PL",
+			"destinationCountry": "PL",
+			"goods": {
+				"description": "Agricultural machinery parts",
+				"weight": "500kg",
+				"hsCode": "8432"
+			},
+			"status": "in-transit"
+		},
+		{
+			"globalId": "CONS000002",
+			"type": "Consignment",
+			"consignorParty": "did:iota:testnet:0x1ee831611a9fe9877c82e05075d9670c4970b4fd0904c208082ee50e45817a9d",
+			"originCountry": "PL",
+			"destinationCountry": "DE",
+			"goods": {
+				"description": "Organic grain products",
+				"weight": "1200kg",
+				"hsCode": "1001"
+			},
+			"status": "pending"
+		},
+		{
+			"globalId": "CONS000003",
+			"type": "Consignment",
+			"consignorParty": "did:iota:testnet:0x1ee831611a9fe9877c82e05075d9670c4970b4fd0904c208082ee50e45817a9d",
+			"originCountry": "PL",
+			"destinationCountry": "PL",
+			"goods": {
+				"description": "Dairy products",
+				"weight": "800kg",
+				"hsCode": "0401"
+			},
+			"status": "delivered"
+		},
+		{
+			"globalId": "CONS000004",
+			"type": "Consignment",
+			"consignorParty": "did:iota:testnet:0x1ee831611a9fe9877c82e05075d9670c4970b4fd0904c208082ee50e45817a9d",
+			"originCountry": "PL",
+			"destinationCountry": "FR",
+			"goods": {
+				"description": "Frozen meat products",
+				"weight": "2000kg",
+				"hsCode": "0202"
+			},
+			"status": "in-transit"
+		}
+	]
+}

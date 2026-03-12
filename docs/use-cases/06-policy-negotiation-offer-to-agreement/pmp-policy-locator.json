@@ -1,0 +1,73 @@
+{
+	"$comment": "PMP (Policy Management Point) - Policy locator for Agreement derived from negotiated Offer. Shows how PMP finds Agreement created through policy negotiation.",
+	"policyQuery": {
+		"assigner": "did:iota:testnet:0xfcfa55894cab90504af7eaf38087addd5f77791a89bd3ebbe76d9c2b1a6ce567",
+		"assignee": "did:iota:testnet:0xac534b750ac453d573a55954760af140f87358c7be9a18000a831c452c32f246",
+		"action": "read",
+		"target": {
+			"type": "AssetCollection",
+			"assetType": "DataResource"
+		},
+		"assigneeContext": {
+			"legalAddress": {
+				"countryCode": "PL"
+			}
+		}
+	},
+	"lookupStrategy": {
+		"primaryIndex": "assigner:assignee:action",
+		"lookupKey": "assigner:did:iota:testnet:0xfcfa55894cab90504af7eaf38087addd5f77791a89bd3ebbe76d9c2b1a6ce567:assignee:did:iota:testnet:0xac534b750ac453d573a55954760af140f87358c7be9a18000a831c452c32f246:action:read",
+		"filterCriteria": [
+			{
+				"field": "policyType",
+				"operator": "eq",
+				"value": "Agreement"
+			},
+			{
+				"field": "targetType",
+				"operator": "eq",
+				"value": "AssetCollection"
+			}
+		],
+		"negotiationContext": {
+			"includeNegotiatedAgreements": true,
+			"checkDerivation": true
+		}
+	},
+	"matchedPolicies": [
+		{
+			"policyUid": "https://giw-node.example.org/policies/agreements/agr-001",
+			"policyType": "Agreement",
+			"matchScore": 1.0,
+			"matchedCriteria": ["assigner", "assignee", "action", "targetType"],
+			"derivedFrom": {
+				"@id": "https://giw-node.example.org/policies/offers/vet-cert-offer-001",
+				"@type": "Offer"
+			},
+			"negotiationMetadata": {
+				"negotiationId": "neg-2025-09-30-001",
+				"agreementCreated": "2025-09-30T10:05:00Z",
+				"constraintInheritance": "Agreement inherits PartyCollection constraint from Offer, applied to specific assignee"
+			},
+			"constraints": [
+				{
+					"type": "inherited-from-offer",
+					"leftOperand": "twin:jsonpath:.legalAddress.countryCode",
+					"operator": "eq",
+					"rightOperand": "PL",
+					"inheritedFrom": "PartyCollection.refinement"
+				}
+			]
+		}
+	],
+	"policySelectionResult": {
+		"selectedPolicy": "https://giw-node.example.org/policies/agreements/agr-001",
+		"selectionReason": "Exact match on assigner, assignee, action, and AssetCollection target. Agreement derived from negotiated Offer (vet-cert-offer-001). Constraint inherited from Offer's PartyCollection refinement.",
+		"derivationChain": [
+			"1. Original Offer: PartyCollection refinement (country code = PL)",
+			"2. Negotiation: Consumer matched constraint during evaluation",
+			"3. Agreement: Specific assignee with inherited constraint"
+		],
+		"nextStep": "Forward to PDP for constraint evaluation. PDP will verify assignee's legalAddress.countryCode equals 'PL' as inherited from original Offer."
+	}
+}

@@ -1,0 +1,24 @@
+{
+	"decision": "permit",
+	"appliedConstraints": [
+		"certification.contains:FSA-Trusted-Notifier",
+		"resource.destinationCountry.countryId:eq:GB",
+		"payload.documentTypeCode:eq:unece:DocumentCodeList#853"
+	],
+	"obligations": [
+		{
+			"type": "notify",
+			"target": "https://my-ds-connectors.example.org/ds-connector-uk-fsa/notify",
+			"payloadPreview": {
+				"consignmentGlobalId": "CONS-UK-00042",
+				"documentId": "DOC-UK-2025-0001",
+				"documentTypeCode": "unece:DocumentCodeList#853"
+			}
+		}
+	],
+	"notification": {
+		"status": "authorized",
+		"connectorEndpoint": "http://localhost:44444/data-space-connector",
+		"activityType": "https://www.w3.org/ns/activitystreams#Add"
+	}
+}

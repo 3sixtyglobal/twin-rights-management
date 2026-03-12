@@ -1,0 +1,36 @@
+{
+	"$comment": "PIP Context - Runtime facts for Agreement enforcement after policy negotiation. Shows consumer context used to evaluate the negotiated Agreement.",
+	"currentDateTime": "2025-09-30T11:00:00Z",
+	"assigneeAttributes": {
+		"@id": "did:iota:testnet:0xac534b750ac453d573a55954760af140f87358c7be9a18000a831c452c32f246",
+		"name": "Polish Agricultural Exporter Co.",
+		"legalAddress": {
+			"streetAddress": "ul. Przemysłowa 45",
+			"addressLocality": "Poznań",
+			"postalCode": "61-245",
+			"addressCountry": "PL",
+			"countryCode": "PL"
+		},
+		"taxID": "PL9876543210",
+		"registeredIn": "Poland",
+		"organizationType": "agricultural-exporter"
+	},
+	"resourceAttributes": {
+		"type": "AssetCollection",
+		"assetType": "DataResource",
+		"description": "Collection of veterinary certificate data resources",
+		"providedBy": "did:iota:testnet:0xfcfa55894cab90504af7eaf38087addd5f77791a89bd3ebbe76d9c2b1a6ce567"
+	},
+	"negotiationContext": {
+		"agreementUid": "https://giw-node.example.org/policies/agreements/agr-001",
+		"originalOffer": "https://giw-node.example.org/policies/offers/vet-cert-offer-001",
+		"negotiationId": "neg-2025-09-30-001",
+		"negotiationCompleted": "2025-09-30T10:05:00Z",
+		"constraintValidatedDuringNegotiation": {
+			"leftOperand": "twin:jsonpath:.legalAddress.countryCode",
+			"operator": "eq",
+			"rightOperand": "PL",
+			"result": "satisfied"
+		}
+	}
+}

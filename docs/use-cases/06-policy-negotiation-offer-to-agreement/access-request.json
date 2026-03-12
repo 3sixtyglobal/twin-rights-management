@@ -1,0 +1,22 @@
+{
+	"$comment": "Access Request - Initial access request used by PMP to query PAP for matching Agreement policies after policy negotiation. This is the first step in the enforcement flow for a negotiated Agreement.",
+	"requestId": "req-2025-09-30-11-00-001",
+	"timestamp": "2025-09-30T11:00:00Z",
+	"action": "read",
+	"assetType": "AssetCollection",
+	"resourceId": "twin:asset-collection:vet-cert-data-resources",
+	"requestingNodeIdentity": "did:iota:testnet:0xac534b750ac453d573a55954760af140f87358c7be9a18000a831c452c32f246",
+	"negotiationReference": {
+		"agreementUid": "https://giw-node.example.org/policies/agreements/agr-001",
+		"originalOffer": "https://giw-node.example.org/policies/offers/vet-cert-offer-001",
+		"negotiationId": "neg-2025-09-30-001",
+		"negotiationCompleted": "2025-09-30T10:05:00Z"
+	},
+	"context": {
+		"assigneeAttributes": {
+			"legalAddress": {
+				"countryCode": "PL"
+			}
+		}
+	}
+}

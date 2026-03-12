@@ -1,0 +1,28 @@
+{
+	"notifyActivityRequest": {
+		"endpoint": "https://my-ds-connectors.example.org/ds-connector-uk-fsa/notify",
+		"method": "POST",
+		"body": {
+			"type": "https://www.w3.org/ns/activitystreams#Add",
+			"actor": "did:iota:testnet:0xfcfa55894cab90504af7eaf38087addd5f77791a89bd3ebbe76d9c2b1a6ce567",
+			"object": {
+				"@type": "https://vocabulary.uncefact.org/Document",
+				"documentId": "DOC-UK-2025-0001",
+				"documentTypeCode": "unece:DocumentCodeList#853",
+				"globalId": "DOC-UK-2025-0001"
+			},
+			"target": {
+				"@type": "https://vocabulary.uncefact.org/Consignment",
+				"globalId": "CONS-UK-00042",
+				"destinationCountry": {
+					"countryId": "GB"
+				}
+			},
+			"context": {
+				"serviceOffering": "https://twin.example.org/service-offerings/vet-cert-notification",
+				"policyUid": "http://example.com/policy-service-offering:vet-cert-notification"
+			}
+		}
+	},
+	"notes": "Notification is sent only when PDP decision is permit and catalogue-derived certification + destination constraints are satisfied."
+}

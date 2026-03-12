@@ -1,0 +1,28 @@
+{
+	"$comment": "Consumer initiates contract negotiation via IDS Protocol - Phase 1 (Policy Negotiation). The consumer references the Offer and provides identity and context information for constraint evaluation.",
+	"@context": "https://w3id.org/dspace/2024/1/context.json",
+	"@type": "dspace:ContractRequestMessage",
+	"dspace:providerPid": "https://giw-node.example.org/policies/offers/vet-cert-offer-001",
+	"dspace:offer": {
+		"@id": "https://giw-node.example.org/policies/offers/vet-cert-offer-001",
+		"@type": "odrl:Offer"
+	},
+	"dspace:callbackAddress": "https://polish-exporter-node.example.org/negotiations/callback",
+	"dspace:consumerPid": "consumer-neg-98765",
+	"consumerIdentity": "did:iota:testnet:0x1ee831611a9fe9877c82e05075d9670c4970b4fd0904c208082ee50e45817a9d",
+	"consumerContext": {
+		"@context": "https://schema.org",
+		"@type": "Organization",
+		"name": "Polish Exporter Ltd",
+		"legalAddress": {
+			"@type": "PostalAddress",
+			"addressCountry": "PL",
+			"countryCode": "PL",
+			"addressLocality": "Warsaw",
+			"streetAddress": "ul. Marszałkowska 123"
+		},
+		"taxID": "PL1234567890",
+		"industry": "Agricultural Exports"
+	},
+	"timestamp": "2025-10-02T09:55:00Z"
+}

@@ -1,0 +1,81 @@
+{
+	"$comment": "PDP Decision Output - Permission with duty obligations. Shows notification authorization with clearing house notification requirement.",
+	"decision": "Permit",
+	"reasoning": "All constraints satisfied: certification verified, destination country matches, and document type constraint satisfied",
+	"appliedPolicy": {
+		"uid": "http://example.com/policy-notification:fsa-uk-notification",
+		"type": "Agreement",
+		"assigner": "did:iota:testnet:0xfcfa55894cab90504af7eaf38087addd5f77791a89bd3ebbe76d9c2b1a6ce567"
+	},
+	"evaluatedConstraints": [
+		{
+			"constraint": {
+				"leftOperand": "twin:jsonpath:.certifications",
+				"operator": "contains",
+				"rightOperand": "FSA-Trusted-Notifier"
+			},
+			"leftOperandValue": ["FSA-Trusted-Notifier", "ISO27001"],
+			"result": "satisfied"
+		},
+		{
+			"constraint": {
+				"leftOperand": "twin:jsonpath:.resource.destinationCountry.countryId",
+				"operator": "eq",
+				"rightOperand": "GB"
+			},
+			"leftOperandValue": "GB",
+			"result": "satisfied"
+		},
+		{
+			"constraint": {
+				"leftOperand": "twin:jsonpath:.payload.documentTypeCode",
+				"operator": "eq",
+				"rightOperand": "unece:DocumentCodeList#853"
+			},
+			"leftOperandValue": "unece:DocumentCodeList#853",
+			"result": "satisfied"
+		}
+	],
+	"obligations": [
+		{
+			"action": "notify",
+			"target": "https://my-ds-connectors.example.org/ds-connector-uk-fsa/notify",
+			"constraint": {
+				"leftOperand": "twin:jsonpath:.payload.documentTypeCode",
+				"operator": "eq",
+				"rightOperand": "unece:DocumentCodeList#853"
+			},
+			"payloadPreview": {
+				"consignmentGlobalId": "CONS-UK-00042",
+				"documentId": "DOC-UK-2025-0001",
+				"documentTypeCode": "unece:DocumentCodeList#853"
+			}
+		}
+	],
+	"dataDecisions": [
+		{
+			"target": "$..*",
+			"decision": "Granted",
+			"reasoning": "Notification authorized - all constraints satisfied, duty obligation attached"
+		}
+	],
+	"grantedPermissions": [
+		{
+			"action": "notify",
+			"target": {
+				"@type": "AssetCollection",
+				"source": "https://twin.example.org/notifications",
+				"refinement": {
+					"leftOperand": "twin:jsonpath:.resource.destinationCountry.countryId",
+					"operator": "eq",
+					"rightOperand": "GB"
+				}
+			}
+		}
+	],
+	"notification": {
+		"status": "authorized",
+		"connectorEndpoint": "http://localhost:44444/data-space-connector",
+		"activityType": "https://www.w3.org/ns/activitystreams#Add"
+	}
+}

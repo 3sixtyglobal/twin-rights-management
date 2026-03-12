@@ -1,0 +1,17 @@
+{
+	"$comment": "PIP Context - Runtime facts provided by Information Sources to PDP during policy evaluation (Phase 2). This is NOT consumer-provided negotiation context.",
+	"currentDateTime": "2025-09-30T10:00:00Z",
+	"assigneeAttributes": {
+		"@id": "did:iota:testnet:0xac534b750ac453d573a55954760af140f87358c7be9a18000a831c452c32f246",
+		"name": "Polish Freight Forwarder SA",
+		"countryCode": "PL",
+		"legalAddress": {
+			"addressCountry": "PL",
+			"countryCode": "PL"
+		}
+	},
+	"assetClassAttributes": {
+		"type": "Consignment",
+		"dataSource": "https://twin.example.org/data-resources/exporter-consignments-817a9d"
+	}
+}

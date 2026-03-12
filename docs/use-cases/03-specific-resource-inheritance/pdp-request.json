@@ -1,0 +1,7 @@
+{
+	"assignee": "did:iota:testnet:0xac534b750ac453d573a55954760af140f87358c7be9a18000a831c452c32f246",
+	"action": "read",
+	"assetType": "Consignment",
+	"resourceId": "https://twin.example.org/consignments/CONS000001",
+	"description": "Policy locator will match BOTH asset class policy (by assetType) AND specific resource policy (by resourceId)"
+}
