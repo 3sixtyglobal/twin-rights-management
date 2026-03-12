@@ -28,7 +28,7 @@ The options for the logging policy source.
 
 ## Properties
 
-### CLASS\_NAME
+### CLASS\_NAME {#class_name}
 
 > `readonly` `static` **CLASS\_NAME**: `string`
 
@@ -36,7 +36,7 @@ The class name of the Static Policy Information Source.
 
 ## Methods
 
-### className()
+### className() {#classname}
 
 > **className**(): `string`
 
@@ -54,7 +54,7 @@ The class name of the component.
 
 ***
 
-### retrieve()
+### retrieve() {#retrieve}
 
 > **retrieve**\<`D`\>(`policy`, `accessMode`, `data?`, `action?`): `Promise`\<\{\[`id`: `string`\]: `IJsonLdNodeObject`; \} \| `undefined`\>
 
@@ -104,7 +104,7 @@ The objects containing relevant information or undefined if nothing relevant is 
 
 ***
 
-### addInformation()
+### addInformation() {#addinformation}
 
 > **addInformation**(`info`): `void`
 

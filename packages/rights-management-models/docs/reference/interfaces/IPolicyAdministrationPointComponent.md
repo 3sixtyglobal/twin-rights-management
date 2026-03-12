@@ -8,7 +8,7 @@ Interface describing a Policy Administration Point (PAP) component that manages 
 
 ## Methods
 
-### create()
+### create() {#create}
 
 > **create**(`policy`): `Promise`\<`string`\>
 
@@ -30,7 +30,7 @@ The UID of the created policy.
 
 ***
 
-### update()
+### update() {#update}
 
 > **update**(`policy`): `Promise`\<`void`\>
 
@@ -52,7 +52,7 @@ Nothing.
 
 ***
 
-### get()
+### get() {#get}
 
 > **get**(`policyId`): `Promise`\<`IDataspaceProtocolPolicy`\>
 
@@ -74,7 +74,7 @@ The policy.
 
 ***
 
-### getAgreement()
+### getAgreement() {#getagreement}
 
 > **getAgreement**(`agreementId`): `Promise`\<`IDataspaceProtocolAgreement`\>
 
@@ -96,7 +96,7 @@ The agreement.
 
 ***
 
-### getSet()
+### getSet() {#getset}
 
 > **getSet**(`setId`): `Promise`\<`IDataspaceProtocolSet`\>
 
@@ -118,7 +118,7 @@ The set.
 
 ***
 
-### getOffer()
+### getOffer() {#getoffer}
 
 > **getOffer**(`offerId`): `Promise`\<`IDataspaceProtocolOffer`\>
 
@@ -140,7 +140,7 @@ The offer.
 
 ***
 
-### remove()
+### remove() {#remove}
 
 > **remove**(`policyId`): `Promise`\<`void`\>
 
@@ -162,7 +162,7 @@ Nothing.
 
 ***
 
-### query()
+### query() {#query}
 
 > **query**(`options?`, `conditions?`, `cursor?`, `limit?`): `Promise`\<\{ `cursor?`: `string`; `policies`: `IDataspaceProtocolPolicy`[]; \}\>
 

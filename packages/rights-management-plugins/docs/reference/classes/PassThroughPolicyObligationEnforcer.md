@@ -28,7 +28,7 @@ The options for the pass through policy obligation enforcer.
 
 ## Properties
 
-### CLASS\_NAME
+### CLASS\_NAME {#class_name}
 
 > `readonly` `static` **CLASS\_NAME**: `string`
 
@@ -36,7 +36,7 @@ The class name of the Pass Through Policy Obligation Enforcer.
 
 ## Methods
 
-### className()
+### className() {#classname}
 
 > **className**(): `string`
 
@@ -54,7 +54,7 @@ The class name of the component.
 
 ***
 
-### enforce()
+### enforce() {#enforce}
 
 > **enforce**\<`D`\>(`policy`, `duty`, `information?`, `data?`, `action?`): `Promise`\<`boolean`\>
 

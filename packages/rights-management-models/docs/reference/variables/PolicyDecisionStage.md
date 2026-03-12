@@ -6,13 +6,13 @@ The stage at which a PXP is executed in the PDP.
 
 ## Type Declaration
 
-### Before
+### Before {#before}
 
 > `readonly` **Before**: `"before"` = `"before"`
 
 Before Decision.
 
-### After
+### After {#after}
 
 > `readonly` **After**: `"after"` = `"after"`
 

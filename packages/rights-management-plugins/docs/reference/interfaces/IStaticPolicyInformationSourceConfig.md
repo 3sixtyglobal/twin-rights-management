@@ -4,7 +4,7 @@ Configuration for the Static Policy Information Source Component.
 
 ## Properties
 
-### information?
+### information? {#information}
 
 > `optional` **information**: [`IStaticPolicyInformationSource`](IStaticPolicyInformationSource.md)[]
 

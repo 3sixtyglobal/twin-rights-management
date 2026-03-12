@@ -28,7 +28,7 @@ The options for the default policy arbiter.
 
 ## Properties
 
-### CLASS\_NAME
+### CLASS\_NAME {#class_name}
 
 > `readonly` `static` **CLASS\_NAME**: `string`
 
@@ -36,7 +36,7 @@ The class name of the Default Policy Arbiter.
 
 ## Methods
 
-### className()
+### className() {#classname}
 
 > **className**(): `string`
 
@@ -54,7 +54,7 @@ The class name of the component.
 
 ***
 
-### decide()
+### decide() {#decide}
 
 > **decide**\<`D`\>(`agreement`, `information?`, `data?`, `action?`): `Promise`\<`IPolicyDecision`[]\>
 

@@ -6,19 +6,19 @@ The LD Contexts concerning Rights Management.
 
 ## Type Declaration
 
-### Namespace
+### Namespace {#namespace}
 
 > `readonly` **Namespace**: `"https://schema.twindev.org/rights-management/"` = `"https://schema.twindev.org/rights-management/"`
 
 The canonical RDF namespace URI.
 
-### Context
+### Context {#context}
 
 > `readonly` **Context**: `"https://schema.twindev.org/rights-management/"` = `"https://schema.twindev.org/rights-management/"`
 
 The value to use in @context.
 
-### JsonLdContext
+### JsonLdContext {#jsonldcontext}
 
 > `readonly` **JsonLdContext**: `"https://schema.twindev.org/rights-management/types.jsonld"` = `"https://schema.twindev.org/rights-management/types.jsonld"`
 

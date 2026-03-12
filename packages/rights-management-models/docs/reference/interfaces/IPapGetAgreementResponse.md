@@ -4,7 +4,7 @@ The response structure for getting an agreement.
 
 ## Properties
 
-### body
+### body {#body}
 
 > **body**: `IDataspaceProtocolAgreement`
 

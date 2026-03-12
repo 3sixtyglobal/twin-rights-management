@@ -4,21 +4,15 @@ Options for the Logging Policy Execution Action.
 
 ## Properties
 
-### loggingComponentType?
+### loggingComponentType? {#loggingcomponenttype}
 
 > `optional` **loggingComponentType**: `string`
 
 The logging component for logging policy execution.
 
-#### Default
-
-```ts
-logging
-```
-
 ***
 
-### config?
+### config? {#config}
 
 > `optional` **config**: [`ILoggingPolicyExecutionActionConfig`](ILoggingPolicyExecutionActionConfig.md)
 

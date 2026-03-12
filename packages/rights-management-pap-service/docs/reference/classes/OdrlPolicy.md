@@ -14,7 +14,7 @@ Class describing an ODRL policy for entity storage.
 
 ## Properties
 
-### id
+### id {#id}
 
 > **id**: `string`
 
@@ -22,7 +22,7 @@ The unique identifier for the policy.
 
 ***
 
-### type
+### type {#type}
 
 > **type**: `PolicyType`
 
@@ -30,7 +30,7 @@ The type of policy.
 
 ***
 
-### profile?
+### profile? {#profile}
 
 > `optional` **profile**: `string` \| `string`[]
 
@@ -38,7 +38,7 @@ The profile(s) this policy conforms to.
 
 ***
 
-### assigner?
+### assigner? {#assigner}
 
 > `optional` **assigner**: `string` \| `IOdrlParty` \| `IOdrlPartyCollection` \| (`string` \| `IOdrlParty` \| `IOdrlPartyCollection`)[]
 
@@ -46,7 +46,7 @@ The assigner of the policy.
 
 ***
 
-### assignee?
+### assignee? {#assignee}
 
 > `optional` **assignee**: `string` \| `IOdrlParty` \| `IOdrlPartyCollection` \| (`string` \| `IOdrlParty` \| `IOdrlPartyCollection`)[]
 
@@ -54,7 +54,7 @@ The assignee of the policy.
 
 ***
 
-### target?
+### target? {#target}
 
 > `optional` **target**: `string` \| `IOdrlAsset` \| `IOdrlAssetCollection` \| (`string` \| `IOdrlAsset` \| `IOdrlAssetCollection`)[]
 
@@ -62,7 +62,7 @@ The target asset for the rule.
 
 ***
 
-### action?
+### action? {#action}
 
 > `optional` **action**: `string` \| `IOdrlAction` \| (`string` \| `IOdrlAction`)[]
 
@@ -70,7 +70,7 @@ The action associated with the rule.
 
 ***
 
-### inheritFrom?
+### inheritFrom? {#inheritfrom}
 
 > `optional` **inheritFrom**: `string` \| `string`[]
 
@@ -78,7 +78,7 @@ The parent policy(ies) this policy inherits from.
 
 ***
 
-### conflict?
+### conflict? {#conflict}
 
 > `optional` **conflict**: `ConflictStrategyType`
 
@@ -86,7 +86,7 @@ The conflict resolution strategy.
 
 ***
 
-### permission?
+### permission? {#permission}
 
 > `optional` **permission**: `IOdrlPermission` \| `IOdrlPermission`[]
 
@@ -94,7 +94,7 @@ The permissions in the policy.
 
 ***
 
-### prohibition?
+### prohibition? {#prohibition}
 
 > `optional` **prohibition**: `IOdrlProhibition` \| `IOdrlProhibition`[]
 
@@ -102,7 +102,7 @@ The prohibitions in the policy.
 
 ***
 
-### obligation?
+### obligation? {#obligation}
 
 > `optional` **obligation**: `IOdrlDuty` \| `IOdrlDuty`[]
 
@@ -110,7 +110,7 @@ The obligations in the policy.
 
 ***
 
-### assignerIndex
+### assignerIndex {#assignerindex}
 
 > **assignerIndex**: `string`
 
@@ -118,7 +118,7 @@ The assignerIndex.
 
 ***
 
-### assigneeIndex
+### assigneeIndex {#assigneeindex}
 
 > **assigneeIndex**: `string`
 
@@ -126,7 +126,7 @@ The assigneeIndex.
 
 ***
 
-### targetIndex
+### targetIndex {#targetindex}
 
 > **targetIndex**: `string`
 
@@ -134,7 +134,7 @@ The targetIndex.
 
 ***
 
-### actionIndex
+### actionIndex {#actionindex}
 
 > **actionIndex**: `string`
 

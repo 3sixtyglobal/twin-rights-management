@@ -4,7 +4,7 @@ The request structure for getting a set.
 
 ## Properties
 
-### pathParams
+### pathParams {#pathparams}
 
 > **pathParams**: `object`
 

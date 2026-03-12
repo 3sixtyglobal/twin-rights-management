@@ -4,7 +4,7 @@ The information regarding a policy decision.
 
 ## Properties
 
-### target
+### target {#target}
 
 > **target**: `string`
 
@@ -12,7 +12,7 @@ The target object for the decision, using JSON-path syntax.
 
 ***
 
-### decision
+### decision {#decision}
 
 > **decision**: [`PolicyDecision`](../type-aliases/PolicyDecision.md)
 
@@ -20,7 +20,7 @@ The type of the proof.
 
 ***
 
-### replaceValue?
+### replaceValue? {#replacevalue}
 
 > `optional` **replaceValue**: `unknown`
 

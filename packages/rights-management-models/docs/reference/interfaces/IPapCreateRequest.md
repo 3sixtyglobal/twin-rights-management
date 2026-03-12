@@ -4,7 +4,7 @@ The request structure for creating a policy.
 
 ## Properties
 
-### body
+### body {#body}
 
 > **body**: `JsonLdObjectWithOptionalAtId`\<`IDataspaceProtocolPolicy`\>
 

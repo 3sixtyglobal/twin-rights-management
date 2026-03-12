@@ -8,7 +8,7 @@ Interface describing a Policy Arbiter.
 
 ## Methods
 
-### decide()
+### decide() {#decide}
 
 > **decide**\<`D`\>(`agreement`, `information?`, `data?`, `action?`): `Promise`\<[`IPolicyDecision`](IPolicyDecision.md)[]\>
 

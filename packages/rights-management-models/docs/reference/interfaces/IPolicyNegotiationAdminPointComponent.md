@@ -10,7 +10,7 @@ https://eclipse-dataspace-protocol-base.github.io/DataspaceProtocol/2025-1/#nego
 
 ## Methods
 
-### get()
+### get() {#get}
 
 > **get**(`id`): `Promise`\<[`IPolicyNegotiation`](IPolicyNegotiation.md)\>
 
@@ -32,7 +32,7 @@ The policy negotiation.
 
 ***
 
-### set()
+### set() {#set}
 
 > **set**(`negotiation`): `Promise`\<`void`\>
 
@@ -54,7 +54,7 @@ Nothing.
 
 ***
 
-### remove()
+### remove() {#remove}
 
 > **remove**(`policyId`): `Promise`\<`void`\>
 
@@ -76,7 +76,7 @@ Nothing.
 
 ***
 
-### query()
+### query() {#query}
 
 > **query**(`status?`, `cursor?`): `Promise`\<\{ `items`: [`IPolicyNegotiation`](IPolicyNegotiation.md)[]; `cursor?`: `string`; \}\>
 

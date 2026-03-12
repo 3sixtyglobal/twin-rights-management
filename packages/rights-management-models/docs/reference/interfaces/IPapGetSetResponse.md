@@ -4,7 +4,7 @@ The response structure for getting a set.
 
 ## Properties
 
-### body
+### body {#body}
 
 > **body**: `IDataspaceProtocolSet`
 

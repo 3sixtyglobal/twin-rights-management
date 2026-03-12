@@ -8,7 +8,7 @@ Interface for policy enforcement processors.
 
 ## Methods
 
-### process()
+### process() {#process}
 
 > **process**\<`D`, `R`\>(`agreement`, `decisions`, `data?`, `action?`): `Promise`\<`R`\>
 

@@ -28,7 +28,7 @@ The options for the component.
 
 ## Properties
 
-### CLASS\_NAME
+### CLASS\_NAME {#class_name}
 
 > `readonly` `static` **CLASS\_NAME**: `string`
 
@@ -36,7 +36,7 @@ The class name of the Policy Negotiation Admin Point Service.
 
 ## Methods
 
-### className()
+### className() {#classname}
 
 > **className**(): `string`
 
@@ -54,7 +54,7 @@ The class name of the component.
 
 ***
 
-### start()
+### start() {#start}
 
 > **start**(`nodeLoggingComponentType?`): `Promise`\<`void`\>
 
@@ -80,7 +80,7 @@ Nothing.
 
 ***
 
-### stop()
+### stop() {#stop}
 
 > **stop**(`nodeLoggingComponentType?`): `Promise`\<`void`\>
 
@@ -106,7 +106,7 @@ Nothing.
 
 ***
 
-### get()
+### get() {#get}
 
 > **get**(`id`): `Promise`\<`IPolicyNegotiation`\>
 
@@ -132,7 +132,7 @@ The policy negotiation.
 
 ***
 
-### set()
+### set() {#set}
 
 > **set**(`negotiation`): `Promise`\<`void`\>
 
@@ -158,7 +158,7 @@ Nothing.
 
 ***
 
-### remove()
+### remove() {#remove}
 
 > **remove**(`policyId`): `Promise`\<`void`\>
 
@@ -184,7 +184,7 @@ Nothing.
 
 ***
 
-### query()
+### query() {#query}
 
 > **query**(`status?`, `cursor?`): `Promise`\<\{ `items`: `IPolicyNegotiation`[]; `cursor?`: `string`; \}\>
 

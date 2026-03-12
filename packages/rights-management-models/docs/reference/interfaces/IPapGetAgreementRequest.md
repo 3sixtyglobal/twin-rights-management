@@ -4,7 +4,7 @@ The request structure for getting an agreement.
 
 ## Properties
 
-### pathParams
+### pathParams {#pathparams}
 
 > **pathParams**: `object`
 

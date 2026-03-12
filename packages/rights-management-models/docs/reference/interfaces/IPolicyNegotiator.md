@@ -8,7 +8,7 @@ Interface describing a Policy Negotiator.
 
 ## Methods
 
-### supportsOffer()
+### supportsOffer() {#supportsoffer}
 
 > **supportsOffer**(`offer`): `boolean`
 
@@ -30,7 +30,7 @@ Sets the supports flag if it can be offered, and the interventionRequired flag i
 
 ***
 
-### handleOffer()
+### handleOffer() {#handleoffer}
 
 > **handleOffer**(`offer`, `information?`): `Promise`\<\{ `accepted`: `boolean`; `interventionRequired`: `boolean`; \}\>
 
@@ -56,7 +56,7 @@ Sets the accepted flag if it can be offered, and the interventionRequired flag i
 
 ***
 
-### createAgreement()
+### createAgreement() {#createagreement}
 
 > **createAgreement**(`offer`, `assignee`, `information?`): `Promise`\<`IDataspaceProtocolAgreement` \| `undefined`\>
 

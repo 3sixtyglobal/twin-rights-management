@@ -36,7 +36,7 @@ The configuration for the client.
 
 ## Properties
 
-### CLASS\_NAME
+### CLASS\_NAME {#class_name}
 
 > `readonly` `static` **CLASS\_NAME**: `string`
 
@@ -44,7 +44,7 @@ Runtime name for the class.
 
 ## Methods
 
-### className()
+### className() {#classname}
 
 > **className**(): `string`
 
@@ -62,7 +62,7 @@ The class name of the component.
 
 ***
 
-### get()
+### get() {#get}
 
 > **get**(`policyId`): `Promise`\<`IPolicyNegotiation`\>
 
@@ -88,7 +88,7 @@ The policy negotiation.
 
 ***
 
-### set()
+### set() {#set}
 
 > **set**(`negotiation`): `Promise`\<`void`\>
 
@@ -114,7 +114,7 @@ Nothing.
 
 ***
 
-### remove()
+### remove() {#remove}
 
 > **remove**(`policyId`): `Promise`\<`void`\>
 
@@ -140,7 +140,7 @@ Nothing.
 
 ***
 
-### query()
+### query() {#query}
 
 > **query**(`state?`, `cursor?`): `Promise`\<\{ `items`: `IPolicyNegotiation`[]; `cursor?`: `string`; \}\>
 

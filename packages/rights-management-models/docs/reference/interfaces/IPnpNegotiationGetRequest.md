@@ -4,7 +4,7 @@ The request structure for requesting a contract negotiation.
 
 ## Properties
 
-### headers
+### headers {#headers}
 
 > **headers**: `object`
 
@@ -20,7 +20,7 @@ The headers which can be used to determine the response data type.
 
 ***
 
-### pathParams
+### pathParams {#pathparams}
 
 > **pathParams**: `object`
 

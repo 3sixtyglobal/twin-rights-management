@@ -4,14 +4,8 @@ Options for the Pass Through Policy Requester.
 
 ## Properties
 
-### loggingComponentType?
+### loggingComponentType? {#loggingcomponenttype}
 
 > `optional` **loggingComponentType**: `string`
 
 The logging component for policy requester.
-
-#### Default
-
-```ts
-logging
-```

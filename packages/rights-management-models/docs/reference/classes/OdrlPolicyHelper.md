@@ -14,7 +14,7 @@ Helper methods for Odrl Policies.
 
 ## Properties
 
-### CLASS\_NAME
+### CLASS\_NAME {#class_name}
 
 > `readonly` `static` **CLASS\_NAME**: `string`
 
@@ -22,7 +22,7 @@ The class name of the Policy Administration Point Service.
 
 ## Methods
 
-### getUid()
+### getUid() {#getuid}
 
 > `static` **getUid**(`object`): `string` \| `undefined`
 
@@ -44,7 +44,7 @@ The UID of the object if available, otherwise undefined.
 
 ***
 
-### getType()
+### getType() {#gettype}
 
 > `static` **getType**(`object`): `string` \| `undefined`
 
@@ -66,7 +66,7 @@ The type of the object if available, otherwise undefined.
 
 ***
 
-### extractAssigneeIdentity()
+### extractAssigneeIdentity() {#extractassigneeidentity}
 
 > `static` **extractAssigneeIdentity**(`policy`): `ObjectOrArray`\<`string`\>
 
@@ -92,7 +92,7 @@ GeneralError if assignee is missing or invalid.
 
 ***
 
-### extractAssignerIdentity()
+### extractAssignerIdentity() {#extractassigneridentity}
 
 > `static` **extractAssignerIdentity**(`policy`): `ObjectOrArray`\<`string`\>
 
@@ -118,7 +118,7 @@ GeneralError if assigner is missing or invalid.
 
 ***
 
-### getPartyIds()
+### getPartyIds() {#getpartyids}
 
 > `static` **getPartyIds**(`party?`): `string`[]
 
@@ -141,7 +141,7 @@ The party identifiers, or undefined when not available.
 
 ***
 
-### getTargets()
+### getTargets() {#gettargets}
 
 > `static` **getTargets**(`policy`): `string`[]
 
@@ -163,7 +163,7 @@ Targets.
 
 ***
 
-### getActions()
+### getActions() {#getactions}
 
 > `static` **getActions**(`policy`): `string`[]
 
@@ -185,7 +185,7 @@ Actions.
 
 ***
 
-### matchPolicy()
+### matchPolicy() {#matchpolicy}
 
 > `static` **matchPolicy**(`policy`, `options`): `boolean`
 

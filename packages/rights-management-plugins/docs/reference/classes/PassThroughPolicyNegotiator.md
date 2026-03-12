@@ -28,7 +28,7 @@ The options for the pass through policy negotiator.
 
 ## Properties
 
-### CLASS\_NAME
+### CLASS\_NAME {#class_name}
 
 > `readonly` `static` **CLASS\_NAME**: `string`
 
@@ -36,7 +36,7 @@ The class name of the Pass Through Policy Negotiator.
 
 ## Methods
 
-### className()
+### className() {#classname}
 
 > **className**(): `string`
 
@@ -54,7 +54,7 @@ The class name of the component.
 
 ***
 
-### supportsOffer()
+### supportsOffer() {#supportsoffer}
 
 > **supportsOffer**(`offer`): `boolean`
 
@@ -80,7 +80,7 @@ Sets the supports flag if it can be offered, and the interventionRequired flag i
 
 ***
 
-### handleOffer()
+### handleOffer() {#handleoffer}
 
 > **handleOffer**(`offer`, `information?`): `Promise`\<\{ `accepted`: `boolean`; `interventionRequired`: `boolean`; \}\>
 
@@ -110,7 +110,7 @@ Sets the accepted flag if it can be offered, and the interventionRequired flag i
 
 ***
 
-### createAgreement()
+### createAgreement() {#createagreement}
 
 > **createAgreement**(`offer`, `assignee`, `information?`): `Promise`\<`IDataspaceProtocolAgreement` \| `undefined`\>
 

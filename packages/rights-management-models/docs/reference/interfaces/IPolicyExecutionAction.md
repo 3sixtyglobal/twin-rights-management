@@ -8,7 +8,7 @@ Interface for policy execution actions.
 
 ## Methods
 
-### supportedStages()
+### supportedStages() {#supportedstages}
 
 > **supportedStages**(): [`PolicyDecisionStage`](../type-aliases/PolicyDecisionStage.md)[]
 
@@ -22,7 +22,7 @@ List of stages.
 
 ***
 
-### execute()
+### execute() {#execute}
 
 > **execute**\<`D`\>(`policy`, `decisions`, `data`, `action`, `stage`): `Promise`\<`void`\>
 

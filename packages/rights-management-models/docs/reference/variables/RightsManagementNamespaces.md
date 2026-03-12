@@ -6,13 +6,13 @@ The namespaces for rights management.
 
 ## Type Declaration
 
-### Policy
+### Policy {#policy}
 
 > `readonly` **Policy**: `"policy"` = `"policy"`
 
 Policy.
 
-### ContractNegotiation
+### ContractNegotiation {#contractnegotiation}
 
 > `readonly` **ContractNegotiation**: `"contract-negotiation"` = `"contract-negotiation"`
 

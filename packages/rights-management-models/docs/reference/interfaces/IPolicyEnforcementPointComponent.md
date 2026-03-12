@@ -11,7 +11,7 @@ be returned.
 
 ## Methods
 
-### interceptWithPolicy()
+### interceptWithPolicy() {#interceptwithpolicy}
 
 > **interceptWithPolicy**\<`D`, `R`\>(`agreement`, `data?`, `action?`): `Promise`\<`R`\>
 
@@ -55,7 +55,7 @@ The manipulated data with any policies applied.
 
 ***
 
-### interceptWithId()
+### interceptWithId() {#interceptwithid}
 
 > **interceptWithId**\<`D`, `R`\>(`uid`, `data?`, `action?`): `Promise`\<`R`\>
 
@@ -99,7 +99,7 @@ The manipulated data with any policies applied.
 
 ***
 
-### interceptWithLocator()
+### interceptWithLocator() {#interceptwithlocator}
 
 > **interceptWithLocator**\<`D`, `R`\>(`locator`, `data?`, `action?`): `Promise`\<`R`\>
 

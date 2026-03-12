@@ -11,7 +11,7 @@ registered actions based on the decision.
 
 ## Methods
 
-### executeActions()
+### executeActions() {#executeactions}
 
 > **executeActions**\<`D`\>(`policy`, `decisions`, `data`, `action`, `stage`): `Promise`\<`void`\>
 

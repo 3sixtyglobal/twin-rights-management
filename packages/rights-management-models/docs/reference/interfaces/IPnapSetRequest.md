@@ -4,7 +4,7 @@ The request structure for setting a policy negotiation.
 
 ## Properties
 
-### pathParams
+### pathParams {#pathparams}
 
 > **pathParams**: `object`
 
@@ -18,7 +18,7 @@ The ID of the policy being requested.
 
 ***
 
-### body
+### body {#body}
 
 > **body**: [`IPolicyNegotiation`](IPolicyNegotiation.md)
 

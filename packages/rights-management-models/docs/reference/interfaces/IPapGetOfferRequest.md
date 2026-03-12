@@ -4,7 +4,7 @@ The request structure for getting an offer.
 
 ## Properties
 
-### pathParams
+### pathParams {#pathparams}
 
 > **pathParams**: `object`
 

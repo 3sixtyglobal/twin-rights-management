@@ -4,7 +4,7 @@ The response structure for getting a policy.
 
 ## Properties
 
-### body
+### body {#body}
 
 > **body**: `IDataspaceProtocolPolicy`
 

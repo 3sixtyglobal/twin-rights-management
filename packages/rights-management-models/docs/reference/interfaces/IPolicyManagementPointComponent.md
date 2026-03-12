@@ -9,7 +9,7 @@ Provide the policies to the Policy Decision Point (PDP) based on the data and id
 
 ## Methods
 
-### retrieve()
+### retrieve() {#retrieve}
 
 > **retrieve**(`options?`, `cursor?`): `Promise`\<\{ `policies`: `IDataspaceProtocolPolicy`[]; `cursor?`: `string`; \}\>
 

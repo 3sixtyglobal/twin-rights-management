@@ -28,7 +28,7 @@ The options for the component.
 
 ## Properties
 
-### CLASS\_NAME
+### CLASS\_NAME {#class_name}
 
 > `readonly` `static` **CLASS\_NAME**: `string`
 
@@ -36,7 +36,7 @@ The class name of the Policy Management Point Service.
 
 ## Methods
 
-### className()
+### className() {#classname}
 
 > **className**(): `string`
 
@@ -54,7 +54,7 @@ The class name of the component.
 
 ***
 
-### retrieve()
+### retrieve() {#retrieve}
 
 > **retrieve**(`options?`, `cursor?`): `Promise`\<\{ `policies`: `IDataspaceProtocolPolicy`[]; `cursor?`: `string`; \}\>
 

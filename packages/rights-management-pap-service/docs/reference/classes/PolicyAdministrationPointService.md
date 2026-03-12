@@ -28,7 +28,7 @@ The options for the component.
 
 ## Properties
 
-### CLASS\_NAME
+### CLASS\_NAME {#class_name}
 
 > `readonly` `static` **CLASS\_NAME**: `string`
 
@@ -36,7 +36,7 @@ The class name of the Policy Administration Point Service.
 
 ## Methods
 
-### className()
+### className() {#classname}
 
 > **className**(): `string`
 
@@ -54,7 +54,7 @@ The class name of the component.
 
 ***
 
-### create()
+### create() {#create}
 
 > **create**(`policy`): `Promise`\<`string`\>
 
@@ -80,7 +80,7 @@ The UID of the created policy.
 
 ***
 
-### update()
+### update() {#update}
 
 > **update**(`policy`): `Promise`\<`void`\>
 
@@ -106,7 +106,7 @@ Nothing.
 
 ***
 
-### get()
+### get() {#get}
 
 > **get**(`policyId`): `Promise`\<`IDataspaceProtocolPolicy`\>
 
@@ -132,7 +132,7 @@ The policy.
 
 ***
 
-### getAgreement()
+### getAgreement() {#getagreement}
 
 > **getAgreement**(`agreementId`): `Promise`\<`IDataspaceProtocolAgreement`\>
 
@@ -158,7 +158,7 @@ The agreement.
 
 ***
 
-### getOffer()
+### getOffer() {#getoffer}
 
 > **getOffer**(`offerId`): `Promise`\<`IDataspaceProtocolOffer`\>
 
@@ -184,7 +184,7 @@ The offer.
 
 ***
 
-### getSet()
+### getSet() {#getset}
 
 > **getSet**(`setId`): `Promise`\<`IDataspaceProtocolSet`\>
 
@@ -210,7 +210,7 @@ The set.
 
 ***
 
-### remove()
+### remove() {#remove}
 
 > **remove**(`policyId`): `Promise`\<`void`\>
 
@@ -234,7 +234,7 @@ The ID of the policy to remove.
 
 ***
 
-### query()
+### query() {#query}
 
 > **query**(`options?`, `conditions?`, `cursor?`, `limit?`): `Promise`\<\{ `cursor?`: `string`; `policies`: `IDataspaceProtocolPolicy`[]; \}\>
 

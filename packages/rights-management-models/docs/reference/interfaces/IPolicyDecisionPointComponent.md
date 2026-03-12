@@ -12,7 +12,7 @@ Point (PEP) will execute any registered actions.
 
 ## Methods
 
-### evaluate()
+### evaluate() {#evaluate}
 
 > **evaluate**\<`D`\>(`agreement`, `data?`, `action?`): `Promise`\<[`IPolicyDecision`](IPolicyDecision.md)[]\>
 

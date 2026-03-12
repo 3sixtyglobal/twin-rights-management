@@ -8,7 +8,7 @@ Interface describing a Policy Obligation Enforcer.
 
 ## Methods
 
-### enforce()
+### enforce() {#enforce}
 
 > **enforce**\<`D`\>(`policy`, `duty`, `information?`, `data?`, `action?`): `Promise`\<`boolean`\>
 

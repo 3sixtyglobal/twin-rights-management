@@ -36,7 +36,7 @@ The configuration for the client.
 
 ## Properties
 
-### CLASS\_NAME
+### CLASS\_NAME {#class_name}
 
 > `readonly` `static` **CLASS\_NAME**: `string`
 
@@ -44,7 +44,7 @@ Runtime name for the class.
 
 ## Methods
 
-### className()
+### className() {#classname}
 
 > **className**(): `string`
 
@@ -62,7 +62,7 @@ The class name of the component.
 
 ***
 
-### getNegotiation()
+### getNegotiation() {#getnegotiation}
 
 > **getNegotiation**(`id`, `trustPayload`): `Promise`\<`IDataspaceProtocolContractNegotiation` \| `IDataspaceProtocolContractNegotiationError`\>
 
@@ -94,7 +94,7 @@ The current state of the negotiation or an error.
 
 ***
 
-### sendRequestToProvider()
+### sendRequestToProvider() {#sendrequesttoprovider}
 
 > **sendRequestToProvider**(`url`, `requesterType`, `odrlOfferId`): `Promise`\<`string`\>
 
@@ -132,7 +132,7 @@ The negotiation id.
 
 ***
 
-### requestFromConsumer()
+### requestFromConsumer() {#requestfromconsumer}
 
 > **requestFromConsumer**(`message`, `trustPayload`): `Promise`\<`IDataspaceProtocolContractNegotiation` \| `IDataspaceProtocolContractNegotiationError`\>
 
@@ -164,7 +164,7 @@ The current state of the contract negotiation or an error.
 
 ***
 
-### offerFromProvider()
+### offerFromProvider() {#offerfromprovider}
 
 > **offerFromProvider**(`message`, `trustPayload`): `Promise`\<`IDataspaceProtocolContractNegotiation` \| `IDataspaceProtocolContractNegotiationError`\>
 
@@ -196,7 +196,7 @@ The current state of the contract negotiation or an error.
 
 ***
 
-### agreementFromProvider()
+### agreementFromProvider() {#agreementfromprovider}
 
 > **agreementFromProvider**(`message`, `trustPayload`): `Promise`\<`IDataspaceProtocolContractNegotiationError` \| `undefined`\>
 
@@ -228,7 +228,7 @@ The error if there is one.
 
 ***
 
-### agreementVerificationFromConsumer()
+### agreementVerificationFromConsumer() {#agreementverificationfromconsumer}
 
 > **agreementVerificationFromConsumer**(`message`, `trustPayload`): `Promise`\<`IDataspaceProtocolContractNegotiationError` \| `undefined`\>
 
@@ -260,7 +260,7 @@ The error if there is one.
 
 ***
 
-### event()
+### event() {#event}
 
 > **event**(`message`, `destination`, `trustPayload`): `Promise`\<`IDataspaceProtocolContractNegotiationError` \| `undefined`\>
 
@@ -298,7 +298,7 @@ The error if there is one.
 
 ***
 
-### terminate()
+### terminate() {#terminate}
 
 > **terminate**(`message`, `destination`, `trustPayload`): `Promise`\<`IDataspaceProtocolContractNegotiationError` \| `undefined`\>
 
@@ -336,7 +336,7 @@ The error if there is one.
 
 ***
 
-### sendTerminateToConsumer()
+### sendTerminateToConsumer() {#sendterminatetoconsumer}
 
 > **sendTerminateToConsumer**(`callbackAddress`, `providerPid`, `consumerPid`): `Promise`\<`void`\>
 

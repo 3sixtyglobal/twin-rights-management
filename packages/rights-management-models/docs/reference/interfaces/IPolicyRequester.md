@@ -8,7 +8,7 @@ Interface describing a Policy Requester.
 
 ## Methods
 
-### offer()
+### offer() {#offer}
 
 > **offer**(`negotiationId`, `offer`): `Promise`\<`boolean`\>
 
@@ -36,7 +36,7 @@ True if the offer was accepted, false otherwise.
 
 ***
 
-### agreement()
+### agreement() {#agreement}
 
 > **agreement**(`negotiationId`, `agreement`): `Promise`\<`boolean`\>
 
@@ -64,7 +64,7 @@ True if the agreement was accepted, false otherwise.
 
 ***
 
-### finalised()
+### finalised() {#finalised}
 
 > **finalised**(`negotiationId`): `Promise`\<`void`\>
 
@@ -86,7 +86,7 @@ Nothing.
 
 ***
 
-### terminated()
+### terminated() {#terminated}
 
 > **terminated**(`negotiationId`): `Promise`\<`void`\>
 

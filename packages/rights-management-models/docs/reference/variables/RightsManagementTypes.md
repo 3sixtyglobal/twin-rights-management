@@ -6,25 +6,25 @@ The types of Rights Management data.
 
 ## Type Declaration
 
-### DataAccessRequest
+### DataAccessRequest {#dataaccessrequest}
 
 > `readonly` **DataAccessRequest**: `"DataAccessRequest"` = `"DataAccessRequest"`
 
 Represents data access request.
 
-### DataAccessRequestWithObject
+### DataAccessRequestWithObject {#dataaccessrequestwithobject}
 
 > `readonly` **DataAccessRequestWithObject**: `"DataAccessRequestWithObject"` = `"DataAccessRequestWithObject"`
 
 Represents data access request with object.
 
-### DataAccessQuery
+### DataAccessQuery {#dataaccessquery}
 
 > `readonly` **DataAccessQuery**: `"DataAccessQuery"` = `"DataAccessQuery"`
 
 Represents data access request query.
 
-### DataAccessQueryResponse
+### DataAccessQueryResponse {#dataaccessqueryresponse}
 
 > `readonly` **DataAccessQueryResponse**: `"DataAccessQueryResponse"` = `"DataAccessQueryResponse"`
 

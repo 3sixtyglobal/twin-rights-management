@@ -4,7 +4,7 @@ The request structure for querying manual policy negotiations.
 
 ## Properties
 
-### query?
+### query? {#query}
 
 > `optional` **query**: `object`
 

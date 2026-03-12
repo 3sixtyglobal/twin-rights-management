@@ -4,35 +4,23 @@ Options for the Default Policy Arbiter.
 
 ## Properties
 
-### loggingComponentType?
+### loggingComponentType? {#loggingcomponenttype}
 
 > `optional` **loggingComponentType**: `string`
 
 The logging component for policy arbiter.
 
-#### Default
-
-```ts
-logging
-```
-
 ***
 
-### policyAdministrationPointComponentType?
+### policyAdministrationPointComponentType? {#policyadministrationpointcomponenttype}
 
 > `optional` **policyAdministrationPointComponentType**: `string`
 
 The policy administration point component for retrieving inherited policies.
 
-#### Default
-
-```ts
-policy-administration-point
-```
-
 ***
 
-### config?
+### config? {#config}
 
 > `optional` **config**: [`IDefaultPolicyArbiterConfig`](IDefaultPolicyArbiterConfig.md)
 

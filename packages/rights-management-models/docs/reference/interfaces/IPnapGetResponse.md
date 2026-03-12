@@ -4,7 +4,7 @@ The response structure for policy negotiation request.
 
 ## Properties
 
-### body
+### body {#body}
 
 > **body**: [`IPolicyNegotiation`](IPolicyNegotiation.md)
 

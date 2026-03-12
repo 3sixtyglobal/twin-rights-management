@@ -4,14 +4,8 @@ Options for the Pass Through Policy Negotiator.
 
 ## Properties
 
-### loggingComponentType?
+### loggingComponentType? {#loggingcomponenttype}
 
 > `optional` **loggingComponentType**: `string`
 
 The logging component for policy negotiator.
-
-#### Default
-
-```ts
-logging
-```

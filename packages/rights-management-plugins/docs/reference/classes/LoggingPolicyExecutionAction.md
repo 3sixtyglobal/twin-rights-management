@@ -28,7 +28,7 @@ The options for the logging policy execution action.
 
 ## Properties
 
-### CLASS\_NAME
+### CLASS\_NAME {#class_name}
 
 > `readonly` `static` **CLASS\_NAME**: `string`
 
@@ -36,7 +36,7 @@ The class name of the Logging Policy Execution Action.
 
 ## Methods
 
-### className()
+### className() {#classname}
 
 > **className**(): `string`
 
@@ -54,7 +54,7 @@ The class name of the component.
 
 ***
 
-### supportedStages()
+### supportedStages() {#supportedstages}
 
 > **supportedStages**(): `PolicyDecisionStage`[]
 
@@ -72,7 +72,7 @@ List of stages.
 
 ***
 
-### execute()
+### execute() {#execute}
 
 > **execute**\<`D`\>(`policy`, `decisions`, `data`, `action`, `stage`): `Promise`\<`void`\>
 

@@ -8,7 +8,7 @@ Interface for policy information sources.
 
 ## Methods
 
-### retrieve()
+### retrieve() {#retrieve}
 
 > **retrieve**\<`D`\>(`policy`, `accessMode`, `data?`, `action?`): `Promise`\<\{\[`id`: `string`\]: `IJsonLdNodeObject`; \} \| `undefined`\>
 

@@ -4,7 +4,7 @@ The request structure for sending a contract negotiation offer.
 
 ## Properties
 
-### headers
+### headers {#headers}
 
 > **headers**: `object`
 
@@ -20,7 +20,7 @@ The headers which can be used to determine the response data type.
 
 ***
 
-### pathParams?
+### pathParams? {#pathparams}
 
 > `optional` **pathParams**: `object`
 
@@ -34,7 +34,7 @@ The identifier of the consumer being offered, this can be undefined.
 
 ***
 
-### body
+### body {#body}
 
 > **body**: `IDataspaceProtocolContractOfferMessage`
 

@@ -4,7 +4,7 @@ Configuration for the Static Policy Information Source Component.
 
 ## Properties
 
-### accessMode
+### accessMode {#accessmode}
 
 > **accessMode**: `PolicyInformationAccessMode`
 
@@ -12,7 +12,7 @@ Is the information public, if so it will be shared with negotiation requests.
 
 ***
 
-### matchLocators?
+### matchLocators? {#matchlocators}
 
 > `optional` **matchLocators**: `object`[]
 
@@ -36,7 +36,7 @@ Information is only provided for the specified locator combination.
 
 ***
 
-### objects
+### objects {#objects}
 
 > **objects**: `object`
 

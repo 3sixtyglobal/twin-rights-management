@@ -4,7 +4,7 @@ The request structure for querying policies.
 
 ## Properties
 
-### query?
+### query? {#query}
 
 > `optional` **query**: `object`
 

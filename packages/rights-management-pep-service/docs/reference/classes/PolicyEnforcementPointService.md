@@ -28,7 +28,7 @@ The options for the component.
 
 ## Properties
 
-### CLASS\_NAME
+### CLASS\_NAME {#class_name}
 
 > `readonly` `static` **CLASS\_NAME**: `string`
 
@@ -36,7 +36,7 @@ The class name of the Policy Enforcement Point Service.
 
 ## Methods
 
-### className()
+### className() {#classname}
 
 > **className**(): `string`
 
@@ -54,7 +54,7 @@ The class name of the component.
 
 ***
 
-### interceptWithPolicy()
+### interceptWithPolicy() {#interceptwithpolicy}
 
 > **interceptWithPolicy**\<`D`, `R`\>(`agreement`, `data?`, `action?`): `Promise`\<`R`\>
 
@@ -102,7 +102,7 @@ The manipulated data with any policies applied.
 
 ***
 
-### interceptWithId()
+### interceptWithId() {#interceptwithid}
 
 > **interceptWithId**\<`D`, `R`\>(`uid`, `data?`, `action?`): `Promise`\<`R`\>
 
@@ -150,7 +150,7 @@ The manipulated data with any policies applied.
 
 ***
 
-### interceptWithLocator()
+### interceptWithLocator() {#interceptwithlocator}
 
 > **interceptWithLocator**\<`D`, `R`\>(`locator`, `data?`, `action?`): `Promise`\<`R`\>
 

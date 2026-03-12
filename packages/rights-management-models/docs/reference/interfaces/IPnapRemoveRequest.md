@@ -4,7 +4,7 @@ The request structure for removing a policy negotiation.
 
 ## Properties
 
-### pathParams
+### pathParams {#pathparams}
 
 > **pathParams**: `object`
 

@@ -4,7 +4,7 @@ The request structure for getting a policy.
 
 ## Properties
 
-### pathParams
+### pathParams {#pathparams}
 
 > **pathParams**: `object`
 

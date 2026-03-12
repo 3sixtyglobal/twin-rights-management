@@ -4,7 +4,7 @@ Interface describing a rights management policy negotiation.
 
 ## Properties
 
-### id
+### id {#id}
 
 > **id**: `string`
 
@@ -12,7 +12,7 @@ The primary id used by the provider.
 
 ***
 
-### correlationId
+### correlationId {#correlationid}
 
 > **correlationId**: `string`
 
@@ -20,7 +20,7 @@ This is used by the other side of the negotiation.
 
 ***
 
-### policyId?
+### policyId? {#policyid}
 
 > `optional` **policyId**: `string`
 
@@ -28,7 +28,7 @@ The unique identifier for the policy.
 
 ***
 
-### dateCreated
+### dateCreated {#datecreated}
 
 > **dateCreated**: `string`
 
@@ -36,7 +36,7 @@ The date and time when the negotiation was created.
 
 ***
 
-### expires?
+### expires? {#expires}
 
 > `optional` **expires**: `number`
 
@@ -44,7 +44,7 @@ The expiration time for the policy negotiation if it's a manual process.
 
 ***
 
-### state
+### state {#state}
 
 > **state**: `DataspaceProtocolContractNegotiationStateType`
 
@@ -52,7 +52,7 @@ The status of the negotiation.
 
 ***
 
-### callbackAddress?
+### callbackAddress? {#callbackaddress}
 
 > `optional` **callbackAddress**: `string`
 
@@ -60,7 +60,7 @@ The callback address to send updates to the requester.
 
 ***
 
-### organizationIdentity
+### organizationIdentity {#organizationidentity}
 
 > **organizationIdentity**: `string`
 
@@ -68,7 +68,7 @@ Organization identity to be used when sending trust payloads.
 
 ***
 
-### offer?
+### offer? {#offer}
 
 > `optional` **offer**: `IDataspaceProtocolOffer`
 
@@ -76,7 +76,7 @@ The offer being requested.
 
 ***
 
-### agreement?
+### agreement? {#agreement}
 
 > `optional` **agreement**: `IDataspaceProtocolAgreement`
 
@@ -84,7 +84,7 @@ The agreement being established if the negotiation was successful.
 
 ***
 
-### trustVerificationInfo?
+### trustVerificationInfo? {#trustverificationinfo}
 
 > `optional` **trustVerificationInfo**: `ITrustVerificationInfo`
 
@@ -92,7 +92,7 @@ The information from the trust provider.
 
 ***
 
-### code?
+### code? {#code}
 
 > `optional` **code**: `string`
 
@@ -100,7 +100,7 @@ A reason code for when the negotiation errors.
 
 ***
 
-### reason?
+### reason? {#reason}
 
 > `optional` **reason**: `object`[]
 
@@ -116,7 +116,7 @@ A more detailed reason for the negotiation error.
 
 ***
 
-### description?
+### description? {#description}
 
 > `optional` **description**: `object`[]
 
@@ -132,7 +132,7 @@ A more detailed reason for the negotiation error.
 
 ***
 
-### errorDetails?
+### errorDetails? {#errordetails}
 
 > `optional` **errorDetails**: `IError`
 
@@ -140,7 +140,7 @@ Any additional error details that don't fit in the reason or description fields.
 
 ***
 
-### handlerId?
+### handlerId? {#handlerid}
 
 > `optional` **handlerId**: `string`
 
@@ -148,7 +148,7 @@ The id of the handler, on provider side this is the negotiator, on consumer side
 
 ***
 
-### interventionRequired?
+### interventionRequired? {#interventionrequired}
 
 > `optional` **interventionRequired**: `boolean`
 

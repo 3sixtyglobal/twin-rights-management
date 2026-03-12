@@ -6,19 +6,19 @@ The type of decision from a Policy Decision Point (PDP).
 
 ## Type Declaration
 
-### Granted
+### Granted {#granted}
 
 > `readonly` **Granted**: `"Granted"` = `"Granted"`
 
 Granted - the property in the original data can be accessed.
 
-### Denied
+### Denied {#denied}
 
 > `readonly` **Denied**: `"Denied"` = `"Denied"`
 
 Denied - the property in the original data can not be accessed.
 
-### Replace
+### Replace {#replace}
 
 > `readonly` **Replace**: `"Replace"` = `"Replace"`
 
