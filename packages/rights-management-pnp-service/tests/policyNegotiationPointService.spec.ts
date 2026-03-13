@@ -85,16 +85,16 @@ function createRemoteComponent(
 		getNegotiation: async (id, trustPayload) => target.getNegotiation(id, trustPayload),
 		sendRequestToProvider: async (url, requesterType, odrlOfferId, publicOrigin) =>
 			target.sendRequestToProvider(url, requesterType, odrlOfferId, publicOrigin),
-		requestFromConsumer: async (message, _publicOrigin, trustPayload) =>
-			target.requestFromConsumer(message, targetOrigin, trustPayload),
-		offerFromProvider: async (message, _publicOrigin, trustPayload) =>
-			target.offerFromProvider(message, targetOrigin, trustPayload),
-		agreementFromProvider: async (message, _publicOrigin, trustPayload) =>
-			target.agreementFromProvider(message, targetOrigin, trustPayload),
-		agreementVerificationFromConsumer: async (message, _publicOrigin, trustPayload) =>
-			target.agreementVerificationFromConsumer(message, targetOrigin, trustPayload),
-		event: async (message, destination, _publicOrigin, trustPayload) =>
-			target.event(message, destination, targetOrigin, trustPayload),
+		requestFromConsumer: async (message, trustPayload, _publicOrigin) =>
+			target.requestFromConsumer(message, trustPayload, targetOrigin),
+		offerFromProvider: async (message, trustPayload) =>
+			target.offerFromProvider(message, trustPayload),
+		agreementFromProvider: async (message, trustPayload) =>
+			target.agreementFromProvider(message, trustPayload),
+		agreementVerificationFromConsumer: async (message, trustPayload) =>
+			target.agreementVerificationFromConsumer(message, trustPayload),
+		event: async (message, destination, trustPayload) =>
+			target.event(message, destination, trustPayload),
 		terminate: async (message, destination, trustPayload) =>
 			target.terminate(message, destination, trustPayload),
 		sendTerminateToConsumer: async (callbackAddress, providerPid, consumerPid) =>

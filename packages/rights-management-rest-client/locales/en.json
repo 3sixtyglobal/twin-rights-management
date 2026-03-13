@@ -1,7 +1,8 @@
 {
 	"error": {
 		"policyNegotiationPointRestClient": {
-			"notSupportedOnClient": "The method \"{methodName}\" is not supported on the REST client, it can only be used on a server side component"
+			"notSupportedOnClient": "The method \"{methodName}\" is not supported on the REST client, it can only be used on a server side component",
+			"publicOriginNotRequired": "The publicOrigin parameter is not required on the REST client"
 		}
 	}
 }

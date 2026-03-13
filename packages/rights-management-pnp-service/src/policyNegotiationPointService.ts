@@ -93,17 +93,16 @@ export class PolicyNegotiationPointService implements IPolicyNegotiationPointCom
 	private readonly _trustComponent: ITrustComponent;
 
 	/**
-	 * The path to send in negotiation messages as the callback address.
-	 * Will be combined with the public origin url from hosting component.
-	 * @internal
-	 */
-	private readonly _callbackPath: string;
-
-	/**
 	 * The type of the remote negotiation component.
 	 * @internal
 	 */
 	private readonly _policyNegotiationPointRemoteComponentType: string;
+
+	/**
+	 * The path to append to the public origin for callback addresses.
+	 * @internal
+	 */
+	private readonly _callbackPath: string;
 
 	/**
 	 * Override the default trust generator.
@@ -151,11 +150,11 @@ export class PolicyNegotiationPointService implements IPolicyNegotiationPointCom
 		this._trustComponent = ComponentFactory.get<ITrustComponent>(
 			options.trustComponentType ?? "trust"
 		);
+		this._policyNegotiationPointRemoteComponentType =
+			options.policyNegotiationPointRemoteComponentType ?? "policy-negotiation-point-remote";
 		this._callbackPath = Is.stringValue(options.config.callbackPath)
 			? StringHelper.trimLeadingSlashes(options.config.callbackPath)
 			: "";
-		this._policyNegotiationPointRemoteComponentType =
-			options.policyNegotiationPointRemoteComponentType ?? "policy-negotiation-point-remote";
 		this._overrideTrustGeneratorType = options.config.overrideTrustGeneratorType;
 		this._includeErrorDetails = options.config.includeErrorDetails ?? false;
 	}
@@ -283,11 +282,7 @@ export class PolicyNegotiationPointService implements IPolicyNegotiationPointCom
 			callbackAddress: `${publicOrigin}/${this._callbackPath}`
 		};
 
-		const response = await negotiationComponent.requestFromConsumer(
-			requestMessage,
-			publicOrigin,
-			trustPayload
-		);
+		const response = await negotiationComponent.requestFromConsumer(requestMessage, trustPayload);
 
 		if (
 			OdrlPolicyHelper.getType(response) ===
@@ -321,14 +316,14 @@ export class PolicyNegotiationPointService implements IPolicyNegotiationPointCom
 	 * Processes an incoming request on a provider from a consumer.
 	 * https://eclipse-dataspace-protocol-base.github.io/DataspaceProtocol/2025-1/#contract-request-message.
 	 * @param message The negotiation request.
-	 * @param publicOrigin The public origin url of this PNP service.
 	 * @param trustPayload Trust payload to verify the requesters identity.
+	 * @param publicOrigin The public origin url of this PNP service.
 	 * @returns The current state of the contract negotiation or an error.
 	 */
 	public async requestFromConsumer(
 		message: IDataspaceProtocolContractRequestMessage,
-		publicOrigin: string,
-		trustPayload: unknown
+		trustPayload: unknown,
+		publicOrigin?: string
 	): Promise<IDataspaceProtocolContractNegotiation | IDataspaceProtocolContractNegotiationError> {
 		Guards.object<IDataspaceProtocolContractRequestMessage>(
 			PolicyNegotiationPointService.CLASS_NAME,
@@ -451,6 +446,7 @@ export class PolicyNegotiationPointService implements IPolicyNegotiationPointCom
 				policyNegotiation.offer = providerOffer;
 				policyNegotiation.trustVerificationInfo = trustInfo;
 				policyNegotiation.handlerId = negotiator.className();
+				policyNegotiation.publicOrigin = publicOrigin;
 			} else {
 				// We need an organization id to generate the trust payload, but we have no context
 				// as this request arrived through a trust channel, so we should use the
@@ -468,6 +464,7 @@ export class PolicyNegotiationPointService implements IPolicyNegotiationPointCom
 					offer: providerOffer,
 					state: DataspaceProtocolContractNegotiationStateType.REQUESTED,
 					callbackAddress: message.callbackAddress,
+					publicOrigin,
 					organizationIdentity,
 					trustVerificationInfo: trustInfo,
 					handlerId: negotiator.className()
@@ -489,7 +486,7 @@ export class PolicyNegotiationPointService implements IPolicyNegotiationPointCom
 
 					// Send the offer on the next cycle so we don't delay the current response
 					setTimeout(async () => {
-						await this.sendOfferToConsumer(callbackAddress, pol, publicOrigin);
+						await this.sendOfferToConsumer(callbackAddress, pol);
 					}, 100);
 				}
 
@@ -524,13 +521,11 @@ export class PolicyNegotiationPointService implements IPolicyNegotiationPointCom
 	/**
 	 * An offer has been received by a consumer.
 	 * @param message The offer being received by the consumer.
-	 * @param publicOrigin The public origin url of this PNP service.
 	 * @param trustPayload Trust payload to verify the requesters identity.
 	 * @returns The current state of the contract negotiation or an error.
 	 */
 	public async offerFromProvider(
 		message: IDataspaceProtocolContractOfferMessage,
-		publicOrigin: string,
 		trustPayload: unknown
 	): Promise<IDataspaceProtocolContractNegotiation | IDataspaceProtocolContractNegotiationError> {
 		Guards.object<IDataspaceProtocolContractOfferMessage>(
@@ -638,6 +633,10 @@ export class PolicyNegotiationPointService implements IPolicyNegotiationPointCom
 			// The offer was accepted by the consumer, so update the state
 			policyNegotiation.trustVerificationInfo = trustInfo;
 			policyNegotiation.state = DataspaceProtocolContractNegotiationStateType.ACCEPTED;
+			// Update correlationId from the provider's PID (may not have been set at creation time)
+			if (Is.stringValue(message.providerPid)) {
+				policyNegotiation.correlationId = message.providerPid;
+			}
 			policyNegotiation.offer = {
 				"@context": OdrlContexts.Context,
 				...message.offer
@@ -654,8 +653,7 @@ export class PolicyNegotiationPointService implements IPolicyNegotiationPointCom
 						callbackAddress,
 						pol,
 						DataspaceProtocolContractNegotiationEventType.ACCEPTED,
-						"provider",
-						publicOrigin
+						"provider"
 					);
 				}, 100);
 			}
@@ -678,13 +676,11 @@ export class PolicyNegotiationPointService implements IPolicyNegotiationPointCom
 	/**
 	 * An agreement has been received by a consumer.
 	 * @param message The agreement message to send.
-	 * @param publicOrigin The public origin url of this PNP service.
 	 * @param trustPayload Trust payload to verify the requesters identity.
 	 * @returns The error if there is one.
 	 */
 	public async agreementFromProvider(
 		message: IDataspaceProtocolContractAgreementMessage,
-		publicOrigin: string,
 		trustPayload: unknown
 	): Promise<IDataspaceProtocolContractNegotiationError | undefined> {
 		Guards.object<IDataspaceProtocolContractAgreementMessage>(
@@ -810,7 +806,7 @@ export class PolicyNegotiationPointService implements IPolicyNegotiationPointCom
 			const callbackAddress = message.callbackAddress;
 			const pol = policyNegotiation;
 			setTimeout(async () => {
-				await this.sendAgreementVerificationToProvider(callbackAddress, pol, publicOrigin);
+				await this.sendAgreementVerificationToProvider(callbackAddress, pol);
 			}, 100);
 		} catch (error) {
 			return this.setErrorState(
@@ -825,13 +821,11 @@ export class PolicyNegotiationPointService implements IPolicyNegotiationPointCom
 	/**
 	 * An agreement verification has been received by a provider.
 	 * @param message The agreement message to send.
-	 * @param publicOrigin The public origin url of this PNP service.
 	 * @param trustPayload Trust payload to verify the requesters identity.
 	 * @returns The error if there is one.
 	 */
 	public async agreementVerificationFromConsumer(
 		message: IDataspaceProtocolContractAgreementVerificationMessage,
-		publicOrigin: string,
 		trustPayload: unknown
 	): Promise<IDataspaceProtocolContractNegotiationError | undefined> {
 		Guards.object<IDataspaceProtocolContractAgreementVerificationMessage>(
@@ -925,8 +919,7 @@ export class PolicyNegotiationPointService implements IPolicyNegotiationPointCom
 						callbackAddress,
 						pol,
 						DataspaceProtocolContractNegotiationEventType.FINALIZED,
-						"consumer",
-						publicOrigin
+						"consumer"
 					);
 				}, 100);
 			}
@@ -944,14 +937,12 @@ export class PolicyNegotiationPointService implements IPolicyNegotiationPointCom
 	 * An event has been received by the provider or consumer.
 	 * @param message The event message to send.
 	 * @param destination The destination is provider or consumer.
-	 * @param publicOrigin The public origin url of this PNP service.
 	 * @param trustPayload Trust payload to verify the requesters identity.
 	 * @returns The error if there is one.
 	 */
 	public async event(
 		message: IDataspaceProtocolContractNegotiationEventMessage,
 		destination: "provider" | "consumer",
-		publicOrigin: string,
 		trustPayload: unknown
 	): Promise<IDataspaceProtocolContractNegotiationError | undefined> {
 		Guards.object<IDataspaceProtocolContractNegotiationEventMessage>(
@@ -1071,7 +1062,7 @@ export class PolicyNegotiationPointService implements IPolicyNegotiationPointCom
 				const pol = policyNegotiation;
 				if (Is.stringValue(callbackAddress)) {
 					setTimeout(async () => {
-						await this.sendAgreementToConsumer(callbackAddress, pol, publicOrigin);
+						await this.sendAgreementToConsumer(callbackAddress, pol);
 					}, 100);
 				}
 			}
@@ -1222,7 +1213,13 @@ export class PolicyNegotiationPointService implements IPolicyNegotiationPointCom
 
 		const trustPayload = await this._trustComponent.generate(
 			policyNegotiation.organizationIdentity,
-			this._overrideTrustGeneratorType
+			this._overrideTrustGeneratorType,
+			{
+				subject: {
+					providerPid,
+					consumerPid
+				}
+			}
 		);
 
 		const negotiationComponent = ComponentFactory.create<IPolicyNegotiationPointComponent>(
@@ -1327,14 +1324,12 @@ export class PolicyNegotiationPointService implements IPolicyNegotiationPointCom
 	 * Send an offer message to the consumer.
 	 * @param callbackAddress The callback address to send the offer to.
 	 * @param policyNegotiation The current state of the policy negotiation.
-	 * @param publicOrigin The public origin to use in the trust payload.
 	 * @returns Nothing.
 	 * @internal
 	 */
 	private async sendOfferToConsumer(
 		callbackAddress: string,
-		policyNegotiation: IPolicyNegotiation,
-		publicOrigin: string
+		policyNegotiation: IPolicyNegotiation
 	): Promise<void> {
 		try {
 			Guards.stringValue(
@@ -1359,12 +1354,18 @@ export class PolicyNegotiationPointService implements IPolicyNegotiationPointCom
 				providerPid: policyNegotiation.id,
 				consumerPid: policyNegotiation.correlationId,
 				offer: policyNegotiation.offer,
-				callbackAddress: `${publicOrigin}/${this._callbackPath}`
+				callbackAddress: `${policyNegotiation.publicOrigin}/${this._callbackPath}`
 			};
 
 			const trustPayload = await this._trustComponent.generate(
 				policyNegotiation.organizationIdentity,
-				this._overrideTrustGeneratorType
+				this._overrideTrustGeneratorType,
+				{
+					subject: {
+						providerPid: policyNegotiation.id,
+						consumerPid: policyNegotiation.correlationId
+					}
+				}
 			);
 
 			policyNegotiation.state = DataspaceProtocolContractNegotiationStateType.OFFERED;
@@ -1375,11 +1376,7 @@ export class PolicyNegotiationPointService implements IPolicyNegotiationPointCom
 				{ endpoint: callbackAddress }
 			);
 
-			const response = await negotiationComponent.offerFromProvider(
-				offerMessage,
-				publicOrigin,
-				trustPayload
-			);
+			const response = await negotiationComponent.offerFromProvider(offerMessage, trustPayload);
 
 			// If there was no error then the consumer will now send an event if they accepted the offer
 			await this.terminateIfResponseError(response, policyNegotiation);
@@ -1400,7 +1397,6 @@ export class PolicyNegotiationPointService implements IPolicyNegotiationPointCom
 	 * @param policyNegotiation The current state of the policy negotiation.
 	 * @param event The event to send to the provider.
 	 * @param destination The destination for the event
-	 * @param publicOrigin The public origin to use in the trust payload.
 	 * @returns Nothing.
 	 * @internal
 	 */
@@ -1408,8 +1404,7 @@ export class PolicyNegotiationPointService implements IPolicyNegotiationPointCom
 		callbackAddress: string,
 		policyNegotiation: IPolicyNegotiation,
 		event: DataspaceProtocolContractNegotiationEventType,
-		destination: "provider" | "consumer",
-		publicOrigin: string
+		destination: "provider" | "consumer"
 	): Promise<void> {
 		try {
 			Guards.stringValue(
@@ -1442,7 +1437,13 @@ export class PolicyNegotiationPointService implements IPolicyNegotiationPointCom
 
 			const trustPayload = await this._trustComponent.generate(
 				policyNegotiation.organizationIdentity,
-				this._overrideTrustGeneratorType
+				this._overrideTrustGeneratorType,
+				{
+					subject: {
+						providerPid: eventMessage.providerPid,
+						consumerPid: eventMessage.consumerPid
+					}
+				}
 			);
 
 			policyNegotiation.state = event;
@@ -1453,12 +1454,7 @@ export class PolicyNegotiationPointService implements IPolicyNegotiationPointCom
 				{ endpoint: callbackAddress }
 			);
 
-			const response = await negotiationComponent.event(
-				eventMessage,
-				destination,
-				publicOrigin,
-				trustPayload
-			);
+			const response = await negotiationComponent.event(eventMessage, destination, trustPayload);
 
 			await this.terminateIfResponseError(response, policyNegotiation);
 		} catch (error) {
@@ -1476,14 +1472,12 @@ export class PolicyNegotiationPointService implements IPolicyNegotiationPointCom
 	 * Send an agreement message to the consumer.
 	 * @param callbackAddress The callback address to send the agreement to.
 	 * @param policyNegotiation The current state of the policy negotiation.
-	 * @param publicOrigin The public origin to use in the trust payload.
 	 * @returns Nothing.
 	 * @internal
 	 */
 	private async sendAgreementToConsumer(
 		callbackAddress: string,
-		policyNegotiation: IPolicyNegotiation,
-		publicOrigin: string
+		policyNegotiation: IPolicyNegotiation
 	): Promise<void> {
 		try {
 			Guards.stringValue(
@@ -1548,12 +1542,18 @@ export class PolicyNegotiationPointService implements IPolicyNegotiationPointCom
 						providerPid: policyNegotiation.id,
 						consumerPid: policyNegotiation.correlationId,
 						agreement,
-						callbackAddress: `${publicOrigin}/${this._callbackPath}`
+						callbackAddress: `${policyNegotiation.publicOrigin}/${this._callbackPath}`
 					};
 
 					const trustPayload = await this._trustComponent.generate(
 						policyNegotiation.organizationIdentity,
-						this._overrideTrustGeneratorType
+						this._overrideTrustGeneratorType,
+						{
+							subject: {
+								providerPid: policyNegotiation.id,
+								consumerPid: policyNegotiation.correlationId
+							}
+						}
 					);
 
 					policyNegotiation.state = DataspaceProtocolContractNegotiationStateType.AGREED;
@@ -1567,7 +1567,6 @@ export class PolicyNegotiationPointService implements IPolicyNegotiationPointCom
 
 					const response = await negotiationComponent.agreementFromProvider(
 						agreementMessage,
-						publicOrigin,
 						trustPayload
 					);
 
@@ -1590,14 +1589,12 @@ export class PolicyNegotiationPointService implements IPolicyNegotiationPointCom
 	 * Send an agreement verification message to the provider.
 	 * @param callbackAddress The callback address to send the offer to.
 	 * @param policyNegotiation The current state of the policy negotiation.
-	 * @param publicOrigin The public origin to use in the trust payload.
 	 * @returns Nothing.
 	 * @internal
 	 */
 	private async sendAgreementVerificationToProvider(
 		callbackAddress: string,
-		policyNegotiation: IPolicyNegotiation,
-		publicOrigin: string
+		policyNegotiation: IPolicyNegotiation
 	): Promise<void> {
 		try {
 			Guards.stringValue(
@@ -1620,7 +1617,13 @@ export class PolicyNegotiationPointService implements IPolicyNegotiationPointCom
 
 			const trustPayload = await this._trustComponent.generate(
 				policyNegotiation.organizationIdentity,
-				this._overrideTrustGeneratorType
+				this._overrideTrustGeneratorType,
+				{
+					subject: {
+						providerPid: policyNegotiation.correlationId,
+						consumerPid: policyNegotiation.id
+					}
+				}
 			);
 
 			policyNegotiation.state = DataspaceProtocolContractNegotiationStateType.VERIFIED;
@@ -1633,7 +1636,6 @@ export class PolicyNegotiationPointService implements IPolicyNegotiationPointCom
 
 			const response = await negotiationComponent.agreementVerificationFromConsumer(
 				agreementVerificationMessage,
-				publicOrigin,
 				trustPayload
 			);
 

@@ -655,25 +655,14 @@ export async function pnpNegotiationRequest(
 	const component = ComponentFactory.get<IPolicyNegotiationPointComponent>(componentName);
 	const result = await component.requestFromConsumer(
 		request.body,
-		await hostingComponent.getPublicOrigin(httpRequestContext.serverRequest.url),
-		HeaderHelper.extractBearer(request.headers?.[HeaderTypes.Authorization])
+		HeaderHelper.extractBearer(request.headers?.[HeaderTypes.Authorization]),
+		await hostingComponent.getPublicOrigin(httpRequestContext.serverRequest.url)
 	);
 
 	const isUpdate = Is.stringValue(request.pathParams?.id);
 
-	if (isUpdate) {
-		return {
-			statusCode: mapError(result),
-			headers: {
-				[HeaderTypes.ContentType]:
-					request.headers?.[HeaderTypes.Accept] === MimeTypes.JsonLd
-						? MimeTypes.JsonLd
-						: MimeTypes.Json
-			}
-		};
-	}
 	return {
-		statusCode: mapError(result) ?? HttpStatusCode.created,
+		statusCode: mapError(result) ?? (isUpdate ? undefined : HttpStatusCode.created),
 		headers: {
 			[HeaderTypes.ContentType]:
 				request.headers?.[HeaderTypes.Accept] === MimeTypes.JsonLd
@@ -709,15 +698,10 @@ export async function pnpNegotiationProviderEvents(
 	);
 	Guards.object<IPnpEventRequest["body"]>(ROUTES_SOURCE, nameof(request.body), request.body);
 
-	const hostingComponent = ComponentFactory.get<IHostingComponent>(
-		httpRequestContext.hostingComponentType ?? "hosting"
-	);
-
 	const component = ComponentFactory.get<IPolicyNegotiationPointComponent>(componentName);
 	const result = await component.event(
 		request.body,
 		request.pathParams.id === request.body.providerPid ? "provider" : "consumer",
-		await hostingComponent.getPublicOrigin(httpRequestContext.serverRequest.url),
 		HeaderHelper.extractBearer(request.headers?.[HeaderTypes.Authorization])
 	);
 
@@ -762,14 +746,9 @@ export async function pnpNegotiationAgreementVerification(
 		request.body
 	);
 
-	const hostingComponent = ComponentFactory.get<IHostingComponent>(
-		httpRequestContext.hostingComponentType ?? "hosting"
-	);
-
 	const component = ComponentFactory.get<IPolicyNegotiationPointComponent>(componentName);
 	const result = await component.agreementVerificationFromConsumer(
 		request.body,
-		await hostingComponent.getPublicOrigin(httpRequestContext.serverRequest.url),
 		HeaderHelper.extractBearer(request.headers?.[HeaderTypes.Authorization])
 	);
 
@@ -849,32 +828,16 @@ export async function pnpNegotiationOffer(
 	);
 	Guards.object<IPnpOfferRequest["body"]>(ROUTES_SOURCE, nameof(request.body), request.body);
 
-	const hostingComponent = ComponentFactory.get<IHostingComponent>(
-		httpRequestContext.hostingComponentType ?? "hosting"
-	);
-
 	const component = ComponentFactory.get<IPolicyNegotiationPointComponent>(componentName);
 	const result = await component.offerFromProvider(
 		request.body,
-		await hostingComponent.getPublicOrigin(httpRequestContext.serverRequest.url),
 		HeaderHelper.extractBearer(request.headers?.[HeaderTypes.Authorization])
 	);
 
 	const isUpdate = Is.stringValue(request.pathParams?.id);
 
-	if (isUpdate) {
-		return {
-			statusCode: mapError(result),
-			headers: {
-				[HeaderTypes.ContentType]:
-					request.headers?.[HeaderTypes.Accept] === MimeTypes.JsonLd
-						? MimeTypes.JsonLd
-						: MimeTypes.Json
-			}
-		};
-	}
 	return {
-		statusCode: mapError(result) ?? HttpStatusCode.created,
+		statusCode: mapError(result) ?? (isUpdate ? undefined : HttpStatusCode.created),
 		headers: {
 			[HeaderTypes.ContentType]:
 				request.headers?.[HeaderTypes.Accept] === MimeTypes.JsonLd
@@ -906,18 +869,13 @@ export async function pnpNegotiationAgreement(
 	Guards.object<IPnpAgreementRequest["body"]>(ROUTES_SOURCE, nameof(request.body), request.body);
 	Guards.object<IPnpAgreementRequest["pathParams"]>(
 		ROUTES_SOURCE,
-		nameof(request.body),
-		request.body
-	);
-
-	const hostingComponent = ComponentFactory.get<IHostingComponent>(
-		httpRequestContext.hostingComponentType ?? "hosting"
+		nameof(request.pathParams),
+		request.pathParams
 	);
 
 	const component = ComponentFactory.get<IPolicyNegotiationPointComponent>(componentName);
 	const result = await component.agreementFromProvider(
 		request.body,
-		await hostingComponent.getPublicOrigin(httpRequestContext.serverRequest.url),
 		HeaderHelper.extractBearer(request.headers?.[HeaderTypes.Authorization])
 	);
 

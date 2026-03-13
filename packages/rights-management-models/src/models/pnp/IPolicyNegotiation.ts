@@ -48,6 +48,12 @@ export interface IPolicyNegotiation {
 	callbackAddress?: string;
 
 	/**
+	 * The public origin of the server that initiated or received this negotiation.
+	 * Used to construct callback URLs in subsequent async messages.
+	 */
+	publicOrigin?: string;
+
+	/**
 	 * Organization identity to be used when sending trust payloads.
 	 */
 	organizationIdentity: string;

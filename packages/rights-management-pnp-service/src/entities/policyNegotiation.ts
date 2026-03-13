@@ -57,6 +57,13 @@ export class PolicyNegotiation {
 	public callbackAddress?: string;
 
 	/**
+	 * The public origin of the server that initiated or received this negotiation.
+	 * Used to construct callback URLs in subsequent async messages.
+	 */
+	@property({ type: "string", optional: true })
+	public publicOrigin?: string;
+
+	/**
 	 * Organization identity to be used when sending trust payloads.
 	 */
 	@property({ type: "string" })

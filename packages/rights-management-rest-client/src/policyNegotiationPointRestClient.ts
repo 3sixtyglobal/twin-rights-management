@@ -76,7 +76,7 @@ export class PolicyNegotiationPointRestClient
 		);
 
 		const response = await this.fetch<IPnpNegotiationGetRequest, IPnpContractNegotiationResponse>(
-			"/pnp/negotiations/:id",
+			"/negotiations/:id",
 			"GET",
 			{
 				headers: {
@@ -97,12 +97,14 @@ export class PolicyNegotiationPointRestClient
 	 * @param url The url of the provider to send the request to.
 	 * @param requesterType The type of the requester to use for the request, will use the registered requester to provide update.
 	 * @param odrlOfferId The id of the offer to request.
+	 * @param publicOrigin The public origin of the server (unused in REST client).
 	 * @returns The negotiation id.
 	 */
 	public async sendRequestToProvider(
 		url: string,
 		requesterType: string,
-		odrlOfferId: string
+		odrlOfferId: string,
+		publicOrigin: string
 	): Promise<string> {
 		throw new NotSupportedError(
 			PolicyNegotiationPointRestClient.CLASS_NAME,
@@ -117,12 +119,20 @@ export class PolicyNegotiationPointRestClient
 	 * Processes an incoming request on a provider from a consumer.
 	 * @param message The negotiation request.
 	 * @param trustPayload Trust payload to verify the requesters identity.
+	 * @param publicOrigin The public origin of the server (not used in REST client).
 	 * @returns The current state of the contract negotiation or an error.
 	 */
 	public async requestFromConsumer(
 		message: IDataspaceProtocolContractRequestMessage,
-		trustPayload: unknown
+		trustPayload: unknown,
+		publicOrigin?: string
 	): Promise<IDataspaceProtocolContractNegotiation | IDataspaceProtocolContractNegotiationError> {
+		if (Is.stringValue(publicOrigin)) {
+			throw new NotSupportedError(
+				PolicyNegotiationPointRestClient.CLASS_NAME,
+				"publicOriginNotRequired"
+			);
+		}
 		Guards.object<IDataspaceProtocolContractRequestMessage>(
 			PolicyNegotiationPointRestClient.CLASS_NAME,
 			nameof(message),
@@ -152,9 +162,7 @@ export class PolicyNegotiationPointRestClient
 		);
 
 		const response = await this.fetch<IPnpNegotiateRequest, IPnpContractNegotiationResponse>(
-			Is.stringValue(message.providerPid)
-				? "/pnp/negotiations/:id/request"
-				: "/pnp/negotiations/request",
+			Is.stringValue(message.providerPid) ? "/negotiations/:id/request" : "/negotiations/request",
 			"POST",
 			{
 				headers: {
@@ -198,9 +206,7 @@ export class PolicyNegotiationPointRestClient
 		);
 
 		const response = await this.fetch<IPnpOfferRequest, IPnpContractNegotiationResponse>(
-			Is.stringValue(message.consumerPid)
-				? "/pnp/negotiations/:id/offers"
-				: "/pnp/negotiations/offers",
+			Is.stringValue(message.consumerPid) ? "/negotiations/:id/offers" : "/negotiations/offers",
 			"POST",
 			{
 				headers: {
@@ -253,7 +259,7 @@ export class PolicyNegotiationPointRestClient
 			trustPayload
 		);
 		const response = await this.fetch<IPnpAgreementRequest, IPnpContractResponse>(
-			"/pnp/negotiations/:id/agreement",
+			"/negotiations/:id/agreement",
 			"POST",
 			{
 				headers: {
@@ -302,7 +308,7 @@ export class PolicyNegotiationPointRestClient
 		);
 
 		const response = await this.fetch<IPnpAgreementVerificationRequest, IPnpContractResponse>(
-			"/pnp/negotiations/:id/agreement/verification",
+			"/negotiations/:id/agreement/verification",
 			"POST",
 			{
 				headers: {
@@ -359,7 +365,7 @@ export class PolicyNegotiationPointRestClient
 		);
 
 		const response = await this.fetch<IPnpEventRequest, IPnpContractResponse>(
-			"/pnp/negotiations/:id/events",
+			"/negotiations/:id/events",
 			"POST",
 			{
 				headers: {
@@ -416,7 +422,7 @@ export class PolicyNegotiationPointRestClient
 		);
 
 		const response = await this.fetch<IPnpTerminateRequest, IPnpContractResponse>(
-			"/pnp/negotiations/:id/termination",
+			"/negotiations/:id/termination",
 			"POST",
 			{
 				headers: {
