@@ -70,6 +70,15 @@ The callback address to send updates to the requester.
 
 ***
 
+### publicOrigin? {#publicorigin}
+
+> `optional` **publicOrigin**: `string`
+
+The public origin of the server that initiated or received this negotiation.
+Used to construct callback URLs in subsequent async messages.
+
+***
+
 ### organizationIdentity {#organizationidentity}
 
 > **organizationIdentity**: `string`

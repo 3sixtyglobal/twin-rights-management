@@ -96,7 +96,7 @@ The current state of the negotiation or an error.
 
 ### sendRequestToProvider() {#sendrequesttoprovider}
 
-> **sendRequestToProvider**(`url`, `requesterType`, `odrlOfferId`): `Promise`\<`string`\>
+> **sendRequestToProvider**(`url`, `requesterType`, `odrlOfferId`, `publicOrigin`): `Promise`\<`string`\>
 
 Send a request to a provider - not supported in the REST client.
 
@@ -120,6 +120,12 @@ The type of the requester to use for the request, will use the registered reques
 
 The id of the offer to request.
 
+##### publicOrigin
+
+`string`
+
+The public origin of the server (unused in REST client).
+
 #### Returns
 
 `Promise`\<`string`\>
@@ -134,7 +140,7 @@ The negotiation id.
 
 ### requestFromConsumer() {#requestfromconsumer}
 
-> **requestFromConsumer**(`message`, `trustPayload`): `Promise`\<`IDataspaceProtocolContractNegotiation` \| `IDataspaceProtocolContractNegotiationError`\>
+> **requestFromConsumer**(`message`, `trustPayload`, `publicOrigin?`): `Promise`\<`IDataspaceProtocolContractNegotiation` \| `IDataspaceProtocolContractNegotiationError`\>
 
 Processes an incoming request on a provider from a consumer.
 
@@ -151,6 +157,12 @@ The negotiation request.
 `unknown`
 
 Trust payload to verify the requesters identity.
+
+##### publicOrigin?
+
+`string`
+
+The public origin of the server (not used in REST client).
 
 #### Returns
 

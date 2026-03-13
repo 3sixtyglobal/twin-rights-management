@@ -81,7 +81,7 @@ The negotiation id.
 
 ### requestFromConsumer() {#requestfromconsumer}
 
-> **requestFromConsumer**(`message`, `publicOrigin`, `trustPayload`): `Promise`\<`IDataspaceProtocolContractNegotiation` \| `IDataspaceProtocolContractNegotiationError`\>
+> **requestFromConsumer**(`message`, `trustPayload`, `publicOrigin?`): `Promise`\<`IDataspaceProtocolContractNegotiation` \| `IDataspaceProtocolContractNegotiationError`\>
 
 Processes an incoming request on a provider from a consumer.
 
@@ -93,17 +93,17 @@ Processes an incoming request on a provider from a consumer.
 
 The negotiation request.
 
-##### publicOrigin
-
-`string`
-
-The public origin url of this PNP service.
-
 ##### trustPayload
 
 `unknown`
 
 Trust payload to verify the requesters identity.
+
+##### publicOrigin?
+
+`string`
+
+The public origin url of this PNP service.
 
 #### Returns
 
@@ -115,7 +115,7 @@ The current state of the contract negotiation or an error.
 
 ### offerFromProvider() {#offerfromprovider}
 
-> **offerFromProvider**(`message`, `publicOrigin`, `trustPayload`): `Promise`\<`IDataspaceProtocolContractNegotiation` \| `IDataspaceProtocolContractNegotiationError`\>
+> **offerFromProvider**(`message`, `trustPayload`): `Promise`\<`IDataspaceProtocolContractNegotiation` \| `IDataspaceProtocolContractNegotiationError`\>
 
 An offer has been received by a consumer.
 
@@ -126,12 +126,6 @@ An offer has been received by a consumer.
 `IDataspaceProtocolContractOfferMessage`
 
 The offer being received by the consumer.
-
-##### publicOrigin
-
-`string`
-
-The public origin url of this PNP service.
 
 ##### trustPayload
 
@@ -149,7 +143,7 @@ The current state of the contract negotiation or an error.
 
 ### agreementFromProvider() {#agreementfromprovider}
 
-> **agreementFromProvider**(`message`, `publicOrigin`, `trustPayload`): `Promise`\<`IDataspaceProtocolContractNegotiationError` \| `undefined`\>
+> **agreementFromProvider**(`message`, `trustPayload`): `Promise`\<`IDataspaceProtocolContractNegotiationError` \| `undefined`\>
 
 An agreement has been received by a consumer.
 
@@ -160,12 +154,6 @@ An agreement has been received by a consumer.
 `IDataspaceProtocolContractAgreementMessage`
 
 The agreement message to send.
-
-##### publicOrigin
-
-`string`
-
-The public origin url of this PNP service.
 
 ##### trustPayload
 
@@ -183,7 +171,7 @@ The error if there is one.
 
 ### agreementVerificationFromConsumer() {#agreementverificationfromconsumer}
 
-> **agreementVerificationFromConsumer**(`message`, `publicOrigin`, `trustPayload`): `Promise`\<`IDataspaceProtocolContractNegotiationError` \| `undefined`\>
+> **agreementVerificationFromConsumer**(`message`, `trustPayload`): `Promise`\<`IDataspaceProtocolContractNegotiationError` \| `undefined`\>
 
 An agreement verification has been received by a provider.
 
@@ -194,12 +182,6 @@ An agreement verification has been received by a provider.
 `IDataspaceProtocolContractAgreementVerificationMessage`
 
 The agreement verification message to send.
-
-##### publicOrigin
-
-`string`
-
-The public origin url of this PNP service.
 
 ##### trustPayload
 
@@ -217,7 +199,7 @@ The error if there is one.
 
 ### event() {#event}
 
-> **event**(`message`, `destination`, `publicOrigin`, `trustPayload`): `Promise`\<`IDataspaceProtocolContractNegotiationError` \| `undefined`\>
+> **event**(`message`, `destination`, `trustPayload`): `Promise`\<`IDataspaceProtocolContractNegotiationError` \| `undefined`\>
 
 An event has been received by the provider or consumer.
 
@@ -234,12 +216,6 @@ The event message to send.
 The destination is provider or consumer.
 
 `"provider"` | `"consumer"`
-
-##### publicOrigin
-
-`string`
-
-The public origin url of this PNP service.
 
 ##### trustPayload
 
