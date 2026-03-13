@@ -1,5 +1,12 @@
 # Changelog
 
+## [0.0.3-next.23](https://github.com/twinfoundation/rights-management/compare/rights-management-models-v0.0.3-next.22...rights-management-models-v0.0.3-next.23) (2026-03-13)
+
+
+### Bug Fixes
+
+* resolve 5 bugs preventing PNP contract negotiation callbacks ([#98](https://github.com/twinfoundation/rights-management/issues/98)) ([4a065d6](https://github.com/twinfoundation/rights-management/commit/4a065d669440f47dc44c3602abe7efa1ea9d45ff))
+
 ## [0.0.3-next.22](https://github.com/twinfoundation/rights-management/compare/rights-management-models-v0.0.3-next.21...rights-management-models-v0.0.3-next.22) (2026-03-09)
 
 

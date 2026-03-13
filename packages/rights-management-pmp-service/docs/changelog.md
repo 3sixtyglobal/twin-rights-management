@@ -1,5 +1,21 @@
 # Changelog
 
+## [0.0.3-next.23](https://github.com/twinfoundation/rights-management/compare/rights-management-pmp-service-v0.0.3-next.22...rights-management-pmp-service-v0.0.3-next.23) (2026-03-13)
+
+
+### Miscellaneous Chores
+
+* **rights-management-pmp-service:** Synchronize repo versions
+
+
+### Dependencies
+
+* The following workspace dependencies were updated
+  * dependencies
+    * @twin.org/rights-management-models bumped from 0.0.3-next.22 to 0.0.3-next.23
+  * devDependencies
+    * @twin.org/rights-management-pap-service bumped from 0.0.3-next.22 to 0.0.3-next.23
+
 ## [0.0.3-next.22](https://github.com/twinfoundation/rights-management/compare/rights-management-pmp-service-v0.0.3-next.21...rights-management-pmp-service-v0.0.3-next.22) (2026-03-09)
 
 
