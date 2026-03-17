@@ -1,5 +1,27 @@
 # Changelog
 
+## [0.0.3-next.24](https://github.com/twinfoundation/rights-management/compare/rights-management-plugins-v0.0.3-next.23...rights-management-plugins-v0.0.3-next.24) (2026-03-17)
+
+
+### Bug Fixes
+
+* generate unique agreement UID to prevent overwriting offer in PAP ([#102](https://github.com/twinfoundation/rights-management/issues/102)) ([bd3dc1b](https://github.com/twinfoundation/rights-management/commit/bd3dc1bb240547c7642c7e90f67205bd34651662))
+
+
+### Dependencies
+
+* The following workspace dependencies were updated
+  * dependencies
+    * @twin.org/rights-management-models bumped from 0.0.3-next.23 to 0.0.3-next.24
+  * devDependencies
+    * @twin.org/rights-management-pap-service bumped from 0.0.3-next.23 to 0.0.3-next.24
+    * @twin.org/rights-management-pdp-service bumped from 0.0.3-next.23 to 0.0.3-next.24
+    * @twin.org/rights-management-pep-service bumped from 0.0.3-next.23 to 0.0.3-next.24
+    * @twin.org/rights-management-pip-service bumped from 0.0.3-next.23 to 0.0.3-next.24
+    * @twin.org/rights-management-pmp-service bumped from 0.0.3-next.23 to 0.0.3-next.24
+    * @twin.org/rights-management-pnp-service bumped from 0.0.3-next.23 to 0.0.3-next.24
+    * @twin.org/rights-management-pxp-service bumped from 0.0.3-next.23 to 0.0.3-next.24
+
 ## [0.0.3-next.23](https://github.com/twinfoundation/rights-management/compare/rights-management-plugins-v0.0.3-next.22...rights-management-plugins-v0.0.3-next.23) (2026-03-13)
 
 
