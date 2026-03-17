@@ -1,10 +1,14 @@
 // Copyright 2025 IOTA Stiftung.
 // SPDX-License-Identifier: Apache-2.0.
-import { ComponentFactory, Guards, ObjectHelper } from "@twin.org/core";
+import { ComponentFactory, Guards, ObjectHelper, Urn } from "@twin.org/core";
 import type { IJsonLdNodeObject } from "@twin.org/data-json-ld";
 import type { ILoggingComponent } from "@twin.org/logging-models";
 import { nameof } from "@twin.org/nameof";
-import { OdrlPolicyHelper, type IPolicyNegotiator } from "@twin.org/rights-management-models";
+import {
+	OdrlPolicyHelper,
+	RightsManagementNamespaces,
+	type IPolicyNegotiator
+} from "@twin.org/rights-management-models";
 import type {
 	IDataspaceProtocolAgreement,
 	IDataspaceProtocolOffer,
@@ -121,6 +125,7 @@ export class PassThroughPolicyNegotiator implements IPolicyNegotiator {
 		const agreement = ObjectHelper.clone<IDataspaceProtocolPolicy>(offer);
 
 		agreement["@type"] = PolicyType.Agreement;
+		agreement["@id"] = Urn.generateRandom(RightsManagementNamespaces.Policy).toString(false);
 		agreement.assignee = assignee;
 
 		return agreement as IDataspaceProtocolAgreement;
