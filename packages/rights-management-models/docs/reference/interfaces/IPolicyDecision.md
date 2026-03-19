@@ -22,6 +22,6 @@ The type of the proof.
 
 ### replaceValue? {#replacevalue}
 
-> `optional` **replaceValue**: `unknown`
+> `optional` **replaceValue?**: `unknown`
 
 The value to replace with, if decision is Replace.

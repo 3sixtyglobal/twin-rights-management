@@ -281,9 +281,9 @@ The event message to send.
 
 ##### destination
 
-The destination is provider or consumer.
+`"provider"` \| `"consumer"`
 
-`"provider"` | `"consumer"`
+The destination is provider or consumer.
 
 ##### trustPayload
 
@@ -319,9 +319,9 @@ The termination message to send.
 
 ##### destination
 
-The destination is provider or consumer.
+`"provider"` \| `"consumer"`
 
-`"provider"` | `"consumer"`
+The destination is provider or consumer.
 
 ##### trustPayload
 

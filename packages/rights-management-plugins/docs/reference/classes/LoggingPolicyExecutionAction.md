@@ -100,9 +100,9 @@ The decisions made by the PDP.
 
 ##### data
 
-The data to process.
+`D` \| `undefined`
 
-`D` | `undefined`
+The data to process.
 
 ##### action
 

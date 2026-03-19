@@ -6,6 +6,12 @@ Options for the Pass Through Policy Arbiter.
 
 ### loggingComponentType? {#loggingcomponenttype}
 
-> `optional` **loggingComponentType**: `string`
+> `optional` **loggingComponentType?**: `string`
 
 The logging component for policy arbiter.
+
+#### Default
+
+```ts
+logging
+```

@@ -6,13 +6,13 @@ The response structure for querying manual policy negotiations.
 
 ### headers? {#headers}
 
-> `optional` **headers**: `object`
+> `optional` **headers?**: `object`
 
 The headers which can be used to determine the response data type.
 
 #### link?
 
-> `optional` **link**: `string` \| `string`[]
+> `optional` **link?**: `string` \| `string`[]
 
 ***
 

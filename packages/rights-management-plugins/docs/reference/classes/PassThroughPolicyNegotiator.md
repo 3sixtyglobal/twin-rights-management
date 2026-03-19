@@ -126,9 +126,9 @@ The offer to create the agreement from.
 
 ##### assignee
 
-The assignee of the agreement.
+`string` \| `IOdrlParty`
 
-`string` | `IOdrlParty`
+The assignee of the agreement.
 
 ##### information?
 

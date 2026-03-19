@@ -12,23 +12,23 @@ The headers which can be used to determine the response data type.
 
 #### accept?
 
-> `optional` **accept**: `"application/ld+json"` \| `"application/json"`
+> `optional` **accept?**: `"application/ld+json"` \| `"application/json"`
 
 #### authorization?
 
-> `optional` **authorization**: `string`
+> `optional` **authorization?**: `string`
 
 ***
 
 ### pathParams? {#pathparams}
 
-> `optional` **pathParams**: `object`
+> `optional` **pathParams?**: `object`
 
 The path parameters of the request.
 
 #### id?
 
-> `optional` **id**: `string`
+> `optional` **id?**: `string`
 
 The identifier of the contract negotiation to be retrieved, can be undefined.
 

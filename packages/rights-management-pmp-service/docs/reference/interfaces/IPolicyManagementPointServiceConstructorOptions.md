@@ -6,14 +6,26 @@ Options for the Policy Management Point Component.
 
 ### loggingComponentType? {#loggingcomponenttype}
 
-> `optional` **loggingComponentType**: `string`
+> `optional` **loggingComponentType?**: `string`
 
 The logging component for logging policy management.
+
+#### Default
+
+```ts
+logging
+```
 
 ***
 
 ### policyAdministrationPointComponentType? {#policyadministrationpointcomponenttype}
 
-> `optional` **policyAdministrationPointComponentType**: `string`
+> `optional` **policyAdministrationPointComponentType?**: `string`
 
 The type of the policy administration point component.
+
+#### Default
+
+```ts
+policy-administration-point
+```

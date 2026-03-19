@@ -70,9 +70,9 @@ Retrieve additional information which is relevant in the PDP decision making.
 
 ##### policy
 
-The policy to retrieve the information for if available.
+`IDataspaceProtocolPolicy` \| `undefined`
 
-`IDataspaceProtocolPolicy` | `undefined`
+The policy to retrieve the information for if available.
 
 ##### accessMode
 

@@ -6,18 +6,18 @@ The request structure for querying manual policy negotiations.
 
 ### query? {#query}
 
-> `optional` **query**: `object`
+> `optional` **query?**: `object`
 
 The query parameters of the request.
 
 #### state?
 
-> `optional` **state**: `DataspaceProtocolContractNegotiationStateType`
+> `optional` **state?**: `DataspaceProtocolContractNegotiationStateType`
 
 The state of the policy negotiations.
 
 #### cursor?
 
-> `optional` **cursor**: `string`
+> `optional` **cursor?**: `string`
 
 The cursor for pagination.

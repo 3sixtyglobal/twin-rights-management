@@ -6,14 +6,20 @@ Options for the Static Policy Information Source Component.
 
 ### loggingComponentType? {#loggingcomponenttype}
 
-> `optional` **loggingComponentType**: `string`
+> `optional` **loggingComponentType?**: `string`
 
 The logging component for logging policy source.
+
+#### Default
+
+```ts
+logging
+```
 
 ***
 
 ### config? {#config}
 
-> `optional` **config**: [`IStaticPolicyInformationSourceConfig`](IStaticPolicyInformationSourceConfig.md)
+> `optional` **config?**: [`IStaticPolicyInformationSourceConfig`](IStaticPolicyInformationSourceConfig.md)
 
 The configuration.

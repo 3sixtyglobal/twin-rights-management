@@ -32,9 +32,9 @@ Get the UID of an ODRL policy or related object if available.
 
 ##### object
 
-The ODRL policy or related object to get the UID from.
+`object` \| `undefined`
 
-`object` | `undefined`
+The ODRL policy or related object to get the UID from.
 
 #### Returns
 
@@ -54,9 +54,9 @@ Get the type of an ODRL policy or related object if available.
 
 ##### object
 
-The ODRL policy or related object to get the type from.
+`object` \| `undefined`
 
-`object` | `undefined`
+The ODRL policy or related object to get the type from.
 
 #### Returns
 
@@ -129,9 +129,9 @@ Handles single parties or arrays of parties by returning all discovered identifi
 
 ##### party?
 
-The party to normalize.
+`string` \| `IOdrlParty` \| `IOdrlPartyCollection` \| (`string` \| `IOdrlParty` \| `IOdrlPartyCollection`)[]
 
-`string` | `IOdrlParty` | `IOdrlPartyCollection` | (`string` \| `IOdrlParty` \| `IOdrlPartyCollection`)[]
+The party to normalize.
 
 #### Returns
 
@@ -195,9 +195,9 @@ Does the policy match.
 
 ##### policy
 
-The policy to try and match.
+`IDataspaceProtocolPolicy` \| `undefined`
 
-`IDataspaceProtocolPolicy` | `undefined`
+The policy to try and match.
 
 ##### options
 

@@ -47,7 +47,7 @@
 					"content": {
 						"application/json": {
 							"schema": {
-								"$ref": "#/components/schemas/JsonLdObjectWithOptionalAtId<DataspaceProtocolPolicy>"
+								"$ref": "#/components/schemas/PapCreateRequest"
 							},
 							"examples": {
 								"papCreateRequestExample": {
@@ -333,7 +333,7 @@
 					"content": {
 						"application/json": {
 							"schema": {
-								"$ref": "#/components/schemas/DataspaceProtocolPolicy"
+								"$ref": "https://schema.twindev.org/dataspace-protocol/DataspaceProtocolPolicy"
 							},
 							"examples": {
 								"papUpdateRequestExample": {
@@ -446,7 +446,7 @@
 						"content": {
 							"application/json": {
 								"schema": {
-									"$ref": "#/components/schemas/DataspaceProtocolPolicy"
+									"$ref": "https://schema.twindev.org/dataspace-protocol/DataspaceProtocolPolicy"
 								},
 								"examples": {
 									"papGetResponseExample": {
@@ -644,7 +644,7 @@
 						"content": {
 							"application/json": {
 								"schema": {
-									"$ref": "#/components/schemas/DataspaceProtocolAgreement"
+									"$ref": "https://schema.twindev.org/dataspace-protocol/DataspaceProtocolAgreement"
 								},
 								"examples": {
 									"papGetResponseExample": {
@@ -757,7 +757,7 @@
 						"content": {
 							"application/json": {
 								"schema": {
-									"$ref": "#/components/schemas/DataspaceProtocolOffer"
+									"$ref": "https://schema.twindev.org/dataspace-protocol/DataspaceProtocolOffer"
 								},
 								"examples": {
 									"papGetResponseExample": {
@@ -870,7 +870,7 @@
 						"content": {
 							"application/json": {
 								"schema": {
-									"$ref": "#/components/schemas/DataspaceProtocolSet"
+									"$ref": "https://schema.twindev.org/dataspace-protocol/DataspaceProtocolSet"
 								},
 								"examples": {
 									"papGetResponseExample": {
@@ -1093,7 +1093,7 @@
 					"content": {
 						"application/json": {
 							"schema": {
-								"$ref": "#/components/schemas/DataspaceProtocolContractRequestMessage"
+								"$ref": "https://schema.twindev.org/dataspace-protocol/DataspaceProtocolContractRequestMessage"
 							},
 							"examples": {
 								"pnpNegotiationRequestExample": {
@@ -1206,7 +1206,7 @@
 					"content": {
 						"application/json": {
 							"schema": {
-								"$ref": "#/components/schemas/DataspaceProtocolContractRequestMessage"
+								"$ref": "https://schema.twindev.org/dataspace-protocol/DataspaceProtocolContractRequestMessage"
 							},
 							"examples": {
 								"pnpNegotiationProviderRequestExample": {
@@ -1233,7 +1233,7 @@
 						"content": {
 							"application/json": {
 								"schema": {
-									"$ref": "#/components/schemas/DataspaceProtocolContractNegotiationError"
+									"$ref": "https://schema.twindev.org/dataspace-protocol/DataspaceProtocolContractNegotiationError"
 								}
 							}
 						}
@@ -1326,7 +1326,7 @@
 					"content": {
 						"application/json": {
 							"schema": {
-								"$ref": "#/components/schemas/DataspaceProtocolContractNegotiationEventMessage"
+								"$ref": "https://schema.twindev.org/dataspace-protocol/DataspaceProtocolContractNegotiationEventMessage"
 							},
 							"examples": {
 								"pnpNegotiationEventsRequestExample": {
@@ -1350,7 +1350,7 @@
 						"content": {
 							"application/json": {
 								"schema": {
-									"$ref": "#/components/schemas/DataspaceProtocolContractNegotiationError"
+									"$ref": "https://schema.twindev.org/dataspace-protocol/DataspaceProtocolContractNegotiationError"
 								}
 							}
 						}
@@ -1443,7 +1443,7 @@
 					"content": {
 						"application/json": {
 							"schema": {
-								"$ref": "#/components/schemas/DataspaceProtocolContractAgreementVerificationMessage"
+								"$ref": "https://schema.twindev.org/dataspace-protocol/DataspaceProtocolContractAgreementVerificationMessage"
 							},
 							"examples": {
 								"pnpNegotiationAgreementVerificationRequestExample": {
@@ -1466,7 +1466,7 @@
 						"content": {
 							"application/json": {
 								"schema": {
-									"$ref": "#/components/schemas/DataspaceProtocolContractNegotiationError"
+									"$ref": "https://schema.twindev.org/dataspace-protocol/DataspaceProtocolContractNegotiationError"
 								}
 							}
 						}
@@ -1559,7 +1559,7 @@
 					"content": {
 						"application/json": {
 							"schema": {
-								"$ref": "#/components/schemas/DataspaceProtocolContractNegotiationTerminationMessage"
+								"$ref": "https://schema.twindev.org/dataspace-protocol/DataspaceProtocolContractNegotiationTerminationMessage"
 							},
 							"examples": {
 								"pnpNegotiationTerminationRequestExample": {
@@ -1582,7 +1582,7 @@
 						"content": {
 							"application/json": {
 								"schema": {
-									"$ref": "#/components/schemas/DataspaceProtocolContractNegotiationError"
+									"$ref": "https://schema.twindev.org/dataspace-protocol/DataspaceProtocolContractNegotiationError"
 								}
 							}
 						}
@@ -1664,7 +1664,7 @@
 					"content": {
 						"application/json": {
 							"schema": {
-								"$ref": "#/components/schemas/DataspaceProtocolContractOfferMessage"
+								"$ref": "https://schema.twindev.org/dataspace-protocol/DataspaceProtocolContractOfferMessage"
 							},
 							"examples": {
 								"pnpNegotiationOfferRequestExample": {
@@ -1692,7 +1692,7 @@
 						"content": {
 							"application/json": {
 								"schema": {
-									"$ref": "#/components/schemas/DataspaceProtocolContractNegotiationError"
+									"$ref": "https://schema.twindev.org/dataspace-protocol/DataspaceProtocolContractNegotiationError"
 								},
 								"examples": {
 									"pnpNegotiationOfferResponseExample": {
@@ -1777,7 +1777,7 @@
 					"content": {
 						"application/json": {
 							"schema": {
-								"$ref": "#/components/schemas/DataspaceProtocolContractOfferMessage"
+								"$ref": "https://schema.twindev.org/dataspace-protocol/DataspaceProtocolContractOfferMessage"
 							},
 							"examples": {
 								"pnpNegotiationConsumerOfferRequestExample": {
@@ -1805,7 +1805,7 @@
 						"content": {
 							"application/json": {
 								"schema": {
-									"$ref": "#/components/schemas/DataspaceProtocolContractNegotiationError"
+									"$ref": "https://schema.twindev.org/dataspace-protocol/DataspaceProtocolContractNegotiationError"
 								},
 								"examples": {
 									"pnpNegotiationConsumerOfferResponseExample": {
@@ -1910,7 +1910,7 @@
 					"content": {
 						"application/json": {
 							"schema": {
-								"$ref": "#/components/schemas/DataspaceProtocolContractAgreementMessage"
+								"$ref": "https://schema.twindev.org/dataspace-protocol/DataspaceProtocolContractAgreementMessage"
 							},
 							"examples": {
 								"pnpNegotiationAgreementRequestExample": {
@@ -1939,7 +1939,7 @@
 						"content": {
 							"application/json": {
 								"schema": {
-									"$ref": "#/components/schemas/DataspaceProtocolContractNegotiationError"
+									"$ref": "https://schema.twindev.org/dataspace-protocol/DataspaceProtocolContractNegotiationError"
 								}
 							}
 						}
@@ -2303,7 +2303,7 @@
 						"in": "query",
 						"required": false,
 						"schema": {
-							"$ref": "#/components/schemas/DataspaceProtocolContractNegotiationStateType"
+							"$ref": "https://schema.twindev.org/dataspace-protocol/DataspaceProtocolContractNegotiationStateType"
 						},
 						"example": "ACCEPTED"
 					},
@@ -2410,1192 +2410,8 @@
 	},
 	"components": {
 		"schemas": {
-			"DataspaceProtocolAgreement": {
-				"type": "object",
-				"properties": {
-					"@type": {
-						"type": "string",
-						"const": "Agreement",
-						"description": "The type must be \"Agreement\"."
-					},
-					"assigner": {
-						"anyOf": [
-							{
-								"type": "string"
-							},
-							{
-								"$ref": "https://schema.twindev.org/w3c-odrl/OdrlParty"
-							}
-						],
-						"description": "The assigner of the agreement. Required for Agreement policies."
-					},
-					"assignee": {
-						"anyOf": [
-							{
-								"type": "string"
-							},
-							{
-								"$ref": "https://schema.twindev.org/w3c-odrl/OdrlParty"
-							}
-						],
-						"description": "The assignee of the agreement. Required for Agreement policies."
-					},
-					"@context": {
-						"$ref": "https://schema.twindev.org/w3c-odrl/OdrlContextType"
-					},
-					"profile": {
-						"anyOf": [
-							{
-								"type": "string"
-							},
-							{
-								"type": "array",
-								"items": {
-									"type": "string"
-								}
-							}
-						],
-						"description": "The profile(s) this policy conforms to. IRIs identifying the ODRL Profile(s)."
-					},
-					"target": {
-						"anyOf": [
-							{
-								"type": "string"
-							},
-							{
-								"$ref": "https://schema.twindev.org/w3c-odrl/OdrlAsset"
-							},
-							{
-								"$ref": "https://schema.twindev.org/w3c-odrl/OdrlAssetCollection"
-							},
-							{
-								"type": "array",
-								"items": {
-									"anyOf": [
-										{
-											"type": "string"
-										},
-										{
-											"$ref": "https://schema.twindev.org/w3c-odrl/OdrlAsset"
-										},
-										{
-											"$ref": "https://schema.twindev.org/w3c-odrl/OdrlAssetCollection"
-										}
-									]
-								}
-							}
-						],
-						"description": "The target asset for the rule."
-					},
-					"action": {
-						"anyOf": [
-							{
-								"$ref": "https://schema.twindev.org/w3c-odrl/ActionType"
-							},
-							{
-								"type": "string"
-							},
-							{
-								"$ref": "https://schema.twindev.org/w3c-odrl/OdrlAction"
-							},
-							{
-								"type": "array",
-								"items": {
-									"anyOf": [
-										{
-											"$ref": "https://schema.twindev.org/w3c-odrl/ActionType"
-										},
-										{
-											"type": "string"
-										},
-										{
-											"$ref": "https://schema.twindev.org/w3c-odrl/OdrlAction"
-										}
-									]
-								}
-							}
-						],
-						"description": "The action associated with the rule."
-					},
-					"inheritFrom": {
-						"anyOf": [
-							{
-								"type": "string"
-							},
-							{
-								"type": "array",
-								"items": {
-									"type": "string"
-								}
-							}
-						],
-						"description": "The parent policy(ies) this policy inherits from. IRIs identifying the parent Policy(ies)."
-					},
-					"conflict": {
-						"$ref": "https://schema.twindev.org/w3c-odrl/ConflictStrategyType"
-					},
-					"permission": {
-						"anyOf": [
-							{
-								"$ref": "https://schema.twindev.org/w3c-odrl/OdrlPermission"
-							},
-							{
-								"type": "array",
-								"items": {
-									"$ref": "https://schema.twindev.org/w3c-odrl/OdrlPermission"
-								}
-							}
-						],
-						"description": "The permissions in the policy. At least one of permission, prohibition, or obligation must be present."
-					},
-					"prohibition": {
-						"anyOf": [
-							{
-								"$ref": "https://schema.twindev.org/w3c-odrl/OdrlProhibition"
-							},
-							{
-								"type": "array",
-								"items": {
-									"$ref": "https://schema.twindev.org/w3c-odrl/OdrlProhibition"
-								}
-							}
-						],
-						"description": "The prohibitions in the policy. At least one of permission, prohibition, or obligation must be present."
-					},
-					"obligation": {
-						"anyOf": [
-							{
-								"$ref": "https://schema.twindev.org/w3c-odrl/OdrlDuty"
-							},
-							{
-								"type": "array",
-								"items": {
-									"$ref": "https://schema.twindev.org/w3c-odrl/OdrlDuty"
-								}
-							}
-						],
-						"description": "The obligations in the policy. At least one of permission, prohibition, or obligation must be present."
-					},
-					"@id": {
-						"type": "string",
-						"description": "Unique identifier for the agreement."
-					}
-				},
-				"required": [
-					"@context",
-					"@id",
-					"@type",
-					"assignee",
-					"assigner"
-				],
-				"description": "Agreement interface compliant with Eclipse Data Space Protocol.\n\nExtends IOdrlAgreement with DS Protocol-specific constraints:\n- `@id` is REQUIRED (used as the primary agreement identifier in DS Protocol)\n- `@context` is omitted (inherited from the parent Dataset/Distribution)"
-			},
-			"DataspaceProtocolContextType": {
-				"anyOf": [
-					{
-						"type": "string",
-						"const": "https://w3id.org/dspace/2025/1/context.jsonld"
-					},
-					{
-						"type": "array",
-						"items": {
-							"type": "string",
-							"const": "https://w3id.org/dspace/2025/1/context.jsonld"
-						},
-						"minItems": 1,
-						"maxItems": 1
-					},
-					{
-						"type": "array",
-						"minItems": 2,
-						"prefixItems": [
-							{
-								"type": "string",
-								"const": "https://w3id.org/dspace/2025/1/context.jsonld"
-							},
-							{
-								"$ref": "https://schema.twindev.org/json-ld/JsonLdContextDefinitionElement"
-							}
-						],
-						"items": {
-							"$ref": "https://schema.twindev.org/json-ld/JsonLdContextDefinitionElement"
-						}
-					},
-					{
-						"type": "array",
-						"minItems": 2,
-						"prefixItems": [
-							{
-								"$ref": "https://schema.twindev.org/json-ld/JsonLdContextDefinitionElement"
-							},
-							{
-								"type": "string",
-								"const": "https://w3id.org/dspace/2025/1/context.jsonld"
-							}
-						],
-						"items": {
-							"$ref": "https://schema.twindev.org/json-ld/JsonLdContextDefinitionElement"
-						}
-					}
-				],
-				"description": "The Dataspace Protocol JSON-LD context type."
-			},
-			"DataspaceProtocolContractAgreementMessage": {
-				"type": "object",
-				"properties": {
-					"@context": {
-						"$ref": "#/components/schemas/DataspaceProtocolContextType"
-					},
-					"@type": {
-						"type": "string",
-						"const": "ContractAgreementMessage",
-						"description": "The type of the message."
-					},
-					"providerPid": {
-						"type": "string",
-						"description": "The provider id for the contract."
-					},
-					"consumerPid": {
-						"type": "string",
-						"description": "The consumer id for the contract."
-					},
-					"agreement": {
-						"$ref": "#/components/schemas/DataspaceProtocolAgreement"
-					},
-					"callbackAddress": {
-						"type": "string",
-						"description": "The base callback address for the provider to update the consumer on the state of the negotiation."
-					}
-				},
-				"required": [
-					"@context",
-					"@type",
-					"providerPid",
-					"consumerPid",
-					"agreement"
-				],
-				"description": "Interface for Dataspace Protocol Contract Agreement Messages. https://eclipse-dataspace-protocol-base.github.io/DataspaceProtocol/2025-1/#contract-agreement-message"
-			},
-			"DataspaceProtocolContractAgreementVerificationMessage": {
-				"type": "object",
-				"properties": {
-					"@context": {
-						"$ref": "#/components/schemas/DataspaceProtocolContextType"
-					},
-					"@type": {
-						"type": "string",
-						"const": "ContractAgreementVerificationMessage",
-						"description": "The type of the message."
-					},
-					"providerPid": {
-						"type": "string",
-						"description": "The provider id for the contract."
-					},
-					"consumerPid": {
-						"type": "string",
-						"description": "The consumer id for the contract."
-					}
-				},
-				"required": [
-					"@context",
-					"@type",
-					"providerPid",
-					"consumerPid"
-				],
-				"description": "Interface for Dataspace Protocol Contract Agreement Verification Messages. https://eclipse-dataspace-protocol-base.github.io/DataspaceProtocol/2025-1/#contract-agreement-verification-message"
-			},
-			"DataspaceProtocolContractNegotiation": {
-				"type": "object",
-				"properties": {
-					"@context": {
-						"$ref": "#/components/schemas/DataspaceProtocolContextType"
-					},
-					"@type": {
-						"type": "string",
-						"const": "ContractNegotiation",
-						"description": "The type of the message."
-					},
-					"providerPid": {
-						"type": "string",
-						"description": "The provider id for the contract."
-					},
-					"consumerPid": {
-						"type": "string",
-						"description": "The consumer id for the contract."
-					},
-					"state": {
-						"$ref": "#/components/schemas/DataspaceProtocolContractNegotiationStateType"
-					}
-				},
-				"required": [
-					"@context",
-					"@type",
-					"providerPid",
-					"consumerPid",
-					"state"
-				],
-				"description": "Interface for Dataspace Protocol Contract Agreement Messages. https://eclipse-dataspace-protocol-base.github.io/DataspaceProtocol/2025-1/#ack-contract-negotiation"
-			},
-			"DataspaceProtocolContractNegotiationError": {
-				"type": "object",
-				"properties": {
-					"@context": {
-						"$ref": "#/components/schemas/DataspaceProtocolContextType"
-					},
-					"@type": {
-						"type": "string",
-						"const": "ContractNegotiationError",
-						"description": "The type of the message."
-					},
-					"providerPid": {
-						"type": "string",
-						"description": "The provider id for the contract."
-					},
-					"consumerPid": {
-						"type": "string",
-						"description": "The consumer id for the contract."
-					},
-					"code": {
-						"type": "string",
-						"description": "The error code."
-					},
-					"reason": {
-						"type": "array",
-						"items": {},
-						"description": "The error reason(s)."
-					}
-				},
-				"required": [
-					"@context",
-					"@type",
-					"providerPid",
-					"consumerPid"
-				],
-				"description": "Interface for Dataspace Protocol Contract Negotiation Error Messages. https://eclipse-dataspace-protocol-base.github.io/DataspaceProtocol/2025-1/#error-contract-negotiation-error"
-			},
-			"DataspaceProtocolContractNegotiationEventMessage": {
-				"type": "object",
-				"properties": {
-					"@context": {
-						"$ref": "#/components/schemas/DataspaceProtocolContextType"
-					},
-					"@type": {
-						"type": "string",
-						"const": "ContractNegotiationEventMessage",
-						"description": "The type of the message."
-					},
-					"providerPid": {
-						"type": "string",
-						"description": "The provider id for the contract."
-					},
-					"consumerPid": {
-						"type": "string",
-						"description": "The consumer id for the contract."
-					},
-					"event": {
-						"$ref": "#/components/schemas/DataspaceProtocolContractNegotiationEventType"
-					}
-				},
-				"required": [
-					"@context",
-					"@type",
-					"providerPid",
-					"consumerPid",
-					"event"
-				],
-				"description": "Interface for Dataspace Protocol Contract Negotiation Event Messages. https://eclipse-dataspace-protocol-base.github.io/DataspaceProtocol/2025-1/#contract-negotiation-event-message"
-			},
-			"DataspaceProtocolContractNegotiationEventType": {
-				"anyOf": [
-					{
-						"type": "string",
-						"const": "ACCEPTED",
-						"description": "Accepted."
-					},
-					{
-						"type": "string",
-						"const": "FINALIZED",
-						"description": "Finalized."
-					}
-				],
-				"description": "The types for Dataspace Protocol Contract Negotiation Events. https://eclipse-dataspace-protocol-base.github.io/DataspaceProtocol/2025-1/#contract-negotiation-event-message   The types for Dataspace Protocol Contract Negotiation Events."
-			},
-			"DataspaceProtocolContractNegotiationStateType": {
-				"anyOf": [
-					{
-						"type": "string",
-						"const": "REQUESTED",
-						"description": "Requested."
-					},
-					{
-						"type": "string",
-						"const": "OFFERED",
-						"description": "Offered."
-					},
-					{
-						"type": "string",
-						"const": "ACCEPTED",
-						"description": "Accepted."
-					},
-					{
-						"type": "string",
-						"const": "AGREED",
-						"description": "Agreed."
-					},
-					{
-						"type": "string",
-						"const": "VERIFIED",
-						"description": "Verified."
-					},
-					{
-						"type": "string",
-						"const": "FINALIZED",
-						"description": "Finalized."
-					},
-					{
-						"type": "string",
-						"const": "TERMINATED",
-						"description": "Terminated."
-					}
-				],
-				"description": "The types for Dataspace Protocol Contract Negotiation States. https://eclipse-dataspace-protocol-base.github.io/DataspaceProtocol/2025-1/#contract-negotiation-states   The types for Dataspace Protocol Contract Negotiation States."
-			},
-			"DataspaceProtocolContractNegotiationTerminationMessage": {
-				"type": "object",
-				"properties": {
-					"@context": {
-						"$ref": "#/components/schemas/DataspaceProtocolContextType"
-					},
-					"@type": {
-						"type": "string",
-						"const": "ContractNegotiationTerminationMessage",
-						"description": "The type of the message."
-					},
-					"providerPid": {
-						"type": "string",
-						"description": "The provider id for the contract."
-					},
-					"consumerPid": {
-						"type": "string",
-						"description": "The consumer id for the contract."
-					},
-					"code": {
-						"type": "string",
-						"description": "The termination code."
-					},
-					"reason": {
-						"type": "array",
-						"items": {},
-						"description": "The termination reason(s)."
-					}
-				},
-				"required": [
-					"@context",
-					"@type",
-					"providerPid",
-					"consumerPid"
-				],
-				"description": "Interface for Dataspace Protocol Contract Negotiation Termination Messages. https://eclipse-dataspace-protocol-base.github.io/DataspaceProtocol/2025-1/#contract-negotiation-termination-message"
-			},
-			"DataspaceProtocolContractOfferMessage": {
-				"type": "object",
-				"properties": {
-					"@context": {
-						"$ref": "#/components/schemas/DataspaceProtocolContextType"
-					},
-					"@type": {
-						"type": "string",
-						"const": "ContractOfferMessage",
-						"description": "The type of the message."
-					},
-					"providerPid": {
-						"type": "string",
-						"description": "The provider id for the contract."
-					},
-					"consumerPid": {
-						"type": "string",
-						"description": "The consumer id for the contract."
-					},
-					"offer": {
-						"$ref": "#/components/schemas/DataspaceProtocolOffer"
-					},
-					"callbackAddress": {
-						"type": "string",
-						"description": "The base callback address for the provider to update the consumer on the state of the negotiation."
-					}
-				},
-				"required": [
-					"@context",
-					"@type",
-					"providerPid",
-					"offer"
-				],
-				"description": "Interface for Dataspace Protocol Contract Offer Messages. https://eclipse-dataspace-protocol-base.github.io/DataspaceProtocol/2025-1/#contract-offer-message"
-			},
-			"DataspaceProtocolContractRequestMessage": {
-				"type": "object",
-				"properties": {
-					"@context": {
-						"$ref": "#/components/schemas/DataspaceProtocolContextType"
-					},
-					"@type": {
-						"type": "string",
-						"const": "ContractRequestMessage",
-						"description": "The type of the message."
-					},
-					"providerPid": {
-						"type": "string",
-						"description": "The provider id for the contract."
-					},
-					"consumerPid": {
-						"type": "string",
-						"description": "The consumer id for the contract."
-					},
-					"offer": {
-						"$ref": "#/components/schemas/DataspaceProtocolOffer"
-					},
-					"callbackAddress": {
-						"type": "string",
-						"description": "The base callback address for the provider to update the consumer on the state of the negotiation."
-					}
-				},
-				"required": [
-					"@context",
-					"@type",
-					"consumerPid",
-					"offer"
-				],
-				"description": "Interface for Dataspace Protocol Contract Request Messages. https://eclipse-dataspace-protocol-base.github.io/DataspaceProtocol/2025-1/#contract-request-message"
-			},
-			"DataspaceProtocolOffer": {
-				"type": "object",
-				"properties": {
-					"@type": {
-						"type": "string",
-						"const": "Offer",
-						"description": "The type must be \"Offer\"."
-					},
-					"assigner": {
-						"anyOf": [
-							{
-								"type": "string"
-							},
-							{
-								"$ref": "https://schema.twindev.org/w3c-odrl/OdrlParty"
-							}
-						],
-						"description": "The assigner of the offer. Required for Offer policies."
-					},
-					"@context": {
-						"$ref": "https://schema.twindev.org/w3c-odrl/OdrlContextType"
-					},
-					"profile": {
-						"anyOf": [
-							{
-								"type": "string"
-							},
-							{
-								"type": "array",
-								"items": {
-									"type": "string"
-								}
-							}
-						],
-						"description": "The profile(s) this policy conforms to. IRIs identifying the ODRL Profile(s)."
-					},
-					"assignee": {
-						"anyOf": [
-							{
-								"type": "string"
-							},
-							{
-								"$ref": "https://schema.twindev.org/w3c-odrl/OdrlParty"
-							},
-							{
-								"$ref": "https://schema.twindev.org/w3c-odrl/OdrlPartyCollection"
-							},
-							{
-								"type": "array",
-								"items": {
-									"anyOf": [
-										{
-											"type": "string"
-										},
-										{
-											"$ref": "https://schema.twindev.org/w3c-odrl/OdrlParty"
-										},
-										{
-											"$ref": "https://schema.twindev.org/w3c-odrl/OdrlPartyCollection"
-										}
-									]
-								}
-							}
-						],
-						"description": "The assignee of the policy. Applies to all rules unless overridden at rule level."
-					},
-					"target": {
-						"anyOf": [
-							{
-								"type": "string"
-							},
-							{
-								"$ref": "https://schema.twindev.org/w3c-odrl/OdrlAsset"
-							},
-							{
-								"$ref": "https://schema.twindev.org/w3c-odrl/OdrlAssetCollection"
-							},
-							{
-								"type": "array",
-								"items": {
-									"anyOf": [
-										{
-											"type": "string"
-										},
-										{
-											"$ref": "https://schema.twindev.org/w3c-odrl/OdrlAsset"
-										},
-										{
-											"$ref": "https://schema.twindev.org/w3c-odrl/OdrlAssetCollection"
-										}
-									]
-								}
-							}
-						],
-						"description": "The target asset for the rule."
-					},
-					"action": {
-						"anyOf": [
-							{
-								"$ref": "https://schema.twindev.org/w3c-odrl/ActionType"
-							},
-							{
-								"type": "string"
-							},
-							{
-								"$ref": "https://schema.twindev.org/w3c-odrl/OdrlAction"
-							},
-							{
-								"type": "array",
-								"items": {
-									"anyOf": [
-										{
-											"$ref": "https://schema.twindev.org/w3c-odrl/ActionType"
-										},
-										{
-											"type": "string"
-										},
-										{
-											"$ref": "https://schema.twindev.org/w3c-odrl/OdrlAction"
-										}
-									]
-								}
-							}
-						],
-						"description": "The action associated with the rule."
-					},
-					"inheritFrom": {
-						"anyOf": [
-							{
-								"type": "string"
-							},
-							{
-								"type": "array",
-								"items": {
-									"type": "string"
-								}
-							}
-						],
-						"description": "The parent policy(ies) this policy inherits from. IRIs identifying the parent Policy(ies)."
-					},
-					"conflict": {
-						"$ref": "https://schema.twindev.org/w3c-odrl/ConflictStrategyType"
-					},
-					"permission": {
-						"anyOf": [
-							{
-								"$ref": "https://schema.twindev.org/w3c-odrl/OdrlPermission"
-							},
-							{
-								"type": "array",
-								"items": {
-									"$ref": "https://schema.twindev.org/w3c-odrl/OdrlPermission"
-								}
-							}
-						],
-						"description": "The permissions in the policy. At least one of permission, prohibition, or obligation must be present."
-					},
-					"prohibition": {
-						"anyOf": [
-							{
-								"$ref": "https://schema.twindev.org/w3c-odrl/OdrlProhibition"
-							},
-							{
-								"type": "array",
-								"items": {
-									"$ref": "https://schema.twindev.org/w3c-odrl/OdrlProhibition"
-								}
-							}
-						],
-						"description": "The prohibitions in the policy. At least one of permission, prohibition, or obligation must be present."
-					},
-					"obligation": {
-						"anyOf": [
-							{
-								"$ref": "https://schema.twindev.org/w3c-odrl/OdrlDuty"
-							},
-							{
-								"type": "array",
-								"items": {
-									"$ref": "https://schema.twindev.org/w3c-odrl/OdrlDuty"
-								}
-							}
-						],
-						"description": "The obligations in the policy. At least one of permission, prohibition, or obligation must be present."
-					},
-					"@id": {
-						"type": "string",
-						"description": "Unique identifier for the offer."
-					}
-				},
-				"required": [
-					"@context",
-					"@id",
-					"@type",
-					"assigner"
-				],
-				"description": "Offer interface compliant with Eclipse Data Space Protocol.\n\nExtends IOdrlOffer with DS Protocol-specific constraints:\n- `@id` is REQUIRED (used as the primary offer identifier in DS Protocol)\n- `@context` is omitted (inherited from the parent Dataset/Distribution)"
-			},
-			"DataspaceProtocolPolicy": {
-				"type": "object",
-				"properties": {
-					"@context": {
-						"$ref": "https://schema.twindev.org/w3c-odrl/OdrlContextType"
-					},
-					"@type": {
-						"$ref": "https://schema.twindev.org/w3c-odrl/PolicyType"
-					},
-					"profile": {
-						"anyOf": [
-							{
-								"type": "string"
-							},
-							{
-								"type": "array",
-								"items": {
-									"type": "string"
-								}
-							}
-						],
-						"description": "The profile(s) this policy conforms to. IRIs identifying the ODRL Profile(s)."
-					},
-					"assigner": {
-						"anyOf": [
-							{
-								"type": "string"
-							},
-							{
-								"$ref": "https://schema.twindev.org/w3c-odrl/OdrlParty"
-							},
-							{
-								"$ref": "https://schema.twindev.org/w3c-odrl/OdrlPartyCollection"
-							},
-							{
-								"type": "array",
-								"items": {
-									"anyOf": [
-										{
-											"type": "string"
-										},
-										{
-											"$ref": "https://schema.twindev.org/w3c-odrl/OdrlParty"
-										},
-										{
-											"$ref": "https://schema.twindev.org/w3c-odrl/OdrlPartyCollection"
-										}
-									]
-								}
-							}
-						],
-						"description": "The assigner of the policy. Applies to all rules unless overridden at rule level."
-					},
-					"assignee": {
-						"anyOf": [
-							{
-								"type": "string"
-							},
-							{
-								"$ref": "https://schema.twindev.org/w3c-odrl/OdrlParty"
-							},
-							{
-								"$ref": "https://schema.twindev.org/w3c-odrl/OdrlPartyCollection"
-							},
-							{
-								"type": "array",
-								"items": {
-									"anyOf": [
-										{
-											"type": "string"
-										},
-										{
-											"$ref": "https://schema.twindev.org/w3c-odrl/OdrlParty"
-										},
-										{
-											"$ref": "https://schema.twindev.org/w3c-odrl/OdrlPartyCollection"
-										}
-									]
-								}
-							}
-						],
-						"description": "The assignee of the policy. Applies to all rules unless overridden at rule level."
-					},
-					"target": {
-						"anyOf": [
-							{
-								"type": "string"
-							},
-							{
-								"$ref": "https://schema.twindev.org/w3c-odrl/OdrlAsset"
-							},
-							{
-								"$ref": "https://schema.twindev.org/w3c-odrl/OdrlAssetCollection"
-							},
-							{
-								"type": "array",
-								"items": {
-									"anyOf": [
-										{
-											"type": "string"
-										},
-										{
-											"$ref": "https://schema.twindev.org/w3c-odrl/OdrlAsset"
-										},
-										{
-											"$ref": "https://schema.twindev.org/w3c-odrl/OdrlAssetCollection"
-										}
-									]
-								}
-							}
-						],
-						"description": "The target asset for the rule."
-					},
-					"action": {
-						"anyOf": [
-							{
-								"$ref": "https://schema.twindev.org/w3c-odrl/ActionType"
-							},
-							{
-								"type": "string"
-							},
-							{
-								"$ref": "https://schema.twindev.org/w3c-odrl/OdrlAction"
-							},
-							{
-								"type": "array",
-								"items": {
-									"anyOf": [
-										{
-											"$ref": "https://schema.twindev.org/w3c-odrl/ActionType"
-										},
-										{
-											"type": "string"
-										},
-										{
-											"$ref": "https://schema.twindev.org/w3c-odrl/OdrlAction"
-										}
-									]
-								}
-							}
-						],
-						"description": "The action associated with the rule."
-					},
-					"inheritFrom": {
-						"anyOf": [
-							{
-								"type": "string"
-							},
-							{
-								"type": "array",
-								"items": {
-									"type": "string"
-								}
-							}
-						],
-						"description": "The parent policy(ies) this policy inherits from. IRIs identifying the parent Policy(ies)."
-					},
-					"conflict": {
-						"$ref": "https://schema.twindev.org/w3c-odrl/ConflictStrategyType"
-					},
-					"permission": {
-						"anyOf": [
-							{
-								"$ref": "https://schema.twindev.org/w3c-odrl/OdrlPermission"
-							},
-							{
-								"type": "array",
-								"items": {
-									"$ref": "https://schema.twindev.org/w3c-odrl/OdrlPermission"
-								}
-							}
-						],
-						"description": "The permissions in the policy. At least one of permission, prohibition, or obligation must be present."
-					},
-					"prohibition": {
-						"anyOf": [
-							{
-								"$ref": "https://schema.twindev.org/w3c-odrl/OdrlProhibition"
-							},
-							{
-								"type": "array",
-								"items": {
-									"$ref": "https://schema.twindev.org/w3c-odrl/OdrlProhibition"
-								}
-							}
-						],
-						"description": "The prohibitions in the policy. At least one of permission, prohibition, or obligation must be present."
-					},
-					"obligation": {
-						"anyOf": [
-							{
-								"$ref": "https://schema.twindev.org/w3c-odrl/OdrlDuty"
-							},
-							{
-								"type": "array",
-								"items": {
-									"$ref": "https://schema.twindev.org/w3c-odrl/OdrlDuty"
-								}
-							}
-						],
-						"description": "The obligations in the policy. At least one of permission, prohibition, or obligation must be present."
-					},
-					"@id": {
-						"type": "string",
-						"description": "Unique identifier for the policy."
-					}
-				},
-				"required": [
-					"@context",
-					"@id",
-					"@type"
-				],
-				"description": "Policy interface compliant with Eclipse Data Space Protocol.\n\nExtends IOdrlPolicy with DS Protocol-specific constraints:\n- `@id` is REQUIRED (used as the primary policy identifier in DS Protocol)\n- `@context` is omitted (inherited from the parent Dataset/Distribution)"
-			},
-			"DataspaceProtocolSet": {
-				"type": "object",
-				"properties": {
-					"@type": {
-						"type": "string",
-						"const": "Set",
-						"description": "The type must be \"Set\"."
-					},
-					"@context": {
-						"$ref": "https://schema.twindev.org/w3c-odrl/OdrlContextType"
-					},
-					"profile": {
-						"anyOf": [
-							{
-								"type": "string"
-							},
-							{
-								"type": "array",
-								"items": {
-									"type": "string"
-								}
-							}
-						],
-						"description": "The profile(s) this policy conforms to. IRIs identifying the ODRL Profile(s)."
-					},
-					"assigner": {
-						"anyOf": [
-							{
-								"type": "string"
-							},
-							{
-								"$ref": "https://schema.twindev.org/w3c-odrl/OdrlParty"
-							},
-							{
-								"$ref": "https://schema.twindev.org/w3c-odrl/OdrlPartyCollection"
-							},
-							{
-								"type": "array",
-								"items": {
-									"anyOf": [
-										{
-											"type": "string"
-										},
-										{
-											"$ref": "https://schema.twindev.org/w3c-odrl/OdrlParty"
-										},
-										{
-											"$ref": "https://schema.twindev.org/w3c-odrl/OdrlPartyCollection"
-										}
-									]
-								}
-							}
-						],
-						"description": "The assigner of the policy. Applies to all rules unless overridden at rule level."
-					},
-					"assignee": {
-						"anyOf": [
-							{
-								"type": "string"
-							},
-							{
-								"$ref": "https://schema.twindev.org/w3c-odrl/OdrlParty"
-							},
-							{
-								"$ref": "https://schema.twindev.org/w3c-odrl/OdrlPartyCollection"
-							},
-							{
-								"type": "array",
-								"items": {
-									"anyOf": [
-										{
-											"type": "string"
-										},
-										{
-											"$ref": "https://schema.twindev.org/w3c-odrl/OdrlParty"
-										},
-										{
-											"$ref": "https://schema.twindev.org/w3c-odrl/OdrlPartyCollection"
-										}
-									]
-								}
-							}
-						],
-						"description": "The assignee of the policy. Applies to all rules unless overridden at rule level."
-					},
-					"target": {
-						"anyOf": [
-							{
-								"type": "string"
-							},
-							{
-								"$ref": "https://schema.twindev.org/w3c-odrl/OdrlAsset"
-							},
-							{
-								"$ref": "https://schema.twindev.org/w3c-odrl/OdrlAssetCollection"
-							},
-							{
-								"type": "array",
-								"items": {
-									"anyOf": [
-										{
-											"type": "string"
-										},
-										{
-											"$ref": "https://schema.twindev.org/w3c-odrl/OdrlAsset"
-										},
-										{
-											"$ref": "https://schema.twindev.org/w3c-odrl/OdrlAssetCollection"
-										}
-									]
-								}
-							}
-						],
-						"description": "The target asset for the rule."
-					},
-					"action": {
-						"anyOf": [
-							{
-								"$ref": "https://schema.twindev.org/w3c-odrl/ActionType"
-							},
-							{
-								"type": "string"
-							},
-							{
-								"$ref": "https://schema.twindev.org/w3c-odrl/OdrlAction"
-							},
-							{
-								"type": "array",
-								"items": {
-									"anyOf": [
-										{
-											"$ref": "https://schema.twindev.org/w3c-odrl/ActionType"
-										},
-										{
-											"type": "string"
-										},
-										{
-											"$ref": "https://schema.twindev.org/w3c-odrl/OdrlAction"
-										}
-									]
-								}
-							}
-						],
-						"description": "The action associated with the rule."
-					},
-					"inheritFrom": {
-						"anyOf": [
-							{
-								"type": "string"
-							},
-							{
-								"type": "array",
-								"items": {
-									"type": "string"
-								}
-							}
-						],
-						"description": "The parent policy(ies) this policy inherits from. IRIs identifying the parent Policy(ies)."
-					},
-					"conflict": {
-						"$ref": "https://schema.twindev.org/w3c-odrl/ConflictStrategyType"
-					},
-					"permission": {
-						"anyOf": [
-							{
-								"$ref": "https://schema.twindev.org/w3c-odrl/OdrlPermission"
-							},
-							{
-								"type": "array",
-								"items": {
-									"$ref": "https://schema.twindev.org/w3c-odrl/OdrlPermission"
-								}
-							}
-						],
-						"description": "The permissions in the policy. At least one of permission, prohibition, or obligation must be present."
-					},
-					"prohibition": {
-						"anyOf": [
-							{
-								"$ref": "https://schema.twindev.org/w3c-odrl/OdrlProhibition"
-							},
-							{
-								"type": "array",
-								"items": {
-									"$ref": "https://schema.twindev.org/w3c-odrl/OdrlProhibition"
-								}
-							}
-						],
-						"description": "The prohibitions in the policy. At least one of permission, prohibition, or obligation must be present."
-					},
-					"obligation": {
-						"anyOf": [
-							{
-								"$ref": "https://schema.twindev.org/w3c-odrl/OdrlDuty"
-							},
-							{
-								"type": "array",
-								"items": {
-									"$ref": "https://schema.twindev.org/w3c-odrl/OdrlDuty"
-								}
-							}
-						],
-						"description": "The obligations in the policy. At least one of permission, prohibition, or obligation must be present."
-					},
-					"@id": {
-						"type": "string",
-						"description": "Unique identifier for the set."
-					}
-				},
-				"required": [
-					"@context",
-					"@id",
-					"@type"
-				],
-				"description": "Set interface compliant with Eclipse Data Space Protocol.\n\nExtends IOdrlSet with DS Protocol-specific constraints:\n- `@id` is REQUIRED (used as the primary set identifier in DS Protocol)\n- `@context` is omitted (inherited from the parent Dataset/Distribution)"
-			},
 			"Error": {
+				"description": "Model to describe serialized error.",
 				"type": "object",
 				"properties": {
 					"name": {
@@ -3626,15 +2442,12 @@
 				"required": [
 					"name",
 					"message"
-				],
-				"description": "Model to describe serialized error."
+				]
 			},
-			"JsonLdObjectWithOptionalAtId<DataspaceProtocolPolicy>": {
+			"PapCreateRequest": {
+				"description": "The body of the request - the policy to create (id will be auto-generated if not provided).",
 				"type": "object",
 				"properties": {
-					"@id": {
-						"$ref": "#/components/schemas/JsonLdExistingPropertyEither<DataspaceProtocolPolicy%2C%22%40id%22%2C%22id%22%2Cstring>"
-					},
 					"@context": {
 						"$ref": "https://schema.twindev.org/w3c-odrl/OdrlContextType"
 					},
@@ -3653,7 +2466,7 @@
 								}
 							}
 						],
-						"description": "The profile(s) this policy conforms to. IRIs identifying the ODRL Profile(s)."
+						"description": "The profile(s) this policy conforms to.\nIRIs identifying the ODRL Profile(s)."
 					},
 					"assigner": {
 						"anyOf": [
@@ -3683,7 +2496,7 @@
 								}
 							}
 						],
-						"description": "The assigner of the policy. Applies to all rules unless overridden at rule level."
+						"description": "The assigner of the policy.\nApplies to all rules unless overridden at rule level."
 					},
 					"assignee": {
 						"anyOf": [
@@ -3713,7 +2526,7 @@
 								}
 							}
 						],
-						"description": "The assignee of the policy. Applies to all rules unless overridden at rule level."
+						"description": "The assignee of the policy.\nApplies to all rules unless overridden at rule level."
 					},
 					"target": {
 						"anyOf": [
@@ -3787,7 +2600,7 @@
 								}
 							}
 						],
-						"description": "The parent policy(ies) this policy inherits from. IRIs identifying the parent Policy(ies)."
+						"description": "The parent policy(ies) this policy inherits from.\nIRIs identifying the parent Policy(ies)."
 					},
 					"conflict": {
 						"$ref": "https://schema.twindev.org/w3c-odrl/ConflictStrategyType"
@@ -3804,7 +2617,7 @@
 								}
 							}
 						],
-						"description": "The permissions in the policy. At least one of permission, prohibition, or obligation must be present."
+						"description": "The permissions in the policy.\nAt least one of permission, prohibition, or obligation must be present."
 					},
 					"prohibition": {
 						"anyOf": [
@@ -3818,7 +2631,7 @@
 								}
 							}
 						],
-						"description": "The prohibitions in the policy. At least one of permission, prohibition, or obligation must be present."
+						"description": "The prohibitions in the policy.\nAt least one of permission, prohibition, or obligation must be present."
 					},
 					"obligation": {
 						"anyOf": [
@@ -3832,19 +2645,22 @@
 								}
 							}
 						],
-						"description": "The obligations in the policy. At least one of permission, prohibition, or obligation must be present."
+						"description": "The obligations in the policy.\nAt least one of permission, prohibition, or obligation must be present."
+					},
+					"@id": {
+						"type": "string",
+						"description": "Unique identifier for the policy."
 					}
 				},
 				"required": [
 					"@context",
 					"@type"
-				],
-				"description": "Add optional \"@id\" to a type."
+				]
 			},
 			"PapQueryResponse": {
 				"type": "array",
 				"items": {
-					"$ref": "#/components/schemas/DataspaceProtocolPolicy"
+					"$ref": "https://schema.twindev.org/dataspace-protocol/DataspaceProtocolPolicy"
 				},
 				"description": "The body of the response."
 			},
@@ -3858,15 +2674,16 @@
 			"PnpContractNegotiationResponse": {
 				"anyOf": [
 					{
-						"$ref": "#/components/schemas/DataspaceProtocolContractNegotiation"
+						"$ref": "https://schema.twindev.org/dataspace-protocol/DataspaceProtocolContractNegotiation"
 					},
 					{
-						"$ref": "#/components/schemas/DataspaceProtocolContractNegotiationError"
+						"$ref": "https://schema.twindev.org/dataspace-protocol/DataspaceProtocolContractNegotiationError"
 					}
 				],
 				"description": "The state of the policy or an error."
 			},
 			"PolicyNegotiation": {
+				"description": "Interface describing a rights management policy negotiation.",
 				"type": "object",
 				"properties": {
 					"id": {
@@ -3890,7 +2707,7 @@
 						"description": "The expiration time for the policy negotiation if it's a manual process."
 					},
 					"state": {
-						"$ref": "#/components/schemas/DataspaceProtocolContractNegotiationStateType"
+						"$ref": "https://schema.twindev.org/dataspace-protocol/DataspaceProtocolContractNegotiationStateType"
 					},
 					"callbackAddress": {
 						"type": "string",
@@ -3898,17 +2715,17 @@
 					},
 					"publicOrigin": {
 						"type": "string",
-						"description": "The public origin of the server that initiated or received this negotiation. Used to construct callback URLs in subsequent async messages."
+						"description": "The public origin of the server that initiated or received this negotiation.\nUsed to construct callback URLs in subsequent async messages."
 					},
 					"organizationIdentity": {
 						"type": "string",
 						"description": "Organization identity to be used when sending trust payloads."
 					},
 					"offer": {
-						"$ref": "#/components/schemas/DataspaceProtocolOffer"
+						"$ref": "https://schema.twindev.org/dataspace-protocol/DataspaceProtocolOffer"
 					},
 					"agreement": {
-						"$ref": "#/components/schemas/DataspaceProtocolAgreement"
+						"$ref": "https://schema.twindev.org/dataspace-protocol/DataspaceProtocolAgreement"
 					},
 					"trustVerificationInfo": {
 						"$ref": "#/components/schemas/TrustVerificationInfo"
@@ -3931,8 +2748,7 @@
 							},
 							"required": [
 								"@value"
-							],
-							"additionalProperties": false
+							]
 						},
 						"description": "A more detailed reason for the negotiation error."
 					},
@@ -3950,8 +2766,7 @@
 							},
 							"required": [
 								"@value"
-							],
-							"additionalProperties": false
+							]
 						},
 						"description": "A more detailed reason for the negotiation error."
 					},
@@ -3973,10 +2788,10 @@
 					"dateCreated",
 					"state",
 					"organizationIdentity"
-				],
-				"description": "Interface describing a rights management policy negotiation."
+				]
 			},
 			"TrustVerificationInfo": {
+				"description": "Interface describing a trust verifier information.",
 				"type": "object",
 				"properties": {
 					"identity": {
@@ -3993,8 +2808,7 @@
 				},
 				"required": [
 					"identity"
-				],
-				"description": "Interface describing a trust verifier information."
+				]
 			}
 		},
 		"securitySchemes": {

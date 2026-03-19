@@ -22,7 +22,7 @@ This is used by the other side of the negotiation.
 
 ### policyId? {#policyid}
 
-> `optional` **policyId**: `string`
+> `optional` **policyId?**: `string`
 
 The unique identifier for the policy.
 
@@ -38,7 +38,7 @@ The date and time when the negotiation was created.
 
 ### expires? {#expires}
 
-> `optional` **expires**: `number`
+> `optional` **expires?**: `number`
 
 The expiration time for the policy negotiation if it's a manual process.
 
@@ -54,7 +54,7 @@ The status of the negotiation.
 
 ### callbackAddress? {#callbackaddress}
 
-> `optional` **callbackAddress**: `string`
+> `optional` **callbackAddress?**: `string`
 
 The callback address to send updates to the requester.
 
@@ -62,7 +62,7 @@ The callback address to send updates to the requester.
 
 ### publicOrigin? {#publicorigin}
 
-> `optional` **publicOrigin**: `string`
+> `optional` **publicOrigin?**: `string`
 
 The public origin of the server that initiated or received this negotiation.
 Used to construct callback URLs in subsequent async messages.
@@ -79,7 +79,7 @@ Organization identity to be used when sending trust payloads.
 
 ### offer? {#offer}
 
-> `optional` **offer**: `IDataspaceProtocolOffer`
+> `optional` **offer?**: `IDataspaceProtocolOffer`
 
 The offer being requested.
 
@@ -87,7 +87,7 @@ The offer being requested.
 
 ### agreement? {#agreement}
 
-> `optional` **agreement**: `IDataspaceProtocolAgreement`
+> `optional` **agreement?**: `IDataspaceProtocolAgreement`
 
 The agreement being established if the negotiation was successful.
 
@@ -95,7 +95,7 @@ The agreement being established if the negotiation was successful.
 
 ### trustVerificationInfo? {#trustverificationinfo}
 
-> `optional` **trustVerificationInfo**: `ITrustVerificationInfo`
+> `optional` **trustVerificationInfo?**: `ITrustVerificationInfo`
 
 The information from the trust provider.
 
@@ -103,7 +103,7 @@ The information from the trust provider.
 
 ### code? {#code}
 
-> `optional` **code**: `string`
+> `optional` **code?**: `string`
 
 A reason code for when the negotiation errors.
 
@@ -111,7 +111,7 @@ A reason code for when the negotiation errors.
 
 ### reason? {#reason}
 
-> `optional` **reason**: `object`[]
+> `optional` **reason?**: `object`[]
 
 A more detailed reason for the negotiation error.
 
@@ -121,13 +121,13 @@ A more detailed reason for the negotiation error.
 
 #### @language?
 
-> `optional` **@language**: `string`
+> `optional` **@language?**: `string`
 
 ***
 
 ### description? {#description}
 
-> `optional` **description**: `object`[]
+> `optional` **description?**: `object`[]
 
 A more detailed reason for the negotiation error.
 
@@ -137,13 +137,13 @@ A more detailed reason for the negotiation error.
 
 #### @language?
 
-> `optional` **@language**: `string`
+> `optional` **@language?**: `string`
 
 ***
 
 ### errorDetails? {#errordetails}
 
-> `optional` **errorDetails**: `IError`
+> `optional` **errorDetails?**: `IError`
 
 Any additional error details that don't fit in the reason or description fields.
 
@@ -151,7 +151,7 @@ Any additional error details that don't fit in the reason or description fields.
 
 ### handlerId? {#handlerid}
 
-> `optional` **handlerId**: `string`
+> `optional` **handlerId?**: `string`
 
 The id of the handler, on provider side this is the negotiator, on consumer side this is the requester.
 
@@ -159,6 +159,6 @@ The id of the handler, on provider side this is the negotiator, on consumer side
 
 ### interventionRequired? {#interventionrequired}
 
-> `optional` **interventionRequired**: `boolean`
+> `optional` **interventionRequired?**: `boolean`
 
 Is manual intervention required to complete the negotiation?

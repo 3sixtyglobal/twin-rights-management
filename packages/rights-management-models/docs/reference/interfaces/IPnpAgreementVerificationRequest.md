@@ -12,11 +12,11 @@ The headers which can be used to determine the response data type.
 
 #### accept?
 
-> `optional` **accept**: `"application/ld+json"` \| `"application/json"`
+> `optional` **accept?**: `"application/ld+json"` \| `"application/json"`
 
 #### authorization?
 
-> `optional` **authorization**: `string`
+> `optional` **authorization?**: `string`
 
 ***
 

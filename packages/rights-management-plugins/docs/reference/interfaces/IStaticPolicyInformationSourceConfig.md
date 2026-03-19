@@ -6,6 +6,6 @@ Configuration for the Static Policy Information Source Component.
 
 ### information? {#information}
 
-> `optional` **information**: [`IStaticPolicyInformationSource`](IStaticPolicyInformationSource.md)[]
+> `optional` **information?**: [`IStaticPolicyInformationSource`](IStaticPolicyInformationSource.md)[]
 
 The information to return from the PIP.

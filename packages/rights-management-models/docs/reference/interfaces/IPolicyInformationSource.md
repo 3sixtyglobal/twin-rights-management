@@ -24,9 +24,9 @@ Retrieve information from the sources.
 
 ##### policy
 
-The policy to retrieve information for if available.
+`IDataspaceProtocolPolicy` \| `undefined`
 
-`IDataspaceProtocolPolicy` | `undefined`
+The policy to retrieve information for if available.
 
 ##### accessMode
 

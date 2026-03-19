@@ -6,14 +6,26 @@ Options for the Identity Policy Information Source Component.
 
 ### loggingComponentType? {#loggingcomponenttype}
 
-> `optional` **loggingComponentType**: `string`
+> `optional` **loggingComponentType?**: `string`
 
 The logging component for logging policy source.
+
+#### Default
+
+```ts
+logging
+```
 
 ***
 
 ### identityResolverComponentType? {#identityresolvercomponenttype}
 
-> `optional` **identityResolverComponentType**: `string`
+> `optional` **identityResolverComponentType?**: `string`
 
 The component for resolving identities.
+
+#### Default
+
+```ts
+identity-resolver
+```

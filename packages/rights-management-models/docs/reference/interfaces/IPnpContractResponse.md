@@ -6,7 +6,7 @@ The response structure for negotiating a policy.
 
 ### headers? {#headers}
 
-> `optional` **headers**: `object`
+> `optional` **headers?**: `object`
 
 The headers which can be used to determine the response data type.
 
@@ -18,7 +18,7 @@ The headers which can be used to determine the response data type.
 
 ### statusCode? {#statuscode}
 
-> `optional` **statusCode**: `HttpStatusCode`
+> `optional` **statusCode?**: `HttpStatusCode`
 
 Response status code.
 
@@ -26,6 +26,6 @@ Response status code.
 
 ### body? {#body}
 
-> `optional` **body**: `IDataspaceProtocolContractNegotiationError`
+> `optional` **body?**: `IDataspaceProtocolContractNegotiationError`
 
 The error if there was one.

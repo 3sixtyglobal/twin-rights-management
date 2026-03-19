@@ -15,7 +15,7 @@ Will be combined with the public origin url from hosting component.
 
 ### overrideTrustGeneratorType? {#overridetrustgeneratortype}
 
-> `optional` **overrideTrustGeneratorType**: `string`
+> `optional` **overrideTrustGeneratorType?**: `string`
 
 Override the default trust generator.
 
@@ -23,6 +23,12 @@ Override the default trust generator.
 
 ### includeErrorDetails? {#includeerrordetails}
 
-> `optional` **includeErrorDetails**: `boolean`
+> `optional` **includeErrorDetails?**: `boolean`
 
 Whether to include error details in the responses from the admin point.
+
+#### Default
+
+```ts
+false
+```

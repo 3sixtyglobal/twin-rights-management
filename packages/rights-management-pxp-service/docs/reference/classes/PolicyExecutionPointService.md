@@ -82,15 +82,15 @@ The decisions made by the PDP.
 
 ##### data
 
-The data used in the decision by the PDP.
+`D` \| `undefined`
 
-`D` | `undefined`
+The data used in the decision by the PDP.
 
 ##### action
 
-The action used in the decision by the PDP.
+`string` \| `undefined`
 
-`string` | `undefined`
+The action used in the decision by the PDP.
 
 ##### stage
 

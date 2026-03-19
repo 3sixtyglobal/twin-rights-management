@@ -14,25 +14,25 @@ Is the information public, if so it will be shared with negotiation requests.
 
 ### matchLocators? {#matchlocators}
 
-> `optional` **matchLocators**: `object`[]
+> `optional` **matchLocators?**: `object`[]
 
 Information is only provided for the specified locator combination.
 
 #### assignee?
 
-> `optional` **assignee**: `string`
+> `optional` **assignee?**: `string`
 
 #### assigner?
 
-> `optional` **assigner**: `string`
+> `optional` **assigner?**: `string`
 
 #### target?
 
-> `optional` **target**: `string`
+> `optional` **target?**: `string`
 
 #### action?
 
-> `optional` **action**: `string`
+> `optional` **action?**: `string`
 
 ***
 

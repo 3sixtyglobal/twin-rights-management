@@ -39,15 +39,15 @@ The decisions made by the PDP.
 
 ##### data
 
-The data used in the decision by the PDP.
+`D` \| `undefined`
 
-`D` | `undefined`
+The data used in the decision by the PDP.
 
 ##### action
 
-The action that was evaluated.
+`string` \| `undefined`
 
-`string` | `undefined`
+The action that was evaluated.
 
 ##### stage
 

@@ -6,6 +6,12 @@ Options for the Policy Execution Point Component.
 
 ### loggingComponentType? {#loggingcomponenttype}
 
-> `optional` **loggingComponentType**: `string`
+> `optional` **loggingComponentType?**: `string`
 
 The logging component for logging policy execution.
+
+#### Default
+
+```ts
+logging
+```
