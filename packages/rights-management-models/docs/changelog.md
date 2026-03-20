@@ -1,5 +1,12 @@
 # Changelog
 
+## [0.0.3-next.25](https://github.com/twinfoundation/rights-management/compare/rights-management-models-v0.0.3-next.24...rights-management-models-v0.0.3-next.25) (2026-03-20)
+
+
+### Features
+
+* update standards packages ([db0740b](https://github.com/twinfoundation/rights-management/commit/db0740b1d8925fcb3bf4204641e0dc573af40f2b))
+
 ## [0.0.3-next.24](https://github.com/twinfoundation/rights-management/compare/rights-management-models-v0.0.3-next.23...rights-management-models-v0.0.3-next.24) (2026-03-17)
 
 

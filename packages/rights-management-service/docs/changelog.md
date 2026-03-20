@@ -1,5 +1,27 @@
 # Changelog
 
+## [0.0.3-next.25](https://github.com/twinfoundation/rights-management/compare/rights-management-service-v0.0.3-next.24...rights-management-service-v0.0.3-next.25) (2026-03-20)
+
+
+### Features
+
+* update standards packages ([db0740b](https://github.com/twinfoundation/rights-management/commit/db0740b1d8925fcb3bf4204641e0dc573af40f2b))
+
+
+### Dependencies
+
+* The following workspace dependencies were updated
+  * dependencies
+    * @twin.org/rights-management-models bumped from 0.0.3-next.24 to 0.0.3-next.25
+  * devDependencies
+    * @twin.org/rights-management-pap-service bumped from 0.0.3-next.24 to 0.0.3-next.25
+    * @twin.org/rights-management-pdp-service bumped from 0.0.3-next.24 to 0.0.3-next.25
+    * @twin.org/rights-management-pep-service bumped from 0.0.3-next.24 to 0.0.3-next.25
+    * @twin.org/rights-management-pip-service bumped from 0.0.3-next.24 to 0.0.3-next.25
+    * @twin.org/rights-management-pmp-service bumped from 0.0.3-next.24 to 0.0.3-next.25
+    * @twin.org/rights-management-pnp-service bumped from 0.0.3-next.24 to 0.0.3-next.25
+    * @twin.org/rights-management-pxp-service bumped from 0.0.3-next.24 to 0.0.3-next.25
+
 ## [0.0.3-next.24](https://github.com/twinfoundation/rights-management/compare/rights-management-service-v0.0.3-next.23...rights-management-service-v0.0.3-next.24) (2026-03-17)
 
 
