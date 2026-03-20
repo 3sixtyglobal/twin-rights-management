@@ -10,7 +10,7 @@ import {
 	type IPolicyInformationSource
 } from "@twin.org/rights-management-models";
 import type { IDataspaceProtocolPolicy } from "@twin.org/standards-dataspace-protocol";
-import type { ActionType } from "@twin.org/standards-w3c-odrl";
+import type { OdrlActionType } from "@twin.org/standards-w3c-odrl";
 import type { IStaticPolicyInformationSource } from "../models/IStaticPolicyInformationSource.js";
 import type { IStaticPolicyInformationSourceConstructorOptions } from "../models/IStaticPolicyInformationSourceConstructorOptions.js";
 
@@ -66,7 +66,7 @@ export class StaticPolicyInformationSource implements IPolicyInformationSource {
 		policy: IDataspaceProtocolPolicy | undefined,
 		accessMode: PolicyInformationAccessMode,
 		data?: D,
-		action?: ActionType | string
+		action?: OdrlActionType | string
 	): Promise<{ [id: string]: IJsonLdNodeObject } | undefined> {
 		Guards.arrayOneOf(
 			StaticPolicyInformationSource.CLASS_NAME,

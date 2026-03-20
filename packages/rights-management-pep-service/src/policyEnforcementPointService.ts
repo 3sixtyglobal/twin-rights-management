@@ -12,7 +12,7 @@ import {
 	type IPolicyManagementPointComponent
 } from "@twin.org/rights-management-models";
 import type { IDataspaceProtocolAgreement } from "@twin.org/standards-dataspace-protocol";
-import { PolicyType, type ActionType } from "@twin.org/standards-w3c-odrl";
+import { OdrlPolicyType, type OdrlActionType } from "@twin.org/standards-w3c-odrl";
 import type { IPolicyEnforcementPointServiceConstructorOptions } from "./models/IPolicyEnforcementPointServiceConstructorOptions.js";
 
 /**
@@ -86,7 +86,7 @@ export class PolicyEnforcementPointService implements IPolicyEnforcementPointCom
 	public async interceptWithPolicy<D = unknown, R = D>(
 		agreement: IDataspaceProtocolAgreement,
 		data?: D,
-		action?: ActionType | string
+		action?: OdrlActionType | string
 	): Promise<R> {
 		Guards.objectValue<IDataspaceProtocolAgreement>(
 			PolicyEnforcementPointService.CLASS_NAME,
@@ -166,7 +166,7 @@ export class PolicyEnforcementPointService implements IPolicyEnforcementPointCom
 	public async interceptWithId<D = unknown, R = D>(
 		uid: string,
 		data?: D,
-		action?: ActionType | string
+		action?: OdrlActionType | string
 	): Promise<R> {
 		Guards.stringValue(PolicyEnforcementPointService.CLASS_NAME, nameof(uid), uid);
 
@@ -194,12 +194,12 @@ export class PolicyEnforcementPointService implements IPolicyEnforcementPointCom
 			action?: string;
 		},
 		data?: D,
-		action?: ActionType | string
+		action?: OdrlActionType | string
 	): Promise<R> {
 		const policiesResult = await this._policyManagementPointComponent.retrieve(locator);
 
 		const agreements = policiesResult.policies.filter(
-			p => OdrlPolicyHelper.getType(p) === PolicyType.Agreement
+			p => OdrlPolicyHelper.getType(p) === OdrlPolicyType.Agreement
 		) as IDataspaceProtocolAgreement[];
 
 		if (agreements.length === 0) {

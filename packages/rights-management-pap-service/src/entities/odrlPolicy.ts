@@ -2,7 +2,7 @@
 // SPDX-License-Identifier: Apache-2.0.
 import { entity, property } from "@twin.org/entity";
 import type { IDataspaceProtocolPolicy } from "@twin.org/standards-dataspace-protocol";
-import type { PolicyType } from "@twin.org/standards-w3c-odrl";
+import type { OdrlPolicyType } from "@twin.org/standards-w3c-odrl";
 
 /**
  * Class describing an ODRL policy for entity storage.
@@ -19,7 +19,7 @@ export class OdrlPolicy {
 	 * The type of policy.
 	 */
 	@property({ type: "string", isSecondary: true })
-	public type!: PolicyType;
+	public type!: OdrlPolicyType;
 
 	/**
 	 * The profile(s) this policy conforms to.

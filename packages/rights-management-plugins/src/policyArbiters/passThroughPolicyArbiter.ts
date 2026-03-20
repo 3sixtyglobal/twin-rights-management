@@ -11,7 +11,7 @@ import {
 	type IPolicyDecision
 } from "@twin.org/rights-management-models";
 import type { IDataspaceProtocolAgreement } from "@twin.org/standards-dataspace-protocol";
-import type { ActionType } from "@twin.org/standards-w3c-odrl";
+import type { OdrlActionType } from "@twin.org/standards-w3c-odrl";
 import type { IPassThroughPolicyArbiterConstructorOptions } from "../models/IPassThroughPolicyArbiterConstructorOptions.js";
 
 /**
@@ -59,7 +59,7 @@ export class PassThroughPolicyArbiter implements IPolicyArbiter {
 		agreement: IDataspaceProtocolAgreement,
 		information?: { [id: string]: IJsonLdNodeObject },
 		data?: D,
-		action?: ActionType | string
+		action?: OdrlActionType | string
 	): Promise<IPolicyDecision[]> {
 		Guards.object<IDataspaceProtocolAgreement>(
 			PassThroughPolicyArbiter.CLASS_NAME,

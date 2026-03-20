@@ -3,7 +3,7 @@
 import type { IComponent } from "@twin.org/core";
 import type { IJsonLdNodeObject } from "@twin.org/data-json-ld";
 import type { IDataspaceProtocolPolicy } from "@twin.org/standards-dataspace-protocol";
-import type { ActionType, IOdrlDuty } from "@twin.org/standards-w3c-odrl";
+import type { OdrlActionType, IOdrlDuty } from "@twin.org/standards-w3c-odrl";
 
 /**
  * Interface describing a Policy Obligation Enforcer.
@@ -23,6 +23,6 @@ export interface IPolicyObligationEnforcer extends IComponent {
 		duty: IOdrlDuty,
 		information?: { [id: string]: IJsonLdNodeObject },
 		data?: D,
-		action?: ActionType | string
+		action?: OdrlActionType | string
 	): Promise<boolean>;
 }

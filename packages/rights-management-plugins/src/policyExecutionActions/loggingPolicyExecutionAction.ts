@@ -10,7 +10,7 @@ import {
 	PolicyDecisionStage
 } from "@twin.org/rights-management-models";
 import type { IDataspaceProtocolPolicy } from "@twin.org/standards-dataspace-protocol";
-import type { ActionType } from "@twin.org/standards-w3c-odrl";
+import type { OdrlActionType } from "@twin.org/standards-w3c-odrl";
 import type { ILoggingPolicyExecutionActionConstructorOptions } from "../models/ILoggingPolicyExecutionActionConstructorOptions.js";
 
 /**
@@ -96,7 +96,7 @@ export class LoggingPolicyExecutionAction implements IPolicyExecutionAction {
 		policy: IDataspaceProtocolPolicy,
 		decisions: IPolicyDecision[],
 		data: D | undefined,
-		action: ActionType | string,
+		action: OdrlActionType | string,
 		stage: PolicyDecisionStage
 	): Promise<void> {
 		Guards.arrayOneOf(

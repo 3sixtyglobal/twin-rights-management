@@ -23,10 +23,10 @@ import type {
 	IDataspaceProtocolPolicy
 } from "@twin.org/standards-dataspace-protocol";
 import {
-	ConflictStrategyType,
+	OdrlConflictStrategyType,
 	OdrlContexts,
-	OperatorType,
-	PolicyType,
+	OdrlOperatorType,
+	OdrlPolicyType,
 	type IOdrlConstraint,
 	type IOdrlLogicalConstraint
 } from "@twin.org/standards-w3c-odrl";
@@ -123,7 +123,7 @@ describe("DefaultPolicyArbiter", () => {
 		const arbiter = new DefaultPolicyArbiter();
 		const policy: IDataspaceProtocolAgreement = {
 			"@context": OdrlContexts.Context,
-			"@type": PolicyType.Agreement,
+			"@type": OdrlPolicyType.Agreement,
 			assigner: "did:example:default-assigner",
 			assignee: "did:example:default-assignee",
 			"@id": "policy:unconditional",
@@ -139,7 +139,7 @@ describe("DefaultPolicyArbiter", () => {
 		const arbiter = new DefaultPolicyArbiter();
 		const agreement: IDataspaceProtocolAgreement = {
 			"@context": OdrlContexts.Context,
-			"@type": PolicyType.Agreement,
+			"@type": OdrlPolicyType.Agreement,
 			"@id": "agreement:party-match",
 			assigner: "did:example:assigner",
 			assignee: "did:example:assignee",
@@ -161,7 +161,7 @@ describe("DefaultPolicyArbiter", () => {
 		const arbiter = new DefaultPolicyArbiter();
 		const agreement: IDataspaceProtocolAgreement = {
 			"@context": OdrlContexts.Context,
-			"@type": PolicyType.Agreement,
+			"@type": OdrlPolicyType.Agreement,
 			"@id": "agreement:party-mismatch",
 			assigner: "did:example:assigner",
 			assignee: "did:example:assignee",
@@ -183,7 +183,7 @@ describe("DefaultPolicyArbiter", () => {
 		const arbiter = new DefaultPolicyArbiter();
 		const policy: IDataspaceProtocolAgreement = {
 			"@context": OdrlContexts.Context,
-			"@type": PolicyType.Agreement,
+			"@type": OdrlPolicyType.Agreement,
 			assigner: "did:example:default-assigner",
 			assignee: "did:example:default-assignee",
 			"@id": "policy:duty-no-enforcer",
@@ -207,7 +207,7 @@ describe("DefaultPolicyArbiter", () => {
 		const arbiter = new DefaultPolicyArbiter();
 		const policy: IDataspaceProtocolAgreement = {
 			"@context": OdrlContexts.Context,
-			"@type": PolicyType.Agreement,
+			"@type": OdrlPolicyType.Agreement,
 			assigner: "did:example:default-assigner",
 			assignee: "did:example:default-assignee",
 			"@id": "policy:duty-enforced",
@@ -230,7 +230,7 @@ describe("DefaultPolicyArbiter", () => {
 		const arbiter = new DefaultPolicyArbiter();
 		const policy: IDataspaceProtocolAgreement = {
 			"@context": OdrlContexts.Context,
-			"@type": PolicyType.Agreement,
+			"@type": OdrlPolicyType.Agreement,
 			assigner: "did:example:default-assigner",
 			assignee: "did:example:default-assignee",
 			"@id": "policy:duty-denied",
@@ -250,7 +250,7 @@ describe("DefaultPolicyArbiter", () => {
 		const arbiter = new DefaultPolicyArbiter();
 		const policy: IDataspaceProtocolAgreement = {
 			"@context": OdrlContexts.Context,
-			"@type": PolicyType.Agreement,
+			"@type": OdrlPolicyType.Agreement,
 			assigner: "did:example:default-assigner",
 			assignee: "did:example:default-assignee",
 			"@id": "policy:and",
@@ -259,7 +259,7 @@ describe("DefaultPolicyArbiter", () => {
 					constraint: [
 						{
 							leftOperand: "twin:jsonpath:$.age",
-							operator: OperatorType.Gteq,
+							operator: OdrlOperatorType.Gteq,
 							rightOperand: { "@value": "18", "@type": "xsd:integer" }
 						}
 					]
@@ -268,7 +268,7 @@ describe("DefaultPolicyArbiter", () => {
 					constraint: [
 						{
 							leftOperand: "twin:jsonpath:$.region",
-							operator: OperatorType.Eq,
+							operator: OdrlOperatorType.Eq,
 							rightOperand: "EU"
 						}
 					]
@@ -284,7 +284,7 @@ describe("DefaultPolicyArbiter", () => {
 		const arbiter = new DefaultPolicyArbiter();
 		const policy: IDataspaceProtocolAgreement = {
 			"@context": OdrlContexts.Context,
-			"@type": PolicyType.Agreement,
+			"@type": OdrlPolicyType.Agreement,
 			assigner: "did:example:default-assigner",
 			assignee: "did:example:default-assignee",
 			"@id": "policy:none"
@@ -299,7 +299,7 @@ describe("DefaultPolicyArbiter", () => {
 		const arbiter = new DefaultPolicyArbiter();
 		const policy: IDataspaceProtocolAgreement = {
 			"@context": OdrlContexts.Context,
-			"@type": PolicyType.Agreement,
+			"@type": OdrlPolicyType.Agreement,
 			assigner: "did:example:default-assigner",
 			assignee: "did:example:default-assignee",
 			"@id": "policy:prohibit-all",
@@ -309,7 +309,7 @@ describe("DefaultPolicyArbiter", () => {
 					constraint: [
 						{
 							leftOperand: "twin:jsonpath:$.region",
-							operator: OperatorType.Eq,
+							operator: OdrlOperatorType.Eq,
 							rightOperand: "EU"
 						}
 					]
@@ -328,17 +328,17 @@ describe("DefaultPolicyArbiter", () => {
 		const arbiter = new DefaultPolicyArbiter();
 		const policy: IDataspaceProtocolAgreement = {
 			"@context": OdrlContexts.Context,
-			"@type": PolicyType.Agreement,
+			"@type": OdrlPolicyType.Agreement,
 			assigner: "did:example:default-assigner",
 			assignee: "did:example:default-assignee",
 			"@id": "policy:conflict-perm",
-			conflict: ConflictStrategyType.Perm,
+			conflict: OdrlConflictStrategyType.Perm,
 			permission: [
 				{
 					constraint: [
 						{
 							leftOperand: "twin:jsonpath:$.region",
-							operator: OperatorType.Eq,
+							operator: OdrlOperatorType.Eq,
 							rightOperand: "EU"
 						}
 					]
@@ -349,7 +349,7 @@ describe("DefaultPolicyArbiter", () => {
 					constraint: [
 						{
 							leftOperand: "twin:jsonpath:$.region",
-							operator: OperatorType.Eq,
+							operator: OdrlOperatorType.Eq,
 							rightOperand: "EU"
 						}
 					]
@@ -365,17 +365,17 @@ describe("DefaultPolicyArbiter", () => {
 		const arbiter = new DefaultPolicyArbiter();
 		const policy: IDataspaceProtocolAgreement = {
 			"@context": OdrlContexts.Context,
-			"@type": PolicyType.Agreement,
+			"@type": OdrlPolicyType.Agreement,
 			assigner: "did:example:default-assigner",
 			assignee: "did:example:default-assignee",
 			"@id": "policy:conflict-prohibit",
-			conflict: ConflictStrategyType.Prohibit,
+			conflict: OdrlConflictStrategyType.Prohibit,
 			permission: [
 				{
 					constraint: [
 						{
 							leftOperand: "twin:jsonpath:$.region",
-							operator: OperatorType.Eq,
+							operator: OdrlOperatorType.Eq,
 							rightOperand: "EU"
 						}
 					]
@@ -386,7 +386,7 @@ describe("DefaultPolicyArbiter", () => {
 					constraint: [
 						{
 							leftOperand: "twin:jsonpath:$.region",
-							operator: OperatorType.Eq,
+							operator: OdrlOperatorType.Eq,
 							rightOperand: "EU"
 						}
 					]
@@ -402,17 +402,17 @@ describe("DefaultPolicyArbiter", () => {
 		const arbiter = new DefaultPolicyArbiter();
 		const policy: IDataspaceProtocolAgreement = {
 			"@context": OdrlContexts.Context,
-			"@type": PolicyType.Agreement,
+			"@type": OdrlPolicyType.Agreement,
 			assigner: "did:example:default-assigner",
 			assignee: "did:example:default-assignee",
 			"@id": "policy:conflict-invalid",
-			conflict: ConflictStrategyType.Invalid,
+			conflict: OdrlConflictStrategyType.Invalid,
 			permission: [
 				{
 					constraint: [
 						{
 							leftOperand: "twin:jsonpath:$.region",
-							operator: OperatorType.Eq,
+							operator: OdrlOperatorType.Eq,
 							rightOperand: "EU"
 						}
 					]
@@ -423,7 +423,7 @@ describe("DefaultPolicyArbiter", () => {
 					constraint: [
 						{
 							leftOperand: "twin:jsonpath:$.region",
-							operator: OperatorType.Eq,
+							operator: OdrlOperatorType.Eq,
 							rightOperand: "EU"
 						}
 					]
@@ -439,7 +439,7 @@ describe("DefaultPolicyArbiter", () => {
 		const arbiter = new DefaultPolicyArbiter();
 		const policy: IDataspaceProtocolAgreement = {
 			"@context": OdrlContexts.Context,
-			"@type": PolicyType.Agreement,
+			"@type": OdrlPolicyType.Agreement,
 			assigner: "did:example:default-assigner",
 			assignee: "did:example:default-assignee",
 			"@id": "policy:age",
@@ -448,7 +448,7 @@ describe("DefaultPolicyArbiter", () => {
 					constraint: [
 						{
 							leftOperand: "twin:jsonpath:$.age",
-							operator: OperatorType.Gteq,
+							operator: OdrlOperatorType.Gteq,
 							rightOperand: { "@value": "18", "@type": "xsd:integer" }
 						}
 					]
@@ -465,7 +465,7 @@ describe("DefaultPolicyArbiter", () => {
 		const arbiter = new DefaultPolicyArbiter();
 		const policy: IDataspaceProtocolAgreement = {
 			"@context": OdrlContexts.Context,
-			"@type": PolicyType.Agreement,
+			"@type": OdrlPolicyType.Agreement,
 			assigner: "did:example:default-assigner",
 			assignee: "did:example:default-assignee",
 			"@id": "policy:age",
@@ -474,7 +474,7 @@ describe("DefaultPolicyArbiter", () => {
 					constraint: [
 						{
 							leftOperand: "twin:jsonpath:$.age",
-							operator: OperatorType.Gteq,
+							operator: OdrlOperatorType.Gteq,
 							rightOperand: { "@value": "18", "@type": "xsd:integer" }
 						}
 					]
@@ -490,7 +490,7 @@ describe("DefaultPolicyArbiter", () => {
 		const arbiter = new DefaultPolicyArbiter();
 		const policy: IDataspaceProtocolAgreement = {
 			"@context": OdrlContexts.Context,
-			"@type": PolicyType.Agreement,
+			"@type": OdrlPolicyType.Agreement,
 			assigner: "did:example:default-assigner",
 			assignee: "did:example:default-assignee",
 			"@id": "policy:logical-or",
@@ -502,12 +502,12 @@ describe("DefaultPolicyArbiter", () => {
 								"@list": [
 									{
 										leftOperand: "twin:jsonpath:$.age",
-										operator: OperatorType.Gteq,
+										operator: OdrlOperatorType.Gteq,
 										rightOperand: { "@value": "18", "@type": "xsd:integer" }
 									},
 									{
 										leftOperand: "twin:jsonpath:$.region",
-										operator: OperatorType.Eq,
+										operator: OdrlOperatorType.Eq,
 										rightOperand: "EU"
 									}
 								]
@@ -529,7 +529,7 @@ describe("DefaultPolicyArbiter", () => {
 		const arbiter = new DefaultPolicyArbiter();
 		const policy: IDataspaceProtocolAgreement = {
 			"@context": OdrlContexts.Context,
-			"@type": PolicyType.Agreement,
+			"@type": OdrlPolicyType.Agreement,
 			assigner: "did:example:default-assigner",
 			assignee: "did:example:default-assignee",
 			"@id": "policy:logical-xone",
@@ -541,12 +541,12 @@ describe("DefaultPolicyArbiter", () => {
 								"@list": [
 									{
 										leftOperand: "twin:jsonpath:$.age",
-										operator: OperatorType.Gteq,
+										operator: OdrlOperatorType.Gteq,
 										rightOperand: { "@value": "18", "@type": "xsd:integer" }
 									},
 									{
 										leftOperand: "twin:jsonpath:$.region",
-										operator: OperatorType.Eq,
+										operator: OdrlOperatorType.Eq,
 										rightOperand: "EU"
 									}
 								] as unknown as { "@id": string }[]
@@ -568,7 +568,7 @@ describe("DefaultPolicyArbiter", () => {
 		const arbiter = new DefaultPolicyArbiter();
 		const policy: IDataspaceProtocolAgreement = {
 			"@context": OdrlContexts.Context,
-			"@type": PolicyType.Agreement,
+			"@type": OdrlPolicyType.Agreement,
 			assigner: "did:example:default-assigner",
 			assignee: "did:example:default-assignee",
 			"@id": "policy:logical-and-sequence",
@@ -580,12 +580,12 @@ describe("DefaultPolicyArbiter", () => {
 								"@list": [
 									{
 										leftOperand: "twin:jsonpath:$.age",
-										operator: OperatorType.Gteq,
+										operator: OdrlOperatorType.Gteq,
 										rightOperand: { "@value": "18", "@type": "xsd:integer" }
 									},
 									{
 										leftOperand: "twin:jsonpath:$.region",
-										operator: OperatorType.Eq,
+										operator: OdrlOperatorType.Eq,
 										rightOperand: "EU"
 									}
 								] as unknown as { "@id": string }[]
@@ -607,7 +607,7 @@ describe("DefaultPolicyArbiter", () => {
 		const arbiter = new DefaultPolicyArbiter();
 		const policy: IDataspaceProtocolAgreement = {
 			"@context": OdrlContexts.Context,
-			"@type": PolicyType.Agreement,
+			"@type": OdrlPolicyType.Agreement,
 			assigner: "did:example:default-assigner",
 			assignee: "did:example:default-assignee",
 			"@id": "policy:logical-duplicate-uid",
@@ -619,13 +619,13 @@ describe("DefaultPolicyArbiter", () => {
 								{
 									"@id": "constraint:1",
 									leftOperand: "twin:jsonpath:$.age",
-									operator: OperatorType.Gteq,
+									operator: OdrlOperatorType.Gteq,
 									rightOperand: { "@value": "18", "@type": "xsd:integer" }
 								},
 								{
 									"@id": "constraint:1",
 									leftOperand: "twin:jsonpath:$.region",
-									operator: OperatorType.Eq,
+									operator: OdrlOperatorType.Eq,
 									rightOperand: "EU"
 								}
 							] as unknown as (IOdrlConstraint | IOdrlLogicalConstraint)[]
@@ -644,7 +644,7 @@ describe("DefaultPolicyArbiter", () => {
 		const arbiter = new DefaultPolicyArbiter();
 		const policy: IDataspaceProtocolAgreement = {
 			"@context": OdrlContexts.Context,
-			"@type": PolicyType.Agreement,
+			"@type": OdrlPolicyType.Agreement,
 			assigner: "did:example:default-assigner",
 			assignee: "did:example:default-assignee",
 			"@id": "policy:logical-unique-uid",
@@ -656,13 +656,13 @@ describe("DefaultPolicyArbiter", () => {
 								{
 									"@id": "constraint:1",
 									leftOperand: "twin:jsonpath:$.age",
-									operator: OperatorType.Gteq,
+									operator: OdrlOperatorType.Gteq,
 									rightOperand: { "@value": "18", "@type": "xsd:integer" }
 								},
 								{
 									"@id": "constraint:2",
 									leftOperand: "twin:jsonpath:$.region",
-									operator: OperatorType.Eq,
+									operator: OdrlOperatorType.Eq,
 									rightOperand: "EU"
 								}
 							] as unknown as (IOdrlConstraint | IOdrlLogicalConstraint)[]
@@ -683,7 +683,7 @@ describe("DefaultPolicyArbiter", () => {
 		const arbiter = new DefaultPolicyArbiter();
 		const policy: IDataspaceProtocolAgreement = {
 			"@context": OdrlContexts.Context,
-			"@type": PolicyType.Agreement,
+			"@type": OdrlPolicyType.Agreement,
 			assigner: "did:example:default-assigner",
 			assignee: "did:example:default-assignee",
 			"@id": "policy:string-order",
@@ -692,7 +692,7 @@ describe("DefaultPolicyArbiter", () => {
 					constraint: [
 						{
 							leftOperand: "twin:jsonpath:$.code",
-							operator: OperatorType.Gt,
+							operator: OdrlOperatorType.Gt,
 							rightOperand: "a"
 						}
 					]
@@ -711,7 +711,7 @@ describe("DefaultPolicyArbiter", () => {
 		const arbiter = new DefaultPolicyArbiter();
 		const policy: IDataspaceProtocolAgreement = {
 			"@context": OdrlContexts.Context,
-			"@type": PolicyType.Agreement,
+			"@type": OdrlPolicyType.Agreement,
 			assigner: "did:example:default-assigner",
 			assignee: "did:example:default-assignee",
 			"@id": "policy:right-jsonpath",
@@ -720,7 +720,7 @@ describe("DefaultPolicyArbiter", () => {
 					constraint: [
 						{
 							leftOperand: "twin:jsonpath:$.age",
-							operator: OperatorType.Gteq,
+							operator: OdrlOperatorType.Gteq,
 							rightOperand: "$.minAge"
 						}
 					]
@@ -736,7 +736,7 @@ describe("DefaultPolicyArbiter", () => {
 		const arbiter = new DefaultPolicyArbiter();
 		const policy: IDataspaceProtocolAgreement = {
 			"@context": OdrlContexts.Context,
-			"@type": PolicyType.Agreement,
+			"@type": OdrlPolicyType.Agreement,
 			assigner: "did:example:default-assigner",
 			assignee: "did:example:default-assignee",
 			"@id": "policy:right-jsonpath-typed",
@@ -745,7 +745,7 @@ describe("DefaultPolicyArbiter", () => {
 					constraint: [
 						{
 							leftOperand: "twin:jsonpath:$.region",
-							operator: OperatorType.Eq,
+							operator: OdrlOperatorType.Eq,
 							rightOperand: { "@value": "$.allowedRegion", "@type": "twin:jsonpath" }
 						}
 					]
@@ -764,7 +764,7 @@ describe("DefaultPolicyArbiter", () => {
 		const arbiter = new DefaultPolicyArbiter();
 		const policy: IDataspaceProtocolAgreement = {
 			"@context": OdrlContexts.Context,
-			"@type": PolicyType.Agreement,
+			"@type": OdrlPolicyType.Agreement,
 			assigner: "did:example:default-assigner",
 			assignee: "did:example:default-assignee",
 			"@id": "policy:tags",
@@ -773,7 +773,7 @@ describe("DefaultPolicyArbiter", () => {
 					constraint: [
 						{
 							leftOperand: "twin:jsonpath:$.tags[*]",
-							operator: OperatorType.IsAnyOf,
+							operator: OdrlOperatorType.IsAnyOf,
 							rightOperand: ["c", "b"]
 						}
 					]
@@ -789,7 +789,7 @@ describe("DefaultPolicyArbiter", () => {
 		const arbiter = new DefaultPolicyArbiter();
 		const policy: IDataspaceProtocolAgreement = {
 			"@context": OdrlContexts.Context,
-			"@type": PolicyType.Agreement,
+			"@type": OdrlPolicyType.Agreement,
 			assigner: "did:example:default-assigner",
 			assignee: "did:example:default-assignee",
 			"@id": "policy:left-jsonpath-prefix",
@@ -798,7 +798,7 @@ describe("DefaultPolicyArbiter", () => {
 					constraint: [
 						{
 							leftOperand: "twin:jsonpath:$.age",
-							operator: OperatorType.Gteq,
+							operator: OdrlOperatorType.Gteq,
 							rightOperand: { "@value": "18", "@type": "xsd:integer" }
 						}
 					]
@@ -814,7 +814,7 @@ describe("DefaultPolicyArbiter", () => {
 		const arbiter = new DefaultPolicyArbiter();
 		const policy: IDataspaceProtocolAgreement = {
 			"@context": OdrlContexts.Context,
-			"@type": PolicyType.Agreement,
+			"@type": OdrlPolicyType.Agreement,
 			assigner: "did:example:default-assigner",
 			assignee: "did:example:default-assignee",
 			"@id": "policy:left-jsonpath-missing-target",
@@ -823,7 +823,7 @@ describe("DefaultPolicyArbiter", () => {
 					constraint: [
 						{
 							leftOperand: "twin:jsonpath:",
-							operator: OperatorType.Gteq,
+							operator: OdrlOperatorType.Gteq,
 							rightOperand: { "@value": "18", "@type": "xsd:integer" }
 						}
 					]
@@ -838,7 +838,7 @@ describe("DefaultPolicyArbiter", () => {
 		const arbiter = new DefaultPolicyArbiter();
 		const policy: IDataspaceProtocolAgreement = {
 			"@context": OdrlContexts.Context,
-			"@type": PolicyType.Agreement,
+			"@type": OdrlPolicyType.Agreement,
 			assigner: "did:example:default-assigner",
 			assignee: "did:example:default-assignee",
 			"@id": "policy:info-target",
@@ -848,7 +848,7 @@ describe("DefaultPolicyArbiter", () => {
 					constraint: [
 						{
 							leftOperand: "twin:jsonpath:$.region",
-							operator: OperatorType.Eq,
+							operator: OdrlOperatorType.Eq,
 							rightOperand: "EU"
 						}
 					]
@@ -868,7 +868,7 @@ describe("DefaultPolicyArbiter", () => {
 		const arbiter = new DefaultPolicyArbiter();
 		const policy: IDataspaceProtocolAgreement = {
 			"@context": OdrlContexts.Context,
-			"@type": PolicyType.Agreement,
+			"@type": OdrlPolicyType.Agreement,
 			assigner: "did:example:default-assigner",
 			assignee: "did:example:default-assignee",
 			"@id": "policy:info-target-missing",
@@ -878,7 +878,7 @@ describe("DefaultPolicyArbiter", () => {
 					constraint: [
 						{
 							leftOperand: "twin:jsonpath:$.region",
-							operator: OperatorType.Eq,
+							operator: OdrlOperatorType.Eq,
 							rightOperand: "EU"
 						}
 					]
@@ -899,7 +899,7 @@ describe("DefaultPolicyArbiter", () => {
 		const arbiter = new DefaultPolicyArbiter();
 		const policy: IDataspaceProtocolAgreement = {
 			"@context": OdrlContexts.Context,
-			"@type": PolicyType.Agreement,
+			"@type": OdrlPolicyType.Agreement,
 			assigner: "did:example:default-assigner",
 			assignee: "did:example:default-assignee",
 			"@id": "policy:prohibit-email",
@@ -909,7 +909,7 @@ describe("DefaultPolicyArbiter", () => {
 					constraint: [
 						{
 							leftOperand: "twin:jsonpath:$.region",
-							operator: OperatorType.Eq,
+							operator: OdrlOperatorType.Eq,
 							rightOperand: "EU"
 						}
 					]
@@ -925,7 +925,7 @@ describe("DefaultPolicyArbiter", () => {
 		const arbiter = new DefaultPolicyArbiter();
 		const policy: IDataspaceProtocolAgreement = {
 			"@context": OdrlContexts.Context,
-			"@type": PolicyType.Agreement,
+			"@type": OdrlPolicyType.Agreement,
 			assigner: "did:example:default-assigner",
 			assignee: "did:example:default-assignee",
 			"@id": "policy:prohibit-email-conditional",
@@ -936,7 +936,7 @@ describe("DefaultPolicyArbiter", () => {
 						// condition uses jsonpath-typed rightOperand for comparison
 						{
 							leftOperand: "twin:jsonpath:$.region",
-							operator: OperatorType.Eq,
+							operator: OdrlOperatorType.Eq,
 							rightOperand: { "@value": "$.blockedRegion", "@type": "twin:jsonpath" }
 						}
 					]
@@ -963,7 +963,7 @@ describe("DefaultPolicyArbiter", () => {
 		const arbiter = new DefaultPolicyArbiter();
 		const policy: IDataspaceProtocolAgreement = {
 			"@context": OdrlContexts.Context,
-			"@type": PolicyType.Agreement,
+			"@type": OdrlPolicyType.Agreement,
 			assigner: "did:example:default-assigner",
 			assignee: "did:example:default-assignee",
 			"@id": "policy:log",
@@ -987,7 +987,7 @@ describe("DefaultPolicyArbiter", () => {
 	test("inherits permissions from parent policy", async () => {
 		const parentPolicy: IDataspaceProtocolAgreement = {
 			"@context": OdrlContexts.Context,
-			"@type": PolicyType.Agreement,
+			"@type": OdrlPolicyType.Agreement,
 			assigner: "did:example:default-assigner",
 			assignee: "did:example:default-assignee",
 			"@id": "policy:parent",
@@ -996,7 +996,7 @@ describe("DefaultPolicyArbiter", () => {
 
 		const childPolicy: IDataspaceProtocolAgreement = {
 			"@context": OdrlContexts.Context,
-			"@type": PolicyType.Agreement,
+			"@type": OdrlPolicyType.Agreement,
 			assigner: "did:example:default-assigner",
 			assignee: "did:example:default-assignee",
 			"@id": "policy:child",
@@ -1020,7 +1020,7 @@ describe("DefaultPolicyArbiter", () => {
 	test("inherits prohibitions from parent policy", async () => {
 		const parentPolicy: IDataspaceProtocolAgreement = {
 			"@context": OdrlContexts.Context,
-			"@type": PolicyType.Agreement,
+			"@type": OdrlPolicyType.Agreement,
 			assigner: "did:example:default-assigner",
 			assignee: "did:example:default-assignee",
 			"@id": "policy:parent-prohib",
@@ -1030,7 +1030,7 @@ describe("DefaultPolicyArbiter", () => {
 					constraint: [
 						{
 							leftOperand: "twin:jsonpath:$.isPaid",
-							operator: OperatorType.Eq,
+							operator: OdrlOperatorType.Eq,
 							rightOperand: { "@value": "false", "@type": "xsd:boolean" }
 						}
 					]
@@ -1040,7 +1040,7 @@ describe("DefaultPolicyArbiter", () => {
 
 		const childPolicy: IDataspaceProtocolAgreement = {
 			"@context": OdrlContexts.Context,
-			"@type": PolicyType.Agreement,
+			"@type": OdrlPolicyType.Agreement,
 			assigner: "did:example:default-assigner",
 			assignee: "did:example:default-assignee",
 			"@id": "policy:child-prohib",
@@ -1066,7 +1066,7 @@ describe("DefaultPolicyArbiter", () => {
 	test("applies inherited prohibition to deny access", async () => {
 		const parentPolicy: IDataspaceProtocolAgreement = {
 			"@context": OdrlContexts.Context,
-			"@type": PolicyType.Agreement,
+			"@type": OdrlPolicyType.Agreement,
 			assigner: "did:example:default-assigner",
 			assignee: "did:example:default-assignee",
 			"@id": "policy:parent-deny",
@@ -1075,7 +1075,7 @@ describe("DefaultPolicyArbiter", () => {
 
 		const childPolicy: IDataspaceProtocolAgreement = {
 			"@context": OdrlContexts.Context,
-			"@type": PolicyType.Agreement,
+			"@type": OdrlPolicyType.Agreement,
 			assigner: "did:example:default-assigner",
 			assignee: "did:example:default-assignee",
 			"@id": "policy:child-deny",
@@ -1099,7 +1099,7 @@ describe("DefaultPolicyArbiter", () => {
 	test("inherits from multiple parent policies", async () => {
 		const parentPolicy1: IDataspaceProtocolAgreement = {
 			"@context": OdrlContexts.Context,
-			"@type": PolicyType.Agreement,
+			"@type": OdrlPolicyType.Agreement,
 			assigner: "did:example:default-assigner",
 			assignee: "did:example:default-assignee",
 			"@id": "policy:parent1",
@@ -1108,7 +1108,7 @@ describe("DefaultPolicyArbiter", () => {
 
 		const parentPolicy2: IDataspaceProtocolAgreement = {
 			"@context": OdrlContexts.Context,
-			"@type": PolicyType.Agreement,
+			"@type": OdrlPolicyType.Agreement,
 			assigner: "did:example:default-assigner",
 			assignee: "did:example:default-assignee",
 			"@id": "policy:parent2",
@@ -1117,7 +1117,7 @@ describe("DefaultPolicyArbiter", () => {
 
 		const childPolicy: IDataspaceProtocolAgreement = {
 			"@context": OdrlContexts.Context,
-			"@type": PolicyType.Agreement,
+			"@type": OdrlPolicyType.Agreement,
 			assigner: "did:example:default-assigner",
 			assignee: "did:example:default-assignee",
 			"@id": "policy:child-multi",
@@ -1144,17 +1144,17 @@ describe("DefaultPolicyArbiter", () => {
 	test("inherits conflict strategy from parent policy", async () => {
 		const parentPolicy: IDataspaceProtocolAgreement = {
 			"@context": OdrlContexts.Context,
-			"@type": PolicyType.Agreement,
+			"@type": OdrlPolicyType.Agreement,
 			assigner: "did:example:default-assigner",
 			assignee: "did:example:default-assignee",
 			"@id": "policy:parent-conflict",
-			conflict: ConflictStrategyType.Perm,
+			conflict: OdrlConflictStrategyType.Perm,
 			permission: [{ action: "read" }]
 		};
 
 		const childPolicy: IDataspaceProtocolAgreement = {
 			"@context": OdrlContexts.Context,
-			"@type": PolicyType.Agreement,
+			"@type": OdrlPolicyType.Agreement,
 			assigner: "did:example:default-assigner",
 			assignee: "did:example:default-assignee",
 			"@id": "policy:child-conflict",
@@ -1164,7 +1164,7 @@ describe("DefaultPolicyArbiter", () => {
 					constraint: [
 						{
 							leftOperand: "twin:jsonpath:$.region",
-							operator: OperatorType.Eq,
+							operator: OdrlOperatorType.Eq,
 							rightOperand: "EU"
 						}
 					]
@@ -1175,7 +1175,7 @@ describe("DefaultPolicyArbiter", () => {
 					constraint: [
 						{
 							leftOperand: "twin:jsonpath:$.region",
-							operator: OperatorType.Eq,
+							operator: OdrlOperatorType.Eq,
 							rightOperand: "EU"
 						}
 					]
@@ -1197,27 +1197,27 @@ describe("DefaultPolicyArbiter", () => {
 	test("conflicting inherited strategies default to invalid", async () => {
 		const parentPolicy1: IDataspaceProtocolAgreement = {
 			"@context": OdrlContexts.Context,
-			"@type": PolicyType.Agreement,
+			"@type": OdrlPolicyType.Agreement,
 			assigner: "did:example:default-assigner",
 			assignee: "did:example:default-assignee",
 			"@id": "policy:parent-conflict-1",
-			conflict: ConflictStrategyType.Perm,
+			conflict: OdrlConflictStrategyType.Perm,
 			permission: [{ action: "read" }]
 		};
 
 		const parentPolicy2: IDataspaceProtocolAgreement = {
 			"@context": OdrlContexts.Context,
-			"@type": PolicyType.Agreement,
+			"@type": OdrlPolicyType.Agreement,
 			assigner: "did:example:default-assigner",
 			assignee: "did:example:default-assignee",
 			"@id": "policy:parent-conflict-2",
-			conflict: ConflictStrategyType.Prohibit,
+			conflict: OdrlConflictStrategyType.Prohibit,
 			permission: [{ action: "read" }]
 		};
 
 		const childPolicy: IDataspaceProtocolAgreement = {
 			"@context": OdrlContexts.Context,
-			"@type": PolicyType.Agreement,
+			"@type": OdrlPolicyType.Agreement,
 			assigner: "did:example:default-assigner",
 			assignee: "did:example:default-assignee",
 			"@id": "policy:child-conflict-invalid",
@@ -1227,7 +1227,7 @@ describe("DefaultPolicyArbiter", () => {
 					constraint: [
 						{
 							leftOperand: "twin:jsonpath:$.region",
-							operator: OperatorType.Eq,
+							operator: OdrlOperatorType.Eq,
 							rightOperand: "EU"
 						}
 					]
@@ -1238,7 +1238,7 @@ describe("DefaultPolicyArbiter", () => {
 					constraint: [
 						{
 							leftOperand: "twin:jsonpath:$.region",
-							operator: OperatorType.Eq,
+							operator: OdrlOperatorType.Eq,
 							rightOperand: "EU"
 						}
 					]
@@ -1263,7 +1263,7 @@ describe("DefaultPolicyArbiter", () => {
 	test("throws when inherited policy does not exist", async () => {
 		const childPolicy: IDataspaceProtocolAgreement = {
 			"@context": OdrlContexts.Context,
-			"@type": PolicyType.Agreement,
+			"@type": OdrlPolicyType.Agreement,
 			assigner: "did:example:default-assigner",
 			assignee: "did:example:default-assignee",
 			"@id": "policy:child-missing",
@@ -1289,7 +1289,7 @@ describe("DefaultPolicyArbiter", () => {
 		// Create two policies that inherit from each other
 		const policy1: IDataspaceProtocolAgreement = {
 			"@context": OdrlContexts.Context,
-			"@type": PolicyType.Agreement,
+			"@type": OdrlPolicyType.Agreement,
 			assigner: "did:example:default-assigner",
 			assignee: "did:example:default-assignee",
 			"@id": "policy:circular-1",
@@ -1299,7 +1299,7 @@ describe("DefaultPolicyArbiter", () => {
 
 		const policy2: IDataspaceProtocolAgreement = {
 			"@context": OdrlContexts.Context,
-			"@type": PolicyType.Agreement,
+			"@type": OdrlPolicyType.Agreement,
 			assigner: "did:example:default-assigner",
 			assignee: "did:example:default-assignee",
 			"@id": "policy:circular-2",
@@ -1331,7 +1331,7 @@ describe("DefaultPolicyArbiter", () => {
 		for (let i = 1; i <= 11; i++) {
 			policiesToRetrieve.set(`policy:depth-${i}`, {
 				"@context": OdrlContexts.Context,
-				"@type": PolicyType.Agreement,
+				"@type": OdrlPolicyType.Agreement,
 				assigner: "did:example:default-assigner",
 				assignee: "did:example:default-assignee",
 				"@id": `policy:depth-${i}`,
@@ -1342,7 +1342,7 @@ describe("DefaultPolicyArbiter", () => {
 
 		const rootPolicy: IDataspaceProtocolAgreement = {
 			"@context": OdrlContexts.Context,
-			"@type": PolicyType.Agreement,
+			"@type": OdrlPolicyType.Agreement,
 			assigner: "did:example:default-assigner",
 			assignee: "did:example:default-assignee",
 			"@id": "policy:depth-0",
@@ -1364,7 +1364,7 @@ describe("DefaultPolicyArbiter", () => {
 		// depth-0 -> depth-1 -> depth-2 (2 edges) should succeed with maxInheritanceDepth=2
 		const parent2: IDataspaceProtocolAgreement = {
 			"@context": OdrlContexts.Context,
-			"@type": PolicyType.Agreement,
+			"@type": OdrlPolicyType.Agreement,
 			assigner: "did:example:default-assigner",
 			assignee: "did:example:default-assignee",
 			"@id": "policy:depth-config-2",
@@ -1373,7 +1373,7 @@ describe("DefaultPolicyArbiter", () => {
 
 		const parent1: IDataspaceProtocolAgreement = {
 			"@context": OdrlContexts.Context,
-			"@type": PolicyType.Agreement,
+			"@type": OdrlPolicyType.Agreement,
 			assigner: "did:example:default-assigner",
 			assignee: "did:example:default-assignee",
 			"@id": "policy:depth-config-1",
@@ -1383,7 +1383,7 @@ describe("DefaultPolicyArbiter", () => {
 
 		const rootPolicy: IDataspaceProtocolAgreement = {
 			"@context": OdrlContexts.Context,
-			"@type": PolicyType.Agreement,
+			"@type": OdrlPolicyType.Agreement,
 			assigner: "did:example:default-assigner",
 			assignee: "did:example:default-assignee",
 			"@id": "policy:depth-config-0",
@@ -1414,7 +1414,7 @@ describe("DefaultPolicyArbiter", () => {
 
 		const parentPolicy: IDataspaceProtocolAgreement = {
 			"@context": OdrlContexts.Context,
-			"@type": PolicyType.Agreement,
+			"@type": OdrlPolicyType.Agreement,
 			assigner: "did:example:default-assigner",
 			assignee: "did:example:default-assignee",
 			"@id": "policy:parent-oblig",
@@ -1423,7 +1423,7 @@ describe("DefaultPolicyArbiter", () => {
 
 		const childPolicy: IDataspaceProtocolAgreement = {
 			"@context": OdrlContexts.Context,
-			"@type": PolicyType.Agreement,
+			"@type": OdrlPolicyType.Agreement,
 			assigner: "did:example:default-assigner",
 			assignee: "did:example:default-assignee",
 			"@id": "policy:child-oblig",
@@ -1447,7 +1447,7 @@ describe("DefaultPolicyArbiter", () => {
 	test("inherits permissions with constraints from parent policy", async () => {
 		const parentPolicy: IDataspaceProtocolAgreement = {
 			"@context": OdrlContexts.Context,
-			"@type": PolicyType.Agreement,
+			"@type": OdrlPolicyType.Agreement,
 			assigner: "did:example:default-assigner",
 			assignee: "did:example:default-assignee",
 			"@id": "policy:parent-constraint",
@@ -1457,7 +1457,7 @@ describe("DefaultPolicyArbiter", () => {
 					constraint: [
 						{
 							leftOperand: "twin:jsonpath:$.territory",
-							operator: OperatorType.Eq,
+							operator: OdrlOperatorType.Eq,
 							rightOperand: "US"
 						}
 					]
@@ -1467,7 +1467,7 @@ describe("DefaultPolicyArbiter", () => {
 
 		const childPolicy: IDataspaceProtocolAgreement = {
 			"@context": OdrlContexts.Context,
-			"@type": PolicyType.Agreement,
+			"@type": OdrlPolicyType.Agreement,
 			assigner: "did:example:default-assigner",
 			assignee: "did:example:default-assignee",
 			"@id": "policy:child-constraint",
@@ -1492,7 +1492,7 @@ describe("DefaultPolicyArbiter", () => {
 	test("does not grant when inherited permission constraint is not satisfied", async () => {
 		const parentPolicy: IDataspaceProtocolAgreement = {
 			"@context": OdrlContexts.Context,
-			"@type": PolicyType.Agreement,
+			"@type": OdrlPolicyType.Agreement,
 			assigner: "did:example:default-assigner",
 			assignee: "did:example:default-assignee",
 			"@id": "policy:parent-constraint-fail",
@@ -1502,7 +1502,7 @@ describe("DefaultPolicyArbiter", () => {
 					constraint: [
 						{
 							leftOperand: "twin:jsonpath:$.territory",
-							operator: OperatorType.Eq,
+							operator: OdrlOperatorType.Eq,
 							rightOperand: "US"
 						}
 					]
@@ -1512,7 +1512,7 @@ describe("DefaultPolicyArbiter", () => {
 
 		const childPolicy: IDataspaceProtocolAgreement = {
 			"@context": OdrlContexts.Context,
-			"@type": PolicyType.Agreement,
+			"@type": OdrlPolicyType.Agreement,
 			assigner: "did:example:default-assigner",
 			assignee: "did:example:default-assignee",
 			"@id": "policy:child-constraint-fail",
@@ -1539,7 +1539,7 @@ describe("DefaultPolicyArbiter", () => {
 			const arbiter = new DefaultPolicyArbiter();
 			const policy: IDataspaceProtocolAgreement = {
 				"@context": OdrlContexts.Context,
-				"@type": PolicyType.Agreement,
+				"@type": OdrlPolicyType.Agreement,
 				assigner: "did:example:default-assigner",
 				assignee: "did:example:default-assignee",
 				"@id": "policy:no-action-no-request",
@@ -1555,7 +1555,7 @@ describe("DefaultPolicyArbiter", () => {
 			const arbiter = new DefaultPolicyArbiter();
 			const policy: IDataspaceProtocolAgreement = {
 				"@context": OdrlContexts.Context,
-				"@type": PolicyType.Agreement,
+				"@type": OdrlPolicyType.Agreement,
 				assigner: "did:example:default-assigner",
 				assignee: "did:example:default-assignee",
 				"@id": "policy:no-action-with-request",
@@ -1571,7 +1571,7 @@ describe("DefaultPolicyArbiter", () => {
 			const arbiter = new DefaultPolicyArbiter();
 			const policy: IDataspaceProtocolAgreement = {
 				"@context": OdrlContexts.Context,
-				"@type": PolicyType.Agreement,
+				"@type": OdrlPolicyType.Agreement,
 				assigner: "did:example:default-assigner",
 				assignee: "did:example:default-assignee",
 				"@id": "policy:action-match",
@@ -1587,7 +1587,7 @@ describe("DefaultPolicyArbiter", () => {
 			const arbiter = new DefaultPolicyArbiter();
 			const policy: IDataspaceProtocolAgreement = {
 				"@context": OdrlContexts.Context,
-				"@type": PolicyType.Agreement,
+				"@type": OdrlPolicyType.Agreement,
 				assigner: "did:example:default-assigner",
 				assignee: "did:example:default-assignee",
 				"@id": "policy:action-mismatch",
@@ -1603,7 +1603,7 @@ describe("DefaultPolicyArbiter", () => {
 			const arbiter = new DefaultPolicyArbiter();
 			const policy: IDataspaceProtocolAgreement = {
 				"@context": OdrlContexts.Context,
-				"@type": PolicyType.Agreement,
+				"@type": OdrlPolicyType.Agreement,
 				assigner: "did:example:default-assigner",
 				assignee: "did:example:default-assignee",
 				"@id": "policy:multiple-actions-match",
@@ -1619,7 +1619,7 @@ describe("DefaultPolicyArbiter", () => {
 			const arbiter = new DefaultPolicyArbiter();
 			const policy: IDataspaceProtocolAgreement = {
 				"@context": OdrlContexts.Context,
-				"@type": PolicyType.Agreement,
+				"@type": OdrlPolicyType.Agreement,
 				assigner: "did:example:default-assigner",
 				assignee: "did:example:default-assignee",
 				"@id": "policy:multiple-actions-no-match",
@@ -1635,7 +1635,7 @@ describe("DefaultPolicyArbiter", () => {
 			const arbiter = new DefaultPolicyArbiter();
 			const policy: IDataspaceProtocolAgreement = {
 				"@context": OdrlContexts.Context,
-				"@type": PolicyType.Agreement,
+				"@type": OdrlPolicyType.Agreement,
 				assigner: "did:example:default-assigner",
 				assignee: "did:example:default-assignee",
 				"@id": "policy:any-permission-applies",
@@ -1655,7 +1655,7 @@ describe("DefaultPolicyArbiter", () => {
 			const arbiter = new DefaultPolicyArbiter();
 			const policy: IDataspaceProtocolAgreement = {
 				"@context": OdrlContexts.Context,
-				"@type": PolicyType.Agreement,
+				"@type": OdrlPolicyType.Agreement,
 				assigner: "did:example:default-assigner",
 				assignee: "did:example:default-assignee",
 				"@id": "policy:no-matching-actions",
@@ -1671,7 +1671,7 @@ describe("DefaultPolicyArbiter", () => {
 			const arbiter = new DefaultPolicyArbiter();
 			const policy: IDataspaceProtocolAgreement = {
 				"@context": OdrlContexts.Context,
-				"@type": PolicyType.Agreement,
+				"@type": OdrlPolicyType.Agreement,
 				assigner: "did:example:default-assigner",
 				assignee: "did:example:default-assignee",
 				"@id": "policy:prohibit-action",
@@ -1688,7 +1688,7 @@ describe("DefaultPolicyArbiter", () => {
 			const arbiter = new DefaultPolicyArbiter();
 			const policy: IDataspaceProtocolAgreement = {
 				"@context": OdrlContexts.Context,
-				"@type": PolicyType.Agreement,
+				"@type": OdrlPolicyType.Agreement,
 				assigner: "did:example:default-assigner",
 				assignee: "did:example:default-assignee",
 				"@id": "policy:perm-prohib-mismatch",

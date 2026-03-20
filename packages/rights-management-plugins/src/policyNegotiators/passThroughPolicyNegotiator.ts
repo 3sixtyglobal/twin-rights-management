@@ -14,7 +14,7 @@ import type {
 	IDataspaceProtocolOffer,
 	IDataspaceProtocolPolicy
 } from "@twin.org/standards-dataspace-protocol";
-import { PolicyType, type IOdrlParty } from "@twin.org/standards-w3c-odrl";
+import { OdrlPolicyType, type IOdrlParty } from "@twin.org/standards-w3c-odrl";
 import type { IPassThroughPolicyNegotiatorConstructorOptions } from "../models/IPassThroughPolicyNegotiatorConstructorOptions.js";
 
 /**
@@ -124,7 +124,7 @@ export class PassThroughPolicyNegotiator implements IPolicyNegotiator {
 
 		const agreement = ObjectHelper.clone<IDataspaceProtocolPolicy>(offer);
 
-		agreement["@type"] = PolicyType.Agreement;
+		agreement["@type"] = OdrlPolicyType.Agreement;
 		agreement["@id"] = Urn.generateRandom(RightsManagementNamespaces.Policy).toString(false);
 		agreement.assignee = assignee;
 

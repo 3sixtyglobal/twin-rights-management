@@ -18,7 +18,7 @@ import {
 	PolicyExecutionActionFactory
 } from "@twin.org/rights-management-models";
 import type { IDataspaceProtocolPolicy } from "@twin.org/standards-dataspace-protocol";
-import { OdrlContexts, PolicyType } from "@twin.org/standards-w3c-odrl";
+import { OdrlContexts, OdrlPolicyType } from "@twin.org/standards-w3c-odrl";
 import { PolicyExecutionPointService } from "../src/policyExecutionPointService.js";
 
 function createPolicy(options?: {
@@ -29,7 +29,7 @@ function createPolicy(options?: {
 }): IDataspaceProtocolPolicy {
 	return {
 		"@context": OdrlContexts.Context,
-		"@type": PolicyType.Set,
+		"@type": OdrlPolicyType.Set,
 		"@id": options?.uid ?? "policy123",
 		action: options?.action ?? "action",
 		target: options?.target ?? "target",
@@ -281,7 +281,7 @@ describe("PolicyExecutionPointService", () => {
 		const testData = { key: "value" };
 		const testPolicy = {
 			"@context": OdrlContexts.Context,
-			"@type": PolicyType.Agreement,
+			"@type": OdrlPolicyType.Agreement,
 			"@id": "policy1"
 		};
 		const testDecisions = [{ target: "asset1", decision: PolicyDecision.Granted }];
@@ -309,7 +309,7 @@ describe("PolicyExecutionPointService", () => {
 
 		const testPolicy = {
 			"@context": OdrlContexts.Context,
-			"@type": PolicyType.Agreement,
+			"@type": OdrlPolicyType.Agreement,
 			"@id": "policy1"
 		};
 		const testDecisions = [{ target: "asset1", decision: PolicyDecision.Granted }];
@@ -343,7 +343,7 @@ describe("PolicyExecutionPointService", () => {
 		const testData = { sensitiveInfo: "secret" };
 		const testPolicy: IDataspaceProtocolPolicy = {
 			"@context": OdrlContexts.Context,
-			"@type": PolicyType.Agreement,
+			"@type": OdrlPolicyType.Agreement,
 			"@id": "policy1",
 			permission: [
 				{
@@ -388,7 +388,7 @@ describe("PolicyExecutionPointService", () => {
 		const policyExecutionPoint = new PolicyExecutionPointService();
 		const testPolicy: IDataspaceProtocolPolicy = {
 			"@context": OdrlContexts.Context,
-			"@type": PolicyType.Agreement,
+			"@type": OdrlPolicyType.Agreement,
 			"@id": "policy2"
 		};
 		const testDecisions = [{ target: "asset1", decision: PolicyDecision.Granted }];
@@ -447,7 +447,7 @@ describe("PolicyExecutionPointService", () => {
 		const policyExecutionPoint = new PolicyExecutionPointService();
 		const testPolicy = {
 			"@context": OdrlContexts.Context,
-			"@type": PolicyType.Agreement,
+			"@type": OdrlPolicyType.Agreement,
 			"@id": "policy1"
 		};
 		const testDecisions = [{ target: "asset1", decision: PolicyDecision.Granted }];
@@ -492,7 +492,7 @@ describe("PolicyExecutionPointService", () => {
 		};
 		const testPolicy = {
 			"@context": OdrlContexts.Context,
-			"@type": PolicyType.Agreement,
+			"@type": OdrlPolicyType.Agreement,
 			"@id": "policy1"
 		};
 		const testDecisions = [{ target: "asset1", decision: PolicyDecision.Granted }];

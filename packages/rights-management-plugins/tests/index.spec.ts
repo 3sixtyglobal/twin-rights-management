@@ -30,7 +30,7 @@ import { PolicyInformationPointService } from "@twin.org/rights-management-pip-s
 import { PolicyManagementPointService } from "@twin.org/rights-management-pmp-service";
 import { PolicyExecutionPointService } from "@twin.org/rights-management-pxp-service";
 import type { IDataspaceProtocolPolicy } from "@twin.org/standards-dataspace-protocol";
-import { OdrlContexts, PolicyType } from "@twin.org/standards-w3c-odrl";
+import { OdrlContexts, OdrlPolicyType } from "@twin.org/standards-w3c-odrl";
 import { PassThroughPolicyArbiter } from "../src/policyArbiters/passThroughPolicyArbiter.js";
 import { PassThroughPolicyEnforcementProcessor } from "../src/policyEnforcementProcessor/passThroughPolicyEnforcementProcessor.js";
 import { LoggingPolicyExecutionAction } from "../src/policyExecutionActions/loggingPolicyExecutionAction.js";
@@ -113,7 +113,7 @@ describe("RightsManagementService", () => {
 	test("can perform a full workflow", async () => {
 		const testPolicy: IDataspaceProtocolPolicy = {
 			"@context": OdrlContexts.Context,
-			"@type": PolicyType.Agreement,
+			"@type": OdrlPolicyType.Agreement,
 			"@id": "policy:test-policy-uid",
 			assigner: "did:example:assigner",
 			assignee: "did:example:assignee"

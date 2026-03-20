@@ -7,8 +7,7 @@ import { EntityStorageConnectorFactory } from "@twin.org/entity-storage-models";
 import { nameof } from "@twin.org/nameof";
 import { RightsManagementNamespaces } from "@twin.org/rights-management-models";
 import type { IDataspaceProtocolPolicy } from "@twin.org/standards-dataspace-protocol";
-import { type ActionType, PolicyType } from "@twin.org/standards-w3c-odrl";
-import { OdrlContexts } from "@twin.org/standards-w3c-odrl";
+import { type OdrlActionType, OdrlContexts, OdrlPolicyType } from "@twin.org/standards-w3c-odrl";
 import * as dotenv from "dotenv";
 import type { OdrlPolicy } from "../src/entities/odrlPolicy.js";
 import type { PolicyAdministrationPointService } from "../src/policyAdministrationPointService.js";
@@ -56,9 +55,9 @@ EntityStorageConnectorFactory.register(
 // Helper function to create test policy without UID (for auto-generation)
 function createTestPolicy(
 	id: string,
-	policyType: PolicyType,
+	policyType: OdrlPolicyType,
 	assetId: string,
-	action: ActionType
+	action: OdrlActionType
 ): Omit<IDataspaceProtocolPolicy, "@id"> & { "@id"?: string } {
 	const policy: Omit<IDataspaceProtocolPolicy, "@id"> & { "@id"?: string } = {
 		"@context": OdrlContexts.Context,
@@ -71,7 +70,7 @@ function createTestPolicy(
 		]
 	};
 
-	if (policyType === PolicyType.Offer) {
+	if (policyType === OdrlPolicyType.Offer) {
 		policy.assigner = TEST_USER_IDENTITY;
 	}
 
@@ -86,9 +85,9 @@ export const createTestPolicies = async (
 	testPolicyMapping.clear();
 
 	for (let i = 1; i <= 10; i++) {
-		const policyType = i % 2 === 0 ? ("Set" as PolicyType) : ("Offer" as PolicyType);
+		const policyType = i % 2 === 0 ? OdrlPolicyType.Set : OdrlPolicyType.Offer;
 		const assetId = `http://example.com/asset/${Math.ceil(i / 2)}`;
-		const action = i % 3 === 0 ? ("display" as ActionType) : ("use" as ActionType);
+		const action = i % 3 === 0 ? ("display" as OdrlActionType) : ("use" as OdrlActionType);
 
 		const policy = createTestPolicy(i.toString(), policyType, assetId, action);
 		const generatedUid = await policyAdminPoint.create(policy);

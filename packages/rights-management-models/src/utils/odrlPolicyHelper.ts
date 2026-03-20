@@ -5,11 +5,11 @@ import { ArrayHelper, GeneralError, Guards, Is, ObjectHelper } from "@twin.org/c
 import { nameof } from "@twin.org/nameof";
 import type { IDataspaceProtocolPolicy } from "@twin.org/standards-dataspace-protocol";
 import type {
-	ActionType,
 	IOdrlAction,
 	IOdrlAsset,
 	IOdrlParty,
-	IOdrlPartyCollection
+	IOdrlPartyCollection,
+	OdrlActionType
 } from "@twin.org/standards-w3c-odrl";
 
 /**
@@ -166,7 +166,7 @@ export class OdrlPolicyHelper {
 	 */
 	public static getActions(policy: IDataspaceProtocolPolicy): string[] {
 		const actions: string[] = [];
-		const policyActions = ArrayHelper.fromObjectOrArray<ActionType | string | IOdrlAction>(
+		const policyActions = ArrayHelper.fromObjectOrArray<OdrlActionType | string | IOdrlAction>(
 			policy.action ?? []
 		);
 		for (const action of policyActions) {

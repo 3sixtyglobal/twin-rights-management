@@ -8,7 +8,7 @@ import type { EntityCondition } from "@twin.org/entity";
 import type { MemoryEntityStorageConnector } from "@twin.org/entity-storage-connector-memory";
 import { EntityStorageConnectorFactory } from "@twin.org/entity-storage-models";
 import type { IDataspaceProtocolPolicy } from "@twin.org/standards-dataspace-protocol";
-import { PolicyType, OdrlContexts } from "@twin.org/standards-w3c-odrl";
+import { OdrlContexts, OdrlPolicyType } from "@twin.org/standards-w3c-odrl";
 import {
 	createTestPolicies,
 	SAMPLE_POLICY,
@@ -218,7 +218,7 @@ describe("PolicyAdministrationPointService", () => {
 	test("should successfully validate and create a valid ODRL policy", async () => {
 		const validPolicy = {
 			"@context": OdrlContexts.Context,
-			"@type": PolicyType.Set,
+			"@type": OdrlPolicyType.Set,
 			permission: [
 				{
 					target: "http://example.com/asset/123",
@@ -240,7 +240,7 @@ describe("PolicyAdministrationPointService", () => {
 		// Create a policy with all required fields but invalid ODRL structure
 		const invalidOdrlPolicy = {
 			"@context": OdrlContexts.Context,
-			"@type": "InvalidPolicyType" as PolicyType,
+			"@type": "InvalidPolicyType" as OdrlPolicyType,
 			permission: [
 				{
 					target: "http://example.com/asset/123",
@@ -256,7 +256,7 @@ describe("PolicyAdministrationPointService", () => {
 	test("should auto-generate UID when not provided", async () => {
 		const policyWithoutUid = {
 			"@context": OdrlContexts.Context,
-			"@type": PolicyType.Set,
+			"@type": OdrlPolicyType.Set,
 			permission: [
 				{
 					target: "http://example.com/asset/123",
@@ -361,7 +361,7 @@ describe("PolicyAdministrationPointService", () => {
 		// Create initial policy with complex structure
 		const initialPolicy: JsonLdObjectWithOptionalAtId<IDataspaceProtocolPolicy> = {
 			"@context": OdrlContexts.Context,
-			"@type": PolicyType.Set,
+			"@type": OdrlPolicyType.Set,
 			assigner: {
 				uid: "http://example.com/party/1",
 				"@type": "Party"
@@ -386,7 +386,7 @@ describe("PolicyAdministrationPointService", () => {
 
 		const replacementPolicy: IDataspaceProtocolPolicy = {
 			"@context": OdrlContexts.Context,
-			"@type": PolicyType.Set,
+			"@type": OdrlPolicyType.Set,
 			"@id": policyId,
 			assigner: {
 				uid: "http://example.com/party/1",
@@ -422,7 +422,7 @@ describe("PolicyAdministrationPointService", () => {
 
 	test("should replace arrays entirely in update", async () => {
 		const initialPolicy = {
-			"@type": PolicyType.Set,
+			"@type": OdrlPolicyType.Set,
 			permission: [
 				{
 					target: "http://example.com/asset/1",

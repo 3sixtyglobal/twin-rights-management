@@ -31,7 +31,7 @@ import type {
 	IDataspaceProtocolPolicy,
 	IDataspaceProtocolSet
 } from "@twin.org/standards-dataspace-protocol";
-import { OdrlDataTypes, PolicyType, type IOdrlPolicy } from "@twin.org/standards-w3c-odrl";
+import { OdrlDataTypes, OdrlPolicyType, type IOdrlPolicy } from "@twin.org/standards-w3c-odrl";
 import type { OdrlPolicy } from "./entities/odrlPolicy.js";
 import type { IPolicyAdministrationPointServiceConstructorOptions } from "./models/IPolicyAdministrationPointServiceConstructorOptions.js";
 import { convertFromStoragePolicy, convertToStoragePolicy } from "./utils/odrlPolicyConverters.js";
@@ -239,7 +239,7 @@ export class PolicyAdministrationPointService implements IPolicyAdministrationPo
 		}
 
 		const policyType = OdrlPolicyHelper.getType(policy);
-		if (policyType !== PolicyType.Agreement) {
+		if (policyType !== OdrlPolicyType.Agreement) {
 			throw new GeneralError(PolicyAdministrationPointService.CLASS_NAME, "agreementTypeMismatch", {
 				agreementId,
 				type: policyType ?? ""
@@ -275,7 +275,7 @@ export class PolicyAdministrationPointService implements IPolicyAdministrationPo
 		}
 
 		const policyType = OdrlPolicyHelper.getType(policy);
-		if (policyType !== PolicyType.Offer) {
+		if (policyType !== OdrlPolicyType.Offer) {
 			throw new GeneralError(PolicyAdministrationPointService.CLASS_NAME, "offerTypeMismatch", {
 				offerId,
 				type: policyType ?? ""
@@ -307,7 +307,7 @@ export class PolicyAdministrationPointService implements IPolicyAdministrationPo
 		}
 
 		const policyType = OdrlPolicyHelper.getType(policy);
-		if (policyType !== PolicyType.Set) {
+		if (policyType !== OdrlPolicyType.Set) {
 			throw new GeneralError(PolicyAdministrationPointService.CLASS_NAME, "setTypeMismatch", {
 				setId,
 				type: policyType ?? ""

@@ -15,7 +15,7 @@ import {
 	type IPolicyManagementPointComponent
 } from "@twin.org/rights-management-models";
 import type { IDataspaceProtocolAgreement } from "@twin.org/standards-dataspace-protocol";
-import type { ActionType } from "@twin.org/standards-w3c-odrl";
+import type { OdrlActionType } from "@twin.org/standards-w3c-odrl";
 import type { IPolicyDecisionPointServiceConstructorOptions } from "./models/IPolicyDecisionPointServiceConstructorOptions.js";
 
 /**
@@ -92,7 +92,7 @@ export class PolicyDecisionPointService implements IPolicyDecisionPointComponent
 	public async evaluate<D = unknown>(
 		agreement: IDataspaceProtocolAgreement,
 		data?: D,
-		action?: ActionType | string
+		action?: OdrlActionType | string
 	): Promise<IPolicyDecision[]> {
 		Guards.objectValue<IDataspaceProtocolAgreement>(
 			PolicyDecisionPointService.CLASS_NAME,

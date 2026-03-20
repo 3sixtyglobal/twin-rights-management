@@ -2,7 +2,7 @@
 // SPDX-License-Identifier: Apache-2.0.
 import type { IComponent } from "@twin.org/core";
 import type { IDataspaceProtocolPolicy } from "@twin.org/standards-dataspace-protocol";
-import type { ActionType } from "@twin.org/standards-w3c-odrl";
+import type { OdrlActionType } from "@twin.org/standards-w3c-odrl";
 import type { IPolicyDecision } from "../pdp/IPolicyDecision.js";
 import type { PolicyDecisionStage } from "../pdp/policyDecisionStage.js";
 
@@ -26,7 +26,7 @@ export interface IPolicyExecutionPointComponent extends IComponent {
 		policy: IDataspaceProtocolPolicy,
 		decisions: IPolicyDecision[],
 		data: D | undefined,
-		action: ActionType | string | undefined,
+		action: OdrlActionType | string | undefined,
 		stage: PolicyDecisionStage
 	): Promise<void>;
 }

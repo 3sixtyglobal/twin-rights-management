@@ -26,10 +26,10 @@ import type {
 	IDataspaceProtocolPolicy
 } from "@twin.org/standards-dataspace-protocol";
 import {
-	ConflictStrategyType,
-	LogicalConstraintType,
-	OperatorType,
-	type ActionType,
+	OdrlConflictStrategyType,
+	OdrlLogicalConstraintType,
+	OdrlOperatorType,
+	type OdrlActionType,
 	type IOdrlConstraint,
 	type IOdrlDuty,
 	type IOdrlLogicalConstraint,
@@ -129,7 +129,7 @@ export class DefaultPolicyArbiter implements IPolicyArbiter {
 		agreement: IDataspaceProtocolAgreement,
 		information?: { [id: string]: IJsonLdNodeObject },
 		data?: D,
-		action?: ActionType | string
+		action?: OdrlActionType | string
 	): Promise<IPolicyDecision[]> {
 		Guards.object<IDataspaceProtocolAgreement>(
 			DefaultPolicyArbiter.CLASS_NAME,
@@ -192,15 +192,15 @@ export class DefaultPolicyArbiter implements IPolicyArbiter {
 			}
 		}
 
-		const conflictStrategy = mergedPolicy.conflict ?? ConflictStrategyType.Invalid;
+		const conflictStrategy = mergedPolicy.conflict ?? OdrlConflictStrategyType.Invalid;
 		let decision: PolicyDecision;
 		if (permissionApplies && prohibitionApplies) {
 			switch (conflictStrategy) {
-				case ConflictStrategyType.Perm:
+				case OdrlConflictStrategyType.Perm:
 					decision = PolicyDecision.Granted;
 					break;
-				case ConflictStrategyType.Prohibit:
-				case ConflictStrategyType.Invalid:
+				case OdrlConflictStrategyType.Prohibit:
+				case OdrlConflictStrategyType.Invalid:
 				default:
 					decision = PolicyDecision.Denied;
 					break;
@@ -227,7 +227,7 @@ export class DefaultPolicyArbiter implements IPolicyArbiter {
 		agreementAssignee: string[] | undefined,
 		prohibition: IOdrlProhibition,
 		data?: unknown,
-		action?: ActionType | string
+		action?: OdrlActionType | string
 	): boolean {
 		if (!this.isRuleApplicableToParties(prohibition, agreementAssigner, agreementAssignee)) {
 			return false;
@@ -317,7 +317,7 @@ export class DefaultPolicyArbiter implements IPolicyArbiter {
 		if (conflictStrategies.size === 1) {
 			mergedConflict = Array.from(conflictStrategies)[0] as IDataspaceProtocolPolicy["conflict"];
 		} else if (conflictStrategies.size > 1) {
-			mergedConflict = ConflictStrategyType.Invalid;
+			mergedConflict = OdrlConflictStrategyType.Invalid;
 		}
 
 		// Return a new policy with merged rules
@@ -515,7 +515,7 @@ export class DefaultPolicyArbiter implements IPolicyArbiter {
 	 */
 	private isActionApplicable(
 		ruleActions: IOdrlRule["action"],
-		requestedAction?: ActionType | string
+		requestedAction?: OdrlActionType | string
 	): boolean {
 		// If the rule has no action specified, it applies to all actions
 		if (Is.empty(ruleActions)) {
@@ -566,7 +566,7 @@ export class DefaultPolicyArbiter implements IPolicyArbiter {
 		permission: IOdrlPermission,
 		information?: { [id: string]: IJsonLdNodeObject },
 		data?: unknown,
-		action?: ActionType | string
+		action?: OdrlActionType | string
 	): Promise<boolean> {
 		if (!this.isRuleApplicableToParties(permission, agreementAssigner, agreementAssignee)) {
 			return false;
@@ -752,12 +752,12 @@ export class DefaultPolicyArbiter implements IPolicyArbiter {
 	 */
 	private getLogicalConstraintOperands(constraint: IOdrlConstraint | IOdrlLogicalConstraint):
 		| {
-				operator: LogicalConstraintType;
+				operator: OdrlLogicalConstraintType;
 				constraints: (IOdrlConstraint | IOdrlLogicalConstraint)[];
 		  }
 		| undefined {
 		const logicalConstraint = constraint as IOdrlLogicalConstraint;
-		const operators: LogicalConstraintType[] = Object.values(LogicalConstraintType);
+		const operators: OdrlLogicalConstraintType[] = Object.values(OdrlLogicalConstraintType);
 		for (const operator of operators) {
 			const value = logicalConstraint[operator];
 			if (!Is.undefined(value)) {
@@ -807,7 +807,7 @@ export class DefaultPolicyArbiter implements IPolicyArbiter {
 	 */
 	private validateLogicalConstraintOperandUniqueness(
 		constraints: (IOdrlConstraint | IOdrlLogicalConstraint)[],
-		operator: LogicalConstraintType
+		operator: OdrlLogicalConstraintType
 	): void {
 		const seenIdentifiers = new Set<string>();
 
@@ -842,7 +842,7 @@ export class DefaultPolicyArbiter implements IPolicyArbiter {
 	 */
 	private evaluateLogicalConstraint(
 		logicalConstraint: {
-			operator: LogicalConstraintType;
+			operator: OdrlLogicalConstraintType;
 			constraints: (IOdrlConstraint | IOdrlLogicalConstraint)[];
 		},
 		ruleDataContext?: unknown
@@ -853,9 +853,9 @@ export class DefaultPolicyArbiter implements IPolicyArbiter {
 		}
 
 		switch (operator) {
-			case LogicalConstraintType.And:
+			case OdrlLogicalConstraintType.And:
 				return constraints.every(item => this.evaluateConstraint(item, ruleDataContext));
-			case LogicalConstraintType.AndSequence: {
+			case OdrlLogicalConstraintType.AndSequence: {
 				for (const item of constraints) {
 					if (!this.evaluateConstraint(item, ruleDataContext)) {
 						return false;
@@ -863,9 +863,9 @@ export class DefaultPolicyArbiter implements IPolicyArbiter {
 				}
 				return true;
 			}
-			case LogicalConstraintType.Or:
+			case OdrlLogicalConstraintType.Or:
 				return constraints.some(item => this.evaluateConstraint(item, ruleDataContext));
-			case LogicalConstraintType.Xone: {
+			case OdrlLogicalConstraintType.Xone: {
 				let satisfied = 0;
 				for (const item of constraints) {
 					if (this.evaluateConstraint(item, ruleDataContext)) {
@@ -952,24 +952,24 @@ export class DefaultPolicyArbiter implements IPolicyArbiter {
 	 * @returns True if the comparison is satisfied.
 	 * @internal
 	 */
-	private evaluateOperator(operator: OperatorType, left: unknown, right: unknown): boolean {
+	private evaluateOperator(operator: OdrlOperatorType, left: unknown, right: unknown): boolean {
 		// Handle array/collection left values (e.g. JSONPath returning multiple matches).
 		const leftValues = ArrayHelper.fromObjectOrArray(left ?? []);
 
 		switch (operator) {
-			case OperatorType.Eq:
+			case OdrlOperatorType.Eq:
 				return leftValues.some(v => ObjectHelper.equal(v, right, false));
-			case OperatorType.Neq:
+			case OdrlOperatorType.Neq:
 				return leftValues.every(v => !ObjectHelper.equal(v, right, false));
-			case OperatorType.Gt:
+			case OdrlOperatorType.Gt:
 				return leftValues.some(v => this.compareOrdered(v, right, (a, b) => a > b));
-			case OperatorType.Gteq:
+			case OdrlOperatorType.Gteq:
 				return leftValues.some(v => this.compareOrdered(v, right, (a, b) => a >= b));
-			case OperatorType.Lt:
+			case OdrlOperatorType.Lt:
 				return leftValues.some(v => this.compareOrdered(v, right, (a, b) => a < b));
-			case OperatorType.Lteq:
+			case OdrlOperatorType.Lteq:
 				return leftValues.some(v => this.compareOrdered(v, right, (a, b) => a <= b));
-			case OperatorType.IsAnyOf: {
+			case OdrlOperatorType.IsAnyOf: {
 				return leftValues.some(v => {
 					const stringValue =
 						typeof v === "string" || typeof v === "number" || typeof v === "boolean"
@@ -978,19 +978,19 @@ export class DefaultPolicyArbiter implements IPolicyArbiter {
 					return (ArrayHelper.fromObjectOrArray(right) ?? []).includes(stringValue);
 				});
 			}
-			case OperatorType.IsAllOf: {
+			case OdrlOperatorType.IsAllOf: {
 				return ObjectHelper.equal(leftValues, ArrayHelper.fromObjectOrArray(right) ?? [], false);
 			}
-			case OperatorType.IsNoneOf: {
+			case OdrlOperatorType.IsNoneOf: {
 				return leftValues.every(v => !(ArrayHelper.fromObjectOrArray(right) ?? []).includes(v));
 			}
-			case OperatorType.LocTimeEq:
+			case OdrlOperatorType.LocTimeEq:
 				return leftValues.some(v => ObjectHelper.equal(v, right, false));
-			case OperatorType.LocTimeGteq:
+			case OdrlOperatorType.LocTimeGteq:
 				return leftValues.some(v => this.compareOrdered(v, right, (a, b) => a >= b));
-			case OperatorType.IsA:
-			case OperatorType.HasPart:
-			case OperatorType.IsPartOf:
+			case OdrlOperatorType.IsA:
+			case OdrlOperatorType.HasPart:
+			case OdrlOperatorType.IsPartOf:
 				// For now, treat these as simple equality/ordering semantics where meaningful.
 				// Profiles can introduce richer semantics via additional arbiters.
 				return leftValues.some(v => ObjectHelper.equal(v, right, false));

@@ -24,7 +24,7 @@ The unique identifier for the policy.
 
 ### type {#type}
 
-> **type**: `PolicyType`
+> **type**: `OdrlPolicyType`
 
 The type of policy.
 
@@ -80,7 +80,7 @@ The parent policy(ies) this policy inherits from.
 
 ### conflict? {#conflict}
 
-> `optional` **conflict?**: `ConflictStrategyType`
+> `optional` **conflict?**: `OdrlConflictStrategyType`
 
 The conflict resolution strategy.
 

@@ -13,7 +13,7 @@ import { LoggingService } from "@twin.org/logging-service";
 import { nameof } from "@twin.org/nameof";
 import { PolicyDecision, type IPolicyDecision } from "@twin.org/rights-management-models";
 import type { IDataspaceProtocolAgreement } from "@twin.org/standards-dataspace-protocol";
-import { OdrlContexts, PolicyType } from "@twin.org/standards-w3c-odrl";
+import { OdrlContexts, OdrlPolicyType } from "@twin.org/standards-w3c-odrl";
 import { DefaultPolicyEnforcementProcessor } from "../src/policyEnforcementProcessor/defaultPolicyEnforcementProcessor.js";
 
 let loggingMemoryEntityStorage: MemoryEntityStorageConnector<LogEntry>;
@@ -22,7 +22,7 @@ describe("DefaultPolicyEnforcementProcessor", () => {
 	function createAgreement(uid: string = "policy123"): IDataspaceProtocolAgreement {
 		return {
 			"@context": OdrlContexts.Context,
-			"@type": PolicyType.Agreement,
+			"@type": OdrlPolicyType.Agreement,
 			"@id": uid,
 			assigner: "did:example:assigner",
 			assignee: "did:example:assignee"

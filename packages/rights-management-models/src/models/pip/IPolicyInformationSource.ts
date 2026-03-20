@@ -3,7 +3,7 @@
 import type { IComponent } from "@twin.org/core";
 import type { IJsonLdNodeObject } from "@twin.org/data-json-ld";
 import type { IDataspaceProtocolPolicy } from "@twin.org/standards-dataspace-protocol";
-import type { ActionType } from "@twin.org/standards-w3c-odrl";
+import type { OdrlActionType } from "@twin.org/standards-w3c-odrl";
 import type { PolicyInformationAccessMode } from "./policyInformationAccessMode.js";
 
 /**
@@ -22,6 +22,6 @@ export interface IPolicyInformationSource extends IComponent {
 		policy: IDataspaceProtocolPolicy | undefined,
 		accessMode: PolicyInformationAccessMode,
 		data?: D,
-		action?: ActionType | string
+		action?: OdrlActionType | string
 	): Promise<{ [id: string]: IJsonLdNodeObject } | undefined>;
 }

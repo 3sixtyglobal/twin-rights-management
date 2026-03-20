@@ -21,7 +21,7 @@ import { PolicyInformationPointService } from "@twin.org/rights-management-pip-s
 import { PolicyManagementPointService } from "@twin.org/rights-management-pmp-service";
 import { PolicyExecutionPointService } from "@twin.org/rights-management-pxp-service";
 import type { IDataspaceProtocolAgreement } from "@twin.org/standards-dataspace-protocol";
-import { OdrlContexts, PolicyType } from "@twin.org/standards-w3c-odrl";
+import { OdrlContexts, OdrlPolicyType } from "@twin.org/standards-w3c-odrl";
 import { PolicyDecisionPointService } from "../src/policyDecisionPointService.js";
 
 let loggingMemoryEntityStorage: MemoryEntityStorageConnector<LogEntry>;
@@ -35,7 +35,7 @@ function createPolicy(options?: {
 }): IDataspaceProtocolAgreement {
 	return {
 		"@context": OdrlContexts.Context,
-		"@type": PolicyType.Agreement,
+		"@type": OdrlPolicyType.Agreement,
 		assigner: "assigner",
 		"@id": options?.uid ?? "policy123",
 		action: options?.action ?? "action",

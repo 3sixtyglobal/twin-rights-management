@@ -2452,7 +2452,7 @@
 						"$ref": "https://schema.twindev.org/w3c-odrl/OdrlContextType"
 					},
 					"@type": {
-						"$ref": "https://schema.twindev.org/w3c-odrl/PolicyType"
+						"$ref": "https://schema.twindev.org/w3c-odrl/OdrlPolicyType"
 					},
 					"profile": {
 						"anyOf": [
@@ -2561,7 +2561,7 @@
 					"action": {
 						"anyOf": [
 							{
-								"$ref": "https://schema.twindev.org/w3c-odrl/ActionType"
+								"$ref": "https://schema.twindev.org/w3c-odrl/OdrlActionType"
 							},
 							{
 								"type": "string"
@@ -2574,7 +2574,7 @@
 								"items": {
 									"anyOf": [
 										{
-											"$ref": "https://schema.twindev.org/w3c-odrl/ActionType"
+											"$ref": "https://schema.twindev.org/w3c-odrl/OdrlActionType"
 										},
 										{
 											"type": "string"
@@ -2603,7 +2603,7 @@
 						"description": "The parent policy(ies) this policy inherits from.\nIRIs identifying the parent Policy(ies)."
 					},
 					"conflict": {
-						"$ref": "https://schema.twindev.org/w3c-odrl/ConflictStrategyType"
+						"$ref": "https://schema.twindev.org/w3c-odrl/OdrlConflictStrategyType"
 					},
 					"permission": {
 						"anyOf": [

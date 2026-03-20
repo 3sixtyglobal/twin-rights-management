@@ -11,7 +11,7 @@ import {
 	PolicyInformationAccessMode
 } from "@twin.org/rights-management-models";
 import type { IDataspaceProtocolPolicy } from "@twin.org/standards-dataspace-protocol";
-import type { ActionType } from "@twin.org/standards-w3c-odrl";
+import type { OdrlActionType } from "@twin.org/standards-w3c-odrl";
 import type { IIdentityPolicyInformationSourceConstructorOptions } from "../models/IIdentityPolicyInformationSourceConstructorOptions.js";
 
 /**
@@ -68,7 +68,7 @@ export class IdentityPolicyInformationSource implements IPolicyInformationSource
 		policy: IDataspaceProtocolPolicy | undefined,
 		accessMode: PolicyInformationAccessMode,
 		data?: D,
-		action?: ActionType | string
+		action?: OdrlActionType | string
 	): Promise<{ [id: string]: IJsonLdNodeObject } | undefined> {
 		Guards.arrayOneOf(
 			IdentityPolicyInformationSource.CLASS_NAME,
