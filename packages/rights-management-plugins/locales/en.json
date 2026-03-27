@@ -4,14 +4,25 @@
 			"identityRetrievalFailed": "Failed to retrieve identity \"{id}\" information for policy id: \"{policyId}\""
 		},
 		"defaultPolicyArbiter": {
-			"jsonPathOperandMissingTarget": "The operand \"{operand}\" is missing a JSONPath target after the twin:jsonpath: prefix.",
-			"informationTargetMissing": "The permission target references information key \"{key}\" but it does not exist.",
+			"ruleTargetNotSupported": "Rule target \"{target}\" is not supported. Only twin:<object>:<jsonPath> targets are currently supported.",
 			"multipleTargetsNotSupported": "Multiple targets in a single permission are not supported.",
 			"circularInheritanceDetected": "Circular inheritance detected: policy \"{policyId}\" inherits from \"{inheritFromId}\" which creates a cycle.",
 			"logicalConstraintOperandNotUnique": "Logical constraint operand is not unique within the policy, each operand must be unique.",
 			"inheritedPolicyNotFound": "The inherited policy with id \"{inheritFromId}\" could not be found in the Policy Administration Point.",
+			"assetCollectionSourceNotSupported": "AssetCollection source \"{source}\" is not supported. It must be a twin:jsonpath target.",
+			"partyCollectionSourceNotSupported": "PartyCollection source \"{source}\" is not supported.",
+			"assetHasPolicyNotSupported": "Asset hasPolicy is not supported. Policies must be referenced through the agreement directly.",
+			"assetPartOfNotSupported": "Asset partOf is not supported. AssetCollection membership is resolved through the agreement directly.",
+			"partyAssignerOfNotSupported": "Party assignerOf is not supported. Assigner roles must be specified directly on individual rules or the agreement.",
+			"partyAssigneeOfNotSupported": "Party assigneeOf is not supported. Assignee roles must be specified directly on individual rules or the agreement.",
+			"partyPartOfNotSupported": "Party partOf is not supported. PartyCollection membership is resolved through the agreement directly.",
 			"noObligationEnforcersRegistered": "No Policy Obligation Enforcers are registered and they are required to enforce duties.",
-			"maxInheritanceDepthExceeded": "The maximum inheritance depth of {maxInheritanceDepth} has been exceeded when processing policy \"{policyId}\"."
+			"maxInheritanceDepthExceeded": "The maximum inheritance depth of {maxInheritanceDepth} has been exceeded when processing policy \"{policyId}\".",
+			"rightOperandReferenceNotSupported": "Constraint rightOperandReference is not supported. Use rightOperand with a typed JSONPath value instead.",
+			"constraintDataTypeNotSupported": "Constraint dataType is not supported. Value coercion based on dataType is not implemented.",
+			"constraintUnitNotSupported": "Constraint unit is not supported. Unit-aware comparison is not implemented.",
+			"constraintStatusNotSupported": "Constraint status is not supported. State-based evaluation is not implemented.",
+			"policyProfileNotSupported": "Policy \"{policyId}\" declares a profile. Profile-specific semantics are not supported."
 		},
 		"defaultPolicyEnforcementProcessor": {
 			"targetNotJsonPath": "The policy decision target \"{target}\" is not a valid JSON-path string, it should be a minimum of $.",

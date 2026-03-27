@@ -140,6 +140,65 @@ describe("DefaultPolicyEnforcementProcessor", () => {
 		expect(result).toEqual(data);
 	});
 
+	test("grants specific array elements after root deny-all", async () => {
+		const processor = new DefaultPolicyEnforcementProcessor();
+		const data = {
+			itemList: {
+				itemListElement: [
+					{ id: "item-1", country: "GB" },
+					{ id: "item-2", country: "DE" },
+					{ id: "item-3", country: "GB" }
+				]
+			}
+		};
+
+		const result = await processor.process(
+			createPolicy(),
+			[
+				{ decision: PolicyDecision.Denied, target: "$" },
+				{ decision: PolicyDecision.Granted, target: "$.itemList.itemListElement[0]" },
+				{ decision: PolicyDecision.Granted, target: "$.itemList.itemListElement[2]" }
+			] as IPolicyDecision[],
+			data
+		);
+
+		expect(result).toEqual({
+			itemList: {
+				itemListElement: [
+					{ id: "item-1", country: "GB" },
+					undefined,
+					{ id: "item-3", country: "GB" }
+				]
+			}
+		});
+	});
+
+	test("grants a single property after root deny-all", async () => {
+		const processor = new DefaultPolicyEnforcementProcessor();
+		const data = {
+			name: "Alice",
+			profile: {
+				email: "alice@example.com",
+				phone: "123"
+			}
+		};
+
+		const result = await processor.process(
+			createPolicy(),
+			[
+				{ decision: PolicyDecision.Denied, target: "$" },
+				{ decision: PolicyDecision.Granted, target: "$.profile.email" }
+			] as IPolicyDecision[],
+			data
+		);
+
+		expect(result).toEqual({
+			profile: {
+				email: "alice@example.com"
+			}
+		});
+	});
+
 	test("grants only the specific target when provided", async () => {
 		const processor = new DefaultPolicyEnforcementProcessor();
 		const data = {
