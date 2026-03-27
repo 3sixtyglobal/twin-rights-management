@@ -1,5 +1,22 @@
 # Changelog
 
+## [0.0.3-next.26](https://github.com/twinfoundation/rights-management/compare/rights-management-pnp-service-v0.0.3-next.25...rights-management-pnp-service-v0.0.3-next.26) (2026-03-27)
+
+
+### Miscellaneous Chores
+
+* **rights-management-pnp-service:** Synchronize repo versions
+
+
+### Dependencies
+
+* The following workspace dependencies were updated
+  * dependencies
+    * @twin.org/rights-management-models bumped from 0.0.3-next.25 to 0.0.3-next.26
+  * devDependencies
+    * @twin.org/rights-management-pap-service bumped from 0.0.3-next.25 to 0.0.3-next.26
+    * @twin.org/rights-management-pip-service bumped from 0.0.3-next.25 to 0.0.3-next.26
+
 ## [0.0.3-next.25](https://github.com/twinfoundation/rights-management/compare/rights-management-pnp-service-v0.0.3-next.24...rights-management-pnp-service-v0.0.3-next.25) (2026-03-20)
 
 
