@@ -1,5 +1,27 @@
 # Changelog
 
+## [0.0.3-next.27](https://github.com/twinfoundation/rights-management/compare/rights-management-service-v0.0.3-next.26...rights-management-service-v0.0.3-next.27) (2026-03-31)
+
+
+### Features
+
+* add skipTenant to PNP route definitions ([#110](https://github.com/twinfoundation/rights-management/issues/110)) ([5a8e925](https://github.com/twinfoundation/rights-management/commit/5a8e925868c94d12e382e184c5a16ee8135194b1))
+
+
+### Dependencies
+
+* The following workspace dependencies were updated
+  * dependencies
+    * @twin.org/rights-management-models bumped from 0.0.3-next.26 to 0.0.3-next.27
+  * devDependencies
+    * @twin.org/rights-management-pap-service bumped from 0.0.3-next.26 to 0.0.3-next.27
+    * @twin.org/rights-management-pdp-service bumped from 0.0.3-next.26 to 0.0.3-next.27
+    * @twin.org/rights-management-pep-service bumped from 0.0.3-next.26 to 0.0.3-next.27
+    * @twin.org/rights-management-pip-service bumped from 0.0.3-next.26 to 0.0.3-next.27
+    * @twin.org/rights-management-pmp-service bumped from 0.0.3-next.26 to 0.0.3-next.27
+    * @twin.org/rights-management-pnp-service bumped from 0.0.3-next.26 to 0.0.3-next.27
+    * @twin.org/rights-management-pxp-service bumped from 0.0.3-next.26 to 0.0.3-next.27
+
 ## [0.0.3-next.26](https://github.com/twinfoundation/rights-management/compare/rights-management-service-v0.0.3-next.25...rights-management-service-v0.0.3-next.26) (2026-03-27)
 
 

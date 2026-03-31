@@ -1,5 +1,19 @@
 # Changelog
 
+## [0.0.3-next.27](https://github.com/twinfoundation/rights-management/compare/rights-management-rest-client-v0.0.3-next.26...rights-management-rest-client-v0.0.3-next.27) (2026-03-31)
+
+
+### Miscellaneous Chores
+
+* **rights-management-rest-client:** Synchronize repo versions
+
+
+### Dependencies
+
+* The following workspace dependencies were updated
+  * dependencies
+    * @twin.org/rights-management-models bumped from 0.0.3-next.26 to 0.0.3-next.27
+
 ## [0.0.3-next.26](https://github.com/twinfoundation/rights-management/compare/rights-management-rest-client-v0.0.3-next.25...rights-management-rest-client-v0.0.3-next.26) (2026-03-27)
 
 
