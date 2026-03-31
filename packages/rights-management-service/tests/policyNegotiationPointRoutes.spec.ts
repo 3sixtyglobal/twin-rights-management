@@ -15,7 +15,11 @@ import {
 } from "@twin.org/standards-dataspace-protocol";
 import { OdrlTypes } from "@twin.org/standards-w3c-odrl";
 import { HeaderTypes, MimeTypes } from "@twin.org/web";
-import { pnpNegotiationOffer, pnpNegotiationRequest } from "../src/policyNegotiationPointRoutes.js";
+import {
+	generateRestRoutesPolicyNegotiationPoint,
+	pnpNegotiationOffer,
+	pnpNegotiationRequest
+} from "../src/policyNegotiationPointRoutes.js";
 
 const TEST_PUBLIC_ORIGIN = "http://localhost:3000";
 
@@ -52,6 +56,19 @@ const mockHttpRequestContext: IHttpRequestContext = {
 	hostingComponentType: "hosting",
 	processorState: {}
 };
+
+describe("generateRestRoutesPolicyNegotiationPoint route flags", () => {
+	const routes = generateRestRoutesPolicyNegotiationPoint("rights-management", "pnp");
+
+	test("generates exactly 9 PNP routes", () => {
+		expect(routes).toHaveLength(9);
+	});
+
+	test.each(routes)("$operationId should have skipAuth and skipTenant set to true", route => {
+		expect(route.skipAuth, `${route.operationId} is missing skipAuth: true`).toBe(true);
+		expect(route.skipTenant, `${route.operationId} is missing skipTenant: true`).toBe(true);
+	});
+});
 
 describe("policyNegotiationPointRoutes", () => {
 	beforeEach(() => {
