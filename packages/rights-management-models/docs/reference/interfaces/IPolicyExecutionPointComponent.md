@@ -27,7 +27,7 @@ Execute actions based on the PDP's decisions.
 
 ##### policy
 
-`IDataspaceProtocolPolicy`
+[`IRightsManagementPolicy`](../type-aliases/IRightsManagementPolicy.md)
 
 The policy that applied to the data.
 

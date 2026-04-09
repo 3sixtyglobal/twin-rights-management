@@ -56,7 +56,7 @@ The class name of the component.
 
 ### retrieve() {#retrieve}
 
-> **retrieve**(`options?`, `cursor?`): `Promise`\<\{ `policies`: `IDataspaceProtocolPolicy`[]; `cursor?`: `string`; \}\>
+> **retrieve**(`options?`, `cursor?`): `Promise`\<\{ `policies`: `IRightsManagementPolicy`[]; `cursor?`: `string`; \}\>
 
 Get the policies from a PAP based on the data and identities.
 
@@ -98,7 +98,7 @@ An optional cursor to continue a previous query.
 
 #### Returns
 
-`Promise`\<\{ `policies`: `IDataspaceProtocolPolicy`[]; `cursor?`: `string`; \}\>
+`Promise`\<\{ `policies`: `IRightsManagementPolicy`[]; `cursor?`: `string`; \}\>
 
 Returns the policies which apply to the data and context so that the PDP can make a decision.
 

@@ -70,7 +70,7 @@ Enforces obligations regarding policy access to data.
 
 ##### policy
 
-`IDataspaceProtocolPolicy`
+`IRightsManagementPolicy`
 
 The policy to evaluate.
 

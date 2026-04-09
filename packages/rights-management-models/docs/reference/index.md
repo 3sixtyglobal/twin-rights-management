@@ -6,7 +6,6 @@
 
 ## Interfaces
 
-- [IRightsManagementEcosystemPolicy](interfaces/IRightsManagementEcosystemPolicy.md)
 - [IPapCreateRequest](interfaces/IPapCreateRequest.md)
 - [IPapGetAgreementRequest](interfaces/IPapGetAgreementRequest.md)
 - [IPapGetAgreementResponse](interfaces/IPapGetAgreementResponse.md)
@@ -57,6 +56,8 @@
 
 ## Type Aliases
 
+- [IRightsManagementEcosystemPolicy](type-aliases/IRightsManagementEcosystemPolicy.md)
+- [IRightsManagementPolicy](type-aliases/IRightsManagementPolicy.md)
 - [OdrlProfiles](type-aliases/OdrlProfiles.md)
 - [PolicyDecision](type-aliases/PolicyDecision.md)
 - [PolicyDecisionStage](type-aliases/PolicyDecisionStage.md)

@@ -6,6 +6,6 @@ The response structure for getting an ecosystem policy.
 
 ### body {#body}
 
-> **body**: [`IRightsManagementEcosystemPolicy`](IRightsManagementEcosystemPolicy.md)
+> **body**: [`IRightsManagementEcosystemPolicy`](../type-aliases/IRightsManagementEcosystemPolicy.md)
 
 The body of the response.

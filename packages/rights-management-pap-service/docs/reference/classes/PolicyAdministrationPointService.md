@@ -64,7 +64,7 @@ Create a new policy with auto-generated UID.
 
 ##### policy
 
-`JsonLdObjectWithOptionalAtId`\<`IDataspaceProtocolPolicy`\>
+`JsonLdObjectWithOptionalAtId`\<`IRightsManagementPolicy`\>
 
 The policy to create (uid will be auto-generated).
 
@@ -90,7 +90,7 @@ Update an existing policy.
 
 ##### policy
 
-`IDataspaceProtocolPolicy`
+`IRightsManagementPolicy`
 
 The policy to update (must include uid).
 
@@ -108,7 +108,7 @@ Nothing.
 
 ### get() {#get}
 
-> **get**(`policyId`): `Promise`\<`IDataspaceProtocolPolicy`\>
+> **get**(`policyId`): `Promise`\<`IRightsManagementPolicy`\>
 
 Get a policy from the entity storage.
 
@@ -122,7 +122,7 @@ The ID of the policy to get.
 
 #### Returns
 
-`Promise`\<`IDataspaceProtocolPolicy`\>
+`Promise`\<`IRightsManagementPolicy`\>
 
 The policy.
 
@@ -262,7 +262,7 @@ The ID of the policy to remove.
 
 ### query() {#query}
 
-> **query**(`options?`, `conditions?`, `cursor?`, `limit?`): `Promise`\<\{ `cursor?`: `string`; `policies`: `IDataspaceProtocolPolicy`[]; \}\>
+> **query**(`options?`, `conditions?`, `cursor?`, `limit?`): `Promise`\<\{ `cursor?`: `string`; `policies`: `IRightsManagementPolicy`[]; \}\>
 
 Query the entity storage for policies.
 
@@ -298,7 +298,7 @@ The action to filter by.
 
 ##### conditions?
 
-`EntityCondition`\<`IDataspaceProtocolPolicy`\>
+`EntityCondition`\<`IRightsManagementPolicy`\>
 
 The conditions to query the entity storage with.
 
@@ -316,7 +316,7 @@ The number of results to return per page.
 
 #### Returns
 
-`Promise`\<\{ `cursor?`: `string`; `policies`: `IDataspaceProtocolPolicy`[]; \}\>
+`Promise`\<\{ `cursor?`: `string`; `policies`: `IRightsManagementPolicy`[]; \}\>
 
 The policies.
 

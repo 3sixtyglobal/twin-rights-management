@@ -70,7 +70,7 @@ Retrieve information from the sources.
 
 ##### policy
 
-`IDataspaceProtocolPolicy` \| `undefined`
+`IRightsManagementPolicy` \| `undefined`
 
 The policy to retrieve information for if available.
 

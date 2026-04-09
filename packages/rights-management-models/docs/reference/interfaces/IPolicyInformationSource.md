@@ -24,7 +24,7 @@ Retrieve information from the sources.
 
 ##### policy
 
-`IDataspaceProtocolPolicy` \| `undefined`
+[`IRightsManagementPolicy`](../type-aliases/IRightsManagementPolicy.md) \| `undefined`
 
 The policy to retrieve information for if available.
 

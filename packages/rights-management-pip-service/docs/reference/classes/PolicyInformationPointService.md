@@ -70,7 +70,7 @@ Retrieve additional information which is relevant in the PDP decision making.
 
 ##### policy
 
-`IDataspaceProtocolPolicy` \| `undefined`
+`IRightsManagementPolicy` \| `undefined`
 
 The policy to retrieve the information for if available.
 

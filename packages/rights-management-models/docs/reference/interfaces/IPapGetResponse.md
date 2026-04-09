@@ -6,6 +6,6 @@ The response structure for getting a policy.
 
 ### body {#body}
 
-> **body**: `IDataspaceProtocolPolicy`
+> **body**: [`IRightsManagementPolicy`](../type-aliases/IRightsManagementPolicy.md)
 
 The body of the response.

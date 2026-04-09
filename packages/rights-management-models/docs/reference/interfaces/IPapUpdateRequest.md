@@ -20,6 +20,6 @@ The ID of the policy to update.
 
 ### body {#body}
 
-> **body**: `IDataspaceProtocolPolicy`
+> **body**: [`IRightsManagementPolicy`](../type-aliases/IRightsManagementPolicy.md)
 
 The body of the request.

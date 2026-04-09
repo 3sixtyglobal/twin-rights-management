@@ -34,6 +34,16 @@ The options for the default policy arbiter.
 
 The class name of the Default Policy Arbiter.
 
+***
+
+### SUPPORTED\_PROFILES {#supported_profiles}
+
+> `readonly` `static` **SUPPORTED\_PROFILES**: `ReadonlySet`\<`string`\>
+
+ODRL profiles whose custom vocabulary this arbiter understands and supports.
+Any policy declaring a profile not in this set will be rejected.
+Add a new entry here when support for an additional profile is implemented.
+
 ## Methods
 
 ### className() {#classname}

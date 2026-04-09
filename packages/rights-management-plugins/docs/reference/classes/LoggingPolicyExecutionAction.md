@@ -88,7 +88,7 @@ Execute function type for policy actions.
 
 ##### policy
 
-`IDataspaceProtocolPolicy`
+`IRightsManagementPolicy`
 
 The policy that applied to the data.
 

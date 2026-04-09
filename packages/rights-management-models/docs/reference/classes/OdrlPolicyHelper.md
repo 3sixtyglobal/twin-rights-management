@@ -155,7 +155,7 @@ correctly indexed for query().
 
 ##### policy
 
-`IDataspaceProtocolPolicy`
+[`IRightsManagementPolicy`](../type-aliases/IRightsManagementPolicy.md)
 
 The policy to extract the targets from.
 
@@ -181,7 +181,7 @@ correctly indexed for query().
 
 ##### policy
 
-`IDataspaceProtocolPolicy`
+[`IRightsManagementPolicy`](../type-aliases/IRightsManagementPolicy.md)
 
 The policy to extract the actions from.
 
@@ -203,7 +203,7 @@ Does the policy match.
 
 ##### policy
 
-`IDataspaceProtocolPolicy` \| `undefined`
+[`IRightsManagementPolicy`](../type-aliases/IRightsManagementPolicy.md) \| `undefined`
 
 The policy to try and match.
 

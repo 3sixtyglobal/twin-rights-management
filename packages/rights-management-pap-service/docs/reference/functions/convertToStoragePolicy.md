@@ -8,7 +8,7 @@ Converts an IDataspaceProtocolPolicy to an OdrlPolicy for storage.
 
 ### T
 
-`T` *extends* `IDataspaceProtocolPolicy`
+`T` *extends* `IRightsManagementPolicy`
 
 ## Parameters
 

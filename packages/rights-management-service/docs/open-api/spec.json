@@ -351,7 +351,7 @@
 					"content": {
 						"application/json": {
 							"schema": {
-								"$ref": "https://schema.twindev.org/dataspace-protocol/DataspaceProtocolPolicy"
+								"$ref": "https://schema.twindev.org/rights-management/RightsManagementPolicy"
 							},
 							"examples": {
 								"papUpdateRequestExample": {
@@ -464,7 +464,7 @@
 						"content": {
 							"application/json": {
 								"schema": {
-									"$ref": "https://schema.twindev.org/dataspace-protocol/DataspaceProtocolPolicy"
+									"$ref": "https://schema.twindev.org/rights-management/RightsManagementPolicy"
 								},
 								"examples": {
 									"papGetResponseExample": {
@@ -1001,7 +1001,7 @@
 						"content": {
 							"application/json": {
 								"schema": {
-									"$ref": "#/components/schemas/RightsManagementEcosystemPolicy"
+									"$ref": "https://schema.twindev.org/rights-management/RightsManagementEcosystemPolicy"
 								},
 								"examples": {
 									"papGetEcosystemPolicyResponseExample": {
@@ -2586,9 +2586,6 @@
 					"@context": {
 						"$ref": "https://schema.twindev.org/w3c-odrl/OdrlContextType"
 					},
-          "@type": {
-            "$ref": "https://schema.twindev.org/rights-management/RightsManagementPolicyType"
-          },
 					"profile": {
 						"anyOf": [
 							{
@@ -2782,6 +2779,9 @@
 						],
 						"description": "The obligations in the policy.\nAt least one of permission, prohibition, or obligation must be present."
 					},
+					"@type": {
+						"$ref": "https://schema.twindev.org/rights-management/RightsManagementPolicyType"
+					},
 					"@id": {
 						"type": "string",
 						"description": "Unique identifier for the policy."
@@ -2795,7 +2795,7 @@
 			"PapQueryResponse": {
 				"type": "array",
 				"items": {
-					"$ref": "https://schema.twindev.org/dataspace-protocol/DataspaceProtocolPolicy"
+					"$ref": "https://schema.twindev.org/rights-management/RightsManagementPolicy"
 				},
 				"description": "The body of the response."
 			},
@@ -2923,24 +2923,6 @@
 					"dateCreated",
 					"state",
 					"organizationIdentity"
-				]
-			},
-			"RightsManagementEcosystemPolicy": {
-				"description": "TWIN EcosystemPolicy in DSP storage shape.\n\nCombines the DSP wire-format requirements (mandatory `@id`, no `uid`) from\n`IDataspaceProtocolPolicy` with a narrowed `@type` discriminant so that callers\ncan rely on the type at compile time without any `as unknown as` cast.\n\nLives in `rights-management-models` (not `standards-dataspace-protocol`) because\nEcosystemPolicy is a TWIN platform extension — not a DSP specification concept —\nand `standards-dataspace-protocol` should remain a pure standards mirror.",
-				"type": "object",
-				"properties": {
-					"@type": {
-						"const": "EcosystemPolicy",
-						"description": "The type must be \"EcosystemPolicy\"."
-					}
-				},
-				"required": [
-					"@type"
-				],
-				"allOf": [
-					{
-						"$ref": "https://schema.twindev.org/dataspace-protocol/DataspaceProtocolPolicy"
-					}
 				]
 			},
 			"TrustVerificationInfo": {

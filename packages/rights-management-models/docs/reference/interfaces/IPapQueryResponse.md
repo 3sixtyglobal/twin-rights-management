@@ -18,6 +18,6 @@ The headers which can be used to determine the response data type.
 
 ### body {#body}
 
-> **body**: `IDataspaceProtocolPolicy`[]
+> **body**: [`IRightsManagementPolicy`](../type-aliases/IRightsManagementPolicy.md)[]
 
 The body of the response.

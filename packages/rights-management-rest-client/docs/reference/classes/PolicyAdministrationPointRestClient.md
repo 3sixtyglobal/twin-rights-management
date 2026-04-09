@@ -72,7 +72,7 @@ Create a new policy with auto-generated UID.
 
 ##### policy
 
-`JsonLdObjectWithOptionalAtId`\<`IDataspaceProtocolPolicy`\>
+`JsonLdObjectWithOptionalAtId`\<`IRightsManagementPolicy`\>
 
 The policy to create (uid will be auto-generated).
 
@@ -98,7 +98,7 @@ Update an existing policy.
 
 ##### policy
 
-`IDataspaceProtocolPolicy`
+`IRightsManagementPolicy`
 
 The policy to update (must include uid).
 
@@ -116,7 +116,7 @@ Nothing.
 
 ### get() {#get}
 
-> **get**(`policyId`): `Promise`\<`IDataspaceProtocolPolicy`\>
+> **get**(`policyId`): `Promise`\<`IRightsManagementPolicy`\>
 
 Get a policy.
 
@@ -130,7 +130,7 @@ The id of the policy to get.
 
 #### Returns
 
-`Promise`\<`IDataspaceProtocolPolicy`\>
+`Promise`\<`IRightsManagementPolicy`\>
 
 The policy.
 
@@ -272,7 +272,7 @@ Nothing.
 
 ### query() {#query}
 
-> **query**(`options?`, `conditions?`, `cursor?`, `limit?`): `Promise`\<\{ `cursor?`: `string`; `policies`: `IDataspaceProtocolPolicy`[]; \}\>
+> **query**(`options?`, `conditions?`, `cursor?`, `limit?`): `Promise`\<\{ `cursor?`: `string`; `policies`: `IRightsManagementPolicy`[]; \}\>
 
 Query the policies using the specified conditions.
 
@@ -308,7 +308,7 @@ The action to filter by.
 
 ##### conditions?
 
-`EntityCondition`\<`IDataspaceProtocolPolicy`\>
+`EntityCondition`\<`IRightsManagementPolicy`\>
 
 The conditions to use for the query.
 
@@ -326,7 +326,7 @@ The number of results to return per page.
 
 #### Returns
 
-`Promise`\<\{ `cursor?`: `string`; `policies`: `IDataspaceProtocolPolicy`[]; \}\>
+`Promise`\<\{ `cursor?`: `string`; `policies`: `IRightsManagementPolicy`[]; \}\>
 
 Cursor for next page of results and the policies matching the query.
 

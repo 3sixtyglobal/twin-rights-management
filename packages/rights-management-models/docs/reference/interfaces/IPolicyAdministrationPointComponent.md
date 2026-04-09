@@ -18,7 +18,7 @@ Create a new policy with auto-generated UID.
 
 ##### policy
 
-`JsonLdObjectWithOptionalAtId`\<`IDataspaceProtocolPolicy`\>
+`JsonLdObjectWithOptionalAtId`\<[`IRightsManagementPolicy`](../type-aliases/IRightsManagementPolicy.md)\>
 
 The policy to create (uid will be auto-generated).
 
@@ -40,7 +40,7 @@ Update an existing policy.
 
 ##### policy
 
-`IDataspaceProtocolPolicy`
+[`IRightsManagementPolicy`](../type-aliases/IRightsManagementPolicy.md)
 
 The policy to update (must include uid).
 
@@ -54,7 +54,7 @@ Nothing.
 
 ### get() {#get}
 
-> **get**(`policyId`): `Promise`\<`IDataspaceProtocolPolicy`\>
+> **get**(`policyId`): `Promise`\<[`IRightsManagementPolicy`](../type-aliases/IRightsManagementPolicy.md)\>
 
 Get a policy.
 
@@ -68,7 +68,7 @@ The id of the policy to get.
 
 #### Returns
 
-`Promise`\<`IDataspaceProtocolPolicy`\>
+`Promise`\<[`IRightsManagementPolicy`](../type-aliases/IRightsManagementPolicy.md)\>
 
 The policy.
 
@@ -142,7 +142,7 @@ The offer.
 
 ### getEcosystemPolicy() {#getecosystempolicy}
 
-> **getEcosystemPolicy**(`ecosystemPolicyId`): `Promise`\<[`IRightsManagementEcosystemPolicy`](IRightsManagementEcosystemPolicy.md)\>
+> **getEcosystemPolicy**(`ecosystemPolicyId`): `Promise`\<[`IRightsManagementEcosystemPolicy`](../type-aliases/IRightsManagementEcosystemPolicy.md)\>
 
 Get an ecosystem policy.
 
@@ -156,7 +156,7 @@ The id of the ecosystem policy to get.
 
 #### Returns
 
-`Promise`\<[`IRightsManagementEcosystemPolicy`](IRightsManagementEcosystemPolicy.md)\>
+`Promise`\<[`IRightsManagementEcosystemPolicy`](../type-aliases/IRightsManagementEcosystemPolicy.md)\>
 
 The ecosystem policy.
 
@@ -186,7 +186,7 @@ Nothing.
 
 ### query() {#query}
 
-> **query**(`options?`, `conditions?`, `cursor?`, `limit?`): `Promise`\<\{ `cursor?`: `string`; `policies`: `IDataspaceProtocolPolicy`[]; \}\>
+> **query**(`options?`, `conditions?`, `cursor?`, `limit?`): `Promise`\<\{ `cursor?`: `string`; `policies`: [`IRightsManagementPolicy`](../type-aliases/IRightsManagementPolicy.md)[]; \}\>
 
 Query the policies using the specified conditions.
 
@@ -222,7 +222,7 @@ The action to filter by.
 
 ##### conditions?
 
-`EntityCondition`\<`IDataspaceProtocolPolicy`\>
+`EntityCondition`\<[`IRightsManagementPolicy`](../type-aliases/IRightsManagementPolicy.md)\>
 
 The conditions to use for the query.
 
@@ -240,6 +240,6 @@ The number of results to return per page.
 
 #### Returns
 
-`Promise`\<\{ `cursor?`: `string`; `policies`: `IDataspaceProtocolPolicy`[]; \}\>
+`Promise`\<\{ `cursor?`: `string`; `policies`: [`IRightsManagementPolicy`](../type-aliases/IRightsManagementPolicy.md)[]; \}\>
 
 Cursor for next page of results and the policies matching the query.

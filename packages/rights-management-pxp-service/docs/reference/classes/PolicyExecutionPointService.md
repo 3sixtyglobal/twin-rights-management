@@ -70,7 +70,7 @@ Execute actions based on the PDP's decisions.
 
 ##### policy
 
-`IDataspaceProtocolPolicy`
+`IRightsManagementPolicy`
 
 The policy that applied to the data.
 
