@@ -1,5 +1,27 @@
 # Changelog
 
+## [0.0.3-next.28](https://github.com/twinfoundation/rights-management/compare/rights-management-plugins-v0.0.3-next.27...rights-management-plugins-v0.0.3-next.28) (2026-04-09)
+
+
+### Features
+
+* add EcosystemPolicy typed getter across PAP stack ([#114](https://github.com/twinfoundation/rights-management/issues/114)) ([2a8e941](https://github.com/twinfoundation/rights-management/commit/2a8e941bbea229fb74f81dc869ce1f85c66c300d))
+
+
+### Dependencies
+
+* The following workspace dependencies were updated
+  * dependencies
+    * @twin.org/rights-management-models bumped from 0.0.3-next.27 to 0.0.3-next.28
+  * devDependencies
+    * @twin.org/rights-management-pap-service bumped from 0.0.3-next.27 to 0.0.3-next.28
+    * @twin.org/rights-management-pdp-service bumped from 0.0.3-next.27 to 0.0.3-next.28
+    * @twin.org/rights-management-pep-service bumped from 0.0.3-next.27 to 0.0.3-next.28
+    * @twin.org/rights-management-pip-service bumped from 0.0.3-next.27 to 0.0.3-next.28
+    * @twin.org/rights-management-pmp-service bumped from 0.0.3-next.27 to 0.0.3-next.28
+    * @twin.org/rights-management-pnp-service bumped from 0.0.3-next.27 to 0.0.3-next.28
+    * @twin.org/rights-management-pxp-service bumped from 0.0.3-next.27 to 0.0.3-next.28
+
 ## [0.0.3-next.27](https://github.com/twinfoundation/rights-management/compare/rights-management-plugins-v0.0.3-next.26...rights-management-plugins-v0.0.3-next.27) (2026-03-31)
 
 
