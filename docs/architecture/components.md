@@ -15,6 +15,7 @@ Core domain concepts:
 - [Policy Locator](#policy-locator)
 - [Offer](#offer)
 - [Agreement](#agreement)
+- [EcosystemPolicy](#ecosystempolicy)
 - [Node](#node)
 
 Implemented architectural components:
@@ -55,6 +56,18 @@ An Offer is a Policy containing a mandatory `assigner` (provider identity) and n
 ### Agreement
 
 An Agreement is a Policy containing both mandatory `assigner` and `assignee`. It is the authoritative contract artifact produced by negotiation or administrative issuance. Agreements MAY embed constraints, duties (obligations), and prohibitions consistent with ODRL. Post‑finalisation mutation SHOULD be limited to status transitions (e.g. revocation) recorded with audit metadata.
+
+### EcosystemPolicy
+
+An EcosystemPolicy is a TWIN platform extension of the ODRL Policy type. Unlike Offers and Agreements, an EcosystemPolicy is **non-bilateral** — it has no `assignee` and does not participate in DSP contract negotiation. It is authored by platform operators, stored in the PAP, and applied directly by the rights-management engine to govern cross-node data-sharing obligations at the ecosystem level (e.g. mandatory notification duties for all consignment exchanges).
+
+Key invariants:
+
+- `@type` MUST be `"EcosystemPolicy"`.
+- `profile` MUST include the TWIN platform profile IRI (`https://schema.twindev.org/odrl/v1/profile`) so that policy-aware tooling can identify the extended vocabulary.
+- Rules are carried in `obligation` arrays (actions the assignee is required to perform); `permission` and `prohibition` are not used.
+- Storage shape uses `@id` (DSP convention) rather than the ODRL-native `uid` field; the `IRightsManagementEcosystemPolicy` interface encodes this constraint.
+- Submitting an EcosystemPolicy to the DSP contract negotiation flow (PNP) is rejected with an explicit error — the type is not negotiable.
 
 ### Node
 

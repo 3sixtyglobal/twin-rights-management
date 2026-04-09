@@ -23,15 +23,17 @@ import { nameof } from "@twin.org/nameof";
 import {
 	OdrlPolicyHelper,
 	RightsManagementNamespaces,
-	type IPolicyAdministrationPointComponent
+	RightsManagementPolicyType,
+	type IPolicyAdministrationPointComponent,
+	type IRightsManagementEcosystemPolicy,
+	type IRightsManagementPolicy
 } from "@twin.org/rights-management-models";
 import type {
 	IDataspaceProtocolAgreement,
 	IDataspaceProtocolOffer,
-	IDataspaceProtocolPolicy,
 	IDataspaceProtocolSet
 } from "@twin.org/standards-dataspace-protocol";
-import { OdrlDataTypes, OdrlPolicyType, type IOdrlPolicy } from "@twin.org/standards-w3c-odrl";
+import { OdrlDataTypes, OdrlPolicyType } from "@twin.org/standards-w3c-odrl";
 import type { OdrlPolicy } from "./entities/odrlPolicy.js";
 import type { IPolicyAdministrationPointServiceConstructorOptions } from "./models/IPolicyAdministrationPointServiceConstructorOptions.js";
 import { convertFromStoragePolicy, convertToStoragePolicy } from "./utils/odrlPolicyConverters.js";
@@ -88,9 +90,9 @@ export class PolicyAdministrationPointService implements IPolicyAdministrationPo
 	 * @returns The UID of the created policy.
 	 */
 	public async create(
-		policy: JsonLdObjectWithOptionalAtId<IDataspaceProtocolPolicy>
+		policy: JsonLdObjectWithOptionalAtId<IRightsManagementPolicy>
 	): Promise<string> {
-		Guards.object<IDataspaceProtocolPolicy>(
+		Guards.object<IRightsManagementPolicy>(
 			PolicyAdministrationPointService.CLASS_NAME,
 			nameof(policy),
 			policy
@@ -116,7 +118,7 @@ export class PolicyAdministrationPointService implements IPolicyAdministrationPo
 		// We need to convert to odrl policy for validation as it expects the uid property
 		// eslint-disable-next-line @typescript-eslint/no-unused-vars
 		const { "@id": idUnused, ...policyWithoutId } = policy;
-		const validatePolicy: IOdrlPolicy = {
+		const validatePolicy = {
 			...policyWithoutId,
 			uid: id
 		};
@@ -143,7 +145,7 @@ export class PolicyAdministrationPointService implements IPolicyAdministrationPo
 	 * @param policy The policy to update (must include uid).
 	 * @returns Nothing.
 	 */
-	public async update(policy: IDataspaceProtocolPolicy): Promise<void> {
+	public async update(policy: IRightsManagementPolicy): Promise<void> {
 		Guards.object(PolicyAdministrationPointService.CLASS_NAME, nameof(policy), policy);
 
 		const policyUid = OdrlPolicyHelper.getUid(policy);
@@ -161,7 +163,7 @@ export class PolicyAdministrationPointService implements IPolicyAdministrationPo
 		// We need to convert to odrl policy for validation as it expects the uid property
 		// eslint-disable-next-line @typescript-eslint/no-unused-vars
 		const { "@id": idUnused, ...policyWithoutId } = policy;
-		const validatePolicy: IOdrlPolicy = {
+		const validatePolicy = {
 			...policyWithoutId,
 			uid: policyUid
 		};
@@ -186,7 +188,7 @@ export class PolicyAdministrationPointService implements IPolicyAdministrationPo
 	 * @param policyId The ID of the policy to get.
 	 * @returns The policy.
 	 */
-	public async get(policyId: string): Promise<IDataspaceProtocolPolicy> {
+	public async get(policyId: string): Promise<IRightsManagementPolicy> {
 		Guards.stringValue(PolicyAdministrationPointService.CLASS_NAME, nameof(policyId), policyId);
 
 		let policy;
@@ -206,7 +208,7 @@ export class PolicyAdministrationPointService implements IPolicyAdministrationPo
 			);
 		}
 
-		return convertFromStoragePolicy(policy);
+		return convertFromStoragePolicy<IRightsManagementPolicy>(policy);
 	}
 
 	/**
@@ -318,6 +320,49 @@ export class PolicyAdministrationPointService implements IPolicyAdministrationPo
 	}
 
 	/**
+	 * Get an ecosystem policy from the entity storage.
+	 * @param ecosystemPolicyId The ID of the ecosystem policy to get.
+	 * @returns The ecosystem policy.
+	 */
+	public async getEcosystemPolicy(
+		ecosystemPolicyId: string
+	): Promise<IRightsManagementEcosystemPolicy> {
+		Guards.stringValue(
+			PolicyAdministrationPointService.CLASS_NAME,
+			nameof(ecosystemPolicyId),
+			ecosystemPolicyId
+		);
+
+		let policy;
+		try {
+			policy = await this._odrlPolicyEntityStorage.get(ecosystemPolicyId);
+		} catch (err) {
+			if (!BaseError.isErrorName(err, NotFoundError.CLASS_NAME)) {
+				throw err;
+			}
+		}
+
+		if (Is.empty(policy)) {
+			throw new NotFoundError(
+				PolicyAdministrationPointService.CLASS_NAME,
+				"ecosystemPolicyNotFound",
+				ecosystemPolicyId
+			);
+		}
+
+		const policyType = OdrlPolicyHelper.getType(policy);
+		if (policyType !== RightsManagementPolicyType.EcosystemPolicy) {
+			throw new GeneralError(
+				PolicyAdministrationPointService.CLASS_NAME,
+				"ecosystemPolicyTypeMismatch",
+				{ ecosystemPolicyId, type: policyType ?? "" }
+			);
+		}
+
+		return convertFromStoragePolicy<IRightsManagementEcosystemPolicy>(policy);
+	}
+
+	/**
 	 * Remove a policy from the entity storage.
 	 * @param policyId The ID of the policy to remove.
 	 */
@@ -346,12 +391,12 @@ export class PolicyAdministrationPointService implements IPolicyAdministrationPo
 			target?: string;
 			action?: string;
 		},
-		conditions?: EntityCondition<IDataspaceProtocolPolicy>,
+		conditions?: EntityCondition<IRightsManagementPolicy>,
 		cursor?: string,
 		limit?: number
 	): Promise<{
 		cursor?: string;
-		policies: IDataspaceProtocolPolicy[];
+		policies: IRightsManagementPolicy[];
 	}> {
 		if (!Is.empty(conditions)) {
 			Guards.object(PolicyAdministrationPointService.CLASS_NAME, nameof(conditions), conditions);
@@ -363,7 +408,7 @@ export class PolicyAdministrationPointService implements IPolicyAdministrationPo
 			Guards.integer(PolicyAdministrationPointService.CLASS_NAME, nameof(limit), limit);
 		}
 
-		const allConditions: EntityCondition<IDataspaceProtocolPolicy> = {
+		const allConditions: EntityCondition<IRightsManagementPolicy> = {
 			conditions: [],
 			logicalOperator: LogicalOperator.And
 		};

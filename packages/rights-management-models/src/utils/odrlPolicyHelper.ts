@@ -7,10 +7,16 @@ import type { IDataspaceProtocolPolicy } from "@twin.org/standards-dataspace-pro
 import type {
 	IOdrlAction,
 	IOdrlAsset,
+	IOdrlAssetCollection,
+	IOdrlDuty,
 	IOdrlParty,
 	IOdrlPartyCollection,
+	IOdrlPermission,
+	IOdrlProhibition,
+	IOdrlRule,
 	OdrlActionType
 } from "@twin.org/standards-w3c-odrl";
+import type { IRightsManagementPolicy } from "../models/IRightsManagementPolicy.js";
 
 /**
  * Helper methods for Odrl Policies.
@@ -140,45 +146,65 @@ export class OdrlPolicyHelper {
 
 	/**
 	 * Get targets from policy.
+	 * Walks both the policy-level target field and the target field on every
+	 * permission, prohibition, and obligation rule so that policies that store
+	 * their target exclusively on a rule (e.g. EcosystemPolicy obligations) are
+	 * correctly indexed for query().
 	 * @param policy The policy to extract the targets from.
 	 * @returns Targets.
 	 */
-	public static getTargets(policy: IDataspaceProtocolPolicy): string[] {
+	public static getTargets(policy: IRightsManagementPolicy): string[] {
 		const targetIds: string[] = [];
-		const policyTargets = ArrayHelper.fromObjectOrArray<IOdrlAsset | string>(policy.target ?? []);
+
+		const policyTargets = ArrayHelper.fromObjectOrArray<IOdrlAsset | IOdrlAssetCollection | string>(
+			policy.target ?? []
+		);
 		for (const target of policyTargets) {
-			if (Is.object<IOdrlAsset>(target)) {
-				const uid = OdrlPolicyHelper.getUid(target);
-				if (Is.stringValue(uid)) {
-					targetIds.push(uid);
-				}
-			} else if (Is.stringValue(target)) {
-				targetIds.push(target);
+			OdrlPolicyHelper.collectTarget(target, targetIds);
+		}
+
+		const rules = OdrlPolicyHelper.collectRules(policy);
+		for (const rule of rules) {
+			const ruleTargets = ArrayHelper.fromObjectOrArray<IOdrlAsset | IOdrlAssetCollection | string>(
+				rule.target ?? []
+			);
+			for (const target of ruleTargets) {
+				OdrlPolicyHelper.collectTarget(target, targetIds);
 			}
 		}
+
 		return Array.from(new Set(targetIds));
 	}
 
 	/**
 	 * Get actions from policy.
+	 * Walks both the policy-level action field and the action field on every
+	 * permission, prohibition, and obligation rule so that policies that store
+	 * their action exclusively on a rule (e.g. EcosystemPolicy obligations) are
+	 * correctly indexed for query().
 	 * @param policy The policy to extract the actions from.
 	 * @returns Actions.
 	 */
-	public static getActions(policy: IDataspaceProtocolPolicy): string[] {
+	public static getActions(policy: IRightsManagementPolicy): string[] {
 		const actions: string[] = [];
+
 		const policyActions = ArrayHelper.fromObjectOrArray<OdrlActionType | string | IOdrlAction>(
 			policy.action ?? []
 		);
 		for (const action of policyActions) {
-			if (Is.object<IOdrlAction>(action)) {
-				const uid = OdrlPolicyHelper.getUid(action);
-				if (Is.stringValue(uid)) {
-					actions.push(uid);
-				}
-			} else if (Is.stringValue(action)) {
-				actions.push(action);
+			OdrlPolicyHelper.collectAction(action, actions);
+		}
+
+		const rules = OdrlPolicyHelper.collectRules(policy);
+		for (const rule of rules) {
+			const ruleActions = ArrayHelper.fromObjectOrArray<OdrlActionType | string | IOdrlAction>(
+				rule.action ?? []
+			);
+			for (const action of ruleActions) {
+				OdrlPolicyHelper.collectAction(action, actions);
 			}
 		}
+
 		return Array.from(new Set(actions));
 	}
 
@@ -189,11 +215,11 @@ export class OdrlPolicyHelper {
 	 * @param options.assignee The assignee to match.
 	 * @param options.assigner The assigner to match.
 	 * @param options.target The target to match.
-	 * @returns True if the policy matches.
 	 * @param options.action The action to match.
+	 * @returns True if the policy matches.
 	 */
 	public static matchPolicy(
-		policy: IDataspaceProtocolPolicy | undefined,
+		policy: IRightsManagementPolicy | undefined,
 		options: {
 			assignee?: string;
 			assigner?: string;
@@ -234,5 +260,61 @@ export class OdrlPolicyHelper {
 		}
 
 		return true;
+	}
+
+	/**
+	 * Collect all rule objects (permission, prohibition, obligation) from a policy.
+	 * @param policy The policy to collect rules from.
+	 * @returns Flattened array of all rules.
+	 * @internal
+	 */
+	private static collectRules(policy: IRightsManagementPolicy): IOdrlRule[] {
+		const rules: IOdrlRule[] = [];
+		rules.push(
+			...ArrayHelper.fromObjectOrArray<IOdrlPermission>(policy.permission ?? []),
+			...ArrayHelper.fromObjectOrArray<IOdrlProhibition>(policy.prohibition ?? []),
+			...ArrayHelper.fromObjectOrArray<IOdrlDuty>(policy.obligation ?? [])
+		);
+		return rules;
+	}
+
+	/**
+	 * Extract a target string from a target value and push it to the accumulator.
+	 * @param target The target value to extract from.
+	 * @param accumulator The array to push the target string into.
+	 * @internal
+	 */
+	private static collectTarget(
+		target: IOdrlAsset | IOdrlAssetCollection | string,
+		accumulator: string[]
+	): void {
+		if (Is.object<IOdrlAsset>(target)) {
+			const uid = OdrlPolicyHelper.getUid(target);
+			if (Is.stringValue(uid)) {
+				accumulator.push(uid);
+			}
+		} else if (Is.stringValue(target)) {
+			accumulator.push(target);
+		}
+	}
+
+	/**
+	 * Extract an action string from an action value and push it to the accumulator.
+	 * @param action The action value to extract from.
+	 * @param accumulator The array to push the action string into.
+	 * @internal
+	 */
+	private static collectAction(
+		action: OdrlActionType | string | IOdrlAction,
+		accumulator: string[]
+	): void {
+		if (Is.object<IOdrlAction>(action)) {
+			const uid = OdrlPolicyHelper.getUid(action);
+			if (Is.stringValue(uid)) {
+				accumulator.push(uid);
+			}
+		} else if (Is.stringValue(action)) {
+			accumulator.push(action);
+		}
 	}
 }

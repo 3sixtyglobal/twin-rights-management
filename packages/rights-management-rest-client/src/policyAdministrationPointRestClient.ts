@@ -21,6 +21,10 @@ import {
 	type IPolicyAdministrationPointComponent,
 	type IPapGetAgreementRequest,
 	type IPapGetAgreementResponse,
+	type IPapGetEcosystemPolicyRequest,
+	type IPapGetEcosystemPolicyResponse,
+	type IRightsManagementEcosystemPolicy,
+	type IRightsManagementPolicy,
 	type IPapGetSetRequest,
 	type IPapGetSetResponse,
 	type IPapGetOfferRequest,
@@ -30,7 +34,6 @@ import {
 import type {
 	IDataspaceProtocolAgreement,
 	IDataspaceProtocolOffer,
-	IDataspaceProtocolPolicy,
 	IDataspaceProtocolSet
 } from "@twin.org/standards-dataspace-protocol";
 import { HeaderHelper, HeaderTypes } from "@twin.org/web";
@@ -69,7 +72,7 @@ export class PolicyAdministrationPointRestClient
 	 * @returns The UID of the created policy.
 	 */
 	public async create(
-		policy: JsonLdObjectWithOptionalAtId<IDataspaceProtocolPolicy>
+		policy: JsonLdObjectWithOptionalAtId<IRightsManagementPolicy>
 	): Promise<string> {
 		Guards.object(PolicyAdministrationPointRestClient.CLASS_NAME, nameof(policy), policy);
 
@@ -89,7 +92,7 @@ export class PolicyAdministrationPointRestClient
 	 * @param policy The policy to update (must include uid).
 	 * @returns Nothing.
 	 */
-	public async update(policy: IDataspaceProtocolPolicy): Promise<void> {
+	public async update(policy: IRightsManagementPolicy): Promise<void> {
 		Guards.object(PolicyAdministrationPointRestClient.CLASS_NAME, nameof(policy), policy);
 
 		const policyId = OdrlPolicyHelper.getUid(policy);
@@ -108,7 +111,7 @@ export class PolicyAdministrationPointRestClient
 	 * @param policyId The id of the policy to get.
 	 * @returns The policy.
 	 */
-	public async get(policyId: string): Promise<IDataspaceProtocolPolicy> {
+	public async get(policyId: string): Promise<IRightsManagementPolicy> {
 		Guards.stringValue(PolicyAdministrationPointRestClient.CLASS_NAME, nameof(policyId), policyId);
 
 		const response = await this.fetch<IPapGetRequest, IPapGetResponse>("/policy/admin/:id", "GET", {
@@ -162,6 +165,32 @@ export class PolicyAdministrationPointRestClient
 				}
 			}
 		);
+
+		return response.body;
+	}
+
+	/**
+	 * Get an ecosystem policy.
+	 * @param ecosystemPolicyId The id of the ecosystem policy to get.
+	 * @returns The ecosystem policy.
+	 */
+	public async getEcosystemPolicy(
+		ecosystemPolicyId: string
+	): Promise<IRightsManagementEcosystemPolicy> {
+		Guards.stringValue(
+			PolicyAdministrationPointRestClient.CLASS_NAME,
+			nameof(ecosystemPolicyId),
+			ecosystemPolicyId
+		);
+
+		const response = await this.fetch<
+			IPapGetEcosystemPolicyRequest,
+			IPapGetEcosystemPolicyResponse
+		>("/policy/admin/ecosystem-policy/:id", "GET", {
+			pathParams: {
+				id: ecosystemPolicyId
+			}
+		});
 
 		return response.body;
 	}
@@ -221,12 +250,12 @@ export class PolicyAdministrationPointRestClient
 			target?: string;
 			action?: string;
 		},
-		conditions?: EntityCondition<IDataspaceProtocolPolicy>,
+		conditions?: EntityCondition<IRightsManagementPolicy>,
 		cursor?: string,
 		limit?: number
 	): Promise<{
 		cursor?: string;
-		policies: IDataspaceProtocolPolicy[];
+		policies: IRightsManagementPolicy[];
 	}> {
 		const response = await this.fetch<IPapQueryRequest, IPapQueryResponse>("/policy/admin", "GET", {
 			query: {

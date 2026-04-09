@@ -1,8 +1,8 @@
 // Copyright 2025 IOTA Stiftung.
 // SPDX-License-Identifier: Apache-2.0.
 import type { IComponent } from "@twin.org/core";
-import type { IDataspaceProtocolPolicy } from "@twin.org/standards-dataspace-protocol";
 import type { OdrlActionType } from "@twin.org/standards-w3c-odrl";
+import type { IRightsManagementPolicy } from "../IRightsManagementPolicy.js";
 import type { IPolicyDecision } from "../pdp/IPolicyDecision.js";
 import type { PolicyDecisionStage } from "../pdp/policyDecisionStage.js";
 
@@ -23,7 +23,7 @@ export interface IPolicyExecutionPointComponent extends IComponent {
 	 * @returns Nothing.
 	 */
 	executeActions<D = unknown>(
-		policy: IDataspaceProtocolPolicy,
+		policy: IRightsManagementPolicy,
 		decisions: IPolicyDecision[],
 		data: D | undefined,
 		action: OdrlActionType | string | undefined,

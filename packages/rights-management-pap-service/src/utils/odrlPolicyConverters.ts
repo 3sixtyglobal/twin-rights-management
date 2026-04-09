@@ -1,9 +1,12 @@
 // Copyright 2025 IOTA Stiftung.
 // SPDX-License-Identifier: Apache-2.0.
 import { ArrayHelper } from "@twin.org/core";
-import { OdrlPolicyHelper } from "@twin.org/rights-management-models";
-import type { IDataspaceProtocolPolicy } from "@twin.org/standards-dataspace-protocol";
-import { OdrlPolicyType, OdrlContexts } from "@twin.org/standards-w3c-odrl";
+import {
+	OdrlPolicyHelper,
+	type IRightsManagementPolicy,
+	type RightsManagementPolicyType
+} from "@twin.org/rights-management-models";
+import { OdrlContexts, OdrlPolicyType } from "@twin.org/standards-w3c-odrl";
 import { OdrlPolicy } from "../entities/odrlPolicy.js";
 
 /**
@@ -11,11 +14,11 @@ import { OdrlPolicy } from "../entities/odrlPolicy.js";
  * @param policy The policy to convert.
  * @returns The converted policy.
  */
-export function convertToStoragePolicy<T extends IDataspaceProtocolPolicy>(policy: T): OdrlPolicy {
+export function convertToStoragePolicy<T extends IRightsManagementPolicy>(policy: T): OdrlPolicy {
 	const storagePolicy = new OdrlPolicy();
 	storagePolicy.id = OdrlPolicyHelper.getUid(policy) ?? "";
-	storagePolicy.type =
-		(OdrlPolicyHelper.getType(policy) as OdrlPolicyType) ?? OdrlPolicyType.Policy;
+	storagePolicy.type = (OdrlPolicyHelper.getType(policy) ??
+		OdrlPolicyType.Policy) as RightsManagementPolicyType;
 
 	storagePolicy.profile = policy.profile;
 	storagePolicy.assigner = policy.assigner;
@@ -49,10 +52,10 @@ export function convertToStoragePolicy<T extends IDataspaceProtocolPolicy>(polic
  * @param storagePolicy The storage policy to convert.
  * @returns The converted IDataspaceProtocolPolicy.
  */
-export function convertFromStoragePolicy<T extends IDataspaceProtocolPolicy>(
+export function convertFromStoragePolicy<T extends IRightsManagementPolicy>(
 	storagePolicy: OdrlPolicy
 ): T {
-	const policy: IDataspaceProtocolPolicy = {
+	const policy: IRightsManagementPolicy = {
 		"@context": OdrlContexts.Context,
 		"@type": storagePolicy.type,
 		"@id": storagePolicy.id

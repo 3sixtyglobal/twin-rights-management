@@ -6,9 +6,9 @@ import type { ILoggingComponent } from "@twin.org/logging-models";
 import { nameof } from "@twin.org/nameof";
 import {
 	OdrlPolicyHelper,
-	type IPolicyObligationEnforcer
+	type IPolicyObligationEnforcer,
+	type IRightsManagementPolicy
 } from "@twin.org/rights-management-models";
-import type { IDataspaceProtocolPolicy } from "@twin.org/standards-dataspace-protocol";
 import type { OdrlActionType, IOdrlDuty } from "@twin.org/standards-w3c-odrl";
 import type { IPassThroughPolicyObligationEnforcerConstructorOptions } from "../models/IPassThroughPolicyObligationEnforcerConstructorOptions.js";
 
@@ -55,13 +55,13 @@ export class PassThroughPolicyObligationEnforcer implements IPolicyObligationEnf
 	 * @returns Whether the obligations were successfully enforced.
 	 */
 	public async enforce<D = unknown>(
-		policy: IDataspaceProtocolPolicy,
+		policy: IRightsManagementPolicy,
 		duty: IOdrlDuty,
 		information?: { [id: string]: IJsonLdNodeObject },
 		data?: D,
 		action?: OdrlActionType | string
 	): Promise<boolean> {
-		Guards.object<IDataspaceProtocolPolicy>(
+		Guards.object<IRightsManagementPolicy>(
 			PassThroughPolicyObligationEnforcer.CLASS_NAME,
 			nameof(policy),
 			policy

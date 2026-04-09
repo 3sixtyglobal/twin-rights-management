@@ -7,10 +7,10 @@ import type { ILoggingComponent } from "@twin.org/logging-models";
 import { nameof } from "@twin.org/nameof";
 import {
 	type IPolicyInformationSource,
+	type IRightsManagementPolicy,
 	OdrlPolicyHelper,
 	PolicyInformationAccessMode
 } from "@twin.org/rights-management-models";
-import type { IDataspaceProtocolPolicy } from "@twin.org/standards-dataspace-protocol";
 import type { OdrlActionType } from "@twin.org/standards-w3c-odrl";
 import type { IIdentityPolicyInformationSourceConstructorOptions } from "../models/IIdentityPolicyInformationSourceConstructorOptions.js";
 
@@ -65,7 +65,7 @@ export class IdentityPolicyInformationSource implements IPolicyInformationSource
 	 * @returns The objects containing relevant information or undefined if nothing relevant is found.
 	 */
 	public async retrieve<D = unknown>(
-		policy: IDataspaceProtocolPolicy | undefined,
+		policy: IRightsManagementPolicy | undefined,
 		accessMode: PolicyInformationAccessMode,
 		data?: D,
 		action?: OdrlActionType | string
@@ -79,7 +79,7 @@ export class IdentityPolicyInformationSource implements IPolicyInformationSource
 
 		const information: { [id: string]: IJsonLdNodeObject } = {};
 
-		if (Is.object<IDataspaceProtocolPolicy>(policy)) {
+		if (Is.object<IRightsManagementPolicy>(policy)) {
 			const ids = [];
 
 			if (Is.stringValue(policy.assignee)) {

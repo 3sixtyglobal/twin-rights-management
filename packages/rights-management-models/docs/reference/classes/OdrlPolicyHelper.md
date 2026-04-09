@@ -146,6 +146,10 @@ The party identifiers, or undefined when not available.
 > `static` **getTargets**(`policy`): `string`[]
 
 Get targets from policy.
+Walks both the policy-level target field and the target field on every
+permission, prohibition, and obligation rule so that policies that store
+their target exclusively on a rule (e.g. EcosystemPolicy obligations) are
+correctly indexed for query().
 
 #### Parameters
 
@@ -168,6 +172,10 @@ Targets.
 > `static` **getActions**(`policy`): `string`[]
 
 Get actions from policy.
+Walks both the policy-level action field and the action field on every
+permission, prohibition, and obligation rule so that policies that store
+their action exclusively on a rule (e.g. EcosystemPolicy obligations) are
+correctly indexed for query().
 
 #### Parameters
 

@@ -210,6 +210,32 @@ The set.
 
 ***
 
+### getEcosystemPolicy() {#getecosystempolicy}
+
+> **getEcosystemPolicy**(`ecosystemPolicyId`): `Promise`\<`IRightsManagementEcosystemPolicy`\>
+
+Get an ecosystem policy from the entity storage.
+
+#### Parameters
+
+##### ecosystemPolicyId
+
+`string`
+
+The ID of the ecosystem policy to get.
+
+#### Returns
+
+`Promise`\<`IRightsManagementEcosystemPolicy`\>
+
+The ecosystem policy.
+
+#### Implementation of
+
+`IPolicyAdministrationPointComponent.getEcosystemPolicy`
+
+***
+
 ### remove() {#remove}
 
 > **remove**(`policyId`): `Promise`\<`void`\>

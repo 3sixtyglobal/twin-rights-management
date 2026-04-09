@@ -6,9 +6,10 @@ import type { EntityCondition } from "@twin.org/entity";
 import type {
 	IDataspaceProtocolAgreement,
 	IDataspaceProtocolOffer,
-	IDataspaceProtocolPolicy,
 	IDataspaceProtocolSet
 } from "@twin.org/standards-dataspace-protocol";
+import type { IRightsManagementEcosystemPolicy } from "../IRightsManagementEcosystemPolicy.js";
+import type { IRightsManagementPolicy } from "../IRightsManagementPolicy.js";
 
 /**
  * Interface describing a Policy Administration Point (PAP) component that manages ODRL policies.
@@ -19,21 +20,21 @@ export interface IPolicyAdministrationPointComponent extends IComponent {
 	 * @param policy The policy to create (uid will be auto-generated).
 	 * @returns The UID of the created policy.
 	 */
-	create(policy: JsonLdObjectWithOptionalAtId<IDataspaceProtocolPolicy>): Promise<string>;
+	create(policy: JsonLdObjectWithOptionalAtId<IRightsManagementPolicy>): Promise<string>;
 
 	/**
 	 * Update an existing policy.
 	 * @param policy The policy to update (must include uid).
 	 * @returns Nothing.
 	 */
-	update(policy: IDataspaceProtocolPolicy): Promise<void>;
+	update(policy: IRightsManagementPolicy): Promise<void>;
 
 	/**
 	 * Get a policy.
 	 * @param policyId The id of the policy to get.
 	 * @returns The policy.
 	 */
-	get(policyId: string): Promise<IDataspaceProtocolPolicy>;
+	get(policyId: string): Promise<IRightsManagementPolicy>;
 
 	/**
 	 * Get an agreement.
@@ -55,6 +56,13 @@ export interface IPolicyAdministrationPointComponent extends IComponent {
 	 * @returns The offer.
 	 */
 	getOffer(offerId: string): Promise<IDataspaceProtocolOffer>;
+
+	/**
+	 * Get an ecosystem policy.
+	 * @param ecosystemPolicyId The id of the ecosystem policy to get.
+	 * @returns The ecosystem policy.
+	 */
+	getEcosystemPolicy(ecosystemPolicyId: string): Promise<IRightsManagementEcosystemPolicy>;
 
 	/**
 	 * Remove a policy.
@@ -82,7 +90,7 @@ export interface IPolicyAdministrationPointComponent extends IComponent {
 			target?: string;
 			action?: string;
 		},
-		conditions?: EntityCondition<IDataspaceProtocolPolicy>,
+		conditions?: EntityCondition<IRightsManagementPolicy>,
 		cursor?: string,
 		limit?: number
 	): Promise<{
@@ -94,6 +102,6 @@ export interface IPolicyAdministrationPointComponent extends IComponent {
 		/**
 		 * The policies that match the query.
 		 */
-		policies: IDataspaceProtocolPolicy[];
+		policies: IRightsManagementPolicy[];
 	}>;
 }

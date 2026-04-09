@@ -14,7 +14,8 @@
 			"noAgreementCreated": "No agreement was created for offer with id: \"{offerId}\"",
 			"assignerNotIdentity": "The assigner in the offer is not a single identity",
 			"providerInitiatedNotSupported": "Provider initiated negotiations are currently not supported as the consumer identity is required to be set as the trust identity in the negotiation",
-			"callerNotAuthorizedForNegotiation": "The caller's verified identity does not match any authorized party in this negotiation"
+			"callerNotAuthorizedForNegotiation": "The caller's verified identity does not match any authorized party in this negotiation",
+			"ecosystemPolicyNotNegotiable": "EcosystemPolicy with id: \"{offerId}\" cannot be submitted to DSP contract negotiation — it is applied directly by the rights-management engine"
 		},
 		"policyNegotiationAdminPointService": {
 			"policyNotFound": "Policy with id: \"{notFoundId}\" not found"

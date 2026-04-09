@@ -2,8 +2,8 @@
 // SPDX-License-Identifier: Apache-2.0.
 import type { IComponent } from "@twin.org/core";
 import type { IJsonLdNodeObject } from "@twin.org/data-json-ld";
-import type { IDataspaceProtocolPolicy } from "@twin.org/standards-dataspace-protocol";
 import type { OdrlActionType } from "@twin.org/standards-w3c-odrl";
+import type { IRightsManagementPolicy } from "../IRightsManagementPolicy.js";
 import type { PolicyInformationAccessMode } from "./policyInformationAccessMode.js";
 
 /**
@@ -19,7 +19,7 @@ export interface IPolicyInformationSource extends IComponent {
 	 * @returns The objects containing relevant information or undefined if nothing relevant is found.
 	 */
 	retrieve<D = unknown>(
-		policy: IDataspaceProtocolPolicy | undefined,
+		policy: IRightsManagementPolicy | undefined,
 		accessMode: PolicyInformationAccessMode,
 		data?: D,
 		action?: OdrlActionType | string

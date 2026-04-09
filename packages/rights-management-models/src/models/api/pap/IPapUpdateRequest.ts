@@ -1,6 +1,6 @@
 // Copyright 2025 IOTA Stiftung.
 // SPDX-License-Identifier: Apache-2.0.
-import type { IDataspaceProtocolPolicy } from "@twin.org/standards-dataspace-protocol";
+import type { IRightsManagementPolicy } from "../../IRightsManagementPolicy.js";
 
 /**
  * The request structure for updating a policy.
@@ -19,5 +19,5 @@ export interface IPapUpdateRequest {
 	/**
 	 * The body of the request.
 	 */
-	body: IDataspaceProtocolPolicy;
+	body: IRightsManagementPolicy;
 }

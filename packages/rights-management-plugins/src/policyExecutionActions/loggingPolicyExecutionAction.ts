@@ -6,10 +6,10 @@ import { nameof } from "@twin.org/nameof";
 import {
 	type IPolicyDecision,
 	type IPolicyExecutionAction,
+	type IRightsManagementPolicy,
 	OdrlPolicyHelper,
 	PolicyDecisionStage
 } from "@twin.org/rights-management-models";
-import type { IDataspaceProtocolPolicy } from "@twin.org/standards-dataspace-protocol";
 import type { OdrlActionType } from "@twin.org/standards-w3c-odrl";
 import type { ILoggingPolicyExecutionActionConstructorOptions } from "../models/ILoggingPolicyExecutionActionConstructorOptions.js";
 
@@ -93,7 +93,7 @@ export class LoggingPolicyExecutionAction implements IPolicyExecutionAction {
 	 * @returns A promise that resolves when the action is complete.
 	 */
 	public async execute<D = unknown>(
-		policy: IDataspaceProtocolPolicy,
+		policy: IRightsManagementPolicy,
 		decisions: IPolicyDecision[],
 		data: D | undefined,
 		action: OdrlActionType | string,

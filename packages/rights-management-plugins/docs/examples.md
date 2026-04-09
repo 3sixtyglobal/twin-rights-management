@@ -176,6 +176,35 @@ console.log(arbiter.className()); // DefaultPolicyArbiter
 console.log(decisions[0].decision); // granted
 ```
 
+```typescript
+import { DefaultPolicyArbiter } from '@twin.org/rights-management-plugins';
+import { OdrlPolicyType, OdrlProfiles } from '@twin.org/standards-w3c-odrl';
+
+const arbiter = new DefaultPolicyArbiter();
+
+// EcosystemPolicy with the TWIN profile — the arbiter evaluates its obligations directly.
+const ecosystemDecisions = await arbiter.decide(
+  {
+    '@id': 'urn:rights-management:ecosystem-policy-1',
+    '@type': OdrlPolicyType.EcosystemPolicy,
+    profile: OdrlProfiles.Twin,
+    assigner: 'did:example:publisher',
+    obligation: [
+      {
+        action: 'inform',
+        assignee: 'did:example:border-agency',
+        target: 'urn:twin:asset:consignment:abc123'
+      }
+    ]
+  },
+  {},
+  { consignment: 'abc123' },
+  'inform'
+);
+
+console.log(ecosystemDecisions[0].decision); // granted
+```
+
 ## PassThroughPolicyArbiter
 
 ```typescript

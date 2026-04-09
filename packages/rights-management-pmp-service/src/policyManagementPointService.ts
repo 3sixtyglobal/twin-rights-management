@@ -5,9 +5,9 @@ import type { ILoggingComponent } from "@twin.org/logging-models";
 import { nameof } from "@twin.org/nameof";
 import type {
 	IPolicyAdministrationPointComponent,
-	IPolicyManagementPointComponent
+	IPolicyManagementPointComponent,
+	IRightsManagementPolicy
 } from "@twin.org/rights-management-models";
-import type { IDataspaceProtocolPolicy } from "@twin.org/standards-dataspace-protocol";
 import type { IPolicyManagementPointServiceConstructorOptions } from "./models/IPolicyManagementPointServiceConstructorOptions.js";
 
 /**
@@ -72,7 +72,7 @@ export class PolicyManagementPointService implements IPolicyManagementPointCompo
 		},
 		cursor?: string
 	): Promise<{
-		policies: IDataspaceProtocolPolicy[];
+		policies: IRightsManagementPolicy[];
 		cursor?: string;
 	}> {
 		if (!Is.empty(options?.assigner)) {

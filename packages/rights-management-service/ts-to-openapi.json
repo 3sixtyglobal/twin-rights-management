@@ -14,6 +14,7 @@
 	"externalReferences": {
 		"JsonLd(.*)": "https://schema.twindev.org/json-ld/JsonLd$1",
 		"Odrl(.*)": "https://schema.twindev.org/w3c-odrl/Odrl$1",
+		"RightsManagement(.*)": "https://schema.twindev.org/rights-management/RightsManagement$1",
 		"ProofTypes": "https://schema.twindev.org/w3c-did/ProofTypes",
 		"Proof": "https://schema.twindev.org/w3c-did/Proof",
 		"DataIntegrityProof": "https://schema.twindev.org/w3c-did/DataIntegrityProof",

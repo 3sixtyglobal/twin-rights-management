@@ -7,7 +7,8 @@ import {
 	GeneralError,
 	Guards,
 	Is,
-	ObjectHelper
+	ObjectHelper,
+	StringHelper
 } from "@twin.org/core";
 import type { IJsonLdNodeObject } from "@twin.org/data-json-ld";
 import { JsonPathHelper } from "@twin.org/data-json-path";
@@ -15,16 +16,15 @@ import type { ILoggingComponent } from "@twin.org/logging-models";
 import { nameof } from "@twin.org/nameof";
 import {
 	OdrlPolicyHelper,
+	OdrlProfiles,
 	PolicyDecision,
 	PolicyObligationEnforcerFactory,
 	type IPolicyAdministrationPointComponent,
 	type IPolicyArbiter,
-	type IPolicyDecision
+	type IPolicyDecision,
+	type IRightsManagementPolicy
 } from "@twin.org/rights-management-models";
-import type {
-	IDataspaceProtocolAgreement,
-	IDataspaceProtocolPolicy
-} from "@twin.org/standards-dataspace-protocol";
+import type { IDataspaceProtocolAgreement } from "@twin.org/standards-dataspace-protocol";
 import {
 	type IOdrlAssetCollection,
 	OdrlConflictStrategyType,
@@ -54,6 +54,13 @@ export class DefaultPolicyArbiter implements IPolicyArbiter {
 	 * The class name of the Default Policy Arbiter.
 	 */
 	public static readonly CLASS_NAME: string = nameof<DefaultPolicyArbiter>();
+
+	/**
+	 * ODRL profiles whose custom vocabulary this arbiter understands and supports.
+	 * Any policy declaring a profile not in this set will be rejected.
+	 * Add a new entry here when support for an additional profile is implemented.
+	 */
+	public static readonly SUPPORTED_PROFILES: ReadonlySet<string> = new Set([OdrlProfiles.Twin]);
 
 	/**
 	 * Default maximum inheritance depth.
@@ -116,6 +123,26 @@ export class DefaultPolicyArbiter implements IPolicyArbiter {
 	}
 
 	/**
+	 * Normalises a profile IRI for comparison against the supported-profiles allowlist.
+	 * Per RFC 3986: scheme and host are case-insensitive (the URL constructor folds them to
+	 * lowercase automatically); a trailing slash on the terminal path segment is treated as
+	 * equivalent to its absence; repeated slashes in the path are collapsed to a single slash.
+	 * Non-URL strings are returned unchanged.
+	 * @param iri The IRI to normalise.
+	 * @returns The normalised IRI.
+	 * @internal
+	 */
+	private static normalizeProfileIri(iri: string): string {
+		try {
+			const url = new URL(iri);
+			const pathname = url.pathname.replace(/\/+/g, "/");
+			return `${url.protocol}//${url.host}${StringHelper.trimTrailingSlashes(pathname)}`;
+		} catch {
+			return iri;
+		}
+	}
+
+	/**
 	 * Returns the class name of the component.
 	 * @returns The class name of the component.
 	 */
@@ -145,10 +172,33 @@ export class DefaultPolicyArbiter implements IPolicyArbiter {
 
 		// ODRL policy profiles extend the vocabulary with additional semantics (e.g. custom
 		// operators, left operands). Without profile-aware evaluation logic the arbiter
-		// cannot guarantee correctness, so any policy that declares a profile is rejected.
-		if (Is.notEmpty(agreement.profile)) {
+		// cannot guarantee correctness, so any policy that declares an unknown profile is
+		// rejected. The TWIN platform profile is explicitly supported.
+		//
+		// Empty-string profile values (e.g. from over-eager schema defaults or serialization
+		// round-trips) are treated as "no profile declared" and filtered out before comparison.
+		//
+		// Profile IRIs are normalized before lookup: scheme and host are case-folded to
+		// lowercase and a trailing slash on the last path segment is stripped. This accepts
+		// common IRI variants (HTTPS://, uppercase host, trailing slash) instead of silently
+		// rejecting valid policies authored by IRI-aware tooling.
+		//
+		// `every` (conjunction) is intentional: a policy declaring ["TWIN", "unknown"] is
+		// rejected — the arbiter refuses to evaluate rules from a profile whose semantics it
+		// does not understand, even if other declared profiles are known.
+		const declaredProfiles = ArrayHelper.fromObjectOrArray<string>(agreement.profile ?? [])
+			.filter(p => Is.stringValue(p))
+			.map(p => DefaultPolicyArbiter.normalizeProfileIri(p));
+		if (
+			Is.arrayValue(declaredProfiles) &&
+			!declaredProfiles.every(p => DefaultPolicyArbiter.SUPPORTED_PROFILES.has(p))
+		) {
+			const unsupportedProfile = declaredProfiles.find(
+				p => !DefaultPolicyArbiter.SUPPORTED_PROFILES.has(p)
+			);
 			throw new GeneralError(DefaultPolicyArbiter.CLASS_NAME, "policyProfileNotSupported", {
-				policyId: OdrlPolicyHelper.getUid(agreement) ?? ""
+				policyId: OdrlPolicyHelper.getUid(agreement) ?? "",
+				unsupportedProfile
 			});
 		}
 
@@ -289,7 +339,7 @@ export class DefaultPolicyArbiter implements IPolicyArbiter {
 	 * @returns A policy with expanded rule arrays.
 	 * @internal
 	 */
-	private expandCompactPolicyRules(policy: IDataspaceProtocolPolicy): IDataspaceProtocolPolicy {
+	private expandCompactPolicyRules(policy: IRightsManagementPolicy): IRightsManagementPolicy {
 		const expandedPermissions = this.expandRules(
 			ArrayHelper.fromObjectOrArray<IOdrlPermission>(policy.permission ?? [])
 		);
@@ -413,7 +463,7 @@ export class DefaultPolicyArbiter implements IPolicyArbiter {
 	 * @internal
 	 */
 	private async evaluateProhibition(
-		policy: IDataspaceProtocolPolicy,
+		policy: IRightsManagementPolicy,
 		agreementAssigner: string[] | undefined,
 		agreementAssignee: string[] | undefined,
 		prohibition: IOdrlProhibition,
@@ -487,7 +537,7 @@ export class DefaultPolicyArbiter implements IPolicyArbiter {
 	private async evaluatePolicyObligations(
 		agreementAssigner: string[] | undefined,
 		agreementAssignee: string[] | undefined,
-		policy: IDataspaceProtocolPolicy,
+		policy: IRightsManagementPolicy,
 		dataSources: { [prefix: string]: unknown }
 	): Promise<boolean> {
 		const obligations = ArrayHelper.fromObjectOrArray<IOdrlDuty>(policy.obligation ?? []);
@@ -521,7 +571,7 @@ export class DefaultPolicyArbiter implements IPolicyArbiter {
 	private async evaluateObligation(
 		agreementAssigner: string[] | undefined,
 		agreementAssignee: string[] | undefined,
-		policy: IDataspaceProtocolPolicy,
+		policy: IRightsManagementPolicy,
 		obligation: IOdrlDuty,
 		dataSources: { [prefix: string]: unknown }
 	): Promise<boolean> {
@@ -561,8 +611,8 @@ export class DefaultPolicyArbiter implements IPolicyArbiter {
 	 * @internal
 	 */
 	private async mergeInheritedPolicies(
-		policy: IDataspaceProtocolPolicy
-	): Promise<IDataspaceProtocolPolicy> {
+		policy: IRightsManagementPolicy
+	): Promise<IRightsManagementPolicy> {
 		const visitedPolicyIds: string[] = [];
 		visitedPolicyIds.push(OdrlPolicyHelper.getUid(policy) ?? "");
 		const inheritedPolicies = await this.resolveInheritedPolicies(policy, visitedPolicyIds, 0);
@@ -584,8 +634,24 @@ export class DefaultPolicyArbiter implements IPolicyArbiter {
 			policy.obligation ?? []
 		).map(obligation => this.applyPolicyDefaultsToRule(policy, obligation));
 
-		// Merge rules from each inherited policy
+		// Merge rules from each inherited policy, applying the same profile guard as the
+		// top-level policy. A parent that declares an unsupported profile may carry rules
+		// whose semantics the arbiter cannot guarantee, so it is rejected.
 		for (const inheritedPolicy of inheritedPolicies) {
+			const inheritedProfiles = ArrayHelper.fromObjectOrArray<string>(inheritedPolicy.profile ?? [])
+				.filter(p => Is.stringValue(p))
+				.map(p => DefaultPolicyArbiter.normalizeProfileIri(p));
+			if (
+				Is.arrayValue(inheritedProfiles) &&
+				!inheritedProfiles.every(p => DefaultPolicyArbiter.SUPPORTED_PROFILES.has(p))
+			) {
+				throw new GeneralError(
+					DefaultPolicyArbiter.CLASS_NAME,
+					"inheritedPolicyProfileNotSupported",
+					{ policyId: OdrlPolicyHelper.getUid(inheritedPolicy) ?? "" }
+				);
+			}
+
 			if (Is.stringValue(inheritedPolicy.conflict)) {
 				conflictStrategies.add(inheritedPolicy.conflict);
 			}
@@ -645,11 +711,11 @@ export class DefaultPolicyArbiter implements IPolicyArbiter {
 	 * @internal
 	 */
 	private async resolveInheritedPolicies(
-		policy: IDataspaceProtocolPolicy,
+		policy: IRightsManagementPolicy,
 		visitedPolicyIds: string[],
 		currentDepth: number
-	): Promise<IDataspaceProtocolPolicy[]> {
-		const inheritedPolicies: IDataspaceProtocolPolicy[] = [];
+	): Promise<IRightsManagementPolicy[]> {
+		const inheritedPolicies: IRightsManagementPolicy[] = [];
 
 		// If policy has no inheritFrom, return empty array
 		if (Is.empty(policy.inheritFrom)) {
@@ -709,7 +775,7 @@ export class DefaultPolicyArbiter implements IPolicyArbiter {
 	 * @internal
 	 */
 	private applyPolicyDefaultsToRule<T extends IOdrlRule>(
-		policy: IDataspaceProtocolPolicy,
+		policy: IRightsManagementPolicy,
 		rule: T
 	): T {
 		const assigner = Is.empty(rule.assigner) ? policy.assigner : rule.assigner;
@@ -1013,7 +1079,7 @@ export class DefaultPolicyArbiter implements IPolicyArbiter {
 	private async evaluatePermission(
 		agreementAssigner: string[] | undefined,
 		agreementAssignee: string[] | undefined,
-		policy: IDataspaceProtocolPolicy,
+		policy: IRightsManagementPolicy,
 		permission: IOdrlPermission,
 		targetRefinements: (IOdrlConstraint | IOdrlLogicalConstraint)[],
 		dataSources: { [prefix: string]: unknown },
@@ -1069,7 +1135,7 @@ export class DefaultPolicyArbiter implements IPolicyArbiter {
 	 * @internal
 	 */
 	private async enforcePermissionDuties(
-		policy: IDataspaceProtocolPolicy,
+		policy: IRightsManagementPolicy,
 		permission: IOdrlPermission,
 		dataSources: { [prefix: string]: unknown },
 		ruleDataContext?: unknown
@@ -1099,7 +1165,7 @@ export class DefaultPolicyArbiter implements IPolicyArbiter {
 	 * @internal
 	 */
 	private async enforceDuty(
-		policy: IDataspaceProtocolPolicy,
+		policy: IRightsManagementPolicy,
 		duty: IOdrlDuty,
 		dataSources: { [prefix: string]: unknown },
 		ruleDataContext?: unknown

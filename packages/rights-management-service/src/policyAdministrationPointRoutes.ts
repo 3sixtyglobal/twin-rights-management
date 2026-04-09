@@ -15,6 +15,8 @@ import type {
 	IPapCreateRequest,
 	IPapGetAgreementRequest,
 	IPapGetAgreementResponse,
+	IPapGetEcosystemPolicyRequest,
+	IPapGetEcosystemPolicyResponse,
 	IPapGetOfferRequest,
 	IPapGetOfferResponse,
 	IPapGetRequest,
@@ -27,6 +29,7 @@ import type {
 	IPapUpdateRequest,
 	IPolicyAdministrationPointComponent
 } from "@twin.org/rights-management-models";
+import { OdrlProfiles, RightsManagementPolicyType } from "@twin.org/rights-management-models";
 import { OdrlContexts, OdrlPolicyType } from "@twin.org/standards-w3c-odrl";
 import { HeaderHelper, HeaderTypes, HttpStatusCode } from "@twin.org/web";
 
@@ -76,6 +79,24 @@ export function generateRestRoutesPolicyAdministrationPoint(
 								{
 									target: "http://example.com/asset/1",
 									action: "use"
+								}
+							]
+						}
+					}
+				},
+				{
+					id: "papCreateEcosystemPolicyRequestExample",
+					request: {
+						body: {
+							"@context": [OdrlContexts.Context, OdrlProfiles.TwinVocabContext],
+							"@type": RightsManagementPolicyType.EcosystemPolicy,
+							profile: OdrlProfiles.Twin,
+							assigner: "did:example:publisher",
+							obligation: [
+								{
+									action: "inform",
+									assignee: "did:example:border-agency",
+									target: "urn:twin:asset:consignment:*"
 								}
 							]
 						}
@@ -330,6 +351,58 @@ export function generateRestRoutesPolicyAdministrationPoint(
 		]
 	};
 
+	const papGetEcosystemPolicyRoute: IRestRoute<
+		IPapGetEcosystemPolicyRequest,
+		IPapGetEcosystemPolicyResponse
+	> = {
+		operationId: "papGetEcosystemPolicy",
+		summary: "Get an ecosystem policy",
+		tag: papTags[0].name,
+		method: "GET",
+		path: `${baseRouteName}/policy/admin/ecosystem-policy/:id`,
+		handler: async (httpRequestContext, request) =>
+			papGetEcosystemPolicy(httpRequestContext, componentName, request),
+		requestType: {
+			type: nameof<IPapGetEcosystemPolicyRequest>(),
+			examples: [
+				{
+					id: "papGetEcosystemPolicyRequestExample",
+					request: {
+						pathParams: {
+							id: "urn:rights-management:abc123def456"
+						}
+					}
+				}
+			]
+		},
+		responseType: [
+			{
+				type: nameof<IPapGetEcosystemPolicyResponse>(),
+				examples: [
+					{
+						id: "papGetEcosystemPolicyResponseExample",
+						response: {
+							body: {
+								"@context": [OdrlContexts.Context, OdrlProfiles.TwinVocabContext],
+								"@type": RightsManagementPolicyType.EcosystemPolicy,
+								"@id": "urn:rights-management:abc123def456",
+								profile: OdrlProfiles.Twin,
+								assigner: "did:example:publisher",
+								obligation: [
+									{
+										action: "inform",
+										assignee: "did:example:border-agency",
+										target: "urn:twin:asset:consignment:abc123"
+									}
+								]
+							}
+						}
+					}
+				]
+			}
+		]
+	};
+
 	const papRemoveRoute: IRestRoute<IPapRemoveRequest, INoContentResponse> = {
 		operationId: "papRemove",
 		summary: "Remove a policy",
@@ -413,6 +486,7 @@ export function generateRestRoutesPolicyAdministrationPoint(
 		papGetAgreementRoute,
 		papGetOfferRoute,
 		papGetSetRoute,
+		papGetEcosystemPolicyRoute,
 		papRemoveRoute,
 		papQueryRoute
 	];
@@ -577,6 +651,34 @@ export async function papGetSet(
 
 	const component = ComponentFactory.get<IPolicyAdministrationPointComponent>(componentName);
 	const policy = await component.getSet(request.pathParams.id);
+
+	return {
+		body: policy
+	};
+}
+
+/**
+ * PAP: Get an ecosystem policy.
+ * @param httpRequestContext The request context for the API.
+ * @param componentName The name of the component to use in the routes.
+ * @param request The request.
+ * @returns The response object with additional http response properties.
+ */
+export async function papGetEcosystemPolicy(
+	httpRequestContext: IHttpRequestContext,
+	componentName: string,
+	request: IPapGetEcosystemPolicyRequest
+): Promise<IPapGetEcosystemPolicyResponse> {
+	Guards.object<IPapGetEcosystemPolicyRequest>(ROUTES_SOURCE, nameof(request), request);
+	Guards.object<IPapGetEcosystemPolicyRequest["pathParams"]>(
+		ROUTES_SOURCE,
+		nameof(request.pathParams),
+		request.pathParams
+	);
+	Guards.stringValue(ROUTES_SOURCE, nameof(request.pathParams.id), request.pathParams.id);
+
+	const component = ComponentFactory.get<IPolicyAdministrationPointComponent>(componentName);
+	const policy = await component.getEcosystemPolicy(request.pathParams.id);
 
 	return {
 		body: policy

@@ -6,11 +6,11 @@ import type { ILoggingComponent } from "@twin.org/logging-models";
 import { nameof } from "@twin.org/nameof";
 import {
 	type IPolicyInformationPointComponent,
+	type IRightsManagementPolicy,
 	OdrlPolicyHelper,
 	PolicyInformationAccessMode,
 	PolicyInformationSourceFactory
 } from "@twin.org/rights-management-models";
-import type { IDataspaceProtocolPolicy } from "@twin.org/standards-dataspace-protocol";
 import type { OdrlActionType } from "@twin.org/standards-w3c-odrl";
 import type { IPolicyInformationPointServiceConstructorOptions } from "./models/IPolicyInformationPointServiceConstructorOptions.js";
 
@@ -56,7 +56,7 @@ export class PolicyInformationPointService implements IPolicyInformationPointCom
 	 * @returns Returns additional information based on the data and identities.
 	 */
 	public async retrieve<D = unknown>(
-		policy: IDataspaceProtocolPolicy | undefined,
+		policy: IRightsManagementPolicy | undefined,
 		accessMode: PolicyInformationAccessMode,
 		data?: D,
 		action?: OdrlActionType | string

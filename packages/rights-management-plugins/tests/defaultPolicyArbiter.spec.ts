@@ -12,6 +12,7 @@ import { LoggingConnectorFactory } from "@twin.org/logging-models";
 import { LoggingService } from "@twin.org/logging-service";
 import { nameof } from "@twin.org/nameof";
 import {
+	OdrlProfiles,
 	PolicyDecision,
 	PolicyObligationEnforcerFactory,
 	type IPolicyAdministrationPointComponent,
@@ -63,6 +64,7 @@ const registerPolicyAdministrationPointComponent = (
 		getAgreement: vi.fn(),
 		getSet: vi.fn(),
 		getOffer: vi.fn(),
+		getEcosystemPolicy: vi.fn(),
 		remove: vi.fn(),
 		query: vi.fn()
 	};
@@ -95,6 +97,7 @@ describe("DefaultPolicyArbiter", () => {
 			getAgreement: vi.fn(),
 			getSet: vi.fn(),
 			getOffer: vi.fn(),
+			getEcosystemPolicy: vi.fn(),
 			remove: vi.fn(),
 			query: vi.fn()
 		};
@@ -3424,8 +3427,8 @@ describe("DefaultPolicyArbiter", () => {
 		});
 	});
 
-	describe("Unsupported property guards", () => {
-		test("throws when policy declares a profile", async () => {
+	describe("Profile guard", () => {
+		test("throws when policy declares an unknown third-party profile", async () => {
 			const arbiter = new DefaultPolicyArbiter();
 			const policy: IDataspaceProtocolAgreement = {
 				"@context": OdrlContexts.Context,
@@ -3434,6 +3437,159 @@ describe("DefaultPolicyArbiter", () => {
 				assignee: "did:example:default-assignee",
 				"@id": "policy:profile-guard",
 				profile: "https://example.com/custom-profile",
+				permission: [{ action: "use" }]
+			} as unknown as IDataspaceProtocolAgreement;
+
+			await expect(arbiter.decide(policy, undefined, {})).rejects.toThrow(
+				"policyProfileNotSupported"
+			);
+		});
+
+		test("accepts when policy declares the TWIN ODRL profile (string form)", async () => {
+			const arbiter = new DefaultPolicyArbiter();
+			const policy: IDataspaceProtocolAgreement = {
+				"@context": OdrlContexts.Context,
+				"@type": OdrlPolicyType.Agreement,
+				assigner: "did:example:default-assigner",
+				assignee: "did:example:default-assignee",
+				"@id": "policy:twin-profile",
+				profile: OdrlProfiles.Twin,
+				permission: [{ action: "use", target: "twin:jsonpath:$.value" }]
+			} as unknown as IDataspaceProtocolAgreement;
+
+			const decisions = await arbiter.decide(policy, undefined, { value: "test" });
+			expect(decisions).toHaveLength(1);
+			expect(decisions[0]).toEqual({ target: "$.value", decision: PolicyDecision.Granted });
+		});
+
+		test("accepts when policy declares the TWIN ODRL profile (array form)", async () => {
+			const arbiter = new DefaultPolicyArbiter();
+			const policy: IDataspaceProtocolAgreement = {
+				"@context": OdrlContexts.Context,
+				"@type": OdrlPolicyType.Agreement,
+				assigner: "did:example:default-assigner",
+				assignee: "did:example:default-assignee",
+				"@id": "policy:twin-profile-array",
+				profile: [OdrlProfiles.Twin],
+				permission: [{ action: "use", target: "twin:jsonpath:$.value" }]
+			} as unknown as IDataspaceProtocolAgreement;
+
+			const decisions = await arbiter.decide(policy, undefined, { value: "test" });
+			expect(decisions).toHaveLength(1);
+			expect(decisions[0]).toEqual({ target: "$.value", decision: PolicyDecision.Granted });
+		});
+
+		test("accepts when profile is an empty string (treated as no profile declared)", async () => {
+			const arbiter = new DefaultPolicyArbiter();
+			const policy: IDataspaceProtocolAgreement = {
+				"@context": OdrlContexts.Context,
+				"@type": OdrlPolicyType.Agreement,
+				assigner: "did:example:default-assigner",
+				assignee: "did:example:default-assignee",
+				"@id": "policy:empty-string-profile",
+				profile: "",
+				permission: [{ action: "use", target: "twin:jsonpath:$.value" }]
+			} as unknown as IDataspaceProtocolAgreement;
+
+			const decisions = await arbiter.decide(policy, undefined, { value: "test" });
+			expect(decisions).toHaveLength(1);
+			expect(decisions[0]).toEqual({ target: "$.value", decision: PolicyDecision.Granted });
+		});
+
+		test("accepts when profile array contains only empty strings (treated as no profile declared)", async () => {
+			const arbiter = new DefaultPolicyArbiter();
+			const policy: IDataspaceProtocolAgreement = {
+				"@context": OdrlContexts.Context,
+				"@type": OdrlPolicyType.Agreement,
+				assigner: "did:example:default-assigner",
+				assignee: "did:example:default-assignee",
+				"@id": "policy:empty-array-profile",
+				profile: [""],
+				permission: [{ action: "use", target: "twin:jsonpath:$.value" }]
+			} as unknown as IDataspaceProtocolAgreement;
+
+			const decisions = await arbiter.decide(policy, undefined, { value: "test" });
+			expect(decisions).toHaveLength(1);
+			expect(decisions[0]).toEqual({ target: "$.value", decision: PolicyDecision.Granted });
+		});
+
+		test("accepts TWIN profile with trailing slash (URI normalization)", async () => {
+			const arbiter = new DefaultPolicyArbiter();
+			const policy: IDataspaceProtocolAgreement = {
+				"@context": OdrlContexts.Context,
+				"@type": OdrlPolicyType.Agreement,
+				assigner: "did:example:default-assigner",
+				assignee: "did:example:default-assignee",
+				"@id": "policy:twin-profile-trailing-slash",
+				profile: `${OdrlProfiles.Twin}/`,
+				permission: [{ action: "use", target: "twin:jsonpath:$.value" }]
+			} as unknown as IDataspaceProtocolAgreement;
+
+			const decisions = await arbiter.decide(policy, undefined, { value: "test" });
+			expect(decisions).toHaveLength(1);
+			expect(decisions[0]).toEqual({ target: "$.value", decision: PolicyDecision.Granted });
+		});
+
+		test("accepts TWIN profile with double slash in path (URI normalization)", async () => {
+			const arbiter = new DefaultPolicyArbiter();
+			const policy: IDataspaceProtocolAgreement = {
+				"@context": OdrlContexts.Context,
+				"@type": OdrlPolicyType.Agreement,
+				assigner: "did:example:default-assigner",
+				assignee: "did:example:default-assignee",
+				"@id": "policy:twin-profile-double-slash",
+				profile: OdrlProfiles.Twin.replace("schema.twindev.org/odrl", "schema.twindev.org//odrl"),
+				permission: [{ action: "use", target: "twin:jsonpath:$.value" }]
+			} as unknown as IDataspaceProtocolAgreement;
+
+			const decisions = await arbiter.decide(policy, undefined, { value: "test" });
+			expect(decisions).toHaveLength(1);
+			expect(decisions[0]).toEqual({ target: "$.value", decision: PolicyDecision.Granted });
+		});
+
+		test("accepts TWIN profile with uppercase scheme (URI normalization)", async () => {
+			const arbiter = new DefaultPolicyArbiter();
+			const policy: IDataspaceProtocolAgreement = {
+				"@context": OdrlContexts.Context,
+				"@type": OdrlPolicyType.Agreement,
+				assigner: "did:example:default-assigner",
+				assignee: "did:example:default-assignee",
+				"@id": "policy:twin-profile-uppercase-scheme",
+				profile: OdrlProfiles.Twin.replace("https://", "HTTPS://"),
+				permission: [{ action: "use", target: "twin:jsonpath:$.value" }]
+			} as unknown as IDataspaceProtocolAgreement;
+
+			const decisions = await arbiter.decide(policy, undefined, { value: "test" });
+			expect(decisions).toHaveLength(1);
+			expect(decisions[0]).toEqual({ target: "$.value", decision: PolicyDecision.Granted });
+		});
+
+		test("accepts TWIN profile with uppercase host (URI normalization)", async () => {
+			const arbiter = new DefaultPolicyArbiter();
+			const policy: IDataspaceProtocolAgreement = {
+				"@context": OdrlContexts.Context,
+				"@type": OdrlPolicyType.Agreement,
+				assigner: "did:example:default-assigner",
+				assignee: "did:example:default-assignee",
+				"@id": "policy:twin-profile-uppercase-host",
+				profile: OdrlProfiles.Twin.replace("schema.twindev.org", "SCHEMA.TWINDEV.ORG"),
+				permission: [{ action: "use", target: "twin:jsonpath:$.value" }]
+			} as unknown as IDataspaceProtocolAgreement;
+
+			const decisions = await arbiter.decide(policy, undefined, { value: "test" });
+			expect(decisions).toHaveLength(1);
+			expect(decisions[0]).toEqual({ target: "$.value", decision: PolicyDecision.Granted });
+		});
+
+		test("rejects when one profile in array is unknown (every, not some)", async () => {
+			const arbiter = new DefaultPolicyArbiter();
+			const policy: IDataspaceProtocolAgreement = {
+				"@context": OdrlContexts.Context,
+				"@type": OdrlPolicyType.Agreement,
+				assigner: "did:example:default-assigner",
+				assignee: "did:example:default-assignee",
+				"@id": "policy:mixed-profiles",
+				profile: [OdrlProfiles.Twin, "https://attacker.example/custom-profile"],
 				permission: [{ action: "use" }]
 			} as unknown as IDataspaceProtocolAgreement;
 
@@ -3705,6 +3861,39 @@ describe("DefaultPolicyArbiter", () => {
 			// requesting implied action "reproduce" outside EU — refinement not satisfied
 			const denied = await arbiter.decide(policy, undefined, { region: "US" }, "reproduce");
 			expect(denied).toEqual([{ target: "$", decision: PolicyDecision.Denied }]);
+		});
+
+		test("throws when inherited policy declares an unsupported profile", async () => {
+			const parentPolicy: IDataspaceProtocolAgreement = {
+				"@context": OdrlContexts.Context,
+				"@type": OdrlPolicyType.Agreement,
+				assigner: "did:example:default-assigner",
+				assignee: "did:example:default-assignee",
+				"@id": "policy:unsupported-profile-parent",
+				profile: "https://third-party.example/unsupported-profile",
+				permission: [{ action: "read" }]
+			} as unknown as IDataspaceProtocolAgreement;
+
+			const childPolicy: IDataspaceProtocolAgreement = {
+				"@context": OdrlContexts.Context,
+				"@type": OdrlPolicyType.Agreement,
+				assigner: "did:example:default-assigner",
+				assignee: "did:example:default-assignee",
+				"@id": "policy:child-with-unsupported-parent",
+				inheritFrom: "policy:unsupported-profile-parent",
+				permission: [{ action: "use" }]
+			} as unknown as IDataspaceProtocolAgreement;
+
+			const policiesToRetrieve = new Map([["policy:unsupported-profile-parent", parentPolicy]]);
+			registerPolicyAdministrationPointComponent(policiesToRetrieve);
+
+			const arbiter = new DefaultPolicyArbiter({
+				policyAdministrationPointComponentType: registeredPapComponentType
+			});
+
+			await expect(arbiter.decide(childPolicy, undefined, {})).rejects.toThrow(
+				"inheritedPolicyProfileNotSupported"
+			);
 		});
 	});
 });

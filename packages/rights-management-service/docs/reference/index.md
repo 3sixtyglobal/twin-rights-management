@@ -16,6 +16,7 @@
 - [papGetAgreement](functions/papGetAgreement.md)
 - [papGetOffer](functions/papGetOffer.md)
 - [papGetSet](functions/papGetSet.md)
+- [papGetEcosystemPolicy](functions/papGetEcosystemPolicy.md)
 - [papRemove](functions/papRemove.md)
 - [papQuery](functions/papQuery.md)
 - [generateRestRoutesPolicyNegotiationAdminPoint](functions/generateRestRoutesPolicyNegotiationAdminPoint.md)

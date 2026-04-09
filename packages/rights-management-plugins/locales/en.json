@@ -22,7 +22,8 @@
 			"constraintDataTypeNotSupported": "Constraint dataType is not supported. Value coercion based on dataType is not implemented.",
 			"constraintUnitNotSupported": "Constraint unit is not supported. Unit-aware comparison is not implemented.",
 			"constraintStatusNotSupported": "Constraint status is not supported. State-based evaluation is not implemented.",
-			"policyProfileNotSupported": "Policy \"{policyId}\" declares a profile. Profile-specific semantics are not supported."
+			"policyProfileNotSupported": "Policy \"{policyId}\" declares unsupported profile \"{unsupportedProfile}\". Only known profiles are supported.",
+			"inheritedPolicyProfileNotSupported": "Inherited policy \"{policyId}\" declares an unsupported profile. All policies in the inheritFrom chain must declare only supported profiles."
 		},
 		"defaultPolicyEnforcementProcessor": {
 			"targetNotJsonPath": "The policy decision target \"{target}\" is not a valid JSON-path string, it should be a minimum of $.",

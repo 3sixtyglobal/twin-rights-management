@@ -1,7 +1,7 @@
 // Copyright 2025 IOTA Stiftung.
 // SPDX-License-Identifier: Apache-2.0.
 import type { IComponent } from "@twin.org/core";
-import type { IDataspaceProtocolPolicy } from "@twin.org/standards-dataspace-protocol";
+import type { IRightsManagementPolicy } from "../IRightsManagementPolicy.js";
 
 /**
  * Interface describing a Policy Management Point (PMP) contract.
@@ -27,7 +27,7 @@ export interface IPolicyManagementPointComponent extends IComponent {
 		},
 		cursor?: string
 	): Promise<{
-		policies: IDataspaceProtocolPolicy[];
+		policies: IRightsManagementPolicy[];
 		cursor?: string;
 	}>;
 }

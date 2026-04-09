@@ -50,7 +50,8 @@
 		"Marszałkowska",
 		"Przemysłowa",
 		"Poznań",
-		"xone"
+		"xone",
+		"Vocab"
 	],
 	"ignoreRegExpList": [
 		"/from\\s+(['\"]).*\\1/",

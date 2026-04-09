@@ -6,9 +6,12 @@
 
 ## Interfaces
 
+- [IRightsManagementEcosystemPolicy](interfaces/IRightsManagementEcosystemPolicy.md)
 - [IPapCreateRequest](interfaces/IPapCreateRequest.md)
 - [IPapGetAgreementRequest](interfaces/IPapGetAgreementRequest.md)
 - [IPapGetAgreementResponse](interfaces/IPapGetAgreementResponse.md)
+- [IPapGetEcosystemPolicyRequest](interfaces/IPapGetEcosystemPolicyRequest.md)
+- [IPapGetEcosystemPolicyResponse](interfaces/IPapGetEcosystemPolicyResponse.md)
 - [IPapGetOfferRequest](interfaces/IPapGetOfferRequest.md)
 - [IPapGetOfferResponse](interfaces/IPapGetOfferResponse.md)
 - [IPapGetRequest](interfaces/IPapGetRequest.md)
@@ -54,12 +57,14 @@
 
 ## Type Aliases
 
+- [OdrlProfiles](type-aliases/OdrlProfiles.md)
 - [PolicyDecision](type-aliases/PolicyDecision.md)
 - [PolicyDecisionStage](type-aliases/PolicyDecisionStage.md)
 - [PolicyInformationAccessMode](type-aliases/PolicyInformationAccessMode.md)
 - [RightsManagementContexts](type-aliases/RightsManagementContexts.md)
 - [RightsManagementNamespaces](type-aliases/RightsManagementNamespaces.md)
 - [RightsManagementTypes](type-aliases/RightsManagementTypes.md)
+- [RightsManagementPolicyType](type-aliases/RightsManagementPolicyType.md)
 
 ## Variables
 
@@ -70,9 +75,11 @@
 - [PolicyNegotiatorFactory](variables/PolicyNegotiatorFactory.md)
 - [PolicyObligationEnforcerFactory](variables/PolicyObligationEnforcerFactory.md)
 - [PolicyRequesterFactory](variables/PolicyRequesterFactory.md)
+- [OdrlProfiles](variables/OdrlProfiles.md)
 - [PolicyDecision](variables/PolicyDecision.md)
 - [PolicyDecisionStage](variables/PolicyDecisionStage.md)
 - [PolicyInformationAccessMode](variables/PolicyInformationAccessMode.md)
 - [RightsManagementContexts](variables/RightsManagementContexts.md)
 - [RightsManagementNamespaces](variables/RightsManagementNamespaces.md)
 - [RightsManagementTypes](variables/RightsManagementTypes.md)
+- [RightsManagementPolicyType](variables/RightsManagementPolicyType.md)

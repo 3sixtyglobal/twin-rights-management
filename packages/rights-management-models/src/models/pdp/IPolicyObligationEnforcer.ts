@@ -2,8 +2,8 @@
 // SPDX-License-Identifier: Apache-2.0.
 import type { IComponent } from "@twin.org/core";
 import type { IJsonLdNodeObject } from "@twin.org/data-json-ld";
-import type { IDataspaceProtocolPolicy } from "@twin.org/standards-dataspace-protocol";
 import type { OdrlActionType, IOdrlDuty } from "@twin.org/standards-w3c-odrl";
+import type { IRightsManagementPolicy } from "../IRightsManagementPolicy.js";
 
 /**
  * Interface describing a Policy Obligation Enforcer.
@@ -19,7 +19,7 @@ export interface IPolicyObligationEnforcer extends IComponent {
 	 * @returns Whether the obligations were successfully enforced.
 	 */
 	enforce<D = unknown>(
-		policy: IDataspaceProtocolPolicy,
+		policy: IRightsManagementPolicy,
 		duty: IOdrlDuty,
 		information?: { [id: string]: IJsonLdNodeObject },
 		data?: D,

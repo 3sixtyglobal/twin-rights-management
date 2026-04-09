@@ -231,6 +231,33 @@ describe("OdrlPolicyHelper", () => {
 
 			expect(OdrlPolicyHelper.getTargets(policy)).toEqual([]);
 		});
+
+		it("returns targets from permission, prohibition, and obligation rules", () => {
+			const policy = {
+				type: "Set",
+				"@id": "policy-44",
+				permission: [{ target: "asset-from-permission" }],
+				prohibition: [{ target: "asset-from-prohibition" }],
+				obligation: [{ target: "asset-from-obligation" }]
+			} as unknown as IDataspaceProtocolPolicy;
+
+			expect(OdrlPolicyHelper.getTargets(policy).sort()).toEqual([
+				"asset-from-obligation",
+				"asset-from-permission",
+				"asset-from-prohibition"
+			]);
+		});
+
+		it("deduplicates targets across policy-level and rule-level", () => {
+			const policy = {
+				type: "Set",
+				"@id": "policy-45",
+				target: "shared-asset",
+				permission: [{ target: "shared-asset" }, { target: "unique-asset" }]
+			} as unknown as IDataspaceProtocolPolicy;
+
+			expect(OdrlPolicyHelper.getTargets(policy).sort()).toEqual(["shared-asset", "unique-asset"]);
+		});
 	});
 
 	describe("getActions", () => {
@@ -261,6 +288,40 @@ describe("OdrlPolicyHelper", () => {
 			} as unknown as IDataspaceProtocolPolicy;
 
 			expect(OdrlPolicyHelper.getActions(policy)).toEqual([]);
+		});
+
+		it("returns actions from permission, prohibition, and obligation rules", () => {
+			const policy = {
+				type: "Set",
+				"@id": "policy-54",
+				permission: [{ action: "use" }],
+				prohibition: [{ action: "print" }],
+				obligation: [{ action: "inform" }]
+			} as unknown as IDataspaceProtocolPolicy;
+
+			expect(OdrlPolicyHelper.getActions(policy).sort()).toEqual(["inform", "print", "use"]);
+		});
+
+		it("deduplicates actions across policy-level and rule-level", () => {
+			const policy = {
+				type: "Set",
+				"@id": "policy-55",
+				action: "use",
+				permission: [{ action: "use" }, { action: "display" }]
+			} as unknown as IDataspaceProtocolPolicy;
+
+			expect(OdrlPolicyHelper.getActions(policy).sort()).toEqual(["display", "use"]);
+		});
+
+		it("indexes obligation action for EcosystemPolicy-style policy (no top-level action)", () => {
+			const policy = {
+				"@type": "EcosystemPolicy",
+				"@id": "policy-56",
+				obligation: [{ action: "inform", target: "twin:asset:consignment:*" }]
+			} as unknown as IDataspaceProtocolPolicy;
+
+			expect(OdrlPolicyHelper.getActions(policy)).toEqual(["inform"]);
+			expect(OdrlPolicyHelper.getTargets(policy)).toEqual(["twin:asset:consignment:*"]);
 		});
 	});
 

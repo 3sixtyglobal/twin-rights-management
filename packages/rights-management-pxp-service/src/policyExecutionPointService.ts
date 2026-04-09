@@ -6,11 +6,11 @@ import { nameof } from "@twin.org/nameof";
 import {
 	type IPolicyDecision,
 	type IPolicyExecutionPointComponent,
+	type IRightsManagementPolicy,
 	OdrlPolicyHelper,
 	PolicyDecisionStage,
 	PolicyExecutionActionFactory
 } from "@twin.org/rights-management-models";
-import type { IDataspaceProtocolPolicy } from "@twin.org/standards-dataspace-protocol";
 import type { OdrlActionType } from "@twin.org/standards-w3c-odrl";
 import type { IPolicyExecutionPointServiceConstructorOptions } from "./models/IPolicyExecutionPointServiceConstructorOptions.js";
 
@@ -57,13 +57,13 @@ export class PolicyExecutionPointService implements IPolicyExecutionPointCompone
 	 * @returns Nothing.
 	 */
 	public async executeActions<D = unknown>(
-		policy: IDataspaceProtocolPolicy,
+		policy: IRightsManagementPolicy,
 		decisions: IPolicyDecision[],
 		data: D | undefined,
 		action: OdrlActionType | string | undefined,
 		stage: PolicyDecisionStage
 	): Promise<void> {
-		Guards.object<IDataspaceProtocolPolicy>(
+		Guards.object<IRightsManagementPolicy>(
 			PolicyExecutionPointService.CLASS_NAME,
 			nameof(policy),
 			policy

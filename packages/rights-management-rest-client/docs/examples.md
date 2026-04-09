@@ -196,6 +196,9 @@ const policy = await papClient.get(createdPolicyId);
 const agreement = await papClient.getAgreement(createdPolicyId);
 const offer = await papClient.getOffer('urn:rights-management:offer-1');
 const set = await papClient.getSet('urn:rights-management:set-1');
+const ecosystemPolicy = await papClient.getEcosystemPolicy(
+  'urn:rights-management:ecosystem-policy-1'
+);
 const queryResult = await papClient.query(
   {
     assigner: 'did:example:provider',
@@ -215,6 +218,8 @@ console.log(policy['@id']); // urn:rights-management:...
 console.log(agreement['@type']); // Agreement
 console.log(offer['@type']); // Offer
 console.log(set['@type']); // Set
+console.log(ecosystemPolicy['@type']); // EcosystemPolicy
+console.log(ecosystemPolicy['@id']); // urn:rights-management:ecosystem-policy-1
 console.log(queryResult.policies.length); // 1
 ```
 
