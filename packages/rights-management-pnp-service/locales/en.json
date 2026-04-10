@@ -18,7 +18,8 @@
 			"ecosystemPolicyNotNegotiable": "EcosystemPolicy with id: \"{offerId}\" cannot be submitted to DSP contract negotiation — it is applied directly by the rights-management engine"
 		},
 		"policyNegotiationAdminPointService": {
-			"policyNotFound": "Policy with id: \"{notFoundId}\" not found"
+			"policyNotFound": "Policy with id: \"{notFoundId}\" not found",
+			"cleanupFailed": "Failed to cleanup old negotiations"
 		}
 	},
 	"warn": {

@@ -1,11 +1,12 @@
 // Copyright 2025 IOTA Stiftung.
 // SPDX-License-Identifier: Apache-2.0.
+import type { ITenantAdminComponent } from "@twin.org/api-models";
 import {
 	TaskSchedulerService,
 	initSchema as initSchemaScheduler,
 	type ScheduledTask
 } from "@twin.org/background-task-scheduler";
-import { ContextIdStore } from "@twin.org/context";
+import { ContextIdKeys, ContextIdStore } from "@twin.org/context";
 import { ComponentFactory } from "@twin.org/core";
 import { MemoryEntityStorageConnector } from "@twin.org/entity-storage-connector-memory";
 import { EntityStorageConnectorFactory } from "@twin.org/entity-storage-models";
@@ -26,6 +27,10 @@ let loggingMemoryEntityStorage: MemoryEntityStorageConnector<LogEntry>;
 let policyNegotiationMemoryEntityStorage: MemoryEntityStorageConnector<PolicyNegotiation>;
 
 describe("PolicyNegotiationAdminPointService", () => {
+	afterEach(() => {
+		vi.restoreAllMocks();
+	});
+
 	beforeEach(async () => {
 		initSchemaLogging();
 		initSchemaScheduler();
@@ -215,5 +220,75 @@ describe("PolicyNegotiationAdminPointService", () => {
 		const manualResult = await service.get("manual-pid");
 		expect(manualResult).toBeDefined();
 		expect(manualResult.state).toBe(DataspaceProtocolContractNegotiationStateType.REQUESTED);
+	});
+
+	test("partitioned cleanup iterates tenants from tenant admin", async () => {
+		const tenantAdminQuery = vi.fn().mockResolvedValue({
+			tenants: [{ id: "tenant-1" }, { id: "tenant-2" }],
+			cursor: undefined
+		});
+		const tenantAdmin = {
+			className: () => "tenant-admin",
+			query: tenantAdminQuery
+		} as unknown as ITenantAdminComponent;
+		ComponentFactory.register("tenant-admin", () => tenantAdmin);
+
+		const runSpy = vi
+			.spyOn(ContextIdStore, "run")
+			.mockImplementation(async (_contextIds, action) => action());
+
+		const service = new PolicyNegotiationAdminPointService({
+			partitionContextIds: [ContextIdKeys.Tenant]
+		});
+
+		const cleanupPartitionSpy = vi
+			.spyOn(
+				service as unknown as { cleanupOldStatesPartition: () => Promise<void> },
+				"cleanupOldStatesPartition"
+			)
+			.mockResolvedValue();
+
+		await (service as unknown as { cleanupOldStates(): Promise<void> }).cleanupOldStates();
+
+		expect(tenantAdminQuery).toHaveBeenCalledTimes(1);
+		expect(runSpy).toHaveBeenCalledTimes(2);
+		expect(cleanupPartitionSpy).toHaveBeenCalledTimes(2);
+		expect(runSpy.mock.calls[0]?.[0][ContextIdKeys.Tenant]).toBe("tenant-1");
+		expect(runSpy.mock.calls[1]?.[0][ContextIdKeys.Tenant]).toBe("tenant-2");
+	});
+
+	test("partitioned cleanup forwards cursor when paging tenants", async () => {
+		const tenantAdminQuery = vi
+			.fn()
+			.mockResolvedValueOnce({
+				tenants: [{ id: "tenant-1" }],
+				cursor: "cursor-2"
+			})
+			.mockResolvedValueOnce({
+				tenants: [{ id: "tenant-2" }],
+				cursor: undefined
+			});
+		const tenantAdmin = {
+			className: () => "tenant-admin",
+			query: tenantAdminQuery
+		} as unknown as ITenantAdminComponent;
+		ComponentFactory.register("tenant-admin", () => tenantAdmin);
+
+		vi.spyOn(ContextIdStore, "run").mockImplementation(async (_contextIds, action) => action());
+
+		const service = new PolicyNegotiationAdminPointService({
+			partitionContextIds: [ContextIdKeys.Tenant]
+		});
+
+		vi.spyOn(
+			service as unknown as { cleanupOldStatesPartition: () => Promise<void> },
+			"cleanupOldStatesPartition"
+		).mockResolvedValue();
+
+		await (service as unknown as { cleanupOldStates(): Promise<void> }).cleanupOldStates();
+
+		expect(tenantAdminQuery).toHaveBeenCalledTimes(2);
+		expect(tenantAdminQuery).toHaveBeenNthCalledWith(1, undefined, undefined);
+		expect(tenantAdminQuery).toHaveBeenNthCalledWith(2, undefined, "cursor-2");
 	});
 });

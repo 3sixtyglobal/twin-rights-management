@@ -1,5 +1,6 @@
 // Copyright 2025 IOTA Stiftung.
 // SPDX-License-Identifier: Apache-2.0.
+import type { ITenant, ITenantAdminComponent } from "@twin.org/api-models";
 import type { ITaskSchedulerComponent } from "@twin.org/background-task-models";
 import { ContextIdKeys, ContextIdStore } from "@twin.org/context";
 import { BaseError, ComponentFactory, Guards, Is, NotFoundError } from "@twin.org/core";
@@ -59,12 +60,6 @@ export class PolicyNegotiationAdminPointService implements IPolicyNegotiationAdm
 	private readonly _negotiationStateTtlMs: number;
 
 	/**
-	 * The list of active tenants required for task cleanup.
-	 * @internal
-	 */
-	private readonly _activeTenants: string[];
-
-	/**
 	 * The keys to use from the context ids to create partitions.
 	 * @internal
 	 */
@@ -75,6 +70,12 @@ export class PolicyNegotiationAdminPointService implements IPolicyNegotiationAdm
 	 * @internal
 	 */
 	private readonly _policyNegotiationPointComponentType?: string;
+
+	/**
+	 * The tenant admin component.
+	 * @internal
+	 */
+	private readonly _tenantAdmin?: ITenantAdminComponent;
 
 	/**
 	 * Create a new instance of PolicyNegotiationPointService (PNP).
@@ -95,9 +96,11 @@ export class PolicyNegotiationAdminPointService implements IPolicyNegotiationAdm
 				PolicyNegotiationAdminPointService._DEFAULT_NEGOTIATION_STATE_TTL_DEFAULT_MINUTES) *
 			60 *
 			1000;
-		this._activeTenants = [];
 		this._partitionContextIds = options?.partitionContextIds;
 		this._policyNegotiationPointComponentType = options?.policyNegotiationPointComponentType;
+		this._tenantAdmin = ComponentFactory.getIfExists<ITenantAdminComponent>(
+			options?.tenantAdminType ?? "tenant-admin"
+		);
 	}
 
 	/**
@@ -151,8 +154,6 @@ export class PolicyNegotiationAdminPointService implements IPolicyNegotiationAdm
 			throw new NotFoundError(PolicyNegotiationAdminPointService.CLASS_NAME, "policyNotFound", id);
 		}
 
-		await this.updateActiveTenants();
-
 		return this.entityToModel(entity);
 	}
 
@@ -179,8 +180,6 @@ export class PolicyNegotiationAdminPointService implements IPolicyNegotiationAdm
 		}
 
 		await this._policyNegotiationEntityStorage.set(entity);
-
-		await this.updateActiveTenants();
 	}
 
 	/**
@@ -191,7 +190,6 @@ export class PolicyNegotiationAdminPointService implements IPolicyNegotiationAdm
 	public async remove(policyId: string): Promise<void> {
 		Guards.stringValue(PolicyNegotiationAdminPointService.CLASS_NAME, nameof(policyId), policyId);
 		await this._policyNegotiationEntityStorage.remove(policyId);
-		await this.updateActiveTenants();
 	}
 
 	/**
@@ -227,24 +225,10 @@ export class PolicyNegotiationAdminPointService implements IPolicyNegotiationAdm
 			cursor
 		);
 
-		await this.updateActiveTenants();
-
 		return {
 			items: (result.entities as PolicyNegotiation[]).map(entity => this.entityToModel(entity)),
 			cursor: result.cursor
 		};
-	}
-
-	/**
-	 * Updates the list of active tenants for cleanup tasks.
-	 * @internal
-	 */
-	private async updateActiveTenants(): Promise<void> {
-		const contextIds = await ContextIdStore.getContextIds();
-		const tenantId = contextIds?.[ContextIdKeys.Tenant];
-		if (Is.stringValue(tenantId) && !this._activeTenants.includes(tenantId)) {
-			this._activeTenants.push(tenantId);
-		}
 	}
 
 	/**
@@ -254,15 +238,33 @@ export class PolicyNegotiationAdminPointService implements IPolicyNegotiationAdm
 	private async cleanupOldStates(): Promise<void> {
 		// Since we might have many expired negotiations, we need to page through them
 		// and delete them in batches, but they might be partitioned by tenant
-		// in the storage, so the current context id is not sufficient
-		// use the list of tracked tenants to iterate through
+		// in the storage
 		if (this._partitionContextIds?.includes(ContextIdKeys.Tenant)) {
-			for (const tenantId of this._activeTenants) {
-				const localContextIds = (await ContextIdStore.getContextIds()) ?? {};
-				localContextIds[ContextIdKeys.Tenant] = tenantId;
+			try {
+				// The cleanup must be done by tenant as the data is partitioned
+				let cursor;
+				do {
+					const result: { tenants: ITenant[]; cursor?: string } | undefined =
+						await this._tenantAdmin?.query(undefined, cursor);
+					cursor = result?.cursor;
+					if (!Is.empty(result)) {
+						for (const tenantId of result.tenants.map(t => t.id)) {
+							const localContextIds = (await ContextIdStore.getContextIds()) ?? {};
+							localContextIds[ContextIdKeys.Tenant] = tenantId;
 
-				await ContextIdStore.run(localContextIds, async () => {
-					await this.cleanupOldStatesPartition();
+							await ContextIdStore.run(localContextIds, async () => {
+								await this.cleanupOldStatesPartition();
+							});
+						}
+					}
+				} while (Is.stringValue(cursor));
+			} catch (error) {
+				await this._logging?.log({
+					level: "error",
+					message: "cleanupFailed",
+					ts: Date.now(),
+					source: PolicyNegotiationAdminPointService.CLASS_NAME,
+					error: BaseError.fromError(error)
 				});
 			}
 		} else {
@@ -279,11 +281,9 @@ export class PolicyNegotiationAdminPointService implements IPolicyNegotiationAdm
 		let cursor: string | undefined;
 		const now = Date.now();
 
-		const pnpComponent = Is.stringValue(this._policyNegotiationPointComponentType)
-			? ComponentFactory.getIfExists<IPolicyNegotiationPointComponent>(
-					this._policyNegotiationPointComponentType
-				)
-			: undefined;
+		const pnpComponent = ComponentFactory.getIfExists<IPolicyNegotiationPointComponent>(
+			this._policyNegotiationPointComponentType
+		);
 
 		do {
 			const result = await this._policyNegotiationEntityStorage.query({
@@ -304,11 +304,7 @@ export class PolicyNegotiationAdminPointService implements IPolicyNegotiationAdm
 			if (Is.arrayValue(result.entities)) {
 				for (const item of result.entities as PolicyNegotiation[]) {
 					if (Is.stringValue(item.id)) {
-						if (
-							pnpComponent !== undefined &&
-							pnpComponent !== null &&
-							Is.stringValue(item.callbackAddress)
-						) {
+						if (!Is.empty(pnpComponent) && Is.stringValue(item.callbackAddress)) {
 							try {
 								await pnpComponent.sendTerminateToConsumer(
 									item.callbackAddress,
