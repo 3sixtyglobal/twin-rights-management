@@ -83,6 +83,20 @@ undefined
 
 ***
 
+### tenantAdminType? {#tenantadmintype}
+
+> `optional` **tenantAdminType?**: `string`
+
+Tenant admin component type.
+
+#### Default
+
+```ts
+tenant-admin
+```
+
+***
+
 ### config? {#config}
 
 > `optional` **config?**: [`IPolicyNegotiationAdminPointServiceConfig`](IPolicyNegotiationAdminPointServiceConfig.md)
