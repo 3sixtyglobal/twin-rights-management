@@ -307,7 +307,7 @@ const tsRules = {
 		{ selector: 'enumMember', format: ['PascalCase'] },
 		{
 			selector: 'method',
-			format: ['camelCase'],
+			format: ['camelCase', 'PascalCase'],
 			leadingUnderscore: 'forbid',
 			trailingUnderscore: 'forbid'
 		},
@@ -328,11 +328,6 @@ const tsRules = {
 			modifiers: ['static', 'private'],
 			leadingUnderscore: 'require',
 			format: ['UPPER_CASE', 'camelCase']
-		},
-		{
-			selector: 'interface',
-			format: ['PascalCase'],
-			prefix: ['I']
 		},
 		{
 			selector: 'class',
