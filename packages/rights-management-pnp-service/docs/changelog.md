@@ -1,5 +1,22 @@
 # Changelog
 
+## [0.0.3-next.29](https://github.com/twinfoundation/rights-management/compare/rights-management-pnp-service-v0.0.3-next.28...rights-management-pnp-service-v0.0.3-next.29) (2026-04-10)
+
+
+### Features
+
+* use tenant admin service instead of custom tenant tracking ([#118](https://github.com/twinfoundation/rights-management/issues/118)) ([905745c](https://github.com/twinfoundation/rights-management/commit/905745cec18ecf27d8b550ee0a8aaf103d0d69da))
+
+
+### Dependencies
+
+* The following workspace dependencies were updated
+  * dependencies
+    * @twin.org/rights-management-models bumped from 0.0.3-next.28 to 0.0.3-next.29
+  * devDependencies
+    * @twin.org/rights-management-pap-service bumped from 0.0.3-next.28 to 0.0.3-next.29
+    * @twin.org/rights-management-pip-service bumped from 0.0.3-next.28 to 0.0.3-next.29
+
 ## [0.0.3-next.28](https://github.com/twinfoundation/rights-management/compare/rights-management-pnp-service-v0.0.3-next.27...rights-management-pnp-service-v0.0.3-next.28) (2026-04-09)
 
 
