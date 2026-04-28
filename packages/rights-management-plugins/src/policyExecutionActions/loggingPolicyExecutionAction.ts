@@ -96,7 +96,7 @@ export class LoggingPolicyExecutionAction implements IPolicyExecutionAction {
 		policy: IRightsManagementPolicy,
 		decisions: IPolicyDecision[],
 		data: D | undefined,
-		action: OdrlActionType | string,
+		action: OdrlActionType | string | undefined,
 		stage: PolicyDecisionStage
 	): Promise<void> {
 		Guards.arrayOneOf(
