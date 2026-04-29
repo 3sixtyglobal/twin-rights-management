@@ -61,24 +61,6 @@
 											}
 										]
 									}
-								},
-								"papCreateEcosystemPolicyRequestExample": {
-									"value": {
-										"@context": [
-											"http://www.w3.org/ns/odrl.jsonld",
-											"https://schema.twindev.org/odrl/v1/"
-										],
-										"@type": "EcosystemPolicy",
-										"profile": "https://schema.twindev.org/odrl/v1/profile",
-										"assigner": "did:example:publisher",
-										"obligation": [
-											{
-												"action": "inform",
-												"assignee": "did:example:border-agency",
-												"target": "urn:twin:asset:consignment:*"
-											}
-										]
-									}
 								}
 							}
 						}
@@ -904,123 +886,6 @@
 											],
 											"assignee": "did:example:receiver",
 											"assigner": "did:example:sender"
-										}
-									}
-								}
-							}
-						}
-					},
-					"400": {
-						"description": "The server cannot process the request, see the content for more details.",
-						"content": {
-							"application/json": {
-								"schema": {
-									"$ref": "#/components/schemas/Error"
-								},
-								"examples": {
-									"exampleResponse": {
-										"value": {
-											"name": "GeneralError",
-											"message": "errorMessage",
-											"properties": {
-												"foo": "bar"
-											}
-										}
-									}
-								}
-							}
-						}
-					},
-					"401": {
-						"description": "You are not authorized to use the API or no credentials were supplied, see the content for more details.",
-						"content": {
-							"application/json": {
-								"schema": {
-									"$ref": "#/components/schemas/Error"
-								},
-								"examples": {
-									"exampleResponse": {
-										"value": {
-											"name": "UnauthorizedError",
-											"message": "errorMessage"
-										}
-									}
-								}
-							}
-						}
-					},
-					"500": {
-						"description": "The server has encountered a situation it does not know how to handle, see the content for more details.",
-						"content": {
-							"application/json": {
-								"schema": {
-									"$ref": "#/components/schemas/Error"
-								},
-								"examples": {
-									"exampleResponse": {
-										"value": {
-											"name": "InternalServerError",
-											"message": "errorMessage"
-										}
-									}
-								}
-							}
-						}
-					}
-				}
-			}
-		},
-		"/rights-management/policy/admin/ecosystem-policy/{id}": {
-			"get": {
-				"operationId": "papGetEcosystemPolicy",
-				"summary": "Get an ecosystem policy",
-				"tags": [
-					"Policy Administration Point"
-				],
-				"parameters": [
-					{
-						"name": "id",
-						"description": "The ID of the ecosystem policy to get.",
-						"in": "path",
-						"required": true,
-						"schema": {
-							"type": "string"
-						},
-						"style": "simple",
-						"example": "urn:rights-management:abc123def456"
-					}
-				],
-				"security": [
-					{
-						"jwtBearerAuthScheme": []
-					}
-				],
-				"responses": {
-					"200": {
-						"description": "The response structure for getting an ecosystem policy.",
-						"content": {
-							"application/json": {
-								"schema": {
-									"$ref": "https://schema.twindev.org/rights-management/RightsManagementEcosystemPolicy"
-								},
-								"examples": {
-									"papGetEcosystemPolicyResponseExample": {
-										"value": {
-											"@context": [
-												"http://www.w3.org/ns/odrl.jsonld",
-												"https://schema.twindev.org/odrl/v1/"
-											],
-											"@type": "EcosystemPolicy",
-											"@id": "urn:rights-management:abc123def456",
-											"profile": "https://schema.twindev.org/odrl/v1/profile",
-											"assigner": "did:example:publisher",
-											"obligation": [
-												{
-													"action": "inform",
-													"assignee": "did:example:border-agency",
-													"target": "urn:twin:asset:consignment:abc123"
-												}
-											]
 										}
 									}
 								}
@@ -2780,7 +2645,7 @@
 						"description": "The obligations in the policy.\nAt least one of permission, prohibition, or obligation must be present."
 					},
 					"@type": {
-						"$ref": "https://schema.twindev.org/rights-management/RightsManagementPolicyType"
+						"$ref": "https://schema.twindev.org/w3c-odrl/OdrlPolicyType"
 					},
 					"@id": {
 						"type": "string",

@@ -5,12 +5,9 @@ import { Converter, RandomHelper, Urn } from "@twin.org/core";
 import { MemoryEntityStorageConnector } from "@twin.org/entity-storage-connector-memory";
 import { EntityStorageConnectorFactory } from "@twin.org/entity-storage-models";
 import { nameof } from "@twin.org/nameof";
-import {
-	RightsManagementNamespaces,
-	RightsManagementPolicyType
-} from "@twin.org/rights-management-models";
+import { RightsManagementNamespaces } from "@twin.org/rights-management-models";
 import type { IDataspaceProtocolPolicy } from "@twin.org/standards-dataspace-protocol";
-import { OdrlActionType, OdrlContexts, OdrlPolicyType } from "@twin.org/standards-w3c-odrl";
+import { OdrlContexts, OdrlPolicyType, type OdrlActionType } from "@twin.org/standards-w3c-odrl";
 import * as dotenv from "dotenv";
 import type { OdrlPolicy } from "../src/entities/odrlPolicy.js";
 import type { PolicyAdministrationPointService } from "../src/policyAdministrationPointService.js";
@@ -98,18 +95,4 @@ export const createTestPolicies = async (
 		// Store mapping for tests that need to know the generated UID
 		testPolicyMapping.set(`http://example.com/policy/${i}`, generatedUid);
 	}
-
-	// Seed one EcosystemPolicy so query/get tests have a representative instance.
-	const ecosystemUid = await policyAdminPoint.create({
-		"@context": OdrlContexts.Context,
-		"@type": RightsManagementPolicyType.EcosystemPolicy,
-		obligation: [
-			{
-				action: OdrlActionType.Inform,
-				assignee: "did:example:border-agency",
-				target: "urn:twin:asset:consignment:seed-1"
-			}
-		]
-	});
-	testPolicyMapping.set("urn:twin:ecosystem-policy:seed-1", ecosystemUid);
 };

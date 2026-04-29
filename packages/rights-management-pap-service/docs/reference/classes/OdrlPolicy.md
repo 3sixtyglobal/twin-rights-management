@@ -24,7 +24,7 @@ The unique identifier for the policy.
 
 ### type {#type}
 
-> **type**: `RightsManagementPolicyType`
+> **type**: `OdrlPolicyType`
 
 The type of policy.
 

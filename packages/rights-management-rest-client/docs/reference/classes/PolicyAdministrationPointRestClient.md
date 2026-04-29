@@ -192,32 +192,6 @@ The set.
 
 ***
 
-### getEcosystemPolicy() {#getecosystempolicy}
-
-> **getEcosystemPolicy**(`ecosystemPolicyId`): `Promise`\<`IRightsManagementEcosystemPolicy`\>
-
-Get an ecosystem policy.
-
-#### Parameters
-
-##### ecosystemPolicyId
-
-`string`
-
-The id of the ecosystem policy to get.
-
-#### Returns
-
-`Promise`\<`IRightsManagementEcosystemPolicy`\>
-
-The ecosystem policy.
-
-#### Implementation of
-
-`IPolicyAdministrationPointComponent.getEcosystemPolicy`
-
-***
-
 ### getOffer() {#getoffer}
 
 > **getOffer**(`offerId`): `Promise`\<`IDataspaceProtocolOffer`\>

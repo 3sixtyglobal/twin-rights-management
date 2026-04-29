@@ -60,12 +60,9 @@ const pap = new PolicyAdministrationPointService();
 
 const agreement = await pap.getAgreement('urn:rights-management:agreement-1');
 const set = await pap.getSet('urn:rights-management:set-1');
-const ecosystemPolicy = await pap.getEcosystemPolicy('urn:rights-management:ecosystem-policy-1');
 
 console.log(agreement['@type']); // Agreement
 console.log(set['@type']); // Set
-console.log(ecosystemPolicy['@type']); // EcosystemPolicy
-console.log(ecosystemPolicy['@id']); // urn:rights-management:ecosystem-policy-1
 ```
 
 ```typescript

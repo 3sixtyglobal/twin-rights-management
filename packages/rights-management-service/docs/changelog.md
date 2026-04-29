@@ -1,5 +1,11 @@
 # Changelog
 
+## Unreleased
+
+### ⚠ BREAKING CHANGES
+
+* remove EcosystemPolicy support from PAP/REST routes and generated API surface for v2.
+
 ## [0.0.3-next.29](https://github.com/iotaledger/twin-rights-management/compare/rights-management-service-v0.0.3-next.28...rights-management-service-v0.0.3-next.29) (2026-04-10)
 
 

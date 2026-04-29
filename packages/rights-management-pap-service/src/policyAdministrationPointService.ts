@@ -23,9 +23,7 @@ import { nameof } from "@twin.org/nameof";
 import {
 	OdrlPolicyHelper,
 	RightsManagementNamespaces,
-	RightsManagementPolicyType,
 	type IPolicyAdministrationPointComponent,
-	type IRightsManagementEcosystemPolicy,
 	type IRightsManagementPolicy
 } from "@twin.org/rights-management-models";
 import type {
@@ -317,49 +315,6 @@ export class PolicyAdministrationPointService implements IPolicyAdministrationPo
 		}
 
 		return convertFromStoragePolicy<IDataspaceProtocolSet>(policy);
-	}
-
-	/**
-	 * Get an ecosystem policy from the entity storage.
-	 * @param ecosystemPolicyId The ID of the ecosystem policy to get.
-	 * @returns The ecosystem policy.
-	 */
-	public async getEcosystemPolicy(
-		ecosystemPolicyId: string
-	): Promise<IRightsManagementEcosystemPolicy> {
-		Guards.stringValue(
-			PolicyAdministrationPointService.CLASS_NAME,
-			nameof(ecosystemPolicyId),
-			ecosystemPolicyId
-		);
-
-		let policy;
-		try {
-			policy = await this._odrlPolicyEntityStorage.get(ecosystemPolicyId);
-		} catch (err) {
-			if (!BaseError.isErrorName(err, NotFoundError.CLASS_NAME)) {
-				throw err;
-			}
-		}
-
-		if (Is.empty(policy)) {
-			throw new NotFoundError(
-				PolicyAdministrationPointService.CLASS_NAME,
-				"ecosystemPolicyNotFound",
-				ecosystemPolicyId
-			);
-		}
-
-		const policyType = OdrlPolicyHelper.getType(policy);
-		if (policyType !== RightsManagementPolicyType.EcosystemPolicy) {
-			throw new GeneralError(
-				PolicyAdministrationPointService.CLASS_NAME,
-				"ecosystemPolicyTypeMismatch",
-				{ ecosystemPolicyId, type: policyType ?? "" }
-			);
-		}
-
-		return convertFromStoragePolicy<IRightsManagementEcosystemPolicy>(policy);
 	}
 
 	/**

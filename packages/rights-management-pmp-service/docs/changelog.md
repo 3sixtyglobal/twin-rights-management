@@ -1,5 +1,11 @@
 # Changelog
 
+## Unreleased
+
+### ⚠ BREAKING CHANGES
+
+* remove EcosystemPolicy-specific references in documentation for v2.
+
 ## [0.0.3-next.29](https://github.com/iotaledger/twin-rights-management/compare/rights-management-pmp-service-v0.0.3-next.28...rights-management-pmp-service-v0.0.3-next.29) (2026-04-10)
 
 

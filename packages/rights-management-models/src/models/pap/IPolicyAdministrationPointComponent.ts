@@ -8,7 +8,6 @@ import type {
 	IDataspaceProtocolOffer,
 	IDataspaceProtocolSet
 } from "@twin.org/standards-dataspace-protocol";
-import type { IRightsManagementEcosystemPolicy } from "../IRightsManagementEcosystemPolicy.js";
 import type { IRightsManagementPolicy } from "../IRightsManagementPolicy.js";
 
 /**
@@ -56,13 +55,6 @@ export interface IPolicyAdministrationPointComponent extends IComponent {
 	 * @returns The offer.
 	 */
 	getOffer(offerId: string): Promise<IDataspaceProtocolOffer>;
-
-	/**
-	 * Get an ecosystem policy.
-	 * @param ecosystemPolicyId The id of the ecosystem policy to get.
-	 * @returns The ecosystem policy.
-	 */
-	getEcosystemPolicy(ecosystemPolicyId: string): Promise<IRightsManagementEcosystemPolicy>;
 
 	/**
 	 * Remove a policy.

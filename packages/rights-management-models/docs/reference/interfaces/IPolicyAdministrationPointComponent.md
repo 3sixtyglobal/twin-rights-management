@@ -140,28 +140,6 @@ The offer.
 
 ***
 
-### getEcosystemPolicy() {#getecosystempolicy}
-
-> **getEcosystemPolicy**(`ecosystemPolicyId`): `Promise`\<[`IRightsManagementEcosystemPolicy`](../type-aliases/IRightsManagementEcosystemPolicy.md)\>
-
-Get an ecosystem policy.
-
-#### Parameters
-
-##### ecosystemPolicyId
-
-`string`
-
-The id of the ecosystem policy to get.
-
-#### Returns
-
-`Promise`\<[`IRightsManagementEcosystemPolicy`](../type-aliases/IRightsManagementEcosystemPolicy.md)\>
-
-The ecosystem policy.
-
-***
-
 ### remove() {#remove}
 
 > **remove**(`policyId`): `Promise`\<`void`\>

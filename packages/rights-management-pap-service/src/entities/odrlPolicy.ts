@@ -1,8 +1,8 @@
 // Copyright 2025 IOTA Stiftung.
 // SPDX-License-Identifier: Apache-2.0.
 import { entity, property } from "@twin.org/entity";
-import type { RightsManagementPolicyType } from "@twin.org/rights-management-models";
 import type { IDataspaceProtocolPolicy } from "@twin.org/standards-dataspace-protocol";
+import type { OdrlPolicyType } from "@twin.org/standards-w3c-odrl";
 
 /**
  * Class describing an ODRL policy for entity storage.
@@ -19,7 +19,7 @@ export class OdrlPolicy {
 	 * The type of policy.
 	 */
 	@property({ type: "string", isSecondary: true })
-	public type!: RightsManagementPolicyType;
+	public type!: OdrlPolicyType;
 
 	/**
 	 * The profile(s) this policy conforms to.

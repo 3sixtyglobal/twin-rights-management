@@ -313,9 +313,9 @@ describe("OdrlPolicyHelper", () => {
 			expect(OdrlPolicyHelper.getActions(policy).sort()).toEqual(["display", "use"]);
 		});
 
-		it("indexes obligation action for EcosystemPolicy-style policy (no top-level action)", () => {
+		it("indexes obligation action when no top-level action exists", () => {
 			const policy = {
-				"@type": "EcosystemPolicy",
+				"@type": "Set",
 				"@id": "policy-56",
 				obligation: [{ action: "inform", target: "twin:asset:consignment:*" }]
 			} as unknown as IDataspaceProtocolPolicy;

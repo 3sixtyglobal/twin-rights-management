@@ -8,9 +8,7 @@
 			"offerNotFound": "Offer not found with id: \"{notFoundId}\"",
 			"offerTypeMismatch": "The policy with id: \"{offerId}\" is not of type Offer, it is of type: \"{type}\".",
 			"setNotFound": "Set not found with id: \"{notFoundId}\"",
-			"setTypeMismatch": "The policy with id: \"{setId}\" is not of type Set, it is of type: \"{type}\".",
-			"ecosystemPolicyNotFound": "Ecosystem policy not found with id: \"{notFoundId}\"",
-			"ecosystemPolicyTypeMismatch": "The policy with id: \"{ecosystemPolicyId}\" is not of type EcosystemPolicy, it is of type: \"{type}\"."
+			"setTypeMismatch": "The policy with id: \"{setId}\" is not of type Set, it is of type: \"{type}\"."
 		}
 	}
 }

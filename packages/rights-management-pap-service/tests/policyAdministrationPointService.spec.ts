@@ -7,7 +7,6 @@ import type { JsonLdObjectWithOptionalAtId } from "@twin.org/data-json-ld";
 import type { EntityCondition } from "@twin.org/entity";
 import type { MemoryEntityStorageConnector } from "@twin.org/entity-storage-connector-memory";
 import { EntityStorageConnectorFactory } from "@twin.org/entity-storage-models";
-import { RightsManagementPolicyType } from "@twin.org/rights-management-models";
 import type { IDataspaceProtocolPolicy } from "@twin.org/standards-dataspace-protocol";
 import { OdrlContexts, OdrlPolicyType } from "@twin.org/standards-w3c-odrl";
 import {
@@ -128,12 +127,12 @@ describe("PolicyAdministrationPointService", () => {
 		await createTestPolicies(policyAdminPoint);
 
 		const store = odrlPolicyEntityStorage.getStore();
-		expect(store.length).toEqual(11); // 10 Set/Offer + 1 seeded EcosystemPolicy
+		expect(store.length).toEqual(10);
 
 		const result = await policyAdminPoint.query();
 
 		expect(result.policies).toBeDefined();
-		expect(result.policies.length).toEqual(11);
+		expect(result.policies.length).toEqual(10);
 	});
 
 	test("should query policies with specific conditions", async () => {
@@ -786,130 +785,6 @@ describe("PolicyAdministrationPointService", () => {
 			});
 
 			await expect(policyAdminPoint.getSet(uid)).rejects.toThrow("setTypeMismatch");
-		});
-	});
-
-	describe("getEcosystemPolicy", () => {
-		test("should return ecosystem policy when type matches", async () => {
-			const uid = await policyAdminPoint.create({
-				"@context": OdrlContexts.Context,
-				"@type": RightsManagementPolicyType.EcosystemPolicy,
-				obligation: [{ action: "inform" }]
-			});
-
-			const result = await policyAdminPoint.getEcosystemPolicy(uid);
-
-			expect(result["@type"]).toBe(RightsManagementPolicyType.EcosystemPolicy);
-			expect(result["@id"]).toBe(uid);
-			expect(result.obligation).toEqual([{ action: "inform" }]);
-		});
-
-		test("should throw ecosystemPolicyNotFound when policy does not exist", async () => {
-			await expect(
-				policyAdminPoint.getEcosystemPolicy("urn:twin:policy:non-existent")
-			).rejects.toThrow("ecosystemPolicyNotFound");
-		});
-
-		test("should throw ecosystemPolicyTypeMismatch when type is not EcosystemPolicy", async () => {
-			const uid = await policyAdminPoint.create({
-				"@context": OdrlContexts.Context,
-				"@type": OdrlPolicyType.Set,
-				permission: [{ action: "use", target: "http://example.com/asset/1" }]
-			});
-
-			await expect(policyAdminPoint.getEcosystemPolicy(uid)).rejects.toThrow(
-				"ecosystemPolicyTypeMismatch"
-			);
-		});
-	});
-
-	describe("update — EcosystemPolicy", () => {
-		test("should persist obligation changes on update and return them via getEcosystemPolicy", async () => {
-			const uid = await policyAdminPoint.create({
-				"@context": OdrlContexts.Context,
-				"@type": RightsManagementPolicyType.EcosystemPolicy,
-				obligation: [{ action: "inform" }]
-			});
-
-			await policyAdminPoint.update({
-				"@context": OdrlContexts.Context,
-				"@type": RightsManagementPolicyType.EcosystemPolicy,
-				"@id": uid,
-				obligation: [
-					{
-						action: "inform",
-						assignee: "did:example:border-agency",
-						target: "urn:twin:asset:consignment:abc123"
-					}
-				]
-			});
-
-			const result = await policyAdminPoint.getEcosystemPolicy(uid);
-
-			expect(result["@type"]).toBe(RightsManagementPolicyType.EcosystemPolicy);
-			expect(result["@id"]).toBe(uid);
-			expect(result.obligation).toEqual([
-				{
-					action: "inform",
-					assignee: "did:example:border-agency",
-					target: "urn:twin:asset:consignment:abc123"
-				}
-			]);
-		});
-	});
-
-	describe("query — EcosystemPolicy", () => {
-		test("should find EcosystemPolicy by obligation-level action index", async () => {
-			const uid = await policyAdminPoint.create({
-				"@context": OdrlContexts.Context,
-				"@type": RightsManagementPolicyType.EcosystemPolicy,
-				obligation: [
-					{
-						action: "inform",
-						assignee: "did:example:border-agency",
-						target: "urn:twin:asset:consignment:abc123"
-					}
-				]
-			});
-
-			const byAction = await policyAdminPoint.query({ action: "inform" });
-
-			expect(byAction.policies.map(p => p["@id"])).toContain(uid);
-		});
-
-		test("should find EcosystemPolicy by obligation-level target index", async () => {
-			const uid = await policyAdminPoint.create({
-				"@context": OdrlContexts.Context,
-				"@type": RightsManagementPolicyType.EcosystemPolicy,
-				obligation: [
-					{
-						action: "inform",
-						target: "urn:twin:asset:consignment:abc123"
-					}
-				]
-			});
-
-			const byTarget = await policyAdminPoint.query({
-				target: "urn:twin:asset:consignment:abc123"
-			});
-
-			expect(byTarget.policies.map(p => p["@id"])).toContain(uid);
-		});
-
-		test("should not return EcosystemPolicy when querying by a different action", async () => {
-			await policyAdminPoint.create({
-				"@context": OdrlContexts.Context,
-				"@type": RightsManagementPolicyType.EcosystemPolicy,
-				obligation: [{ action: "inform" }]
-			});
-
-			const byUnrelatedAction = await policyAdminPoint.query({ action: "use" });
-
-			expect(
-				byUnrelatedAction.policies.every(
-					p => p["@type"] !== RightsManagementPolicyType.EcosystemPolicy
-				)
-			).toBe(true);
 		});
 	});
 });

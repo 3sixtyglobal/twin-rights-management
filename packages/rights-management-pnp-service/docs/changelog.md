@@ -1,5 +1,11 @@
 # Changelog
 
+## Unreleased
+
+### ⚠ BREAKING CHANGES
+
+* remove EcosystemPolicy-specific negotiation guard and related locale contract for v2.
+
 ## [0.0.3-next.29](https://github.com/iotaledger/twin-rights-management/compare/rights-management-pnp-service-v0.0.3-next.28...rights-management-pnp-service-v0.0.3-next.29) (2026-04-10)
 
 

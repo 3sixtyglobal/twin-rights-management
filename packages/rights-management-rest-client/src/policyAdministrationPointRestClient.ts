@@ -21,9 +21,6 @@ import {
 	type IPolicyAdministrationPointComponent,
 	type IPapGetAgreementRequest,
 	type IPapGetAgreementResponse,
-	type IPapGetEcosystemPolicyRequest,
-	type IPapGetEcosystemPolicyResponse,
-	type IRightsManagementEcosystemPolicy,
 	type IRightsManagementPolicy,
 	type IPapGetSetRequest,
 	type IPapGetSetResponse,
@@ -165,32 +162,6 @@ export class PolicyAdministrationPointRestClient
 				}
 			}
 		);
-
-		return response.body;
-	}
-
-	/**
-	 * Get an ecosystem policy.
-	 * @param ecosystemPolicyId The id of the ecosystem policy to get.
-	 * @returns The ecosystem policy.
-	 */
-	public async getEcosystemPolicy(
-		ecosystemPolicyId: string
-	): Promise<IRightsManagementEcosystemPolicy> {
-		Guards.stringValue(
-			PolicyAdministrationPointRestClient.CLASS_NAME,
-			nameof(ecosystemPolicyId),
-			ecosystemPolicyId
-		);
-
-		const response = await this.fetch<
-			IPapGetEcosystemPolicyRequest,
-			IPapGetEcosystemPolicyResponse
-		>("/policy/admin/ecosystem-policy/:id", "GET", {
-			pathParams: {
-				id: ecosystemPolicyId
-			}
-		});
 
 		return response.body;
 	}

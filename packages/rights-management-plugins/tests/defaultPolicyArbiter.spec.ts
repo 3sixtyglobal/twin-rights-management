@@ -75,7 +75,6 @@ const registerPolicyAdministrationPointComponent = (
 		getAgreement: vi.fn(),
 		getSet: vi.fn(),
 		getOffer: vi.fn(),
-		getEcosystemPolicy: vi.fn(),
 		remove: vi.fn(),
 		query: vi.fn()
 	};
@@ -108,7 +107,6 @@ describe("DefaultPolicyArbiter", () => {
 			getAgreement: vi.fn(),
 			getSet: vi.fn(),
 			getOffer: vi.fn(),
-			getEcosystemPolicy: vi.fn(),
 			remove: vi.fn(),
 			query: vi.fn()
 		};

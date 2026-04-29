@@ -26,7 +26,6 @@ import { nameof } from "@twin.org/nameof";
 import {
 	PolicyNegotiatorFactory,
 	PolicyRequesterFactory,
-	RightsManagementPolicyType,
 	type IPolicyNegotiationPointComponent,
 	type IPolicyNegotiator,
 	type IPolicyRequester
@@ -37,11 +36,7 @@ import {
 	type OdrlPolicy
 } from "@twin.org/rights-management-pap-service";
 import { PolicyInformationPointService } from "@twin.org/rights-management-pip-service";
-import {
-	DataspaceProtocolContexts,
-	DataspaceProtocolContractNegotiationTypes,
-	type IDataspaceProtocolOffer
-} from "@twin.org/standards-dataspace-protocol";
+import type { IDataspaceProtocolOffer } from "@twin.org/standards-dataspace-protocol";
 import { OdrlContexts, OdrlTypes } from "@twin.org/standards-w3c-odrl";
 import type { ITrustComponent } from "@twin.org/trust-models";
 import {
@@ -423,31 +418,6 @@ describe("PolicyNegotiationPointService", () => {
 			name: "GeneralError",
 			message: "policyNegotiationPointService.noOfferFound"
 		});
-	});
-
-	test("rejects when offer type is EcosystemPolicy — non-negotiable type guard", async () => {
-		const policyNegotiationProviderPoint = new PolicyNegotiationPointService({
-			policyNegotiationAdministrationPointComponentType: "policy-negotiation-provider-admin-point",
-			policyNegotiationPointRemoteComponentType: "pnp-remote",
-			config: { callbackPath: "/callback" }
-		});
-
-		await expect(
-			policyNegotiationProviderPoint.requestFromConsumer(
-				{
-					"@context": [DataspaceProtocolContexts.Context],
-					"@type": DataspaceProtocolContractNegotiationTypes.ContractRequestMessage,
-					consumerPid: "urn:twin:negotiation:consumer-test",
-					offer: {
-						"@type": RightsManagementPolicyType.EcosystemPolicy,
-						"@id": "urn:twin:policy:ecosystem-1",
-						assigner: "did:example:publisher"
-					} as unknown as IDataspaceProtocolOffer,
-					callbackAddress: "http://localhost:4000/callback"
-				},
-				undefined
-			)
-		).rejects.toThrow("ecosystemPolicyNotNegotiable");
 	});
 
 	test("can request a new negotiation and fail with no available negotiator", async () => {

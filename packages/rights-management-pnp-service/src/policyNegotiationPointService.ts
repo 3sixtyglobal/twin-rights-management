@@ -23,7 +23,6 @@ import {
 	PolicyNegotiatorFactory,
 	PolicyRequesterFactory,
 	RightsManagementNamespaces,
-	RightsManagementPolicyType,
 	type IPolicyAdministrationPointComponent,
 	type IPolicyInformationPointComponent,
 	type IPolicyNegotiation,
@@ -348,17 +347,6 @@ export class PolicyNegotiationPointService implements IPolicyNegotiationPointCom
 			nameof(message.callbackAddress),
 			message.callbackAddress
 		);
-
-		// EcosystemPolicy is non-bilateral and does not participate in DSP contract negotiation —
-		// it is applied directly by the rights-management engine. Reject it early so the caller
-		// receives a clear error rather than a misleading "noOfferFound".
-		if (OdrlPolicyHelper.getType(message.offer) === RightsManagementPolicyType.EcosystemPolicy) {
-			throw new GeneralError(
-				PolicyNegotiationPointService.CLASS_NAME,
-				"ecosystemPolicyNotNegotiable",
-				{ offerId: offerUid }
-			);
-		}
 
 		// Use the provided provider pid or generate a new one
 		const providerPid =
