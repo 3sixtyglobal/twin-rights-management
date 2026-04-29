@@ -6,6 +6,7 @@
 - [PassThroughPolicyArbiter](classes/PassThroughPolicyArbiter.md)
 - [DefaultPolicyEnforcementProcessor](classes/DefaultPolicyEnforcementProcessor.md)
 - [PassThroughPolicyEnforcementProcessor](classes/PassThroughPolicyEnforcementProcessor.md)
+- [AutomationPolicyExecutionAction](classes/AutomationPolicyExecutionAction.md)
 - [LoggingPolicyExecutionAction](classes/LoggingPolicyExecutionAction.md)
 - [IdentityPolicyInformationSource](classes/IdentityPolicyInformationSource.md)
 - [StaticPolicyInformationSource](classes/StaticPolicyInformationSource.md)
@@ -15,6 +16,8 @@
 
 ## Interfaces
 
+- [IAutomationPolicyExecutionActionConfig](interfaces/IAutomationPolicyExecutionActionConfig.md)
+- [IAutomationPolicyExecutionActionConstructorOptions](interfaces/IAutomationPolicyExecutionActionConstructorOptions.md)
 - [IDefaultPolicyArbiterConfig](interfaces/IDefaultPolicyArbiterConfig.md)
 - [IDefaultPolicyArbiterConstructorOptions](interfaces/IDefaultPolicyArbiterConstructorOptions.md)
 - [IDefaultPolicyEnforcementProcessorConstructorOptions](interfaces/IDefaultPolicyEnforcementProcessorConstructorOptions.md)

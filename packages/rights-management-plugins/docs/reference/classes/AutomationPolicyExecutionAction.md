@@ -1,6 +1,6 @@
-# Class: LoggingPolicyExecutionAction
+# Class: AutomationPolicyExecutionAction
 
-Logging Policy Execution Action to send decisions to logging.
+Automation Policy Execution Action to execute automation policies.
 
 ## Implements
 
@@ -10,21 +10,21 @@ Logging Policy Execution Action to send decisions to logging.
 
 ### Constructor
 
-> **new LoggingPolicyExecutionAction**(`options?`): `LoggingPolicyExecutionAction`
+> **new AutomationPolicyExecutionAction**(`options?`): `AutomationPolicyExecutionAction`
 
-Create a new instance of LoggingPolicyExecutionAction.
+Create a new instance of AutomationPolicyExecutionAction.
 
 #### Parameters
 
 ##### options?
 
-[`ILoggingPolicyExecutionActionConstructorOptions`](../interfaces/ILoggingPolicyExecutionActionConstructorOptions.md)
+[`IAutomationPolicyExecutionActionConstructorOptions`](../interfaces/IAutomationPolicyExecutionActionConstructorOptions.md)
 
-The options for the logging policy execution action.
+The options for the automation policy execution action.
 
 #### Returns
 
-`LoggingPolicyExecutionAction`
+`AutomationPolicyExecutionAction`
 
 ## Properties
 
@@ -32,7 +32,23 @@ The options for the logging policy execution action.
 
 > `readonly` `static` **CLASS\_NAME**: `string`
 
-The class name of the Logging Policy Execution Action.
+The class name of the Automation Policy Execution Action.
+
+***
+
+### BEFORE\_TRIGGER\_NAME {#before_trigger_name}
+
+> `readonly` `static` **BEFORE\_TRIGGER\_NAME**: `string` = `"rights-management:pxp:before"`
+
+The before automation trigger name.
+
+***
+
+### AFTER\_TRIGGER\_NAME {#after_trigger_name}
+
+> `readonly` `static` **AFTER\_TRIGGER\_NAME**: `string` = `"rights-management:pxp:after"`
+
+The after automation trigger name.
 
 ## Methods
 
