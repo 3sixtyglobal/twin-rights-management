@@ -25,26 +25,24 @@ The TWIN Platform Rights Management system operates in two distinct phases:
 
 ⚠️ **Important**: These use cases define the **target specification** for rights management features and serve as test-driven development (TDD) fixtures. Some patterns demonstrated represent **planned functionality** that guides future implementation rather than documenting existing features.
 
-### ⚠️ Pending Implementation
+### JSONPath Constraint Evaluation
 
-The following features are referenced in use cases but **not yet implemented** in the rights management codebase:
+JSONPath constraint evaluation is implemented in the default arbiter using canonical JSON-LD fields.
 
-#### JSON Path Constraint Evaluation (UC1, UC2, UC4, UC5)
+**Current Status**: Implemented with canonical `twin:jsonPath` + `twin:jsonPathExpression` operands.
 
-**Current Status**: Specification only - not implemented
+**Supported Components**:
 
-**Affected Components**:
-
-- `jsonPathSelector` property extraction from nested objects (UC1, UC4, UC5)
-- `PropertyReference` dynamic value resolution (UC2)
 - Arbiter logic for path-based constraint checking
-- PDP integration for nested property filtering
+- Typed right-operand JSONPath references
+- PIP/PDP integration for context-based path evaluation
 
 **Example Pattern from UC1**:
 
 ```json
 {
-  "leftOperand": "twin:jsonpath:.legalAddress.countryCode",
+  "leftOperand": "twin:jsonPath",
+  "twin:jsonPathExpression": "$.legalAddress.countryCode",
   "operator": "eq",
   "rightOperand": "PL"
 }
@@ -52,12 +50,9 @@ The following features are referenced in use cases but **not yet implemented** i
 
 **Implementation Notes**:
 
-- Framework dependency `jsonpath-plus` is available in data-processing package
-- ODRL constraint model currently supports only simple leftOperand types
-- Requires custom Arbiter implementation to evaluate JSON Path constraints
-- TWIN Platform ODRL extension (`twin:propertyValue`) needs integration
-
-**Test Strategy**: Use mock Arbiters initially, replace with real implementation when feature is built.
+- Canonical syntax is required for JSONPath operands.
+- Legacy inline JSONPath operand syntax is intentionally not supported.
+- Arbiter evaluation supports both left and typed right operands.
 
 ### TWIN ODRL Extensions
 
@@ -65,11 +60,12 @@ The following features are referenced in use cases but **not yet implemented** i
 
 The TWIN Platform extends ODRL with custom leftOperand types for evaluating nested properties using JSON Path expressions.
 
-**String Format**:
+**Canonical Format (preferred)**:
 
 ```json
 {
-  "leftOperand": "twin:jsonpath:<json-path-expression>",
+  "leftOperand": "twin:jsonPath",
+  "twin:jsonPathExpression": "$.legalAddress.countryCode",
   "operator": "<operator>",
   "rightOperand": "<value>"
 }
@@ -78,8 +74,9 @@ The TWIN Platform extends ODRL with custom leftOperand types for evaluating nest
 **Format Specification**:
 
 - **Namespace**: `twin:` maps to `https://w3id.org/twin/odrl/`
-- **Operand Type**: `jsonpath` indicates JSON Path evaluation
-- **Path Expression**: Follows JSONPath syntax (`.property`, `.nested.property`, etc.)
+- **Canonical Operand Type**: `jsonPath`
+- **Canonical Expression Field**: `twin:jsonPathExpression`
+- **Path Expression**: Follows JSONPath syntax (`$.property`, `$.nested.property`, etc.)
 
 **Context Requirements**:
 
@@ -97,22 +94,30 @@ The TWIN Platform extends ODRL with custom leftOperand types for evaluating nest
 **Examples**:
 
 ```json
-// Simple property access
-"leftOperand": "twin:jsonpath:.legalAddress.countryCode"
+// Canonical simple property access
+{
+  "leftOperand": "twin:jsonPath",
+  "twin:jsonPathExpression": "$.legalAddress.countryCode"
+}
 
-// Nested property access
-"leftOperand": "twin:jsonpath:.resource.destinationCountry.countryId"
+// Canonical typed right operand
+{
+  "rightOperand": {
+    "@type": "twin:jsonPath",
+    "twin:jsonPathExpression": "$.allowedRegion"
+  }
+}
 
-// Array access
-"leftOperand": "twin:jsonpath:.certifications"
-
-// Deep nesting
-"leftOperand": "twin:jsonpath:.payload.documentTypeCode"
+// Canonical deep nesting
+{
+  "leftOperand": "twin:jsonPath",
+  "twin:jsonPathExpression": "$.payload.documentTypeCode"
+}
 ```
 
 **Arbiter Implementation** (when built):
 
-- Parse string to extract JSON Path after `twin:jsonpath:` prefix
+- Parse canonical `twin:jsonPathExpression`
 - Evaluate path against PIP context using `jsonpath-plus` library
 - Return extracted value for operator comparison
 

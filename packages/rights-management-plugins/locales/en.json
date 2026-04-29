@@ -22,6 +22,7 @@
 			"constraintDataTypeNotSupported": "Constraint dataType is not supported. Value coercion based on dataType is not implemented.",
 			"constraintUnitNotSupported": "Constraint unit is not supported. Unit-aware comparison is not implemented.",
 			"constraintStatusNotSupported": "Constraint status is not supported. State-based evaluation is not implemented.",
+			"jsonPathExpressionMissing": "Canonical JSONPath expression is missing for \"{operand}\". Provide twin:jsonPathExpression.",
 			"policyProfileNotSupported": "Policy \"{policyId}\" declares unsupported profile \"{unsupportedProfile}\". Only known profiles are supported.",
 			"inheritedPolicyProfileNotSupported": "Inherited policy \"{policyId}\" declares an unsupported profile. All policies in the inheritFrom chain must declare only supported profiles."
 		},

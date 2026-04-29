@@ -69,22 +69,35 @@ export class DefaultPolicyArbiter implements IPolicyArbiter {
 	private static readonly _DEFAULT_MAX_INHERITANCE_DEPTH = 10;
 
 	/**
-	 * TWIN prefix operations.
+	 * Datasource key for the primary JSON path data source.
 	 * @internal
 	 */
-	private static readonly _TWIN_PREFIX_OPERATIONS = "twin:";
+	private static readonly _DATA_SOURCE_KEY = "data";
 
 	/**
-	 * TWIN prefix JSONPath.
+	 * Datasource key for the information source used in JSON path expressions.
 	 * @internal
 	 */
-	private static readonly _TWIN_PREFIX_JSONPATH = "jsonpath";
+	private static readonly _INFORMATION_SOURCE_KEY = "information";
 
 	/**
-	 * TWIN prefix information.
+	 * TWIN prefix JSONPath canonical alias.
 	 * @internal
 	 */
-	private static readonly _TWIN_PREFIX_INFORMATION = "information";
+	private static readonly _TWIN_JSONPATH = "twin:jsonPath";
+
+	/**
+	 * Canonical jsonPath expression property.
+	 * @internal
+	 */
+	private static readonly _TWIN_JSONPATH_EXPRESSION = "twin:jsonPathExpression";
+
+	/**
+	 * Optional data source key property for canonical twin:jsonPath targets.
+	 * When absent, defaults to the primary data source.
+	 * @internal
+	 */
+	private static readonly _TWIN_JSONPATH_DATA_SOURCE = "twin:jsonPathDataSource";
 
 	/**
 	 * The logging component.
@@ -216,10 +229,8 @@ export class DefaultPolicyArbiter implements IPolicyArbiter {
 		const mergedPolicy = await this.mergeInheritedPolicies(agreement);
 		const expandedPolicy = this.expandCompactPolicyRules(mergedPolicy);
 		const dataSources = {
-			[`${DefaultPolicyArbiter._TWIN_PREFIX_OPERATIONS}${DefaultPolicyArbiter._TWIN_PREFIX_JSONPATH}`]:
-				data,
-			[`${DefaultPolicyArbiter._TWIN_PREFIX_OPERATIONS}${DefaultPolicyArbiter._TWIN_PREFIX_INFORMATION}`]:
-				information
+			[DefaultPolicyArbiter._DATA_SOURCE_KEY]: data,
+			[DefaultPolicyArbiter._INFORMATION_SOURCE_KEY]: information
 		};
 
 		// Extract agreement parties once for use in rule evaluation
@@ -468,7 +479,7 @@ export class DefaultPolicyArbiter implements IPolicyArbiter {
 		agreementAssignee: string[] | undefined,
 		prohibition: IOdrlProhibition,
 		targetRefinements: (IOdrlConstraint | IOdrlLogicalConstraint)[],
-		dataSources: { [prefix: string]: unknown },
+		dataSources: { [source: string]: unknown },
 		action?: OdrlActionType | string,
 		decisionTarget?: string
 	): Promise<boolean> {
@@ -538,7 +549,7 @@ export class DefaultPolicyArbiter implements IPolicyArbiter {
 		agreementAssigner: string[] | undefined,
 		agreementAssignee: string[] | undefined,
 		policy: IRightsManagementPolicy,
-		dataSources: { [prefix: string]: unknown }
+		dataSources: { [source: string]: unknown }
 	): Promise<boolean> {
 		const obligations = ArrayHelper.fromObjectOrArray<IOdrlDuty>(policy.obligation ?? []);
 		for (const obligation of obligations) {
@@ -573,7 +584,7 @@ export class DefaultPolicyArbiter implements IPolicyArbiter {
 		agreementAssignee: string[] | undefined,
 		policy: IRightsManagementPolicy,
 		obligation: IOdrlDuty,
-		dataSources: { [prefix: string]: unknown }
+		dataSources: { [source: string]: unknown }
 	): Promise<boolean> {
 		if (
 			!this.isRuleApplicableToParties(obligation, agreementAssigner, agreementAssignee, dataSources)
@@ -834,7 +845,7 @@ export class DefaultPolicyArbiter implements IPolicyArbiter {
 		rule: IOdrlRule,
 		agreementAssigner: string[] | undefined,
 		agreementAssignee: string[] | undefined,
-		dataSources: { [prefix: string]: unknown }
+		dataSources: { [source: string]: unknown }
 	): boolean {
 		const assignerContext = this.resolveRulePartyContext(rule.assigner);
 		const assigneeContext = this.resolveRulePartyContext(rule.assignee);
@@ -968,7 +979,7 @@ export class DefaultPolicyArbiter implements IPolicyArbiter {
 	private isActionApplicable(
 		ruleActions: IOdrlRule["action"],
 		requestedAction: OdrlActionType | string | undefined,
-		dataSources: { [prefix: string]: unknown }
+		dataSources: { [source: string]: unknown }
 	): boolean {
 		// If the rule has no action specified, it applies to all actions
 		if (Is.empty(ruleActions)) {
@@ -1017,7 +1028,7 @@ export class DefaultPolicyArbiter implements IPolicyArbiter {
 	private ruleActionCoversRequested(
 		ruleAction: OdrlActionType | string | IOdrlAction,
 		requestedActionId: string,
-		dataSources: { [prefix: string]: unknown }
+		dataSources: { [source: string]: unknown }
 	): boolean {
 		// Extract the rule action ID — support both @id and rdf:value forms
 		let ruleActionId: string | undefined;
@@ -1082,7 +1093,7 @@ export class DefaultPolicyArbiter implements IPolicyArbiter {
 		policy: IRightsManagementPolicy,
 		permission: IOdrlPermission,
 		targetRefinements: (IOdrlConstraint | IOdrlLogicalConstraint)[],
-		dataSources: { [prefix: string]: unknown },
+		dataSources: { [source: string]: unknown },
 		action?: OdrlActionType | string,
 		decisionTarget?: string
 	): Promise<boolean> {
@@ -1137,7 +1148,7 @@ export class DefaultPolicyArbiter implements IPolicyArbiter {
 	private async enforcePermissionDuties(
 		policy: IRightsManagementPolicy,
 		permission: IOdrlPermission,
-		dataSources: { [prefix: string]: unknown },
+		dataSources: { [source: string]: unknown },
 		ruleDataContext?: unknown
 	): Promise<boolean> {
 		const duties = ArrayHelper.fromObjectOrArray(permission.duty ?? []);
@@ -1167,13 +1178,13 @@ export class DefaultPolicyArbiter implements IPolicyArbiter {
 	private async enforceDuty(
 		policy: IRightsManagementPolicy,
 		duty: IOdrlDuty,
-		dataSources: { [prefix: string]: unknown },
+		dataSources: { [source: string]: unknown },
 		ruleDataContext?: unknown
 	): Promise<boolean> {
 		const enforcerNames = PolicyObligationEnforcerFactory.names();
-		const information = dataSources[
-			`${DefaultPolicyArbiter._TWIN_PREFIX_OPERATIONS}${DefaultPolicyArbiter._TWIN_PREFIX_INFORMATION}`
-		] as { [id: string]: IJsonLdNodeObject } | undefined;
+		const information = dataSources[DefaultPolicyArbiter._INFORMATION_SOURCE_KEY] as
+			| { [id: string]: IJsonLdNodeObject }
+			| undefined;
 
 		if (enforcerNames.length === 0) {
 			throw new GeneralError(DefaultPolicyArbiter.CLASS_NAME, "noObligationEnforcersRegistered");
@@ -1210,65 +1221,82 @@ export class DefaultPolicyArbiter implements IPolicyArbiter {
 	 */
 	private tryResolveTargetDataSource(
 		targetId: string | undefined,
-		dataSources: { [prefix: string]: unknown },
+		dataSources: { [source: string]: unknown },
 		resolveValue: boolean = false
-	): { prefix: string; source: unknown; target: string; value?: unknown } {
-		// If there is no target id, default to the entire "twin:jsonpath" datasource
+	): { source: unknown; target: string; value?: unknown } {
+		// If there is no target id, default to the data datasource
 		if (Is.empty(targetId)) {
 			return {
-				prefix: `${DefaultPolicyArbiter._TWIN_PREFIX_OPERATIONS}${DefaultPolicyArbiter._TWIN_PREFIX_JSONPATH}`,
-				source:
-					dataSources[
-						`${DefaultPolicyArbiter._TWIN_PREFIX_OPERATIONS}${DefaultPolicyArbiter._TWIN_PREFIX_JSONPATH}`
-					],
+				source: dataSources[DefaultPolicyArbiter._DATA_SOURCE_KEY],
 				target: "$",
-				value:
-					dataSources[
-						`${DefaultPolicyArbiter._TWIN_PREFIX_OPERATIONS}${DefaultPolicyArbiter._TWIN_PREFIX_JSONPATH}`
-					]
+				value: dataSources[DefaultPolicyArbiter._DATA_SOURCE_KEY]
 			};
 		}
 
-		// Otherwise lookup the target id prefix in the datasources and return the remaining suffix as the target path/key
-		const prefixes = Object.keys(dataSources).sort((a, b) => b.length - a.length);
-		for (const prefix of prefixes) {
-			if (targetId.startsWith(`${prefix}:`)) {
-				const source = dataSources[prefix];
-				const target = targetId.slice(prefix.length + 1);
+		// Handle twin:jsonPath:<datasource>:<expression> format.
+		// The datasource segment is optional; when absent the expression starts with "$"
+		// and falls back to the primary data source.
+		if (targetId.startsWith(`${DefaultPolicyArbiter._TWIN_JSONPATH}:`)) {
+			const rest = targetId.slice(DefaultPolicyArbiter._TWIN_JSONPATH.length + 1);
+			const matchingKey = Object.keys(dataSources).find(k => rest.startsWith(`${k}:`));
+			const sourceKey = matchingKey ?? DefaultPolicyArbiter._DATA_SOURCE_KEY;
+			const expression = matchingKey ? rest.slice(matchingKey.length + 1) : rest;
+			return this.resolveDataSourceByKey(sourceKey, expression, dataSources, resolveValue);
+		}
 
-				if (!target.startsWith("$")) {
-					throw new GeneralError(DefaultPolicyArbiter.CLASS_NAME, "ruleTargetNotSupported", {
-						target: targetId
-					});
-				}
-
-				if (!resolveValue) {
-					return {
-						prefix,
-						source,
-						target
-					};
-				}
-
-				const matches = JsonPathHelper.query(target, source);
-				if (matches.length === 0) {
-					throw new GeneralError(DefaultPolicyArbiter.CLASS_NAME, "ruleTargetNotSupported", {
-						target: targetId
-					});
-				}
-
-				return {
-					prefix,
-					source,
-					target,
-					value: matches.length === 1 ? matches[0].value : matches.map(m => m.value)
-				};
-			}
+		// Handle <datasource>:<expression> format
+		const matchingKey = Object.keys(dataSources).find(k => targetId.startsWith(`${k}:`));
+		if (matchingKey) {
+			const expression = targetId.slice(matchingKey.length + 1);
+			return this.resolveDataSourceByKey(matchingKey, expression, dataSources, resolveValue);
 		}
 
 		throw new GeneralError(DefaultPolicyArbiter.CLASS_NAME, "ruleTargetNotSupported", {
 			target: targetId
 		});
+	}
+
+	/**
+	 * Resolve a datasource by key and evaluate a JSONPath expression against it.
+	 * @param sourceKey The datasource key.
+	 * @param expression The JSONPath expression.
+	 * @param dataSources The available datasources.
+	 * @param resolveValue Whether to evaluate the expression and return the matched value.
+	 * @returns The resolved source, target expression, and optionally the matched value.
+	 * @internal
+	 */
+	private resolveDataSourceByKey(
+		sourceKey: string,
+		expression: string | undefined,
+		dataSources: { [source: string]: unknown },
+		resolveValue: boolean = false
+	): { source: unknown; target: string; value?: unknown } {
+		if (!Is.stringValue(expression)) {
+			throw new GeneralError(DefaultPolicyArbiter.CLASS_NAME, "jsonPathExpressionMissing", {
+				operand: "target"
+			});
+		}
+
+		if (!expression.startsWith("$")) {
+			throw new GeneralError(DefaultPolicyArbiter.CLASS_NAME, "ruleTargetNotSupported", {
+				target: `${sourceKey}:${expression}`
+			});
+		}
+		const source = dataSources[sourceKey];
+		if (!resolveValue) {
+			return { source, target: expression };
+		}
+		const matches = JsonPathHelper.query(expression, source);
+		if (matches.length === 0) {
+			throw new GeneralError(DefaultPolicyArbiter.CLASS_NAME, "ruleTargetNotSupported", {
+				target: `${sourceKey}:${expression}`
+			});
+		}
+		return {
+			source,
+			target: expression,
+			value: matches.length === 1 ? matches[0].value : matches.map(m => m.value)
+		};
 	}
 
 	/**
@@ -1291,7 +1319,26 @@ export class DefaultPolicyArbiter implements IPolicyArbiter {
 			return undefined;
 		}
 
-		return Is.string(arr[0]) ? arr[0] : OdrlPolicyHelper.getUid(arr[0]);
+		const first = arr[0];
+		if (Is.string(first)) {
+			return first;
+		}
+		if (this.isTwinJsonPathTarget(first)) {
+			const t = first as {
+				[DefaultPolicyArbiter._TWIN_JSONPATH_DATA_SOURCE]?: string;
+				[DefaultPolicyArbiter._TWIN_JSONPATH_EXPRESSION]?: string;
+			};
+			const expression = t[DefaultPolicyArbiter._TWIN_JSONPATH_EXPRESSION];
+			if (Is.stringValue(expression)) {
+				const dataSource = t[DefaultPolicyArbiter._TWIN_JSONPATH_DATA_SOURCE];
+				const sourceKey = Is.stringValue(dataSource)
+					? dataSource
+					: DefaultPolicyArbiter._DATA_SOURCE_KEY;
+				return `${sourceKey}:${expression}`;
+			}
+			return undefined;
+		}
+		return OdrlPolicyHelper.getUid(first);
 	}
 
 	/**
@@ -1355,7 +1402,7 @@ export class DefaultPolicyArbiter implements IPolicyArbiter {
 	 */
 	private resolveRuleTarget(
 		rule: IOdrlRule,
-		dataSources: { [prefix: string]: unknown }
+		dataSources: { [source: string]: unknown }
 	): {
 		target: string;
 		refinements: (IOdrlConstraint | IOdrlLogicalConstraint)[];
@@ -1374,6 +1421,22 @@ export class DefaultPolicyArbiter implements IPolicyArbiter {
 
 		const firstTarget = arr[0];
 
+		if (this.isTwinJsonPathTarget(firstTarget)) {
+			const t = firstTarget as {
+				[DefaultPolicyArbiter._TWIN_JSONPATH_DATA_SOURCE]?: string;
+				[DefaultPolicyArbiter._TWIN_JSONPATH_EXPRESSION]?: string;
+			};
+			const resolved = this.resolveDataSourceByKey(
+				t[DefaultPolicyArbiter._TWIN_JSONPATH_DATA_SOURCE] ?? DefaultPolicyArbiter._DATA_SOURCE_KEY,
+				t[DefaultPolicyArbiter._TWIN_JSONPATH_EXPRESSION],
+				dataSources
+			);
+			return {
+				target: resolved.target,
+				refinements: []
+			};
+		}
+
 		if (Is.object<IOdrlAsset>(firstTarget)) {
 			// Guard against unsupported ODRL asset properties
 			if (Is.notEmpty(firstTarget.hasPolicy)) {
@@ -1387,7 +1450,10 @@ export class DefaultPolicyArbiter implements IPolicyArbiter {
 				Is.object<IOdrlAssetCollection>(firstTarget) &&
 				OdrlPolicyHelper.getType(firstTarget) === OdrlTypes.AssetCollection
 			) {
-				if (!Is.stringValue(firstTarget.source)) {
+				if (
+					!Is.stringValue(firstTarget.source) ||
+					!firstTarget.source.startsWith(`${DefaultPolicyArbiter._TWIN_JSONPATH}:`)
+				) {
 					throw new GeneralError(
 						DefaultPolicyArbiter.CLASS_NAME,
 						"assetCollectionSourceNotSupported",
@@ -1397,7 +1463,7 @@ export class DefaultPolicyArbiter implements IPolicyArbiter {
 					);
 				}
 
-				let sourceLookup: { prefix: string; source: unknown; target: string; value?: unknown };
+				let sourceLookup: { source: unknown; target: string; value?: unknown };
 				try {
 					sourceLookup = this.tryResolveTargetDataSource(firstTarget.source, dataSources);
 				} catch {
@@ -1442,7 +1508,7 @@ export class DefaultPolicyArbiter implements IPolicyArbiter {
 	 */
 	private resolveRuleDecisionTargets(
 		rule: IOdrlRule,
-		dataSources: { [prefix: string]: unknown }
+		dataSources: { [source: string]: unknown }
 	): {
 		target: string;
 		refinements: (IOdrlConstraint | IOdrlLogicalConstraint)[];
@@ -1523,7 +1589,14 @@ export class DefaultPolicyArbiter implements IPolicyArbiter {
 		}
 
 		const regularConstraint = refinement as IOdrlConstraint;
-		return {
+		const constraintWithExtensions = regularConstraint as IOdrlConstraint & {
+			[DefaultPolicyArbiter._TWIN_JSONPATH_EXPRESSION]?: string;
+		};
+		const canonicalExpression =
+			constraintWithExtensions[DefaultPolicyArbiter._TWIN_JSONPATH_EXPRESSION];
+		const rewrittenConstraint: IOdrlConstraint & {
+			[DefaultPolicyArbiter._TWIN_JSONPATH_EXPRESSION]?: string;
+		} = {
 			...regularConstraint,
 			leftOperand: this.rewriteOperandForDecisionTarget(
 				regularConstraint.leftOperand,
@@ -1536,6 +1609,12 @@ export class DefaultPolicyArbiter implements IPolicyArbiter {
 				itemTarget
 			)
 		};
+		if (Is.stringValue(canonicalExpression)) {
+			rewrittenConstraint[DefaultPolicyArbiter._TWIN_JSONPATH_EXPRESSION] =
+				this.rewriteWildcardPath(canonicalExpression, sourceTarget, itemTarget);
+		}
+
+		return rewrittenConstraint;
 	}
 
 	/**
@@ -1551,29 +1630,32 @@ export class DefaultPolicyArbiter implements IPolicyArbiter {
 		sourceTarget: string,
 		itemTarget: string
 	): IOdrlConstraint["leftOperand"] | IOdrlConstraint["rightOperand"] | string {
-		if (Is.stringValue(operand)) {
-			const prefix = `${DefaultPolicyArbiter._TWIN_PREFIX_OPERATIONS}${DefaultPolicyArbiter._TWIN_PREFIX_JSONPATH}:`;
-			if (operand.startsWith(prefix)) {
-				const valuePath = operand.slice(prefix.length);
-				return `${prefix}${this.rewriteWildcardPath(valuePath, sourceTarget, itemTarget)}`;
-			}
-			return operand;
-		}
-
 		if (Is.object<{ "@type": unknown; "@value": unknown }>(operand)) {
-			const typedOperand = { ...operand };
-			if (
-				typedOperand["@type"] ===
-					`${DefaultPolicyArbiter._TWIN_PREFIX_OPERATIONS}${DefaultPolicyArbiter._TWIN_PREFIX_JSONPATH}` &&
-				Is.stringValue(typedOperand["@value"])
-			) {
-				typedOperand["@value"] = this.rewriteWildcardPath(
-					typedOperand["@value"],
-					sourceTarget,
-					itemTarget
-				);
+			const typedOperand = {
+				...(operand as { [key: string]: unknown; "@type": unknown; "@value"?: unknown })
+			};
+			if (this.isTwinJsonPathOperandType(typedOperand["@type"])) {
+				if (Is.stringValue(typedOperand["@value"])) {
+					typedOperand["@value"] = this.rewriteWildcardPath(
+						typedOperand["@value"],
+						sourceTarget,
+						itemTarget
+					);
+				}
+
+				const canonicalExpression = typedOperand[DefaultPolicyArbiter._TWIN_JSONPATH_EXPRESSION];
+				if (Is.stringValue(canonicalExpression)) {
+					typedOperand[DefaultPolicyArbiter._TWIN_JSONPATH_EXPRESSION] = this.rewriteWildcardPath(
+						canonicalExpression,
+						sourceTarget,
+						itemTarget
+					);
+				}
 			}
-			return typedOperand;
+			return typedOperand as
+				| IOdrlConstraint["leftOperand"]
+				| IOdrlConstraint["rightOperand"]
+				| string;
 		}
 
 		return operand;
@@ -1619,7 +1701,7 @@ export class DefaultPolicyArbiter implements IPolicyArbiter {
 	 */
 	private evaluateConstraint(
 		constraint: IOdrlConstraint | IOdrlLogicalConstraint,
-		dataSources: { [prefix: string]: unknown }
+		dataSources: { [source: string]: unknown }
 	): boolean {
 		const logicalConstraint = this.getLogicalConstraintOperands(constraint);
 		if (logicalConstraint) {
@@ -1654,8 +1736,16 @@ export class DefaultPolicyArbiter implements IPolicyArbiter {
 		}
 
 		// Evaluate the main constraint condition
-		const leftValue = this.calculateOperandValue(regularConstraint.leftOperand, dataSources);
-		const rightValue = this.calculateOperandValue(regularConstraint.rightOperand, dataSources);
+		const leftValue = this.calculateOperandValue(
+			regularConstraint.leftOperand,
+			dataSources,
+			regularConstraint
+		);
+		const rightValue = this.calculateOperandValue(
+			regularConstraint.rightOperand,
+			dataSources,
+			regularConstraint
+		);
 		const mainSatisfied = this.evaluateOperator(regularConstraint.operator, leftValue, rightValue);
 
 		// If main constraint is not satisfied, the overall constraint fails
@@ -1764,7 +1854,7 @@ export class DefaultPolicyArbiter implements IPolicyArbiter {
 			operator: OdrlLogicalConstraintType;
 			constraints: (IOdrlConstraint | IOdrlLogicalConstraint)[];
 		},
-		dataSources: { [prefix: string]: unknown }
+		dataSources: { [source: string]: unknown }
 	): boolean {
 		const { operator, constraints } = logicalConstraint;
 		if (constraints.length === 0) {
@@ -1815,30 +1905,14 @@ export class DefaultPolicyArbiter implements IPolicyArbiter {
 	private tryResolveOperandLookup(
 		operandTypeOrValue: string,
 		operandValue: unknown,
-		dataSources: { [prefix: string]: unknown }
+		dataSources: { [source: string]: unknown }
 	): { source: unknown; jsonPath: string } | undefined {
-		let lookupTargetId: string | undefined;
-
-		if (dataSources[operandTypeOrValue]) {
-			if (!Is.stringValue(operandValue)) {
-				return undefined;
-			}
-
-			lookupTargetId = `${operandTypeOrValue}:${operandValue}`;
-		} else if (operandTypeOrValue.includes(":")) {
-			lookupTargetId = operandTypeOrValue;
-		} else {
+		const sourceKey = this.normalizeTwinJsonPathOperandAlias(operandTypeOrValue);
+		if (!dataSources[sourceKey] || !Is.stringValue(operandValue)) {
 			return undefined;
 		}
-
-		// Delegate prefixed path matching to shared datasource resolver
-		if (operandTypeOrValue.startsWith(DefaultPolicyArbiter._TWIN_PREFIX_OPERATIONS)) {
-			const resolved = this.tryResolveTargetDataSource(lookupTargetId, dataSources);
-			return {
-				source: resolved.source,
-				jsonPath: resolved.target
-			};
-		}
+		const resolved = this.resolveDataSourceByKey(sourceKey, operandValue, dataSources);
+		return { source: resolved.source, jsonPath: resolved.target };
 	}
 
 	/**
@@ -1850,24 +1924,54 @@ export class DefaultPolicyArbiter implements IPolicyArbiter {
 	 */
 	private calculateOperandValue(
 		operand: IOdrlConstraint["leftOperand"] | IOdrlConstraint["rightOperand"] | string,
-		dataSources: { [prefix: string]: unknown }
+		dataSources: { [source: string]: unknown },
+		constraint?: IOdrlConstraint
 	): unknown {
 		// Treat prefixed operands as selectors against a namespaced source dictionary.
 		// Examples: twin:jsonpath:$.field, twin:information:$.credentials.level
 		let jsonPath: string | undefined;
 		let operandRoot: unknown;
 		if (Is.stringValue(operand)) {
-			const lookup = this.tryResolveOperandLookup(operand, operand, dataSources);
+			const expression = this.extractJsonPathExpressionFromConstraint(constraint, operand);
+			let resolvedOperand = operand;
+			if (
+				operand === DefaultPolicyArbiter._TWIN_JSONPATH &&
+				Is.object<{ [key: string]: unknown }>(constraint)
+			) {
+				const dataSourceOverride = constraint[DefaultPolicyArbiter._TWIN_JSONPATH_DATA_SOURCE];
+				if (Is.stringValue(dataSourceOverride)) {
+					resolvedOperand = dataSourceOverride;
+				}
+			}
+			const lookup = this.tryResolveOperandLookup(
+				resolvedOperand,
+				expression ?? operand,
+				dataSources
+			);
 			if (lookup) {
 				jsonPath = lookup.jsonPath;
 				operandRoot = lookup.source;
 			}
 		} else if (Is.object<{ "@type": unknown; "@value": unknown }>(operand)) {
+			const typedOperand = operand as {
+				[key: string]: unknown;
+				"@type": unknown;
+				"@value"?: unknown;
+			};
 			// Is this an object { "@value": "18", "@type": "xsd:integer" } ?
-			const value = operand["@value"];
-			const type = operand["@type"];
+			const value =
+				(this.extractJsonPathExpressionFromTypedOperand(typedOperand) as unknown) ??
+				typedOperand["@value"];
+			const type = typedOperand["@type"];
 			if (Is.stringValue(type)) {
-				const lookup = this.tryResolveOperandLookup(type, value, dataSources);
+				let resolvedType = type;
+				if (this.isTwinJsonPathOperandType(type)) {
+					const dataSourceOverride = typedOperand[DefaultPolicyArbiter._TWIN_JSONPATH_DATA_SOURCE];
+					if (Is.stringValue(dataSourceOverride)) {
+						resolvedType = dataSourceOverride;
+					}
+				}
+				const lookup = this.tryResolveOperandLookup(resolvedType, value, dataSources);
 				if (lookup) {
 					jsonPath = lookup.jsonPath;
 					operandRoot = lookup.source;
@@ -1897,6 +2001,111 @@ export class DefaultPolicyArbiter implements IPolicyArbiter {
 
 		// Not JSON Path or object value so return as is
 		return operand;
+	}
+
+	/**
+	 * Determine if a target object uses the canonical twin:jsonPath object format.
+	 * @param target The target value.
+	 * @returns True if the target is a canonical twin:jsonPath object.
+	 * @internal
+	 */
+	private isTwinJsonPathTarget(target: unknown): boolean {
+		return Is.object(target) && this.isTwinJsonPathOperandType(OdrlPolicyHelper.getType(target));
+	}
+
+	/**
+	 * Determine if the operand type is a jsonPath namespace.
+	 * @param type The operand type.
+	 * @returns True if the type is twin:jsonPath.
+	 * @internal
+	 */
+	private isTwinJsonPathOperandType(type: unknown): boolean {
+		return type === DefaultPolicyArbiter._TWIN_JSONPATH;
+	}
+
+	/**
+	 * Normalize canonical jsonPath alias to the legacy jsonpath namespace key.
+	 * @param operandTypeOrValue The raw operand type or value.
+	 * @returns The normalized operand type/value.
+	 * @internal
+	 */
+	private normalizeTwinJsonPathOperandAlias(operandTypeOrValue: string): string {
+		if (
+			operandTypeOrValue === DefaultPolicyArbiter._TWIN_JSONPATH ||
+			operandTypeOrValue.startsWith(`${DefaultPolicyArbiter._TWIN_JSONPATH}:`)
+		) {
+			const suffix = operandTypeOrValue.slice(DefaultPolicyArbiter._TWIN_JSONPATH.length);
+			return `${DefaultPolicyArbiter._DATA_SOURCE_KEY}${suffix}`;
+		}
+
+		return operandTypeOrValue;
+	}
+
+	/**
+	 * Extract canonical jsonPath expression from typed operand object.
+	 * @param operand The typed operand.
+	 * @returns The jsonPath expression if present.
+	 * @internal
+	 */
+	private extractJsonPathExpressionFromTypedOperand(operand: {
+		[key: string]: unknown;
+		"@type": unknown;
+		"@value"?: unknown;
+	}): string | undefined {
+		if (!this.isTwinJsonPathOperandType(operand["@type"])) {
+			return undefined;
+		}
+
+		const expression = operand[DefaultPolicyArbiter._TWIN_JSONPATH_EXPRESSION];
+		if (Is.stringValue(expression)) {
+			return expression;
+		}
+
+		const type = operand["@type"];
+		if (type === DefaultPolicyArbiter._TWIN_JSONPATH) {
+			throw new GeneralError(DefaultPolicyArbiter.CLASS_NAME, "jsonPathExpressionMissing", {
+				operand: "rightOperand"
+			});
+		}
+	}
+
+	/**
+	 * Extract canonical jsonPath expression from constraint for leftOperand aliases.
+	 * @param constraint The constraint containing the left operand.
+	 * @param leftOperand The left operand.
+	 * @returns The expression if canonical form is used.
+	 * @internal
+	 */
+	private extractJsonPathExpressionFromConstraint(
+		constraint: IOdrlConstraint | undefined,
+		leftOperand: string
+	): string | undefined {
+		if (!Is.object<{ [key: string]: unknown }>(constraint)) {
+			return undefined;
+		}
+
+		if (constraint.leftOperand !== leftOperand) {
+			return undefined;
+		}
+
+		if (leftOperand.startsWith(`${DefaultPolicyArbiter._TWIN_JSONPATH}:`)) {
+			throw new GeneralError(DefaultPolicyArbiter.CLASS_NAME, "jsonPathExpressionMissing", {
+				operand: "leftOperand"
+			});
+		}
+
+		if (leftOperand !== DefaultPolicyArbiter._TWIN_JSONPATH) {
+			return undefined;
+		}
+
+		const expression = constraint[DefaultPolicyArbiter._TWIN_JSONPATH_EXPRESSION];
+		if (Is.stringValue(expression)) {
+			return expression;
+		}
+
+		throw new GeneralError(DefaultPolicyArbiter.CLASS_NAME, "jsonPathExpressionMissing", {
+			operand: "leftOperand"
+		});
 	}
 
 	/**

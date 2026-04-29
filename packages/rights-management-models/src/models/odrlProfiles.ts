@@ -9,7 +9,7 @@ export const OdrlProfiles = {
 	/**
 	 * The TWIN platform ODRL profile URI.
 	 * Policies carrying this profile may use TWIN-specific vocabulary extensions
-	 * (e.g. EcosystemPolicy, twin:jsonpath left operands).
+	 * (e.g. EcosystemPolicy, canonical twin:jsonPath + twin:jsonPathExpression operands).
 	 * https://schema.twindev.org/odrl/v1/
 	 */
 	Twin: "https://schema.twindev.org/odrl/v1/profile",

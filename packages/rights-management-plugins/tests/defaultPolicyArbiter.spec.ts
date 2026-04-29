@@ -32,6 +32,17 @@ import {
 } from "@twin.org/standards-w3c-odrl";
 import { DefaultPolicyArbiter } from "../src/policyArbiters/defaultPolicyArbiter.js";
 
+declare module "@twin.org/standards-w3c-odrl" {
+	interface IOdrlConstraint {
+		"twin:jsonPathDataSource"?: string;
+		"twin:jsonPathExpression"?: string;
+	}
+	interface IOdrlAsset {
+		"twin:jsonPathDataSource"?: string;
+		"twin:jsonPathExpression"?: string;
+	}
+}
+
 let loggingMemoryEntityStorage: MemoryEntityStorageConnector<LogEntry>;
 let registeredObligationEnforcers: string[] = [];
 let registeredPapComponentType: string | undefined;
@@ -197,7 +208,8 @@ describe("DefaultPolicyArbiter", () => {
 						source: "did:example:assignee",
 						refinement: [
 							{
-								leftOperand: "twin:jsonpath:$.region",
+								leftOperand: "twin:jsonPath",
+								"twin:jsonPathExpression": "$.region",
 								operator: OdrlOperatorType.Eq,
 								rightOperand: "EU"
 							}
@@ -228,7 +240,8 @@ describe("DefaultPolicyArbiter", () => {
 						source: "did:example:assignee",
 						refinement: [
 							{
-								leftOperand: "twin:jsonpath:$.region",
+								leftOperand: "twin:jsonPath",
+								"twin:jsonPathExpression": "$.region",
 								operator: OdrlOperatorType.Eq,
 								rightOperand: "EU"
 							}
@@ -258,7 +271,8 @@ describe("DefaultPolicyArbiter", () => {
 						"@type": "PartyCollection",
 						refinement: [
 							{
-								leftOperand: "twin:jsonpath:$.region",
+								leftOperand: "twin:jsonPath",
+								"twin:jsonPathExpression": "$.region",
 								operator: OdrlOperatorType.Eq,
 								rightOperand: "EU"
 							}
@@ -285,7 +299,8 @@ describe("DefaultPolicyArbiter", () => {
 			"@type": "PartyCollection",
 			refinement: [
 				{
-					leftOperand: "twin:jsonpath:$.region",
+					leftOperand: "twin:jsonPath",
+					"twin:jsonPathExpression": "$.region",
 					operator: OdrlOperatorType.Eq,
 					rightOperand: "EU"
 				}
@@ -567,8 +582,14 @@ describe("DefaultPolicyArbiter", () => {
 			assignee: "did:example:default-assignee",
 			"@id": "policy:multi-target-obligation-fail",
 			permission: [
-				{ action: "read", target: "twin:jsonpath:$.items[*]" },
-				{ action: "read", target: "twin:jsonpath:$.meta" }
+				{
+					action: "read",
+					target: { "@type": "twin:jsonPath", "twin:jsonPathExpression": "$.items[*]" }
+				},
+				{
+					action: "read",
+					target: { "@type": "twin:jsonPath", "twin:jsonPathExpression": "$.meta" }
+				}
 			],
 			obligation: [{ action: "compensate" }]
 		};
@@ -599,7 +620,8 @@ describe("DefaultPolicyArbiter", () => {
 				{
 					constraint: [
 						{
-							leftOperand: "twin:jsonpath:$.age",
+							leftOperand: "twin:jsonPath",
+							"twin:jsonPathExpression": "$.age",
 							operator: OdrlOperatorType.Gteq,
 							rightOperand: { "@value": "18", "@type": "xsd:integer" }
 						}
@@ -608,7 +630,8 @@ describe("DefaultPolicyArbiter", () => {
 				{
 					constraint: [
 						{
-							leftOperand: "twin:jsonpath:$.region",
+							leftOperand: "twin:jsonPath",
+							"twin:jsonPathExpression": "$.region",
 							operator: OdrlOperatorType.Eq,
 							rightOperand: "EU"
 						}
@@ -649,7 +672,8 @@ describe("DefaultPolicyArbiter", () => {
 				{
 					constraint: [
 						{
-							leftOperand: "twin:jsonpath:$.region",
+							leftOperand: "twin:jsonPath",
+							"twin:jsonPathExpression": "$.region",
 							operator: OdrlOperatorType.Eq,
 							rightOperand: "EU"
 						}
@@ -678,7 +702,8 @@ describe("DefaultPolicyArbiter", () => {
 				{
 					constraint: [
 						{
-							leftOperand: "twin:jsonpath:$.region",
+							leftOperand: "twin:jsonPath",
+							"twin:jsonPathExpression": "$.region",
 							operator: OdrlOperatorType.Eq,
 							rightOperand: "EU"
 						}
@@ -689,7 +714,8 @@ describe("DefaultPolicyArbiter", () => {
 				{
 					constraint: [
 						{
-							leftOperand: "twin:jsonpath:$.region",
+							leftOperand: "twin:jsonPath",
+							"twin:jsonPathExpression": "$.region",
 							operator: OdrlOperatorType.Eq,
 							rightOperand: "EU"
 						}
@@ -715,7 +741,8 @@ describe("DefaultPolicyArbiter", () => {
 				{
 					constraint: [
 						{
-							leftOperand: "twin:jsonpath:$.region",
+							leftOperand: "twin:jsonPath",
+							"twin:jsonPathExpression": "$.region",
 							operator: OdrlOperatorType.Eq,
 							rightOperand: "EU"
 						}
@@ -726,7 +753,8 @@ describe("DefaultPolicyArbiter", () => {
 				{
 					constraint: [
 						{
-							leftOperand: "twin:jsonpath:$.region",
+							leftOperand: "twin:jsonPath",
+							"twin:jsonPathExpression": "$.region",
 							operator: OdrlOperatorType.Eq,
 							rightOperand: "EU"
 						}
@@ -752,7 +780,8 @@ describe("DefaultPolicyArbiter", () => {
 				{
 					constraint: [
 						{
-							leftOperand: "twin:jsonpath:$.region",
+							leftOperand: "twin:jsonPath",
+							"twin:jsonPathExpression": "$.region",
 							operator: OdrlOperatorType.Eq,
 							rightOperand: "EU"
 						}
@@ -763,7 +792,8 @@ describe("DefaultPolicyArbiter", () => {
 				{
 					constraint: [
 						{
-							leftOperand: "twin:jsonpath:$.region",
+							leftOperand: "twin:jsonPath",
+							"twin:jsonPathExpression": "$.region",
 							operator: OdrlOperatorType.Eq,
 							rightOperand: "EU"
 						}
@@ -788,7 +818,8 @@ describe("DefaultPolicyArbiter", () => {
 				{
 					constraint: [
 						{
-							leftOperand: "twin:jsonpath:$.age",
+							leftOperand: "twin:jsonPath",
+							"twin:jsonPathExpression": "$.age",
 							operator: OdrlOperatorType.Gteq,
 							rightOperand: { "@value": "18", "@type": "xsd:integer" }
 						}
@@ -814,7 +845,8 @@ describe("DefaultPolicyArbiter", () => {
 				{
 					constraint: [
 						{
-							leftOperand: "twin:jsonpath:$.age",
+							leftOperand: "twin:jsonPath",
+							"twin:jsonPathExpression": "$.age",
 							operator: OdrlOperatorType.Gteq,
 							rightOperand: { "@value": "18", "@type": "xsd:integer" }
 						}
@@ -842,12 +874,14 @@ describe("DefaultPolicyArbiter", () => {
 							or: {
 								"@list": [
 									{
-										leftOperand: "twin:jsonpath:$.age",
+										leftOperand: "twin:jsonPath",
+										"twin:jsonPathExpression": "$.age",
 										operator: OdrlOperatorType.Gteq,
 										rightOperand: { "@value": "18", "@type": "xsd:integer" }
 									},
 									{
-										leftOperand: "twin:jsonpath:$.region",
+										leftOperand: "twin:jsonPath",
+										"twin:jsonPathExpression": "$.region",
 										operator: OdrlOperatorType.Eq,
 										rightOperand: "EU"
 									}
@@ -881,12 +915,14 @@ describe("DefaultPolicyArbiter", () => {
 							xone: {
 								"@list": [
 									{
-										leftOperand: "twin:jsonpath:$.age",
+										leftOperand: "twin:jsonPath",
+										"twin:jsonPathExpression": "$.age",
 										operator: OdrlOperatorType.Gteq,
 										rightOperand: { "@value": "18", "@type": "xsd:integer" }
 									},
 									{
-										leftOperand: "twin:jsonpath:$.region",
+										leftOperand: "twin:jsonPath",
+										"twin:jsonPathExpression": "$.region",
 										operator: OdrlOperatorType.Eq,
 										rightOperand: "EU"
 									}
@@ -920,12 +956,14 @@ describe("DefaultPolicyArbiter", () => {
 							andSequence: {
 								"@list": [
 									{
-										leftOperand: "twin:jsonpath:$.age",
+										leftOperand: "twin:jsonPath",
+										"twin:jsonPathExpression": "$.age",
 										operator: OdrlOperatorType.Gteq,
 										rightOperand: { "@value": "18", "@type": "xsd:integer" }
 									},
 									{
-										leftOperand: "twin:jsonpath:$.region",
+										leftOperand: "twin:jsonPath",
+										"twin:jsonPathExpression": "$.region",
 										operator: OdrlOperatorType.Eq,
 										rightOperand: "EU"
 									}
@@ -959,13 +997,15 @@ describe("DefaultPolicyArbiter", () => {
 							and: [
 								{
 									"@id": "constraint:1",
-									leftOperand: "twin:jsonpath:$.age",
+									leftOperand: "twin:jsonPath",
+									"twin:jsonPathExpression": "$.age",
 									operator: OdrlOperatorType.Gteq,
 									rightOperand: { "@value": "18", "@type": "xsd:integer" }
 								},
 								{
 									"@id": "constraint:1",
-									leftOperand: "twin:jsonpath:$.region",
+									leftOperand: "twin:jsonPath",
+									"twin:jsonPathExpression": "$.region",
 									operator: OdrlOperatorType.Eq,
 									rightOperand: "EU"
 								}
@@ -996,13 +1036,15 @@ describe("DefaultPolicyArbiter", () => {
 							and: [
 								{
 									"@id": "constraint:1",
-									leftOperand: "twin:jsonpath:$.age",
+									leftOperand: "twin:jsonPath",
+									"twin:jsonPathExpression": "$.age",
 									operator: OdrlOperatorType.Gteq,
 									rightOperand: { "@value": "18", "@type": "xsd:integer" }
 								},
 								{
 									"@id": "constraint:2",
-									leftOperand: "twin:jsonpath:$.region",
+									leftOperand: "twin:jsonPath",
+									"twin:jsonPathExpression": "$.region",
 									operator: OdrlOperatorType.Eq,
 									rightOperand: "EU"
 								}
@@ -1032,7 +1074,8 @@ describe("DefaultPolicyArbiter", () => {
 				{
 					constraint: [
 						{
-							leftOperand: "twin:jsonpath:$.code",
+							leftOperand: "twin:jsonPath",
+							"twin:jsonPathExpression": "$.code",
 							operator: OdrlOperatorType.Gt,
 							rightOperand: "a"
 						}
@@ -1060,7 +1103,8 @@ describe("DefaultPolicyArbiter", () => {
 				{
 					constraint: [
 						{
-							leftOperand: "twin:jsonpath:$.age",
+							leftOperand: "twin:jsonPath",
+							"twin:jsonPathExpression": "$.age",
 							operator: OdrlOperatorType.Gteq,
 							rightOperand: "$.minAge"
 						}
@@ -1073,7 +1117,7 @@ describe("DefaultPolicyArbiter", () => {
 		expect(decisions[0].decision).toBe(PolicyDecision.Denied);
 	});
 
-	test("supports rightOperand as JSONPath (typed object)", async () => {
+	test("supports rightOperand as canonical JSONPath (typed object)", async () => {
 		const arbiter = new DefaultPolicyArbiter();
 		const policy: IDataspaceProtocolAgreement = {
 			"@context": OdrlContexts.Context,
@@ -1085,10 +1129,14 @@ describe("DefaultPolicyArbiter", () => {
 				{
 					constraint: [
 						{
-							leftOperand: "twin:jsonpath:$.region",
+							leftOperand: "twin:jsonPath",
+							"twin:jsonPathExpression": "$.region",
 							operator: OdrlOperatorType.Eq,
-							rightOperand: { "@value": "$.allowedRegion", "@type": "twin:jsonpath" }
-						}
+							rightOperand: {
+								"@type": "twin:jsonPath",
+								"twin:jsonPathExpression": "$.allowedRegion"
+							}
+						} as unknown as IOdrlConstraint
 					]
 				}
 			]
@@ -1113,7 +1161,8 @@ describe("DefaultPolicyArbiter", () => {
 				{
 					constraint: [
 						{
-							leftOperand: "twin:jsonpath:$.tags[*]",
+							leftOperand: "twin:jsonPath",
+							"twin:jsonPathExpression": "$.tags[*]",
 							operator: OdrlOperatorType.IsAnyOf,
 							rightOperand: ["c", "b"]
 						}
@@ -1126,22 +1175,23 @@ describe("DefaultPolicyArbiter", () => {
 		expect(decisions[0].decision).toBe(PolicyDecision.Granted);
 	});
 
-	test("supports leftOperand twin:jsonpath:<path>", async () => {
+	test("supports canonical leftOperand twin:jsonPath with twin:jsonPathExpression", async () => {
 		const arbiter = new DefaultPolicyArbiter();
 		const policy: IDataspaceProtocolAgreement = {
 			"@context": OdrlContexts.Context,
 			"@type": OdrlPolicyType.Agreement,
 			assigner: "did:example:default-assigner",
 			assignee: "did:example:default-assignee",
-			"@id": "policy:left-jsonpath-prefix",
+			"@id": "policy:left-jsonpath-canonical",
 			permission: [
 				{
 					constraint: [
 						{
-							leftOperand: "twin:jsonpath:$.age",
+							leftOperand: "twin:jsonPath",
+							"twin:jsonPathExpression": "$.age",
 							operator: OdrlOperatorType.Gteq,
 							rightOperand: { "@value": "18", "@type": "xsd:integer" }
-						}
+						} as unknown as IOdrlConstraint
 					]
 				}
 			]
@@ -1151,7 +1201,128 @@ describe("DefaultPolicyArbiter", () => {
 		expect(decisions[0].decision).toBe(PolicyDecision.Granted);
 	});
 
-	test("throws when leftOperand is twin:jsonpath: with no target", async () => {
+	test("throws when canonical leftOperand twin:jsonPath is missing twin:jsonPathExpression", async () => {
+		const arbiter = new DefaultPolicyArbiter();
+		const policy: IDataspaceProtocolAgreement = {
+			"@context": OdrlContexts.Context,
+			"@type": OdrlPolicyType.Agreement,
+			assigner: "did:example:default-assigner",
+			assignee: "did:example:default-assignee",
+			"@id": "policy:left-jsonpath-canonical-missing-expression",
+			permission: [
+				{
+					constraint: [
+						{
+							leftOperand: "twin:jsonPath",
+							operator: OdrlOperatorType.Gteq,
+							rightOperand: { "@value": "18", "@type": "xsd:integer" }
+						} as unknown as IOdrlConstraint
+					]
+				}
+			]
+		};
+
+		await expect(arbiter.decide(policy, undefined, { age: 18 })).rejects.toThrow();
+	});
+
+	test("supports canonical rightOperand jsonPath expression in typed object", async () => {
+		const arbiter = new DefaultPolicyArbiter();
+		const policy: IDataspaceProtocolAgreement = {
+			"@context": OdrlContexts.Context,
+			"@type": OdrlPolicyType.Agreement,
+			assigner: "did:example:default-assigner",
+			assignee: "did:example:default-assignee",
+			"@id": "policy:right-jsonpath-canonical-typed",
+			permission: [
+				{
+					constraint: [
+						{
+							leftOperand: "twin:jsonPath",
+							"twin:jsonPathExpression": "$.region",
+							operator: OdrlOperatorType.Eq,
+							rightOperand: {
+								"@type": "twin:jsonPath",
+								"twin:jsonPathExpression": "$.allowedRegion"
+							}
+						} as unknown as IOdrlConstraint
+					]
+				}
+			]
+		};
+
+		const decisions = await arbiter.decide(policy, undefined, {
+			region: "EU",
+			allowedRegion: "EU"
+		});
+		expect(decisions[0].decision).toBe(PolicyDecision.Granted);
+	});
+
+	test("throws when canonical rightOperand twin:jsonPath is missing twin:jsonPathExpression", async () => {
+		const arbiter = new DefaultPolicyArbiter();
+		const policy: IDataspaceProtocolAgreement = {
+			"@context": OdrlContexts.Context,
+			"@type": OdrlPolicyType.Agreement,
+			assigner: "did:example:default-assigner",
+			assignee: "did:example:default-assignee",
+			"@id": "policy:right-jsonpath-canonical-missing-expression",
+			permission: [
+				{
+					constraint: [
+						{
+							leftOperand: "twin:jsonPath",
+							"twin:jsonPathExpression": "$.region",
+							operator: OdrlOperatorType.Eq,
+							rightOperand: {
+								"@type": "twin:jsonPath"
+							}
+						} as unknown as IOdrlConstraint
+					]
+				}
+			]
+		};
+
+		await expect(
+			arbiter.decide(policy, undefined, {
+				region: "EU",
+				allowedRegion: "EU"
+			})
+		).rejects.toThrow();
+	});
+
+	test("throws when canonical rightOperand twin:jsonPath uses @value without twin:jsonPathExpression", async () => {
+		const arbiter = new DefaultPolicyArbiter();
+		const policy: IDataspaceProtocolAgreement = {
+			"@context": OdrlContexts.Context,
+			"@type": OdrlPolicyType.Agreement,
+			assigner: "did:example:default-assigner",
+			assignee: "did:example:default-assignee",
+			"@id": "policy:right-jsonpath-canonical-value-without-expression",
+			permission: [
+				{
+					constraint: [
+						{
+							leftOperand: "twin:jsonPath",
+							"twin:jsonPathExpression": "$.region",
+							operator: OdrlOperatorType.Eq,
+							rightOperand: {
+								"@type": "twin:jsonPath",
+								"@value": "$.allowedRegion"
+							}
+						} as unknown as IOdrlConstraint
+					]
+				}
+			]
+		};
+
+		await expect(
+			arbiter.decide(policy, undefined, {
+				region: "EU",
+				allowedRegion: "EU"
+			})
+		).rejects.toThrow();
+	});
+
+	test("throws when canonical leftOperand has empty twin:jsonPathExpression", async () => {
 		const arbiter = new DefaultPolicyArbiter();
 		const policy: IDataspaceProtocolAgreement = {
 			"@context": OdrlContexts.Context,
@@ -1163,7 +1334,8 @@ describe("DefaultPolicyArbiter", () => {
 				{
 					constraint: [
 						{
-							leftOperand: "twin:jsonpath:",
+							leftOperand: "twin:jsonPath",
+							"twin:jsonPathExpression": "",
 							operator: OdrlOperatorType.Gteq,
 							rightOperand: { "@value": "18", "@type": "xsd:integer" }
 						}
@@ -1185,10 +1357,11 @@ describe("DefaultPolicyArbiter", () => {
 			"@id": "policy:jsonpath-target",
 			permission: [
 				{
-					target: "twin:jsonpath:$.items[*]",
+					target: { "@type": "twin:jsonPath", "twin:jsonPathExpression": "$.items[*]" },
 					constraint: [
 						{
-							leftOperand: "twin:jsonpath:$.region",
+							leftOperand: "twin:jsonPath",
+							"twin:jsonPathExpression": "$.region",
 							operator: OdrlOperatorType.Eq,
 							rightOperand: "US"
 						}
@@ -1220,10 +1393,14 @@ describe("DefaultPolicyArbiter", () => {
 			"@id": "policy:compact-multiple-targets",
 			permission: [
 				{
-					target: ["twin:jsonpath:$.items[*]", "twin:jsonpath:$.meta"],
+					target: [
+						{ "@type": "twin:jsonPath", "twin:jsonPathExpression": "$.items[*]" },
+						{ "@type": "twin:jsonPath", "twin:jsonPathExpression": "$.meta" }
+					],
 					constraint: [
 						{
-							leftOperand: "twin:jsonpath:$.region",
+							leftOperand: "twin:jsonPath",
+							"twin:jsonPathExpression": "$.region",
 							operator: OdrlOperatorType.Eq,
 							rightOperand: "EU"
 						}
@@ -1260,7 +1437,8 @@ describe("DefaultPolicyArbiter", () => {
 					target: "did:example:asset-1",
 					constraint: [
 						{
-							leftOperand: "twin:jsonpath:$.region",
+							leftOperand: "twin:jsonPath",
+							"twin:jsonPathExpression": "$.region",
 							operator: OdrlOperatorType.Eq,
 							rightOperand: "EU"
 						}
@@ -1282,14 +1460,20 @@ describe("DefaultPolicyArbiter", () => {
 			assigner: "did:example:default-assigner",
 			assignee: "did:example:default-assignee",
 			"@id": "policy:prohibit-targeted",
-			permission: [{ action: "read", target: "twin:jsonpath:$.items[*]" }],
+			permission: [
+				{
+					action: "read",
+					target: { "@type": "twin:jsonPath", "twin:jsonPathExpression": "$.items[*]" }
+				}
+			],
 			prohibition: [
 				{
 					action: "read",
-					target: "twin:jsonpath:$.items[*]",
+					target: { "@type": "twin:jsonPath", "twin:jsonPathExpression": "$.items[*]" },
 					constraint: [
 						{
-							leftOperand: "twin:jsonpath:$.region",
+							leftOperand: "twin:jsonPath",
+							"twin:jsonPathExpression": "$.region",
 							operator: OdrlOperatorType.Eq,
 							rightOperand: "EU"
 						}
@@ -1314,7 +1498,12 @@ describe("DefaultPolicyArbiter", () => {
 			assigner: "did:example:default-assigner",
 			assignee: "did:example:default-assignee",
 			"@id": "policy:root-denied-single-property-granted",
-			permission: [{ action: "read", target: "twin:jsonpath:$.profile.email" }],
+			permission: [
+				{
+					action: "read",
+					target: { "@type": "twin:jsonPath", "twin:jsonPathExpression": "$.profile.email" }
+				}
+			],
 			prohibition: [{ action: "read" }]
 		};
 
@@ -1347,9 +1536,10 @@ describe("DefaultPolicyArbiter", () => {
 					action: "read",
 					target: {
 						"@type": "AssetCollection",
-						source: "twin:jsonpath:$.items[*]",
+						source: "twin:jsonPath:data:$.items[*]",
 						refinement: {
-							leftOperand: "twin:jsonpath:$.region",
+							leftOperand: "twin:jsonPath",
+							"twin:jsonPathExpression": "$.region",
 							operator: OdrlOperatorType.Eq,
 							rightOperand: "EU"
 						}
@@ -1389,7 +1579,8 @@ describe("DefaultPolicyArbiter", () => {
 					target: {
 						"@type": "AssetCollection",
 						refinement: {
-							leftOperand: "twin:jsonpath:$.region",
+							leftOperand: "twin:jsonPath",
+							"twin:jsonPathExpression": "$.region",
 							operator: OdrlOperatorType.Eq,
 							rightOperand: "EU"
 						}
@@ -1418,7 +1609,8 @@ describe("DefaultPolicyArbiter", () => {
 						"@type": "AssetCollection",
 						source: "https://example.com/items",
 						refinement: {
-							leftOperand: "twin:jsonpath:$.region",
+							leftOperand: "twin:jsonPath",
+							"twin:jsonPathExpression": "$.region",
 							operator: OdrlOperatorType.Eq,
 							rightOperand: "EU"
 						}
@@ -1440,15 +1632,21 @@ describe("DefaultPolicyArbiter", () => {
 			assigner: "did:example:default-assigner",
 			assignee: "did:example:default-assignee",
 			"@id": "policy:asset-collection-prohibition-refinement",
-			permission: [{ action: "read", target: "twin:jsonpath:$.items[*]" }],
+			permission: [
+				{
+					action: "read",
+					target: { "@type": "twin:jsonPath", "twin:jsonPathExpression": "$.items[*]" }
+				}
+			],
 			prohibition: [
 				{
 					action: "read",
 					target: {
 						"@type": "AssetCollection",
-						source: "twin:jsonpath:$.items[*]",
+						source: "twin:jsonPath:data:$.items[*]",
 						refinement: {
-							leftOperand: "twin:jsonpath:$.region",
+							leftOperand: "twin:jsonPath",
+							"twin:jsonPathExpression": "$.region",
 							operator: OdrlOperatorType.Eq,
 							rightOperand: "EU"
 						}
@@ -1544,7 +1742,8 @@ describe("DefaultPolicyArbiter", () => {
 				{
 					constraint: [
 						{
-							leftOperand: "twin:jsonpath:$.region",
+							leftOperand: "twin:jsonPath",
+							"twin:jsonPathExpression": "$.region",
 							operator: OdrlOperatorType.Eq,
 							rightOperand: "EU"
 						}
@@ -1557,7 +1756,7 @@ describe("DefaultPolicyArbiter", () => {
 		expect(decisions).toEqual([{ target: "$", decision: PolicyDecision.Denied }]);
 	});
 
-	test("allows jsonpath-typed rightOperand comparisons in prohibition conditions", async () => {
+	test("allows canonical jsonPath typed rightOperand comparisons in prohibition conditions", async () => {
 		const arbiter = new DefaultPolicyArbiter();
 		const policy: IDataspaceProtocolAgreement = {
 			"@context": OdrlContexts.Context,
@@ -1571,10 +1770,14 @@ describe("DefaultPolicyArbiter", () => {
 					constraint: [
 						// condition uses jsonpath-typed rightOperand for comparison
 						{
-							leftOperand: "twin:jsonpath:$.region",
+							leftOperand: "twin:jsonPath",
+							"twin:jsonPathExpression": "$.region",
 							operator: OdrlOperatorType.Eq,
-							rightOperand: { "@value": "$.blockedRegion", "@type": "twin:jsonpath" }
-						}
+							rightOperand: {
+								"@type": "twin:jsonPath",
+								"twin:jsonPathExpression": "$.blockedRegion"
+							}
+						} as unknown as IOdrlConstraint
 					]
 				}
 			]
@@ -1665,7 +1868,8 @@ describe("DefaultPolicyArbiter", () => {
 					action: "delete",
 					constraint: [
 						{
-							leftOperand: "twin:jsonpath:$.isPaid",
+							leftOperand: "twin:jsonPath",
+							"twin:jsonPathExpression": "$.isPaid",
 							operator: OdrlOperatorType.Eq,
 							rightOperand: { "@value": "false", "@type": "xsd:boolean" }
 						}
@@ -1799,7 +2003,8 @@ describe("DefaultPolicyArbiter", () => {
 				{
 					constraint: [
 						{
-							leftOperand: "twin:jsonpath:$.region",
+							leftOperand: "twin:jsonPath",
+							"twin:jsonPathExpression": "$.region",
 							operator: OdrlOperatorType.Eq,
 							rightOperand: "EU"
 						}
@@ -1810,7 +2015,8 @@ describe("DefaultPolicyArbiter", () => {
 				{
 					constraint: [
 						{
-							leftOperand: "twin:jsonpath:$.region",
+							leftOperand: "twin:jsonPath",
+							"twin:jsonPathExpression": "$.region",
 							operator: OdrlOperatorType.Eq,
 							rightOperand: "EU"
 						}
@@ -1862,7 +2068,8 @@ describe("DefaultPolicyArbiter", () => {
 				{
 					constraint: [
 						{
-							leftOperand: "twin:jsonpath:$.region",
+							leftOperand: "twin:jsonPath",
+							"twin:jsonPathExpression": "$.region",
 							operator: OdrlOperatorType.Eq,
 							rightOperand: "EU"
 						}
@@ -1873,7 +2080,8 @@ describe("DefaultPolicyArbiter", () => {
 				{
 					constraint: [
 						{
-							leftOperand: "twin:jsonpath:$.region",
+							leftOperand: "twin:jsonPath",
+							"twin:jsonPathExpression": "$.region",
 							operator: OdrlOperatorType.Eq,
 							rightOperand: "EU"
 						}
@@ -2092,7 +2300,8 @@ describe("DefaultPolicyArbiter", () => {
 					action: "read",
 					constraint: [
 						{
-							leftOperand: "twin:jsonpath:$.territory",
+							leftOperand: "twin:jsonPath",
+							"twin:jsonPathExpression": "$.territory",
 							operator: OdrlOperatorType.Eq,
 							rightOperand: "US"
 						}
@@ -2137,7 +2346,8 @@ describe("DefaultPolicyArbiter", () => {
 					action: "read",
 					constraint: [
 						{
-							leftOperand: "twin:jsonpath:$.territory",
+							leftOperand: "twin:jsonPath",
+							"twin:jsonPathExpression": "$.territory",
 							operator: OdrlOperatorType.Eq,
 							rightOperand: "US"
 						}
@@ -2352,9 +2562,10 @@ describe("DefaultPolicyArbiter", () => {
 						action: "read",
 						target: {
 							"@type": "AssetCollection",
-							source: "twin:jsonpath:$.itemList.itemListElement[*]",
+							source: "twin:jsonPath:data:$.itemList.itemListElement[*]",
 							refinement: {
-								leftOperand: "twin:jsonpath:$.itemList.itemListElement[*].unloadingLocation.id",
+								leftOperand: "twin:jsonPath",
+								"twin:jsonPathExpression": "$.itemList.itemListElement[*].unloadingLocation.id",
 								operator: OdrlOperatorType.Eq,
 								rightOperand: "unece:LOCODE#GBFXT"
 							}
@@ -2395,13 +2606,19 @@ describe("DefaultPolicyArbiter", () => {
 				permission: [
 					{
 						action: "read",
-						target: "twin:jsonpath:$.itemList.itemListElement[1]"
+						target: {
+							"@type": "twin:jsonPath",
+							"twin:jsonPathExpression": "$.itemList.itemListElement[1]"
+						}
 					}
 				],
 				prohibition: [
 					{
 						action: "read",
-						target: "twin:jsonpath:$.itemList.itemListElement[0]"
+						target: {
+							"@type": "twin:jsonPath",
+							"twin:jsonPathExpression": "$.itemList.itemListElement[0]"
+						}
 					}
 				]
 			};
@@ -2439,9 +2656,10 @@ describe("DefaultPolicyArbiter", () => {
 						action: "read",
 						target: {
 							"@type": "AssetCollection",
-							source: "twin:jsonpath:$.itemList.itemListElement[*]",
+							source: "twin:jsonPath:data:$.itemList.itemListElement[*]",
 							refinement: {
-								leftOperand: "twin:jsonpath:$.itemList.itemListElement[*].country",
+								leftOperand: "twin:jsonPath",
+								"twin:jsonPathExpression": "$.itemList.itemListElement[*].country",
 								operator: OdrlOperatorType.Eq,
 								rightOperand: "PL"
 							}
@@ -2482,9 +2700,10 @@ describe("DefaultPolicyArbiter", () => {
 						action: "read",
 						target: {
 							"@type": "AssetCollection",
-							source: "twin:jsonpath:$.itemList.itemListElement[*]",
+							source: "twin:jsonPath:data:$.itemList.itemListElement[*]",
 							refinement: {
-								leftOperand: "twin:jsonpath:$.itemList.itemListElement[*].country",
+								leftOperand: "twin:jsonPath",
+								"twin:jsonPathExpression": "$.itemList.itemListElement[*].country",
 								operator: OdrlOperatorType.Eq,
 								rightOperand: "PL"
 							}
@@ -2550,9 +2769,10 @@ describe("DefaultPolicyArbiter", () => {
 						action: "write",
 						target: {
 							"@type": "AssetCollection",
-							source: "twin:jsonpath:$.itemList.itemListElement[*]",
+							source: "twin:jsonPath:data:$.itemList.itemListElement[*]",
 							refinement: {
-								leftOperand: "twin:jsonpath:$.itemList.itemListElement[*].country",
+								leftOperand: "twin:jsonPath",
+								"twin:jsonPathExpression": "$.itemList.itemListElement[*].country",
 								operator: OdrlOperatorType.Eq,
 								rightOperand: "PL"
 							}
@@ -2586,15 +2806,17 @@ describe("DefaultPolicyArbiter", () => {
 						action: "read",
 						target: {
 							"@type": "AssetCollection",
-							source: "twin:jsonpath:$.itemList.itemListElement[*]",
+							source: "twin:jsonPath:data:$.itemList.itemListElement[*]",
 							refinement: [
 								{
-									leftOperand: "twin:jsonpath:$.itemList.itemListElement[*].country",
+									leftOperand: "twin:jsonPath",
+									"twin:jsonPathExpression": "$.itemList.itemListElement[*].country",
 									operator: OdrlOperatorType.Eq,
 									rightOperand: "GB"
 								},
 								{
-									leftOperand: "twin:jsonpath:$.itemList.itemListElement[*].status",
+									leftOperand: "twin:jsonPath",
+									"twin:jsonPathExpression": "$.itemList.itemListElement[*].status",
 									operator: OdrlOperatorType.Eq,
 									rightOperand: "active"
 								}
@@ -2640,9 +2862,10 @@ describe("DefaultPolicyArbiter", () => {
 						action: "read",
 						target: {
 							"@type": "AssetCollection",
-							source: "twin:jsonpath:$.items[*]",
+							source: "twin:jsonPath:data:$.items[*]",
 							refinement: {
-								leftOperand: "twin:jsonpath:$.items[*].type",
+								leftOperand: "twin:jsonPath",
+								"twin:jsonPathExpression": "$.items[*].type",
 								operator: OdrlOperatorType.Eq,
 								rightOperand: "A"
 							}
@@ -2683,7 +2906,8 @@ describe("DefaultPolicyArbiter", () => {
 							"@type": "AssetCollection",
 							source: "https://twin.example.org/external-data",
 							refinement: {
-								leftOperand: "twin:jsonpath:$.items[*].type",
+								leftOperand: "twin:jsonPath",
+								"twin:jsonPathExpression": "$.items[*].type",
 								operator: OdrlOperatorType.Eq,
 								rightOperand: "A"
 							}
@@ -2711,7 +2935,8 @@ describe("DefaultPolicyArbiter", () => {
 					{
 						constraint: [
 							{
-								leftOperand: "twin:jsonpath:$.status",
+								leftOperand: "twin:jsonPath",
+								"twin:jsonPathExpression": "$.status",
 								operator: OdrlOperatorType.Neq,
 								rightOperand: "blocked"
 							}
@@ -2739,7 +2964,8 @@ describe("DefaultPolicyArbiter", () => {
 					{
 						constraint: [
 							{
-								leftOperand: "twin:jsonpath:$.count",
+								leftOperand: "twin:jsonPath",
+								"twin:jsonPathExpression": "$.count",
 								operator: OdrlOperatorType.Lt,
 								rightOperand: { "@value": "10", "@type": "xsd:integer" }
 							}
@@ -2767,7 +2993,8 @@ describe("DefaultPolicyArbiter", () => {
 					{
 						constraint: [
 							{
-								leftOperand: "twin:jsonpath:$.level",
+								leftOperand: "twin:jsonPath",
+								"twin:jsonPathExpression": "$.level",
 								operator: OdrlOperatorType.Lteq,
 								rightOperand: { "@value": "5", "@type": "xsd:integer" }
 							}
@@ -2798,7 +3025,8 @@ describe("DefaultPolicyArbiter", () => {
 					{
 						constraint: [
 							{
-								leftOperand: "twin:jsonpath:$.region",
+								leftOperand: "twin:jsonPath",
+								"twin:jsonPathExpression": "$.region",
 								operator: OdrlOperatorType.IsNoneOf,
 								rightOperand: ["CN", "RU"]
 							}
@@ -2826,7 +3054,8 @@ describe("DefaultPolicyArbiter", () => {
 					{
 						constraint: [
 							{
-								leftOperand: "twin:jsonpath:$.roles[*]",
+								leftOperand: "twin:jsonPath",
+								"twin:jsonPathExpression": "$.roles[*]",
 								operator: OdrlOperatorType.IsAllOf,
 								rightOperand: ["admin", "editor"]
 							}
@@ -2856,12 +3085,14 @@ describe("DefaultPolicyArbiter", () => {
 							{
 								and: [
 									{
-										leftOperand: "twin:jsonpath:$.age",
+										leftOperand: "twin:jsonPath",
+										"twin:jsonPathExpression": "$.age",
 										operator: OdrlOperatorType.Gteq,
 										rightOperand: { "@value": "18", "@type": "xsd:integer" }
 									},
 									{
-										leftOperand: "twin:jsonpath:$.region",
+										leftOperand: "twin:jsonPath",
+										"twin:jsonPathExpression": "$.region",
 										operator: OdrlOperatorType.Eq,
 										rightOperand: "EU"
 									}
@@ -2891,7 +3122,8 @@ describe("DefaultPolicyArbiter", () => {
 					{
 						constraint: [
 							{
-								leftOperand: "twin:jsonpath:$.zone",
+								leftOperand: "twin:jsonPath",
+								"twin:jsonPathExpression": "$.zone",
 								operator: OdrlOperatorType.LocTimeEq,
 								rightOperand: "Europe/London"
 							}
@@ -2919,7 +3151,8 @@ describe("DefaultPolicyArbiter", () => {
 					{
 						constraint: [
 							{
-								leftOperand: "twin:jsonpath:$.region",
+								leftOperand: "twin:jsonPath",
+								"twin:jsonPathExpression": "$.region",
 								operator: OdrlOperatorType.Eq,
 								rightOperandReference: "https://example.com/allowed-regions"
 							} as unknown as IOdrlConstraint
@@ -2935,7 +3168,7 @@ describe("DefaultPolicyArbiter", () => {
 	});
 
 	describe("Information target", () => {
-		test("evaluates permission constraints against information map entry when target is twin:information", async () => {
+		test("evaluates permission constraints against information map entry when target data source is information", async () => {
 			const arbiter = new DefaultPolicyArbiter();
 			const policy: IDataspaceProtocolAgreement = {
 				"@context": OdrlContexts.Context,
@@ -2946,10 +3179,16 @@ describe("DefaultPolicyArbiter", () => {
 				permission: [
 					{
 						action: "read",
-						target: "twin:information:$.credentials",
+						target: {
+							"@type": "twin:jsonPath",
+							"twin:jsonPathDataSource": "information",
+							"twin:jsonPathExpression": "$.credentials"
+						},
 						constraint: [
 							{
-								leftOperand: "twin:information:$.credentials.clearanceLevel",
+								leftOperand: "twin:jsonPath",
+								"twin:jsonPathDataSource": "information",
+								"twin:jsonPathExpression": "$.credentials.clearanceLevel",
 								operator: OdrlOperatorType.Gteq,
 								rightOperand: { "@value": "3", "@type": "xsd:integer" }
 							}
@@ -2984,10 +3223,16 @@ describe("DefaultPolicyArbiter", () => {
 				permission: [
 					{
 						action: "read",
-						target: "twin:information:$.credentials",
+						target: {
+							"@type": "twin:jsonPath",
+							"twin:jsonPathDataSource": "information",
+							"twin:jsonPathExpression": "$.credentials"
+						},
 						constraint: [
 							{
-								leftOperand: "twin:information:$.credentials.clearanceLevel",
+								leftOperand: "twin:jsonPath",
+								"twin:jsonPathDataSource": "information",
+								"twin:jsonPathExpression": "$.credentials.clearanceLevel",
 								operator: OdrlOperatorType.Gteq,
 								rightOperand: { "@value": "3", "@type": "xsd:integer" }
 							}
@@ -3001,7 +3246,7 @@ describe("DefaultPolicyArbiter", () => {
 			);
 		});
 
-		test("supports mixed twin:jsonpath and twin:information operand lookups", async () => {
+		test("supports mixed data and information operand lookups", async () => {
 			const arbiter = new DefaultPolicyArbiter();
 			const policy: IDataspaceProtocolAgreement = {
 				"@context": OdrlContexts.Context,
@@ -3012,15 +3257,21 @@ describe("DefaultPolicyArbiter", () => {
 				permission: [
 					{
 						action: "read",
-						target: "twin:information:$.credentials",
+						target: {
+							"@type": "twin:jsonPath",
+							"twin:jsonPathDataSource": "information",
+							"twin:jsonPathExpression": "$.credentials"
+						},
 						constraint: [
 							{
-								leftOperand: "twin:jsonpath:$.requestedLevel",
+								leftOperand: "twin:jsonPath",
+								"twin:jsonPathExpression": "$.requestedLevel",
 								operator: OdrlOperatorType.Lteq,
 								rightOperand: {
-									"@value": "$.credentials.clearanceLevel",
-									"@type": "twin:information"
-								}
+									"@type": "twin:jsonPath",
+									"twin:jsonPathDataSource": "information",
+									"twin:jsonPathExpression": "$.credentials.clearanceLevel"
+								} as unknown as IOdrlConstraint["rightOperand"]
 							}
 						]
 					}
@@ -3056,7 +3307,8 @@ describe("DefaultPolicyArbiter", () => {
 						action: "compensate",
 						constraint: [
 							{
-								leftOperand: "twin:jsonpath:$.isPremium",
+								leftOperand: "twin:jsonPath",
+								"twin:jsonPathExpression": "$.isPremium",
 								operator: OdrlOperatorType.Eq,
 								rightOperand: { "@value": "true", "@type": "xsd:boolean" }
 							}
@@ -3086,7 +3338,8 @@ describe("DefaultPolicyArbiter", () => {
 						action: "compensate",
 						constraint: [
 							{
-								leftOperand: "twin:jsonpath:$.isPremium",
+								leftOperand: "twin:jsonPath",
+								"twin:jsonPathExpression": "$.isPremium",
 								operator: OdrlOperatorType.Eq,
 								rightOperand: { "@value": "true", "@type": "xsd:boolean" }
 							}
@@ -3139,7 +3392,8 @@ describe("DefaultPolicyArbiter", () => {
 						action: ["read", "write"],
 						constraint: [
 							{
-								leftOperand: "twin:jsonpath:$.region",
+								leftOperand: "twin:jsonPath",
+								"twin:jsonPathExpression": "$.region",
 								operator: OdrlOperatorType.Eq,
 								rightOperand: "EU"
 							}
@@ -3170,7 +3424,10 @@ describe("DefaultPolicyArbiter", () => {
 				"@id": "policy:compact-cartesian",
 				permission: [
 					{
-						target: ["twin:jsonpath:$.items[*]", "twin:jsonpath:$.meta"],
+						target: [
+							{ "@type": "twin:jsonPath", "twin:jsonPathExpression": "$.items[*]" },
+							{ "@type": "twin:jsonPath", "twin:jsonPathExpression": "$.meta" }
+						],
 						action: ["read", "write"]
 					}
 				]
@@ -3215,16 +3472,26 @@ describe("DefaultPolicyArbiter", () => {
 				assignee: "did:example:default-assignee",
 				"@id": "policy:compact-prohibition-targets",
 				permission: [
-					{ action: "read", target: "twin:jsonpath:$.items[*]" },
-					{ action: "read", target: "twin:jsonpath:$.meta" }
+					{
+						action: "read",
+						target: { "@type": "twin:jsonPath", "twin:jsonPathExpression": "$.items[*]" }
+					},
+					{
+						action: "read",
+						target: { "@type": "twin:jsonPath", "twin:jsonPathExpression": "$.meta" }
+					}
 				],
 				prohibition: [
 					{
 						action: "read",
-						target: ["twin:jsonpath:$.items[*]", "twin:jsonpath:$.meta"],
+						target: [
+							{ "@type": "twin:jsonPath", "twin:jsonPathExpression": "$.items[*]" },
+							{ "@type": "twin:jsonPath", "twin:jsonPathExpression": "$.meta" }
+						],
 						constraint: [
 							{
-								leftOperand: "twin:jsonpath:$.region",
+								leftOperand: "twin:jsonPath",
+								"twin:jsonPathExpression": "$.region",
 								operator: OdrlOperatorType.Eq,
 								rightOperand: "EU"
 							}
@@ -3367,7 +3634,8 @@ describe("DefaultPolicyArbiter", () => {
 						action: { "@id": "print", includedIn: "reproduce" } as unknown as string,
 						constraint: [
 							{
-								leftOperand: "twin:jsonpath:$.region",
+								leftOperand: "twin:jsonPath",
+								"twin:jsonPathExpression": "$.region",
 								operator: OdrlOperatorType.Eq,
 								rightOperand: "EU"
 							}
@@ -3454,7 +3722,12 @@ describe("DefaultPolicyArbiter", () => {
 				assignee: "did:example:default-assignee",
 				"@id": "policy:twin-profile",
 				profile: OdrlProfiles.Twin,
-				permission: [{ action: "use", target: "twin:jsonpath:$.value" }]
+				permission: [
+					{
+						action: "use",
+						target: { "@type": "twin:jsonPath", "twin:jsonPathExpression": "$.value" }
+					}
+				]
 			} as unknown as IDataspaceProtocolAgreement;
 
 			const decisions = await arbiter.decide(policy, undefined, { value: "test" });
@@ -3471,7 +3744,12 @@ describe("DefaultPolicyArbiter", () => {
 				assignee: "did:example:default-assignee",
 				"@id": "policy:twin-profile-array",
 				profile: [OdrlProfiles.Twin],
-				permission: [{ action: "use", target: "twin:jsonpath:$.value" }]
+				permission: [
+					{
+						action: "use",
+						target: { "@type": "twin:jsonPath", "twin:jsonPathExpression": "$.value" }
+					}
+				]
 			} as unknown as IDataspaceProtocolAgreement;
 
 			const decisions = await arbiter.decide(policy, undefined, { value: "test" });
@@ -3488,7 +3766,12 @@ describe("DefaultPolicyArbiter", () => {
 				assignee: "did:example:default-assignee",
 				"@id": "policy:empty-string-profile",
 				profile: "",
-				permission: [{ action: "use", target: "twin:jsonpath:$.value" }]
+				permission: [
+					{
+						action: "use",
+						target: { "@type": "twin:jsonPath", "twin:jsonPathExpression": "$.value" }
+					}
+				]
 			} as unknown as IDataspaceProtocolAgreement;
 
 			const decisions = await arbiter.decide(policy, undefined, { value: "test" });
@@ -3505,7 +3788,12 @@ describe("DefaultPolicyArbiter", () => {
 				assignee: "did:example:default-assignee",
 				"@id": "policy:empty-array-profile",
 				profile: [""],
-				permission: [{ action: "use", target: "twin:jsonpath:$.value" }]
+				permission: [
+					{
+						action: "use",
+						target: { "@type": "twin:jsonPath", "twin:jsonPathExpression": "$.value" }
+					}
+				]
 			} as unknown as IDataspaceProtocolAgreement;
 
 			const decisions = await arbiter.decide(policy, undefined, { value: "test" });
@@ -3522,7 +3810,12 @@ describe("DefaultPolicyArbiter", () => {
 				assignee: "did:example:default-assignee",
 				"@id": "policy:twin-profile-trailing-slash",
 				profile: `${OdrlProfiles.Twin}/`,
-				permission: [{ action: "use", target: "twin:jsonpath:$.value" }]
+				permission: [
+					{
+						action: "use",
+						target: { "@type": "twin:jsonPath", "twin:jsonPathExpression": "$.value" }
+					}
+				]
 			} as unknown as IDataspaceProtocolAgreement;
 
 			const decisions = await arbiter.decide(policy, undefined, { value: "test" });
@@ -3539,7 +3832,12 @@ describe("DefaultPolicyArbiter", () => {
 				assignee: "did:example:default-assignee",
 				"@id": "policy:twin-profile-double-slash",
 				profile: OdrlProfiles.Twin.replace("schema.twindev.org/odrl", "schema.twindev.org//odrl"),
-				permission: [{ action: "use", target: "twin:jsonpath:$.value" }]
+				permission: [
+					{
+						action: "use",
+						target: { "@type": "twin:jsonPath", "twin:jsonPathExpression": "$.value" }
+					}
+				]
 			} as unknown as IDataspaceProtocolAgreement;
 
 			const decisions = await arbiter.decide(policy, undefined, { value: "test" });
@@ -3556,7 +3854,12 @@ describe("DefaultPolicyArbiter", () => {
 				assignee: "did:example:default-assignee",
 				"@id": "policy:twin-profile-uppercase-scheme",
 				profile: OdrlProfiles.Twin.replace("https://", "HTTPS://"),
-				permission: [{ action: "use", target: "twin:jsonpath:$.value" }]
+				permission: [
+					{
+						action: "use",
+						target: { "@type": "twin:jsonPath", "twin:jsonPathExpression": "$.value" }
+					}
+				]
 			} as unknown as IDataspaceProtocolAgreement;
 
 			const decisions = await arbiter.decide(policy, undefined, { value: "test" });
@@ -3573,7 +3876,12 @@ describe("DefaultPolicyArbiter", () => {
 				assignee: "did:example:default-assignee",
 				"@id": "policy:twin-profile-uppercase-host",
 				profile: OdrlProfiles.Twin.replace("schema.twindev.org", "SCHEMA.TWINDEV.ORG"),
-				permission: [{ action: "use", target: "twin:jsonpath:$.value" }]
+				permission: [
+					{
+						action: "use",
+						target: { "@type": "twin:jsonPath", "twin:jsonPathExpression": "$.value" }
+					}
+				]
 			} as unknown as IDataspaceProtocolAgreement;
 
 			const decisions = await arbiter.decide(policy, undefined, { value: "test" });
@@ -3606,7 +3914,7 @@ describe("DefaultPolicyArbiter", () => {
 				assigner: "did:example:default-assigner",
 				assignee: "did:example:default-assignee",
 				"@id": "policy:policy-level-target-inherited",
-				target: "twin:jsonpath:$.items[*]",
+				target: { "@type": "twin:jsonPath", "twin:jsonPathExpression": "$.items[*]" },
 				permission: [{ action: "read" }]
 			} as unknown as IDataspaceProtocolAgreement;
 
@@ -3623,8 +3931,13 @@ describe("DefaultPolicyArbiter", () => {
 				assigner: "did:example:default-assigner",
 				assignee: "did:example:default-assignee",
 				"@id": "policy:policy-level-target-overridden",
-				target: "twin:jsonpath:$.items[*]",
-				permission: [{ action: "read", target: "twin:jsonpath:$.meta" }]
+				target: { "@type": "twin:jsonPath", "twin:jsonPathExpression": "$.items[*]" },
+				permission: [
+					{
+						action: "read",
+						target: { "@type": "twin:jsonPath", "twin:jsonPathExpression": "$.meta" }
+					}
+				]
 			} as unknown as IDataspaceProtocolAgreement;
 
 			// Rule-level target takes precedence over the policy-level default
@@ -3691,7 +4004,8 @@ describe("DefaultPolicyArbiter", () => {
 						action: "use",
 						constraint: [
 							{
-								leftOperand: "twin:jsonpath:$.count",
+								leftOperand: "twin:jsonPath",
+								"twin:jsonPathExpression": "$.count",
 								operator: OdrlOperatorType.Lteq,
 								rightOperand: "10",
 								dataType: "xsd:integer"
@@ -3719,7 +4033,8 @@ describe("DefaultPolicyArbiter", () => {
 						action: "use",
 						constraint: [
 							{
-								leftOperand: "twin:jsonpath:$.price",
+								leftOperand: "twin:jsonPath",
+								"twin:jsonPathExpression": "$.price",
 								operator: OdrlOperatorType.Lteq,
 								rightOperand: "100",
 								unit: "https://dbpedia.org/resource/Euro"
@@ -3747,7 +4062,8 @@ describe("DefaultPolicyArbiter", () => {
 						action: "use",
 						constraint: [
 							{
-								leftOperand: "twin:jsonpath:$.count",
+								leftOperand: "twin:jsonPath",
+								"twin:jsonPathExpression": "$.count",
 								operator: OdrlOperatorType.Lteq,
 								rightOperand: "5",
 								status: "odrl:policyUsage"
@@ -3776,7 +4092,8 @@ describe("DefaultPolicyArbiter", () => {
 							"@id": "print",
 							refinement: [
 								{
-									leftOperand: "twin:jsonpath:$.count",
+									leftOperand: "twin:jsonPath",
+									"twin:jsonPathExpression": "$.count",
 									operator: OdrlOperatorType.Lteq,
 									rightOperand: "5"
 								}
@@ -3809,7 +4126,8 @@ describe("DefaultPolicyArbiter", () => {
 							"@id": "print",
 							refinement: [
 								{
-									leftOperand: "twin:jsonpath:$.count",
+									leftOperand: "twin:jsonPath",
+									"twin:jsonPathExpression": "$.count",
 									operator: OdrlOperatorType.Gt,
 									rightOperand: "5"
 								}
@@ -3844,7 +4162,8 @@ describe("DefaultPolicyArbiter", () => {
 							implies: ["reproduce"],
 							refinement: [
 								{
-									leftOperand: "twin:jsonpath:$.region",
+									leftOperand: "twin:jsonPath",
+									"twin:jsonPathExpression": "$.region",
 									operator: OdrlOperatorType.Eq,
 									rightOperand: "EU"
 								}

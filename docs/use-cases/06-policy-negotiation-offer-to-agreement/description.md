@@ -69,7 +69,7 @@ The veterinary agency registers an Offer policy in PNP specifying:
 - **Target**: DataResource assets
 - **Action**: read
 - **Assignee**: PartyCollection refined by country code constraint
-- **Constraint**: `twin:jsonpath:.legalAddress.countryCode` equals "PL"
+- **Constraint**: canonical `leftOperand: "twin:jsonPath"` + `twin:jsonPathExpression: "$.legalAddress.countryCode"`
 
 The Offer is stored in PNP's registry and available for negotiation.
 
@@ -269,7 +269,7 @@ TERMINATED  TERMINATED  TERMINATED
 - `IOdrlPermission` - Permission rule with action and constraints
 - `IOdrlPartyCollection` - Filtered party collection in Offer
 - `IOdrlConstraint` - Refinement constraint (country code)
-- Custom extension: `twin:jsonpath:` string format for property value extraction (e.g., `twin:jsonpath:.legalAddress.countryCode`)
+- Custom extension: canonical JSONPath operand fields (`twin:jsonPath` + `twin:jsonPathExpression`)
 
 ## IDS Protocol Standards
 
