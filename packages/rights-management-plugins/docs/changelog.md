@@ -6,6 +6,29 @@
 
 * remove EcosystemPolicy-related examples/assumptions; plugins now target standard ODRL policy types for v2.
 
+## [0.0.3-next.30](https://github.com/twinfoundation/twin-rights-management/compare/rights-management-plugins-v0.0.3-next.29...rights-management-plugins-v0.0.3-next.30) (2026-04-29)
+
+
+### Features
+
+* add canonical twin:jsonPath operand support with legacy compatibility ([#126](https://github.com/twinfoundation/twin-rights-management/issues/126)) ([3ab8078](https://github.com/twinfoundation/twin-rights-management/commit/3ab8078cacc47a09202e73d66d788276ae218025))
+* add pxp automation action ([#127](https://github.com/twinfoundation/twin-rights-management/issues/127)) ([ea3325a](https://github.com/twinfoundation/twin-rights-management/commit/ea3325a90c4714e599fcffb73e7517affd3a688f))
+
+
+### Dependencies
+
+* The following workspace dependencies were updated
+  * dependencies
+    * @twin.org/rights-management-models bumped from 0.0.3-next.29 to 0.0.3-next.30
+  * devDependencies
+    * @twin.org/rights-management-pap-service bumped from 0.0.3-next.29 to 0.0.3-next.30
+    * @twin.org/rights-management-pdp-service bumped from 0.0.3-next.29 to 0.0.3-next.30
+    * @twin.org/rights-management-pep-service bumped from 0.0.3-next.29 to 0.0.3-next.30
+    * @twin.org/rights-management-pip-service bumped from 0.0.3-next.29 to 0.0.3-next.30
+    * @twin.org/rights-management-pmp-service bumped from 0.0.3-next.29 to 0.0.3-next.30
+    * @twin.org/rights-management-pnp-service bumped from 0.0.3-next.29 to 0.0.3-next.30
+    * @twin.org/rights-management-pxp-service bumped from 0.0.3-next.29 to 0.0.3-next.30
+
 ## [0.0.3-next.29](https://github.com/iotaledger/twin-rights-management/compare/rights-management-plugins-v0.0.3-next.28...rights-management-plugins-v0.0.3-next.29) (2026-04-10)
 
 

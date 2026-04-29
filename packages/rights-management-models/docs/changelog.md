@@ -6,6 +6,13 @@
 
 * remove EcosystemPolicy models/DTOs and standardize policy typing on `OdrlPolicyType` for v2.
 
+## [0.0.3-next.30](https://github.com/twinfoundation/twin-rights-management/compare/rights-management-models-v0.0.3-next.29...rights-management-models-v0.0.3-next.30) (2026-04-29)
+
+
+### Features
+
+* add canonical twin:jsonPath operand support with legacy compatibility ([#126](https://github.com/twinfoundation/twin-rights-management/issues/126)) ([3ab8078](https://github.com/twinfoundation/twin-rights-management/commit/3ab8078cacc47a09202e73d66d788276ae218025))
+
 ## [0.0.3-next.29](https://github.com/iotaledger/twin-rights-management/compare/rights-management-models-v0.0.3-next.28...rights-management-models-v0.0.3-next.29) (2026-04-10)
 
 
