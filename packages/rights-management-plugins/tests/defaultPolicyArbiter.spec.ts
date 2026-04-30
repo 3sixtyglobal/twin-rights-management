@@ -1534,7 +1534,8 @@ describe("DefaultPolicyArbiter", () => {
 					action: "read",
 					target: {
 						"@type": "AssetCollection",
-						source: "twin:jsonPath:data:$.items[*]",
+						source: "twin:jsonPath",
+						"twin:jsonPathExpression": "$.items[*]",
 						refinement: {
 							leftOperand: "twin:jsonPath",
 							"twin:jsonPathExpression": "$.region",
@@ -1641,7 +1642,8 @@ describe("DefaultPolicyArbiter", () => {
 					action: "read",
 					target: {
 						"@type": "AssetCollection",
-						source: "twin:jsonPath:data:$.items[*]",
+						source: "twin:jsonPath",
+						"twin:jsonPathExpression": "$.items[*]",
 						refinement: {
 							leftOperand: "twin:jsonPath",
 							"twin:jsonPathExpression": "$.region",
@@ -1690,7 +1692,7 @@ describe("DefaultPolicyArbiter", () => {
 					action: "read",
 					target: {
 						"@type": "Asset",
-						uid: "twin:jsonpath:$.items[*]",
+						uid: "twin:jsonPath:$.items[*]",
 						hasPolicy: "policy:governing"
 					} as unknown as string
 				}
@@ -1715,7 +1717,7 @@ describe("DefaultPolicyArbiter", () => {
 					action: "read",
 					target: {
 						"@type": "Asset",
-						uid: "twin:jsonpath:$.items[*]",
+						uid: "twin:jsonPath:$.items[*]",
 						partOf: "collection:my-assets"
 					} as unknown as string
 				}
@@ -2560,7 +2562,8 @@ describe("DefaultPolicyArbiter", () => {
 						action: "read",
 						target: {
 							"@type": "AssetCollection",
-							source: "twin:jsonPath:data:$.itemList.itemListElement[*]",
+							source: "twin:jsonPath",
+							"twin:jsonPathExpression": "$.itemList.itemListElement[*]",
 							refinement: {
 								leftOperand: "twin:jsonPath",
 								"twin:jsonPathExpression": "$.itemList.itemListElement[*].unloadingLocation.id",
@@ -2654,7 +2657,8 @@ describe("DefaultPolicyArbiter", () => {
 						action: "read",
 						target: {
 							"@type": "AssetCollection",
-							source: "twin:jsonPath:data:$.itemList.itemListElement[*]",
+							source: "twin:jsonPath",
+							"twin:jsonPathExpression": "$.itemList.itemListElement[*]",
 							refinement: {
 								leftOperand: "twin:jsonPath",
 								"twin:jsonPathExpression": "$.itemList.itemListElement[*].country",
@@ -2698,7 +2702,8 @@ describe("DefaultPolicyArbiter", () => {
 						action: "read",
 						target: {
 							"@type": "AssetCollection",
-							source: "twin:jsonPath:data:$.itemList.itemListElement[*]",
+							source: "twin:jsonPath",
+							"twin:jsonPathExpression": "$.itemList.itemListElement[*]",
 							refinement: {
 								leftOperand: "twin:jsonPath",
 								"twin:jsonPathExpression": "$.itemList.itemListElement[*].country",
@@ -2767,7 +2772,8 @@ describe("DefaultPolicyArbiter", () => {
 						action: "write",
 						target: {
 							"@type": "AssetCollection",
-							source: "twin:jsonPath:data:$.itemList.itemListElement[*]",
+							source: "twin:jsonPath",
+							"twin:jsonPathExpression": "$.itemList.itemListElement[*]",
 							refinement: {
 								leftOperand: "twin:jsonPath",
 								"twin:jsonPathExpression": "$.itemList.itemListElement[*].country",
@@ -2804,7 +2810,8 @@ describe("DefaultPolicyArbiter", () => {
 						action: "read",
 						target: {
 							"@type": "AssetCollection",
-							source: "twin:jsonPath:data:$.itemList.itemListElement[*]",
+							source: "twin:jsonPath",
+							"twin:jsonPathExpression": "$.itemList.itemListElement[*]",
 							refinement: [
 								{
 									leftOperand: "twin:jsonPath",
@@ -2860,7 +2867,8 @@ describe("DefaultPolicyArbiter", () => {
 						action: "read",
 						target: {
 							"@type": "AssetCollection",
-							source: "twin:jsonPath:data:$.items[*]",
+							source: "twin:jsonPath",
+							"twin:jsonPathExpression": "$.items[*]",
 							refinement: {
 								leftOperand: "twin:jsonPath",
 								"twin:jsonPathExpression": "$.items[*].type",

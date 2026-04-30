@@ -1329,14 +1329,14 @@ export class DefaultPolicyArbiter implements IPolicyArbiter {
 				[DefaultPolicyArbiter._TWIN_JSONPATH_EXPRESSION]?: string;
 			};
 			const expression = t[DefaultPolicyArbiter._TWIN_JSONPATH_EXPRESSION];
-			if (Is.stringValue(expression)) {
-				const dataSource = t[DefaultPolicyArbiter._TWIN_JSONPATH_DATA_SOURCE];
-				const sourceKey = Is.stringValue(dataSource)
-					? dataSource
-					: DefaultPolicyArbiter._DATA_SOURCE_KEY;
-				return `${sourceKey}:${expression}`;
+			if (!Is.stringValue(expression)) {
+				return undefined;
 			}
-			return undefined;
+			const dataSource = t[DefaultPolicyArbiter._TWIN_JSONPATH_DATA_SOURCE];
+			const sourceKey = Is.stringValue(dataSource)
+				? dataSource
+				: DefaultPolicyArbiter._DATA_SOURCE_KEY;
+			return `${sourceKey}:${expression}`;
 		}
 		return OdrlPolicyHelper.getUid(first);
 	}
@@ -1356,9 +1356,20 @@ export class DefaultPolicyArbiter implements IPolicyArbiter {
 			if (
 				Is.object<IOdrlAssetCollection>(firstTarget) &&
 				OdrlPolicyHelper.getType(firstTarget) === OdrlTypes.AssetCollection &&
-				Is.stringValue(firstTarget.source)
+				firstTarget.source === DefaultPolicyArbiter._TWIN_JSONPATH
 			) {
-				return firstTarget.source;
+				const ctx = firstTarget as unknown as {
+					[DefaultPolicyArbiter._TWIN_JSONPATH_EXPRESSION]?: string;
+					[DefaultPolicyArbiter._TWIN_JSONPATH_DATA_SOURCE]?: string;
+				};
+				const expression = ctx[DefaultPolicyArbiter._TWIN_JSONPATH_EXPRESSION];
+				if (Is.stringValue(expression)) {
+					const dataSource = ctx[DefaultPolicyArbiter._TWIN_JSONPATH_DATA_SOURCE];
+					const sourceKey = Is.stringValue(dataSource)
+						? dataSource
+						: DefaultPolicyArbiter._DATA_SOURCE_KEY;
+					return `${DefaultPolicyArbiter._TWIN_JSONPATH}:${sourceKey}:${expression}`;
+				}
 			}
 		}
 		return this.getTargetId(target);
@@ -1450,10 +1461,7 @@ export class DefaultPolicyArbiter implements IPolicyArbiter {
 				Is.object<IOdrlAssetCollection>(firstTarget) &&
 				OdrlPolicyHelper.getType(firstTarget) === OdrlTypes.AssetCollection
 			) {
-				if (
-					!Is.stringValue(firstTarget.source) ||
-					!firstTarget.source.startsWith(`${DefaultPolicyArbiter._TWIN_JSONPATH}:`)
-				) {
+				if (firstTarget.source !== DefaultPolicyArbiter._TWIN_JSONPATH) {
 					throw new GeneralError(
 						DefaultPolicyArbiter.CLASS_NAME,
 						"assetCollectionSourceNotSupported",
@@ -1462,16 +1470,26 @@ export class DefaultPolicyArbiter implements IPolicyArbiter {
 						}
 					);
 				}
-
+				const ctx = firstTarget as unknown as {
+					[DefaultPolicyArbiter._TWIN_JSONPATH_EXPRESSION]?: string;
+					[DefaultPolicyArbiter._TWIN_JSONPATH_DATA_SOURCE]?: string;
+				};
+				const sourceKey =
+					ctx[DefaultPolicyArbiter._TWIN_JSONPATH_DATA_SOURCE] ??
+					DefaultPolicyArbiter._DATA_SOURCE_KEY;
 				let sourceLookup: { source: unknown; target: string; value?: unknown };
 				try {
-					sourceLookup = this.tryResolveTargetDataSource(firstTarget.source, dataSources);
+					sourceLookup = this.resolveDataSourceByKey(
+						sourceKey,
+						ctx[DefaultPolicyArbiter._TWIN_JSONPATH_EXPRESSION],
+						dataSources
+					);
 				} catch {
 					throw new GeneralError(
 						DefaultPolicyArbiter.CLASS_NAME,
 						"assetCollectionSourceNotSupported",
 						{
-							source: firstTarget.source
+							source: ctx[DefaultPolicyArbiter._TWIN_JSONPATH_EXPRESSION] ?? ""
 						}
 					);
 				}
@@ -1927,8 +1945,6 @@ export class DefaultPolicyArbiter implements IPolicyArbiter {
 		dataSources: { [source: string]: unknown },
 		constraint?: IOdrlConstraint
 	): unknown {
-		// Treat prefixed operands as selectors against a namespaced source dictionary.
-		// Examples: twin:jsonpath:$.field, twin:information:$.credentials.level
 		let jsonPath: string | undefined;
 		let operandRoot: unknown;
 		if (Is.stringValue(operand)) {

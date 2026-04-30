@@ -35,7 +35,13 @@ const mockHostingComponent: IHostingComponent = {
 	className: () => "MockHostingComponent",
 	getPublicOrigin: vi.fn(async () => TEST_PUBLIC_ORIGIN),
 	getTenantOrigin: vi.fn(async () => undefined),
-	buildPublicUrl: vi.fn(async (url: string) => `${TEST_PUBLIC_ORIGIN}${url}`)
+	buildPublicUrl: vi.fn(async (url: string) => `${TEST_PUBLIC_ORIGIN}${url}`),
+	addTenantTokenToUrl: vi.fn(async (url: string) => url),
+	getTenantTokenFromQueryParams: vi.fn(async () => undefined),
+	encryptQueryParams: vi.fn(async () => {}),
+	decryptQueryParams: vi.fn(async () => {}),
+	encryptParam: vi.fn(async (value: string) => value),
+	decryptParam: vi.fn(async (value: string) => value)
 };
 
 const mockPnpComponent: IPolicyNegotiationPointComponent = {
