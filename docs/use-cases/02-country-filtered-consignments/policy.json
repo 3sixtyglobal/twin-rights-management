@@ -1,4 +1,4 @@
-{
+﻿{
 	"@context": [
 		"http://www.w3.org/ns/odrl.jsonld",
 		{
@@ -17,7 +17,8 @@
 				"@type": "AssetCollection",
 				"source": "https://twin.example.org/asset-collections/consignments",
 				"refinement": {
-					"leftOperand": "twin:jsonpath:.destinationCountry",
+					"leftOperand": "twin:jsonPath",
+					"twin:jsonPathExpression": ".destinationCountry",
 					"operator": "eq",
 					"rightOperand": {
 						"@type": "PropertyReference",

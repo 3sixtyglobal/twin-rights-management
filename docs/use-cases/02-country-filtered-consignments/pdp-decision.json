@@ -1,4 +1,4 @@
-{
+﻿{
 	"$comment": "PDP Decision Output - Partial grant with array filtering. Shows individual dataDecisions for array elements.",
 	"decision": "Permit",
 	"reasoning": "Assignee has permission to view Consignment asset class with country-based filtering applied",
@@ -54,7 +54,8 @@
 				"@type": "AssetCollection",
 				"source": "https://twin.example.org/consignments",
 				"refinement": {
-					"leftOperand": "twin:jsonpath:.assetType",
+					"leftOperand": "twin:jsonPath",
+					"twin:jsonPathExpression": ".assetType",
 					"operator": "eq",
 					"rightOperand": "Consignment"
 				}

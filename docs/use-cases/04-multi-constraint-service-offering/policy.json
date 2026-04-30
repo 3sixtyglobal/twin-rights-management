@@ -1,4 +1,4 @@
-{
+﻿{
 	"@context": [
 		"http://www.w3.org/ns/odrl.jsonld",
 		{
@@ -31,7 +31,8 @@
 					"comment": "Access expires end of 2025"
 				},
 				{
-					"leftOperand": "twin:jsonpath:.assigneeAttributes.certifications",
+					"leftOperand": "twin:jsonPath",
+					"twin:jsonPathExpression": ".assigneeAttributes.certifications",
 					"operator": "isAnyOf",
 					"rightOperand": ["ISO27001", "SOC2"],
 					"comment": "Organization must possess ISO27001 or SOC2 certification"

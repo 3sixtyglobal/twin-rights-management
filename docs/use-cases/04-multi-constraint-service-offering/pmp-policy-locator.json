@@ -1,4 +1,4 @@
-{
+﻿{
 	"$comment": "PMP (Policy Management Point) - Policy locator for ServiceOffering with multiple constraints (temporal + certification). Shows constraint-aware lookup.",
 	"policyQuery": {
 		"assignee": "did:iota:testnet:0xac534b750ac453d573a55954760af140f87358c7be9a18000a831c452c32f246",
@@ -59,7 +59,8 @@
 				},
 				{
 					"type": "attribute",
-					"leftOperand": "twin:jsonpath:.certifications",
+					"leftOperand": "twin:jsonPath",
+					"twin:jsonPathExpression": ".certifications",
 					"operator": "isAnyOf",
 					"rightOperand": ["ISO27001", "SOC2"]
 				}

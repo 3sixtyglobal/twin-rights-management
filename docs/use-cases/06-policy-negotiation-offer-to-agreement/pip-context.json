@@ -1,4 +1,4 @@
-{
+﻿{
 	"$comment": "PIP Context - Runtime facts for Agreement enforcement after policy negotiation. Shows consumer context used to evaluate the negotiated Agreement.",
 	"currentDateTime": "2025-09-30T11:00:00Z",
 	"assigneeAttributes": {
@@ -27,7 +27,8 @@
 		"negotiationId": "neg-2025-09-30-001",
 		"negotiationCompleted": "2025-09-30T10:05:00Z",
 		"constraintValidatedDuringNegotiation": {
-			"leftOperand": "twin:jsonpath:.legalAddress.countryCode",
+			"leftOperand": "twin:jsonPath",
+			"twin:jsonPathExpression": ".legalAddress.countryCode",
 			"operator": "eq",
 			"rightOperand": "PL",
 			"result": "satisfied"

@@ -1,4 +1,4 @@
-{
+﻿{
 	"$comment": "PDP Decision Output - Permission with duty obligations. Shows notification authorization with clearing house notification requirement.",
 	"decision": "Permit",
 	"reasoning": "All constraints satisfied: certification verified, destination country matches, and document type constraint satisfied",
@@ -10,7 +10,8 @@
 	"evaluatedConstraints": [
 		{
 			"constraint": {
-				"leftOperand": "twin:jsonpath:.certifications",
+				"leftOperand": "twin:jsonPath",
+				"twin:jsonPathExpression": ".certifications",
 				"operator": "contains",
 				"rightOperand": "FSA-Trusted-Notifier"
 			},
@@ -19,7 +20,8 @@
 		},
 		{
 			"constraint": {
-				"leftOperand": "twin:jsonpath:.resource.destinationCountry.countryId",
+				"leftOperand": "twin:jsonPath",
+				"twin:jsonPathExpression": ".resource.destinationCountry.countryId",
 				"operator": "eq",
 				"rightOperand": "GB"
 			},
@@ -28,7 +30,8 @@
 		},
 		{
 			"constraint": {
-				"leftOperand": "twin:jsonpath:.payload.documentTypeCode",
+				"leftOperand": "twin:jsonPath",
+				"twin:jsonPathExpression": ".payload.documentTypeCode",
 				"operator": "eq",
 				"rightOperand": "unece:DocumentCodeList#853"
 			},
@@ -41,7 +44,8 @@
 			"action": "notify",
 			"target": "https://my-ds-connectors.example.org/ds-connector-uk-fsa/notify",
 			"constraint": {
-				"leftOperand": "twin:jsonpath:.payload.documentTypeCode",
+				"leftOperand": "twin:jsonPath",
+				"twin:jsonPathExpression": ".payload.documentTypeCode",
 				"operator": "eq",
 				"rightOperand": "unece:DocumentCodeList#853"
 			},
@@ -66,7 +70,8 @@
 				"@type": "AssetCollection",
 				"source": "https://twin.example.org/notifications",
 				"refinement": {
-					"leftOperand": "twin:jsonpath:.resource.destinationCountry.countryId",
+					"leftOperand": "twin:jsonPath",
+					"twin:jsonPathExpression": ".resource.destinationCountry.countryId",
 					"operator": "eq",
 					"rightOperand": "GB"
 				}

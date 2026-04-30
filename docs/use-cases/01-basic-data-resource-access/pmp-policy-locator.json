@@ -1,4 +1,4 @@
-{
+﻿{
 	"$comment": "PMP (Policy Management Point) - Policy locator showing how PMP queries PAP to find relevant agreements. Uses indexed fields from PAP metadata.",
 	"policyQuery": {
 		"assigner": "did:iota:testnet:0xfcfa55894cab90504af7eaf38087addd5f77791a89bd3ebbe76d9c2b1a6ce567",
@@ -41,7 +41,8 @@
 			"constraints": [
 				{
 					"type": "PartyCollection.refinement",
-					"leftOperand": "twin:jsonpath:.legalAddress.countryCode",
+					"leftOperand": "twin:jsonPath",
+					"twin:jsonPathExpression": ".legalAddress.countryCode",
 					"operator": "eq",
 					"rightOperand": "PL"
 				}

@@ -1,4 +1,4 @@
-{
+﻿{
 	"$comment": "PAP (Policy Administration Point) - Stored Agreement. This shows how the policy is persisted in PAP with metadata for retrieval and management.",
 	"@context": [
 		"http://www.w3.org/ns/odrl.jsonld",
@@ -15,7 +15,8 @@
 			"assignee": {
 				"@type": "PartyCollection",
 				"refinement": {
-					"leftOperand": "twin:jsonpath:.legalAddress.countryCode",
+					"leftOperand": "twin:jsonPath",
+					"twin:jsonPathExpression": ".legalAddress.countryCode",
 					"operator": "eq",
 					"rightOperand": "PL"
 				}

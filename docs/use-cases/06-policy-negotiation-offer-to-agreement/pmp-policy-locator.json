@@ -1,4 +1,4 @@
-{
+﻿{
 	"$comment": "PMP (Policy Management Point) - Policy locator for Agreement derived from negotiated Offer. Shows how PMP finds Agreement created through policy negotiation.",
 	"policyQuery": {
 		"assigner": "did:iota:testnet:0xfcfa55894cab90504af7eaf38087addd5f77791a89bd3ebbe76d9c2b1a6ce567",
@@ -52,7 +52,8 @@
 			"constraints": [
 				{
 					"type": "inherited-from-offer",
-					"leftOperand": "twin:jsonpath:.legalAddress.countryCode",
+					"leftOperand": "twin:jsonPath",
+					"twin:jsonPathExpression": ".legalAddress.countryCode",
 					"operator": "eq",
 					"rightOperand": "PL",
 					"inheritedFrom": "PartyCollection.refinement"

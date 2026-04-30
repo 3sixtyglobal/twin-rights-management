@@ -1,4 +1,4 @@
-{
+﻿{
 	"$comment": "PDP Decision Output - Multiple constraints with AND logic. Service access grant (no data filtering).",
 	"decision": "Permit",
 	"reasoning": "All constraints satisfied: current date within valid period AND assignee possesses required security certification",
@@ -31,7 +31,8 @@
 		},
 		{
 			"constraint": {
-				"leftOperand": "twin:jsonpath:.certifications",
+				"leftOperand": "twin:jsonPath",
+				"twin:jsonPathExpression": ".certifications",
 				"operator": "isAnyOf",
 				"rightOperand": ["ISO27001", "SOC2"]
 			},

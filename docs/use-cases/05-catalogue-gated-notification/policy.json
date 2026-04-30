@@ -1,4 +1,4 @@
-{
+﻿{
 	"@context": [
 		"http://www.w3.org/ns/odrl.jsonld",
 		{
@@ -19,14 +19,16 @@
 			"assignee": {
 				"@type": "PartyCollection",
 				"refinement": {
-					"leftOperand": "twin:jsonpath:.assigneeAttributes.certifications",
+					"leftOperand": "twin:jsonPath",
+					"twin:jsonPathExpression": ".assigneeAttributes.certifications",
 					"operator": "contains",
 					"rightOperand": "FSA-Trusted-Notifier"
 				}
 			},
 			"constraint": [
 				{
-					"leftOperand": "twin:jsonpath:.resourceAttributes.consignment.destinationCountry.countryId",
+					"leftOperand": "twin:jsonPath",
+					"twin:jsonPathExpression": ".resourceAttributes.consignment.destinationCountry.countryId",
 					"operator": "eq",
 					"rightOperand": "GB",
 					"comment": "Only consignments destined for Great Britain qualify"
@@ -41,7 +43,8 @@
 					"target": "https://my-ds-connectors.example.org/ds-connector-uk-fsa/notify",
 					"constraint": [
 						{
-							"leftOperand": "twin:jsonpath:.resourceAttributes.latestDocument.documentTypeCode",
+							"leftOperand": "twin:jsonPath",
+							"twin:jsonPathExpression": ".resourceAttributes.latestDocument.documentTypeCode",
 							"operator": "eq",
 							"rightOperand": "unece:DocumentCodeList#853",
 							"comment": "Notify only for veterinary certificate documents"

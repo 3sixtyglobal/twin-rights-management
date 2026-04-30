@@ -1,4 +1,4 @@
-{
+﻿{
 	"$comment": "PDP Decision Output - New format with dataDecisions array. This shows decisions on data elements, not just the overall permit/deny.",
 	"decision": "Permit",
 	"reasoning": "Assignee's legal address country code 'PL' matches the PartyCollection refinement constraint",
@@ -10,7 +10,8 @@
 	"evaluatedConstraints": [
 		{
 			"constraint": {
-				"leftOperand": "twin:jsonpath:.legalAddress.countryCode",
+				"leftOperand": "twin:jsonPath",
+				"twin:jsonPathExpression": ".legalAddress.countryCode",
 				"operator": "eq",
 				"rightOperand": "PL"
 			},

@@ -1,4 +1,4 @@
-{
+﻿{
 	"$comment": "PAP (Policy Administration Point) - Stored Agreement for service offering with multiple constraints (temporal + certification).",
 	"@context": [
 		"http://www.w3.org/ns/odrl.jsonld",
@@ -32,7 +32,8 @@
 					"comment": "Access expires end of 2025"
 				},
 				{
-					"leftOperand": "twin:jsonpath:.certifications",
+					"leftOperand": "twin:jsonPath",
+					"twin:jsonPathExpression": ".certifications",
 					"operator": "isAnyOf",
 					"rightOperand": ["ISO27001", "SOC2"],
 					"comment": "Organization must possess ISO27001 or SOC2 certification"

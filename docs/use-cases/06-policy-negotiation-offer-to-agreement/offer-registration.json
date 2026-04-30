@@ -1,4 +1,4 @@
-{
+﻿{
 	"$comment": "Provider registers this Offer in PNP - Phase 1 (Policy Negotiation). This Offer will be transformed into an Agreement after successful negotiation. The Offer specifies that only parties with legal address in Poland can read DataResource assets.",
 	"@context": [
 		"https://www.w3.org/ns/odrl.jsonld",
@@ -16,7 +16,8 @@
 				"@type": "AssetCollection",
 				"refinement": [
 					{
-						"leftOperand": "twin:jsonpath:.assetType",
+						"leftOperand": "twin:jsonPath",
+						"twin:jsonPathExpression": ".assetType",
 						"operator": "eq",
 						"rightOperand": "DataResource"
 					}
@@ -28,7 +29,8 @@
 				"source": "https://twin.example.org/identity/organizations",
 				"refinement": [
 					{
-						"leftOperand": "twin:jsonpath:.legalAddress.countryCode",
+						"leftOperand": "twin:jsonPath",
+						"twin:jsonPathExpression": ".legalAddress.countryCode",
 						"operator": "eq",
 						"rightOperand": "PL"
 					}

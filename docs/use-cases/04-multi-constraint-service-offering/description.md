@@ -364,7 +364,7 @@ This pattern ensures:
 - `IOdrlPermission` - Permission rule with multiple constraints
 - `IOdrlConstraint` - Multiple constraint instances with different leftOperands
 - Constraint operators: `gteq` (greater than or equal), `lteq` (less than or equal), `isAnyOf` (set membership)
-- Custom extension: `twin:jsonpath:` string format for certification property extraction (e.g., `twin:jsonpath:.certifications`)
+- Custom extension: `twin:jsonPath` leftOperand with companion `twin:jsonPathExpression` property for certification property extraction (e.g., `twin:jsonPathExpression: ".certifications"`)
 
 ## Real-World Application
 

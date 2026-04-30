@@ -1,4 +1,4 @@
-{
+﻿{
 	"$comment": "PDP Request - Evaluation request for Agreement enforcement after policy negotiation. Shows the request structure sent to PDP after PMP locates the negotiated Agreement.",
 	"requestId": "req-2025-09-30-11-00-001",
 	"timestamp": "2025-09-30T11:00:00Z",
@@ -39,7 +39,8 @@
 			"negotiationId": "neg-2025-09-30-001",
 			"negotiationCompleted": "2025-09-30T10:05:00Z",
 			"constraintValidatedDuringNegotiation": {
-				"leftOperand": "twin:jsonpath:.legalAddress.countryCode",
+				"leftOperand": "twin:jsonPath",
+				"twin:jsonPathExpression": ".legalAddress.countryCode",
 				"operator": "eq",
 				"rightOperand": "PL",
 				"result": "satisfied"

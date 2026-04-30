@@ -262,7 +262,7 @@ async function getDataResource(
 
 1. **ODRL Agreement Policy**: Bilateral policy with specific assigner and assignee pattern (PartyCollection)
 2. **PartyCollection with Refinement**: Filters assignees based on attributes rather than specific identities
-3. **JSON Path Selectors**: Custom ODRL extension using string format `twin:jsonpath:` for extracting nested attribute values (`.legalAddress.countryCode`)
+3. **JSON Path Selectors**: Custom ODRL extension using `"leftOperand": "twin:jsonPath"` with a companion `"twin:jsonPathExpression"` property for extracting nested attribute values (e.g., `".legalAddress.countryCode"`)
 4. **Geographic Constraints**: Country-based access control for cross-border data sharing
 5. **Simple Read Permission**: Grant/deny decision without data filtering or transformation
 

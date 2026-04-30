@@ -1,4 +1,4 @@
-{
+﻿{
 	"$comment": "PDP Decision Output - Access evaluation using finalized Agreement from policy negotiation. Shows how the negotiated Agreement is enforced.",
 	"decision": "Permit",
 	"reasoning": "Consumer's legal address country code 'PL' matches the Agreement constraint derived from original Offer",
@@ -15,7 +15,8 @@
 	"evaluatedConstraints": [
 		{
 			"constraint": {
-				"leftOperand": "twin:jsonpath:.legalAddress.countryCode",
+				"leftOperand": "twin:jsonPath",
+				"twin:jsonPathExpression": ".legalAddress.countryCode",
 				"operator": "eq",
 				"rightOperand": "PL"
 			},
@@ -37,7 +38,8 @@
 			"target": {
 				"@type": "AssetCollection",
 				"refinement": {
-					"leftOperand": "twin:jsonpath:.assetType",
+					"leftOperand": "twin:jsonPath",
+					"twin:jsonPathExpression": ".assetType",
 					"operator": "eq",
 					"rightOperand": "DataResource"
 				}
