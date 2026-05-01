@@ -1345,7 +1345,7 @@ describe("DefaultPolicyArbiter", () => {
 		await expect(arbiter.decide(policy, undefined, { age: 18 })).rejects.toThrow();
 	});
 
-	test("returns a specific decision target when permission target uses twin:jsonpath", async () => {
+	test("returns a specific decision target when permission target uses twin:jsonPath", async () => {
 		const arbiter = new DefaultPolicyArbiter();
 		const policy: IDataspaceProtocolAgreement = {
 			"@context": OdrlContexts.Context,
@@ -1422,7 +1422,7 @@ describe("DefaultPolicyArbiter", () => {
 		expect(decisions).toHaveLength(2);
 	});
 
-	test("throws when rule target does not use twin:jsonpath prefix", async () => {
+	test("throws when rule target does not use twin:jsonPath prefix", async () => {
 		const arbiter = new DefaultPolicyArbiter();
 		const policy: IDataspaceProtocolAgreement = {
 			"@context": OdrlContexts.Context,
@@ -1450,7 +1450,7 @@ describe("DefaultPolicyArbiter", () => {
 		);
 	});
 
-	test("returns target-scoped denial when prohibition target uses twin:jsonpath", async () => {
+	test("returns target-scoped denial when prohibition target uses twin:jsonPath", async () => {
 		const arbiter = new DefaultPolicyArbiter();
 		const policy: IDataspaceProtocolAgreement = {
 			"@context": OdrlContexts.Context,
@@ -1593,7 +1593,7 @@ describe("DefaultPolicyArbiter", () => {
 		);
 	});
 
-	test("throws when AssetCollection source is not twin:jsonpath", async () => {
+	test("throws when AssetCollection source is not twin:jsonPath", async () => {
 		const arbiter = new DefaultPolicyArbiter();
 		const policy: IDataspaceProtocolAgreement = {
 			"@context": OdrlContexts.Context,

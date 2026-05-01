@@ -1474,9 +1474,10 @@ export class DefaultPolicyArbiter implements IPolicyArbiter {
 					[DefaultPolicyArbiter._TWIN_JSONPATH_EXPRESSION]?: string;
 					[DefaultPolicyArbiter._TWIN_JSONPATH_DATA_SOURCE]?: string;
 				};
-				const sourceKey =
-					ctx[DefaultPolicyArbiter._TWIN_JSONPATH_DATA_SOURCE] ??
-					DefaultPolicyArbiter._DATA_SOURCE_KEY;
+				const dataSource = ctx[DefaultPolicyArbiter._TWIN_JSONPATH_DATA_SOURCE];
+				const sourceKey = Is.stringValue(dataSource)
+					? dataSource
+					: DefaultPolicyArbiter._DATA_SOURCE_KEY;
 				let sourceLookup: { source: unknown; target: string; value?: unknown };
 				try {
 					sourceLookup = this.resolveDataSourceByKey(
@@ -1674,6 +1675,21 @@ export class DefaultPolicyArbiter implements IPolicyArbiter {
 				| IOdrlConstraint["leftOperand"]
 				| IOdrlConstraint["rightOperand"]
 				| string;
+		}
+
+		// Legacy string form: "twin:information:$.foo". Extract the prefix, rewrite the
+		// JSONPath expression to scope to the per-item target, then re-assemble. Without
+		// this, the leftOperand stays at the wildcard
+		// `$.itemList.itemListElement[*].unloadingLocation.id` for every item, returning
+		// the full array of all ids per check — so all items pass the equality test.
+		if (
+			Is.stringValue(operand) &&
+			operand.startsWith(`twin:${DefaultPolicyArbiter._INFORMATION_SOURCE_KEY}:`)
+		) {
+			const prefix = `twin:${DefaultPolicyArbiter._INFORMATION_SOURCE_KEY}:`;
+			const expression = operand.slice(prefix.length);
+			const rewritten = this.rewriteWildcardPath(expression, sourceTarget, itemTarget);
+			return `${prefix}${rewritten}`;
 		}
 
 		return operand;
@@ -1925,11 +1941,25 @@ export class DefaultPolicyArbiter implements IPolicyArbiter {
 		operandValue: unknown,
 		dataSources: { [source: string]: unknown }
 	): { source: unknown; jsonPath: string } | undefined {
-		const sourceKey = this.normalizeTwinJsonPathOperandAlias(operandTypeOrValue);
-		if (!dataSources[sourceKey] || !Is.stringValue(operandValue)) {
+		let sourceKey = this.normalizeTwinJsonPathOperandAlias(operandTypeOrValue);
+		let value: unknown = operandValue;
+
+		// Combined form: operandTypeOrValue is a full "<prefix>:<expression>" string
+		// like "twin:jsonPath:$.foo" rather than the canonical separation of @type +
+		// @value/expression. Detect by walking the registered datasource keys for a prefix
+		// match; on hit, split into key + expression so resolveDataSourceByKey can evaluate.
+		if (!dataSources[sourceKey]) {
+			const matchingKey = Object.keys(dataSources).find(k => sourceKey.startsWith(`${k}:`));
+			if (matchingKey) {
+				value = sourceKey.slice(matchingKey.length + 1);
+				sourceKey = matchingKey;
+			}
+		}
+
+		if (!dataSources[sourceKey] || !Is.stringValue(value)) {
 			return undefined;
 		}
-		const resolved = this.resolveDataSourceByKey(sourceKey, operandValue, dataSources);
+		const resolved = this.resolveDataSourceByKey(sourceKey, value, dataSources);
 		return { source: resolved.source, jsonPath: resolved.target };
 	}
 

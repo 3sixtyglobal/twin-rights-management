@@ -9,7 +9,7 @@
 			"circularInheritanceDetected": "Circular inheritance detected: policy \"{policyId}\" inherits from \"{inheritFromId}\" which creates a cycle.",
 			"logicalConstraintOperandNotUnique": "Logical constraint operand is not unique within the policy, each operand must be unique.",
 			"inheritedPolicyNotFound": "The inherited policy with id \"{inheritFromId}\" could not be found in the Policy Administration Point.",
-			"assetCollectionSourceNotSupported": "AssetCollection source \"{source}\" is not supported. It must be a twin:jsonpath target.",
+			"assetCollectionSourceNotSupported": "AssetCollection source \"{source}\" is not supported. It must be a twin:jsonPath target.",
 			"partyCollectionSourceNotSupported": "PartyCollection source \"{source}\" is not supported.",
 			"assetHasPolicyNotSupported": "Asset hasPolicy is not supported. Policies must be referenced through the agreement directly.",
 			"assetPartOfNotSupported": "Asset partOf is not supported. AssetCollection membership is resolved through the agreement directly.",

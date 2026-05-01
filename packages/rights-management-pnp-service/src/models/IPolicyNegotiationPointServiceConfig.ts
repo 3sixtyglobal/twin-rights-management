@@ -7,9 +7,9 @@
 export interface IPolicyNegotiationPointServiceConfig {
 	/**
 	 * The path to send in negotiation messages as the callback address.
-	 * Will be combined with the public origin url from hosting component.
+	 * Combined with the public origin url at runtime to form the full callback URL.
 	 */
-	callbackPath: string;
+	callbackPath?: string;
 
 	/**
 	 * Override the default trust generator.

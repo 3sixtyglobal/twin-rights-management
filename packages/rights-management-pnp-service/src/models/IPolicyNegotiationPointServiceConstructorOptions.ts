@@ -44,7 +44,13 @@ export interface IPolicyNegotiationPointServiceConstructorOptions {
 	policyNegotiationPointRemoteComponentType?: string;
 
 	/**
+	 * Hosting component type used to provide callback URLs.
+	 * @default hosting
+	 */
+	hostingComponentType?: string;
+
+	/**
 	 * Configuration options for the policy negotiation point service.
 	 */
-	config: IPolicyNegotiationPointServiceConfig;
+	config?: IPolicyNegotiationPointServiceConfig;
 }

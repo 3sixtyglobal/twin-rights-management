@@ -105,8 +105,7 @@ export function generateRestRoutesPolicyNegotiationPoint(
 				]
 			}
 		],
-		skipAuth: true,
-		skipTenant: true
+		skipAuth: true
 	};
 
 	// https://eclipse-dataspace-protocol-base.github.io/DataspaceProtocol/2025-1/#negotiations-providerpid-request-post
@@ -164,8 +163,7 @@ export function generateRestRoutesPolicyNegotiationPoint(
 				]
 			}
 		],
-		skipAuth: true,
-		skipTenant: true
+		skipAuth: true
 	};
 
 	// https://eclipse-dataspace-protocol-base.github.io/DataspaceProtocol/2025-1/#negotiations-providerpid-request-post
@@ -220,8 +218,7 @@ export function generateRestRoutesPolicyNegotiationPoint(
 				]
 			}
 		],
-		skipAuth: true,
-		skipTenant: true
+		skipAuth: true
 	};
 
 	// https://eclipse-dataspace-protocol-base.github.io/DataspaceProtocol/2025-1/#negotiations-providerpid-events-post
@@ -270,8 +267,7 @@ export function generateRestRoutesPolicyNegotiationPoint(
 				]
 			}
 		],
-		skipAuth: true,
-		skipTenant: true
+		skipAuth: true
 	};
 
 	// https://eclipse-dataspace-protocol-base.github.io/DataspaceProtocol/2025-1/#negotiations-providerpid-agreement-verification-post
@@ -323,8 +319,7 @@ export function generateRestRoutesPolicyNegotiationPoint(
 				]
 			}
 		],
-		skipAuth: true,
-		skipTenant: true
+		skipAuth: true
 	};
 
 	// https://eclipse-dataspace-protocol-base.github.io/DataspaceProtocol/2025-1/#negotiations-providerpid-termination-post
@@ -373,8 +368,7 @@ export function generateRestRoutesPolicyNegotiationPoint(
 				]
 			}
 		],
-		skipAuth: true,
-		skipTenant: true
+		skipAuth: true
 	};
 
 	// https://eclipse-dataspace-protocol-base.github.io/DataspaceProtocol/2025-1/#negotiations-offers-post
@@ -432,8 +426,7 @@ export function generateRestRoutesPolicyNegotiationPoint(
 				]
 			}
 		],
-		skipAuth: true,
-		skipTenant: true
+		skipAuth: true
 	};
 
 	// https://eclipse-dataspace-protocol-base.github.io/DataspaceProtocol/2025-1/#negotiations-consumerpid-offers-post
@@ -494,8 +487,7 @@ export function generateRestRoutesPolicyNegotiationPoint(
 				]
 			}
 		],
-		skipAuth: true,
-		skipTenant: true
+		skipAuth: true
 	};
 
 	// https://eclipse-dataspace-protocol-base.github.io/DataspaceProtocol/2025-1/#negotiations-consumerpid-agreement-post
@@ -549,8 +541,7 @@ export function generateRestRoutesPolicyNegotiationPoint(
 				]
 			}
 		],
-		skipAuth: true,
-		skipTenant: true
+		skipAuth: true
 	};
 
 	// The consumer event and terminate routes are exactly the same as the pnpNegotiationEventsRoute and pnpNegotiationTerminationRoute

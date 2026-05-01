@@ -36,6 +36,8 @@ const mockHostingComponent: IHostingComponent = {
 	getPublicOrigin: vi.fn(async () => TEST_PUBLIC_ORIGIN),
 	getTenantOrigin: vi.fn(async () => undefined),
 	buildPublicUrl: vi.fn(async (url: string) => `${TEST_PUBLIC_ORIGIN}${url}`),
+	addEncryptedParamsToUrl: vi.fn(async (url: string) => url),
+	getDecryptedParamsFromQueryParams: vi.fn(async () => ({})),
 	addTenantTokenToUrl: vi.fn(async (url: string) => url),
 	getTenantTokenFromQueryParams: vi.fn(async () => undefined),
 	encryptQueryParams: vi.fn(async () => {}),
@@ -70,10 +72,16 @@ describe("generateRestRoutesPolicyNegotiationPoint route flags", () => {
 		expect(routes).toHaveLength(9);
 	});
 
-	test.each(routes)("$operationId should have skipAuth and skipTenant set to true", route => {
-		expect(route.skipAuth, `${route.operationId} is missing skipAuth: true`).toBe(true);
-		expect(route.skipTenant, `${route.operationId} is missing skipTenant: true`).toBe(true);
-	});
+	test.each(routes)(
+		"$operationId should have skipAuth: true and skipTenant unset (tenant key required via tenantToken)",
+		route => {
+			expect(route.skipAuth, `${route.operationId} is missing skipAuth: true`).toBe(true);
+			expect(
+				route.skipTenant ?? false,
+				`${route.operationId} should not set skipTenant: true (tenant context required via encrypted tenantToken)`
+			).toBe(false);
+		}
+	);
 });
 
 describe("policyNegotiationPointRoutes", () => {

@@ -145,14 +145,11 @@ export class OdrlPolicyHelper {
 	}
 
 	/**
-	 * Get targets from policy.
-	 * Walks both the policy-level target field and the target field on every
-	 * permission, prohibition, and obligation rule so that policies that store
-	 * their target exclusively on a rule are correctly indexed for query().
-	 * @param policy The policy to extract the targets from.
-	 * @returns Targets.
+	 * Get the dataset targets from policy.
+	 * @param policy The policy to extract the dataset targets from.
+	 * @returns Top-level targets (deduped).
 	 */
-	public static getTargets(policy: IRightsManagementPolicy): string[] {
+	public static getDatasetTargets(policy: IRightsManagementPolicy): string[] {
 		const targetIds: string[] = [];
 
 		const policyTargets = ArrayHelper.fromObjectOrArray<IOdrlAsset | IOdrlAssetCollection | string>(
@@ -161,6 +158,20 @@ export class OdrlPolicyHelper {
 		for (const target of policyTargets) {
 			OdrlPolicyHelper.collectTarget(target, targetIds);
 		}
+
+		return Array.from(new Set(targetIds));
+	}
+
+	/**
+	 * Get targets from policy.
+	 * Walks both the policy-level target field and the target field on every
+	 * permission, prohibition, and obligation rule so that policies that store
+	 * their target exclusively on a rule are correctly indexed for query().
+	 * @param policy The policy to extract the targets from.
+	 * @returns Targets.
+	 */
+	public static getTargets(policy: IRightsManagementPolicy): string[] {
+		const targetIds: string[] = OdrlPolicyHelper.getDatasetTargets(policy);
 
 		const rules = OdrlPolicyHelper.collectRules(policy);
 		for (const rule of rules) {

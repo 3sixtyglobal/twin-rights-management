@@ -54,6 +54,11 @@ export interface IPolicyNegotiation {
 	publicOrigin?: string;
 
 	/**
+	 * The tenant id this negotiation belongs to.
+	 */
+	tenantId?: string;
+
+	/**
 	 * Organization identity to be used when sending trust payloads.
 	 */
 	organizationIdentity: string;

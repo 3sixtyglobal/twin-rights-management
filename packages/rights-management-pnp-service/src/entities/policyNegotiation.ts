@@ -64,6 +64,12 @@ export class PolicyNegotiation {
 	public publicOrigin?: string;
 
 	/**
+	 * The tenant id this negotiation belongs to.
+	 */
+	@property({ type: "string", optional: true })
+	public tenantId?: string;
+
+	/**
 	 * Organization identity to be used when sending trust payloads.
 	 */
 	@property({ type: "string" })

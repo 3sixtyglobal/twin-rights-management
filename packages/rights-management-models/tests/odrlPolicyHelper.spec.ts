@@ -260,6 +260,63 @@ describe("OdrlPolicyHelper", () => {
 		});
 	});
 
+	describe("getDatasetTargets", () => {
+		it("returns only the policy-level target, ignoring rule-level targets", () => {
+			const policy = {
+				type: "Set",
+				"@id": "policy-46",
+				target: "dataset-1",
+				permission: [{ action: "read", target: "twin:jsonPath", "twin:jsonPathExpression": "$" }]
+			} as unknown as IDataspaceProtocolPolicy;
+
+			expect(OdrlPolicyHelper.getDatasetTargets(policy)).toEqual(["dataset-1"]);
+		});
+
+		it("returns empty when policy-level target is missing, even if rules have targets", () => {
+			const policy = {
+				type: "Set",
+				"@id": "policy-47",
+				permission: [{ target: "asset-from-permission" }]
+			} as unknown as IDataspaceProtocolPolicy;
+
+			expect(OdrlPolicyHelper.getDatasetTargets(policy)).toEqual([]);
+		});
+
+		it("returns multiple top-level targets deduped", () => {
+			const policy = {
+				type: "Set",
+				"@id": "policy-48",
+				target: ["dataset-a", "dataset-b", "dataset-a"]
+			} as unknown as IDataspaceProtocolPolicy;
+
+			expect(OdrlPolicyHelper.getDatasetTargets(policy).sort()).toEqual(["dataset-a", "dataset-b"]);
+		});
+
+		it("ignores AssetCollection in rule-level target (constraint, not dataset)", () => {
+			const policy = {
+				type: "Set",
+				"@id": "policy-49",
+				target: "consignment-dataset",
+				permission: [
+					{
+						action: "read",
+						target: {
+							"@type": "AssetCollection",
+							source: "consignment-dataset",
+							refinement: {
+								leftOperand: "unloadingLocation.id",
+								operator: "eq",
+								rightOperand: "unece:LOCODE#GBDVR"
+							}
+						}
+					}
+				]
+			} as unknown as IDataspaceProtocolPolicy;
+
+			expect(OdrlPolicyHelper.getDatasetTargets(policy)).toEqual(["consignment-dataset"]);
+		});
+	});
+
 	describe("getActions", () => {
 		it("returns a unique list of actions from string and object actions", () => {
 			const policy = {
