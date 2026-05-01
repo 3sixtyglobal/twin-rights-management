@@ -89,8 +89,22 @@ policy-negotiation-point-remote
 
 ***
 
-### config {#config}
+### hostingComponentType? {#hostingcomponenttype}
 
-> **config**: [`IPolicyNegotiationPointServiceConfig`](IPolicyNegotiationPointServiceConfig.md)
+> `optional` **hostingComponentType?**: `string`
+
+Hosting component type used to provide callback URLs.
+
+#### Default
+
+```ts
+hosting
+```
+
+***
+
+### config? {#config}
+
+> `optional` **config?**: [`IPolicyNegotiationPointServiceConfig`](IPolicyNegotiationPointServiceConfig.md)
 
 Configuration options for the policy negotiation point service.

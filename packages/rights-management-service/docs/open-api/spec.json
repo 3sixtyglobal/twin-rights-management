@@ -2717,6 +2717,10 @@
 						"type": "string",
 						"description": "The public origin of the server that initiated or received this negotiation.\nUsed to construct callback URLs in subsequent async messages."
 					},
+					"tenantId": {
+						"type": "string",
+						"description": "The tenant id this negotiation belongs to."
+					},
 					"organizationIdentity": {
 						"type": "string",
 						"description": "Organization identity to be used when sending trust payloads."

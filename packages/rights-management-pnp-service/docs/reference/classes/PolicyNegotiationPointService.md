@@ -10,13 +10,13 @@ Class implementation of Policy Negotiation Point Component.
 
 ### Constructor
 
-> **new PolicyNegotiationPointService**(`options`): `PolicyNegotiationPointService`
+> **new PolicyNegotiationPointService**(`options?`): `PolicyNegotiationPointService`
 
 Create a new instance of PolicyNegotiationPointService (PNP).
 
 #### Parameters
 
-##### options
+##### options?
 
 [`IPolicyNegotiationPointServiceConstructorOptions`](../interfaces/IPolicyNegotiationPointServiceConstructorOptions.md)
 

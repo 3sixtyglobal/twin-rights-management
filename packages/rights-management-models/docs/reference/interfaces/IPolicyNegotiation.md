@@ -69,6 +69,14 @@ Used to construct callback URLs in subsequent async messages.
 
 ***
 
+### tenantId? {#tenantid}
+
+> `optional` **tenantId?**: `string`
+
+The tenant id this negotiation belongs to.
+
+***
+
 ### organizationIdentity {#organizationidentity}
 
 > **organizationIdentity**: `string`

@@ -141,6 +141,28 @@ The party identifiers, or undefined when not available.
 
 ***
 
+### getDatasetTargets() {#getdatasettargets}
+
+> `static` **getDatasetTargets**(`policy`): `string`[]
+
+Get the dataset targets from policy.
+
+#### Parameters
+
+##### policy
+
+[`IRightsManagementPolicy`](../type-aliases/IRightsManagementPolicy.md)
+
+The policy to extract the dataset targets from.
+
+#### Returns
+
+`string`[]
+
+Top-level targets (deduped).
+
+***
+
 ### getTargets() {#gettargets}
 
 > `static` **getTargets**(`policy`): `string`[]

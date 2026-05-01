@@ -4,12 +4,12 @@ Options for the Policy Negotiation Point Component.
 
 ## Properties
 
-### callbackPath {#callbackpath}
+### callbackPath? {#callbackpath}
 
-> **callbackPath**: `string`
+> `optional` **callbackPath?**: `string`
 
 The path to send in negotiation messages as the callback address.
-Will be combined with the public origin url from hosting component.
+Combined with the public origin url at runtime to form the full callback URL.
 
 ***
 
