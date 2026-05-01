@@ -6,6 +6,13 @@
 
 * remove EcosystemPolicy models/DTOs and standardize policy typing on `OdrlPolicyType` for v2.
 
+## [0.0.3-next.31](https://github.com/twinfoundation/twin-rights-management/compare/rights-management-models-v0.0.3-next.30...rights-management-models-v0.0.3-next.31) (2026-05-01)
+
+
+### Features
+
+* pnp callback encryption, getDatasetTargets helper, engine-driven callbackPath ([#132](https://github.com/twinfoundation/twin-rights-management/issues/132)) ([e642154](https://github.com/twinfoundation/twin-rights-management/commit/e6421546336bfa73a7c0a9fe102beeaa518249dd))
+
 ## [0.0.3-next.30](https://github.com/twinfoundation/twin-rights-management/compare/rights-management-models-v0.0.3-next.29...rights-management-models-v0.0.3-next.30) (2026-04-29)
 
 

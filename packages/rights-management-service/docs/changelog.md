@@ -6,6 +6,29 @@
 
 * remove EcosystemPolicy support from PAP/REST routes and generated API surface for v2.
 
+## [0.0.3-next.31](https://github.com/twinfoundation/twin-rights-management/compare/rights-management-service-v0.0.3-next.30...rights-management-service-v0.0.3-next.31) (2026-05-01)
+
+
+### Features
+
+* improve json path handling ([#133](https://github.com/twinfoundation/twin-rights-management/issues/133)) ([0a3c0c4](https://github.com/twinfoundation/twin-rights-management/commit/0a3c0c41f15f74a6e2463ed9802c7b662d3e95f6))
+* pnp callback encryption, getDatasetTargets helper, engine-driven callbackPath ([#132](https://github.com/twinfoundation/twin-rights-management/issues/132)) ([e642154](https://github.com/twinfoundation/twin-rights-management/commit/e6421546336bfa73a7c0a9fe102beeaa518249dd))
+
+
+### Dependencies
+
+* The following workspace dependencies were updated
+  * dependencies
+    * @twin.org/rights-management-models bumped from 0.0.3-next.30 to 0.0.3-next.31
+  * devDependencies
+    * @twin.org/rights-management-pap-service bumped from 0.0.3-next.30 to 0.0.3-next.31
+    * @twin.org/rights-management-pdp-service bumped from 0.0.3-next.30 to 0.0.3-next.31
+    * @twin.org/rights-management-pep-service bumped from 0.0.3-next.30 to 0.0.3-next.31
+    * @twin.org/rights-management-pip-service bumped from 0.0.3-next.30 to 0.0.3-next.31
+    * @twin.org/rights-management-pmp-service bumped from 0.0.3-next.30 to 0.0.3-next.31
+    * @twin.org/rights-management-pnp-service bumped from 0.0.3-next.30 to 0.0.3-next.31
+    * @twin.org/rights-management-pxp-service bumped from 0.0.3-next.30 to 0.0.3-next.31
+
 ## [0.0.3-next.30](https://github.com/twinfoundation/twin-rights-management/compare/rights-management-service-v0.0.3-next.29...rights-management-service-v0.0.3-next.30) (2026-04-29)
 
 
