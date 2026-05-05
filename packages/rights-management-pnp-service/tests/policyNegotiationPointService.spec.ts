@@ -313,6 +313,11 @@ describe("PolicyNegotiationPointService", () => {
 
 		ComponentFactory.register("trust", () => mockTrustComponent);
 
+		ComponentFactory.register("url-transformer", () => ({
+			className: () => "MockUrlTransformerComponent",
+			addEncryptedQueryParamToUrl: vi.fn(async (url: string, _id: string, _value: string) => url)
+		}));
+
 		testOrganizationId = testIdentityConsumer;
 		ContextIdStore.getContextIds = vi
 			.fn()
@@ -923,16 +928,16 @@ describe("PolicyNegotiationPointService", () => {
 			expect(stored?.tenantId).toBe(TEST_TENANT_ID);
 		});
 
-		test("encrypts the outbound callbackAddress when hosting component is configured", async () => {
+		test("encrypts the outbound callbackAddress when url transformer component is configured", async () => {
 			setupTenantContextIds();
 
-			const mockHostingComponent = {
-				className: () => "MockHostingComponent",
-				addTenantTokenToUrl: vi.fn(
-					async (url: string, _tenantId: string) => `${url}?tenant-token=fake-encrypted-token`
+			const mockUrlTransformerComponent = {
+				className: () => "MockUrlTransformerComponent",
+				addEncryptedQueryParamToUrl: vi.fn(
+					async (url: string, _id: string, _value: string) => `${url}?tenant=fake-encrypted-token`
 				)
 			};
-			ComponentFactory.register("mock-hosting", () => mockHostingComponent);
+			ComponentFactory.register("mock-url-transformer", () => mockUrlTransformerComponent);
 
 			let capturedCallbackAddress: string | undefined;
 			remoteComponentResolver = () =>
@@ -957,7 +962,7 @@ describe("PolicyNegotiationPointService", () => {
 				policyNegotiationAdministrationPointComponentType:
 					"policy-negotiation-consumer-admin-point",
 				policyNegotiationPointRemoteComponentType: "pnp-remote",
-				hostingComponentType: "mock-hosting",
+				urlTransformerComponentType: "mock-url-transformer",
 				config: { callbackPath: "/callback" }
 			});
 
@@ -968,12 +973,13 @@ describe("PolicyNegotiationPointService", () => {
 				consumerOrigin
 			);
 
-			expect(mockHostingComponent.addTenantTokenToUrl).toHaveBeenCalledWith(
+			expect(mockUrlTransformerComponent.addEncryptedQueryParamToUrl).toHaveBeenCalledWith(
 				`${consumerOrigin}/callback`,
+				"tenant",
 				TEST_TENANT_ID
 			);
 			expect(capturedCallbackAddress).toBe(
-				`${consumerOrigin}/callback?tenant-token=fake-encrypted-token`
+				`${consumerOrigin}/callback?tenant=fake-encrypted-token`
 			);
 		});
 

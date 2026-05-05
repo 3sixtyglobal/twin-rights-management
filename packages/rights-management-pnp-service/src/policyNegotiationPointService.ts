@@ -1,6 +1,6 @@
 // Copyright 2025 IOTA Stiftung.
 // SPDX-License-Identifier: Apache-2.0.
-import type { IHostingComponent } from "@twin.org/api-models";
+import type { IUrlTransformerComponent } from "@twin.org/api-models";
 import { ContextIdHelper, ContextIdKeys, ContextIdStore } from "@twin.org/context";
 import {
 	ArrayHelper,
@@ -117,10 +117,10 @@ export class PolicyNegotiationPointService implements IPolicyNegotiationPointCom
 	private readonly _includeErrorDetails: boolean;
 
 	/**
-	 * The component type name for the hosting component.
+	 * The component type name for the URL transformer component.
 	 * @internal
 	 */
-	private readonly _hostingComponentType: string;
+	private readonly _urlTransformerComponent: IUrlTransformerComponent;
 
 	/**
 	 * Create a new instance of PolicyNegotiationPointService (PNP).
@@ -153,11 +153,9 @@ export class PolicyNegotiationPointService implements IPolicyNegotiationPointCom
 		this._overrideTrustGeneratorType = options?.config?.overrideTrustGeneratorType;
 		this._includeErrorDetails = options?.config?.includeErrorDetails ?? false;
 
-		// Defer resolution to call time — HostingService isn't registered when this constructor runs.
-		// Default to "hosting-service" (the kebab-cased class name registered by the engine factory)
-		// since `engineCore.getRegisteredInstanceTypeOptional("hostingComponent")` returns undefined
-		// at our construction time (HostingService start() hasn't run yet).
-		this._hostingComponentType = options?.hostingComponentType ?? "hosting-service";
+		this._urlTransformerComponent = ComponentFactory.get<IUrlTransformerComponent>(
+			options?.urlTransformerComponentType ?? "url-transformer"
+		);
 	}
 
 	/**
@@ -1704,12 +1702,11 @@ export class PolicyNegotiationPointService implements IPolicyNegotiationPointCom
 		let url = Is.stringValue(this._callbackPath) ? `${origin}/${this._callbackPath}` : origin;
 
 		if (Is.stringValue(tenantId)) {
-			const hostingComponent = ComponentFactory.getIfExists<IHostingComponent>(
-				this._hostingComponentType
+			url = await this._urlTransformerComponent.addEncryptedQueryParamToUrl(
+				url,
+				"tenant",
+				tenantId
 			);
-			if (!Is.empty(hostingComponent)) {
-				url = await hostingComponent.addTenantTokenToUrl(url, tenantId);
-			}
 		}
 
 		return url;
