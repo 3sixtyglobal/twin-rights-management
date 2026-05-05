@@ -6,6 +6,23 @@
 
 * remove EcosystemPolicy-specific negotiation guard and related locale contract for v2.
 
+## [0.0.3-next.32](https://github.com/twinfoundation/twin-rights-management/compare/rights-management-pnp-service-v0.0.3-next.31...rights-management-pnp-service-v0.0.3-next.32) (2026-05-05)
+
+
+### Features
+
+* use url transformer ([79b3b91](https://github.com/twinfoundation/twin-rights-management/commit/79b3b918e622a11621548c5fe80ed77c335e947b))
+
+
+### Dependencies
+
+* The following workspace dependencies were updated
+  * dependencies
+    * @twin.org/rights-management-models bumped from 0.0.3-next.31 to 0.0.3-next.32
+  * devDependencies
+    * @twin.org/rights-management-pap-service bumped from 0.0.3-next.31 to 0.0.3-next.32
+    * @twin.org/rights-management-pip-service bumped from 0.0.3-next.31 to 0.0.3-next.32
+
 ## [0.0.3-next.31](https://github.com/twinfoundation/twin-rights-management/compare/rights-management-pnp-service-v0.0.3-next.30...rights-management-pnp-service-v0.0.3-next.31) (2026-05-01)
 
 
