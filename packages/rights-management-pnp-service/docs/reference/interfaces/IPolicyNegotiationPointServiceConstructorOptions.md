@@ -89,16 +89,16 @@ policy-negotiation-point-remote
 
 ***
 
-### hostingComponentType? {#hostingcomponenttype}
+### urlTransformerComponentType? {#urltransformercomponenttype}
 
-> `optional` **hostingComponentType?**: `string`
+> `optional` **urlTransformerComponentType?**: `string`
 
-Hosting component type used to provide callback URLs.
+URL transformer component type used to provide callback URLs.
 
 #### Default
 
 ```ts
-hosting
+url-transformer
 ```
 
 ***
