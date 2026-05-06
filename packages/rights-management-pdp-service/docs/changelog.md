@@ -1,6 +1,6 @@
 # Changelog
 
-## [0.0.3-next.32](https://github.com/twinfoundation/twin-rights-management/compare/rights-management-pdp-service-v0.0.3-next.31...rights-management-pdp-service-v0.0.3-next.32) (2026-05-05)
+## [0.0.3-next.32](https://github.com/iotaledger/twin-rights-management/compare/rights-management-pdp-service-v0.0.3-next.31...rights-management-pdp-service-v0.0.3-next.32) (2026-05-05)
 
 
 ### Miscellaneous Chores
@@ -19,7 +19,7 @@
     * @twin.org/rights-management-pmp-service bumped from 0.0.3-next.31 to 0.0.3-next.32
     * @twin.org/rights-management-pxp-service bumped from 0.0.3-next.31 to 0.0.3-next.32
 
-## [0.0.3-next.31](https://github.com/twinfoundation/twin-rights-management/compare/rights-management-pdp-service-v0.0.3-next.30...rights-management-pdp-service-v0.0.3-next.31) (2026-05-01)
+## [0.0.3-next.31](https://github.com/iotaledger/twin-rights-management/compare/rights-management-pdp-service-v0.0.3-next.30...rights-management-pdp-service-v0.0.3-next.31) (2026-05-01)
 
 
 ### Miscellaneous Chores
@@ -38,7 +38,7 @@
     * @twin.org/rights-management-pmp-service bumped from 0.0.3-next.30 to 0.0.3-next.31
     * @twin.org/rights-management-pxp-service bumped from 0.0.3-next.30 to 0.0.3-next.31
 
-## [0.0.3-next.30](https://github.com/twinfoundation/twin-rights-management/compare/rights-management-pdp-service-v0.0.3-next.29...rights-management-pdp-service-v0.0.3-next.30) (2026-04-29)
+## [0.0.3-next.30](https://github.com/iotaledger/twin-rights-management/compare/rights-management-pdp-service-v0.0.3-next.29...rights-management-pdp-service-v0.0.3-next.30) (2026-04-29)
 
 
 ### Miscellaneous Chores

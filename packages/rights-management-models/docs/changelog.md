@@ -6,26 +6,26 @@
 
 * remove EcosystemPolicy models/DTOs and standardize policy typing on `OdrlPolicyType` for v2.
 
-## [0.0.3-next.32](https://github.com/twinfoundation/twin-rights-management/compare/rights-management-models-v0.0.3-next.31...rights-management-models-v0.0.3-next.32) (2026-05-05)
+## [0.0.3-next.32](https://github.com/iotaledger/twin-rights-management/compare/rights-management-models-v0.0.3-next.31...rights-management-models-v0.0.3-next.32) (2026-05-05)
 
 
 ### Miscellaneous Chores
 
 * **rights-management-models:** Synchronize repo versions
 
-## [0.0.3-next.31](https://github.com/twinfoundation/twin-rights-management/compare/rights-management-models-v0.0.3-next.30...rights-management-models-v0.0.3-next.31) (2026-05-01)
+## [0.0.3-next.31](https://github.com/iotaledger/twin-rights-management/compare/rights-management-models-v0.0.3-next.30...rights-management-models-v0.0.3-next.31) (2026-05-01)
 
 
 ### Features
 
-* pnp callback encryption, getDatasetTargets helper, engine-driven callbackPath ([#132](https://github.com/twinfoundation/twin-rights-management/issues/132)) ([e642154](https://github.com/twinfoundation/twin-rights-management/commit/e6421546336bfa73a7c0a9fe102beeaa518249dd))
+* pnp callback encryption, getDatasetTargets helper, engine-driven callbackPath ([#132](https://github.com/iotaledger/twin-rights-management/issues/132)) ([e642154](https://github.com/iotaledger/twin-rights-management/commit/e6421546336bfa73a7c0a9fe102beeaa518249dd))
 
-## [0.0.3-next.30](https://github.com/twinfoundation/twin-rights-management/compare/rights-management-models-v0.0.3-next.29...rights-management-models-v0.0.3-next.30) (2026-04-29)
+## [0.0.3-next.30](https://github.com/iotaledger/twin-rights-management/compare/rights-management-models-v0.0.3-next.29...rights-management-models-v0.0.3-next.30) (2026-04-29)
 
 
 ### Features
 
-* add canonical twin:jsonPath operand support with legacy compatibility ([#126](https://github.com/twinfoundation/twin-rights-management/issues/126)) ([3ab8078](https://github.com/twinfoundation/twin-rights-management/commit/3ab8078cacc47a09202e73d66d788276ae218025))
+* add canonical twin:jsonPath operand support with legacy compatibility ([#126](https://github.com/iotaledger/twin-rights-management/issues/126)) ([3ab8078](https://github.com/iotaledger/twin-rights-management/commit/3ab8078cacc47a09202e73d66d788276ae218025))
 
 ## [0.0.3-next.29](https://github.com/iotaledger/twin-rights-management/compare/rights-management-models-v0.0.3-next.28...rights-management-models-v0.0.3-next.29) (2026-04-10)
 

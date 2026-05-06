@@ -6,7 +6,7 @@
 
 * remove EcosystemPolicy-related examples/assumptions; plugins now target standard ODRL policy types for v2.
 
-## [0.0.3-next.32](https://github.com/twinfoundation/twin-rights-management/compare/rights-management-plugins-v0.0.3-next.31...rights-management-plugins-v0.0.3-next.32) (2026-05-05)
+## [0.0.3-next.32](https://github.com/iotaledger/twin-rights-management/compare/rights-management-plugins-v0.0.3-next.31...rights-management-plugins-v0.0.3-next.32) (2026-05-05)
 
 
 ### Miscellaneous Chores
@@ -28,13 +28,13 @@
     * @twin.org/rights-management-pnp-service bumped from 0.0.3-next.31 to 0.0.3-next.32
     * @twin.org/rights-management-pxp-service bumped from 0.0.3-next.31 to 0.0.3-next.32
 
-## [0.0.3-next.31](https://github.com/twinfoundation/twin-rights-management/compare/rights-management-plugins-v0.0.3-next.30...rights-management-plugins-v0.0.3-next.31) (2026-05-01)
+## [0.0.3-next.31](https://github.com/iotaledger/twin-rights-management/compare/rights-management-plugins-v0.0.3-next.30...rights-management-plugins-v0.0.3-next.31) (2026-05-01)
 
 
 ### Features
 
-* improve json path handling ([#133](https://github.com/twinfoundation/twin-rights-management/issues/133)) ([0a3c0c4](https://github.com/twinfoundation/twin-rights-management/commit/0a3c0c41f15f74a6e2463ed9802c7b662d3e95f6))
-* pnp callback encryption, getDatasetTargets helper, engine-driven callbackPath ([#132](https://github.com/twinfoundation/twin-rights-management/issues/132)) ([e642154](https://github.com/twinfoundation/twin-rights-management/commit/e6421546336bfa73a7c0a9fe102beeaa518249dd))
+* improve json path handling ([#133](https://github.com/iotaledger/twin-rights-management/issues/133)) ([0a3c0c4](https://github.com/iotaledger/twin-rights-management/commit/0a3c0c41f15f74a6e2463ed9802c7b662d3e95f6))
+* pnp callback encryption, getDatasetTargets helper, engine-driven callbackPath ([#132](https://github.com/iotaledger/twin-rights-management/issues/132)) ([e642154](https://github.com/iotaledger/twin-rights-management/commit/e6421546336bfa73a7c0a9fe102beeaa518249dd))
 
 
 ### Dependencies
@@ -51,13 +51,13 @@
     * @twin.org/rights-management-pnp-service bumped from 0.0.3-next.30 to 0.0.3-next.31
     * @twin.org/rights-management-pxp-service bumped from 0.0.3-next.30 to 0.0.3-next.31
 
-## [0.0.3-next.30](https://github.com/twinfoundation/twin-rights-management/compare/rights-management-plugins-v0.0.3-next.29...rights-management-plugins-v0.0.3-next.30) (2026-04-29)
+## [0.0.3-next.30](https://github.com/iotaledger/twin-rights-management/compare/rights-management-plugins-v0.0.3-next.29...rights-management-plugins-v0.0.3-next.30) (2026-04-29)
 
 
 ### Features
 
-* add canonical twin:jsonPath operand support with legacy compatibility ([#126](https://github.com/twinfoundation/twin-rights-management/issues/126)) ([3ab8078](https://github.com/twinfoundation/twin-rights-management/commit/3ab8078cacc47a09202e73d66d788276ae218025))
-* add pxp automation action ([#127](https://github.com/twinfoundation/twin-rights-management/issues/127)) ([ea3325a](https://github.com/twinfoundation/twin-rights-management/commit/ea3325a90c4714e599fcffb73e7517affd3a688f))
+* add canonical twin:jsonPath operand support with legacy compatibility ([#126](https://github.com/iotaledger/twin-rights-management/issues/126)) ([3ab8078](https://github.com/iotaledger/twin-rights-management/commit/3ab8078cacc47a09202e73d66d788276ae218025))
+* add pxp automation action ([#127](https://github.com/iotaledger/twin-rights-management/issues/127)) ([ea3325a](https://github.com/iotaledger/twin-rights-management/commit/ea3325a90c4714e599fcffb73e7517affd3a688f))
 
 
 ### Dependencies

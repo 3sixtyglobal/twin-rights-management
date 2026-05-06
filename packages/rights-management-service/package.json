@@ -4,7 +4,7 @@
 	"description": "Unified rights management service exposing policy and negotiation capabilities.",
 	"repository": {
 		"type": "git",
-		"url": "git+https://github.com/twinfoundation/rights-management.git",
+		"url": "git+https://github.com/iotaledger/rights-management.git",
 		"directory": "packages/rights-management-service"
 	},
 	"contributors": [
@@ -104,7 +104,7 @@
 		"business-logic"
 	],
 	"bugs": {
-		"url": "git+https://github.com/twinfoundation/rights-management/issues"
+		"url": "git+https://github.com/iotaledger/rights-management/issues"
 	},
 	"homepage": "https://twindev.org"
 }

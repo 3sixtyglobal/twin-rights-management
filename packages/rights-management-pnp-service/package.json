@@ -4,7 +4,7 @@
 	"description": "Policy negotiation point service for running contract negotiation workflows and outcomes.",
 	"repository": {
 		"type": "git",
-		"url": "git+https://github.com/twinfoundation/rights-management.git",
+		"url": "git+https://github.com/iotaledger/rights-management.git",
 		"directory": "packages/rights-management-pnp-service"
 	},
 	"author": "martyn.janes@iota.org",
@@ -99,7 +99,7 @@
 		"business-logic"
 	],
 	"bugs": {
-		"url": "git+https://github.com/twinfoundation/rights-management/issues"
+		"url": "git+https://github.com/iotaledger/rights-management/issues"
 	},
 	"homepage": "https://twindev.org"
 }
