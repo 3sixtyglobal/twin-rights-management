@@ -290,10 +290,7 @@ export async function pnapQuery(
 	);
 
 	const component = ComponentFactory.get<IPolicyNegotiationAdminPointComponent>(componentName);
-	const result = await component.query(
-		request.query?.state as DataspaceProtocolContractNegotiationStateType,
-		request.query?.cursor
-	);
+	const result = await component.query(request.query?.state, request.query?.cursor);
 
 	const headers: IPnapQueryResponse["headers"] = {};
 

@@ -241,14 +241,16 @@ describe("PolicyNegotiationAdminPointService", () => {
 			partitionContextIds: [ContextIdKeys.Tenant]
 		});
 
+		interface InternalService {
+			cleanupOldStatesPartition(): Promise<void>;
+			cleanupOldStates(): Promise<void>;
+		}
+		const internalService = service as unknown as InternalService;
 		const cleanupPartitionSpy = vi
-			.spyOn(
-				service as unknown as { cleanupOldStatesPartition: () => Promise<void> },
-				"cleanupOldStatesPartition"
-			)
-			.mockResolvedValue();
+			.spyOn(internalService, "cleanupOldStatesPartition")
+			.mockResolvedValue(undefined);
 
-		await (service as unknown as { cleanupOldStates(): Promise<void> }).cleanupOldStates();
+		await internalService.cleanupOldStates();
 
 		expect(tenantAdminQuery).toHaveBeenCalledTimes(1);
 		expect(runSpy).toHaveBeenCalledTimes(2);
@@ -280,12 +282,14 @@ describe("PolicyNegotiationAdminPointService", () => {
 			partitionContextIds: [ContextIdKeys.Tenant]
 		});
 
-		vi.spyOn(
-			service as unknown as { cleanupOldStatesPartition: () => Promise<void> },
-			"cleanupOldStatesPartition"
-		).mockResolvedValue();
+		interface InternalService {
+			cleanupOldStatesPartition(): Promise<void>;
+			cleanupOldStates(): Promise<void>;
+		}
+		const internalService = service as unknown as InternalService;
+		vi.spyOn(internalService, "cleanupOldStatesPartition").mockResolvedValue(undefined);
 
-		await (service as unknown as { cleanupOldStates(): Promise<void> }).cleanupOldStates();
+		await internalService.cleanupOldStates();
 
 		expect(tenantAdminQuery).toHaveBeenCalledTimes(2);
 		expect(tenantAdminQuery).toHaveBeenNthCalledWith(1, undefined, undefined);

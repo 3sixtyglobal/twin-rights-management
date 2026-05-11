@@ -189,7 +189,7 @@ describe("OdrlPolicyHelper", () => {
 					{ "@id": "did:example:party-b" } as unknown as IOdrlParty,
 					"did:example:party-a",
 					{ "@id": "" } as unknown as IOdrlParty,
-					{} as unknown as IOdrlParty
+					{}
 				])
 			).toEqual(["did:example:party-a", "did:example:party-b"]);
 		});

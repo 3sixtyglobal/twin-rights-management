@@ -1053,7 +1053,7 @@ export class DefaultPolicyArbiter implements IPolicyArbiter {
 
 			// implies: rule action A implies B means exercising A also entails B.
 			// A rule granting A therefore also grants each implied action.
-			if (!covers && (ruleAction.implies ?? []).includes(requestedActionId as OdrlActionType)) {
+			if (!covers && (ruleAction.implies ?? []).includes(requestedActionId)) {
 				covers = true;
 			}
 		}
@@ -1604,7 +1604,7 @@ export class DefaultPolicyArbiter implements IPolicyArbiter {
 				[logicalConstraint.operator]: logicalConstraint.constraints.map(item =>
 					this.rewriteRefinementForDecisionTarget(item, sourceTarget, itemTarget)
 				)
-			} as IOdrlLogicalConstraint;
+			};
 		}
 
 		const regularConstraint = refinement as IOdrlConstraint;

@@ -324,7 +324,7 @@ describe("DefaultPolicyArbiter", () => {
 						"@type": "Party",
 						uid: "did:example:assignee",
 						assignerOf: "policy:some-policy"
-					} as unknown as string
+					}
 				}
 			]
 		};
@@ -349,7 +349,7 @@ describe("DefaultPolicyArbiter", () => {
 						"@type": "Party",
 						uid: "did:example:assignee",
 						assigneeOf: "policy:some-policy"
-					} as unknown as string
+					}
 				}
 			]
 		};
@@ -374,7 +374,7 @@ describe("DefaultPolicyArbiter", () => {
 						"@type": "Party",
 						uid: "did:example:assignee",
 						partOf: "collection:verified-parties"
-					} as unknown as string
+					}
 				}
 			]
 		};
@@ -926,7 +926,7 @@ describe("DefaultPolicyArbiter", () => {
 									}
 								] as unknown as { "@id": string }[]
 							}
-						} as unknown as IOdrlConstraint | IOdrlLogicalConstraint
+						}
 					]
 				}
 			]
@@ -967,7 +967,7 @@ describe("DefaultPolicyArbiter", () => {
 									}
 								] as unknown as { "@id": string }[]
 							}
-						} as unknown as IOdrlConstraint | IOdrlLogicalConstraint
+						}
 					]
 				}
 			]
@@ -1189,7 +1189,7 @@ describe("DefaultPolicyArbiter", () => {
 							"twin:jsonPathExpression": "$.age",
 							operator: OdrlOperatorType.Gteq,
 							rightOperand: { "@value": "18", "@type": "xsd:integer" }
-						} as unknown as IOdrlConstraint
+						}
 					]
 				}
 			]
@@ -1214,7 +1214,7 @@ describe("DefaultPolicyArbiter", () => {
 							leftOperand: "twin:jsonPath",
 							operator: OdrlOperatorType.Gteq,
 							rightOperand: { "@value": "18", "@type": "xsd:integer" }
-						} as unknown as IOdrlConstraint
+						}
 					]
 				}
 			]
@@ -1306,7 +1306,7 @@ describe("DefaultPolicyArbiter", () => {
 								"@type": "twin:jsonPath",
 								"@value": "$.allowedRegion"
 							}
-						} as unknown as IOdrlConstraint
+						}
 					]
 				}
 			]
@@ -1694,7 +1694,7 @@ describe("DefaultPolicyArbiter", () => {
 						"@type": "Asset",
 						uid: "twin:jsonPath:$.items[*]",
 						hasPolicy: "policy:governing"
-					} as unknown as string
+					}
 				}
 			]
 		};
@@ -1719,7 +1719,7 @@ describe("DefaultPolicyArbiter", () => {
 						"@type": "Asset",
 						uid: "twin:jsonPath:$.items[*]",
 						partOf: "collection:my-assets"
-					} as unknown as string
+					}
 				}
 			]
 		};
@@ -3161,7 +3161,7 @@ describe("DefaultPolicyArbiter", () => {
 								"twin:jsonPathExpression": "$.region",
 								operator: OdrlOperatorType.Eq,
 								rightOperandReference: "https://example.com/allowed-regions"
-							} as unknown as IOdrlConstraint
+							}
 						]
 					}
 				]
@@ -3550,7 +3550,7 @@ describe("DefaultPolicyArbiter", () => {
 				permission: [
 					{
 						// "print" is a sub-action of "reproduce"; requesting "reproduce" is covered
-						action: { "@id": "print", includedIn: "reproduce" } as unknown as string
+						action: { "@id": "print", includedIn: "reproduce" }
 					}
 				]
 			};
@@ -3579,7 +3579,7 @@ describe("DefaultPolicyArbiter", () => {
 				permission: [
 					{
 						// "distribute" implies "reproduce"; requesting "reproduce" is covered
-						action: { "@id": "distribute", implies: ["reproduce"] } as unknown as string
+						action: { "@id": "distribute", implies: ["reproduce"] }
 					}
 				]
 			};
@@ -3610,7 +3610,7 @@ describe("DefaultPolicyArbiter", () => {
 						action: {
 							"@id": "distribute",
 							implies: ["reproduce", "display"]
-						} as unknown as string
+						}
 					}
 				]
 			};
@@ -3637,7 +3637,7 @@ describe("DefaultPolicyArbiter", () => {
 				prohibition: [
 					{
 						// prohibit "print" (sub-action of "reproduce") when region is EU
-						action: { "@id": "print", includedIn: "reproduce" } as unknown as string,
+						action: { "@id": "print", includedIn: "reproduce" },
 						constraint: [
 							{
 								leftOperand: "twin:jsonPath",
@@ -3682,7 +3682,7 @@ describe("DefaultPolicyArbiter", () => {
 						action: {
 							"rdf:value": { "@id": "read" },
 							implies: ["reproduce"]
-						} as unknown as string
+						}
 					}
 				]
 			};
@@ -3712,7 +3712,7 @@ describe("DefaultPolicyArbiter", () => {
 				"@id": "policy:profile-guard",
 				profile: "https://example.com/custom-profile",
 				permission: [{ action: "use" }]
-			} as unknown as IDataspaceProtocolAgreement;
+			};
 
 			await expect(arbiter.decide(policy, undefined, {})).rejects.toThrow(
 				"policyProfileNotSupported"
@@ -3734,7 +3734,7 @@ describe("DefaultPolicyArbiter", () => {
 						target: { "@type": "twin:jsonPath", "twin:jsonPathExpression": "$.value" }
 					}
 				]
-			} as unknown as IDataspaceProtocolAgreement;
+			};
 
 			const decisions = await arbiter.decide(policy, undefined, { value: "test" });
 			expect(decisions).toHaveLength(1);
@@ -3756,7 +3756,7 @@ describe("DefaultPolicyArbiter", () => {
 						target: { "@type": "twin:jsonPath", "twin:jsonPathExpression": "$.value" }
 					}
 				]
-			} as unknown as IDataspaceProtocolAgreement;
+			};
 
 			const decisions = await arbiter.decide(policy, undefined, { value: "test" });
 			expect(decisions).toHaveLength(1);
@@ -3778,7 +3778,7 @@ describe("DefaultPolicyArbiter", () => {
 						target: { "@type": "twin:jsonPath", "twin:jsonPathExpression": "$.value" }
 					}
 				]
-			} as unknown as IDataspaceProtocolAgreement;
+			};
 
 			const decisions = await arbiter.decide(policy, undefined, { value: "test" });
 			expect(decisions).toHaveLength(1);
@@ -3800,7 +3800,7 @@ describe("DefaultPolicyArbiter", () => {
 						target: { "@type": "twin:jsonPath", "twin:jsonPathExpression": "$.value" }
 					}
 				]
-			} as unknown as IDataspaceProtocolAgreement;
+			};
 
 			const decisions = await arbiter.decide(policy, undefined, { value: "test" });
 			expect(decisions).toHaveLength(1);
@@ -3822,7 +3822,7 @@ describe("DefaultPolicyArbiter", () => {
 						target: { "@type": "twin:jsonPath", "twin:jsonPathExpression": "$.value" }
 					}
 				]
-			} as unknown as IDataspaceProtocolAgreement;
+			};
 
 			const decisions = await arbiter.decide(policy, undefined, { value: "test" });
 			expect(decisions).toHaveLength(1);
@@ -3844,7 +3844,7 @@ describe("DefaultPolicyArbiter", () => {
 						target: { "@type": "twin:jsonPath", "twin:jsonPathExpression": "$.value" }
 					}
 				]
-			} as unknown as IDataspaceProtocolAgreement;
+			};
 
 			const decisions = await arbiter.decide(policy, undefined, { value: "test" });
 			expect(decisions).toHaveLength(1);
@@ -3866,7 +3866,7 @@ describe("DefaultPolicyArbiter", () => {
 						target: { "@type": "twin:jsonPath", "twin:jsonPathExpression": "$.value" }
 					}
 				]
-			} as unknown as IDataspaceProtocolAgreement;
+			};
 
 			const decisions = await arbiter.decide(policy, undefined, { value: "test" });
 			expect(decisions).toHaveLength(1);
@@ -3888,7 +3888,7 @@ describe("DefaultPolicyArbiter", () => {
 						target: { "@type": "twin:jsonPath", "twin:jsonPathExpression": "$.value" }
 					}
 				]
-			} as unknown as IDataspaceProtocolAgreement;
+			};
 
 			const decisions = await arbiter.decide(policy, undefined, { value: "test" });
 			expect(decisions).toHaveLength(1);
@@ -3905,7 +3905,7 @@ describe("DefaultPolicyArbiter", () => {
 				"@id": "policy:mixed-profiles",
 				profile: [OdrlProfiles.Twin, "https://attacker.example/custom-profile"],
 				permission: [{ action: "use" }]
-			} as unknown as IDataspaceProtocolAgreement;
+			};
 
 			await expect(arbiter.decide(policy, undefined, {})).rejects.toThrow(
 				"policyProfileNotSupported"
@@ -3922,7 +3922,7 @@ describe("DefaultPolicyArbiter", () => {
 				"@id": "policy:policy-level-target-inherited",
 				target: { "@type": "twin:jsonPath", "twin:jsonPathExpression": "$.items[*]" },
 				permission: [{ action: "read" }]
-			} as unknown as IDataspaceProtocolAgreement;
+			};
 
 			// Permission inherits the policy-level target; the decision target should be $.items[*]
 			const granted = await arbiter.decide(policy, undefined, { items: [{ id: "a" }] }, "read");
@@ -3944,7 +3944,7 @@ describe("DefaultPolicyArbiter", () => {
 						target: { "@type": "twin:jsonPath", "twin:jsonPathExpression": "$.meta" }
 					}
 				]
-			} as unknown as IDataspaceProtocolAgreement;
+			};
 
 			// Rule-level target takes precedence over the policy-level default
 			const granted = await arbiter.decide(
@@ -3966,7 +3966,7 @@ describe("DefaultPolicyArbiter", () => {
 				"@id": "policy:policy-level-action-inherited",
 				action: "read",
 				permission: [{}]
-			} as unknown as IDataspaceProtocolAgreement;
+			};
 
 			// Permission inherits the policy-level action; requesting "read" should grant
 			const granted = await arbiter.decide(policy, undefined, { any: "data" }, "read");
@@ -3987,7 +3987,7 @@ describe("DefaultPolicyArbiter", () => {
 				"@id": "policy:policy-level-action-overridden",
 				action: "read",
 				permission: [{ action: "write" }]
-			} as unknown as IDataspaceProtocolAgreement;
+			};
 
 			// Rule-level action takes precedence; "write" is permitted, "read" is not
 			const grantedWrite = await arbiter.decide(policy, undefined, { any: "data" }, "write");
@@ -4104,7 +4104,7 @@ describe("DefaultPolicyArbiter", () => {
 									rightOperand: "5"
 								}
 							]
-						} as unknown as string
+						}
 					}
 				]
 			};
@@ -4138,7 +4138,7 @@ describe("DefaultPolicyArbiter", () => {
 									rightOperand: "5"
 								}
 							]
-						} as unknown as string
+						}
 					}
 				]
 			};
@@ -4174,7 +4174,7 @@ describe("DefaultPolicyArbiter", () => {
 									rightOperand: "EU"
 								}
 							]
-						} as unknown as string
+						}
 					}
 				]
 			};
@@ -4197,7 +4197,7 @@ describe("DefaultPolicyArbiter", () => {
 				"@id": "policy:unsupported-profile-parent",
 				profile: "https://third-party.example/unsupported-profile",
 				permission: [{ action: "read" }]
-			} as unknown as IDataspaceProtocolAgreement;
+			};
 
 			const childPolicy: IDataspaceProtocolAgreement = {
 				"@context": OdrlContexts.Context,
@@ -4207,7 +4207,7 @@ describe("DefaultPolicyArbiter", () => {
 				"@id": "policy:child-with-unsupported-parent",
 				inheritFrom: "policy:unsupported-profile-parent",
 				permission: [{ action: "use" }]
-			} as unknown as IDataspaceProtocolAgreement;
+			};
 
 			const policiesToRetrieve = new Map([["policy:unsupported-profile-parent", parentPolicy]]);
 			registerPolicyAdministrationPointComponent(policiesToRetrieve);
