@@ -1,5 +1,25 @@
 # Changelog
 
+## [0.0.3-next.33](https://github.com/iotaledger/twin-rights-management/compare/rights-management-pep-service-v0.0.3-next.32...rights-management-pep-service-v0.0.3-next.33) (2026-05-11)
+
+
+### Features
+
+* typescript 6 update ([18f6f1e](https://github.com/iotaledger/twin-rights-management/commit/18f6f1edba890462c068ba0b76ae6dd005e798be))
+
+
+### Dependencies
+
+* The following workspace dependencies were updated
+  * dependencies
+    * @twin.org/rights-management-models bumped from 0.0.3-next.32 to 0.0.3-next.33
+  * devDependencies
+    * @twin.org/rights-management-pap-service bumped from 0.0.3-next.32 to 0.0.3-next.33
+    * @twin.org/rights-management-pdp-service bumped from 0.0.3-next.32 to 0.0.3-next.33
+    * @twin.org/rights-management-pip-service bumped from 0.0.3-next.32 to 0.0.3-next.33
+    * @twin.org/rights-management-pmp-service bumped from 0.0.3-next.32 to 0.0.3-next.33
+    * @twin.org/rights-management-pxp-service bumped from 0.0.3-next.32 to 0.0.3-next.33
+
 ## [0.0.3-next.32](https://github.com/iotaledger/twin-rights-management/compare/rights-management-pep-service-v0.0.3-next.31...rights-management-pep-service-v0.0.3-next.32) (2026-05-05)
 
 
