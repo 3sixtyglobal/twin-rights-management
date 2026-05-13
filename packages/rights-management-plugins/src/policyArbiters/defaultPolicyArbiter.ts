@@ -427,7 +427,7 @@ export class DefaultPolicyArbiter implements IPolicyArbiter {
 		}
 
 		const values = ArrayHelper.fromObjectOrArray(value);
-		return values.length > 0 ? values : [undefined];
+		return Is.arrayValue(values) ? values : [undefined];
 	}
 
 	/**
