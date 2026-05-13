@@ -11,8 +11,7 @@ import {
 	type IPolicyDecision,
 	type IPolicyDecisionPointComponent,
 	type IPolicyExecutionPointComponent,
-	type IPolicyInformationPointComponent,
-	type IPolicyManagementPointComponent
+	type IPolicyInformationPointComponent
 } from "@twin.org/rights-management-models";
 import type { IDataspaceProtocolAgreement } from "@twin.org/standards-dataspace-protocol";
 import type { OdrlActionType } from "@twin.org/standards-w3c-odrl";
