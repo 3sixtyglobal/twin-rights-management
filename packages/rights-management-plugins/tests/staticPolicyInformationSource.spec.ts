@@ -546,10 +546,11 @@ describe("StaticPolicyInformationSource", () => {
 
 	test("throws when retrieve accessMode is invalid", async () => {
 		const policyInformationSource = new StaticPolicyInformationSource();
+		const invalidAccessMode = "invalid" as unknown as PolicyInformationAccessMode;
 		await expect(
 			policyInformationSource.retrieve(
 				createPolicy({ target: "document", action: "read", assignee: "node123" }),
-				"invalid" as unknown as PolicyInformationAccessMode,
+				invalidAccessMode,
 				{ content: "test" }
 			)
 		).rejects.toThrow();
@@ -557,9 +558,10 @@ describe("StaticPolicyInformationSource", () => {
 
 	test("throws when addInformation arguments are invalid", async () => {
 		const policyInformationSource = new StaticPolicyInformationSource();
+		const invalidAccessMode = "invalid" as unknown as PolicyInformationAccessMode;
 		expect(() =>
 			policyInformationSource.addInformation({
-				accessMode: "invalid" as unknown as PolicyInformationAccessMode,
+				accessMode: invalidAccessMode,
 				objects: {
 					bad: { "@id": "bad", "@type": "BadInfo" }
 				}

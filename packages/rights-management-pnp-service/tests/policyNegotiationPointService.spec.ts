@@ -890,7 +890,7 @@ describe("PolicyNegotiationPointService", () => {
 		test("captures tenantId on the stored negotiation when sending an outbound request", async () => {
 			setupTenantContextIds();
 			let capturedRequest: unknown;
-			remoteComponentResolver = () =>
+			const resolver = (): IPolicyNegotiationPointComponent =>
 				({
 					className: () => "TestRemote",
 					requestFromConsumer: async (message: unknown) => {
@@ -904,6 +904,7 @@ describe("PolicyNegotiationPointService", () => {
 						};
 					}
 				}) as unknown as IPolicyNegotiationPointComponent;
+			remoteComponentResolver = resolver;
 
 			PolicyRequesterFactory.register("MockPolicyRequester", () => mockPolicyRequester);
 			await adminPointComponent.create(mockOffer);
@@ -940,7 +941,7 @@ describe("PolicyNegotiationPointService", () => {
 			ComponentFactory.register("mock-url-transformer", () => mockUrlTransformerComponent);
 
 			let capturedCallbackAddress: string | undefined;
-			remoteComponentResolver = () =>
+			const resolver = (): IPolicyNegotiationPointComponent =>
 				({
 					className: () => "TestRemote",
 					requestFromConsumer: async (message: { callbackAddress?: string }) => {
@@ -954,6 +955,7 @@ describe("PolicyNegotiationPointService", () => {
 						};
 					}
 				}) as unknown as IPolicyNegotiationPointComponent;
+			remoteComponentResolver = resolver;
 
 			PolicyRequesterFactory.register("MockPolicyRequester", () => mockPolicyRequester);
 			await adminPointComponent.create(mockOffer);
@@ -987,7 +989,7 @@ describe("PolicyNegotiationPointService", () => {
 			setupTenantContextIds();
 
 			let capturedCallbackAddress: string | undefined;
-			remoteComponentResolver = () =>
+			const resolver = (): IPolicyNegotiationPointComponent =>
 				({
 					className: () => "TestRemote",
 					requestFromConsumer: async (message: { callbackAddress?: string }) => {
@@ -1001,6 +1003,7 @@ describe("PolicyNegotiationPointService", () => {
 						};
 					}
 				}) as unknown as IPolicyNegotiationPointComponent;
+			remoteComponentResolver = resolver;
 
 			PolicyRequesterFactory.register("MockPolicyRequester", () => mockPolicyRequester);
 			await adminPointComponent.create(mockOffer);
