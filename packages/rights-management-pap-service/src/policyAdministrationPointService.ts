@@ -49,6 +49,7 @@ export class PolicyAdministrationPointService implements IPolicyAdministrationPo
 	 * The logging component.
 	 * @internal
 	 */
+	// eslint-disable-next-line @typescript-eslint/no-unused-private-class-members
 	private readonly _logging?: ILoggingComponent;
 
 	/**

@@ -34,12 +34,6 @@ export class PolicyDecisionPointService implements IPolicyDecisionPointComponent
 	private readonly _logging?: ILoggingComponent;
 
 	/**
-	 * The policy management point component.
-	 * @internal
-	 */
-	private readonly _policyManagementPointComponent: IPolicyManagementPointComponent;
-
-	/**
 	 * The policy information point component.
 	 * @internal
 	 */
@@ -58,9 +52,6 @@ export class PolicyDecisionPointService implements IPolicyDecisionPointComponent
 	constructor(options?: IPolicyDecisionPointServiceConstructorOptions) {
 		this._logging = ComponentFactory.getIfExists<ILoggingComponent>(
 			options?.loggingComponentType ?? "logging"
-		);
-		this._policyManagementPointComponent = ComponentFactory.get<IPolicyManagementPointComponent>(
-			options?.policyManagementPointComponentType ?? "policy-management-point"
 		);
 		this._policyInformationPointComponent = ComponentFactory.get<IPolicyInformationPointComponent>(
 			options?.policyInformationPointComponentType ?? "policy-information-point"

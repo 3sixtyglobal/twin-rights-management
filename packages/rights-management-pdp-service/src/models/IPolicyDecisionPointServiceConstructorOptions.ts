@@ -18,12 +18,6 @@ export interface IPolicyDecisionPointServiceConstructorOptions {
 	policyInformationPointComponentType?: string;
 
 	/**
-	 * The type of the policy management point component.
-	 * @default policy-management-point
-	 */
-	policyManagementPointComponentType?: string;
-
-	/**
 	 * The type of the policy execution point component.
 	 * @default policy-execution-point
 	 */

@@ -66,6 +66,7 @@ export class PolicyNegotiationPointService implements IPolicyNegotiationPointCom
 	 * The logging component.
 	 * @internal
 	 */
+	// eslint-disable-next-line @typescript-eslint/no-unused-private-class-members
 	private readonly _logging?: ILoggingComponent;
 
 	/**
