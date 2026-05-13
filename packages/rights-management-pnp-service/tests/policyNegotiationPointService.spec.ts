@@ -890,21 +890,20 @@ describe("PolicyNegotiationPointService", () => {
 		test("captures tenantId on the stored negotiation when sending an outbound request", async () => {
 			setupTenantContextIds();
 			let capturedRequest: unknown;
-			const resolver = (): IPolicyNegotiationPointComponent =>
-				({
-					className: () => "TestRemote",
-					requestFromConsumer: async (message: unknown) => {
-						capturedRequest = message;
-						return {
-							"@context": [DataspaceProtocolContexts.Context],
-							"@type": DataspaceProtocolContractNegotiationTypes.ContractNegotiation,
-							providerPid: "provider-pid-from-test",
-							consumerPid: "ignored",
-							state: "REQUESTED"
-						};
-					}
-				}) as unknown as IPolicyNegotiationPointComponent;
-			remoteComponentResolver = resolver;
+			const mockComponent = {
+				className: () => "TestRemote",
+				requestFromConsumer: async (message: unknown) => {
+					capturedRequest = message;
+					return {
+						"@context": [DataspaceProtocolContexts.Context],
+						"@type": DataspaceProtocolContractNegotiationTypes.ContractNegotiation,
+						providerPid: "provider-pid-from-test",
+						consumerPid: "ignored",
+						state: "REQUESTED"
+					};
+				}
+			} as unknown as IPolicyNegotiationPointComponent;
+			remoteComponentResolver = (): IPolicyNegotiationPointComponent => mockComponent;
 
 			PolicyRequesterFactory.register("MockPolicyRequester", () => mockPolicyRequester);
 			await adminPointComponent.create(mockOffer);
@@ -941,21 +940,20 @@ describe("PolicyNegotiationPointService", () => {
 			ComponentFactory.register("mock-url-transformer", () => mockUrlTransformerComponent);
 
 			let capturedCallbackAddress: string | undefined;
-			const resolver = (): IPolicyNegotiationPointComponent =>
-				({
-					className: () => "TestRemote",
-					requestFromConsumer: async (message: { callbackAddress?: string }) => {
-						capturedCallbackAddress = message.callbackAddress;
-						return {
-							"@context": [DataspaceProtocolContexts.Context],
-							"@type": DataspaceProtocolContractNegotiationTypes.ContractNegotiation,
-							providerPid: "provider-pid-from-test",
-							consumerPid: "ignored",
-							state: "REQUESTED"
-						};
-					}
-				}) as unknown as IPolicyNegotiationPointComponent;
-			remoteComponentResolver = resolver;
+			const mockComponent = {
+				className: () => "TestRemote",
+				requestFromConsumer: async (message: { callbackAddress?: string }) => {
+					capturedCallbackAddress = message.callbackAddress;
+					return {
+						"@context": [DataspaceProtocolContexts.Context],
+						"@type": DataspaceProtocolContractNegotiationTypes.ContractNegotiation,
+						providerPid: "provider-pid-from-test",
+						consumerPid: "ignored",
+						state: "REQUESTED"
+					};
+				}
+			} as unknown as IPolicyNegotiationPointComponent;
+			remoteComponentResolver = (): IPolicyNegotiationPointComponent => mockComponent;
 
 			PolicyRequesterFactory.register("MockPolicyRequester", () => mockPolicyRequester);
 			await adminPointComponent.create(mockOffer);
@@ -989,21 +987,20 @@ describe("PolicyNegotiationPointService", () => {
 			setupTenantContextIds();
 
 			let capturedCallbackAddress: string | undefined;
-			const resolver = (): IPolicyNegotiationPointComponent =>
-				({
-					className: () => "TestRemote",
-					requestFromConsumer: async (message: { callbackAddress?: string }) => {
-						capturedCallbackAddress = message.callbackAddress;
-						return {
-							"@context": [DataspaceProtocolContexts.Context],
-							"@type": DataspaceProtocolContractNegotiationTypes.ContractNegotiation,
-							providerPid: "provider-pid-from-test",
-							consumerPid: "ignored",
-							state: "REQUESTED"
-						};
-					}
-				}) as unknown as IPolicyNegotiationPointComponent;
-			remoteComponentResolver = resolver;
+			const mockComponent = {
+				className: () => "TestRemote",
+				requestFromConsumer: async (message: { callbackAddress?: string }) => {
+					capturedCallbackAddress = message.callbackAddress;
+					return {
+						"@context": [DataspaceProtocolContexts.Context],
+						"@type": DataspaceProtocolContractNegotiationTypes.ContractNegotiation,
+						providerPid: "provider-pid-from-test",
+						consumerPid: "ignored",
+						state: "REQUESTED"
+					};
+				}
+			} as unknown as IPolicyNegotiationPointComponent;
+			remoteComponentResolver = (): IPolicyNegotiationPointComponent => mockComponent;
 
 			PolicyRequesterFactory.register("MockPolicyRequester", () => mockPolicyRequester);
 			await adminPointComponent.create(mockOffer);
