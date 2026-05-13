@@ -32,20 +32,6 @@ policy-information-point
 
 ***
 
-### policyManagementPointComponentType? {#policymanagementpointcomponenttype}
-
-> `optional` **policyManagementPointComponentType?**: `string`
-
-The type of the policy management point component.
-
-#### Default
-
-```ts
-policy-management-point
-```
-
-***
-
 ### policyExecutionPointComponentType? {#policyexecutionpointcomponenttype}
 
 > `optional` **policyExecutionPointComponentType?**: `string`
