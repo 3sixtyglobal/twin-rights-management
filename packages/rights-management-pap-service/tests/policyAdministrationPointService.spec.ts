@@ -6,11 +6,12 @@ import { ArrayHelper, Is, ObjectHelper } from "@twin.org/core";
 import type { JsonLdObjectWithOptionalAtId } from "@twin.org/data-json-ld";
 import type { EntityCondition } from "@twin.org/entity";
 import type { MemoryEntityStorageConnector } from "@twin.org/entity-storage-connector-memory";
-import { EntityStorageConnectorFactory } from "@twin.org/entity-storage-models";
+
 import type { IDataspaceProtocolPolicy } from "@twin.org/standards-dataspace-protocol";
 import { OdrlContexts, OdrlPolicyType } from "@twin.org/standards-w3c-odrl";
 import {
 	createTestPolicies,
+	resetOdrlPolicyStorage,
 	SAMPLE_POLICY,
 	TEST_DIRECTORY_ROOT,
 	TEST_POLICY_ID,
@@ -24,16 +25,11 @@ describe("PolicyAdministrationPointService", () => {
 	let odrlPolicyEntityStorage: MemoryEntityStorageConnector<OdrlPolicy>;
 
 	beforeEach(() => {
-		odrlPolicyEntityStorage =
-			EntityStorageConnectorFactory.get<MemoryEntityStorageConnector<OdrlPolicy>>("odrl-policy");
+		odrlPolicyEntityStorage = resetOdrlPolicyStorage();
 
 		policyAdminPoint = new PolicyAdministrationPointService({
 			odrlPolicyEntityStorageType: "odrl-policy"
 		});
-	});
-
-	afterEach(() => {
-		odrlPolicyEntityStorage.getStore().length = 0;
 	});
 
 	afterAll(async () => {

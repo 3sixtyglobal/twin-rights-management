@@ -510,7 +510,6 @@ describe("PolicyNegotiationPointService", () => {
 			dateCreated: expect.any(String),
 			expires: expect.any(Number),
 			handlerId: "requester-1",
-			offer: undefined,
 			state: "REQUESTED"
 		});
 		expect(consumerStore[0].trustVerificationInfo).toBeUndefined();
@@ -578,10 +577,13 @@ describe("PolicyNegotiationPointService", () => {
 
 		await waitForState(policyNegotiationConsumerMemoryEntityStorage, "ACCEPTED", "consumer");
 
+		const consumerStore2 = policyNegotiationConsumerMemoryEntityStorage.getStore();
+		const providerStore2 = policyNegotiationProviderMemoryEntityStorage.getStore();
+
 		// The consumer has ACCEPTED the offer
-		expect(consumerStore[0]).toMatchObject({
+		expect(consumerStore2[0]).toMatchObject({
 			id: consumerPid,
-			correlationId: providerStore[0].id,
+			correlationId: providerStore2[0].id,
 			dateCreated: expect.any(String),
 			expires: expect.any(Number),
 			handlerId: "requester-2",
@@ -595,15 +597,18 @@ describe("PolicyNegotiationPointService", () => {
 		});
 
 		// After offerFromProvider, trustVerificationInfo should be set to the provider's identity
-		expect(consumerStore[0].trustVerificationInfo).toEqual({
+		expect(consumerStore2[0].trustVerificationInfo).toEqual({
 			identity: testIdentityProvider
 		});
 
 		await waitForState(policyNegotiationProviderMemoryEntityStorage, "OFFERED", "provider");
 
+		const consumerStore3 = policyNegotiationConsumerMemoryEntityStorage.getStore();
+		const providerStore3 = policyNegotiationProviderMemoryEntityStorage.getStore();
+
 		// The provider has not yet received the ACCEPTED state, so is still in OFFERED state
-		expect(providerStore[0]).toMatchObject({
-			id: consumerStore[0].correlationId,
+		expect(providerStore3[0]).toMatchObject({
+			id: consumerStore3[0].correlationId,
 			correlationId: consumerPid,
 			dateCreated: expect.any(String),
 			expires: expect.any(Number),
@@ -620,9 +625,12 @@ describe("PolicyNegotiationPointService", () => {
 		// We wait for the consumer to respond with the ACCEPTED state
 		await waitForState(policyNegotiationProviderMemoryEntityStorage, "ACCEPTED", "provider");
 
+		const consumerStore4 = policyNegotiationConsumerMemoryEntityStorage.getStore();
+		const providerStore4 = policyNegotiationProviderMemoryEntityStorage.getStore();
+
 		// Now the provider should also have the ACCEPTED state
-		expect(providerStore[0]).toMatchObject({
-			id: consumerStore[0].correlationId,
+		expect(providerStore4[0]).toMatchObject({
+			id: consumerStore4[0].correlationId,
 			correlationId: consumerPid,
 			dateCreated: expect.any(String),
 			expires: expect.any(Number),
@@ -639,10 +647,13 @@ describe("PolicyNegotiationPointService", () => {
 		// Now we wait for the provider to send the AGREED state
 		await waitForState(policyNegotiationConsumerMemoryEntityStorage, "AGREED", "consumer");
 
+		const consumerStore5 = policyNegotiationConsumerMemoryEntityStorage.getStore();
+		const providerStore5 = policyNegotiationProviderMemoryEntityStorage.getStore();
+
 		// The consumer has now received the AGREED state
-		expect(consumerStore[0]).toMatchObject({
+		expect(consumerStore5[0]).toMatchObject({
 			id: consumerPid,
-			correlationId: providerStore[0].id,
+			correlationId: providerStore5[0].id,
 			dateCreated: expect.any(String),
 			expires: expect.any(Number),
 			handlerId: "requester-2",
@@ -664,9 +675,12 @@ describe("PolicyNegotiationPointService", () => {
 
 		await waitForState(policyNegotiationProviderMemoryEntityStorage, "AGREED", "provider");
 
+		const consumerStore6 = policyNegotiationConsumerMemoryEntityStorage.getStore();
+		const providerStore6 = policyNegotiationProviderMemoryEntityStorage.getStore();
+
 		// The provider has now also set the AGREED state
-		expect(providerStore[0]).toMatchObject({
-			id: consumerStore[0].correlationId,
+		expect(providerStore6[0]).toMatchObject({
+			id: consumerStore6[0].correlationId,
 			correlationId: consumerPid,
 			dateCreated: expect.any(String),
 			expires: expect.any(Number),
@@ -690,10 +704,13 @@ describe("PolicyNegotiationPointService", () => {
 		// Now we wait for the consumer to VERIFIED the agreement
 		await waitForState(policyNegotiationConsumerMemoryEntityStorage, "VERIFIED", "consumer");
 
+		const consumerStore7 = policyNegotiationConsumerMemoryEntityStorage.getStore();
+		const providerStore7 = policyNegotiationProviderMemoryEntityStorage.getStore();
+
 		// The consumer has now VERIFIED the agreement
-		expect(consumerStore[0]).toMatchObject({
+		expect(consumerStore7[0]).toMatchObject({
 			id: consumerPid,
-			correlationId: providerStore[0].id,
+			correlationId: providerStore7[0].id,
 			dateCreated: expect.any(String),
 			expires: expect.any(Number),
 			handlerId: "requester-2",
@@ -715,8 +732,11 @@ describe("PolicyNegotiationPointService", () => {
 
 		await waitForState(policyNegotiationProviderMemoryEntityStorage, "FINALIZED", "provider");
 
-		expect(providerStore[0]).toMatchObject({
-			id: consumerStore[0].correlationId,
+		const consumerStore8 = policyNegotiationConsumerMemoryEntityStorage.getStore();
+		const providerStore8 = policyNegotiationProviderMemoryEntityStorage.getStore();
+
+		expect(providerStore8[0]).toMatchObject({
+			id: consumerStore8[0].correlationId,
 			correlationId: consumerPid,
 			dateCreated: expect.any(String),
 			expires: expect.any(Number),
@@ -740,9 +760,12 @@ describe("PolicyNegotiationPointService", () => {
 		// Now we wait for the consumer to received the FINALIZED state
 		await waitForState(policyNegotiationConsumerMemoryEntityStorage, "FINALIZED", "consumer");
 
-		expect(consumerStore[0]).toMatchObject({
+		const consumerStore9 = policyNegotiationConsumerMemoryEntityStorage.getStore();
+		const providerStore9 = policyNegotiationProviderMemoryEntityStorage.getStore();
+
+		expect(consumerStore9[0]).toMatchObject({
 			id: consumerPid,
-			correlationId: providerStore[0].id,
+			correlationId: providerStore9[0].id,
 			dateCreated: expect.any(String),
 			expires: expect.any(Number),
 			handlerId: "requester-2",
@@ -764,8 +787,11 @@ describe("PolicyNegotiationPointService", () => {
 
 		await waitForState(policyNegotiationProviderMemoryEntityStorage, "FINALIZED", "provider");
 
-		expect(providerStore[0]).toMatchObject({
-			id: consumerStore[0].correlationId,
+		const consumerStore10 = policyNegotiationConsumerMemoryEntityStorage.getStore();
+		const providerStore10 = policyNegotiationProviderMemoryEntityStorage.getStore();
+
+		expect(providerStore10[0]).toMatchObject({
+			id: consumerStore10[0].correlationId,
 			correlationId: consumerPid,
 			dateCreated: expect.any(String),
 			expires: expect.any(Number),

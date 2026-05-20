@@ -52,6 +52,23 @@ EntityStorageConnectorFactory.register(
 		})
 );
 
+/**
+ * Re-register the ODRL policy storage to force a fresh store instance.
+ * Call this in beforeEach to ensure each test starts with an empty store,
+ * since getStore() now returns a copy (not the internal array).
+ * @returns The new MemoryEntityStorageConnector instance for ODRL policies.
+ */
+export function resetOdrlPolicyStorage(): MemoryEntityStorageConnector<OdrlPolicy> {
+	EntityStorageConnectorFactory.register(
+		"odrl-policy",
+		() =>
+			new MemoryEntityStorageConnector<OdrlPolicy>({
+				entitySchema: nameof<OdrlPolicy>()
+			})
+	);
+	return EntityStorageConnectorFactory.get<MemoryEntityStorageConnector<OdrlPolicy>>("odrl-policy");
+}
+
 // Helper function to create test policy without UID (for auto-generation)
 function createTestPolicy(
 	id: string,
