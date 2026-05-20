@@ -6,6 +6,59 @@
 
 * remove EcosystemPolicy-specific PAP client API (`getEcosystemPolicy`) for v2.
 
+## [0.0.3-next.35](https://github.com/iotaledger/twin-rights-management/compare/rights-management-rest-client-v0.0.3-next.34...rights-management-rest-client-v0.0.3-next.35) (2026-05-20)
+
+
+### Features
+
+* add context id features ([#51](https://github.com/iotaledger/twin-rights-management/issues/51)) ([239922c](https://github.com/iotaledger/twin-rights-management/commit/239922c82a7fa94b66c8ee0e924bc58ddaaba395))
+* add DAP (Data Access Point) ([#40](https://github.com/iotaledger/twin-rights-management/issues/40)) ([f3e684b](https://github.com/iotaledger/twin-rights-management/commit/f3e684ba1f9a934394c64635f393fbb6709ff480))
+* add EcosystemPolicy typed getter across PAP stack ([#114](https://github.com/iotaledger/twin-rights-management/issues/114)) ([2a8e941](https://github.com/iotaledger/twin-rights-management/commit/2a8e941bbea229fb74f81dc869ce1f85c66c300d))
+* add factory pattern ([d26b4c0](https://github.com/iotaledger/twin-rights-management/commit/d26b4c08a2f3ba5758df66a1c48203b8d8e3638e))
+* add JSON-LD types for negotiation ([6be61f8](https://github.com/iotaledger/twin-rights-management/commit/6be61f890537cb9d22d4fad90092b858de2c9c2d))
+* add policy negotiation point PNP, PNAP and PNRP ([#32](https://github.com/iotaledger/twin-rights-management/issues/32)) ([90f0659](https://github.com/iotaledger/twin-rights-management/commit/90f06593a1126df3c2f4ca23cf95a08260fd6415))
+* add scaffold for other services ([de25f34](https://github.com/iotaledger/twin-rights-management/commit/de25f34c40fb65b6d73df98965ea4e368019da84))
+* add validate-locales ([17d9f7b](https://github.com/iotaledger/twin-rights-management/commit/17d9f7b3cad9b2f8c0f2ceab308d1054d9fa5428))
+* add validate-locales ([78f30cf](https://github.com/iotaledger/twin-rights-management/commit/78f30cf61054655c815e5fc42972ee39502e3687))
+* additional pap features ([#69](https://github.com/iotaledger/twin-rights-management/issues/69)) ([a80d511](https://github.com/iotaledger/twin-rights-management/commit/a80d511ace8fad9fbf4c02cb82ead261a5944b34))
+* consistent uid usage ([#83](https://github.com/iotaledger/twin-rights-management/issues/83)) ([bdfb9f9](https://github.com/iotaledger/twin-rights-management/commit/bdfb9f92777cbfdb65b5b7df5660b70d869ed19d))
+* engine compatibility updates ([490e015](https://github.com/iotaledger/twin-rights-management/commit/490e015901d6a5ac6563da484a18fc5f285556b1))
+* eslint migration to flat config ([5313718](https://github.com/iotaledger/twin-rights-management/commit/5313718f15efb4f6b1f257bf9807770baef7eed3))
+* eslint migration to flat config ([23a0c08](https://github.com/iotaledger/twin-rights-management/commit/23a0c085e7fc2e522c8d85d325dc5844b9c3fd8e))
+* implementing the schedule cleanup ([#85](https://github.com/iotaledger/twin-rights-management/issues/85)) ([cf44bc7](https://github.com/iotaledger/twin-rights-management/commit/cf44bc79c0df9a0a1e60e35849bd46253ce5c8bf))
+* international dataspaces contract negotiation ([#41](https://github.com/iotaledger/twin-rights-management/issues/41)) ([41ed515](https://github.com/iotaledger/twin-rights-management/commit/41ed5154d6cef48bc99db3158dbde6ec88523a0b))
+* introduce context for additional environment input ([e1d0392](https://github.com/iotaledger/twin-rights-management/commit/e1d0392622e5a018b695644f423c5b23cc40d3b7))
+* move create and verify proofs to helper ([a4e1f4a](https://github.com/iotaledger/twin-rights-management/commit/a4e1f4afe01ea12c36f29672197128e65819c875))
+* pap create, update methods ([#13](https://github.com/iotaledger/twin-rights-management/issues/13)) ([edb6c9e](https://github.com/iotaledger/twin-rights-management/commit/edb6c9efcfda55ac96f7594253bf831b4f0e5993))
+* pdp add ([#39](https://github.com/iotaledger/twin-rights-management/issues/39)) ([68b9a8a](https://github.com/iotaledger/twin-rights-management/commit/68b9a8a7a3cf2902f9eecb590ca3316c6b1671f0))
+* remove data access point ([#67](https://github.com/iotaledger/twin-rights-management/issues/67)) ([8573676](https://github.com/iotaledger/twin-rights-management/commit/8573676862c9f1634a66a0677b225b4de16a89cd))
+* rights management pap ([#4](https://github.com/iotaledger/twin-rights-management/issues/4)) ([d1165a9](https://github.com/iotaledger/twin-rights-management/commit/d1165a92f57128731cfb308d977832e28cf33493))
+* separate rest routes ([538b86b](https://github.com/iotaledger/twin-rights-management/commit/538b86be26b46711279101aa01fec119419d8149))
+* typescript 6 update ([18f6f1e](https://github.com/iotaledger/twin-rights-management/commit/18f6f1edba890462c068ba0b76ae6dd005e798be))
+* update contexts ([#63](https://github.com/iotaledger/twin-rights-management/issues/63)) ([e55200f](https://github.com/iotaledger/twin-rights-management/commit/e55200f9929eaced6c446be25969dbe0f95ee909))
+* update dataspace standards packages ([dbd5bf6](https://github.com/iotaledger/twin-rights-management/commit/dbd5bf62403a97c758ee2320d9cac378c568165b))
+* update dependencies ([5bfbb30](https://github.com/iotaledger/twin-rights-management/commit/5bfbb302bb245c8cd8015ff497db3793077d43cd))
+* update dependencies ([dd0a553](https://github.com/iotaledger/twin-rights-management/commit/dd0a553020b0dc5c41fb6865a2e36bd26045b0b9))
+* update dspace dependencies ([072917b](https://github.com/iotaledger/twin-rights-management/commit/072917bcfa052a6d61e6cd3676e275ba7fc4ec25))
+* update framework core ([d0ffcba](https://github.com/iotaledger/twin-rights-management/commit/d0ffcba9cf1dc2b562193ee298f099612d100ce8))
+* update namespaces and contexts ([#61](https://github.com/iotaledger/twin-rights-management/issues/61)) ([033446b](https://github.com/iotaledger/twin-rights-management/commit/033446b91ccf0c7664061afda9a1ad49d3c671ec))
+* update processors ([#71](https://github.com/iotaledger/twin-rights-management/issues/71)) ([d6e8c1e](https://github.com/iotaledger/twin-rights-management/commit/d6e8c1e593acb28556674d5180123f220766eb6b))
+* update to more specific ds odrl types ([c56dc49](https://github.com/iotaledger/twin-rights-management/commit/c56dc4991d4e1e8ca3beb737d2a70dddf6f5cd44))
+* update to use built in vc authentication ([f982b86](https://github.com/iotaledger/twin-rights-management/commit/f982b8676a7d21add85195c73558ef4f0fd9be29))
+* use Bearer format for token headers ([74d7d7c](https://github.com/iotaledger/twin-rights-management/commit/74d7d7cc59906c78798f78c5ed9211a3ee8dcd10))
+
+
+### Bug Fixes
+
+* resolve 5 bugs preventing PNP contract negotiation callbacks ([#98](https://github.com/iotaledger/twin-rights-management/issues/98)) ([4a065d6](https://github.com/iotaledger/twin-rights-management/commit/4a065d669440f47dc44c3602abe7efa1ea9d45ff))
+
+
+### Dependencies
+
+* The following workspace dependencies were updated
+  * dependencies
+    * @twin.org/rights-management-models bumped from 0.0.3-next.34 to 0.0.3-next.35
+
 ## [0.0.3-next.34](https://github.com/iotaledger/twin-rights-management/compare/rights-management-rest-client-v0.0.3-next.33...rights-management-rest-client-v0.0.3-next.34) (2026-05-13)
 
 
