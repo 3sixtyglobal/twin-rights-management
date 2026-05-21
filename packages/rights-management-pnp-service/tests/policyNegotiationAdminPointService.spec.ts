@@ -235,7 +235,7 @@ describe("PolicyNegotiationAdminPointService", () => {
 
 		const runSpy = vi
 			.spyOn(ContextIdStore, "run")
-			.mockImplementation(async (_contextIds, action) => action());
+			.mockImplementation(async (contextIds, action) => action());
 
 		const service = new PolicyNegotiationAdminPointService({
 			partitionContextIds: [ContextIdKeys.Tenant]
@@ -276,7 +276,7 @@ describe("PolicyNegotiationAdminPointService", () => {
 		} as unknown as ITenantAdminComponent;
 		ComponentFactory.register("tenant-admin", () => tenantAdmin);
 
-		vi.spyOn(ContextIdStore, "run").mockImplementation(async (_contextIds, action) => action());
+		vi.spyOn(ContextIdStore, "run").mockImplementation(async (contextIds, action) => action());
 
 		const service = new PolicyNegotiationAdminPointService({
 			partitionContextIds: [ContextIdKeys.Tenant]

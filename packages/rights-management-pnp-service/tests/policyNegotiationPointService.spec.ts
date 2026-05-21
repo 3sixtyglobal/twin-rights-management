@@ -89,7 +89,7 @@ function createRemoteComponent(
 		getNegotiation: async (id, trustPayload) => target.getNegotiation(id, trustPayload),
 		sendRequestToProvider: async (url, requesterType, odrlOfferId, publicOrigin) =>
 			target.sendRequestToProvider(url, requesterType, odrlOfferId, publicOrigin),
-		requestFromConsumer: async (message, trustPayload, _publicOrigin) =>
+		requestFromConsumer: async (message, trustPayload, publicOrigin) =>
 			target.requestFromConsumer(message, trustPayload, targetOrigin),
 		offerFromProvider: async (message, trustPayload) =>
 			target.offerFromProvider(message, trustPayload),
@@ -315,7 +315,7 @@ describe("PolicyNegotiationPointService", () => {
 
 		ComponentFactory.register("url-transformer", () => ({
 			className: () => "MockUrlTransformerComponent",
-			addEncryptedQueryParamToUrl: vi.fn(async (url: string, _id: string, _value: string) => url)
+			addEncryptedQueryParamToUrl: vi.fn(async (url: string, id: string, value: string) => url)
 		}));
 
 		testOrganizationId = testIdentityConsumer;
@@ -960,7 +960,7 @@ describe("PolicyNegotiationPointService", () => {
 			const mockUrlTransformerComponent = {
 				className: () => "MockUrlTransformerComponent",
 				addEncryptedQueryParamToUrl: vi.fn(
-					async (url: string, _id: string, _value: string) => `${url}?tenant=fake-encrypted-token`
+					async (url: string, id: string, value: string) => `${url}?tenant=fake-encrypted-token`
 				)
 			};
 			ComponentFactory.register("mock-url-transformer", () => mockUrlTransformerComponent);

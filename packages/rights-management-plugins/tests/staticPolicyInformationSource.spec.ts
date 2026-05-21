@@ -104,7 +104,7 @@ describe("StaticPolicyInformationSource", () => {
 		]
 	])(
 		"returns merged information for accessMode %s",
-		async (_accessModeName, accessMode, publicMap, privateMap, anyMap, expected) => {
+		async (accessModeName, accessMode, publicMap, privateMap, anyMap, expected) => {
 			const policyInformationSource = new StaticPolicyInformationSource({
 				config: {
 					information: [
@@ -128,7 +128,7 @@ describe("StaticPolicyInformationSource", () => {
 	test.each([
 		["Public", PolicyInformationAccessMode.Public],
 		["Private", PolicyInformationAccessMode.Private]
-	])("falls back to Any when only Any configured (%s)", async (_name, accessMode) => {
+	])("falls back to Any when only Any configured (%s)", async (name, accessMode) => {
 		const anyInfo: { [id: string]: IJsonLdNodeObject } = {
 			any1: { "@id": "any1", "@type": "AnyInfo", visibility: "any" }
 		};
@@ -153,7 +153,7 @@ describe("StaticPolicyInformationSource", () => {
 		["Private", PolicyInformationAccessMode.Private]
 	])(
 		"returns undefined when no accessMode match and no Any configured (%s)",
-		async (_name, accessMode) => {
+		async (name, accessMode) => {
 			const policyInformationSource = new StaticPolicyInformationSource({
 				config: {
 					information: [

@@ -454,7 +454,7 @@ describe("DefaultPolicyArbiter", () => {
 	test("grants when duty consequence is fulfilled", async () => {
 		registerObligationEnforcer(
 			"consequence-enforcer",
-			vi.fn().mockImplementation(async (_policy, duty) => duty.action === "compensate")
+			vi.fn().mockImplementation(async (policy, duty) => duty.action === "compensate")
 		);
 
 		const arbiter = new DefaultPolicyArbiter();
@@ -484,7 +484,7 @@ describe("DefaultPolicyArbiter", () => {
 	test("does not deny when prohibition remedy is fulfilled", async () => {
 		registerObligationEnforcer(
 			"remedy-enforcer",
-			vi.fn().mockImplementation(async (_policy, duty) => duty.action === "anonymize")
+			vi.fn().mockImplementation(async (policy, duty) => duty.action === "anonymize")
 		);
 
 		const arbiter = new DefaultPolicyArbiter();
