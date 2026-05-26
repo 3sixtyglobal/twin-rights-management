@@ -77,6 +77,7 @@ describe("PolicyNegotiationAdminPointService", () => {
 			correlationId: "cid",
 			dateCreated: new Date().toISOString(),
 			state: DataspaceProtocolContractNegotiationStateType.REQUESTED,
+			nodeIdentity: "node-identity",
 			organizationIdentity: "identity",
 			trustVerificationInfo: {
 				identity: "identity"
@@ -96,6 +97,7 @@ describe("PolicyNegotiationAdminPointService", () => {
 			dateCreated: new Date().toISOString(),
 			state: DataspaceProtocolContractNegotiationStateType.REQUESTED,
 			interventionRequired: true,
+			nodeIdentity: "node-identity",
 			organizationIdentity: "identity",
 			trustVerificationInfo: {
 				identity: "identity"
@@ -121,6 +123,7 @@ describe("PolicyNegotiationAdminPointService", () => {
 			correlationId: "cid",
 			dateCreated: new Date().toISOString(),
 			state: DataspaceProtocolContractNegotiationStateType.REQUESTED,
+			nodeIdentity: "node-identity",
 			organizationIdentity: "identity",
 			trustVerificationInfo: {
 				identity: "identity"
@@ -144,6 +147,7 @@ describe("PolicyNegotiationAdminPointService", () => {
 			correlationId: "cid",
 			dateCreated: new Date().toISOString(),
 			state: DataspaceProtocolContractNegotiationStateType.REQUESTED,
+			nodeIdentity: "node-identity",
 			organizationIdentity: "identity",
 			trustVerificationInfo: {
 				identity: "identity"
@@ -158,6 +162,7 @@ describe("PolicyNegotiationAdminPointService", () => {
 			correlationId: "cid2",
 			dateCreated: new Date().toISOString(),
 			state: DataspaceProtocolContractNegotiationStateType.REQUESTED,
+			nodeIdentity: "node-identity",
 			organizationIdentity: "identity",
 			trustVerificationInfo: {
 				identity: "identity"
@@ -192,6 +197,7 @@ describe("PolicyNegotiationAdminPointService", () => {
 			correlationId: "expired-cid",
 			dateCreated: new Date().toISOString(),
 			state: DataspaceProtocolContractNegotiationStateType.REQUESTED,
+			nodeIdentity: "node-identity",
 			organizationIdentity: "identity",
 			trustVerificationInfo: { identity: "identity" }
 		};
@@ -205,6 +211,7 @@ describe("PolicyNegotiationAdminPointService", () => {
 			dateCreated: new Date().toISOString(),
 			state: DataspaceProtocolContractNegotiationStateType.REQUESTED,
 			interventionRequired: true,
+			nodeIdentity: "node-identity",
 			organizationIdentity: "identity",
 			trustVerificationInfo: { identity: "identity" }
 		};

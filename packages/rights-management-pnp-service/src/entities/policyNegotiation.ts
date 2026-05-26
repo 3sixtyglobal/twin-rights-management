@@ -70,10 +70,16 @@ export class PolicyNegotiation {
 	public tenantId?: string;
 
 	/**
-	 * Organization identity to be used when sending trust payloads.
+	 * Node identity (DID) used to sign trust payloads.
 	 */
 	@property({ type: "string" })
-	public organizationIdentity!: string;
+	public nodeIdentity!: string;
+
+	/**
+	 * Organization identity.
+	 */
+	@property({ type: "string", optional: true })
+	public organizationIdentity?: string;
 
 	/**
 	 * The offer being requested.

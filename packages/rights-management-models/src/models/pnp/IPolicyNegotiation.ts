@@ -59,9 +59,15 @@ export interface IPolicyNegotiation {
 	tenantId?: string;
 
 	/**
-	 * Organization identity to be used when sending trust payloads.
+	 * The node identity (DID) used to sign trust payloads.
 	 */
-	organizationIdentity: string;
+	nodeIdentity: string;
+
+	/**
+	 * Organization identity (the org DID of the user who initiated or received
+	 * the negotiation, when a user context was available).
+	 */
+	organizationIdentity?: string;
 
 	/**
 	 * The offer being requested.

@@ -51,7 +51,10 @@
 		"Przemysłowa",
 		"Poznań",
 		"xone",
-		"Vocab"
+		"Vocab",
+		"nodexyz",
+		"dataspaces",
+		"twindev"
 	],
 	"ignoreRegExpList": [
 		"/from\\s+(['\"]).*\\1/",

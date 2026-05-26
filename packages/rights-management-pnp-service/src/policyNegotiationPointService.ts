@@ -3,7 +3,6 @@
 import type { IUrlTransformerComponent } from "@twin.org/api-models";
 import { ContextIdHelper, ContextIdKeys, ContextIdStore } from "@twin.org/context";
 import {
-	ArrayHelper,
 	BaseError,
 	ComponentFactory,
 	ErrorHelper,
@@ -249,21 +248,27 @@ export class PolicyNegotiationPointService implements IPolicyNegotiationPointCom
 			PolicyInformationAccessMode.Public
 		);
 
-		// The organization id should be available from the current context
-		// but we need to guard against it not being there
-		// we capture it in the negotiation so we can use it to generate the
-		// trust payload for any outgoing messages related to this negotiation
+		// Signing identity is the node DID
 		const contextIds = await ContextIdStore.getContextIds();
-		ContextIdHelper.guard(contextIds, ContextIdKeys.Organization);
-		const organizationIdentity = contextIds[ContextIdKeys.Organization];
+		ContextIdHelper.guard(contextIds, ContextIdKeys.Node);
+		const nodeIdentity = contextIds[ContextIdKeys.Node];
 		const tenantId = contextIds[ContextIdKeys.Tenant];
+		const organizationIdentity = contextIds[ContextIdKeys.Organization];
+
+		// Use the opaque tenant id hash to match the one used in trust payloads
+		const tenantIdHash = TrustHelper.hashTenantId(tenantId);
+		const callerComposite = Is.stringValue(tenantIdHash)
+			? `${nodeIdentity}:${tenantIdHash}`
+			: nodeIdentity;
 
 		const trustPayload = await this._trustComponent.generate(
-			organizationIdentity,
+			nodeIdentity,
 			this._overrideTrustGeneratorType,
 			{
 				subject: policyData
-			}
+			},
+			tenantIdHash,
+			organizationIdentity
 		);
 
 		const negotiationComponent = ComponentFactory.create<IPolicyNegotiationPointComponent>(
@@ -278,7 +283,7 @@ export class PolicyNegotiationPointService implements IPolicyNegotiationPointCom
 			offer: {
 				"@type": OdrlTypes.Offer,
 				"@id": odrlOfferId,
-				assigner: organizationIdentity
+				assigner: callerComposite
 			},
 			callbackAddress: await this.buildCallbackUrl(publicOrigin, tenantId)
 		};
@@ -304,6 +309,7 @@ export class PolicyNegotiationPointService implements IPolicyNegotiationPointCom
 			correlationId: response.providerPid,
 			state: DataspaceProtocolContractNegotiationStateType.REQUESTED,
 			dateCreated: new Date(Date.now()).toISOString(),
+			nodeIdentity,
 			organizationIdentity,
 			tenantId,
 			handlerId: requesterType
@@ -408,9 +414,12 @@ export class PolicyNegotiationPointService implements IPolicyNegotiationPointCom
 			// this could include information such as the geography of the consumer
 			const policyInformation = trustInfo.data;
 
-			// Capture tenantId from request context so it survives across setTimeout-delayed
+			// Capture node + tenant context
 			const requestContextIds = await ContextIdStore.getContextIds();
+			ContextIdHelper.guard(requestContextIds, ContextIdKeys.Node);
+			const requestNodeIdentity = requestContextIds[ContextIdKeys.Node];
 			const requestTenantId = requestContextIds?.[ContextIdKeys.Tenant];
+			const requestOrganizationId = requestContextIds?.[ContextIdKeys.Organization];
 
 			// Construct a new negotiation or update an existing one
 			if (Is.stringValue(message.providerPid)) {
@@ -454,16 +463,11 @@ export class PolicyNegotiationPointService implements IPolicyNegotiationPointCom
 				policyNegotiation.handlerId = negotiator.className();
 				policyNegotiation.publicOrigin = publicOrigin;
 				policyNegotiation.tenantId = requestTenantId;
-			} else {
-				// We need an organization id to generate the trust payload, but we have no context
-				// as this request arrived through a trust channel, so we should use the
-				// assigner from the policy as the organization id in the trust payload
-				const assigner = OdrlPolicyHelper.extractAssignerIdentity(providerOffer);
-				const organizationIdentity = ArrayHelper.fromObjectOrArray(assigner)[0];
-				if (!Is.stringValue(organizationIdentity)) {
-					throw new GeneralError(PolicyNegotiationPointService.CLASS_NAME, "assignerNotIdentity");
+				policyNegotiation.nodeIdentity = requestNodeIdentity;
+				if (Is.stringValue(requestOrganizationId)) {
+					policyNegotiation.organizationIdentity = requestOrganizationId;
 				}
-
+			} else {
 				policyNegotiation = {
 					id: providerPid,
 					correlationId: message.consumerPid,
@@ -473,7 +477,10 @@ export class PolicyNegotiationPointService implements IPolicyNegotiationPointCom
 					callbackAddress: message.callbackAddress,
 					publicOrigin,
 					tenantId: requestTenantId,
-					organizationIdentity,
+					nodeIdentity: requestNodeIdentity,
+					organizationIdentity: Is.stringValue(requestOrganizationId)
+						? requestOrganizationId
+						: undefined,
 					trustVerificationInfo: trustInfo,
 					handlerId: negotiator.className()
 				};
@@ -1219,16 +1226,10 @@ export class PolicyNegotiationPointService implements IPolicyNegotiationPointCom
 
 		const policyNegotiation = await this._policyNegotiationAdminPointComponent.get(providerPid);
 
-		const trustPayload = await this._trustComponent.generate(
-			policyNegotiation.organizationIdentity,
-			this._overrideTrustGeneratorType,
-			{
-				subject: {
-					providerPid,
-					consumerPid
-				}
-			}
-		);
+		const trustPayload = await this.generateNegotiationTrustPayload(policyNegotiation, {
+			providerPid,
+			consumerPid
+		});
 
 		const negotiationComponent = ComponentFactory.create<IPolicyNegotiationPointComponent>(
 			this._policyNegotiationPointRemoteComponentType,
@@ -1368,16 +1369,10 @@ export class PolicyNegotiationPointService implements IPolicyNegotiationPointCom
 				)
 			};
 
-			const trustPayload = await this._trustComponent.generate(
-				policyNegotiation.organizationIdentity,
-				this._overrideTrustGeneratorType,
-				{
-					subject: {
-						providerPid: policyNegotiation.id,
-						consumerPid: policyNegotiation.correlationId
-					}
-				}
-			);
+			const trustPayload = await this.generateNegotiationTrustPayload(policyNegotiation, {
+				providerPid: policyNegotiation.id,
+				consumerPid: policyNegotiation.correlationId
+			});
 
 			policyNegotiation.state = DataspaceProtocolContractNegotiationStateType.OFFERED;
 			await this._policyNegotiationAdminPointComponent.set(policyNegotiation);
@@ -1446,16 +1441,10 @@ export class PolicyNegotiationPointService implements IPolicyNegotiationPointCom
 				event
 			};
 
-			const trustPayload = await this._trustComponent.generate(
-				policyNegotiation.organizationIdentity,
-				this._overrideTrustGeneratorType,
-				{
-					subject: {
-						providerPid: eventMessage.providerPid,
-						consumerPid: eventMessage.consumerPid
-					}
-				}
-			);
+			const trustPayload = await this.generateNegotiationTrustPayload(policyNegotiation, {
+				providerPid: eventMessage.providerPid,
+				consumerPid: eventMessage.consumerPid
+			});
 
 			policyNegotiation.state = event;
 			await this._policyNegotiationAdminPointComponent.set(policyNegotiation);
@@ -1559,16 +1548,10 @@ export class PolicyNegotiationPointService implements IPolicyNegotiationPointCom
 						)
 					};
 
-					const trustPayload = await this._trustComponent.generate(
-						policyNegotiation.organizationIdentity,
-						this._overrideTrustGeneratorType,
-						{
-							subject: {
-								providerPid: policyNegotiation.id,
-								consumerPid: policyNegotiation.correlationId
-							}
-						}
-					);
+					const trustPayload = await this.generateNegotiationTrustPayload(policyNegotiation, {
+						providerPid: policyNegotiation.id,
+						consumerPid: policyNegotiation.correlationId
+					});
 
 					policyNegotiation.state = DataspaceProtocolContractNegotiationStateType.AGREED;
 					policyNegotiation.agreement = agreement;
@@ -1629,16 +1612,10 @@ export class PolicyNegotiationPointService implements IPolicyNegotiationPointCom
 				consumerPid: policyNegotiation.id
 			};
 
-			const trustPayload = await this._trustComponent.generate(
-				policyNegotiation.organizationIdentity,
-				this._overrideTrustGeneratorType,
-				{
-					subject: {
-						providerPid: policyNegotiation.correlationId,
-						consumerPid: policyNegotiation.id
-					}
-				}
-			);
+			const trustPayload = await this.generateNegotiationTrustPayload(policyNegotiation, {
+				providerPid: policyNegotiation.correlationId,
+				consumerPid: policyNegotiation.id
+			});
 
 			policyNegotiation.state = DataspaceProtocolContractNegotiationStateType.VERIFIED;
 			await this._policyNegotiationAdminPointComponent.set(policyNegotiation);
@@ -1711,5 +1688,25 @@ export class PolicyNegotiationPointService implements IPolicyNegotiationPointCom
 		}
 
 		return url;
+	}
+
+	/**
+	 * Build the trust payload for an outbound negotiation message.
+	 * @param policyNegotiation The stored negotiation record.
+	 * @param subject The trust payload subject (DSP-specific claims).
+	 * @returns The opaque trust payload (typically a JWT VC string).
+	 * @internal
+	 */
+	private async generateNegotiationTrustPayload(
+		policyNegotiation: IPolicyNegotiation,
+		subject: { [key: string]: unknown }
+	): Promise<unknown> {
+		return this._trustComponent.generate(
+			policyNegotiation.nodeIdentity,
+			this._overrideTrustGeneratorType,
+			{ subject },
+			TrustHelper.hashTenantId(policyNegotiation.tenantId),
+			policyNegotiation.organizationIdentity
+		);
 	}
 }

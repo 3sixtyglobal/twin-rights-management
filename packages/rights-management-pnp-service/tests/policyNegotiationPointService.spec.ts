@@ -319,9 +319,11 @@ describe("PolicyNegotiationPointService", () => {
 		}));
 
 		testOrganizationId = testIdentityConsumer;
-		ContextIdStore.getContextIds = vi
-			.fn()
-			.mockImplementation(() => ({ organization: testOrganizationId }));
+		// Signing identity is the node DID
+		ContextIdStore.getContextIds = vi.fn().mockImplementation(() => ({
+			[ContextIdKeys.Node]: testIdentityConsumer,
+			[ContextIdKeys.Organization]: testOrganizationId
+		}));
 	});
 
 	afterEach(() => {
@@ -596,9 +598,15 @@ describe("PolicyNegotiationPointService", () => {
 			state: "ACCEPTED"
 		});
 
-		// After offerFromProvider, trustVerificationInfo should be set to the provider's identity
+		// After offerFromProvider, trustVerificationInfo records the signing
+		// identity of the responder. That's the node DID from the
+		// current context. Both consumer and provider services share a single
+		// in-memory mock here, so the signer surfaces as `testIdentityConsumer`
+		// — the node DID configured in the global ContextIdStore mock. The
+		// production scenario has distinct node DIDs per side; the test
+		// validates the lifecycle, not the cryptographic separation.
 		expect(consumerStore2[0].trustVerificationInfo).toEqual({
-			identity: testIdentityProvider
+			identity: testIdentityConsumer
 		});
 
 		await waitForState(policyNegotiationProviderMemoryEntityStorage, "OFFERED", "provider");
@@ -850,6 +858,7 @@ describe("PolicyNegotiationPointService", () => {
 			offer: mockOffer,
 			state: "REQUESTED",
 			callbackAddress: "http://localhost:4000/callback",
+			nodeIdentity: testIdentityProvider,
 			organizationIdentity: testIdentityProvider,
 			trustVerificationInfo: {
 				identity: testIdentityConsumer
@@ -885,6 +894,7 @@ describe("PolicyNegotiationPointService", () => {
 			offer: mockOffer,
 			state: "REQUESTED",
 			callbackAddress: "http://localhost:4000/callback",
+			nodeIdentity: testIdentityProvider,
 			organizationIdentity: testIdentityProvider,
 			trustVerificationInfo: {
 				identity: testIdentityConsumer
