@@ -77,11 +77,20 @@ The tenant id this negotiation belongs to.
 
 ***
 
-### organizationIdentity {#organizationidentity}
+### nodeIdentity {#nodeidentity}
 
-> **organizationIdentity**: `string`
+> **nodeIdentity**: `string`
 
-Organization identity to be used when sending trust payloads.
+The node identity (DID) used to sign trust payloads.
+
+***
+
+### organizationIdentity? {#organizationidentity}
+
+> `optional` **organizationIdentity?**: `string`
+
+Organization identity (the org DID of the user who initiated or received
+the negotiation, when a user context was available).
 
 ***
 
