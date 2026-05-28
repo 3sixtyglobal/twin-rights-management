@@ -13,6 +13,7 @@ import {
 	createTestPolicies,
 	resetOdrlPolicyStorage,
 	SAMPLE_POLICY,
+	TEST_ASSET_ID,
 	TEST_DIRECTORY_ROOT,
 	TEST_POLICY_ID,
 	testPolicyMapping
@@ -85,6 +86,24 @@ describe("PolicyAdministrationPointService", () => {
 			expect(retrievedPermission?.[0]?.target).toEqual(SAMPLE_POLICY.permission?.[0]?.target);
 			expect(retrievedPermission?.[0]?.action).toEqual(SAMPLE_POLICY.permission?.[0]?.action);
 		}
+	});
+
+	test("should throw AlreadyExistsError when creating a policy with an id that already exists", async () => {
+		const uid = await policyAdminPoint.create({
+			"@context": OdrlContexts.Context,
+			"@type": OdrlPolicyType.Set,
+			"@id": TEST_POLICY_ID,
+			permission: [{ target: TEST_ASSET_ID, action: "use" }]
+		});
+
+		await expect(
+			policyAdminPoint.create({
+				"@context": OdrlContexts.Context,
+				"@type": OdrlPolicyType.Set,
+				"@id": uid,
+				permission: [{ target: TEST_ASSET_ID, action: "use" }]
+			})
+		).rejects.toMatchObject({ name: "AlreadyExistsError" });
 	});
 
 	test("should throw error when using an invalid uid", async () => {

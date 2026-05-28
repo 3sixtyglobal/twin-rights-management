@@ -1,6 +1,7 @@
 // Copyright 2025 IOTA Stiftung.
 // SPDX-License-Identifier: Apache-2.0.
 import {
+	AlreadyExistsError,
 	BaseError,
 	ComponentFactory,
 	GeneralError,
@@ -109,6 +110,15 @@ export class PolicyAdministrationPointService implements IPolicyAdministrationPo
 					namespace: RightsManagementNamespaces.Policy,
 					id: policyUid
 				});
+			}
+
+			const existing = await this._odrlPolicyEntityStorage.get(policyUid);
+			if (!Is.empty(existing)) {
+				throw new AlreadyExistsError(
+					PolicyAdministrationPointService.CLASS_NAME,
+					"policyAlreadyExists",
+					policyUid
+				);
 			}
 		}
 

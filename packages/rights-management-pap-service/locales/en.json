@@ -2,6 +2,7 @@
 	"error": {
 		"policyAdministrationPointService": {
 			"namespaceMismatch": "The namespace in the urn \"{id}\" does not match the namespace of the rights management components \"{namespace}\"",
+			"policyAlreadyExists": "A policy with id: \"{existingId}\" already exists",
 			"policyNotFound": "Policy not found with id: \"{notFoundId}\"",
 			"agreementNotFound": "Agreement not found with id: \"{notFoundId}\"",
 			"agreementTypeMismatch": "The policy with id: \"{agreementId}\" is not of type Agreement, it is of type: \"{type}\".",

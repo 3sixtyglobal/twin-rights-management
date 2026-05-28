@@ -16,7 +16,7 @@
 			"callerNotAuthorizedForNegotiation": "The caller's verified identity does not match any authorized party in this negotiation"
 		},
 		"policyNegotiationAdminPointService": {
-			"policyNotFound": "Policy with id: \"{notFoundId}\" not found",
+			"policyNotFound": "Contract negotiation with id: \"{notFoundId}\" not found",
 			"cleanupFailed": "Failed to cleanup old negotiations"
 		}
 	},
