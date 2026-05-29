@@ -4,7 +4,7 @@
 	"description": "Rights Management",
 	"repository": {
 		"type": "git",
-		"url": "git+https://github.com/iotaledger/rights-management.git"
+		"url": "git+https://github.com/iotaledger/twin-rights-management.git"
 	},
 	"author": "martyn.janes@iota.org",
 	"license": "Apache-2.0",
@@ -68,7 +68,7 @@
 	],
 	"type": "module",
 	"bugs": {
-		"url": "git+https://github.com/iotaledger/rights-management/issues"
+		"url": "git+https://github.com/iotaledger/twin-rights-management/issues"
 	},
 	"homepage": "https://twindev.org"
 }
