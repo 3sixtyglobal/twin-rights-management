@@ -4,7 +4,7 @@
 	"description": "Policy enforcement point service for applying decisions to protected data flows.",
 	"repository": {
 		"type": "git",
-		"url": "git+https://github.com/iotaledger/rights-management.git",
+		"url": "git+https://github.com/iotaledger/twin-rights-management.git",
 		"directory": "packages/rights-management-pep-service"
 	},
 	"author": "martyn.janes@iota.org",
@@ -87,7 +87,7 @@
 		"business-logic"
 	],
 	"bugs": {
-		"url": "git+https://github.com/iotaledger/rights-management/issues"
+		"url": "git+https://github.com/iotaledger/twin-rights-management/issues"
 	},
 	"homepage": "https://twindev.org"
 }

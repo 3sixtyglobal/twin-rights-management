@@ -4,7 +4,7 @@
 	"description": "Policy decision point service for producing authorisation decisions from policies and context.",
 	"repository": {
 		"type": "git",
-		"url": "git+https://github.com/iotaledger/rights-management.git",
+		"url": "git+https://github.com/iotaledger/twin-rights-management.git",
 		"directory": "packages/rights-management-pdp-service"
 	},
 	"author": "martyn.janes@iota.org",
@@ -86,7 +86,7 @@
 		"business-logic"
 	],
 	"bugs": {
-		"url": "git+https://github.com/iotaledger/rights-management/issues"
+		"url": "git+https://github.com/iotaledger/twin-rights-management/issues"
 	},
 	"homepage": "https://twindev.org"
 }
