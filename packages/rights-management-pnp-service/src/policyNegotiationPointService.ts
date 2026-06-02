@@ -1333,12 +1333,16 @@ export class PolicyNegotiationPointService implements IPolicyNegotiationPointCom
 		};
 
 		if (!Is.empty(policyNegotiation)) {
-			policyNegotiation.code = errMessage.code;
-			policyNegotiation.reason = errMessage.reason;
-			policyNegotiation.state = DataspaceProtocolContractNegotiationStateType.TERMINATED;
-			policyNegotiation.errorDetails = details;
+			// If the negotiation was administratively deleted while this async
+			// callback was in flight, do not resurrect it.
+			if (await this.negotiationExists(policyNegotiation.id)) {
+				policyNegotiation.code = errMessage.code;
+				policyNegotiation.reason = errMessage.reason;
+				policyNegotiation.state = DataspaceProtocolContractNegotiationStateType.TERMINATED;
+				policyNegotiation.errorDetails = details;
 
-			await this._policyNegotiationAdminPointComponent.set(policyNegotiation);
+				await this._policyNegotiationAdminPointComponent.set(policyNegotiation);
+			}
 		}
 
 		return errMessage;
@@ -1702,6 +1706,25 @@ export class PolicyNegotiationPointService implements IPolicyNegotiationPointCom
 	}
 
 	/**
+	 * Returns false if the negotiation has been administratively deleted, true if it still exists.
+	 * Re-throws any unexpected errors.
+	 * @param id The negotiation id to check.
+	 * @returns True if the negotiation exists, false if it was deleted.
+	 * @internal
+	 */
+	private async negotiationExists(id: string): Promise<boolean> {
+		try {
+			await this._policyNegotiationAdminPointComponent.get(id);
+			return true;
+		} catch (err) {
+			if (BaseError.someErrorName(err, NotFoundError.CLASS_NAME)) {
+				return false;
+			}
+			throw err;
+		}
+	}
+
+	/**
 	 * The result possible contains a failure, if it does then terminate the negotiation.
 	 * @param response The response to check for an error.
 	 * @param policyNegotiation The negotiation to update.
@@ -1717,10 +1740,14 @@ export class PolicyNegotiationPointService implements IPolicyNegotiationPointCom
 			OdrlPolicyHelper.getType(response) ===
 				DataspaceProtocolContractNegotiationTypes.ContractNegotiationError
 		) {
-			policyNegotiation.state = DataspaceProtocolContractNegotiationStateType.TERMINATED;
-			policyNegotiation.reason = response.reason;
-			policyNegotiation.code = response.code;
-			await this._policyNegotiationAdminPointComponent.set(policyNegotiation);
+			// If the negotiation was administratively deleted while this async
+			// callback was in flight, do not resurrect it.
+			if (await this.negotiationExists(policyNegotiation.id)) {
+				policyNegotiation.state = DataspaceProtocolContractNegotiationStateType.TERMINATED;
+				policyNegotiation.reason = response.reason;
+				policyNegotiation.code = response.code;
+				await this._policyNegotiationAdminPointComponent.set(policyNegotiation);
+			}
 		}
 	}
 
