@@ -38,6 +38,7 @@ import {
 import { PolicyInformationPointService } from "@twin.org/rights-management-pip-service";
 import {
 	DataspaceProtocolContexts,
+	DataspaceProtocolContractNegotiationStateType,
 	DataspaceProtocolContractNegotiationTypes,
 	type IDataspaceProtocolOffer
 } from "@twin.org/standards-dataspace-protocol";
@@ -1056,6 +1057,186 @@ describe("PolicyNegotiationPointService", () => {
 			);
 
 			expect(capturedCallbackAddress).toBe(`${consumerOrigin}/callback`);
+		});
+	});
+
+	describe("state-guard checks on async send methods", () => {
+		function buildServices(): {
+			provider: PolicyNegotiationPointService;
+			consumer: PolicyNegotiationPointService;
+		} {
+			const provider = new PolicyNegotiationPointService({
+				policyNegotiationAdministrationPointComponentType:
+					"policy-negotiation-provider-admin-point",
+				policyNegotiationPointRemoteComponentType: "pnp-remote",
+				config: { callbackPath: "/callback" }
+			});
+			const consumer = new PolicyNegotiationPointService({
+				policyNegotiationAdministrationPointComponentType:
+					"policy-negotiation-consumer-admin-point",
+				policyNegotiationPointRemoteComponentType: "pnp-remote",
+				config: { callbackPath: "/callback" }
+			});
+			const services = { provider, consumer };
+			remoteComponentResolver = (params: { endpoint: string }) => {
+				if (params.endpoint.startsWith(providerOrigin)) {
+					return createRemoteComponent(services.provider, providerOrigin);
+				}
+				if (params.endpoint.startsWith(consumerOrigin)) {
+					return createRemoteComponent(services.consumer, consumerOrigin);
+				}
+				throw new TypeError(`Unknown remote url ${params.endpoint}`);
+			};
+			return services;
+		}
+
+		test("sendOfferToConsumer aborts silently when negotiation no longer exists", async () => {
+			// sendRequestToProvider completes synchronously (requestFromConsumer on the real
+			// provider runs inline) and schedules sendOfferToConsumer via setTimeout(100).
+			// We remove the provider negotiation in that ~100 ms window so checkNegotiationInState
+			// throws NotFoundError and isStateGuardError returns it silently.
+			const { consumer } = buildServices();
+			PolicyRequesterFactory.register("requester-sg-1", () => mockPolicyRequester);
+			await adminPointComponent.create(mockOffer);
+			PolicyNegotiatorFactory.register("MockPolicyNegotiator", () => mockNegotiator);
+
+			const offerSpy = vi.spyOn(consumer, "offerFromProvider");
+
+			await consumer.sendRequestToProvider(
+				providerOrigin,
+				"requester-sg-1",
+				"urn:policy:offer-1",
+				consumerOrigin
+			);
+
+			// getStore() returns a copy; use the connector's remove() to delete from the live store
+			const snapshot = policyNegotiationProviderMemoryEntityStorage.getStore();
+			expect(snapshot).toHaveLength(1);
+			await policyNegotiationProviderMemoryEntityStorage.remove(snapshot[0].id);
+
+			await new Promise(resolve => setTimeout(resolve, 300));
+
+			expect(policyNegotiationProviderMemoryEntityStorage.getStore()).toHaveLength(0);
+			expect(offerSpy).not.toHaveBeenCalled();
+		});
+
+		test("sendOfferToConsumer aborts silently when negotiation is in wrong state", async () => {
+			const { consumer } = buildServices();
+			PolicyRequesterFactory.register("requester-sg-2", () => mockPolicyRequester);
+			await adminPointComponent.create(mockOffer);
+			PolicyNegotiatorFactory.register("MockPolicyNegotiator", () => mockNegotiator);
+
+			const offerSpy = vi.spyOn(consumer, "offerFromProvider");
+
+			await consumer.sendRequestToProvider(
+				providerOrigin,
+				"requester-sg-2",
+				"urn:policy:offer-1",
+				consumerOrigin
+			);
+
+			// Use the admin point service to update the live store (getStore() returns a copy)
+			const snapshot = policyNegotiationProviderMemoryEntityStorage.getStore();
+			expect(snapshot).toHaveLength(1);
+			await negotiationProviderAdminPointComponent.set({
+				...snapshot[0],
+				state: DataspaceProtocolContractNegotiationStateType.TERMINATED
+			});
+
+			await new Promise(resolve => setTimeout(resolve, 300));
+
+			// sendOfferToConsumer must have aborted: state stays TERMINATED, not overwritten with OFFERED
+			const final = policyNegotiationProviderMemoryEntityStorage.getStore();
+			expect(final[0].state).toBe(DataspaceProtocolContractNegotiationStateType.TERMINATED);
+			expect(offerSpy).not.toHaveBeenCalled();
+		});
+
+		test("sendAgreementToConsumer aborts silently when negotiation is in wrong state", async () => {
+			// After event() accepts the ACCEPTED event on the provider (state → ACCEPTED),
+			// sendAgreementToConsumer is scheduled with a 100 ms delay.
+			// We spy on provider.event and immediately flip provider state to TERMINATED inside
+			// the spy so that sendAgreementToConsumer's checkNegotiationInState sees invalidState.
+			const { provider, consumer } = buildServices();
+			PolicyRequesterFactory.register("requester-sg-3", () => mockPolicyRequester);
+			await adminPointComponent.create(mockOffer);
+			PolicyNegotiatorFactory.register("MockPolicyNegotiator", () => mockNegotiator);
+
+			const originalEvent = provider.event.bind(provider);
+			let acceptedHandled = false;
+			vi.spyOn(provider, "event").mockImplementation(async (message, destination, trustPayload) => {
+				const result = await originalEvent(message, destination, trustPayload);
+				if (!acceptedHandled && message.event === "ACCEPTED" && destination === "provider") {
+					acceptedHandled = true;
+					const providerSnapshot = policyNegotiationProviderMemoryEntityStorage.getStore();
+					if (providerSnapshot.length > 0) {
+						await negotiationProviderAdminPointComponent.set({
+							...providerSnapshot[0],
+							state: DataspaceProtocolContractNegotiationStateType.TERMINATED
+						});
+					}
+				}
+				return result;
+			});
+
+			await consumer.sendRequestToProvider(
+				providerOrigin,
+				"requester-sg-3",
+				"urn:policy:offer-1",
+				consumerOrigin
+			);
+
+			await new Promise(resolve => setTimeout(resolve, 600));
+
+			// Provider must stay TERMINATED, never move to AGREED
+			const final = policyNegotiationProviderMemoryEntityStorage.getStore();
+			expect(final.length).toBeGreaterThan(0);
+			expect(final[0].state).toBe(DataspaceProtocolContractNegotiationStateType.TERMINATED);
+		});
+
+		test("sendAgreementVerificationToProvider aborts silently when negotiation is in wrong state", async () => {
+			// After agreementFromProvider sets consumer state to AGREED and schedules
+			// sendAgreementVerificationToProvider (100 ms delay), we flip consumer state to
+			// TERMINATED so the async callback aborts via isStateGuardError.
+			const { consumer } = buildServices();
+			PolicyRequesterFactory.register("requester-sg-4", () => mockPolicyRequester);
+			await adminPointComponent.create(mockOffer);
+			PolicyNegotiatorFactory.register("MockPolicyNegotiator", () => mockNegotiator);
+
+			const originalAgreement = consumer.agreementFromProvider.bind(consumer);
+			let agreedHandled = false;
+			vi.spyOn(consumer, "agreementFromProvider").mockImplementation(
+				async (message, trustPayload) => {
+					const result = await originalAgreement(message, trustPayload);
+					if (!agreedHandled) {
+						agreedHandled = true;
+						const consumerSnapshot = policyNegotiationConsumerMemoryEntityStorage.getStore();
+						if (
+							consumerSnapshot.length > 0 &&
+							consumerSnapshot[0].state === DataspaceProtocolContractNegotiationStateType.AGREED
+						) {
+							await negotiationConsumerAdminPointComponent.set({
+								...consumerSnapshot[0],
+								state: DataspaceProtocolContractNegotiationStateType.TERMINATED
+							});
+						}
+					}
+					return result;
+				}
+			);
+
+			await consumer.sendRequestToProvider(
+				providerOrigin,
+				"requester-sg-4",
+				"urn:policy:offer-1",
+				consumerOrigin
+			);
+
+			await new Promise(resolve => setTimeout(resolve, 800));
+
+			// Consumer must stay TERMINATED, never move to VERIFIED
+			const final = policyNegotiationConsumerMemoryEntityStorage.getStore();
+			expect(final.length).toBeGreaterThan(0);
+			expect(final[0].state).toBe(DataspaceProtocolContractNegotiationStateType.TERMINATED);
 		});
 	});
 });

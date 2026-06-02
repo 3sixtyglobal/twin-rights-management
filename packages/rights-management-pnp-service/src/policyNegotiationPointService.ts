@@ -1240,6 +1240,43 @@ export class PolicyNegotiationPointService implements IPolicyNegotiationPointCom
 	}
 
 	/**
+	 * Check that a stored negotiation exists and is in the expected state.
+	 * @param negotiationId The id of the negotiation to look up.
+	 * @param expectedState The state the negotiation must be in to proceed.
+	 * @returns The current negotiation record if the state matches.
+	 * @throws NotFoundError if the negotiation does not exist.
+	 * @throws GeneralError with code "invalidState" if the negotiation is in a different state.
+	 * @internal
+	 */
+	private async checkNegotiationInState(
+		negotiationId: string,
+		expectedState: DataspaceProtocolContractNegotiationStateType
+	): Promise<IPolicyNegotiation> {
+		const negotiation = await this._policyNegotiationAdminPointComponent.get(negotiationId);
+		if (negotiation.state !== expectedState) {
+			throw new GeneralError(PolicyNegotiationPointService.CLASS_NAME, "invalidState", {
+				state: negotiation.state,
+				negotiationId
+			});
+		}
+		return negotiation;
+	}
+
+	/**
+	 * Returns true when the error is one of the expected "state guard" failures that
+	 * async send-* methods should absorb silently instead of recording as a terminal error.
+	 * @param error The error to test.
+	 * @returns True if the error is a state guard error.
+	 * @internal
+	 */
+	private isStateGuardError(error: unknown): boolean {
+		return (
+			BaseError.someErrorName(error, NotFoundError.CLASS_NAME) ||
+			BaseError.someErrorMessage(error, `${PolicyNegotiationPointService.CLASS_NAME}.invalidState`)
+		);
+	}
+
+	/**
 	 * Validate that the caller's verified identity matches the counterparty identity
 	 * captured from the first trusted interaction in this negotiation.
 	 * @param negotiation The policy negotiation to check against.
@@ -1374,6 +1411,10 @@ export class PolicyNegotiationPointService implements IPolicyNegotiationPointCom
 				consumerPid: policyNegotiation.correlationId
 			});
 
+			await this.checkNegotiationInState(
+				policyNegotiation.id,
+				DataspaceProtocolContractNegotiationStateType.REQUESTED
+			);
 			policyNegotiation.state = DataspaceProtocolContractNegotiationStateType.OFFERED;
 			await this._policyNegotiationAdminPointComponent.set(policyNegotiation);
 
@@ -1387,7 +1428,9 @@ export class PolicyNegotiationPointService implements IPolicyNegotiationPointCom
 			// If there was no error then the consumer will now send an event if they accepted the offer
 			await this.terminateIfResponseError(response, policyNegotiation);
 		} catch (error) {
-			// As this method is called async we need to store the error in the negotiation
+			if (this.isStateGuardError(error)) {
+				return;
+			}
 			await this.setErrorState(
 				policyNegotiation.id,
 				policyNegotiation.correlationId,
@@ -1446,6 +1489,7 @@ export class PolicyNegotiationPointService implements IPolicyNegotiationPointCom
 				consumerPid: eventMessage.consumerPid
 			});
 
+			await this.checkNegotiationInState(policyNegotiation.id, event);
 			policyNegotiation.state = event;
 			await this._policyNegotiationAdminPointComponent.set(policyNegotiation);
 
@@ -1458,7 +1502,9 @@ export class PolicyNegotiationPointService implements IPolicyNegotiationPointCom
 
 			await this.terminateIfResponseError(response, policyNegotiation);
 		} catch (error) {
-			// As this method is called async we need to store the error in the negotiation
+			if (this.isStateGuardError(error)) {
+				return;
+			}
 			await this.setErrorState(
 				policyNegotiation.id,
 				policyNegotiation.correlationId,
@@ -1501,6 +1547,11 @@ export class PolicyNegotiationPointService implements IPolicyNegotiationPointCom
 				PolicyNegotiationPointService.CLASS_NAME,
 				nameof(policyNegotiation.trustVerificationInfo),
 				policyNegotiation.trustVerificationInfo
+			);
+
+			await this.checkNegotiationInState(
+				policyNegotiation.id,
+				DataspaceProtocolContractNegotiationStateType.ACCEPTED
 			);
 
 			const negotiatorNames = PolicyNegotiatorFactory.names();
@@ -1572,7 +1623,9 @@ export class PolicyNegotiationPointService implements IPolicyNegotiationPointCom
 				}
 			}
 		} catch (error) {
-			// As this method is called async we need to store the error in the negotiation
+			if (this.isStateGuardError(error)) {
+				return;
+			}
 			await this.setErrorState(
 				policyNegotiation.id,
 				policyNegotiation.correlationId,
@@ -1617,6 +1670,10 @@ export class PolicyNegotiationPointService implements IPolicyNegotiationPointCom
 				consumerPid: policyNegotiation.id
 			});
 
+			await this.checkNegotiationInState(
+				policyNegotiation.id,
+				DataspaceProtocolContractNegotiationStateType.AGREED
+			);
 			policyNegotiation.state = DataspaceProtocolContractNegotiationStateType.VERIFIED;
 			await this._policyNegotiationAdminPointComponent.set(policyNegotiation);
 
@@ -1632,7 +1689,9 @@ export class PolicyNegotiationPointService implements IPolicyNegotiationPointCom
 
 			await this.terminateIfResponseError(response, policyNegotiation);
 		} catch (error) {
-			// As this method is called async we need to store the error in the negotiation
+			if (this.isStateGuardError(error)) {
+				return;
+			}
 			await this.setErrorState(
 				policyNegotiation.id,
 				policyNegotiation.correlationId,
