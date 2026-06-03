@@ -57,7 +57,7 @@ export function generateRestRoutesPolicyNegotiationPoint(
 	baseRouteName: string,
 	componentName: string
 ): IRestRoute[] {
-	// v
+	// https://eclipse-dataspace-protocol-base.github.io/DataspaceProtocol/2025-1/#negotiations-get-provider
 	const pnpGetNegotiationRoute: IRestRoute<
 		IPnpNegotiationGetRequest,
 		IPnpContractNegotiationResponse
