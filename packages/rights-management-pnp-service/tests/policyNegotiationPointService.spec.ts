@@ -1239,4 +1239,227 @@ describe("PolicyNegotiationPointService", () => {
 			expect(final[0].state).toBe(DataspaceProtocolContractNegotiationStateType.TERMINATED);
 		});
 	});
+
+	describe("callbackAddress is optional per DSP spec (issue #130)", () => {
+		test("requestFromConsumer accepts a ContractRequestMessage with no callbackAddress", async () => {
+			PolicyNegotiatorFactory.register("MockPolicyNegotiator", () => mockNegotiator);
+			await adminPointComponent.create(mockOffer);
+
+			const provider = new PolicyNegotiationPointService({
+				policyNegotiationAdministrationPointComponentType:
+					"policy-negotiation-provider-admin-point",
+				policyNegotiationPointRemoteComponentType: "pnp-remote",
+				config: { callbackPath: "/callback" }
+			});
+
+			const result = await provider.requestFromConsumer(
+				{
+					"@context": [DataspaceProtocolContexts.Context],
+					"@type": DataspaceProtocolContractNegotiationTypes.ContractRequestMessage,
+					consumerPid: "urn:contract-negotiation:no-cb-consumer-pid",
+					offer: mockOffer
+					// callbackAddress intentionally omitted — must be accepted per DSP spec
+				},
+				`token:${testIdentityConsumer}`,
+				providerOrigin
+			);
+
+			expect(result["@type"]).toBe(DataspaceProtocolContractNegotiationTypes.ContractNegotiation);
+			if ("state" in result) {
+				expect(result.state).toBe(DataspaceProtocolContractNegotiationStateType.REQUESTED);
+			}
+
+			const stored = policyNegotiationProviderMemoryEntityStorage.getStore();
+			expect(stored).toHaveLength(1);
+			expect(stored[0].callbackAddress).toBeUndefined();
+		});
+
+		test("auto-accept path advances state to OFFERED even when no callbackAddress is provided (polling mode)", async () => {
+			PolicyNegotiatorFactory.register("MockPolicyNegotiator", () => mockNegotiator);
+			await adminPointComponent.create(mockOffer);
+
+			const provider = new PolicyNegotiationPointService({
+				policyNegotiationAdministrationPointComponentType:
+					"policy-negotiation-provider-admin-point",
+				policyNegotiationPointRemoteComponentType: "pnp-remote",
+				config: { callbackPath: "/callback" }
+			});
+
+			await provider.requestFromConsumer(
+				{
+					"@context": [DataspaceProtocolContexts.Context],
+					"@type": DataspaceProtocolContractNegotiationTypes.ContractRequestMessage,
+					consumerPid: "urn:contract-negotiation:no-cb-auto-accept",
+					offer: mockOffer
+				},
+				`token:${testIdentityConsumer}`,
+				providerOrigin
+			);
+
+			// Wait past the setTimeout(100) the auto-accept path uses to schedule sendOfferToConsumer.
+			await new Promise(resolve => setTimeout(resolve, 250));
+
+			// sendOfferToConsumer advances state to OFFERED regardless of callbackAddress;
+			// only the HTTP push to the consumer is gated on the callback being present. A polling
+			// client observes the OFFERED transition via GET /negotiations/admin/:id.
+			const stored = policyNegotiationProviderMemoryEntityStorage.getStore();
+			expect(stored).toHaveLength(1);
+			expect(stored[0].state).toBe(DataspaceProtocolContractNegotiationStateType.OFFERED);
+			expect(stored[0].callbackAddress).toBeUndefined();
+		});
+
+		test("agreementFromProvider accepts a ContractAgreementMessage with no callbackAddress", async () => {
+			PolicyNegotiatorFactory.register("MockPolicyNegotiator", () => mockNegotiator);
+
+			const consumer = new PolicyNegotiationPointService({
+				policyNegotiationAdministrationPointComponentType:
+					"policy-negotiation-consumer-admin-point",
+				policyNegotiationPointRemoteComponentType: "pnp-remote",
+				config: { callbackPath: "/callback" }
+			});
+
+			// Pre-seed the consumer-side negotiation so agreementFromProvider can find it
+			await negotiationConsumerAdminPointComponent.set({
+				id: "consumer-pid-no-cb-agree",
+				correlationId: "provider-pid-no-cb-agree",
+				dateCreated: new Date(Date.now()).toISOString(),
+				offer: mockOffer,
+				state: DataspaceProtocolContractNegotiationStateType.ACCEPTED,
+				callbackAddress: "http://localhost:3000/callback",
+				nodeIdentity: testIdentityConsumer,
+				organizationIdentity: testIdentityConsumer,
+				trustVerificationInfo: { identity: testIdentityProvider },
+				handlerId: "MockPolicyNegotiator"
+			});
+
+			const result = await consumer.agreementFromProvider(
+				{
+					"@context": [DataspaceProtocolContexts.Context],
+					"@type": DataspaceProtocolContractNegotiationTypes.ContractAgreementMessage,
+					providerPid: "provider-pid-no-cb-agree",
+					consumerPid: "consumer-pid-no-cb-agree",
+					agreement: {
+						"@type": OdrlTypes.Agreement,
+						"@id": "urn:policy:agreement-no-cb",
+						assigner: testIdentityProvider,
+						assignee: testIdentityConsumer
+					}
+					// callbackAddress intentionally omitted — must be accepted per DSP spec
+				},
+				`token:${testIdentityProvider}`
+			);
+
+			// The fix is verified if we got past the callbackAddress URL guard:
+			// pre-fix would have returned a GuardError on `message.callbackAddress`. Any other
+			// downstream outcome (success / a different error code) proves the guard accepted
+			// the missing field per the DSP spec.
+			if (result && "code" in result) {
+				expect(result.code).not.toMatch(/callbackAddress/);
+				expect(result.code).not.toMatch(/guard\.(stringValue|url)/);
+			}
+		});
+
+		test("state advances OFFERED → ACCEPTED → AGREED via event() + sendAgreementToConsumer when no callbackAddress was stored (polling mode)", async () => {
+			PolicyNegotiatorFactory.register("MockPolicyNegotiator", () => mockNegotiator);
+
+			const provider = new PolicyNegotiationPointService({
+				policyNegotiationAdministrationPointComponentType:
+					"policy-negotiation-provider-admin-point",
+				policyNegotiationPointRemoteComponentType: "pnp-remote",
+				config: { callbackPath: "/callback" }
+			});
+
+			// Seed a provider-side negotiation in OFFERED state with NO callbackAddress.
+			// event() advances OFFERED → ACCEPTED inline (only allowed transition for an ACCEPTED
+			// event from provider destination) and schedules sendAgreementToConsumer via setTimeout,
+			// which advances ACCEPTED → AGREED regardless of callbackAddress.
+			await negotiationProviderAdminPointComponent.set({
+				id: "provider-pid-poll-agree",
+				correlationId: "consumer-pid-poll-agree",
+				dateCreated: new Date(Date.now()).toISOString(),
+				offer: mockOffer,
+				state: DataspaceProtocolContractNegotiationStateType.OFFERED,
+				// callbackAddress intentionally absent — polling mode
+				nodeIdentity: testIdentityProvider,
+				organizationIdentity: testIdentityProvider,
+				trustVerificationInfo: { identity: testIdentityConsumer },
+				handlerId: "MockPolicyNegotiator"
+			});
+
+			await provider.event(
+				{
+					"@context": [DataspaceProtocolContexts.Context],
+					"@type": DataspaceProtocolContractNegotiationTypes.ContractNegotiationEventMessage,
+					providerPid: "provider-pid-poll-agree",
+					consumerPid: "consumer-pid-poll-agree",
+					event: DataspaceProtocolContractNegotiationStateType.ACCEPTED
+				},
+				"provider",
+				`token:${testIdentityConsumer}`
+			);
+
+			// Wait past the setTimeout(100) the ACCEPTED handler uses to schedule sendAgreementToConsumer.
+			await new Promise(resolve => setTimeout(resolve, 250));
+
+			const stored = policyNegotiationProviderMemoryEntityStorage.getStore();
+			expect(stored).toHaveLength(1);
+			// sendAgreementToConsumer advances state to AGREED regardless of callbackAddress.
+			expect(stored[0].state).toBe(DataspaceProtocolContractNegotiationStateType.AGREED);
+			expect(stored[0].agreement).toBeDefined();
+			expect(stored[0].callbackAddress).toBeUndefined();
+		});
+
+		test("state advances AGREED → VERIFIED on agreementFromProvider when no callbackAddress was stored (polling mode)", async () => {
+			PolicyNegotiatorFactory.register("MockPolicyNegotiator", () => mockNegotiator);
+
+			const consumer = new PolicyNegotiationPointService({
+				policyNegotiationAdministrationPointComponentType:
+					"policy-negotiation-consumer-admin-point",
+				policyNegotiationPointRemoteComponentType: "pnp-remote",
+				config: { callbackPath: "/callback" }
+			});
+
+			// Seed a consumer-side negotiation in ACCEPTED state with NO callbackAddress so we can
+			// receive the provider's agreement and observe the VERIFIED transition triggered by
+			// sendAgreementVerificationToProvider's setTimeout. handlerId is intentionally
+			// omitted to skip the requester-notification path which isn't under test here.
+			await negotiationConsumerAdminPointComponent.set({
+				id: "consumer-pid-poll-verify",
+				correlationId: "provider-pid-poll-verify",
+				dateCreated: new Date(Date.now()).toISOString(),
+				offer: mockOffer,
+				state: DataspaceProtocolContractNegotiationStateType.ACCEPTED,
+				// callbackAddress intentionally absent — polling mode
+				nodeIdentity: testIdentityConsumer,
+				organizationIdentity: testIdentityConsumer,
+				trustVerificationInfo: { identity: testIdentityProvider }
+			});
+
+			await consumer.agreementFromProvider(
+				{
+					"@context": [DataspaceProtocolContexts.Context],
+					"@type": DataspaceProtocolContractNegotiationTypes.ContractAgreementMessage,
+					providerPid: "provider-pid-poll-verify",
+					consumerPid: "consumer-pid-poll-verify",
+					agreement: {
+						"@type": OdrlTypes.Agreement,
+						"@id": "urn:policy:agreement-poll-verify",
+						assigner: testIdentityProvider,
+						assignee: testIdentityConsumer
+					}
+					// callbackAddress intentionally omitted
+				},
+				`token:${testIdentityProvider}`
+			);
+
+			// Wait past the setTimeout(100) used to schedule sendAgreementVerificationToProvider.
+			await new Promise(resolve => setTimeout(resolve, 250));
+
+			const stored = policyNegotiationConsumerMemoryEntityStorage.getStore();
+			expect(stored).toHaveLength(1);
+			// sendAgreementVerificationToProvider advances state to VERIFIED regardless of callback.
+			expect(stored[0].state).toBe(DataspaceProtocolContractNegotiationStateType.VERIFIED);
+			expect(stored[0].callbackAddress).toBeUndefined();
+		});
+	});
 });

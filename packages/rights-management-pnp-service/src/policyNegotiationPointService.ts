@@ -350,11 +350,16 @@ export class PolicyNegotiationPointService implements IPolicyNegotiationPointCom
 		);
 		const offerUid = OdrlPolicyHelper.getUid(message.offer);
 		Guards.stringValue(PolicyNegotiationPointService.CLASS_NAME, nameof(offerUid), offerUid);
-		Url.guard(
-			PolicyNegotiationPointService.CLASS_NAME,
-			nameof(message.callbackAddress),
-			message.callbackAddress
-		);
+		// callbackAddress is optional per the DSP spec. When provided, it must be a valid URL;
+		// when omitted, the consumer is expected to poll GET /negotiations/admin/:policyId to
+		// observe state changes and read the negotiation (including offer and agreement).
+		if (Is.stringValue(message.callbackAddress)) {
+			Url.guard(
+				PolicyNegotiationPointService.CLASS_NAME,
+				nameof(message.callbackAddress),
+				message.callbackAddress
+			);
+		}
 
 		// Use the provided provider pid or generate a new one
 		const providerPid =
@@ -499,7 +504,9 @@ export class PolicyNegotiationPointService implements IPolicyNegotiationPointCom
 					const callbackAddress = message.callbackAddress;
 					const pol = policyNegotiation;
 
-					// Send the offer on the next cycle so we don't delay the current response
+					// Schedule the state advancement (REQUESTED → OFFERED) on the next cycle so we
+					// don't delay the current response. sendOfferToConsumer advances state regardless
+					// of callbackAddress; when omitted (spec-allowed) the consumer polls instead.
 					setTimeout(async () => {
 						await this.sendOfferToConsumer(callbackAddress, pol);
 					}, 100);
@@ -659,19 +666,19 @@ export class PolicyNegotiationPointService implements IPolicyNegotiationPointCom
 
 			await this._policyNegotiationAdminPointComponent.set(policyNegotiation);
 
-			// Send the accepted event to the provider on the next cycle so we don't delay the current response
+			// Schedule the ACCEPTED event so we don't delay the current response. sendEvent
+			// advances state regardless of callbackAddress; when omitted (spec-allowed) the
+			// provider polls instead.
 			const callbackAddress = message.callbackAddress;
 			const pol = policyNegotiation;
-			if (Is.stringValue(callbackAddress)) {
-				setTimeout(async () => {
-					await this.sendEvent(
-						callbackAddress,
-						pol,
-						DataspaceProtocolContractNegotiationEventType.ACCEPTED,
-						"provider"
-					);
-				}, 100);
-			}
+			setTimeout(async () => {
+				await this.sendEvent(
+					callbackAddress,
+					pol,
+					DataspaceProtocolContractNegotiationEventType.ACCEPTED,
+					"provider"
+				);
+			}, 100);
 
 			return this.constructNegotiationMessage(
 				policyNegotiation.correlationId,
@@ -713,11 +720,16 @@ export class PolicyNegotiationPointService implements IPolicyNegotiationPointCom
 			nameof(message.consumerPid),
 			message.consumerPid
 		);
-		Url.guard(
-			PolicyNegotiationPointService.CLASS_NAME,
-			nameof(message.callbackAddress),
-			message.callbackAddress
-		);
+		// callbackAddress is optional per the DSP spec. When provided, it must be a valid URL;
+		// when omitted, the provider is expected to poll GET /negotiations/admin/:policyId to
+		// observe state changes and read the negotiation (including agreement).
+		if (Is.stringValue(message.callbackAddress)) {
+			Url.guard(
+				PolicyNegotiationPointService.CLASS_NAME,
+				nameof(message.callbackAddress),
+				message.callbackAddress
+			);
+		}
 
 		let policyNegotiation: IPolicyNegotiation | undefined;
 		try {
@@ -817,7 +829,9 @@ export class PolicyNegotiationPointService implements IPolicyNegotiationPointCom
 
 			await this._policyNegotiationAdminPointComponent.set(policyNegotiation);
 
-			// Send the agreement verification to the provider on the next cycle so we don't delay the current response
+			// Schedule the state advancement (AGREED → VERIFIED) on the next cycle so we don't
+			// delay the current response. sendAgreementVerificationToProvider advances state
+			// regardless of callbackAddress; when omitted (spec-allowed) the provider polls instead.
 			const callbackAddress = message.callbackAddress;
 			const pol = policyNegotiation;
 			setTimeout(async () => {
@@ -923,21 +937,19 @@ export class PolicyNegotiationPointService implements IPolicyNegotiationPointCom
 			policyNegotiation.state = DataspaceProtocolContractNegotiationStateType.FINALIZED;
 			await this._policyNegotiationAdminPointComponent.set(policyNegotiation);
 
-			// Send the finalisation on the next cycle so we don't delay the current response
-			// Verification message doesn't have a callback address, so use the one
-			// stored in the negotiation
+			// Schedule the FINALIZED event so we don't delay the current response. The verification
+			// message doesn't carry a callbackAddress so we use the one stored on the negotiation.
+			// sendEvent advances state regardless of callbackAddress; when omitted the peer polls.
 			const callbackAddress = policyNegotiation?.callbackAddress;
 			const pol = policyNegotiation;
-			if (Is.stringValue(callbackAddress)) {
-				setTimeout(async () => {
-					await this.sendEvent(
-						callbackAddress,
-						pol,
-						DataspaceProtocolContractNegotiationEventType.FINALIZED,
-						"consumer"
-					);
-				}, 100);
-			}
+			setTimeout(async () => {
+				await this.sendEvent(
+					callbackAddress,
+					pol,
+					DataspaceProtocolContractNegotiationEventType.FINALIZED,
+					"consumer"
+				);
+			}, 100);
 		} catch (error) {
 			return this.setErrorState(
 				message.providerPid,
@@ -1071,15 +1083,15 @@ export class PolicyNegotiationPointService implements IPolicyNegotiationPointCom
 				destination === "provider" &&
 				message.event === DataspaceProtocolContractNegotiationEventType.ACCEPTED
 			) {
-				// Now that the offer was accepted by the consumer we can proceed with the agreement
-				// Send the offer on the next cycle so we don't delay the current response
+				// Now that the offer was accepted by the consumer we can proceed with the agreement.
+				// Schedule the state advancement (ACCEPTED → AGREED) on the next cycle so we don't
+				// delay the current response. sendAgreementToConsumer advances state regardless of
+				// callbackAddress; when omitted (spec-allowed) the consumer polls instead.
 				const callbackAddress = policyNegotiation.callbackAddress;
 				const pol = policyNegotiation;
-				if (Is.stringValue(callbackAddress)) {
-					setTimeout(async () => {
-						await this.sendAgreementToConsumer(callbackAddress, pol);
-					}, 100);
-				}
+				setTimeout(async () => {
+					await this.sendAgreementToConsumer(callbackAddress, pol);
+				}, 100);
 			}
 		} catch (error) {
 			return this.setErrorState(
@@ -1378,15 +1390,10 @@ export class PolicyNegotiationPointService implements IPolicyNegotiationPointCom
 	 * @internal
 	 */
 	private async sendOfferToConsumer(
-		callbackAddress: string,
+		callbackAddress: string | undefined,
 		policyNegotiation: IPolicyNegotiation
 	): Promise<void> {
 		try {
-			Guards.stringValue(
-				PolicyNegotiationPointService.CLASS_NAME,
-				nameof(callbackAddress),
-				callbackAddress
-			);
 			Guards.object<IPolicyNegotiation>(
 				PolicyNegotiationPointService.CLASS_NAME,
 				nameof(policyNegotiation),
@@ -1422,15 +1429,20 @@ export class PolicyNegotiationPointService implements IPolicyNegotiationPointCom
 			policyNegotiation.state = DataspaceProtocolContractNegotiationStateType.OFFERED;
 			await this._policyNegotiationAdminPointComponent.set(policyNegotiation);
 
-			const negotiationComponent = ComponentFactory.create<IPolicyNegotiationPointComponent>(
-				this._policyNegotiationPointRemoteComponentType,
-				{ endpoint: callbackAddress, pathPrefix: "" }
-			);
+			// Only push to the consumer when a callbackAddress was supplied. Without one the
+			// consumer is expected to poll GET /negotiations/admin/:policyId, which returns
+			// the full negotiation entity (offer included).
+			if (Is.stringValue(callbackAddress)) {
+				const negotiationComponent = ComponentFactory.create<IPolicyNegotiationPointComponent>(
+					this._policyNegotiationPointRemoteComponentType,
+					{ endpoint: callbackAddress, pathPrefix: "" }
+				);
 
-			const response = await negotiationComponent.offerFromProvider(offerMessage, trustPayload);
+				const response = await negotiationComponent.offerFromProvider(offerMessage, trustPayload);
 
-			// If there was no error then the consumer will now send an event if they accepted the offer
-			await this.terminateIfResponseError(response, policyNegotiation);
+				// If there was no error then the consumer will now send an event if they accepted the offer
+				await this.terminateIfResponseError(response, policyNegotiation);
+			}
 		} catch (error) {
 			if (this.isStateGuardError(error)) {
 				return;
@@ -1454,17 +1466,12 @@ export class PolicyNegotiationPointService implements IPolicyNegotiationPointCom
 	 * @internal
 	 */
 	private async sendEvent(
-		callbackAddress: string,
+		callbackAddress: string | undefined,
 		policyNegotiation: IPolicyNegotiation,
 		event: DataspaceProtocolContractNegotiationEventType,
 		destination: "provider" | "consumer"
 	): Promise<void> {
 		try {
-			Guards.stringValue(
-				PolicyNegotiationPointService.CLASS_NAME,
-				nameof(callbackAddress),
-				callbackAddress
-			);
 			Guards.object<IPolicyNegotiation>(
 				PolicyNegotiationPointService.CLASS_NAME,
 				nameof(policyNegotiation),
@@ -1497,14 +1504,18 @@ export class PolicyNegotiationPointService implements IPolicyNegotiationPointCom
 			policyNegotiation.state = event;
 			await this._policyNegotiationAdminPointComponent.set(policyNegotiation);
 
-			const negotiationComponent = ComponentFactory.create<IPolicyNegotiationPointComponent>(
-				this._policyNegotiationPointRemoteComponentType,
-				{ endpoint: callbackAddress, pathPrefix: "" }
-			);
+			// Only push the event when a callbackAddress was supplied. Without one the peer
+			// polls GET /negotiations/admin/:policyId to discover the transition.
+			if (Is.stringValue(callbackAddress)) {
+				const negotiationComponent = ComponentFactory.create<IPolicyNegotiationPointComponent>(
+					this._policyNegotiationPointRemoteComponentType,
+					{ endpoint: callbackAddress, pathPrefix: "" }
+				);
 
-			const response = await negotiationComponent.event(eventMessage, destination, trustPayload);
+				const response = await negotiationComponent.event(eventMessage, destination, trustPayload);
 
-			await this.terminateIfResponseError(response, policyNegotiation);
+				await this.terminateIfResponseError(response, policyNegotiation);
+			}
 		} catch (error) {
 			if (this.isStateGuardError(error)) {
 				return;
@@ -1526,15 +1537,10 @@ export class PolicyNegotiationPointService implements IPolicyNegotiationPointCom
 	 * @internal
 	 */
 	private async sendAgreementToConsumer(
-		callbackAddress: string,
+		callbackAddress: string | undefined,
 		policyNegotiation: IPolicyNegotiation
 	): Promise<void> {
 		try {
-			Guards.stringValue(
-				PolicyNegotiationPointService.CLASS_NAME,
-				nameof(callbackAddress),
-				callbackAddress
-			);
 			Guards.object<IPolicyNegotiation>(
 				PolicyNegotiationPointService.CLASS_NAME,
 				nameof(policyNegotiation),
@@ -1612,18 +1618,23 @@ export class PolicyNegotiationPointService implements IPolicyNegotiationPointCom
 					policyNegotiation.agreement = agreement;
 					await this._policyNegotiationAdminPointComponent.set(policyNegotiation);
 
-					const negotiationComponent = ComponentFactory.create<IPolicyNegotiationPointComponent>(
-						this._policyNegotiationPointRemoteComponentType,
-						{ endpoint: callbackAddress, pathPrefix: "" }
-					);
+					// Only push to the consumer when a callbackAddress was supplied. Without one the
+					// consumer polls GET /negotiations/admin/:policyId, which returns the full
+					// negotiation entity (agreement included).
+					if (Is.stringValue(callbackAddress)) {
+						const negotiationComponent = ComponentFactory.create<IPolicyNegotiationPointComponent>(
+							this._policyNegotiationPointRemoteComponentType,
+							{ endpoint: callbackAddress, pathPrefix: "" }
+						);
 
-					const response = await negotiationComponent.agreementFromProvider(
-						agreementMessage,
-						trustPayload
-					);
+						const response = await negotiationComponent.agreementFromProvider(
+							agreementMessage,
+							trustPayload
+						);
 
-					// If there was no error then the consumer will now send an agreement verification
-					await this.terminateIfResponseError(response, policyNegotiation);
+						// If there was no error then the consumer will now send an agreement verification
+						await this.terminateIfResponseError(response, policyNegotiation);
+					}
 				}
 			}
 		} catch (error) {
@@ -1647,15 +1658,10 @@ export class PolicyNegotiationPointService implements IPolicyNegotiationPointCom
 	 * @internal
 	 */
 	private async sendAgreementVerificationToProvider(
-		callbackAddress: string,
+		callbackAddress: string | undefined,
 		policyNegotiation: IPolicyNegotiation
 	): Promise<void> {
 		try {
-			Guards.stringValue(
-				PolicyNegotiationPointService.CLASS_NAME,
-				nameof(callbackAddress),
-				callbackAddress
-			);
 			Guards.object<IPolicyNegotiation>(
 				PolicyNegotiationPointService.CLASS_NAME,
 				nameof(policyNegotiation),
@@ -1681,17 +1687,21 @@ export class PolicyNegotiationPointService implements IPolicyNegotiationPointCom
 			policyNegotiation.state = DataspaceProtocolContractNegotiationStateType.VERIFIED;
 			await this._policyNegotiationAdminPointComponent.set(policyNegotiation);
 
-			const negotiationComponent = ComponentFactory.create<IPolicyNegotiationPointComponent>(
-				this._policyNegotiationPointRemoteComponentType,
-				{ endpoint: callbackAddress, pathPrefix: "" }
-			);
+			// Only push to the provider when a callbackAddress was supplied. Without one the
+			// provider polls GET /negotiations/admin/:policyId to discover the new VERIFIED state.
+			if (Is.stringValue(callbackAddress)) {
+				const negotiationComponent = ComponentFactory.create<IPolicyNegotiationPointComponent>(
+					this._policyNegotiationPointRemoteComponentType,
+					{ endpoint: callbackAddress, pathPrefix: "" }
+				);
 
-			const response = await negotiationComponent.agreementVerificationFromConsumer(
-				agreementVerificationMessage,
-				trustPayload
-			);
+				const response = await negotiationComponent.agreementVerificationFromConsumer(
+					agreementVerificationMessage,
+					trustPayload
+				);
 
-			await this.terminateIfResponseError(response, policyNegotiation);
+				await this.terminateIfResponseError(response, policyNegotiation);
+			}
 		} catch (error) {
 			if (this.isStateGuardError(error)) {
 				return;
