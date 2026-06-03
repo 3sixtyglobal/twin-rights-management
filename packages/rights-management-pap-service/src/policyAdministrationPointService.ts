@@ -133,7 +133,9 @@ export class PolicyAdministrationPointService implements IPolicyAdministrationPo
 		};
 
 		const validationFailures: IValidationFailure[] = [];
-		await JsonLdHelper.validate(JsonLdHelper.toNodeObject(validatePolicy), validationFailures);
+		await JsonLdHelper.validate(JsonLdHelper.toNodeObject(validatePolicy), validationFailures, {
+			failOnMissingType: true
+		});
 		Validation.asValidationError(
 			PolicyAdministrationPointService.CLASS_NAME,
 			nameof(validatePolicy),
@@ -178,7 +180,9 @@ export class PolicyAdministrationPointService implements IPolicyAdministrationPo
 		};
 
 		const validationFailures: IValidationFailure[] = [];
-		await JsonLdHelper.validate(JsonLdHelper.toNodeObject(validatePolicy), validationFailures);
+		await JsonLdHelper.validate(JsonLdHelper.toNodeObject(validatePolicy), validationFailures, {
+			failOnMissingType: true
+		});
 		Validation.asValidationError(
 			PolicyAdministrationPointService.CLASS_NAME,
 			nameof(policy),

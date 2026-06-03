@@ -264,8 +264,7 @@ describe("PolicyAdministrationPointService", () => {
 			]
 		};
 
-		const result = await policyAdminPoint.create(invalidOdrlPolicy);
-		expect(result).toBeDefined();
+		await expect(policyAdminPoint.create(invalidOdrlPolicy)).rejects.toThrow();
 	});
 
 	test("should auto-generate UID when not provided", async () => {
@@ -437,6 +436,7 @@ describe("PolicyAdministrationPointService", () => {
 
 	test("should replace arrays entirely in update", async () => {
 		const initialPolicy = {
+			"@context": OdrlContexts.Context,
 			"@type": OdrlPolicyType.Set,
 			permission: [
 				{
@@ -496,9 +496,7 @@ describe("PolicyAdministrationPointService", () => {
 			]
 		} as unknown as IDataspaceProtocolPolicy;
 
-		await policyAdminPoint.update(invalidUpdate);
-		const result = await policyAdminPoint.get(policyId);
-		expect(result).toBeDefined();
+		await expect(policyAdminPoint.update(invalidUpdate)).rejects.toThrow();
 	});
 
 	test("should update policy and persist changes", async () => {
