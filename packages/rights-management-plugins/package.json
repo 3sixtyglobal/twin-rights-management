@@ -1,6 +1,6 @@
 {
 	"name": "@twin.org/rights-management-plugins",
-	"version": "0.0.3-next.40",
+	"version": "0.0.3-next.41",
 	"description": "Plugin implementations for extending rights management behaviour across components.",
 	"repository": {
 		"type": "git",
@@ -39,7 +39,7 @@
 		"@twin.org/data-json-path": "next",
 		"@twin.org/logging-models": "next",
 		"@twin.org/nameof": "next",
-		"@twin.org/rights-management-models": "0.0.3-next.40",
+		"@twin.org/rights-management-models": "0.0.3-next.41",
 		"@twin.org/standards-w3c-odrl": "next"
 	},
 	"devDependencies": {
@@ -49,13 +49,13 @@
 		"@twin.org/logging-service": "next",
 		"@twin.org/nameof-transformer": "next",
 		"@twin.org/nameof-vitest-plugin": "next",
-		"@twin.org/rights-management-pap-service": "0.0.3-next.40",
-		"@twin.org/rights-management-pdp-service": "0.0.3-next.40",
-		"@twin.org/rights-management-pep-service": "0.0.3-next.40",
-		"@twin.org/rights-management-pip-service": "0.0.3-next.40",
-		"@twin.org/rights-management-pmp-service": "0.0.3-next.40",
-		"@twin.org/rights-management-pnp-service": "0.0.3-next.40",
-		"@twin.org/rights-management-pxp-service": "0.0.3-next.40",
+		"@twin.org/rights-management-pap-service": "0.0.3-next.41",
+		"@twin.org/rights-management-pdp-service": "0.0.3-next.41",
+		"@twin.org/rights-management-pep-service": "0.0.3-next.41",
+		"@twin.org/rights-management-pip-service": "0.0.3-next.41",
+		"@twin.org/rights-management-pmp-service": "0.0.3-next.41",
+		"@twin.org/rights-management-pnp-service": "0.0.3-next.41",
+		"@twin.org/rights-management-pxp-service": "0.0.3-next.41",
 		"@twin.org/validate-locales": "next",
 		"@vitest/coverage-v8": "4.1.6",
 		"@types/node": "25.9.1",
