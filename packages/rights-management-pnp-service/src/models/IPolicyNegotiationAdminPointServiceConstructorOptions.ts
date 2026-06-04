@@ -43,10 +43,10 @@ export interface IPolicyNegotiationAdminPointServiceConstructorOptions {
 	policyNegotiationPointComponentType?: string;
 
 	/**
-	 * Tenant admin component type.
-	 * @default tenant-admin
+	 * Tenant component type.
+	 * @default tenant
 	 */
-	tenantAdminType?: string;
+	tenantComponentType?: string;
 
 	/**
 	 * Configuration options for the policy negotiation point service.

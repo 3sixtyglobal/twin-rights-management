@@ -1,8 +1,8 @@
 // Copyright 2025 IOTA Stiftung.
 // SPDX-License-Identifier: Apache-2.0.
-import type { ITenant, ITenantAdminComponent } from "@twin.org/api-models";
+import type { ITenantComponent } from "@twin.org/api-models";
 import type { ITaskSchedulerComponent } from "@twin.org/background-task-models";
-import { ContextIdKeys, ContextIdStore } from "@twin.org/context";
+import { ContextIdKeys } from "@twin.org/context";
 import { BaseError, ComponentFactory, Guards, Is, NotFoundError } from "@twin.org/core";
 import { ComparisonOperator, LogicalOperator, SortDirection } from "@twin.org/entity";
 import {
@@ -72,10 +72,10 @@ export class PolicyNegotiationAdminPointService implements IPolicyNegotiationAdm
 	private readonly _policyNegotiationPointComponentType?: string;
 
 	/**
-	 * The tenant admin component.
+	 * The tenant component.
 	 * @internal
 	 */
-	private readonly _tenantAdmin?: ITenantAdminComponent;
+	private readonly _tenantComponent?: ITenantComponent;
 
 	/**
 	 * Create a new instance of PolicyNegotiationPointService (PNP).
@@ -98,8 +98,8 @@ export class PolicyNegotiationAdminPointService implements IPolicyNegotiationAdm
 			1000;
 		this._partitionContextIds = options?.partitionContextIds;
 		this._policyNegotiationPointComponentType = options?.policyNegotiationPointComponentType;
-		this._tenantAdmin = ComponentFactory.getIfExists<ITenantAdminComponent>(
-			options?.tenantAdminType ?? "tenant-admin"
+		this._tenantComponent = ComponentFactory.getIfExists<ITenantComponent>(
+			options?.tenantComponentType ?? "tenant"
 		);
 	}
 
@@ -240,33 +240,7 @@ export class PolicyNegotiationAdminPointService implements IPolicyNegotiationAdm
 		// and delete them in batches, but they might be partitioned by tenant
 		// in the storage
 		if (this._partitionContextIds?.includes(ContextIdKeys.Tenant)) {
-			try {
-				// The cleanup must be done by tenant as the data is partitioned
-				let cursor;
-				do {
-					const result: { tenants: ITenant[]; cursor?: string } | undefined =
-						await this._tenantAdmin?.query(undefined, cursor);
-					cursor = result?.cursor;
-					if (!Is.empty(result)) {
-						for (const tenantId of result.tenants.map(t => t.id)) {
-							const localContextIds = (await ContextIdStore.getContextIds()) ?? {};
-							localContextIds[ContextIdKeys.Tenant] = tenantId;
-
-							await ContextIdStore.run(localContextIds, async () => {
-								await this.cleanupOldStatesPartition();
-							});
-						}
-					}
-				} while (Is.stringValue(cursor));
-			} catch (error) {
-				await this._logging?.log({
-					level: "error",
-					message: "cleanupFailed",
-					ts: Date.now(),
-					source: PolicyNegotiationAdminPointService.CLASS_NAME,
-					error: BaseError.fromError(error)
-				});
-			}
+			await this._tenantComponent?.runPerTenant(async () => this.cleanupOldStatesPartition());
 		} else {
 			await this.cleanupOldStatesPartition();
 		}
@@ -278,61 +252,71 @@ export class PolicyNegotiationAdminPointService implements IPolicyNegotiationAdm
 	 * @internal
 	 */
 	private async cleanupOldStatesPartition(): Promise<void> {
-		let cursor: string | undefined;
-		const now = Date.now();
+		try {
+			let cursor: string | undefined;
+			const now = Date.now();
 
-		const pnpComponent = ComponentFactory.getIfExists<IPolicyNegotiationPointComponent>(
-			this._policyNegotiationPointComponentType
-		);
+			const pnpComponent = ComponentFactory.getIfExists<IPolicyNegotiationPointComponent>(
+				this._policyNegotiationPointComponentType
+			);
 
-		do {
-			const result = await this._policyNegotiationEntityStorage.query({
-				conditions: [
-					{
-						property: "expires",
-						comparison: ComparisonOperator.LessThan,
-						value: now
-					},
-					{
-						property: "expires",
-						comparison: ComparisonOperator.NotEquals,
-						value: undefined
-					}
-				],
-				logicalOperator: LogicalOperator.And
-			});
-			if (Is.arrayValue(result.entities)) {
-				for (const item of result.entities as PolicyNegotiation[]) {
-					if (Is.stringValue(item.id)) {
-						if (!Is.empty(pnpComponent) && Is.stringValue(item.callbackAddress)) {
-							try {
-								await pnpComponent.sendTerminateToConsumer(
-									item.callbackAddress,
-									item.id,
-									item.correlationId
-								);
-							} catch (error) {
-								await this._logging?.log({
-									level: "warn",
-									source: PolicyNegotiationAdminPointService.CLASS_NAME,
-									ts: Date.now(),
-									message: "sendTerminateFailed",
-									data: {
-										id: item.id,
-										correlationId: item.correlationId
-									},
-									error: BaseError.fromError(error)
-								});
-							}
+			do {
+				const result = await this._policyNegotiationEntityStorage.query({
+					conditions: [
+						{
+							property: "expires",
+							comparison: ComparisonOperator.LessThan,
+							value: now
+						},
+						{
+							property: "expires",
+							comparison: ComparisonOperator.NotEquals,
+							value: undefined
 						}
-						await this._policyNegotiationEntityStorage.remove(item.id);
+					],
+					logicalOperator: LogicalOperator.And
+				});
+				if (Is.arrayValue(result.entities)) {
+					for (const item of result.entities as PolicyNegotiation[]) {
+						if (Is.stringValue(item.id)) {
+							if (!Is.empty(pnpComponent) && Is.stringValue(item.callbackAddress)) {
+								try {
+									await pnpComponent.sendTerminateToConsumer(
+										item.callbackAddress,
+										item.id,
+										item.correlationId
+									);
+								} catch (error) {
+									await this._logging?.log({
+										level: "warn",
+										source: PolicyNegotiationAdminPointService.CLASS_NAME,
+										ts: Date.now(),
+										message: "sendTerminateFailed",
+										data: {
+											id: item.id,
+											correlationId: item.correlationId
+										},
+										error: BaseError.fromError(error)
+									});
+								}
+							}
+							await this._policyNegotiationEntityStorage.remove(item.id);
+						}
 					}
+					cursor = result.cursor;
+				} else {
+					cursor = undefined;
 				}
-				cursor = result.cursor;
-			} else {
-				cursor = undefined;
-			}
-		} while (Is.stringValue(cursor));
+			} while (Is.stringValue(cursor));
+		} catch (error) {
+			await this._logging?.log({
+				level: "error",
+				source: PolicyNegotiationAdminPointService.CLASS_NAME,
+				ts: Date.now(),
+				message: "cleanupFailed",
+				error: BaseError.fromError(error)
+			});
+		}
 	}
 
 	/**
