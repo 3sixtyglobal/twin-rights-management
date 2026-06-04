@@ -39,6 +39,7 @@ export class AutomationPolicyExecutionAction implements IPolicyExecutionAction {
 
 	/**
 	 * The policy decision stages to trigger the automation actions, if undefined defaults to "inform".
+	 * @internal
 	 */
 	private readonly _triggerActions: string[];
 

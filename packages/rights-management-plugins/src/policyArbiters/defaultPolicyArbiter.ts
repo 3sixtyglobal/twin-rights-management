@@ -470,6 +470,7 @@ export class DefaultPolicyArbiter implements IPolicyArbiter {
 	 * @param targetRefinements Additional constraints from target refinement.
 	 * @param dataSources The operand lookup sources.
 	 * @param action Optional action to check against the prohibition's applicable actions.
+	 * @param decisionTarget Optional target identifier for scoped decisions.
 	 * @returns True if the prohibition applies.
 	 * @internal
 	 */
@@ -718,6 +719,7 @@ export class DefaultPolicyArbiter implements IPolicyArbiter {
 	 * Policies can inherit from other policies via the inheritFrom property.
 	 * @param policy The policy that may have inheritFrom references.
 	 * @param visitedPolicyIds Array of policy UIDs already visited in this inheritance chain.
+	 * @param currentDepth The current inheritance depth.
 	 * @returns Array of inherited policies fetched from the PAP.
 	 * @internal
 	 */
@@ -1015,11 +1017,11 @@ export class DefaultPolicyArbiter implements IPolicyArbiter {
 	 * Determine whether a single rule action covers a requested action.
 	 * Covers exact match plus ODRL action hierarchy semantics.
 	 * - includedIn: the rule action is a sub-action of a broader parent.
-	 *   A rule naming the narrower action also covers requests for the parent.
-	 *   E.g. rule action "print" with includedIn "reproduce" covers a request for "reproduce".
+	 * A rule naming the narrower action also covers requests for the parent.
+	 * E.g. rule action "print" with includedIn "reproduce" covers a request for "reproduce".
 	 * - implies: the rule action entails another action.
-	 *   A rule granting action X also covers action Y when X implies Y.
-	 *   E.g. rule action "distribute" implying "reproduce" covers a request for "reproduce".
+	 * A rule granting action X also covers action Y when X implies Y.
+	 * E.g. rule action "distribute" implying "reproduce" covers a request for "reproduce".
 	 * @param ruleAction The action specified in the rule.
 	 * @param requestedActionId The requested action identifier.
 	 * @returns True if the rule action covers the requested action.
@@ -1084,6 +1086,8 @@ export class DefaultPolicyArbiter implements IPolicyArbiter {
 	 * @param permission The permission to apply.
 	 * @param targetRefinements Additional constraints from target refinement.
 	 * @param dataSources The operand lookup sources.
+	 * @param action Optional action to check against the permission's applicable actions.
+	 * @param decisionTarget Optional target identifier for scoped decisions.
 	 * @returns True if the permission applies.
 	 * @internal
 	 */
@@ -1217,6 +1221,7 @@ export class DefaultPolicyArbiter implements IPolicyArbiter {
 	 * @param dataSources The available lookup sources.
 	 * @param resolveValue True to resolve an item from the target path/key.
 	 * @returns The matching prefix, source, remaining target and optional resolved value.
+	 * @throws GeneralError if the target identifier does not match any datasource prefix.
 	 * @internal
 	 */
 	private tryResolveTargetDataSource(
@@ -1263,6 +1268,7 @@ export class DefaultPolicyArbiter implements IPolicyArbiter {
 	 * @param dataSources The available datasources.
 	 * @param resolveValue Whether to evaluate the expression and return the matched value.
 	 * @returns The resolved source, target expression, and optionally the matched value.
+	 * @throws GeneralError if the expression is missing, does not start with "$", or yields no matches.
 	 * @internal
 	 */
 	private resolveDataSourceByKey(
@@ -1303,6 +1309,7 @@ export class DefaultPolicyArbiter implements IPolicyArbiter {
 	 * Extract the target id from the permission.
 	 * @param target The permission target.
 	 * @returns The information key, or undefined when the target is not an information reference.
+	 * @throws GeneralError if more than one target is specified.
 	 * @internal
 	 */
 	private getTargetId(target: IOdrlRule["target"]): string | undefined {
@@ -1562,6 +1569,8 @@ export class DefaultPolicyArbiter implements IPolicyArbiter {
 	 * Determine if a rule should be expanded to per-item targets.
 	 * @param rule The rule.
 	 * @param resolvedTarget The resolved target details.
+	 * @param resolvedTarget.target The resolved target path string.
+	 * @param resolvedTarget.refinements The constraints from target refinement.
 	 * @returns True if the rule should emit per-item decisions.
 	 * @internal
 	 */
@@ -1731,6 +1740,7 @@ export class DefaultPolicyArbiter implements IPolicyArbiter {
 	 * @param constraint The constraint to evaluate.
 	 * @param dataSources The operand lookup sources.
 	 * @returns True if the constraint is satisfied.
+	 * @throws GeneralError if rightOperandReference, dataType, unit, or status are used.
 	 * @internal
 	 */
 	private evaluateConstraint(
@@ -1879,6 +1889,8 @@ export class DefaultPolicyArbiter implements IPolicyArbiter {
 	/**
 	 * Evaluate a logical constraint operator against its operands.
 	 * @param logicalConstraint The operator and operand list.
+	 * @param logicalConstraint.operator The logical operator type.
+	 * @param logicalConstraint.constraints The constraint operands to evaluate.
 	 * @param dataSources The operand lookup sources.
 	 * @returns True if the logical constraint is satisfied.
 	 * @internal
@@ -1967,6 +1979,7 @@ export class DefaultPolicyArbiter implements IPolicyArbiter {
 	 * Calculate an operand value.
 	 * @param operand The operand.
 	 * @param dataSources The available prefixed operand sources.
+	 * @param constraint Optional constraint providing additional context for operand resolution.
 	 * @returns The resolved operand value.
 	 * @internal
 	 */
@@ -2091,6 +2104,7 @@ export class DefaultPolicyArbiter implements IPolicyArbiter {
 	 * Extract canonical jsonPath expression from typed operand object.
 	 * @param operand The typed operand.
 	 * @returns The jsonPath expression if present.
+	 * @throws GeneralError if the operand type is twin:jsonPath but no expression is provided.
 	 * @internal
 	 */
 	private extractJsonPathExpressionFromTypedOperand(operand: {
@@ -2120,6 +2134,7 @@ export class DefaultPolicyArbiter implements IPolicyArbiter {
 	 * @param constraint The constraint containing the left operand.
 	 * @param leftOperand The left operand.
 	 * @returns The expression if canonical form is used.
+	 * @throws GeneralError if leftOperand uses a twin:jsonPath prefix without an expression.
 	 * @internal
 	 */
 	private extractJsonPathExpressionFromConstraint(

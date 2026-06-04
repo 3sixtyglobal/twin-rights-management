@@ -139,6 +139,7 @@ export class DefaultPolicyEnforcementProcessor implements IPolicyEnforcementProc
 	 * @param outputObject The currently processed object.
 	 * @param policyDecision The policy decision to process.
 	 * @throws GeneralError When replaceValue is missing or invalid.
+	 * @internal
 	 */
 	private processDecision<D = unknown, R = D>(
 		sourceObject: D | undefined,

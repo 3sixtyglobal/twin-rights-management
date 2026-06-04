@@ -36,16 +36,19 @@ export class LoggingPolicyExecutionAction implements IPolicyExecutionAction {
 
 	/**
 	 * Whether to include the data in the log.
+	 * @internal
 	 */
 	private readonly _includeData: boolean;
 
 	/**
 	 * Whether to include the policy in the log.
+	 * @internal
 	 */
 	private readonly _includePolicy: boolean;
 
 	/**
 	 * Whether to include the decisions in the log.
+	 * @internal
 	 */
 	private readonly _includeDecisions: boolean;
 

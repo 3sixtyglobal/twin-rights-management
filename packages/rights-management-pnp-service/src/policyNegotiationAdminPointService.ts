@@ -32,6 +32,7 @@ export class PolicyNegotiationAdminPointService implements IPolicyNegotiationAdm
 	/**
 	 * The default time-to-live (TTL) for negotiation states in minutes.
 	 * @default 1440
+	 * @internal
 	 */
 	private static readonly _DEFAULT_NEGOTIATION_STATE_TTL_DEFAULT_MINUTES = 1440; // One Day
 
