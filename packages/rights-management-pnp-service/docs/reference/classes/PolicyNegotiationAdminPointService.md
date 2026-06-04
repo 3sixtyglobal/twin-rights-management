@@ -163,6 +163,8 @@ Nothing.
 > **remove**(`policyId`): `Promise`\<`void`\>
 
 Cancels an ongoing negotiation for a resource.
+Acquires a per-id mutex so it cannot interleave with a concurrent setIfExists() call
+in the Policy Negotiation Point service.
 
 #### Parameters
 
