@@ -9,6 +9,7 @@ import {
 	GeneralError,
 	Guards,
 	Is,
+	Mutex,
 	NotFoundError,
 	StringHelper,
 	UnauthorizedError,
@@ -1345,16 +1346,12 @@ export class PolicyNegotiationPointService implements IPolicyNegotiationPointCom
 		};
 
 		if (!Is.empty(policyNegotiation)) {
-			// If the negotiation was administratively deleted while this async
-			// callback was in flight, do not resurrect it.
-			if (await this.negotiationExists(policyNegotiation.id)) {
-				policyNegotiation.code = errMessage.code;
-				policyNegotiation.reason = errMessage.reason;
-				policyNegotiation.state = DataspaceProtocolContractNegotiationStateType.TERMINATED;
-				policyNegotiation.errorDetails = details;
+			policyNegotiation.code = errMessage.code;
+			policyNegotiation.reason = errMessage.reason;
+			policyNegotiation.state = DataspaceProtocolContractNegotiationStateType.TERMINATED;
+			policyNegotiation.errorDetails = details;
 
-				await this._policyNegotiationAdminPointComponent.set(policyNegotiation);
-			}
+			await this.setIfExists(policyNegotiation);
 		}
 
 		return errMessage;
@@ -1716,21 +1713,27 @@ export class PolicyNegotiationPointService implements IPolicyNegotiationPointCom
 	}
 
 	/**
-	 * Returns false if the negotiation has been administratively deleted, true if it still exists.
-	 * Re-throws any unexpected errors.
-	 * @param id The negotiation id to check.
-	 * @returns True if the negotiation exists, false if it was deleted.
+	 * Update a negotiation only if it still exists, coordinated with remove() via a
+	 * per-id mutex. This is an internal state-machine concern for the PNP service.
+	 * @param negotiation The negotiation state to persist.
+	 * @returns True if the negotiation was found and updated, false if it no longer exists.
 	 * @internal
 	 */
-	private async negotiationExists(id: string): Promise<boolean> {
+	private async setIfExists(negotiation: IPolicyNegotiation): Promise<boolean> {
+		await Mutex.lock(negotiation.id);
 		try {
-			await this._policyNegotiationAdminPointComponent.get(id);
-			return true;
-		} catch (err) {
-			if (BaseError.someErrorName(err, NotFoundError.CLASS_NAME)) {
-				return false;
+			try {
+				await this._policyNegotiationAdminPointComponent.get(negotiation.id);
+			} catch (err) {
+				if (BaseError.someErrorName(err, NotFoundError.CLASS_NAME)) {
+					return false;
+				}
+				throw err;
 			}
-			throw err;
+			await this._policyNegotiationAdminPointComponent.set(negotiation);
+			return true;
+		} finally {
+			Mutex.unlock(negotiation.id);
 		}
 	}
 
@@ -1750,14 +1753,10 @@ export class PolicyNegotiationPointService implements IPolicyNegotiationPointCom
 			OdrlPolicyHelper.getType(response) ===
 				DataspaceProtocolContractNegotiationTypes.ContractNegotiationError
 		) {
-			// If the negotiation was administratively deleted while this async
-			// callback was in flight, do not resurrect it.
-			if (await this.negotiationExists(policyNegotiation.id)) {
-				policyNegotiation.state = DataspaceProtocolContractNegotiationStateType.TERMINATED;
-				policyNegotiation.reason = response.reason;
-				policyNegotiation.code = response.code;
-				await this._policyNegotiationAdminPointComponent.set(policyNegotiation);
-			}
+			policyNegotiation.state = DataspaceProtocolContractNegotiationStateType.TERMINATED;
+			policyNegotiation.reason = response.reason;
+			policyNegotiation.code = response.code;
+			await this.setIfExists(policyNegotiation);
 		}
 	}
 

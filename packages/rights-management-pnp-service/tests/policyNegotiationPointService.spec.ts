@@ -1238,6 +1238,214 @@ describe("PolicyNegotiationPointService", () => {
 			expect(final.length).toBeGreaterThan(0);
 			expect(final[0].state).toBe(DataspaceProtocolContractNegotiationStateType.TERMINATED);
 		});
+
+		test("terminateIfResponseError does not resurrect record deleted before it runs — issue #162", async () => {
+			// Scenario: admin DELETE lands during the peer HTTP round-trip (the async gap
+			// between the provider dispatching the offer and receiving the error back).
+			// By the time terminateIfResponseError runs, the record is already gone.
+			// setIfExists() detects this via get() → NotFoundError and returns without writing.
+			//
+			// sendOfferToConsumer call sequence on the provider:
+			//   checkNegotiationInState (state = REQUESTED → pass)
+			//   set() — advance state to OFFERED
+			//   offerFromProvider round-trip:
+			//     → DELETE fires inside fake consumer callback
+			//     → returns ContractNegotiationError
+			//   terminateIfResponseError:
+			//     setIfExists() → get() → NotFoundError → returns false → no write ✓
+
+			const { provider } = buildServices();
+			PolicyRequesterFactory.register("requester-rir-1", () => mockPolicyRequester);
+			await adminPointComponent.create(mockOffer);
+			PolicyNegotiatorFactory.register("MockPolicyNegotiatorRir", () => mockNegotiator);
+
+			// Fake consumer: deletes the provider record during the round-trip, then rejects.
+			remoteComponentResolver = (params: { endpoint: string }) => {
+				if (params.endpoint.startsWith(providerOrigin)) {
+					return createRemoteComponent(provider, providerOrigin);
+				}
+				return {
+					className: () => "FakeConsumerDeletesAndRejects",
+					offerFromProvider: async () => {
+						// Simulate admin DELETE landing while the provider awaits this response
+						const store = policyNegotiationProviderMemoryEntityStorage.getStore();
+						if (store.length > 0) {
+							await policyNegotiationProviderMemoryEntityStorage.remove(store[0].id);
+						}
+						return {
+							"@context": [DataspaceProtocolContexts.Context],
+							"@type": DataspaceProtocolContractNegotiationTypes.ContractNegotiationError,
+							providerPid: "urn:provider-pid:rir-1",
+							consumerPid: "urn:consumer-pid:rir-1",
+							code: "consumer.rejectedOffer",
+							reason: [{ "@value": "Offer not acceptable" }]
+						};
+					},
+					requestFromConsumer: async () => {
+						throw new Error("unexpected");
+					},
+					sendRequestToProvider: async () => {
+						throw new Error("unexpected");
+					},
+					agreementFromProvider: async () => {
+						throw new Error("unexpected");
+					},
+					agreementVerificationFromConsumer: async () => {
+						throw new Error("unexpected");
+					},
+					event: async () => {
+						throw new Error("unexpected");
+					},
+					terminate: async () => {
+						throw new Error("unexpected");
+					},
+					sendTerminateToConsumer: async () => {
+						throw new Error("unexpected");
+					},
+					getNegotiation: async () => {
+						throw new Error("unexpected");
+					}
+				};
+			};
+
+			const consumer = new PolicyNegotiationPointService({
+				policyNegotiationAdministrationPointComponentType:
+					"policy-negotiation-consumer-admin-point",
+				policyNegotiationPointRemoteComponentType: "pnp-remote",
+				config: { callbackPath: "/callback" }
+			});
+
+			await consumer.sendRequestToProvider(
+				providerOrigin,
+				"requester-rir-1",
+				"urn:policy:offer-1",
+				consumerOrigin
+			);
+
+			// Wait past the setTimeout(100) + fake offerFromProvider callback
+			await new Promise(resolve => setTimeout(resolve, 300));
+
+			// setIfExists() detected the record was gone and returned false.
+			// The admin DELETE was respected — no upsert happened.
+			const store = policyNegotiationProviderMemoryEntityStorage.getStore();
+			expect(store).toHaveLength(0);
+		});
+
+		test("known limitation: setIfExists() is non-atomic across nodes (TOCTOU) — DELETE between get() and set() can still resurrect", async () => {
+			// Documents the residual race window that setIfExists() does NOT eliminate across nodes.
+			//
+			// The guard is a best-effort check-then-act (get → set). A DELETE that lands
+			// after get() resolves but before set() commits causes entity storage's upsert to
+			// recreate the deleted record.
+			//
+			// This race requires real async I/O between the two operations (e.g. a real DB
+			// where GET and DELETE can overlap). It is injected here deterministically by
+			// intercepting pnap.get() call #2 to delete the record mid-read and return the
+			// pre-deletion snapshot, simulating a DB read-then-delete overlap.
+			//
+			// The assertion toHaveLength(1) is INTENTIONAL — it documents the known limitation.
+			// To truly close this race, a storage-layer atomic conditional write is needed
+			// (Option A from the issue #162 plan: UPDATE ... WHERE id = ? that no-ops if deleted).
+
+			const { provider } = buildServices();
+			PolicyRequesterFactory.register("requester-toctou-1", () => mockPolicyRequester);
+			await adminPointComponent.create(mockOffer);
+			PolicyNegotiatorFactory.register("MockPolicyNegotiatorToctou", () => mockNegotiator);
+
+			// Fake consumer: returns ContractNegotiationError to trigger terminateIfResponseError.
+			remoteComponentResolver = (params: { endpoint: string }) => {
+				if (params.endpoint.startsWith(providerOrigin)) {
+					return createRemoteComponent(provider, providerOrigin);
+				}
+				return {
+					className: () => "FakeConsumerRejectsOfferToctou",
+					offerFromProvider: async () => ({
+						"@context": [DataspaceProtocolContexts.Context],
+						"@type": DataspaceProtocolContractNegotiationTypes.ContractNegotiationError,
+						providerPid: "urn:provider-pid:toctou-1",
+						consumerPid: "urn:consumer-pid:toctou-1",
+						code: "consumer.rejectedOffer",
+						reason: [{ "@value": "Offer not acceptable" }]
+					}),
+					requestFromConsumer: async () => {
+						throw new Error("unexpected");
+					},
+					sendRequestToProvider: async () => {
+						throw new Error("unexpected");
+					},
+					agreementFromProvider: async () => {
+						throw new Error("unexpected");
+					},
+					agreementVerificationFromConsumer: async () => {
+						throw new Error("unexpected");
+					},
+					event: async () => {
+						throw new Error("unexpected");
+					},
+					terminate: async () => {
+						throw new Error("unexpected");
+					},
+					sendTerminateToConsumer: async () => {
+						throw new Error("unexpected");
+					},
+					getNegotiation: async () => {
+						throw new Error("unexpected");
+					}
+				};
+			};
+
+			// Inject the TOCTOU race: intercept negotiationProviderAdminPointComponent.get()
+			// Call #1 — checkNegotiationInState: pass through unchanged.
+			// Call #2 — get() inside setIfExists() (terminateIfResponseError path):
+			//   return the record (simulates DB read seeing the record before DELETE lands)
+			//   then delete it from storage (simulates DELETE completing after the read)
+			//   → setIfExists() proceeds to set() → entity storage UPSERT resurrection.
+			const originalGet = negotiationProviderAdminPointComponent.get.bind(
+				negotiationProviderAdminPointComponent
+			);
+			const getSpy = vi
+				.spyOn(negotiationProviderAdminPointComponent, "get")
+				.mockImplementationOnce(async id => originalGet(id))
+				.mockImplementationOnce(async id => {
+					const result = await originalGet(id);
+					const snapshot = policyNegotiationProviderMemoryEntityStorage.getStore();
+					if (snapshot.length > 0) {
+						await policyNegotiationProviderMemoryEntityStorage.remove(snapshot[0].id);
+					}
+					return result;
+				});
+
+			const consumer = new PolicyNegotiationPointService({
+				policyNegotiationAdministrationPointComponentType:
+					"policy-negotiation-consumer-admin-point",
+				policyNegotiationPointRemoteComponentType: "pnp-remote",
+				config: { callbackPath: "/callback" }
+			});
+
+			await consumer.sendRequestToProvider(
+				providerOrigin,
+				"requester-toctou-1",
+				"urn:policy:offer-1",
+				consumerOrigin
+			);
+
+			await new Promise(resolve => setTimeout(resolve, 300));
+
+			getSpy.mockRestore();
+
+			// KNOWN LIMITATION (toHaveLength(1) is intentional):
+			// The in-process Mutex (from @twin.org/core) serialises remove() and setIfExists()
+			// when both go through the service. It does NOT protect against a DELETE that
+			// arrives at the database layer from outside the process (different node, different
+			// DB connection, or a direct storage call — as simulated here by the mock).
+			// In that scenario: get() sees the record → DELETE lands at DB level → set() upserts.
+			// Closing this fully requires a storage-layer atomic write (Option A from the plan:
+			// UPDATE ... WHERE id = ? that no-ops if the row was already deleted).
+			const toctouStore = policyNegotiationProviderMemoryEntityStorage.getStore();
+			expect(toctouStore).toHaveLength(1);
+			expect(toctouStore[0].state).toBe(DataspaceProtocolContractNegotiationStateType.TERMINATED);
+			expect(toctouStore[0].code).toBe("consumer.rejectedOffer");
+		});
 	});
 
 	describe("callbackAddress is optional per DSP spec (issue #130)", () => {

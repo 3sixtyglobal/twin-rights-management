@@ -3,7 +3,7 @@
 import type { ITenantComponent } from "@twin.org/api-models";
 import type { ITaskSchedulerComponent } from "@twin.org/background-task-models";
 import { ContextIdKeys } from "@twin.org/context";
-import { BaseError, ComponentFactory, Guards, Is, NotFoundError } from "@twin.org/core";
+import { BaseError, ComponentFactory, Guards, Is, Mutex, NotFoundError } from "@twin.org/core";
 import { ComparisonOperator, LogicalOperator, SortDirection } from "@twin.org/entity";
 import {
 	EntityStorageConnectorFactory,
@@ -185,12 +185,19 @@ export class PolicyNegotiationAdminPointService implements IPolicyNegotiationAdm
 
 	/**
 	 * Cancels an ongoing negotiation for a resource.
+	 * Acquires a per-id mutex so it cannot interleave with a concurrent setIfExists() call
+	 * in the Policy Negotiation Point service.
 	 * @param policyId The ID of the policy to cancel.
 	 * @returns Nothing.
 	 */
 	public async remove(policyId: string): Promise<void> {
 		Guards.stringValue(PolicyNegotiationAdminPointService.CLASS_NAME, nameof(policyId), policyId);
-		await this._policyNegotiationEntityStorage.remove(policyId);
+		await Mutex.lock(policyId);
+		try {
+			await this._policyNegotiationEntityStorage.remove(policyId);
+		} finally {
+			Mutex.unlock(policyId);
+		}
 	}
 
 	/**
