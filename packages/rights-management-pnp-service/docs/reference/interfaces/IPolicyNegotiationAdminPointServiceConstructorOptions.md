@@ -83,16 +83,16 @@ undefined
 
 ***
 
-### tenantAdminType? {#tenantadmintype}
+### tenantComponentType? {#tenantcomponenttype}
 
-> `optional` **tenantAdminType?**: `string`
+> `optional` **tenantComponentType?**: `string`
 
-Tenant admin component type.
+Tenant component type.
 
 #### Default
 
 ```ts
-tenant-admin
+tenant
 ```
 
 ***
