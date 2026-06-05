@@ -6,6 +6,40 @@
 
 * remove EcosystemPolicy-specific references in documentation for v2.
 
+## [0.0.3-next.45](https://github.com/iotaledger/twin-rights-management/compare/rights-management-pmp-service-v0.0.3-next.44...rights-management-pmp-service-v0.0.3-next.45) (2026-06-05)
+
+
+### Features
+
+* add context id features ([#51](https://github.com/iotaledger/twin-rights-management/issues/51)) ([239922c](https://github.com/iotaledger/twin-rights-management/commit/239922c82a7fa94b66c8ee0e924bc58ddaaba395))
+* add EcosystemPolicy typed getter across PAP stack ([#114](https://github.com/iotaledger/twin-rights-management/issues/114)) ([2a8e941](https://github.com/iotaledger/twin-rights-management/commit/2a8e941bbea229fb74f81dc869ce1f85c66c300d))
+* add JSON-LD types for negotiation ([6be61f8](https://github.com/iotaledger/twin-rights-management/commit/6be61f890537cb9d22d4fad90092b858de2c9c2d))
+* add policy management point PMP ([#38](https://github.com/iotaledger/twin-rights-management/issues/38)) ([f7b55f7](https://github.com/iotaledger/twin-rights-management/commit/f7b55f728336a0cacb1aa0ed7866242962915d0e))
+* add policy negotiation point PNP, PNAP and PNRP ([#32](https://github.com/iotaledger/twin-rights-management/issues/32)) ([90f0659](https://github.com/iotaledger/twin-rights-management/commit/90f06593a1126df3c2f4ca23cf95a08260fd6415))
+* add scaffold for other services ([de25f34](https://github.com/iotaledger/twin-rights-management/commit/de25f34c40fb65b6d73df98965ea4e368019da84))
+* add validate-locales ([78f30cf](https://github.com/iotaledger/twin-rights-management/commit/78f30cf61054655c815e5fc42972ee39502e3687))
+* capture organization identity ([#88](https://github.com/iotaledger/twin-rights-management/issues/88)) ([8fcee6e](https://github.com/iotaledger/twin-rights-management/commit/8fcee6e676bb5a9a344d83c50567066e447aca76))
+* eslint migration to flat config ([be6170b](https://github.com/iotaledger/twin-rights-management/commit/be6170b11528c5876fe2646c98740f90a3159b7a))
+* eslint migration to flat config ([23a0c08](https://github.com/iotaledger/twin-rights-management/commit/23a0c085e7fc2e522c8d85d325dc5844b9c3fd8e))
+* improve constructor option naming ([c89a7e8](https://github.com/iotaledger/twin-rights-management/commit/c89a7e8df43a5017ac5cf84b549f5a26cc41e089))
+* introduce context for additional environment input ([e1d0392](https://github.com/iotaledger/twin-rights-management/commit/e1d0392622e5a018b695644f423c5b23cc40d3b7))
+* pdp add ([#39](https://github.com/iotaledger/twin-rights-management/issues/39)) ([68b9a8a](https://github.com/iotaledger/twin-rights-management/commit/68b9a8a7a3cf2902f9eecb590ca3316c6b1671f0))
+* policy execution point ([#26](https://github.com/iotaledger/twin-rights-management/issues/26)) ([d930f10](https://github.com/iotaledger/twin-rights-management/commit/d930f104006a0d815cdf222b87d11d749351fb84))
+* remove optional for components ([a354232](https://github.com/iotaledger/twin-rights-management/commit/a354232ff97fe49cbcdc18c73c4e17cf9346ccfd))
+* typescript 6 update ([18f6f1e](https://github.com/iotaledger/twin-rights-management/commit/18f6f1edba890462c068ba0b76ae6dd005e798be))
+* update dependencies ([5bfbb30](https://github.com/iotaledger/twin-rights-management/commit/5bfbb302bb245c8cd8015ff497db3793077d43cd))
+* update processors ([#71](https://github.com/iotaledger/twin-rights-management/issues/71)) ([d6e8c1e](https://github.com/iotaledger/twin-rights-management/commit/d6e8c1e593acb28556674d5180123f220766eb6b))
+* update to more specific ds odrl types ([c56dc49](https://github.com/iotaledger/twin-rights-management/commit/c56dc4991d4e1e8ca3beb737d2a70dddf6f5cd44))
+
+
+### Dependencies
+
+* The following workspace dependencies were updated
+  * dependencies
+    * @twin.org/rights-management-models bumped from 0.0.3-next.44 to 0.0.3-next.45
+  * devDependencies
+    * @twin.org/rights-management-pap-service bumped from 0.0.3-next.44 to 0.0.3-next.45
+
 ## [0.0.3-next.44](https://github.com/iotaledger/twin-rights-management/compare/rights-management-pmp-service-v0.0.3-next.43...rights-management-pmp-service-v0.0.3-next.44) (2026-06-05)
 
 
