@@ -93,7 +93,12 @@ describe("DefaultPolicyArbiter", () => {
 			entitySchema: nameof<LogEntry>()
 		});
 		EntityStorageConnectorFactory.register("log-entry", () => loggingMemoryEntityStorage);
-		LoggingConnectorFactory.register("logging", () => new EntityStorageLoggingConnector());
+		LoggingConnectorFactory.register(
+			"logging",
+			// Disable batching (default in logging-connector-entity-storage >= next.6) so log
+			// entries are written synchronously and assertions on the store are deterministic.
+			() => new EntityStorageLoggingConnector({ config: { batchSize: 1, batchIntervalMs: 0 } })
+		);
 		ComponentFactory.register("logging", () => new LoggingService());
 
 		// Register a default PAP that rejects all requests (for tests that don't use inheritance)

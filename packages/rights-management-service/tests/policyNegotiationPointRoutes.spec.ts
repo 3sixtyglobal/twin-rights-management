@@ -35,7 +35,8 @@ const mockHostingComponent: IHostingComponent = {
 	className: () => "MockHostingComponent",
 	getPublicOrigin: vi.fn(async () => TEST_PUBLIC_ORIGIN),
 	getTenantOrigin: vi.fn(async () => undefined),
-	buildPublicUrl: vi.fn(async (url: string) => `${TEST_PUBLIC_ORIGIN}${url}`)
+	buildPublicUrl: vi.fn(async (url: string) => `${TEST_PUBLIC_ORIGIN}${url}`),
+	matchesLocalOrigin: vi.fn(async () => undefined)
 };
 
 const mockPnpComponent: IPolicyNegotiationPointComponent = {
