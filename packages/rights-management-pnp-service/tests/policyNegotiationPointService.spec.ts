@@ -1670,4 +1670,273 @@ describe("PolicyNegotiationPointService", () => {
 			expect(stored[0].callbackAddress).toBeUndefined();
 		});
 	});
+
+	describe("consumer-side agreement persistence on finalize", () => {
+		test("event(FINALIZED) on the consumer writes the agreement to the consumer PAP so it is resolvable by agreementId", async () => {
+			PolicyRequesterFactory.register("requester-2", () => mockPolicyRequester);
+
+			const consumer = new PolicyNegotiationPointService({
+				policyNegotiationAdministrationPointComponentType:
+					"policy-negotiation-consumer-admin-point",
+				policyNegotiationPointRemoteComponentType: "pnp-remote",
+				config: { callbackPath: "/callback" }
+			});
+
+			const agreement = {
+				"@context": OdrlContexts.Context,
+				"@type": OdrlTypes.Agreement,
+				"@id": "urn:policy:agreement-175",
+				assigner: testIdentityProvider,
+				assignee: testIdentityConsumer
+			};
+
+			// Seed a consumer negotiation in VERIFIED state holding the agreement so the
+			// VERIFIED -> FINALIZED transition is allowed. The agreement exists only on the
+			// negotiation entity; the consumer PAP has no row for it yet.
+			await negotiationConsumerAdminPointComponent.set({
+				id: "consumer-pid-175",
+				correlationId: "provider-pid-175",
+				dateCreated: new Date(Date.now()).toISOString(),
+				offer: mockOffer,
+				agreement,
+				state: DataspaceProtocolContractNegotiationStateType.VERIFIED,
+				nodeIdentity: testIdentityConsumer,
+				organizationIdentity: testIdentityConsumer,
+				trustVerificationInfo: { identity: testIdentityConsumer },
+				handlerId: "requester-2"
+			});
+
+			// Before finalize the consumer PAP cannot resolve the agreement.
+			await expect(adminPointComponent.getAgreement("urn:policy:agreement-175")).rejects.toThrow();
+
+			const result = await consumer.event(
+				{
+					"@context": [DataspaceProtocolContexts.Context],
+					"@type": DataspaceProtocolContractNegotiationTypes.ContractNegotiationEventMessage,
+					providerPid: "provider-pid-175",
+					consumerPid: "consumer-pid-175",
+					event: DataspaceProtocolContractNegotiationStateType.FINALIZED
+				},
+				"consumer",
+				`token:${testIdentityConsumer}`
+			);
+
+			expect(result).toBeUndefined();
+
+			const stored = policyNegotiationConsumerMemoryEntityStorage.getStore();
+			expect(stored[0].state).toBe(DataspaceProtocolContractNegotiationStateType.FINALIZED);
+			expect(mockPolicyRequester.finalised).toHaveBeenCalledWith("consumer-pid-175");
+
+			// After finalize the agreement is resolvable from the consumer PAP by agreementId
+			// (this is what startDataTransfer -> lookupAgreement -> getAgreement relies on).
+			const resolved = await adminPointComponent.getAgreement("urn:policy:agreement-175");
+			expect(resolved["@id"]).toBe("urn:policy:agreement-175");
+			expect(resolved["@type"]).toBe(OdrlTypes.Agreement);
+		});
+
+		test("event(FINALIZED) is idempotent when the agreement already exists in the PAP (no throw)", async () => {
+			PolicyRequesterFactory.register("requester-2", () => mockPolicyRequester);
+
+			const consumer = new PolicyNegotiationPointService({
+				policyNegotiationAdministrationPointComponentType:
+					"policy-negotiation-consumer-admin-point",
+				policyNegotiationPointRemoteComponentType: "pnp-remote",
+				config: { callbackPath: "/callback" }
+			});
+
+			const agreement = {
+				"@context": OdrlContexts.Context,
+				"@type": OdrlTypes.Agreement,
+				"@id": "urn:policy:agreement-175-dup",
+				assigner: testIdentityProvider,
+				assignee: testIdentityConsumer
+			};
+
+			// Pre-create the agreement in the PAP so the finalize write hits AlreadyExists.
+			await adminPointComponent.create(agreement);
+
+			await negotiationConsumerAdminPointComponent.set({
+				id: "consumer-pid-175-dup",
+				correlationId: "provider-pid-175-dup",
+				dateCreated: new Date(Date.now()).toISOString(),
+				offer: mockOffer,
+				agreement,
+				state: DataspaceProtocolContractNegotiationStateType.VERIFIED,
+				nodeIdentity: testIdentityConsumer,
+				organizationIdentity: testIdentityConsumer,
+				trustVerificationInfo: { identity: testIdentityConsumer },
+				handlerId: "requester-2"
+			});
+
+			const result = await consumer.event(
+				{
+					"@context": [DataspaceProtocolContexts.Context],
+					"@type": DataspaceProtocolContractNegotiationTypes.ContractNegotiationEventMessage,
+					providerPid: "provider-pid-175-dup",
+					consumerPid: "consumer-pid-175-dup",
+					event: DataspaceProtocolContractNegotiationStateType.FINALIZED
+				},
+				"consumer",
+				`token:${testIdentityConsumer}`
+			);
+
+			// AlreadyExists is swallowed: finalize still succeeds.
+			expect(result).toBeUndefined();
+			const stored = policyNegotiationConsumerMemoryEntityStorage.getStore();
+			expect(stored[0].state).toBe(DataspaceProtocolContractNegotiationStateType.FINALIZED);
+		});
+
+		test("event(FINALIZED) fails loudly (does not write) when the agreement id collides with the offer id", async () => {
+			PolicyRequesterFactory.register("requester-2", () => mockPolicyRequester);
+
+			const consumer = new PolicyNegotiationPointService({
+				policyNegotiationAdministrationPointComponentType:
+					"policy-negotiation-consumer-admin-point",
+				policyNegotiationPointRemoteComponentType: "pnp-remote",
+				config: { callbackPath: "/callback" }
+			});
+
+			// Malformed: a (hypothetical buggy) negotiator reused the offer id for the
+			// agreement. The guard must reject this instead of letting the AlreadyExists
+			// catch silently swallow a colliding PAP write.
+			const collidingId = "urn:policy:offer-1";
+			const agreement = {
+				"@context": OdrlContexts.Context,
+				"@type": OdrlTypes.Agreement,
+				"@id": collidingId,
+				assigner: testIdentityProvider,
+				assignee: testIdentityConsumer
+			};
+
+			await negotiationConsumerAdminPointComponent.set({
+				id: "consumer-pid-175-collide",
+				correlationId: "provider-pid-175-collide",
+				dateCreated: new Date(Date.now()).toISOString(),
+				offer: mockOffer, // mockOffer @id is "urn:policy:offer-1"
+				agreement,
+				state: DataspaceProtocolContractNegotiationStateType.VERIFIED,
+				nodeIdentity: testIdentityConsumer,
+				organizationIdentity: testIdentityConsumer,
+				trustVerificationInfo: { identity: testIdentityConsumer },
+				handlerId: "requester-2"
+			});
+
+			const result = await consumer.event(
+				{
+					"@context": [DataspaceProtocolContexts.Context],
+					"@type": DataspaceProtocolContractNegotiationTypes.ContractNegotiationEventMessage,
+					providerPid: "provider-pid-175-collide",
+					consumerPid: "consumer-pid-175-collide",
+					event: DataspaceProtocolContractNegotiationStateType.FINALIZED
+				},
+				"consumer",
+				`token:${testIdentityConsumer}`
+			);
+
+			// The collision is surfaced as an error (not swallowed), and the colliding
+			// agreement is NOT written to the PAP.
+			expect(result).toBeDefined();
+			await expect(adminPointComponent.getAgreement(collidingId)).rejects.toThrow();
+		});
+	});
+
+	describe("consumer composite assignee on agreement creation", () => {
+		test("stamps the consumer composite (identity:tenantId) as the agreement assignee when the negotiation carries a tenant", async () => {
+			PolicyNegotiatorFactory.register("MockPolicyNegotiator", () => mockNegotiator);
+
+			const provider = new PolicyNegotiationPointService({
+				policyNegotiationAdministrationPointComponentType:
+					"policy-negotiation-provider-admin-point",
+				policyNegotiationPointRemoteComponentType: "pnp-remote",
+				config: { callbackPath: "/callback" }
+			});
+
+			// Seed a provider-side negotiation in ACCEPTED state whose stored
+			// trustVerificationInfo carries the consumer's tenant (tid). event(ACCEPTED)
+			// schedules sendAgreementToConsumer, which creates the agreement.
+			await negotiationProviderAdminPointComponent.set({
+				id: "provider-pid-assignee-tenant",
+				correlationId: "consumer-pid-assignee-tenant",
+				dateCreated: new Date(Date.now()).toISOString(),
+				offer: mockOffer,
+				state: DataspaceProtocolContractNegotiationStateType.OFFERED,
+				nodeIdentity: testIdentityProvider,
+				organizationIdentity: testIdentityProvider,
+				trustVerificationInfo: {
+					identity: testIdentityConsumer,
+					tenantId: "consumer-tenant-hash"
+				},
+				handlerId: "MockPolicyNegotiator"
+			});
+
+			await provider.event(
+				{
+					"@context": [DataspaceProtocolContexts.Context],
+					"@type": DataspaceProtocolContractNegotiationTypes.ContractNegotiationEventMessage,
+					providerPid: "provider-pid-assignee-tenant",
+					consumerPid: "consumer-pid-assignee-tenant",
+					event: DataspaceProtocolContractNegotiationStateType.ACCEPTED
+				},
+				"provider",
+				`token:${testIdentityConsumer}`
+			);
+
+			// Wait past the setTimeout used to schedule sendAgreementToConsumer.
+			await new Promise(resolve => setTimeout(resolve, 250));
+
+			// The assignee passed to the negotiator must be the consumer composite so it
+			// matches the caller composite the transfer side rebuilds (dataspace
+			// buildCallerComposite => `identity:tenantId`).
+			expect(mockNegotiator.createAgreement).toHaveBeenCalledWith(
+				expect.anything(),
+				`${testIdentityConsumer}:consumer-tenant-hash`,
+				undefined
+			);
+		});
+
+		test("stamps the bare identity as the agreement assignee when the negotiation has no tenant", async () => {
+			PolicyNegotiatorFactory.register("MockPolicyNegotiator", () => mockNegotiator);
+
+			const provider = new PolicyNegotiationPointService({
+				policyNegotiationAdministrationPointComponentType:
+					"policy-negotiation-provider-admin-point",
+				policyNegotiationPointRemoteComponentType: "pnp-remote",
+				config: { callbackPath: "/callback" }
+			});
+
+			await negotiationProviderAdminPointComponent.set({
+				id: "provider-pid-assignee-bare",
+				correlationId: "consumer-pid-assignee-bare",
+				dateCreated: new Date(Date.now()).toISOString(),
+				offer: mockOffer,
+				state: DataspaceProtocolContractNegotiationStateType.OFFERED,
+				nodeIdentity: testIdentityProvider,
+				organizationIdentity: testIdentityProvider,
+				// No tenantId — single-tenant / no tid claim.
+				trustVerificationInfo: { identity: testIdentityConsumer },
+				handlerId: "MockPolicyNegotiator"
+			});
+
+			await provider.event(
+				{
+					"@context": [DataspaceProtocolContexts.Context],
+					"@type": DataspaceProtocolContractNegotiationTypes.ContractNegotiationEventMessage,
+					providerPid: "provider-pid-assignee-bare",
+					consumerPid: "consumer-pid-assignee-bare",
+					event: DataspaceProtocolContractNegotiationStateType.ACCEPTED
+				},
+				"provider",
+				`token:${testIdentityConsumer}`
+			);
+
+			await new Promise(resolve => setTimeout(resolve, 250));
+
+			// Backward compatible: no tenant => bare identity assignee.
+			expect(mockNegotiator.createAgreement).toHaveBeenCalledWith(
+				expect.anything(),
+				testIdentityConsumer,
+				undefined
+			);
+		});
+	});
 });

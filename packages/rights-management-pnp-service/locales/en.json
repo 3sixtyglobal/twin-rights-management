@@ -6,6 +6,7 @@
 			"noRequesterFound": "No requester found with type: \"{notFoundId}\"",
 			"negotiationFailed": "Negotiation failed for offer id: \"{offerId}\"",
 			"agreementMissing": "The agreement is missing",
+			"agreementOfferIdCollision": "The agreement id collides with the offer id, the negotiator must allocate a distinct id: \"{id}\"",
 			"negotiationNotFound": "No negotiation found with id: \"{notFoundId}\"",
 			"requesterNotFound": "No requester found with id: \"{notFoundId}\"",
 			"invalidState": "The negotiation is in an incorrect state \"{state}\" for negotiation with id: \"{negotiationId}\"",

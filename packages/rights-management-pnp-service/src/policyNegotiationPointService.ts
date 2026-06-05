@@ -3,6 +3,7 @@
 import type { IUrlTransformerComponent } from "@twin.org/api-models";
 import { ContextIdHelper, ContextIdKeys, ContextIdStore } from "@twin.org/context";
 import {
+	AlreadyExistsError,
 	BaseError,
 	ComponentFactory,
 	ErrorHelper,
@@ -1056,6 +1057,31 @@ export class PolicyNegotiationPointService implements IPolicyNegotiationPointCom
 				destination === "consumer" &&
 				message.event === DataspaceProtocolContractNegotiationEventType.FINALIZED
 			) {
+				// Persist the finalized agreement into the consumer's PAP so it is resolvable by agreementId
+				if (!Is.empty(policyNegotiation.agreement)) {
+					// The agreement must carry its own id (the negotiator
+					// allocates a fresh one in createAgreement). If a negotiator reused the
+					// offer id the agreement would collide with the offer in the PAP, and the
+					// AlreadyExists catch below would silently swallow it, leaving no consumer
+					// agreement.
+					const agreementUid = OdrlPolicyHelper.getUid(policyNegotiation.agreement);
+					const offerUid = OdrlPolicyHelper.getUid(policyNegotiation.offer);
+					if (Is.stringValue(agreementUid) && agreementUid === offerUid) {
+						throw new GeneralError(
+							PolicyNegotiationPointService.CLASS_NAME,
+							"agreementOfferIdCollision",
+							{ id: agreementUid }
+						);
+					}
+					try {
+						await this._policyAdministrationPointComponent.create(policyNegotiation.agreement);
+					} catch (error) {
+						if (!BaseError.isErrorName(error, AlreadyExistsError.CLASS_NAME)) {
+							throw error;
+						}
+					}
+				}
+
 				// Try and find the original requester of the negotiation
 				// this will only happen on the consumer side
 				const requesterType = policyNegotiation.handlerId;
@@ -1575,10 +1601,15 @@ export class PolicyNegotiationPointService implements IPolicyNegotiationPointCom
 					})
 				);
 			} else {
+				// Stamp the agreement assignee as the consumer's COMPOSITE identity
+				const consumerAssignee = Is.stringValue(policyNegotiation.trustVerificationInfo.tenantId)
+					? `${policyNegotiation.trustVerificationInfo.identity}:${policyNegotiation.trustVerificationInfo.tenantId}`
+					: policyNegotiation.trustVerificationInfo.identity;
+
 				// Use the negotiator to create the agreement for the offer
 				const agreement = await negotiator.createAgreement(
 					offer,
-					policyNegotiation.trustVerificationInfo.identity,
+					consumerAssignee,
 					policyNegotiation.trustVerificationInfo.data
 				);
 
