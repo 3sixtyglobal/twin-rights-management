@@ -1,6 +1,6 @@
 {
 	"name": "@twin.org/rights-management-pip-service",
-	"version": "0.0.3-next.45",
+	"version": "0.0.3-next.46",
 	"description": "Policy information point service for supplying context facts to evaluations.",
 	"repository": {
 		"type": "git",
@@ -32,7 +32,7 @@
 		"@twin.org/core": "next",
 		"@twin.org/data-json-ld": "next",
 		"@twin.org/identity-models": "next",
-		"@twin.org/rights-management-models": "0.0.3-next.45",
+		"@twin.org/rights-management-models": "0.0.3-next.46",
 		"@twin.org/logging-models": "next",
 		"@twin.org/nameof": "next"
 	},
