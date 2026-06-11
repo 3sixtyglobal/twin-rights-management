@@ -1,6 +1,6 @@
 # Function: convertToStoragePolicy()
 
-> **convertToStoragePolicy**\<`T`\>(`policy`): [`OdrlPolicy`](../classes/OdrlPolicy.md)
+> **convertToStoragePolicy**\<`T`\>(`policy`, `metadata?`, `context?`): [`OdrlPolicy`](../classes/OdrlPolicy.md)
 
 Converts an IDataspaceProtocolPolicy to an OdrlPolicy for storage.
 
@@ -17,6 +17,18 @@ Converts an IDataspaceProtocolPolicy to an OdrlPolicy for storage.
 `T`
 
 The policy to convert.
+
+### metadata?
+
+`IRightsManagementPolicyMetadata`
+
+PAP-managed lifecycle metadata.
+
+### context?
+
+`OdrlContextType`
+
+Server-controlled JSON-LD context to persist.
 
 ## Returns
 

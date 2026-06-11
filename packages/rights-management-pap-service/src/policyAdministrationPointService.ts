@@ -8,6 +8,7 @@ import {
 	Guards,
 	Is,
 	NotFoundError,
+	ObjectHelper,
 	Urn,
 	Validation,
 	type IValidationFailure
@@ -25,17 +26,19 @@ import {
 	OdrlPolicyHelper,
 	RightsManagementNamespaces,
 	type IPolicyAdministrationPointComponent,
-	type IRightsManagementPolicy
+	type IRightsManagementAgreement,
+	type IRightsManagementOffer,
+	type IRightsManagementPolicy,
+	type IRightsManagementSet
 } from "@twin.org/rights-management-models";
-import type {
-	IDataspaceProtocolAgreement,
-	IDataspaceProtocolOffer,
-	IDataspaceProtocolSet
-} from "@twin.org/standards-dataspace-protocol";
 import { OdrlDataTypes, OdrlPolicyType } from "@twin.org/standards-w3c-odrl";
 import type { OdrlPolicy } from "./entities/odrlPolicy.js";
 import type { IPolicyAdministrationPointServiceConstructorOptions } from "./models/IPolicyAdministrationPointServiceConstructorOptions.js";
-import { convertFromStoragePolicy, convertToStoragePolicy } from "./utils/odrlPolicyConverters.js";
+import {
+	convertFromStoragePolicy,
+	convertToStoragePolicy,
+	buildStorageContext
+} from "./utils/odrlPolicyConverters.js";
 
 /**
  * Class implementation of Policy Administration Point Component.
@@ -72,6 +75,28 @@ export class PolicyAdministrationPointService implements IPolicyAdministrationPo
 		this._odrlPolicyEntityStorage = EntityStorageConnectorFactory.get(
 			options?.odrlPolicyEntityStorageType ?? "odrl-policy"
 		);
+	}
+
+	/**
+	 * Strip PAP-managed fields before ODRL validation.
+	 * @param policy The policy to prepare for validation.
+	 * @param uid The policy uid for validation.
+	 * @returns The policy shape expected by JsonLdHelper validation.
+	 * @internal
+	 */
+	private static toValidatePolicy(
+		policy: JsonLdObjectWithOptionalAtId<IRightsManagementPolicy> | IRightsManagementPolicy,
+		uid: string
+	): IRightsManagementPolicy & { uid: string } {
+		const policyForValidation = ObjectHelper.clone(policy) as IRightsManagementPolicy;
+		ObjectHelper.propertyDelete(policyForValidation, "@id");
+		ObjectHelper.propertyDelete(policyForValidation, "dateCreated");
+		ObjectHelper.propertyDelete(policyForValidation, "dateModified");
+
+		return {
+			...policyForValidation,
+			uid
+		};
 	}
 
 	/**
@@ -121,14 +146,9 @@ export class PolicyAdministrationPointService implements IPolicyAdministrationPo
 		}
 
 		const id = policyUid ?? Urn.generateRandom(RightsManagementNamespaces.Policy).toString(false);
+		const now = new Date().toISOString();
 
-		// We need to convert to odrl policy for validation as it expects the uid property
-		// eslint-disable-next-line @typescript-eslint/no-unused-vars
-		const { "@id": idUnused, ...policyWithoutId } = policy;
-		const validatePolicy = {
-			...policyWithoutId,
-			uid: id
-		};
+		const validatePolicy = PolicyAdministrationPointService.toValidatePolicy(policy, id);
 
 		const validationFailures: IValidationFailure[] = [];
 		await JsonLdHelper.validate(JsonLdHelper.toNodeObject(validatePolicy), validationFailures, {
@@ -140,10 +160,17 @@ export class PolicyAdministrationPointService implements IPolicyAdministrationPo
 			validationFailures
 		);
 
-		const storagePolicy = convertToStoragePolicy({
-			...policy,
-			"@id": id
-		});
+		const storagePolicy = convertToStoragePolicy(
+			{
+				...policy,
+				"@id": id
+			},
+			{
+				dateCreated: now,
+				dateModified: now
+			},
+			buildStorageContext()
+		);
 		await this._odrlPolicyEntityStorage.set(storagePolicy);
 
 		return id;
@@ -169,13 +196,7 @@ export class PolicyAdministrationPointService implements IPolicyAdministrationPo
 			);
 		}
 
-		// We need to convert to odrl policy for validation as it expects the uid property
-		// eslint-disable-next-line @typescript-eslint/no-unused-vars
-		const { "@id": idUnused, ...policyWithoutId } = policy;
-		const validatePolicy = {
-			...policyWithoutId,
-			uid: policyUid
-		};
+		const validatePolicy = PolicyAdministrationPointService.toValidatePolicy(policy, policyUid);
 
 		const validationFailures: IValidationFailure[] = [];
 		await JsonLdHelper.validate(JsonLdHelper.toNodeObject(validatePolicy), validationFailures, {
@@ -187,10 +208,21 @@ export class PolicyAdministrationPointService implements IPolicyAdministrationPo
 			validationFailures
 		);
 
-		const storagePolicy = convertToStoragePolicy({
-			...policy,
-			"@id": policyUid
-		});
+		const now = new Date().toISOString();
+		const dateCreated = existingStoragePolicy.dateCreated ?? now;
+		const dateModified = now;
+
+		const storagePolicy = convertToStoragePolicy(
+			{
+				...policy,
+				"@id": policyUid
+			},
+			{
+				dateCreated,
+				dateModified
+			},
+			buildStorageContext()
+		);
 		await this._odrlPolicyEntityStorage.set(storagePolicy);
 	}
 
@@ -227,7 +259,7 @@ export class PolicyAdministrationPointService implements IPolicyAdministrationPo
 	 * @param agreementId The ID of the agreement to get.
 	 * @returns The agreement.
 	 */
-	public async getAgreement(agreementId: string): Promise<IDataspaceProtocolAgreement> {
+	public async getAgreement(agreementId: string): Promise<IRightsManagementAgreement> {
 		Guards.stringValue(
 			PolicyAdministrationPointService.CLASS_NAME,
 			nameof(agreementId),
@@ -259,7 +291,7 @@ export class PolicyAdministrationPointService implements IPolicyAdministrationPo
 			});
 		}
 
-		return convertFromStoragePolicy<IDataspaceProtocolAgreement>(policy);
+		return convertFromStoragePolicy<IRightsManagementAgreement>(policy);
 	}
 
 	/**
@@ -267,7 +299,7 @@ export class PolicyAdministrationPointService implements IPolicyAdministrationPo
 	 * @param offerId The ID of the offer to get.
 	 * @returns The offer.
 	 */
-	public async getOffer(offerId: string): Promise<IDataspaceProtocolOffer> {
+	public async getOffer(offerId: string): Promise<IRightsManagementOffer> {
 		Guards.stringValue(PolicyAdministrationPointService.CLASS_NAME, nameof(offerId), offerId);
 
 		let policy;
@@ -295,7 +327,7 @@ export class PolicyAdministrationPointService implements IPolicyAdministrationPo
 			});
 		}
 
-		return convertFromStoragePolicy<IDataspaceProtocolOffer>(policy);
+		return convertFromStoragePolicy<IRightsManagementOffer>(policy);
 	}
 
 	/**
@@ -303,7 +335,7 @@ export class PolicyAdministrationPointService implements IPolicyAdministrationPo
 	 * @param setId The ID of the set to get.
 	 * @returns The set.
 	 */
-	public async getSet(setId: string): Promise<IDataspaceProtocolSet> {
+	public async getSet(setId: string): Promise<IRightsManagementSet> {
 		Guards.stringValue(PolicyAdministrationPointService.CLASS_NAME, nameof(setId), setId);
 
 		let policy;
@@ -327,7 +359,7 @@ export class PolicyAdministrationPointService implements IPolicyAdministrationPo
 			});
 		}
 
-		return convertFromStoragePolicy<IDataspaceProtocolSet>(policy);
+		return convertFromStoragePolicy<IRightsManagementSet>(policy);
 	}
 
 	/**

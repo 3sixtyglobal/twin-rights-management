@@ -32,6 +32,7 @@ import {
 } from "@twin.org/rights-management-models";
 import {
 	PolicyAdministrationPointService,
+	buildPapStorageContext,
 	initSchema as initSchemaPolicyAdministrationPoint,
 	type OdrlPolicy
 } from "@twin.org/rights-management-pap-service";
@@ -55,6 +56,11 @@ import type { PolicyNegotiation } from "../src/entities/policyNegotiation.js";
 import { PolicyNegotiationAdminPointService } from "../src/policyNegotiationAdminPointService.js";
 import { PolicyNegotiationPointService } from "../src/policyNegotiationPointService.js";
 import { initSchema } from "../src/schema.js";
+
+/**
+ * JSON-LD context on policies loaded from PAP after lifecycle timestamps are stored.
+ */
+const PAP_STORED_POLICY_CONTEXT = buildPapStorageContext();
 
 let loggingMemoryEntityStorage: MemoryEntityStorageConnector<LogEntry>;
 let odrlPolicyMemoryEntityStorage: MemoryEntityStorageConnector<OdrlPolicy>;
@@ -525,7 +531,7 @@ describe("PolicyNegotiationPointService", () => {
 			expires: expect.any(Number),
 			handlerId: "MockPolicyNegotiator",
 			offer: {
-				"@context": "http://www.w3.org/ns/odrl.jsonld",
+				"@context": PAP_STORED_POLICY_CONTEXT,
 				"@type": "Offer",
 				"@id": "urn:policy:offer-1",
 				assigner: testIdentityProvider
@@ -592,7 +598,7 @@ describe("PolicyNegotiationPointService", () => {
 			expires: expect.any(Number),
 			handlerId: "requester-2",
 			offer: {
-				"@context": "http://www.w3.org/ns/odrl.jsonld",
+				"@context": PAP_STORED_POLICY_CONTEXT,
 				"@type": "Offer",
 				"@id": "urn:policy:offer-1",
 				assigner: testIdentityProvider
@@ -624,7 +630,7 @@ describe("PolicyNegotiationPointService", () => {
 			expires: expect.any(Number),
 			handlerId: "MockPolicyNegotiator",
 			offer: {
-				"@context": "http://www.w3.org/ns/odrl.jsonld",
+				"@context": PAP_STORED_POLICY_CONTEXT,
 				"@type": "Offer",
 				"@id": "urn:policy:offer-1",
 				assigner: testIdentityProvider
@@ -646,7 +652,7 @@ describe("PolicyNegotiationPointService", () => {
 			expires: expect.any(Number),
 			handlerId: "MockPolicyNegotiator",
 			offer: {
-				"@context": "http://www.w3.org/ns/odrl.jsonld",
+				"@context": PAP_STORED_POLICY_CONTEXT,
 				"@type": "Offer",
 				"@id": "urn:policy:offer-1",
 				assigner: testIdentityProvider
@@ -668,13 +674,13 @@ describe("PolicyNegotiationPointService", () => {
 			expires: expect.any(Number),
 			handlerId: "requester-2",
 			offer: {
-				"@context": "http://www.w3.org/ns/odrl.jsonld",
+				"@context": PAP_STORED_POLICY_CONTEXT,
 				"@type": "Offer",
 				"@id": "urn:policy:offer-1",
 				assigner: testIdentityProvider
 			},
 			agreement: {
-				"@context": "http://www.w3.org/ns/odrl.jsonld",
+				"@context": OdrlContexts.Context,
 				"@type": "Agreement",
 				"@id": "urn:policy:agreement-1",
 				assigner: testIdentityProvider,
@@ -696,13 +702,13 @@ describe("PolicyNegotiationPointService", () => {
 			expires: expect.any(Number),
 			handlerId: "MockPolicyNegotiator",
 			offer: {
-				"@context": "http://www.w3.org/ns/odrl.jsonld",
+				"@context": PAP_STORED_POLICY_CONTEXT,
 				"@type": "Offer",
 				"@id": "urn:policy:offer-1",
 				assigner: testIdentityProvider
 			},
 			agreement: {
-				"@context": "http://www.w3.org/ns/odrl.jsonld",
+				"@context": OdrlContexts.Context,
 				"@type": "Agreement",
 				"@id": "urn:policy:agreement-1",
 				assigner: testIdentityProvider,
@@ -725,13 +731,13 @@ describe("PolicyNegotiationPointService", () => {
 			expires: expect.any(Number),
 			handlerId: "requester-2",
 			offer: {
-				"@context": "http://www.w3.org/ns/odrl.jsonld",
+				"@context": PAP_STORED_POLICY_CONTEXT,
 				"@type": "Offer",
 				"@id": "urn:policy:offer-1",
 				assigner: testIdentityProvider
 			},
 			agreement: {
-				"@context": "http://www.w3.org/ns/odrl.jsonld",
+				"@context": OdrlContexts.Context,
 				"@type": "Agreement",
 				"@id": "urn:policy:agreement-1",
 				assigner: testIdentityProvider,
@@ -752,13 +758,13 @@ describe("PolicyNegotiationPointService", () => {
 			expires: expect.any(Number),
 			handlerId: "MockPolicyNegotiator",
 			offer: {
-				"@context": "http://www.w3.org/ns/odrl.jsonld",
+				"@context": PAP_STORED_POLICY_CONTEXT,
 				"@type": "Offer",
 				"@id": "urn:policy:offer-1",
 				assigner: testIdentityProvider
 			},
 			agreement: {
-				"@context": "http://www.w3.org/ns/odrl.jsonld",
+				"@context": OdrlContexts.Context,
 				"@type": "Agreement",
 				"@id": "urn:policy:agreement-1",
 				assigner: testIdentityProvider,
@@ -780,13 +786,13 @@ describe("PolicyNegotiationPointService", () => {
 			expires: expect.any(Number),
 			handlerId: "requester-2",
 			offer: {
-				"@context": "http://www.w3.org/ns/odrl.jsonld",
+				"@context": PAP_STORED_POLICY_CONTEXT,
 				"@type": "Offer",
 				"@id": "urn:policy:offer-1",
 				assigner: testIdentityProvider
 			},
 			agreement: {
-				"@context": "http://www.w3.org/ns/odrl.jsonld",
+				"@context": OdrlContexts.Context,
 				"@type": "Agreement",
 				"@id": "urn:policy:agreement-1",
 				assigner: testIdentityProvider,
@@ -807,13 +813,13 @@ describe("PolicyNegotiationPointService", () => {
 			expires: expect.any(Number),
 			handlerId: "MockPolicyNegotiator",
 			offer: {
-				"@context": "http://www.w3.org/ns/odrl.jsonld",
+				"@context": PAP_STORED_POLICY_CONTEXT,
 				"@type": "Offer",
 				"@id": "urn:policy:offer-1",
 				assigner: testIdentityProvider
 			},
 			agreement: {
-				"@context": "http://www.w3.org/ns/odrl.jsonld",
+				"@context": OdrlContexts.Context,
 				"@type": "Agreement",
 				"@id": "urn:policy:agreement-1",
 				assigner: testIdentityProvider,

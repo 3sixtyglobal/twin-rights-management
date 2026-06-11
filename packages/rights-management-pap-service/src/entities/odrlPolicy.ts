@@ -2,7 +2,7 @@
 // SPDX-License-Identifier: Apache-2.0.
 import { entity, property } from "@twin.org/entity";
 import type { IDataspaceProtocolPolicy } from "@twin.org/standards-dataspace-protocol";
-import type { OdrlPolicyType } from "@twin.org/standards-w3c-odrl";
+import type { OdrlContextType, OdrlPolicyType } from "@twin.org/standards-w3c-odrl";
 
 /**
  * Class describing an ODRL policy for entity storage.
@@ -80,6 +80,24 @@ export class OdrlPolicy {
 	 */
 	@property({ type: "array", optional: true })
 	public obligation?: IDataspaceProtocolPolicy["obligation"];
+
+	/**
+	 * schema.org dateCreated — ISO 8601 date-time set by PAP on create.
+	 */
+	@property({ type: "string", format: "date-time", optional: true })
+	public dateCreated?: string;
+
+	/**
+	 * schema.org dateModified — ISO 8601 date-time set by PAP on create and update.
+	 */
+	@property({ type: "string", format: "date-time", optional: true })
+	public dateModified?: string;
+
+	/**
+	 * Server-controlled JSON-LD context persisted by PAP (entity field `context` avoids the at-prefix).
+	 */
+	@property({ type: "object", format: "json", optional: true })
+	public context?: OdrlContextType;
 
 	/**
 	 * The assignerIndex.

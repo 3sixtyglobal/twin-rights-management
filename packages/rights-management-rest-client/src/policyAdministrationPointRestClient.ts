@@ -18,21 +18,19 @@ import {
 	type IPapGetRequest,
 	type IPapGetResponse,
 	type IPapUpdateRequest,
-	type IPolicyAdministrationPointComponent,
 	type IPapGetAgreementRequest,
 	type IPapGetAgreementResponse,
-	type IRightsManagementPolicy,
-	type IPapGetSetRequest,
-	type IPapGetSetResponse,
 	type IPapGetOfferRequest,
 	type IPapGetOfferResponse,
+	type IPapGetSetRequest,
+	type IPapGetSetResponse,
+	type IRightsManagementAgreement,
+	type IRightsManagementOffer,
+	type IRightsManagementPolicy,
+	type IRightsManagementSet,
+	type IPolicyAdministrationPointComponent,
 	OdrlPolicyHelper
 } from "@twin.org/rights-management-models";
-import type {
-	IDataspaceProtocolAgreement,
-	IDataspaceProtocolOffer,
-	IDataspaceProtocolSet
-} from "@twin.org/standards-dataspace-protocol";
 import { HeaderHelper, HeaderTypes } from "@twin.org/web";
 
 /**
@@ -125,7 +123,7 @@ export class PolicyAdministrationPointRestClient
 	 * @param agreementId The id of the agreement to get.
 	 * @returns The agreement.
 	 */
-	public async getAgreement(agreementId: string): Promise<IDataspaceProtocolAgreement> {
+	public async getAgreement(agreementId: string): Promise<IRightsManagementAgreement> {
 		Guards.stringValue(
 			PolicyAdministrationPointRestClient.CLASS_NAME,
 			nameof(agreementId),
@@ -150,7 +148,7 @@ export class PolicyAdministrationPointRestClient
 	 * @param setId The id of the set to get.
 	 * @returns The set.
 	 */
-	public async getSet(setId: string): Promise<IDataspaceProtocolSet> {
+	public async getSet(setId: string): Promise<IRightsManagementSet> {
 		Guards.stringValue(PolicyAdministrationPointRestClient.CLASS_NAME, nameof(setId), setId);
 
 		const response = await this.fetch<IPapGetSetRequest, IPapGetSetResponse>(
@@ -171,7 +169,7 @@ export class PolicyAdministrationPointRestClient
 	 * @param offerId The id of the offer to get.
 	 * @returns The offer.
 	 */
-	public async getOffer(offerId: string): Promise<IDataspaceProtocolOffer> {
+	public async getOffer(offerId: string): Promise<IRightsManagementOffer> {
 		Guards.stringValue(PolicyAdministrationPointRestClient.CLASS_NAME, nameof(offerId), offerId);
 
 		const response = await this.fetch<IPapGetOfferRequest, IPapGetOfferResponse>(

@@ -11,23 +11,24 @@ import {
 } from "@twin.org/api-models";
 import { Coerce, ComponentFactory, Guards, Is } from "@twin.org/core";
 import { nameof } from "@twin.org/nameof";
-import type {
-	IPapCreateRequest,
-	IPapGetAgreementRequest,
-	IPapGetAgreementResponse,
-	IPapGetOfferRequest,
-	IPapGetOfferResponse,
-	IPapGetRequest,
-	IPapGetResponse,
-	IPapGetSetRequest,
-	IPapGetSetResponse,
-	IPapQueryRequest,
-	IPapQueryResponse,
-	IPapRemoveRequest,
-	IPapUpdateRequest,
-	IPolicyAdministrationPointComponent
+import {
+	POLICY_METADATA_CONTEXT,
+	type IPapCreateRequest,
+	type IPapGetAgreementRequest,
+	type IPapGetAgreementResponse,
+	type IPapGetOfferRequest,
+	type IPapGetOfferResponse,
+	type IPapGetRequest,
+	type IPapGetResponse,
+	type IPapGetSetRequest,
+	type IPapGetSetResponse,
+	type IPapQueryRequest,
+	type IPapQueryResponse,
+	type IPapRemoveRequest,
+	type IPapUpdateRequest,
+	type IPolicyAdministrationPointComponent
 } from "@twin.org/rights-management-models";
-import { OdrlContexts, OdrlPolicyType } from "@twin.org/standards-w3c-odrl";
+import { OdrlContexts, OdrlPolicyType, type OdrlContextType } from "@twin.org/standards-w3c-odrl";
 import { HeaderHelper, HeaderTypes, HttpStatusCode } from "@twin.org/web";
 
 /**
@@ -46,6 +47,15 @@ export const papTags: ITag[] = [
 ];
 
 /**
+ * Example JSON-LD context returned by PAP read endpoints for policies with metadata timestamps.
+ * Uses `POLICY_METADATA_CONTEXT` from rights-management-models merged with ODRL context.
+ */
+const PAP_POLICY_RESPONSE_CONTEXT: OdrlContextType = [
+	OdrlContexts.Context,
+	POLICY_METADATA_CONTEXT
+];
+
+/**
  * The REST routes for the Policy Administration Point.
  * @param baseRouteName Prefix to prepend to the paths.
  * @param componentName The name of the component to use in the routes stored in the ComponentFactory.
@@ -55,6 +65,11 @@ export function generateRestRoutesPolicyAdministrationPoint(
 	baseRouteName: string,
 	componentName: string
 ): IRestRoute[] {
+	const papPolicyExampleLifecycle = {
+		dateCreated: "2025-09-03T00:00:00.000Z",
+		dateModified: "2025-09-03T00:00:00.000Z"
+	};
+
 	const papCreateRoute: IRestRoute<IPapCreateRequest, ICreatedResponse> = {
 		operationId: "papCreate",
 		summary: "Create a policy",
@@ -169,9 +184,10 @@ export function generateRestRoutesPolicyAdministrationPoint(
 						id: "papGetResponseExample",
 						response: {
 							body: {
-								"@context": OdrlContexts.Context,
+								"@context": PAP_POLICY_RESPONSE_CONTEXT,
 								"@type": OdrlPolicyType.Set,
 								"@id": "urn:rights-management:abc123def456",
+								...papPolicyExampleLifecycle,
 								permission: [
 									{
 										target: "http://example.com/asset/1",
@@ -215,9 +231,10 @@ export function generateRestRoutesPolicyAdministrationPoint(
 						id: "papGetResponseExample",
 						response: {
 							body: {
-								"@context": OdrlContexts.Context,
+								"@context": PAP_POLICY_RESPONSE_CONTEXT,
 								"@type": OdrlPolicyType.Agreement,
 								"@id": "urn:rights-management:abc123def456",
+								...papPolicyExampleLifecycle,
 								permission: [
 									{
 										target: "http://example.com/asset/1",
@@ -263,9 +280,10 @@ export function generateRestRoutesPolicyAdministrationPoint(
 						id: "papGetResponseExample",
 						response: {
 							body: {
-								"@context": OdrlContexts.Context,
+								"@context": PAP_POLICY_RESPONSE_CONTEXT,
 								"@type": OdrlPolicyType.Offer,
 								"@id": "urn:rights-management:abc123def456",
+								...papPolicyExampleLifecycle,
 								permission: [
 									{
 										target: "http://example.com/asset/1",
@@ -311,9 +329,10 @@ export function generateRestRoutesPolicyAdministrationPoint(
 						id: "papGetResponseExample",
 						response: {
 							body: {
-								"@context": OdrlContexts.Context,
+								"@context": PAP_POLICY_RESPONSE_CONTEXT,
 								"@type": OdrlPolicyType.Set,
 								"@id": "urn:rights-management:abc123def456",
+								...papPolicyExampleLifecycle,
 								permission: [
 									{
 										target: "http://example.com/asset/1",
@@ -388,9 +407,10 @@ export function generateRestRoutesPolicyAdministrationPoint(
 						response: {
 							body: [
 								{
-									"@context": OdrlContexts.Context,
+									"@context": PAP_POLICY_RESPONSE_CONTEXT,
 									"@type": OdrlPolicyType.Set,
 									"@id": "urn:rights-management:abc123def456",
+									...papPolicyExampleLifecycle,
 									permission: [
 										{
 											target: "http://example.com/asset/1",

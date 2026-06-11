@@ -3,12 +3,10 @@
 import type { IComponent } from "@twin.org/core";
 import type { JsonLdObjectWithOptionalAtId } from "@twin.org/data-json-ld";
 import type { EntityCondition } from "@twin.org/entity";
-import type {
-	IDataspaceProtocolAgreement,
-	IDataspaceProtocolOffer,
-	IDataspaceProtocolSet
-} from "@twin.org/standards-dataspace-protocol";
+import type { IRightsManagementAgreement } from "../IRightsManagementAgreement.js";
+import type { IRightsManagementOffer } from "../IRightsManagementOffer.js";
 import type { IRightsManagementPolicy } from "../IRightsManagementPolicy.js";
+import type { IRightsManagementSet } from "../IRightsManagementSet.js";
 
 /**
  * Interface describing a Policy Administration Point (PAP) component that manages ODRL policies.
@@ -40,21 +38,21 @@ export interface IPolicyAdministrationPointComponent extends IComponent {
 	 * @param agreementId The id of the agreement to get.
 	 * @returns The agreement.
 	 */
-	getAgreement(agreementId: string): Promise<IDataspaceProtocolAgreement>;
+	getAgreement(agreementId: string): Promise<IRightsManagementAgreement>;
 
 	/**
 	 * Get a set.
 	 * @param setId The id of the set to get.
 	 * @returns The set.
 	 */
-	getSet(setId: string): Promise<IDataspaceProtocolSet>;
+	getSet(setId: string): Promise<IRightsManagementSet>;
 
 	/**
 	 * Get an offer.
 	 * @param offerId The id of the offer to get.
 	 * @returns The offer.
 	 */
-	getOffer(offerId: string): Promise<IDataspaceProtocolOffer>;
+	getOffer(offerId: string): Promise<IRightsManagementOffer>;
 
 	/**
 	 * Remove a policy.

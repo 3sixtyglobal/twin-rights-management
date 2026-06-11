@@ -6,9 +6,8 @@ import { ArrayHelper, Is, ObjectHelper } from "@twin.org/core";
 import type { JsonLdObjectWithOptionalAtId } from "@twin.org/data-json-ld";
 import type { EntityCondition } from "@twin.org/entity";
 import type { MemoryEntityStorageConnector } from "@twin.org/entity-storage-connector-memory";
-
 import type { IDataspaceProtocolPolicy } from "@twin.org/standards-dataspace-protocol";
-import { OdrlContexts, OdrlPolicyType } from "@twin.org/standards-w3c-odrl";
+import { OdrlContexts, OdrlPolicyType, type OdrlContextType } from "@twin.org/standards-w3c-odrl";
 import {
 	createTestPolicies,
 	resetOdrlPolicyStorage,
@@ -16,10 +15,12 @@ import {
 	TEST_ASSET_ID,
 	TEST_DIRECTORY_ROOT,
 	TEST_POLICY_ID,
+	TEST_USER_IDENTITY,
 	testPolicyMapping
 } from "./setupTestEnv.js";
-import type { OdrlPolicy } from "../src/entities/odrlPolicy.js";
+import { OdrlPolicy } from "../src/entities/odrlPolicy.js";
 import { PolicyAdministrationPointService } from "../src/policyAdministrationPointService.js";
+import { buildPapStorageContext } from "../src/utils/policyContextHelper.js";
 
 describe("PolicyAdministrationPointService", () => {
 	let policyAdminPoint: PolicyAdministrationPointService;
@@ -798,6 +799,222 @@ describe("PolicyAdministrationPointService", () => {
 			});
 
 			await expect(policyAdminPoint.getSet(uid)).rejects.toThrow("setTypeMismatch");
+		});
+	});
+
+	describe("policy lifecycle timestamps", () => {
+		beforeEach(() => {
+			vi.useFakeTimers();
+			vi.setSystemTime(new Date("2025-06-10T10:00:00.000Z"));
+		});
+
+		afterEach(() => {
+			vi.useRealTimers();
+		});
+
+		test("should store dateCreated and dateModified on create", async () => {
+			const policyWithoutUid = ObjectHelper.clone(SAMPLE_POLICY);
+			ObjectHelper.propertyDelete(policyWithoutUid, "@id");
+
+			const policyId = await policyAdminPoint.create(policyWithoutUid);
+			const retrievedPolicy = await policyAdminPoint.get(policyId);
+
+			expect(retrievedPolicy.dateCreated).toBe("2025-06-10T10:00:00.000Z");
+			expect(retrievedPolicy.dateModified).toBe("2025-06-10T10:00:00.000Z");
+		});
+
+		test("should ignore caller-supplied lifecycle timestamps on create", async () => {
+			const policyWithoutUid = ObjectHelper.clone(SAMPLE_POLICY);
+			ObjectHelper.propertyDelete(policyWithoutUid, "@id");
+			ObjectHelper.propertySet(policyWithoutUid, "dateCreated", "2020-01-01T00:00:00.000Z");
+			ObjectHelper.propertySet(policyWithoutUid, "dateModified", "2020-01-02T00:00:00.000Z");
+
+			const policyId = await policyAdminPoint.create(policyWithoutUid);
+			const retrievedPolicy = await policyAdminPoint.get(policyId);
+
+			expect(retrievedPolicy.dateCreated).toBe("2025-06-10T10:00:00.000Z");
+			expect(retrievedPolicy.dateModified).toBe("2025-06-10T10:00:00.000Z");
+		});
+
+		test("should preserve dateCreated and refresh dateModified on update", async () => {
+			const policyWithoutUid = ObjectHelper.clone(SAMPLE_POLICY);
+			ObjectHelper.propertyDelete(policyWithoutUid, "@id");
+			const policyId = await policyAdminPoint.create(policyWithoutUid);
+
+			vi.setSystemTime(new Date("2025-06-10T11:00:00.000Z"));
+
+			await policyAdminPoint.update({
+				"@context": OdrlContexts.Context,
+				"@type": OdrlPolicyType.Set,
+				"@id": policyId,
+				permission: [{ target: TEST_ASSET_ID, action: "read" }]
+			});
+
+			const retrievedPolicy = await policyAdminPoint.get(policyId);
+
+			expect(retrievedPolicy.dateCreated).toBe("2025-06-10T10:00:00.000Z");
+			expect(retrievedPolicy.dateModified).toBe("2025-06-10T11:00:00.000Z");
+		});
+
+		test("should include lifecycle term definitions in JSON-LD context when lifecycle fields are present", async () => {
+			const policyWithoutUid = ObjectHelper.clone(SAMPLE_POLICY);
+			ObjectHelper.propertyDelete(policyWithoutUid, "@id");
+
+			const policyId = await policyAdminPoint.create(policyWithoutUid);
+			const retrievedPolicy = await policyAdminPoint.get(policyId);
+			const storedEntity = await odrlPolicyEntityStorage.get(policyId);
+
+			expect(retrievedPolicy["@context"]).toEqual(buildPapStorageContext());
+			expect(storedEntity?.context).toEqual(retrievedPolicy["@context"]);
+		});
+
+		test("should not echo caller context on read", async () => {
+			const twinContext = [
+				OdrlContexts.Context,
+				{
+					twin: "https://w3id.org/twin/odrl/"
+				}
+			] as OdrlContextType;
+
+			const policyId = await policyAdminPoint.create({
+				"@context": twinContext,
+				"@type": OdrlPolicyType.Set,
+				permission: [{ target: TEST_ASSET_ID, action: "use" }]
+			});
+
+			const retrievedPolicy = await policyAdminPoint.get(policyId);
+
+			expect(retrievedPolicy["@context"]).toEqual(buildPapStorageContext());
+		});
+
+		test("should not echo caller context after update", async () => {
+			const policyId = await policyAdminPoint.create({
+				"@context": OdrlContexts.Context,
+				"@type": OdrlPolicyType.Set,
+				permission: [{ target: TEST_ASSET_ID, action: "use" }]
+			});
+
+			await policyAdminPoint.update({
+				"@context": [
+					OdrlContexts.Context,
+					{
+						newprefix: "https://example.org/new/"
+					}
+				] as OdrlContextType,
+				"@type": OdrlPolicyType.Set,
+				"@id": policyId,
+				permission: [{ target: TEST_ASSET_ID, action: "read" }]
+			});
+
+			const retrievedPolicy = await policyAdminPoint.get(policyId);
+			expect(retrievedPolicy["@context"]).toEqual(buildPapStorageContext());
+		});
+
+		test("should round-trip Offer via get then update with returned body", async () => {
+			const policyId = await policyAdminPoint.create({
+				"@context": OdrlContexts.Context,
+				"@type": OdrlPolicyType.Offer,
+				assigner: TEST_USER_IDENTITY,
+				permission: [{ target: TEST_ASSET_ID, action: "use" }]
+			});
+
+			const retrievedPolicy = await policyAdminPoint.get(policyId);
+			await expect(policyAdminPoint.update(retrievedPolicy)).resolves.toBeUndefined();
+		});
+
+		test("should round-trip Set via get then update with returned body", async () => {
+			const policyId = await policyAdminPoint.create({
+				"@context": OdrlContexts.Context,
+				"@type": OdrlPolicyType.Set,
+				permission: [{ target: TEST_ASSET_ID, action: "use" }]
+			});
+
+			const retrievedPolicy = await policyAdminPoint.get(policyId);
+			await expect(policyAdminPoint.update(retrievedPolicy)).resolves.toBeUndefined();
+		});
+
+		test("should round-trip Agreement via get then update with returned body", async () => {
+			const policyId = await policyAdminPoint.create({
+				"@context": OdrlContexts.Context,
+				"@type": OdrlPolicyType.Agreement,
+				assigner: "did:example:assigner",
+				assignee: "did:example:assignee",
+				permission: [{ target: TEST_ASSET_ID, action: "use" }]
+			});
+
+			const retrievedPolicy = await policyAdminPoint.get(policyId);
+			await expect(policyAdminPoint.update(retrievedPolicy)).resolves.toBeUndefined();
+		});
+
+		test("should return lifecycle fields from typed getters and query", async () => {
+			const agreementId = await policyAdminPoint.create({
+				"@context": OdrlContexts.Context,
+				"@type": OdrlPolicyType.Agreement,
+				assigner: "did:example:assigner",
+				assignee: "did:example:assignee",
+				permission: [{ target: TEST_ASSET_ID, action: "use" }]
+			});
+
+			const agreement = await policyAdminPoint.getAgreement(agreementId);
+			expect(agreement.dateCreated).toBe("2025-06-10T10:00:00.000Z");
+			expect(agreement.dateModified).toBe("2025-06-10T10:00:00.000Z");
+
+			const offerId = await policyAdminPoint.create({
+				"@context": OdrlContexts.Context,
+				"@type": OdrlPolicyType.Offer,
+				assigner: "did:example:assigner",
+				permission: [{ target: TEST_ASSET_ID, action: "use" }]
+			});
+
+			const offer = await policyAdminPoint.getOffer(offerId);
+			expect(offer.dateCreated).toBe("2025-06-10T10:00:00.000Z");
+			expect(offer.dateModified).toBe("2025-06-10T10:00:00.000Z");
+
+			const setId = await policyAdminPoint.create({
+				"@context": OdrlContexts.Context,
+				"@type": OdrlPolicyType.Set,
+				permission: [{ target: TEST_ASSET_ID, action: "use" }]
+			});
+
+			const set = await policyAdminPoint.getSet(setId);
+			expect(set.dateCreated).toBe("2025-06-10T10:00:00.000Z");
+			expect(set.dateModified).toBe("2025-06-10T10:00:00.000Z");
+
+			const queryResult = await policyAdminPoint.query({ target: TEST_ASSET_ID });
+			expect(queryResult.policies[0]?.dateCreated).toBe("2025-06-10T10:00:00.000Z");
+			expect(queryResult.policies[0]?.dateModified).toBe("2025-06-10T10:00:00.000Z");
+		});
+
+		test("should not return lifecycle fields for legacy policies until updated", async () => {
+			const legacyPolicy = new OdrlPolicy();
+			legacyPolicy.id = TEST_POLICY_ID;
+			legacyPolicy.type = OdrlPolicyType.Set;
+			legacyPolicy.permission = [{ target: TEST_ASSET_ID, action: "use" }];
+			legacyPolicy.assignerIndex = "||";
+			legacyPolicy.assigneeIndex = "||";
+			legacyPolicy.targetIndex = `|${TEST_ASSET_ID}|`;
+			legacyPolicy.actionIndex = "|use|";
+
+			await odrlPolicyEntityStorage.set(legacyPolicy);
+
+			const legacyRetrieved = await policyAdminPoint.get(TEST_POLICY_ID);
+			expect(legacyRetrieved.dateCreated).toBeUndefined();
+			expect(legacyRetrieved.dateModified).toBeUndefined();
+			expect(legacyRetrieved["@context"]).toBe(OdrlContexts.Context);
+
+			vi.setSystemTime(new Date("2025-06-10T12:00:00.000Z"));
+
+			await policyAdminPoint.update({
+				"@context": OdrlContexts.Context,
+				"@type": OdrlPolicyType.Set,
+				"@id": TEST_POLICY_ID,
+				permission: [{ target: TEST_ASSET_ID, action: "display" }]
+			});
+
+			const updatedLegacy = await policyAdminPoint.get(TEST_POLICY_ID);
+			expect(updatedLegacy.dateCreated).toBe("2025-06-10T12:00:00.000Z");
+			expect(updatedLegacy.dateModified).toBe("2025-06-10T12:00:00.000Z");
+			expect(updatedLegacy["@context"]).toEqual(buildPapStorageContext());
 		});
 	});
 });

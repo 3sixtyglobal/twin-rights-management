@@ -1,16 +1,27 @@
 // Copyright 2025 IOTA Stiftung.
 // SPDX-License-Identifier: Apache-2.0.
-import { ArrayHelper } from "@twin.org/core";
-import { OdrlPolicyHelper, type IRightsManagementPolicy } from "@twin.org/rights-management-models";
-import { OdrlContexts, OdrlPolicyType } from "@twin.org/standards-w3c-odrl";
+import { ArrayHelper, Is } from "@twin.org/core";
+import {
+	OdrlPolicyHelper,
+	type IRightsManagementPolicy,
+	type IRightsManagementPolicyMetadata
+} from "@twin.org/rights-management-models";
+import { OdrlPolicyType, OdrlContexts, type OdrlContextType } from "@twin.org/standards-w3c-odrl";
+import { buildPapStorageContext, hasPolicyMetadata } from "./policyContextHelper.js";
 import { OdrlPolicy } from "../entities/odrlPolicy.js";
 
 /**
  * Converts an IDataspaceProtocolPolicy to an OdrlPolicy for storage.
  * @param policy The policy to convert.
+ * @param metadata PAP-managed lifecycle metadata.
+ * @param context Server-controlled JSON-LD context to persist.
  * @returns The converted policy.
  */
-export function convertToStoragePolicy<T extends IRightsManagementPolicy>(policy: T): OdrlPolicy {
+export function convertToStoragePolicy<T extends IRightsManagementPolicy>(
+	policy: T,
+	metadata?: IRightsManagementPolicyMetadata,
+	context?: OdrlContextType
+): OdrlPolicy {
 	const storagePolicy = new OdrlPolicy();
 	storagePolicy.id = OdrlPolicyHelper.getUid(policy) ?? "";
 	storagePolicy.type = (OdrlPolicyHelper.getType(policy) ??
@@ -26,6 +37,16 @@ export function convertToStoragePolicy<T extends IRightsManagementPolicy>(policy
 	storagePolicy.permission = policy.permission;
 	storagePolicy.prohibition = policy.prohibition;
 	storagePolicy.obligation = policy.obligation;
+
+	if (Is.stringValue(metadata?.dateCreated)) {
+		storagePolicy.dateCreated = metadata.dateCreated;
+	}
+	if (Is.stringValue(metadata?.dateModified)) {
+		storagePolicy.dateModified = metadata.dateModified;
+	}
+	if (!Is.empty(context)) {
+		storagePolicy.context = context;
+	}
 
 	// Build the indexes
 	const assigner = ArrayHelper.fromObjectOrArray(OdrlPolicyHelper.getPartyIds(policy.assigner));
@@ -51,8 +72,12 @@ export function convertToStoragePolicy<T extends IRightsManagementPolicy>(policy
 export function convertFromStoragePolicy<T extends IRightsManagementPolicy>(
 	storagePolicy: OdrlPolicy
 ): T {
+	const hasMetadata = hasPolicyMetadata(storagePolicy);
+
 	const policy: IRightsManagementPolicy = {
-		"@context": OdrlContexts.Context,
+		"@context": hasMetadata
+			? (storagePolicy.context ?? buildPapStorageContext())
+			: OdrlContexts.Context,
 		"@type": storagePolicy.type,
 		"@id": storagePolicy.id
 	};
@@ -68,5 +93,18 @@ export function convertFromStoragePolicy<T extends IRightsManagementPolicy>(
 	policy.prohibition = storagePolicy.prohibition;
 	policy.obligation = storagePolicy.obligation;
 
+	if (hasMetadata) {
+		policy.dateCreated = storagePolicy.dateCreated;
+		policy.dateModified = storagePolicy.dateModified;
+	}
+
 	return policy as T;
+}
+
+/**
+ * Builds the server-controlled JSON-LD context stored for policies with lifecycle timestamps.
+ * @returns The context to persist, with lifecycle term definitions included.
+ */
+export function buildStorageContext(): ReturnType<typeof buildPapStorageContext> {
+	return buildPapStorageContext();
 }

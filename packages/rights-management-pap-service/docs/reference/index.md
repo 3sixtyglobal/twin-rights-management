@@ -14,3 +14,4 @@
 - [initSchema](functions/initSchema.md)
 - [convertToStoragePolicy](functions/convertToStoragePolicy.md)
 - [convertFromStoragePolicy](functions/convertFromStoragePolicy.md)
+- [buildStorageContext](functions/buildStorageContext.md)
