@@ -10,12 +10,6 @@ Options for the Policy Decision Point Component.
 
 The logging component for logging policy decisions.
 
-#### Default
-
-```ts
-logging
-```
-
 ***
 
 ### policyInformationPointComponentType? {#policyinformationpointcomponenttype}

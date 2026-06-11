@@ -10,12 +10,6 @@ Options for the Policy Management Point Component.
 
 The logging component for logging policy management.
 
-#### Default
-
-```ts
-logging
-```
-
 ***
 
 ### policyAdministrationPointComponentType? {#policyadministrationpointcomponenttype}

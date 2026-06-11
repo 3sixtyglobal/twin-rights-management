@@ -10,12 +10,6 @@ Options for the Policy Negotiation Point Component.
 
 The logging component for logging policy negotiation.
 
-#### Default
-
-```ts
-logging
-```
-
 ***
 
 ### policyNegotiationAdministrationPointComponentType? {#policynegotiationadministrationpointcomponenttype}
@@ -85,20 +79,6 @@ To be used when sending request remotely to another node.
 
 ```ts
 policy-negotiation-point-remote
-```
-
-***
-
-### urlTransformerComponentType? {#urltransformercomponenttype}
-
-> `optional` **urlTransformerComponentType?**: `string`
-
-URL transformer component type used to provide callback URLs.
-
-#### Default
-
-```ts
-url-transformer
 ```
 
 ***

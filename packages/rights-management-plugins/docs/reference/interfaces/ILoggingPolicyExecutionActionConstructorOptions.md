@@ -10,12 +10,6 @@ Options for the Logging Policy Execution Action.
 
 The logging component for logging policy execution.
 
-#### Default
-
-```ts
-logging
-```
-
 ***
 
 ### config? {#config}

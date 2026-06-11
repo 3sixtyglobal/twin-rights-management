@@ -9,9 +9,3 @@ Options for the Pass Through Policy Negotiator.
 > `optional` **loggingComponentType?**: `string`
 
 The logging component for policy negotiator.
-
-#### Default
-
-```ts
-logging
-```

@@ -10,12 +10,6 @@ Options for the Policy Negotiation Admin Point Component.
 
 The logging component for logging policy negotiation.
 
-#### Default
-
-```ts
-logging
-```
-
 ***
 
 ### taskSchedulerComponentType? {#taskschedulercomponenttype}
@@ -60,14 +54,6 @@ policy-information-point
 
 ***
 
-### partitionContextIds? {#partitioncontextids}
-
-> `optional` **partitionContextIds?**: `string`[]
-
-The keys to use from the context ids to cleanup partitions.
-
-***
-
 ### policyNegotiationPointComponentType? {#policynegotiationpointcomponenttype}
 
 > `optional` **policyNegotiationPointComponentType?**: `string`
@@ -83,16 +69,16 @@ undefined
 
 ***
 
-### tenantComponentType? {#tenantcomponenttype}
+### platformComponentType? {#platformcomponenttype}
 
-> `optional` **tenantComponentType?**: `string`
+> `optional` **platformComponentType?**: `string`
 
-Tenant component type.
+Platform component type.
 
 #### Default
 
 ```ts
-tenant
+platform
 ```
 
 ***

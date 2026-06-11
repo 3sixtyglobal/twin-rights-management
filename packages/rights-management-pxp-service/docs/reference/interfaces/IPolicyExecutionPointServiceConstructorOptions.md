@@ -9,9 +9,3 @@ Options for the Policy Execution Point Component.
 > `optional` **loggingComponentType?**: `string`
 
 The logging component for logging policy execution.
-
-#### Default
-
-```ts
-logging
-```

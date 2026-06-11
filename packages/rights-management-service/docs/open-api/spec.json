@@ -2026,7 +2026,6 @@
 											"correlationId": "cid",
 											"dateCreated": "2025-09-03T00:00:00.000Z",
 											"state": "REQUESTED",
-											"nodeIdentity": "did:iota:nodexyz",
 											"organizationIdentity": "did:iota:123456789abcdefghi"
 										}
 									}
@@ -2132,7 +2131,6 @@
 										"correlationId": "cid",
 										"dateCreated": "2025-09-03T00:00:00.000Z",
 										"state": "REQUESTED",
-										"nodeIdentity": "did:iota:nodexyz",
 										"organizationIdentity": "did:iota:123456789abcdefghi"
 									}
 								}
@@ -2341,7 +2339,6 @@
 												"correlationId": "cid",
 												"dateCreated": "2025-09-03T00:00:00.000Z",
 												"state": "REQUESTED",
-												"nodeIdentity": "did:iota:nodexyz",
 												"organizationIdentity": "did:iota:123456789abcdefghi"
 											}
 										]
@@ -2720,17 +2717,9 @@
 						"type": "string",
 						"description": "The public origin of the server that initiated or received this negotiation.\nUsed to construct callback URLs in subsequent async messages."
 					},
-					"tenantId": {
-						"type": "string",
-						"description": "The tenant id this negotiation belongs to."
-					},
-					"nodeIdentity": {
-						"type": "string",
-						"description": "The node identity (DID) used to sign trust payloads."
-					},
 					"organizationIdentity": {
 						"type": "string",
-						"description": "Organization identity (the org DID of the user who initiated or received\nthe negotiation, when a user context was available)."
+						"description": "Organization identity."
 					},
 					"offer": {
 						"$ref": "https://schema.twindev.org/dataspace-protocol/DataspaceProtocolOffer"
@@ -2798,7 +2787,7 @@
 					"correlationId",
 					"dateCreated",
 					"state",
-					"nodeIdentity"
+					"organizationIdentity"
 				]
 			},
 			"TrustVerificationInfo": {
@@ -2807,15 +2796,7 @@
 				"properties": {
 					"identity": {
 						"type": "string",
-						"description": "The identity associated with the payload."
-					},
-					"tenantId": {
-						"type": "string",
-						"description": "The tenant that issued the payload, if multi-tenancy was active at generation time."
-					},
-					"organizationId": {
-						"type": "string",
-						"description": "The organisation that issued the payload, if an authenticated user context was available at generation time."
+						"description": "The organization identity associated with the payload."
 					},
 					"data": {
 						"type": "object",

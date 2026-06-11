@@ -10,12 +10,6 @@ Options for the Default Policy Arbiter.
 
 The logging component for policy arbiter.
 
-#### Default
-
-```ts
-logging
-```
-
 ***
 
 ### policyAdministrationPointComponentType? {#policyadministrationpointcomponenttype}

@@ -69,28 +69,11 @@ Used to construct callback URLs in subsequent async messages.
 
 ***
 
-### tenantId? {#tenantid}
+### organizationIdentity {#organizationidentity}
 
-> `optional` **tenantId?**: `string`
+> **organizationIdentity**: `string`
 
-The tenant id this negotiation belongs to.
-
-***
-
-### nodeIdentity {#nodeidentity}
-
-> **nodeIdentity**: `string`
-
-The node identity (DID) used to sign trust payloads.
-
-***
-
-### organizationIdentity? {#organizationidentity}
-
-> `optional` **organizationIdentity?**: `string`
-
-Organization identity (the org DID of the user who initiated or received
-the negotiation, when a user context was available).
+Organization identity.
 
 ***
 

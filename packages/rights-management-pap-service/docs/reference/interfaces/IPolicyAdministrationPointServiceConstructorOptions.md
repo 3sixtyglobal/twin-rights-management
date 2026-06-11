@@ -10,12 +10,6 @@ Options for the Policy Administration Point Component.
 
 The logging component for logging administration actions.
 
-#### Default
-
-```ts
-logging
-```
-
 ***
 
 ### odrlPolicyEntityStorageType? {#odrlpolicyentitystoragetype}

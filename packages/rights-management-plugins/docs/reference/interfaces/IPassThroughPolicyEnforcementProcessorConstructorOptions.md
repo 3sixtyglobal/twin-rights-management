@@ -9,9 +9,3 @@ Options for the Pass Through Policy Enforcement Processor.
 > `optional` **loggingComponentType?**: `string`
 
 The logging component for policy enforcement processor.
-
-#### Default
-
-```ts
-logging
-```

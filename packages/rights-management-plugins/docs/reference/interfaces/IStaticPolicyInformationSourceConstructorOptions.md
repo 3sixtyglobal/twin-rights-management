@@ -10,12 +10,6 @@ Options for the Static Policy Information Source Component.
 
 The logging component for logging policy source.
 
-#### Default
-
-```ts
-logging
-```
-
 ***
 
 ### config? {#config}

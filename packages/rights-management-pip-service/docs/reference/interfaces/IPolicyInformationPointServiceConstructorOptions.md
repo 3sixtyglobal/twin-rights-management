@@ -9,9 +9,3 @@ Options for the Policy Information Point Component.
 > `optional` **loggingComponentType?**: `string`
 
 The logging component for logging policy information.
-
-#### Default
-
-```ts
-logging
-```

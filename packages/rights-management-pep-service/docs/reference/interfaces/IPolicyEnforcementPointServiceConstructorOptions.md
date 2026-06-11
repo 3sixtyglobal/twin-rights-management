@@ -10,12 +10,6 @@ Options for the Policy Enforcement Point Component.
 
 The logging component for logging policy enforcement.
 
-#### Default
-
-```ts
-logging
-```
-
 ***
 
 ### policyDecisionPointComponentType? {#policydecisionpointcomponenttype}
