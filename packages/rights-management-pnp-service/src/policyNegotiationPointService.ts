@@ -1597,7 +1597,7 @@ export class PolicyNegotiationPointService implements IPolicyNegotiationPointCom
 						agreement,
 						callbackAddress: await this.buildCallbackUrl(
 							policyNegotiation.publicOrigin,
-							consumerAssignee
+							policyNegotiation.organizationIdentity
 						)
 					};
 

@@ -1186,6 +1186,63 @@ describe("PolicyNegotiationPointService", () => {
 			expect(final[0].state).toBe(DataspaceProtocolContractNegotiationStateType.TERMINATED);
 		});
 
+		test("sends the agreement with the provider's organization in the callback address", async () => {
+			// Regression for the organization-identifiers refactor: the outbound
+			// ContractAgreementMessage's callbackAddress — which the consumer uses to send
+			// the verification BACK to the provider — must carry the PROVIDER's
+			// organization id (the routing token), not the consumer's
+			// (trustVerificationInfo.identity). Both sides share the same mocked context in
+			// this suite, so the provider record's organization is flipped to the provider
+			// identity just before the ACCEPTED event triggers sendAgreementToConsumer.
+			const { provider, consumer } = buildServices();
+			PolicyRequesterFactory.register("requester-agreement-org", () => mockPolicyRequester);
+			await adminPointComponent.create(mockOffer);
+			PolicyNegotiatorFactory.register("MockPolicyNegotiator", () => mockNegotiator);
+
+			const originalEvent = provider.event.bind(provider);
+			vi.spyOn(provider, "event").mockImplementation(async (message, destination, trustPayload) => {
+				if (message.event === "ACCEPTED" && destination === "provider") {
+					const providerSnapshot = policyNegotiationProviderMemoryEntityStorage.getStore();
+					if (providerSnapshot.length > 0) {
+						await negotiationProviderAdminPointComponent.set({
+							...providerSnapshot[0],
+							organizationIdentity: testIdentityProvider
+						});
+					}
+				}
+				return originalEvent(message, destination, trustPayload);
+			});
+
+			let capturedCallbackAddress: string | undefined;
+			const originalAgreement = consumer.agreementFromProvider.bind(consumer);
+			vi.spyOn(consumer, "agreementFromProvider").mockImplementation(
+				async (message, trustPayload) => {
+					capturedCallbackAddress = message.callbackAddress;
+					return originalAgreement(message, trustPayload);
+				}
+			);
+
+			await consumer.sendRequestToProvider(
+				providerOrigin,
+				"requester-agreement-org",
+				"urn:policy:offer-1",
+				consumerOrigin
+			);
+
+			// Wait for the agreement push to reach the consumer (the flipped provider
+			// organization intentionally diverges from this suite's shared trust context,
+			// so later transitions are not awaited here).
+			for (let i = 0; i < 30 && Is.undefined(capturedCallbackAddress); i++) {
+				await new Promise(resolve => setTimeout(resolve, 100));
+			}
+
+			expect(capturedCallbackAddress).toBeDefined();
+			expect(capturedCallbackAddress).toContain(
+				`${ContextIdKeys.Organization}=${encodeURIComponent(testIdentityProvider)}`
+			);
+			expect(capturedCallbackAddress).not.toContain(encodeURIComponent(testIdentityConsumer));
+		});
+
 		test("sendAgreementVerificationToProvider aborts silently when negotiation is in wrong state", async () => {
 			// After agreementFromProvider sets consumer state to AGREED and schedules
 			// sendAgreementVerificationToProvider (100 ms delay), we flip consumer state to
