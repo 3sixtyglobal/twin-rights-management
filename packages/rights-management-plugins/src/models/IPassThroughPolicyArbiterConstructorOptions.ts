@@ -7,7 +7,6 @@
 export interface IPassThroughPolicyArbiterConstructorOptions {
 	/**
 	 * The logging component for policy arbiter.
-	 * @default logging
 	 */
 	loggingComponentType?: string;
 }

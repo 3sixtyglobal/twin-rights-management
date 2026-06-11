@@ -36,9 +36,7 @@ export class PolicyManagementPointService implements IPolicyManagementPointCompo
 	 * @param options The options for the component.
 	 */
 	constructor(options?: IPolicyManagementPointServiceConstructorOptions) {
-		this._logging = ComponentFactory.getIfExists<ILoggingComponent>(
-			options?.loggingComponentType ?? "logging"
-		);
+		this._logging = ComponentFactory.getIfExists<ILoggingComponent>(options?.loggingComponentType);
 		this._policyAdministrationPointComponent =
 			ComponentFactory.get<IPolicyAdministrationPointComponent>(
 				options?.policyAdministrationPointComponentType ?? "policy-administration-point"

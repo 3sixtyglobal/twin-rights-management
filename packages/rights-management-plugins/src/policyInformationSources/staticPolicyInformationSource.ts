@@ -40,9 +40,7 @@ export class StaticPolicyInformationSource implements IPolicyInformationSource {
 	 * @param options The options for the logging policy source.
 	 */
 	constructor(options?: IStaticPolicyInformationSourceConstructorOptions) {
-		this._logging = ComponentFactory.getIfExists<ILoggingComponent>(
-			options?.loggingComponentType ?? "logging"
-		);
+		this._logging = ComponentFactory.getIfExists<ILoggingComponent>(options?.loggingComponentType);
 		this._information = options?.config?.information ?? [];
 	}
 

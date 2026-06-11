@@ -8,7 +8,6 @@ import type { IPolicyNegotiationAdminPointServiceConfig } from "./IPolicyNegotia
 export interface IPolicyNegotiationAdminPointServiceConstructorOptions {
 	/**
 	 * The logging component for logging policy negotiation.
-	 * @default logging
 	 */
 	loggingComponentType?: string;
 
@@ -31,11 +30,6 @@ export interface IPolicyNegotiationAdminPointServiceConstructorOptions {
 	policyInformationPointComponentType?: string;
 
 	/**
-	 * The keys to use from the context ids to cleanup partitions.
-	 */
-	partitionContextIds?: string[];
-
-	/**
 	 * If set, stall cleanup will use this component to send terminate to consumer callbacks.
 	 * If not set, stall cleanup will only mark negotiations as TERMINATED locally (no outbound notification).
 	 * @default undefined
@@ -43,10 +37,10 @@ export interface IPolicyNegotiationAdminPointServiceConstructorOptions {
 	policyNegotiationPointComponentType?: string;
 
 	/**
-	 * Tenant component type.
-	 * @default tenant
+	 * Platform component type.
+	 * @default platform
 	 */
-	tenantComponentType?: string;
+	platformComponentType?: string;
 
 	/**
 	 * Configuration options for the policy negotiation point service.

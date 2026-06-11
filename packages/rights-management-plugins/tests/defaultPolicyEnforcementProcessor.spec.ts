@@ -45,6 +45,11 @@ describe("DefaultPolicyEnforcementProcessor", () => {
 			() => new EntityStorageLoggingConnector({ config: { batchSize: 1, batchIntervalMs: 0 } })
 		);
 		ComponentFactory.register("logging", () => new LoggingService());
+		ComponentFactory.register("platform", () => ({
+			className: () => "MockPlatformComponent",
+			isMultiTenant: () => false,
+			execute: async (method: () => Promise<void>) => method()
+		}));
 	});
 
 	test("can create the source", async () => {
@@ -54,7 +59,7 @@ describe("DefaultPolicyEnforcementProcessor", () => {
 	});
 
 	test("logs processingPolicy with the agreement id", async () => {
-		const processor = new DefaultPolicyEnforcementProcessor();
+		const processor = new DefaultPolicyEnforcementProcessor({ loggingComponentType: "logging" });
 
 		await processor.process(createAgreement("policy:abc"), [], { a: 1 });
 

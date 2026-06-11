@@ -1,12 +1,12 @@
 // Copyright 2025 IOTA Stiftung.
 // SPDX-License-Identifier: Apache-2.0.
-import type { ITenantComponent } from "@twin.org/api-models";
+import type { IPlatformComponent } from "@twin.org/api-models";
 import {
 	TaskSchedulerService,
 	initSchema as initSchemaScheduler,
 	type ScheduledTask
 } from "@twin.org/background-task-scheduler";
-import { ContextIdKeys, ContextIdStore } from "@twin.org/context";
+import { ContextIdStore } from "@twin.org/context";
 import { ComponentFactory } from "@twin.org/core";
 import { MemoryEntityStorageConnector } from "@twin.org/entity-storage-connector-memory";
 import { EntityStorageConnectorFactory } from "@twin.org/entity-storage-models";
@@ -63,6 +63,12 @@ describe("PolicyNegotiationAdminPointService", () => {
 		ContextIdStore.getContextIds = vi.fn().mockImplementation(() => ({
 			organization: "org"
 		}));
+
+		ComponentFactory.register("platform", () => ({
+			className: () => "MockPlatformComponent",
+			isMultiTenant: () => false,
+			execute: async (method: () => Promise<void>) => method()
+		}));
 	});
 
 	test("can create the service", async () => {
@@ -77,7 +83,6 @@ describe("PolicyNegotiationAdminPointService", () => {
 			correlationId: "cid",
 			dateCreated: new Date().toISOString(),
 			state: DataspaceProtocolContractNegotiationStateType.REQUESTED,
-			nodeIdentity: "node-identity",
 			organizationIdentity: "identity",
 			trustVerificationInfo: {
 				identity: "identity"
@@ -97,7 +102,6 @@ describe("PolicyNegotiationAdminPointService", () => {
 			dateCreated: new Date().toISOString(),
 			state: DataspaceProtocolContractNegotiationStateType.REQUESTED,
 			interventionRequired: true,
-			nodeIdentity: "node-identity",
 			organizationIdentity: "identity",
 			trustVerificationInfo: {
 				identity: "identity"
@@ -123,7 +127,6 @@ describe("PolicyNegotiationAdminPointService", () => {
 			correlationId: "cid",
 			dateCreated: new Date().toISOString(),
 			state: DataspaceProtocolContractNegotiationStateType.REQUESTED,
-			nodeIdentity: "node-identity",
 			organizationIdentity: "identity",
 			trustVerificationInfo: {
 				identity: "identity"
@@ -147,7 +150,6 @@ describe("PolicyNegotiationAdminPointService", () => {
 			correlationId: "cid",
 			dateCreated: new Date().toISOString(),
 			state: DataspaceProtocolContractNegotiationStateType.REQUESTED,
-			nodeIdentity: "node-identity",
 			organizationIdentity: "identity",
 			trustVerificationInfo: {
 				identity: "identity"
@@ -162,7 +164,6 @@ describe("PolicyNegotiationAdminPointService", () => {
 			correlationId: "cid2",
 			dateCreated: new Date().toISOString(),
 			state: DataspaceProtocolContractNegotiationStateType.REQUESTED,
-			nodeIdentity: "node-identity",
 			organizationIdentity: "identity",
 			trustVerificationInfo: {
 				identity: "identity"
@@ -197,7 +198,6 @@ describe("PolicyNegotiationAdminPointService", () => {
 			correlationId: "expired-cid",
 			dateCreated: new Date().toISOString(),
 			state: DataspaceProtocolContractNegotiationStateType.REQUESTED,
-			nodeIdentity: "node-identity",
 			organizationIdentity: "identity",
 			trustVerificationInfo: { identity: "identity" }
 		};
@@ -211,7 +211,6 @@ describe("PolicyNegotiationAdminPointService", () => {
 			dateCreated: new Date().toISOString(),
 			state: DataspaceProtocolContractNegotiationStateType.REQUESTED,
 			interventionRequired: true,
-			nodeIdentity: "node-identity",
 			organizationIdentity: "identity",
 			trustVerificationInfo: { identity: "identity" }
 		};
@@ -219,7 +218,9 @@ describe("PolicyNegotiationAdminPointService", () => {
 
 		// Advance time so expired's expires is in the past; run expired cleanup directly
 		Date.now = vi.fn().mockImplementation(() => now + msInDay);
-		await (service as unknown as { cleanupOldStates(): Promise<void> }).cleanupOldStates();
+		await (
+			service as unknown as { cleanupOldStatesPartition(): Promise<void> }
+		).cleanupOldStatesPartition();
 
 		await expect(service.get("expired-pid")).rejects.toMatchObject({
 			name: expect.stringMatching("NotFoundError")
@@ -229,58 +230,54 @@ describe("PolicyNegotiationAdminPointService", () => {
 		expect(manualResult.state).toBe(DataspaceProtocolContractNegotiationStateType.REQUESTED);
 	});
 
-	test("partitioned cleanup iterates tenants via runPerTenant", async () => {
-		const runPerTenantSpy = vi.fn().mockImplementation(async (method: () => Promise<void>) => {
+	test("partitioned cleanup iterates tenants via per tenant execution", async () => {
+		const executeSpy = vi.fn().mockImplementation(async (method: () => Promise<void>) => {
 			await method();
 			await method();
 		});
-		const tenantComponent = {
-			className: () => "tenant",
-			runPerTenant: runPerTenantSpy
-		} as unknown as ITenantComponent;
-		ComponentFactory.register("tenant", () => tenantComponent);
-
-		const service = new PolicyNegotiationAdminPointService({
-			partitionContextIds: [ContextIdKeys.Tenant]
-		});
-
-		interface InternalService {
-			cleanupOldStatesPartition(): Promise<void>;
-			cleanupOldStates(): Promise<void>;
-		}
-		const internalService = service as unknown as InternalService;
-		const cleanupPartitionSpy = vi
-			.spyOn(internalService, "cleanupOldStatesPartition")
-			.mockResolvedValue(undefined);
-
-		await internalService.cleanupOldStates();
-
-		expect(runPerTenantSpy).toHaveBeenCalledTimes(1);
-		expect(cleanupPartitionSpy).toHaveBeenCalledTimes(2);
-	});
-
-	test("non-partitioned cleanup does not use runPerTenant", async () => {
-		const runPerTenantSpy = vi.fn();
-		const tenantComponent = {
-			className: () => "tenant",
-			runPerTenant: runPerTenantSpy
-		} as unknown as ITenantComponent;
-		ComponentFactory.register("tenant", () => tenantComponent);
+		const platformComponent = {
+			className: () => "platform",
+			execute: executeSpy
+		};
+		ComponentFactory.register("platform", () => platformComponent);
 
 		const service = new PolicyNegotiationAdminPointService();
 
 		interface InternalService {
 			cleanupOldStatesPartition(): Promise<void>;
-			cleanupOldStates(): Promise<void>;
 		}
 		const internalService = service as unknown as InternalService;
 		const cleanupPartitionSpy = vi
 			.spyOn(internalService, "cleanupOldStatesPartition")
 			.mockResolvedValue(undefined);
 
-		await internalService.cleanupOldStates();
+		await service.start();
 
-		expect(runPerTenantSpy).not.toHaveBeenCalled();
+		expect(executeSpy).toHaveBeenCalledTimes(1);
+		expect(cleanupPartitionSpy).toHaveBeenCalledTimes(2);
+	});
+
+	test("single-tenant cleanup runs partition method once via platform execute", async () => {
+		const executeSpy = vi.fn().mockImplementation(async (method: () => Promise<void>) => method());
+		const platformComponent = {
+			className: () => "platform",
+			execute: executeSpy
+		} as unknown as IPlatformComponent;
+		ComponentFactory.register("platform", () => platformComponent);
+
+		const service = new PolicyNegotiationAdminPointService();
+
+		interface InternalService {
+			cleanupOldStatesPartition(): Promise<void>;
+		}
+		const internalService = service as unknown as InternalService;
+		const cleanupPartitionSpy = vi
+			.spyOn(internalService, "cleanupOldStatesPartition")
+			.mockResolvedValue(undefined);
+
+		await service.start();
+
+		expect(executeSpy).toHaveBeenCalledTimes(1);
 		expect(cleanupPartitionSpy).toHaveBeenCalledTimes(1);
 	});
 });

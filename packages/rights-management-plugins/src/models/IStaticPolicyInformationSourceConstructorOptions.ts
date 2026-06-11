@@ -8,7 +8,6 @@ import type { IStaticPolicyInformationSourceConfig } from "./IStaticPolicyInform
 export interface IStaticPolicyInformationSourceConstructorOptions {
 	/**
 	 * The logging component for logging policy source.
-	 * @default logging
 	 */
 	loggingComponentType?: string;
 

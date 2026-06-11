@@ -56,6 +56,11 @@ describe("PolicyInformationPointService", () => {
 			() => new EntityStorageLoggingConnector({ config: { batchSize: 1, batchIntervalMs: 0 } })
 		);
 		ComponentFactory.register("logging", () => new LoggingService());
+		ComponentFactory.register("platform", () => ({
+			className: () => "MockPlatformComponent",
+			isMultiTenant: () => false,
+			execute: async (method: () => Promise<void>) => method()
+		}));
 	});
 
 	test("can create the service", async () => {
@@ -233,7 +238,9 @@ describe("PolicyInformationPointService", () => {
 	});
 
 	test("logs error when information source fails", async () => {
-		const policyInformationPoint = new PolicyInformationPointService();
+		const policyInformationPoint = new PolicyInformationPointService({
+			loggingComponentType: "logging"
+		});
 		const failingSource = new MockPolicyInformationSource("failing");
 		failingSource.retrieve.mockRejectedValue(new Error("Identity resolution failed"));
 

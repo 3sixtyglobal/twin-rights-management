@@ -30,16 +30,14 @@ export class PassThroughPolicyNegotiator implements IPolicyNegotiator {
 	 * The logging component.
 	 * @internal
 	 */
-	private readonly _logging: ILoggingComponent;
+	private readonly _logging?: ILoggingComponent;
 
 	/**
 	 * Create a new instance of PassThroughPolicyNegotiator.
 	 * @param options The options for the pass through policy negotiator.
 	 */
 	constructor(options?: IPassThroughPolicyNegotiatorConstructorOptions) {
-		this._logging = ComponentFactory.get<ILoggingComponent>(
-			options?.loggingComponentType ?? "logging"
-		);
+		this._logging = ComponentFactory.getIfExists<ILoggingComponent>(options?.loggingComponentType);
 	}
 
 	/**
@@ -78,7 +76,7 @@ export class PassThroughPolicyNegotiator implements IPolicyNegotiator {
 			offer
 		);
 
-		await this._logging.log({
+		await this._logging?.log({
 			level: "info",
 			source: PassThroughPolicyNegotiator.CLASS_NAME,
 			ts: Date.now(),
@@ -112,7 +110,7 @@ export class PassThroughPolicyNegotiator implements IPolicyNegotiator {
 			offer
 		);
 
-		await this._logging.log({
+		await this._logging?.log({
 			level: "info",
 			source: PassThroughPolicyNegotiator.CLASS_NAME,
 			ts: Date.now(),

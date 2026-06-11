@@ -9,7 +9,6 @@ import type { IDefaultPolicyArbiterConfig } from "./IDefaultPolicyArbiterConfig.
 export interface IDefaultPolicyArbiterConstructorOptions {
 	/**
 	 * The logging component for policy arbiter.
-	 * @default logging
 	 */
 	loggingComponentType?: string;
 

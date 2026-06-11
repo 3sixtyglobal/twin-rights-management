@@ -7,7 +7,6 @@
 export interface IPassThroughPolicyRequesterConstructorOptions {
 	/**
 	 * The logging component for policy requester.
-	 * @default logging
 	 */
 	loggingComponentType?: string;
 }

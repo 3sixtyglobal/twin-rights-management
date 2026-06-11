@@ -27,16 +27,14 @@ export class PassThroughPolicyArbiter implements IPolicyArbiter {
 	 * The logging component.
 	 * @internal
 	 */
-	private readonly _logging: ILoggingComponent;
+	private readonly _logging?: ILoggingComponent;
 
 	/**
 	 * Create a new instance of PassThroughPolicyArbiter.
 	 * @param options The options for the pass through policy arbiter.
 	 */
 	constructor(options?: IPassThroughPolicyArbiterConstructorOptions) {
-		this._logging = ComponentFactory.get<ILoggingComponent>(
-			options?.loggingComponentType ?? "logging"
-		);
+		this._logging = ComponentFactory.getIfExists<ILoggingComponent>(options?.loggingComponentType);
 	}
 
 	/**
@@ -67,7 +65,7 @@ export class PassThroughPolicyArbiter implements IPolicyArbiter {
 			agreement
 		);
 
-		await this._logging.log({
+		await this._logging?.log({
 			level: "info",
 			source: PassThroughPolicyArbiter.CLASS_NAME,
 			ts: Date.now(),

@@ -7,7 +7,6 @@
 export interface IPassThroughPolicyObligationEnforcerConstructorOptions {
 	/**
 	 * The logging component for the policy obligation enforcer.
-	 * @default logging
 	 */
 	loggingComponentType?: string;
 }

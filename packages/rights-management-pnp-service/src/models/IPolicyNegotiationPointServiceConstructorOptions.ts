@@ -8,7 +8,6 @@ import type { IPolicyNegotiationPointServiceConfig } from "./IPolicyNegotiationP
 export interface IPolicyNegotiationPointServiceConstructorOptions {
 	/**
 	 * The logging component for logging policy negotiation.
-	 * @default logging
 	 */
 	loggingComponentType?: string;
 
@@ -42,12 +41,6 @@ export interface IPolicyNegotiationPointServiceConstructorOptions {
 	 * @default policy-negotiation-point-remote
 	 */
 	policyNegotiationPointRemoteComponentType?: string;
-
-	/**
-	 * URL transformer component type used to provide callback URLs.
-	 * @default url-transformer
-	 */
-	urlTransformerComponentType?: string;
 
 	/**
 	 * Configuration options for the policy negotiation point service.

@@ -26,7 +26,7 @@ export class LoggingPolicyExecutionAction implements IPolicyExecutionAction {
 	 * The logging component.
 	 * @internal
 	 */
-	private readonly _logging: ILoggingComponent;
+	private readonly _logging?: ILoggingComponent;
 
 	/**
 	 * The policy decision stages to log, if undefined defaults to all.
@@ -57,9 +57,7 @@ export class LoggingPolicyExecutionAction implements IPolicyExecutionAction {
 	 * @param options The options for the logging policy execution action.
 	 */
 	constructor(options?: ILoggingPolicyExecutionActionConstructorOptions) {
-		this._logging = ComponentFactory.get<ILoggingComponent>(
-			options?.loggingComponentType ?? "logging"
-		);
+		this._logging = ComponentFactory.getIfExists<ILoggingComponent>(options?.loggingComponentType);
 
 		this._stages = options?.config?.stages ?? [
 			PolicyDecisionStage.Before,
@@ -120,7 +118,7 @@ export class LoggingPolicyExecutionAction implements IPolicyExecutionAction {
 			const logDecisions = this._includeDecisions ? decisions : "[...]";
 
 			if (stage === PolicyDecisionStage.Before) {
-				await this._logging.log({
+				await this._logging?.log({
 					level: "info",
 					source: LoggingPolicyExecutionAction.CLASS_NAME,
 					ts: Date.now(),
@@ -135,7 +133,7 @@ export class LoggingPolicyExecutionAction implements IPolicyExecutionAction {
 					}
 				});
 			} else {
-				await this._logging.log({
+				await this._logging?.log({
 					level: "info",
 					source: LoggingPolicyExecutionAction.CLASS_NAME,
 					ts: Date.now(),

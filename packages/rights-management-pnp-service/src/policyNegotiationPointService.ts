@@ -1,6 +1,6 @@
 // Copyright 2025 IOTA Stiftung.
 // SPDX-License-Identifier: Apache-2.0.
-import type { IUrlTransformerComponent } from "@twin.org/api-models";
+import { HttpUrlHelper } from "@twin.org/api-models";
 import { ContextIdHelper, ContextIdKeys, ContextIdStore } from "@twin.org/context";
 import {
 	AlreadyExistsError,
@@ -119,19 +119,11 @@ export class PolicyNegotiationPointService implements IPolicyNegotiationPointCom
 	private readonly _includeErrorDetails: boolean;
 
 	/**
-	 * The component type name for the URL transformer component.
-	 * @internal
-	 */
-	private readonly _urlTransformerComponent: IUrlTransformerComponent;
-
-	/**
 	 * Create a new instance of PolicyNegotiationPointService (PNP).
 	 * @param options The options for the component.
 	 */
 	constructor(options?: IPolicyNegotiationPointServiceConstructorOptions) {
-		this._logging = ComponentFactory.getIfExists<ILoggingComponent>(
-			options?.loggingComponentType ?? "logging"
-		);
+		this._logging = ComponentFactory.getIfExists<ILoggingComponent>(options?.loggingComponentType);
 		this._policyNegotiationAdminPointComponent =
 			ComponentFactory.get<IPolicyNegotiationAdminPointComponent>(
 				options?.policyNegotiationAdministrationPointComponentType ??
@@ -154,10 +146,6 @@ export class PolicyNegotiationPointService implements IPolicyNegotiationPointCom
 			: "";
 		this._overrideTrustGeneratorType = options?.config?.overrideTrustGeneratorType;
 		this._includeErrorDetails = options?.config?.includeErrorDetails ?? false;
-
-		this._urlTransformerComponent = ComponentFactory.get<IUrlTransformerComponent>(
-			options?.urlTransformerComponentType ?? "url-transformer"
-		);
 	}
 
 	/**
@@ -252,25 +240,16 @@ export class PolicyNegotiationPointService implements IPolicyNegotiationPointCom
 
 		// Signing identity is the node DID
 		const contextIds = await ContextIdStore.getContextIds();
-		ContextIdHelper.guard(contextIds, ContextIdKeys.Node);
-		const nodeIdentity = contextIds[ContextIdKeys.Node];
-		const tenantId = contextIds[ContextIdKeys.Tenant];
+		ContextIdHelper.guard(contextIds, ContextIdKeys.Organization);
 		const organizationIdentity = contextIds[ContextIdKeys.Organization];
 
 		// Use the opaque tenant id hash to match the one used in trust payloads
-		const tenantIdHash = TrustHelper.hashTenantId(tenantId);
-		const callerComposite = Is.stringValue(tenantIdHash)
-			? `${nodeIdentity}:${tenantIdHash}`
-			: nodeIdentity;
-
 		const trustPayload = await this._trustComponent.generate(
-			nodeIdentity,
+			organizationIdentity,
 			this._overrideTrustGeneratorType,
 			{
 				subject: policyData
-			},
-			tenantIdHash,
-			organizationIdentity
+			}
 		);
 
 		const negotiationComponent = ComponentFactory.create<IPolicyNegotiationPointComponent>(
@@ -285,9 +264,9 @@ export class PolicyNegotiationPointService implements IPolicyNegotiationPointCom
 			offer: {
 				"@type": OdrlTypes.Offer,
 				"@id": odrlOfferId,
-				assigner: callerComposite
+				assigner: organizationIdentity
 			},
-			callbackAddress: await this.buildCallbackUrl(publicOrigin, tenantId)
+			callbackAddress: await this.buildCallbackUrl(publicOrigin, organizationIdentity)
 		};
 
 		const response = await negotiationComponent.requestFromConsumer(requestMessage, trustPayload);
@@ -311,9 +290,7 @@ export class PolicyNegotiationPointService implements IPolicyNegotiationPointCom
 			correlationId: response.providerPid,
 			state: DataspaceProtocolContractNegotiationStateType.REQUESTED,
 			dateCreated: new Date(Date.now()).toISOString(),
-			nodeIdentity,
 			organizationIdentity,
-			tenantId,
 			handlerId: requesterType
 		};
 
@@ -421,12 +398,9 @@ export class PolicyNegotiationPointService implements IPolicyNegotiationPointCom
 			// this could include information such as the geography of the consumer
 			const policyInformation = trustInfo.data;
 
-			// Capture node + tenant context
 			const requestContextIds = await ContextIdStore.getContextIds();
-			ContextIdHelper.guard(requestContextIds, ContextIdKeys.Node);
-			const requestNodeIdentity = requestContextIds[ContextIdKeys.Node];
-			const requestTenantId = requestContextIds?.[ContextIdKeys.Tenant];
-			const requestOrganizationId = requestContextIds?.[ContextIdKeys.Organization];
+			ContextIdHelper.guard(requestContextIds, ContextIdKeys.Organization);
+			const requestOrganizationId = requestContextIds[ContextIdKeys.Organization];
 
 			// Construct a new negotiation or update an existing one
 			if (Is.stringValue(message.providerPid)) {
@@ -469,11 +443,7 @@ export class PolicyNegotiationPointService implements IPolicyNegotiationPointCom
 				policyNegotiation.trustVerificationInfo = trustInfo;
 				policyNegotiation.handlerId = negotiator.className();
 				policyNegotiation.publicOrigin = publicOrigin;
-				policyNegotiation.tenantId = requestTenantId;
-				policyNegotiation.nodeIdentity = requestNodeIdentity;
-				if (Is.stringValue(requestOrganizationId)) {
-					policyNegotiation.organizationIdentity = requestOrganizationId;
-				}
+				policyNegotiation.organizationIdentity = requestOrganizationId;
 			} else {
 				policyNegotiation = {
 					id: providerPid,
@@ -483,11 +453,7 @@ export class PolicyNegotiationPointService implements IPolicyNegotiationPointCom
 					state: DataspaceProtocolContractNegotiationStateType.REQUESTED,
 					callbackAddress: message.callbackAddress,
 					publicOrigin,
-					tenantId: requestTenantId,
-					nodeIdentity: requestNodeIdentity,
-					organizationIdentity: Is.stringValue(requestOrganizationId)
-						? requestOrganizationId
-						: undefined,
+					organizationIdentity: requestOrganizationId,
 					trustVerificationInfo: trustInfo,
 					handlerId: negotiator.className()
 				};
@@ -1436,7 +1402,7 @@ export class PolicyNegotiationPointService implements IPolicyNegotiationPointCom
 				offer: policyNegotiation.offer,
 				callbackAddress: await this.buildCallbackUrl(
 					policyNegotiation.publicOrigin,
-					policyNegotiation.tenantId
+					policyNegotiation.organizationIdentity
 				)
 			};
 
@@ -1601,10 +1567,8 @@ export class PolicyNegotiationPointService implements IPolicyNegotiationPointCom
 					})
 				);
 			} else {
-				// Stamp the agreement assignee as the consumer's COMPOSITE identity
-				const consumerAssignee = Is.stringValue(policyNegotiation.trustVerificationInfo.tenantId)
-					? `${policyNegotiation.trustVerificationInfo.identity}:${policyNegotiation.trustVerificationInfo.tenantId}`
-					: policyNegotiation.trustVerificationInfo.identity;
+				// Stamp the agreement assignee as the consumer's organization identity
+				const consumerAssignee = policyNegotiation.trustVerificationInfo.identity;
 
 				// Use the negotiator to create the agreement for the offer
 				const agreement = await negotiator.createAgreement(
@@ -1633,7 +1597,7 @@ export class PolicyNegotiationPointService implements IPolicyNegotiationPointCom
 						agreement,
 						callbackAddress: await this.buildCallbackUrl(
 							policyNegotiation.publicOrigin,
-							policyNegotiation.tenantId
+							consumerAssignee
 						)
 					};
 
@@ -1792,28 +1756,22 @@ export class PolicyNegotiationPointService implements IPolicyNegotiationPointCom
 	}
 
 	/**
-	 * Build the outbound callback URL for a negotiation, encrypting the tenant.
+	 * Build the outbound callback URL for a negotiation.
 	 * @param publicOrigin The public origin to use as the URL base.
-	 * @param tenantId The tenant id to encrypt into the URL. Required when the
-	 * vault path is wired; ignored otherwise.
-	 * @returns The (possibly encrypted) callback URL.
+	 * @param organizationId The organization id.
+	 * @returns The callback URL.
 	 * @internal
 	 */
-	private async buildCallbackUrl(publicOrigin?: string, tenantId?: string): Promise<string> {
+	private async buildCallbackUrl(
+		publicOrigin: string | undefined,
+		organizationId: string
+	): Promise<string> {
 		// Combine the public origin (host) with the configured callback path
 		const origin = StringHelper.trimTrailingSlashes(publicOrigin ?? "");
 
-		let url = Is.stringValue(this._callbackPath) ? `${origin}/${this._callbackPath}` : origin;
+		const url = Is.stringValue(this._callbackPath) ? `${origin}/${this._callbackPath}` : origin;
 
-		if (Is.stringValue(tenantId)) {
-			url = await this._urlTransformerComponent.addEncryptedQueryParamToUrl(
-				url,
-				"tenant",
-				tenantId
-			);
-		}
-
-		return url;
+		return HttpUrlHelper.addQueryStringParam(url, ContextIdKeys.Organization, organizationId);
 	}
 
 	/**
@@ -1828,11 +1786,9 @@ export class PolicyNegotiationPointService implements IPolicyNegotiationPointCom
 		subject: { [key: string]: unknown }
 	): Promise<unknown> {
 		return this._trustComponent.generate(
-			policyNegotiation.nodeIdentity,
+			policyNegotiation.organizationIdentity,
 			this._overrideTrustGeneratorType,
-			{ subject },
-			TrustHelper.hashTenantId(policyNegotiation.tenantId),
-			policyNegotiation.organizationIdentity
+			{ subject }
 		);
 	}
 }

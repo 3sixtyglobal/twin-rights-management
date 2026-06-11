@@ -100,6 +100,11 @@ describe("DefaultPolicyArbiter", () => {
 			() => new EntityStorageLoggingConnector({ config: { batchSize: 1, batchIntervalMs: 0 } })
 		);
 		ComponentFactory.register("logging", () => new LoggingService());
+		ComponentFactory.register("platform", () => ({
+			className: () => "MockPlatformComponent",
+			isMultiTenant: () => false,
+			execute: async (method: () => Promise<void>) => method()
+		}));
 
 		// Register a default PAP that rejects all requests (for tests that don't use inheritance)
 		const defaultPap: IPolicyAdministrationPointComponent = {
@@ -1804,7 +1809,7 @@ describe("DefaultPolicyArbiter", () => {
 	});
 
 	test("logs decidingPolicy with policy id", async () => {
-		const arbiter = new DefaultPolicyArbiter();
+		const arbiter = new DefaultPolicyArbiter({ loggingComponentType: "logging" });
 		const policy: IDataspaceProtocolAgreement = {
 			"@context": OdrlContexts.Context,
 			"@type": OdrlPolicyType.Agreement,

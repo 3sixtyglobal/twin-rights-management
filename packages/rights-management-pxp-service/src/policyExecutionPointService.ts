@@ -34,9 +34,7 @@ export class PolicyExecutionPointService implements IPolicyExecutionPointCompone
 	 * @param options The options for the component.
 	 */
 	constructor(options?: IPolicyExecutionPointServiceConstructorOptions) {
-		this._logging = ComponentFactory.getIfExists<ILoggingComponent>(
-			options?.loggingComponentType ?? "logging"
-		);
+		this._logging = ComponentFactory.getIfExists<ILoggingComponent>(options?.loggingComponentType);
 	}
 
 	/**

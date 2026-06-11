@@ -8,7 +8,6 @@ import type { ILoggingPolicyExecutionActionConfig } from "./ILoggingPolicyExecut
 export interface ILoggingPolicyExecutionActionConstructorOptions {
 	/**
 	 * The logging component for logging policy execution.
-	 * @default logging
 	 */
 	loggingComponentType?: string;
 

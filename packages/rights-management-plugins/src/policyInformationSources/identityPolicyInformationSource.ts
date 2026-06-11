@@ -40,9 +40,7 @@ export class IdentityPolicyInformationSource implements IPolicyInformationSource
 	 * @param options The options for the logging policy source.
 	 */
 	constructor(options?: IIdentityPolicyInformationSourceConstructorOptions) {
-		this._logging = ComponentFactory.getIfExists<ILoggingComponent>(
-			options?.loggingComponentType ?? "logging"
-		);
+		this._logging = ComponentFactory.getIfExists<ILoggingComponent>(options?.loggingComponentType);
 		this._identityResolver = ComponentFactory.get(
 			options?.identityResolverComponentType ?? "identity-resolver"
 		);

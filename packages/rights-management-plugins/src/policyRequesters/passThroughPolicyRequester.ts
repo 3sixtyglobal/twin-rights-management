@@ -23,16 +23,14 @@ export class PassThroughPolicyRequester implements IPolicyRequester {
 	 * The logging component.
 	 * @internal
 	 */
-	private readonly _logging: ILoggingComponent;
+	private readonly _logging?: ILoggingComponent;
 
 	/**
 	 * Create a new instance of PassThroughPolicyRequester.
 	 * @param options The options for the pass through policy Requester.
 	 */
 	constructor(options?: IPassThroughPolicyRequesterConstructorOptions) {
-		this._logging = ComponentFactory.get<ILoggingComponent>(
-			options?.loggingComponentType ?? "logging"
-		);
+		this._logging = ComponentFactory.getIfExists<ILoggingComponent>(options?.loggingComponentType);
 	}
 
 	/**
@@ -50,7 +48,7 @@ export class PassThroughPolicyRequester implements IPolicyRequester {
 	 * @returns True if the offer was accepted, false otherwise.
 	 */
 	public async offer(negotiationId: string, offer: IDataspaceProtocolOffer): Promise<boolean> {
-		await this._logging.log({
+		await this._logging?.log({
 			level: "info",
 			source: PassThroughPolicyRequester.CLASS_NAME,
 			ts: Date.now(),
@@ -74,7 +72,7 @@ export class PassThroughPolicyRequester implements IPolicyRequester {
 		negotiationId: string,
 		agreement: IDataspaceProtocolAgreement
 	): Promise<boolean> {
-		await this._logging.log({
+		await this._logging?.log({
 			level: "info",
 			source: PassThroughPolicyRequester.CLASS_NAME,
 			ts: Date.now(),
@@ -94,7 +92,7 @@ export class PassThroughPolicyRequester implements IPolicyRequester {
 	 * @returns Nothing.
 	 */
 	public async finalised(negotiationId: string): Promise<void> {
-		await this._logging.log({
+		await this._logging?.log({
 			level: "info",
 			source: PassThroughPolicyRequester.CLASS_NAME,
 			ts: Date.now(),
@@ -111,7 +109,7 @@ export class PassThroughPolicyRequester implements IPolicyRequester {
 	 * @returns Nothing.
 	 */
 	public async terminated(negotiationId: string): Promise<void> {
-		await this._logging.log({
+		await this._logging?.log({
 			level: "info",
 			source: PassThroughPolicyRequester.CLASS_NAME,
 			ts: Date.now(),

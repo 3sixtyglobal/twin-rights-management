@@ -58,13 +58,20 @@ describe("RightsManagementService", () => {
 			() => new EntityStorageLoggingConnector({ config: { batchSize: 1, batchIntervalMs: 0 } })
 		);
 		ComponentFactory.register("logging", () => new LoggingService());
+		ComponentFactory.register("platform", () => ({
+			className: () => "MockPlatformComponent",
+			isMultiTenant: () => false,
+			execute: async (method: () => Promise<void>) => method()
+		}));
 
 		odrlPolicyMemoryEntityStorage = new MemoryEntityStorageConnector<OdrlPolicy>({
 			entitySchema: nameof<OdrlPolicy>()
 		});
 		EntityStorageConnectorFactory.register("odrl-policy", () => odrlPolicyMemoryEntityStorage);
 
-		policyAdministrationPointService = new PolicyAdministrationPointService();
+		policyAdministrationPointService = new PolicyAdministrationPointService({
+			loggingComponentType: "logging"
+		});
 		ComponentFactory.register(
 			"policy-administration-point",
 			() => policyAdministrationPointService
@@ -74,21 +81,31 @@ describe("RightsManagementService", () => {
 			"policy-information-point",
 			() => new PolicyInformationPointService()
 		);
-		ComponentFactory.register("policy-execution-point", () => new PolicyExecutionPointService());
+		ComponentFactory.register(
+			"policy-execution-point",
+			() => new PolicyExecutionPointService({ loggingComponentType: "logging" })
+		);
 
-		ComponentFactory.register("policy-decision-point", () => new PolicyDecisionPointService());
+		ComponentFactory.register(
+			"policy-decision-point",
+			() => new PolicyDecisionPointService({ loggingComponentType: "logging" })
+		);
 
-		PolicyArbiterFactory.register("pass-through-arbiter", () => new PassThroughPolicyArbiter());
+		PolicyArbiterFactory.register(
+			"pass-through-arbiter",
+			() => new PassThroughPolicyArbiter({ loggingComponentType: "logging" })
+		);
 
 		PolicyExecutionActionFactory.register(
 			"logging-execution-action",
-			() => new LoggingPolicyExecutionAction()
+			() => new LoggingPolicyExecutionAction({ loggingComponentType: "logging" })
 		);
 
 		PolicyInformationSourceFactory.register(
 			"static-information-source",
 			() =>
 				new StaticPolicyInformationSource({
+					loggingComponentType: "logging",
 					config: {
 						information: [
 							{
@@ -111,7 +128,7 @@ describe("RightsManagementService", () => {
 
 		PolicyEnforcementProcessorFactory.register(
 			"pass-through-enforcement-processor",
-			() => new PassThroughPolicyEnforcementProcessor()
+			() => new PassThroughPolicyEnforcementProcessor({ loggingComponentType: "logging" })
 		);
 	});
 
@@ -126,7 +143,9 @@ describe("RightsManagementService", () => {
 
 		await policyAdministrationPointService.create(testPolicy);
 
-		const policyEnforcementPointService = new PolicyEnforcementPointService();
+		const policyEnforcementPointService = new PolicyEnforcementPointService({
+			loggingComponentType: "logging"
+		});
 
 		const testData: IJsonLdNodeObject = {
 			"@context": "https://schema.org/",

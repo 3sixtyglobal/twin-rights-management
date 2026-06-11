@@ -7,7 +7,6 @@
 export interface IIdentityPolicyInformationSourceConstructorOptions {
 	/**
 	 * The logging component for logging policy source.
-	 * @default logging
 	 */
 	loggingComponentType?: string;
 

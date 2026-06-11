@@ -27,16 +27,14 @@ export class DefaultPolicyEnforcementProcessor implements IPolicyEnforcementProc
 	 * The logging component.
 	 * @internal
 	 */
-	private readonly _logging: ILoggingComponent;
+	private readonly _logging?: ILoggingComponent;
 
 	/**
 	 * Create a new instance of DefaultPolicyEnforcementProcessor.
 	 * @param options The options for the default policy enforcement processor.
 	 */
 	constructor(options?: IDefaultPolicyEnforcementProcessorConstructorOptions) {
-		this._logging = ComponentFactory.get<ILoggingComponent>(
-			options?.loggingComponentType ?? "logging"
-		);
+		this._logging = ComponentFactory.getIfExists<ILoggingComponent>(options?.loggingComponentType);
 	}
 
 	/**
@@ -67,7 +65,7 @@ export class DefaultPolicyEnforcementProcessor implements IPolicyEnforcementProc
 			agreement
 		);
 
-		await this._logging.log({
+		await this._logging?.log({
 			level: "info",
 			source: DefaultPolicyEnforcementProcessor.CLASS_NAME,
 			ts: Date.now(),

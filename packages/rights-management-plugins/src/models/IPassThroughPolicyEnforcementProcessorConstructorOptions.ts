@@ -7,7 +7,6 @@
 export interface IPassThroughPolicyEnforcementProcessorConstructorOptions {
 	/**
 	 * The logging component for policy enforcement processor.
-	 * @default logging
 	 */
 	loggingComponentType?: string;
 }

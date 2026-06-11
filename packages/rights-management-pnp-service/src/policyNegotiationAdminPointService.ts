@@ -1,8 +1,7 @@
 // Copyright 2025 IOTA Stiftung.
 // SPDX-License-Identifier: Apache-2.0.
-import type { ITenantComponent } from "@twin.org/api-models";
+import type { IPlatformComponent } from "@twin.org/api-models";
 import type { ITaskSchedulerComponent } from "@twin.org/background-task-models";
-import { ContextIdKeys } from "@twin.org/context";
 import { BaseError, ComponentFactory, Guards, Is, Mutex, NotFoundError } from "@twin.org/core";
 import { ComparisonOperator, LogicalOperator, SortDirection } from "@twin.org/entity";
 import {
@@ -61,31 +60,23 @@ export class PolicyNegotiationAdminPointService implements IPolicyNegotiationAdm
 	private readonly _negotiationStateTtlMs: number;
 
 	/**
-	 * The keys to use from the context ids to create partitions.
-	 * @internal
-	 */
-	private readonly _partitionContextIds?: string[];
-
-	/**
 	 * Optional PNP component type for sending terminate to consumer callbacks during expired cleanup.
 	 * @internal
 	 */
 	private readonly _policyNegotiationPointComponentType?: string;
 
 	/**
-	 * The tenant component.
+	 * The platform component.
 	 * @internal
 	 */
-	private readonly _tenantComponent?: ITenantComponent;
+	private readonly _platformComponent: IPlatformComponent;
 
 	/**
 	 * Create a new instance of PolicyNegotiationPointService (PNP).
 	 * @param options The options for the component.
 	 */
 	constructor(options?: IPolicyNegotiationAdminPointServiceConstructorOptions) {
-		this._logging = ComponentFactory.getIfExists<ILoggingComponent>(
-			options?.loggingComponentType ?? "logging"
-		);
+		this._logging = ComponentFactory.getIfExists<ILoggingComponent>(options?.loggingComponentType);
 		this._taskScheduler = ComponentFactory.get<ITaskSchedulerComponent>(
 			options?.taskSchedulerComponentType ?? "task-scheduler"
 		);
@@ -97,10 +88,9 @@ export class PolicyNegotiationAdminPointService implements IPolicyNegotiationAdm
 				PolicyNegotiationAdminPointService._DEFAULT_NEGOTIATION_STATE_TTL_DEFAULT_MINUTES) *
 			60 *
 			1000;
-		this._partitionContextIds = options?.partitionContextIds;
 		this._policyNegotiationPointComponentType = options?.policyNegotiationPointComponentType;
-		this._tenantComponent = ComponentFactory.getIfExists<ITenantComponent>(
-			options?.tenantComponentType ?? "tenant"
+		this._platformComponent = ComponentFactory.get<IPlatformComponent>(
+			options?.platformComponentType ?? "platform"
 		);
 	}
 
@@ -128,7 +118,9 @@ export class PolicyNegotiationAdminPointService implements IPolicyNegotiationAdm
 			],
 			async () => {
 				// Clean up old negotiation states (expired); sends terminate to consumer when configured
-				await this.cleanupOldStates();
+				// Since we might have many expired negotiations, we need to page through them
+				// and delete them in batches per partition
+				await this._platformComponent.execute(async () => this.cleanupOldStatesPartition());
 			}
 		);
 	}
@@ -240,21 +232,6 @@ export class PolicyNegotiationAdminPointService implements IPolicyNegotiationAdm
 	}
 
 	/**
-	 * Clean up old negotiation states.
-	 * @internal
-	 */
-	private async cleanupOldStates(): Promise<void> {
-		// Since we might have many expired negotiations, we need to page through them
-		// and delete them in batches, but they might be partitioned by tenant
-		// in the storage
-		if (this._partitionContextIds?.includes(ContextIdKeys.Tenant)) {
-			await this._tenantComponent?.runPerTenant(async () => this.cleanupOldStatesPartition());
-		} else {
-			await this.cleanupOldStatesPartition();
-		}
-	}
-
-	/**
 	 * Cleans up old negotiation states for a specific partition (tenant).
 	 * Sends terminate to consumer callbacks when PNP component is configured, then removes.
 	 * @internal
@@ -343,8 +320,6 @@ export class PolicyNegotiationAdminPointService implements IPolicyNegotiationAdm
 			state: entity.state,
 			callbackAddress: entity.callbackAddress,
 			publicOrigin: entity.publicOrigin,
-			tenantId: entity.tenantId,
-			nodeIdentity: entity.nodeIdentity,
 			organizationIdentity: entity.organizationIdentity,
 			offer: entity.offer,
 			agreement: entity.agreement,
@@ -373,8 +348,6 @@ export class PolicyNegotiationAdminPointService implements IPolicyNegotiationAdm
 			state: model.state,
 			callbackAddress: model.callbackAddress,
 			publicOrigin: model.publicOrigin,
-			tenantId: model.tenantId,
-			nodeIdentity: model.nodeIdentity,
 			organizationIdentity: model.organizationIdentity,
 			offer: model.offer,
 			agreement: model.agreement,

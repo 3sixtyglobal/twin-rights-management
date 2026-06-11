@@ -64,22 +64,10 @@ export class PolicyNegotiation {
 	public publicOrigin?: string;
 
 	/**
-	 * The tenant id this negotiation belongs to.
-	 */
-	@property({ type: "string", optional: true })
-	public tenantId?: string;
-
-	/**
-	 * Node identity (DID) used to sign trust payloads.
-	 */
-	@property({ type: "string" })
-	public nodeIdentity!: string;
-
-	/**
 	 * Organization identity.
 	 */
-	@property({ type: "string", optional: true })
-	public organizationIdentity?: string;
+	@property({ type: "string" })
+	public organizationIdentity!: string;
 
 	/**
 	 * The offer being requested.

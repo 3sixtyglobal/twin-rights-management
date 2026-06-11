@@ -246,6 +246,12 @@ describe("PolicyNegotiationPointService", () => {
 			() => policyNegotiationConsumerMemoryEntityStorage
 		);
 
+		ComponentFactory.register("platform", () => ({
+			className: () => "MockPlatformComponent",
+			isMultiTenant: () => false,
+			execute: async (method: () => Promise<void>) => method()
+		}));
+
 		negotiationProviderAdminPointComponent = new PolicyNegotiationAdminPointService({
 			policyNegotiationEntityStorageType: "policy-negotiation-provider"
 		});
@@ -313,11 +319,6 @@ describe("PolicyNegotiationPointService", () => {
 		};
 
 		ComponentFactory.register("trust", () => mockTrustComponent);
-
-		ComponentFactory.register("url-transformer", () => ({
-			className: () => "MockUrlTransformerComponent",
-			addEncryptedQueryParamToUrl: vi.fn(async (url: string, id: string, value: string) => url)
-		}));
 
 		testOrganizationId = testIdentityConsumer;
 		// Signing identity is the node DID
@@ -859,7 +860,6 @@ describe("PolicyNegotiationPointService", () => {
 			offer: mockOffer,
 			state: "REQUESTED",
 			callbackAddress: "http://localhost:4000/callback",
-			nodeIdentity: testIdentityProvider,
 			organizationIdentity: testIdentityProvider,
 			trustVerificationInfo: {
 				identity: testIdentityConsumer
@@ -895,7 +895,6 @@ describe("PolicyNegotiationPointService", () => {
 			offer: mockOffer,
 			state: "REQUESTED",
 			callbackAddress: "http://localhost:4000/callback",
-			nodeIdentity: testIdentityProvider,
 			organizationIdentity: testIdentityProvider,
 			trustVerificationInfo: {
 				identity: testIdentityConsumer
@@ -962,19 +961,10 @@ describe("PolicyNegotiationPointService", () => {
 			expect(capturedRequest).toBeDefined();
 			const stored = await policyNegotiationConsumerMemoryEntityStorage.get(consumerPid);
 			expect(stored).toBeDefined();
-			expect(stored?.tenantId).toBe(TEST_TENANT_ID);
 		});
 
-		test("encrypts the outbound callbackAddress when url transformer component is configured", async () => {
+		test("adds organization as a query parameter to the outbound callback address", async () => {
 			setupTenantContextIds();
-
-			const mockUrlTransformerComponent = {
-				className: () => "MockUrlTransformerComponent",
-				addEncryptedQueryParamToUrl: vi.fn(
-					async (url: string, id: string, value: string) => `${url}?tenant=fake-encrypted-token`
-				)
-			};
-			ComponentFactory.register("mock-url-transformer", () => mockUrlTransformerComponent);
 
 			let capturedCallbackAddress: string | undefined;
 			const mockComponent = {
@@ -999,7 +989,6 @@ describe("PolicyNegotiationPointService", () => {
 				policyNegotiationAdministrationPointComponentType:
 					"policy-negotiation-consumer-admin-point",
 				policyNegotiationPointRemoteComponentType: "pnp-remote",
-				urlTransformerComponentType: "mock-url-transformer",
 				config: { callbackPath: "/callback" }
 			});
 
@@ -1010,18 +999,14 @@ describe("PolicyNegotiationPointService", () => {
 				consumerOrigin
 			);
 
-			expect(mockUrlTransformerComponent.addEncryptedQueryParamToUrl).toHaveBeenCalledWith(
-				`${consumerOrigin}/callback`,
-				"tenant",
-				TEST_TENANT_ID
-			);
 			expect(capturedCallbackAddress).toBe(
-				`${consumerOrigin}/callback?tenant=fake-encrypted-token`
+				`${consumerOrigin}/callback?${ContextIdKeys.Organization}=${encodeURIComponent(testIdentityConsumer)}`
 			);
 		});
 
-		test("returns raw callbackAddress when hosting component is absent", async () => {
-			setupTenantContextIds();
+		test("adds organization to the callback address regardless of tenant context", async () => {
+			// Does NOT call setupTenantContextIds() — verifies the organisation-id
+			// query parameter is added even when no tenant key is present in context.
 
 			let capturedCallbackAddress: string | undefined;
 			const mockComponent = {
@@ -1056,7 +1041,9 @@ describe("PolicyNegotiationPointService", () => {
 				consumerOrigin
 			);
 
-			expect(capturedCallbackAddress).toBe(`${consumerOrigin}/callback`);
+			expect(capturedCallbackAddress).toBe(
+				`${consumerOrigin}/callback?${ContextIdKeys.Organization}=${encodeURIComponent(testIdentityConsumer)}`
+			);
 		});
 	});
 
@@ -1534,7 +1521,6 @@ describe("PolicyNegotiationPointService", () => {
 				offer: mockOffer,
 				state: DataspaceProtocolContractNegotiationStateType.ACCEPTED,
 				callbackAddress: "http://localhost:3000/callback",
-				nodeIdentity: testIdentityConsumer,
 				organizationIdentity: testIdentityConsumer,
 				trustVerificationInfo: { identity: testIdentityProvider },
 				handlerId: "MockPolicyNegotiator"
@@ -1588,7 +1574,6 @@ describe("PolicyNegotiationPointService", () => {
 				offer: mockOffer,
 				state: DataspaceProtocolContractNegotiationStateType.OFFERED,
 				// callbackAddress intentionally absent — polling mode
-				nodeIdentity: testIdentityProvider,
 				organizationIdentity: testIdentityProvider,
 				trustVerificationInfo: { identity: testIdentityConsumer },
 				handlerId: "MockPolicyNegotiator"
@@ -1638,7 +1623,6 @@ describe("PolicyNegotiationPointService", () => {
 				offer: mockOffer,
 				state: DataspaceProtocolContractNegotiationStateType.ACCEPTED,
 				// callbackAddress intentionally absent — polling mode
-				nodeIdentity: testIdentityConsumer,
 				organizationIdentity: testIdentityConsumer,
 				trustVerificationInfo: { identity: testIdentityProvider }
 			});
@@ -1700,7 +1684,6 @@ describe("PolicyNegotiationPointService", () => {
 				offer: mockOffer,
 				agreement,
 				state: DataspaceProtocolContractNegotiationStateType.VERIFIED,
-				nodeIdentity: testIdentityConsumer,
 				organizationIdentity: testIdentityConsumer,
 				trustVerificationInfo: { identity: testIdentityConsumer },
 				handlerId: "requester-2"
@@ -1762,7 +1745,6 @@ describe("PolicyNegotiationPointService", () => {
 				offer: mockOffer,
 				agreement,
 				state: DataspaceProtocolContractNegotiationStateType.VERIFIED,
-				nodeIdentity: testIdentityConsumer,
 				organizationIdentity: testIdentityConsumer,
 				trustVerificationInfo: { identity: testIdentityConsumer },
 				handlerId: "requester-2"
@@ -1815,7 +1797,6 @@ describe("PolicyNegotiationPointService", () => {
 				offer: mockOffer, // mockOffer @id is "urn:policy:offer-1"
 				agreement,
 				state: DataspaceProtocolContractNegotiationStateType.VERIFIED,
-				nodeIdentity: testIdentityConsumer,
 				organizationIdentity: testIdentityConsumer,
 				trustVerificationInfo: { identity: testIdentityConsumer },
 				handlerId: "requester-2"
@@ -1841,7 +1822,7 @@ describe("PolicyNegotiationPointService", () => {
 	});
 
 	describe("consumer composite assignee on agreement creation", () => {
-		test("stamps the consumer composite (identity:tenantId) as the agreement assignee when the negotiation carries a tenant", async () => {
+		test("stamps the trust verification identity as the agreement assignee", async () => {
 			PolicyNegotiatorFactory.register("MockPolicyNegotiator", () => mockNegotiator);
 
 			const provider = new PolicyNegotiationPointService({
@@ -1860,11 +1841,9 @@ describe("PolicyNegotiationPointService", () => {
 				dateCreated: new Date(Date.now()).toISOString(),
 				offer: mockOffer,
 				state: DataspaceProtocolContractNegotiationStateType.OFFERED,
-				nodeIdentity: testIdentityProvider,
 				organizationIdentity: testIdentityProvider,
 				trustVerificationInfo: {
-					identity: testIdentityConsumer,
-					tenantId: "consumer-tenant-hash"
+					identity: testIdentityConsumer
 				},
 				handlerId: "MockPolicyNegotiator"
 			});
@@ -1889,7 +1868,7 @@ describe("PolicyNegotiationPointService", () => {
 			// buildCallerComposite => `identity:tenantId`).
 			expect(mockNegotiator.createAgreement).toHaveBeenCalledWith(
 				expect.anything(),
-				`${testIdentityConsumer}:consumer-tenant-hash`,
+				testIdentityConsumer,
 				undefined
 			);
 		});
@@ -1910,7 +1889,6 @@ describe("PolicyNegotiationPointService", () => {
 				dateCreated: new Date(Date.now()).toISOString(),
 				offer: mockOffer,
 				state: DataspaceProtocolContractNegotiationStateType.OFFERED,
-				nodeIdentity: testIdentityProvider,
 				organizationIdentity: testIdentityProvider,
 				// No tenantId — single-tenant / no tid claim.
 				trustVerificationInfo: { identity: testIdentityConsumer },

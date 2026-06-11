@@ -25,16 +25,14 @@ export class PassThroughPolicyEnforcementProcessor implements IPolicyEnforcement
 	 * The logging component.
 	 * @internal
 	 */
-	private readonly _logging: ILoggingComponent;
+	private readonly _logging?: ILoggingComponent;
 
 	/**
 	 * Create a new instance of PassThroughPolicyEnforcementProcessor.
 	 * @param options The options for the pass through policy enforcement processor.
 	 */
 	constructor(options?: IPassThroughPolicyEnforcementProcessorConstructorOptions) {
-		this._logging = ComponentFactory.get<ILoggingComponent>(
-			options?.loggingComponentType ?? "logging"
-		);
+		this._logging = ComponentFactory.getIfExists<ILoggingComponent>(options?.loggingComponentType);
 	}
 
 	/**
@@ -65,7 +63,7 @@ export class PassThroughPolicyEnforcementProcessor implements IPolicyEnforcement
 			agreement
 		);
 
-		await this._logging.log({
+		await this._logging?.log({
 			level: "info",
 			source: PassThroughPolicyEnforcementProcessor.CLASS_NAME,
 			ts: Date.now(),

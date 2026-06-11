@@ -103,7 +103,7 @@ export class DefaultPolicyArbiter implements IPolicyArbiter {
 	 * The logging component.
 	 * @internal
 	 */
-	private readonly _logging: ILoggingComponent;
+	private readonly _logging?: ILoggingComponent;
 
 	/**
 	 * The policy administration point component.
@@ -122,9 +122,7 @@ export class DefaultPolicyArbiter implements IPolicyArbiter {
 	 * @param options The options for the default policy arbiter.
 	 */
 	constructor(options?: IDefaultPolicyArbiterConstructorOptions) {
-		this._logging = ComponentFactory.get<ILoggingComponent>(
-			options?.loggingComponentType ?? "logging"
-		);
+		this._logging = ComponentFactory.getIfExists<ILoggingComponent>(options?.loggingComponentType);
 
 		this._policyAdministrationPoint = ComponentFactory.get<IPolicyAdministrationPointComponent>(
 			options?.policyAdministrationPointComponentType ?? "policy-administration-point"
@@ -215,7 +213,7 @@ export class DefaultPolicyArbiter implements IPolicyArbiter {
 			});
 		}
 
-		await this._logging.log({
+		await this._logging?.log({
 			level: "info",
 			source: DefaultPolicyArbiter.CLASS_NAME,
 			ts: Date.now(),

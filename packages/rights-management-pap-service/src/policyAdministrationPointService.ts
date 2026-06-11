@@ -64,9 +64,7 @@ export class PolicyAdministrationPointService implements IPolicyAdministrationPo
 	 * @param options The options for the component.
 	 */
 	constructor(options?: IPolicyAdministrationPointServiceConstructorOptions) {
-		this._logging = ComponentFactory.getIfExists<ILoggingComponent>(
-			options?.loggingComponentType ?? "logging"
-		);
+		this._logging = ComponentFactory.getIfExists<ILoggingComponent>(options?.loggingComponentType);
 
 		OdrlDataTypes.registerRedirects();
 		OdrlDataTypes.registerTypes();

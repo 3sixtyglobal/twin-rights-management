@@ -130,6 +130,11 @@ describe("PolicyExecutionPointService", () => {
 			() => new EntityStorageLoggingConnector({ config: { batchSize: 1, batchIntervalMs: 0 } })
 		);
 		ComponentFactory.register("logging", () => new LoggingService());
+		ComponentFactory.register("platform", () => ({
+			className: () => "MockPlatformComponent",
+			isMultiTenant: () => false,
+			execute: async (method: () => Promise<void>) => method()
+		}));
 	});
 
 	test("can create the service", async () => {
@@ -257,7 +262,9 @@ describe("PolicyExecutionPointService", () => {
 	});
 
 	test("logs error when action execution fails", async () => {
-		const policyExecutionPoint = new PolicyExecutionPointService();
+		const policyExecutionPoint = new PolicyExecutionPointService({
+			loggingComponentType: "logging"
+		});
 		const errorAction = new MockPolicyExecutionAction();
 
 		errorAction.execute.mockRejectedValue(new Error("Test error"));
@@ -310,7 +317,9 @@ describe("PolicyExecutionPointService", () => {
 	});
 
 	test("loggingPolicyAction combined with other actions", async () => {
-		const policyExecutionPoint = new PolicyExecutionPointService();
+		const policyExecutionPoint = new PolicyExecutionPointService({
+			loggingComponentType: "logging"
+		});
 
 		const testPolicy = {
 			"@context": OdrlContexts.Context,
@@ -344,7 +353,9 @@ describe("PolicyExecutionPointService", () => {
 	});
 
 	test("loggingPolicyAction logs policy execution details", async () => {
-		const policyExecutionPoint = new PolicyExecutionPointService();
+		const policyExecutionPoint = new PolicyExecutionPointService({
+			loggingComponentType: "logging"
+		});
 		const testData = { sensitiveInfo: "secret" };
 		const testPolicy: IDataspaceProtocolPolicy = {
 			"@context": OdrlContexts.Context,
@@ -390,7 +401,9 @@ describe("PolicyExecutionPointService", () => {
 	});
 
 	test("loggingPolicyAction handles undefined assignee", async () => {
-		const policyExecutionPoint = new PolicyExecutionPointService();
+		const policyExecutionPoint = new PolicyExecutionPointService({
+			loggingComponentType: "logging"
+		});
 		const testPolicy: IDataspaceProtocolPolicy = {
 			"@context": OdrlContexts.Context,
 			"@type": OdrlPolicyType.Agreement,
@@ -425,7 +438,9 @@ describe("PolicyExecutionPointService", () => {
 	});
 
 	test("loggingPolicyAction logs when no policies are provided", async () => {
-		const policyExecutionPoint = new PolicyExecutionPointService();
+		const policyExecutionPoint = new PolicyExecutionPointService({
+			loggingComponentType: "logging"
+		});
 
 		const mockLoggingAction = new MockPolicyExecutionAction();
 
@@ -449,7 +464,9 @@ describe("PolicyExecutionPointService", () => {
 	});
 
 	test("multiple loggingPolicyActions create separate log entries", async () => {
-		const policyExecutionPoint = new PolicyExecutionPointService();
+		const policyExecutionPoint = new PolicyExecutionPointService({
+			loggingComponentType: "logging"
+		});
 		const testPolicy = {
 			"@context": OdrlContexts.Context,
 			"@type": OdrlPolicyType.Agreement,
@@ -489,7 +506,9 @@ describe("PolicyExecutionPointService", () => {
 	});
 
 	test("loggingPolicyAction does not log sensitive data content", async () => {
-		const policyExecutionPoint = new PolicyExecutionPointService();
+		const policyExecutionPoint = new PolicyExecutionPointService({
+			loggingComponentType: "logging"
+		});
 		const sensitiveData = {
 			creditCard: "1234-5678-9012-3456",
 			password: "secret123",

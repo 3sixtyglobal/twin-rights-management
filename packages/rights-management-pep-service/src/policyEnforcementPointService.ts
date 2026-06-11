@@ -53,9 +53,7 @@ export class PolicyEnforcementPointService implements IPolicyEnforcementPointCom
 	 * @param options The options for the component.
 	 */
 	constructor(options?: IPolicyEnforcementPointServiceConstructorOptions) {
-		this._logging = ComponentFactory.getIfExists<ILoggingComponent>(
-			options?.loggingComponentType ?? "logging"
-		);
+		this._logging = ComponentFactory.getIfExists<ILoggingComponent>(options?.loggingComponentType);
 		this._policyDecisionPointComponent = ComponentFactory.get<IPolicyDecisionPointComponent>(
 			options?.policyDecisionPointComponentType ?? "policy-decision-point"
 		);

@@ -7,7 +7,6 @@
 export interface IPassThroughPolicyNegotiatorConstructorOptions {
 	/**
 	 * The logging component for policy negotiator.
-	 * @default logging
 	 */
 	loggingComponentType?: string;
 }

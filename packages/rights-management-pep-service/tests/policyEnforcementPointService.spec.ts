@@ -107,6 +107,11 @@ describe("PolicyEnforcementPointService", () => {
 			() => new EntityStorageLoggingConnector({ config: { batchSize: 1, batchIntervalMs: 0 } })
 		);
 		ComponentFactory.register("logging", () => new LoggingService());
+		ComponentFactory.register("platform", () => ({
+			className: () => "MockPlatformComponent",
+			isMultiTenant: () => false,
+			execute: async (method: () => Promise<void>) => method()
+		}));
 
 		odrlPolicyMemoryEntityStorage = new MemoryEntityStorageConnector<OdrlPolicy>({
 			entitySchema: nameof<OdrlPolicy>()
@@ -270,7 +275,9 @@ describe("PolicyEnforcementPointService", () => {
 		const mockPdp = ComponentFactory.get<MockPolicyDecisionPointComponent>("policy-decision-point");
 		mockPdp.evaluate.mockResolvedValue([]);
 
-		const policyEnforcementPoint = new PolicyEnforcementPointService();
+		const policyEnforcementPoint = new PolicyEnforcementPointService({
+			loggingComponentType: "logging"
+		});
 		const failingProcessor = new MockPolicyEnforcementProcessor();
 		failingProcessor.process.mockRejectedValue(new Error("Processing error"));
 

@@ -25,16 +25,14 @@ export class PassThroughPolicyObligationEnforcer implements IPolicyObligationEnf
 	 * The logging component.
 	 * @internal
 	 */
-	private readonly _logging: ILoggingComponent;
+	private readonly _logging?: ILoggingComponent;
 
 	/**
 	 * Create a new instance of Pass Through Policy Obligation Enforcer.
 	 * @param options The options for the pass through policy obligation enforcer.
 	 */
 	constructor(options?: IPassThroughPolicyObligationEnforcerConstructorOptions) {
-		this._logging = ComponentFactory.get<ILoggingComponent>(
-			options?.loggingComponentType ?? "logging"
-		);
+		this._logging = ComponentFactory.getIfExists<ILoggingComponent>(options?.loggingComponentType);
 	}
 
 	/**
@@ -68,7 +66,7 @@ export class PassThroughPolicyObligationEnforcer implements IPolicyObligationEnf
 		);
 		Guards.object<IOdrlDuty>(PassThroughPolicyObligationEnforcer.CLASS_NAME, nameof(duty), duty);
 
-		await this._logging.log({
+		await this._logging?.log({
 			level: "info",
 			source: PassThroughPolicyObligationEnforcer.CLASS_NAME,
 			ts: Date.now(),

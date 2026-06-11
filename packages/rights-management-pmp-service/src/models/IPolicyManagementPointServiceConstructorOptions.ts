@@ -7,7 +7,6 @@
 export interface IPolicyManagementPointServiceConstructorOptions {
 	/**
 	 * The logging component for logging policy management.
-	 * @default logging
 	 */
 	loggingComponentType?: string;
 
