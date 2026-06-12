@@ -6,6 +6,20 @@
 
 * remove EcosystemPolicy-specific PAP client API (`getEcosystemPolicy`) for v2.
 
+## [0.0.3-next.47](https://github.com/iotaledger/twin-rights-management/compare/rights-management-rest-client-v0.0.3-next.46...rights-management-rest-client-v0.0.3-next.47) (2026-06-12)
+
+
+### Features
+
+* add PAP-managed schema.org lifecycle timestamps to policies ([#176](https://github.com/iotaledger/twin-rights-management/issues/176)) ([8d53036](https://github.com/iotaledger/twin-rights-management/commit/8d5303674b93a59532c0f16864b8484378ebe16c))
+
+
+### Dependencies
+
+* The following workspace dependencies were updated
+  * dependencies
+    * @twin.org/rights-management-models bumped from 0.0.3-next.46 to 0.0.3-next.47
+
 ## [0.0.3-next.46](https://github.com/iotaledger/twin-rights-management/compare/rights-management-rest-client-v0.0.3-next.45...rights-management-rest-client-v0.0.3-next.46) (2026-06-11)
 
 

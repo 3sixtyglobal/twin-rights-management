@@ -6,6 +6,28 @@
 
 * remove EcosystemPolicy-specific negotiation guard and related locale contract for v2.
 
+## [0.0.3-next.47](https://github.com/iotaledger/twin-rights-management/compare/rights-management-pnp-service-v0.0.3-next.46...rights-management-pnp-service-v0.0.3-next.47) (2026-06-12)
+
+
+### Features
+
+* add PAP-managed schema.org lifecycle timestamps to policies ([#176](https://github.com/iotaledger/twin-rights-management/issues/176)) ([8d53036](https://github.com/iotaledger/twin-rights-management/commit/8d5303674b93a59532c0f16864b8484378ebe16c))
+
+
+### Bug Fixes
+
+* use the provider organization in the agreement callback address ([#181](https://github.com/iotaledger/twin-rights-management/issues/181)) ([527dce5](https://github.com/iotaledger/twin-rights-management/commit/527dce55a36a01be915a6fad88674beff216fa1b))
+
+
+### Dependencies
+
+* The following workspace dependencies were updated
+  * dependencies
+    * @twin.org/rights-management-models bumped from 0.0.3-next.46 to 0.0.3-next.47
+  * devDependencies
+    * @twin.org/rights-management-pap-service bumped from 0.0.3-next.46 to 0.0.3-next.47
+    * @twin.org/rights-management-pip-service bumped from 0.0.3-next.46 to 0.0.3-next.47
+
 ## [0.0.3-next.46](https://github.com/iotaledger/twin-rights-management/compare/rights-management-pnp-service-v0.0.3-next.45...rights-management-pnp-service-v0.0.3-next.46) (2026-06-11)
 
 
