@@ -226,9 +226,17 @@
 									"papQueryResponseExample": {
 										"value": [
 											{
-												"@context": "http://www.w3.org/ns/odrl.jsonld",
+												"@context": [
+													"http://www.w3.org/ns/odrl.jsonld",
+													{
+														"dateCreated": "https://schema.org/dateCreated",
+														"dateModified": "https://schema.org/dateModified"
+													}
+												],
 												"@type": "Set",
 												"@id": "urn:rights-management:abc123def456",
+												"dateCreated": "2025-09-03T00:00:00.000Z",
+												"dateModified": "2025-09-03T00:00:00.000Z",
 												"permission": [
 													{
 														"target": "http://example.com/asset/1",
@@ -451,9 +459,17 @@
 								"examples": {
 									"papGetResponseExample": {
 										"value": {
-											"@context": "http://www.w3.org/ns/odrl.jsonld",
+											"@context": [
+												"http://www.w3.org/ns/odrl.jsonld",
+												{
+													"dateCreated": "https://schema.org/dateCreated",
+													"dateModified": "https://schema.org/dateModified"
+												}
+											],
 											"@type": "Set",
 											"@id": "urn:rights-management:abc123def456",
+											"dateCreated": "2025-09-03T00:00:00.000Z",
+											"dateModified": "2025-09-03T00:00:00.000Z",
 											"permission": [
 												{
 													"target": "http://example.com/asset/1",
@@ -644,14 +660,22 @@
 						"content": {
 							"application/json": {
 								"schema": {
-									"$ref": "https://schema.twindev.org/dataspace-protocol/DataspaceProtocolAgreement"
+									"$ref": "https://schema.twindev.org/rights-management/RightsManagementAgreement"
 								},
 								"examples": {
 									"papGetResponseExample": {
 										"value": {
-											"@context": "http://www.w3.org/ns/odrl.jsonld",
+											"@context": [
+												"http://www.w3.org/ns/odrl.jsonld",
+												{
+													"dateCreated": "https://schema.org/dateCreated",
+													"dateModified": "https://schema.org/dateModified"
+												}
+											],
 											"@type": "Agreement",
 											"@id": "urn:rights-management:abc123def456",
+											"dateCreated": "2025-09-03T00:00:00.000Z",
+											"dateModified": "2025-09-03T00:00:00.000Z",
 											"permission": [
 												{
 													"target": "http://example.com/asset/1",
@@ -757,14 +781,22 @@
 						"content": {
 							"application/json": {
 								"schema": {
-									"$ref": "https://schema.twindev.org/dataspace-protocol/DataspaceProtocolOffer"
+									"$ref": "https://schema.twindev.org/rights-management/RightsManagementOffer"
 								},
 								"examples": {
 									"papGetResponseExample": {
 										"value": {
-											"@context": "http://www.w3.org/ns/odrl.jsonld",
+											"@context": [
+												"http://www.w3.org/ns/odrl.jsonld",
+												{
+													"dateCreated": "https://schema.org/dateCreated",
+													"dateModified": "https://schema.org/dateModified"
+												}
+											],
 											"@type": "Offer",
 											"@id": "urn:rights-management:abc123def456",
+											"dateCreated": "2025-09-03T00:00:00.000Z",
+											"dateModified": "2025-09-03T00:00:00.000Z",
 											"permission": [
 												{
 													"target": "http://example.com/asset/1",
@@ -870,14 +902,22 @@
 						"content": {
 							"application/json": {
 								"schema": {
-									"$ref": "https://schema.twindev.org/dataspace-protocol/DataspaceProtocolSet"
+									"$ref": "https://schema.twindev.org/rights-management/RightsManagementSet"
 								},
 								"examples": {
 									"papGetResponseExample": {
 										"value": {
-											"@context": "http://www.w3.org/ns/odrl.jsonld",
+											"@context": [
+												"http://www.w3.org/ns/odrl.jsonld",
+												{
+													"dateCreated": "https://schema.org/dateCreated",
+													"dateModified": "https://schema.org/dateModified"
+												}
+											],
 											"@type": "Set",
 											"@id": "urn:rights-management:abc123def456",
+											"dateCreated": "2025-09-03T00:00:00.000Z",
+											"dateModified": "2025-09-03T00:00:00.000Z",
 											"permission": [
 												{
 													"target": "http://example.com/asset/1",
@@ -2448,6 +2488,14 @@
 				"description": "The body of the request - the policy to create (id will be auto-generated if not provided).",
 				"type": "object",
 				"properties": {
+					"dateCreated": {
+						"type": "string",
+						"description": "schema.org dateCreated — ISO 8601 date-time set by PAP on create."
+					},
+					"dateModified": {
+						"type": "string",
+						"description": "schema.org dateModified — ISO 8601 date-time set by PAP on create and update."
+					},
 					"@context": {
 						"$ref": "https://schema.twindev.org/w3c-odrl/OdrlContextType"
 					},

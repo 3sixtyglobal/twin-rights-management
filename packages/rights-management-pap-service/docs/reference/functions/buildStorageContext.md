@@ -1,16 +1,8 @@
 # Function: buildStorageContext()
 
-> **buildStorageContext**(`policy`): `OdrlContextType`
+> **buildStorageContext**(): `OdrlContextType`
 
-Builds the stored JSON-LD context for a policy that will have lifecycle timestamps.
-
-## Parameters
-
-### policy
-
-`IRightsManagementPolicy`
-
-The policy being persisted.
+Builds the server-controlled JSON-LD context stored for policies with lifecycle timestamps.
 
 ## Returns
 

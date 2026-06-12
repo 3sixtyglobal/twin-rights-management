@@ -142,7 +142,7 @@ The policy.
 
 ### getAgreement() {#getagreement}
 
-> **getAgreement**(`agreementId`): `Promise`\<`IDataspaceProtocolAgreement`\>
+> **getAgreement**(`agreementId`): `Promise`\<`IRightsManagementAgreement`\>
 
 Get an agreement.
 
@@ -156,7 +156,7 @@ The id of the agreement to get.
 
 #### Returns
 
-`Promise`\<`IDataspaceProtocolAgreement`\>
+`Promise`\<`IRightsManagementAgreement`\>
 
 The agreement.
 
@@ -168,7 +168,7 @@ The agreement.
 
 ### getSet() {#getset}
 
-> **getSet**(`setId`): `Promise`\<`IDataspaceProtocolSet`\>
+> **getSet**(`setId`): `Promise`\<`IRightsManagementSet`\>
 
 Get a set.
 
@@ -182,7 +182,7 @@ The id of the set to get.
 
 #### Returns
 
-`Promise`\<`IDataspaceProtocolSet`\>
+`Promise`\<`IRightsManagementSet`\>
 
 The set.
 
@@ -194,7 +194,7 @@ The set.
 
 ### getOffer() {#getoffer}
 
-> **getOffer**(`offerId`): `Promise`\<`IDataspaceProtocolOffer`\>
+> **getOffer**(`offerId`): `Promise`\<`IRightsManagementOffer`\>
 
 Get an offer.
 
@@ -208,7 +208,7 @@ The id of the offer to get.
 
 #### Returns
 
-`Promise`\<`IDataspaceProtocolOffer`\>
+`Promise`\<`IRightsManagementOffer`\>
 
 The offer.
 

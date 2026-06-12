@@ -15,3 +15,4 @@
 - [convertToStoragePolicy](functions/convertToStoragePolicy.md)
 - [convertFromStoragePolicy](functions/convertFromStoragePolicy.md)
 - [buildStorageContext](functions/buildStorageContext.md)
+- [buildPapStorageContext](functions/buildPapStorageContext.md)

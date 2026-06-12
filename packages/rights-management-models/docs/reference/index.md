@@ -6,6 +6,7 @@
 
 ## Interfaces
 
+- [IRightsManagementPolicyMetadata](interfaces/IRightsManagementPolicyMetadata.md)
 - [IPapCreateRequest](interfaces/IPapCreateRequest.md)
 - [IPapGetAgreementRequest](interfaces/IPapGetAgreementRequest.md)
 - [IPapGetAgreementResponse](interfaces/IPapGetAgreementResponse.md)
@@ -54,7 +55,10 @@
 
 ## Type Aliases
 
+- [IRightsManagementAgreement](type-aliases/IRightsManagementAgreement.md)
+- [IRightsManagementOffer](type-aliases/IRightsManagementOffer.md)
 - [IRightsManagementPolicy](type-aliases/IRightsManagementPolicy.md)
+- [IRightsManagementSet](type-aliases/IRightsManagementSet.md)
 - [OdrlProfiles](type-aliases/OdrlProfiles.md)
 - [PolicyDecision](type-aliases/PolicyDecision.md)
 - [PolicyDecisionStage](type-aliases/PolicyDecisionStage.md)
@@ -76,6 +80,7 @@
 - [PolicyDecision](variables/PolicyDecision.md)
 - [PolicyDecisionStage](variables/PolicyDecisionStage.md)
 - [PolicyInformationAccessMode](variables/PolicyInformationAccessMode.md)
+- [POLICY\_METADATA\_CONTEXT](variables/POLICY_METADATA_CONTEXT.md)
 - [RightsManagementContexts](variables/RightsManagementContexts.md)
 - [RightsManagementNamespaces](variables/RightsManagementNamespaces.md)
 - [RightsManagementTypes](variables/RightsManagementTypes.md)
