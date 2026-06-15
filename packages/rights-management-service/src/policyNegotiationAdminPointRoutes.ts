@@ -1,6 +1,7 @@
 // Copyright 2025 IOTA Stiftung.
 // SPDX-License-Identifier: Apache-2.0.
 import type {
+	ICreatedResponse,
 	IHostingComponent,
 	IHttpRequestContext,
 	INoContentResponse,
@@ -10,6 +11,7 @@ import type {
 import { ComponentFactory, Guards, Is } from "@twin.org/core";
 import { nameof } from "@twin.org/nameof";
 import type {
+	IPnapCreateRequest,
 	IPnapGetRequest,
 	IPnapGetResponse,
 	IPnapQueryRequest,
@@ -47,6 +49,47 @@ export function generateRestRoutesPolicyNegotiationAdminPoint(
 	baseRouteName: string,
 	componentName: string
 ): IRestRoute[] {
+	const pnapCreateRoute: IRestRoute<IPnapCreateRequest, ICreatedResponse> = {
+		operationId: "pnapCreate",
+		summary: "Pre-register a consumer-side policy negotiation entry",
+		tag: pnapTags[0].name,
+		method: HttpMethod.POST,
+		path: `${baseRouteName}/negotiations/admin`,
+		handler: async (httpRequestContext, request) =>
+			pnapCreate(httpRequestContext, componentName, request),
+		requestType: {
+			type: nameof<IPnapCreateRequest>(),
+			examples: [
+				{
+					id: "pnapCreateRequestExample",
+					request: {
+						body: {
+							id: "urn:contract-negotiation:consumer-pid",
+							state: DataspaceProtocolContractNegotiationStateType.REQUESTED
+						}
+					}
+				}
+			]
+		},
+		responseType: [
+			{
+				type: nameof<ICreatedResponse>(),
+				examples: [
+					{
+						id: "pnapCreateResponseExample",
+						response: {
+							statusCode: 201,
+							headers: {
+								[HeaderTypes.Location]:
+									"urn:contract-negotiation:01970000-0000-7000-8000-000000000000"
+							}
+						}
+					}
+				]
+			}
+		]
+	};
+
 	const pnapGetRoute: IRestRoute<IPnapGetRequest, IPnapGetResponse> = {
 		operationId: "pnapGet",
 		summary: "Get a policy negotiation",
@@ -183,7 +226,33 @@ export function generateRestRoutesPolicyNegotiationAdminPoint(
 		]
 	};
 
-	return [pnapGetRoute, pnapSetRoute, pnapRemoveRoute, pnapQueryRoute];
+	return [pnapCreateRoute, pnapGetRoute, pnapSetRoute, pnapRemoveRoute, pnapQueryRoute];
+}
+
+/**
+ * PNAP: Pre-register a consumer-side policy negotiation entry.
+ * @param httpRequestContext The request context for the API.
+ * @param componentName The name of the component to use in the routes.
+ * @param request The request.
+ * @returns The response object with additional http response properties.
+ */
+export async function pnapCreate(
+	httpRequestContext: IHttpRequestContext,
+	componentName: string,
+	request: IPnapCreateRequest
+): Promise<ICreatedResponse> {
+	Guards.object<IPnapCreateRequest>(ROUTES_SOURCE, nameof(request), request);
+	Guards.object<IPnapCreateRequest["body"]>(ROUTES_SOURCE, nameof(request.body), request.body);
+
+	const component = ComponentFactory.get<IPolicyNegotiationAdminPointComponent>(componentName);
+	const id = await component.create(request.body);
+
+	return {
+		statusCode: HttpStatusCode.created,
+		headers: {
+			[HeaderTypes.Location]: id
+		}
+	};
 }
 
 /**

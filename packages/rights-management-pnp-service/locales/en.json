@@ -1,4 +1,9 @@
 {
+	"info": {
+		"policyNegotiationAdminPointService": {
+			"negotiationCreated": "Contract negotiation pre-registered (id: \"{id}\")"
+		}
+	},
 	"error": {
 		"policyNegotiationPointService": {
 			"noOfferFound": "No offer found with id: \"{offerId}\"",
@@ -18,7 +23,8 @@
 		},
 		"policyNegotiationAdminPointService": {
 			"policyNotFound": "Contract negotiation with id: \"{notFoundId}\" not found",
-			"cleanupFailed": "Failed to cleanup old negotiations"
+			"cleanupFailed": "Failed to cleanup old negotiations",
+			"negotiationAlreadyExists": "Contract negotiation with correlationId: \"{existingId}\" already exists"
 		}
 	},
 	"warn": {

@@ -27,6 +27,8 @@ export * from "./models/api/pap/IPapQueryRequest.js";
 export * from "./models/api/pap/IPapQueryResponse.js";
 export * from "./models/api/pap/IPapRemoveRequest.js";
 export * from "./models/api/pap/IPapUpdateRequest.js";
+export * from "./models/api/pnap/IPnapCreateBody.js";
+export * from "./models/api/pnap/IPnapCreateRequest.js";
 export * from "./models/api/pnap/IPnapGetRequest.js";
 export * from "./models/api/pnap/IPnapGetResponse.js";
 export * from "./models/api/pnap/IPnapQueryRequest.js";

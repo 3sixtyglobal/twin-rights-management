@@ -1,10 +1,16 @@
 // Copyright 2025 IOTA Stiftung.
 // SPDX-License-Identifier: Apache-2.0.
 import { BaseRestClient } from "@twin.org/api-core";
-import type { IBaseRestClientConfig, INoContentResponse } from "@twin.org/api-models";
+import type {
+	IBaseRestClientConfig,
+	ICreatedResponse,
+	INoContentResponse
+} from "@twin.org/api-models";
 import { Guards } from "@twin.org/core";
 import { nameof } from "@twin.org/nameof";
 import type {
+	IPnapCreateBody,
+	IPnapCreateRequest,
 	IPnapGetRequest,
 	IPnapGetResponse,
 	IPnapQueryRequest,
@@ -43,6 +49,29 @@ export class PolicyNegotiationAdminPointRestClient
 	 */
 	public className(): string {
 		return PolicyNegotiationAdminPointRestClient.CLASS_NAME;
+	}
+
+	/**
+	 * Pre-registers a consumer-side negotiation entry.
+	 * @param negotiation The partial negotiation data; id (consumerPid) is required.
+	 * @returns The negotiation id (same as the caller-supplied id).
+	 */
+	public async create(negotiation: IPnapCreateBody): Promise<string> {
+		Guards.stringValue(
+			PolicyNegotiationAdminPointRestClient.CLASS_NAME,
+			nameof(negotiation.id),
+			negotiation.id
+		);
+
+		const response = await this.fetch<IPnapCreateRequest, ICreatedResponse>(
+			"/negotiations/admin",
+			"POST",
+			{ body: negotiation }
+		);
+
+		const location = response.headers[HeaderTypes.Location];
+		Guards.stringValue(PolicyNegotiationAdminPointRestClient.CLASS_NAME, "location", location);
+		return location;
 	}
 
 	/**

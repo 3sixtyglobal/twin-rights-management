@@ -2,7 +2,16 @@
 // SPDX-License-Identifier: Apache-2.0.
 import type { IPlatformComponent } from "@twin.org/api-models";
 import type { ITaskSchedulerComponent } from "@twin.org/background-task-models";
-import { BaseError, ComponentFactory, Guards, Is, Mutex, NotFoundError } from "@twin.org/core";
+import { ContextIdHelper, ContextIdKeys, ContextIdStore } from "@twin.org/context";
+import {
+	AlreadyExistsError,
+	BaseError,
+	ComponentFactory,
+	Guards,
+	Is,
+	Mutex,
+	NotFoundError
+} from "@twin.org/core";
 import { ComparisonOperator, LogicalOperator, SortDirection } from "@twin.org/entity";
 import {
 	EntityStorageConnectorFactory,
@@ -11,6 +20,7 @@ import {
 import type { ILoggingComponent } from "@twin.org/logging-models";
 import { nameof } from "@twin.org/nameof";
 import type {
+	IPnapCreateBody,
 	IPolicyNegotiation,
 	IPolicyNegotiationAdminPointComponent,
 	IPolicyNegotiationPointComponent
@@ -132,6 +142,57 @@ export class PolicyNegotiationAdminPointService implements IPolicyNegotiationAdm
 	 */
 	public async stop(nodeLoggingComponentType?: string): Promise<void> {
 		await this._taskScheduler.removeTask("policy-negotiation");
+	}
+
+	/**
+	 * Pre-registers a consumer-side negotiation entry.
+	 * @param negotiation The partial negotiation data; id (consumerPid) is required.
+	 * @returns The negotiation id (same as the caller-supplied id).
+	 */
+	public async create(negotiation: IPnapCreateBody): Promise<string> {
+		Guards.stringValue(
+			PolicyNegotiationAdminPointService.CLASS_NAME,
+			nameof(negotiation.id),
+			negotiation.id
+		);
+
+		await Mutex.lock(negotiation.id);
+		try {
+			const existing = await this._policyNegotiationEntityStorage.get(negotiation.id);
+			if (!Is.empty(existing)) {
+				throw new AlreadyExistsError(
+					PolicyNegotiationAdminPointService.CLASS_NAME,
+					"negotiationAlreadyExists",
+					negotiation.id
+				);
+			}
+
+			const contextIds = await ContextIdStore.getContextIds();
+			ContextIdHelper.guard(contextIds, ContextIdKeys.Organization);
+			const organizationIdentity = contextIds[ContextIdKeys.Organization];
+
+			await this.set({
+				...negotiation,
+				// correlationId (the provider's pid) is unknown at pre-registration time;
+				// offerFromProvider() fills it in when the ContractOfferMessage arrives.
+				correlationId: "",
+				dateCreated: new Date(Date.now()).toISOString(),
+				state: negotiation.state ?? DataspaceProtocolContractNegotiationStateType.REQUESTED,
+				organizationIdentity
+			});
+
+			await this._logging?.log({
+				level: "info",
+				ts: Date.now(),
+				source: PolicyNegotiationAdminPointService.CLASS_NAME,
+				message: "negotiationCreated",
+				data: { id: negotiation.id }
+			});
+
+			return negotiation.id;
+		} finally {
+			Mutex.unlock(negotiation.id);
+		}
 	}
 
 	/**

@@ -283,4 +283,96 @@ describe("PolicyNegotiationAdminPointService", () => {
 		expect(executeSpy).toHaveBeenCalledTimes(1);
 		expect(cleanupPartitionSpy).toHaveBeenCalledTimes(1);
 	});
+
+	describe("create", () => {
+		test("returns the caller-supplied id and persists entry as primary key", async () => {
+			const service = new PolicyNegotiationAdminPointService();
+			const consumerPid = "urn:uuid:consumer-pid-1";
+			const id = await service.create({ id: consumerPid });
+
+			expect(id).toEqual(consumerPid);
+			const retrieved = await service.get(consumerPid);
+			expect(retrieved.id).toEqual(consumerPid);
+			expect(retrieved.correlationId).toEqual("");
+			expect(retrieved.state).toEqual(DataspaceProtocolContractNegotiationStateType.REQUESTED);
+			expect(retrieved.dateCreated).toBeDefined();
+			expect(retrieved.organizationIdentity).toEqual("org");
+		});
+
+		test("entry is retrievable via the consumerPid (primary key)", async () => {
+			const service = new PolicyNegotiationAdminPointService();
+			const consumerPid = "urn:uuid:consumer-pid-f3";
+			await service.create({ id: consumerPid });
+			// offerFromProvider() calls get(message.consumerPid) — this is the lookup that must succeed
+			const retrieved = await service.get(consumerPid);
+			expect(retrieved.id).toEqual(consumerPid);
+		});
+
+		test("throws GuardError when id is empty", async () => {
+			const service = new PolicyNegotiationAdminPointService();
+			await expect(service.create({ id: "" })).rejects.toMatchObject({
+				name: expect.stringMatching("GuardError")
+			});
+		});
+
+		test("throws AlreadyExistsError when id is already registered", async () => {
+			const service = new PolicyNegotiationAdminPointService();
+			await service.create({ id: "urn:uuid:dup" });
+			await expect(service.create({ id: "urn:uuid:dup" })).rejects.toMatchObject({
+				name: expect.stringMatching("AlreadyExistsError")
+			});
+		});
+
+		test("respects caller-supplied state", async () => {
+			const service = new PolicyNegotiationAdminPointService();
+			const id = await service.create({
+				id: "urn:uuid:consumer-pid-2",
+				state: DataspaceProtocolContractNegotiationStateType.OFFERED
+			});
+			const retrieved = await service.get(id);
+			expect(retrieved.state).toEqual(DataspaceProtocolContractNegotiationStateType.OFFERED);
+		});
+
+		test("sets expires on the persisted entry", async () => {
+			const service = new PolicyNegotiationAdminPointService();
+			const before = Date.now();
+			const id = await service.create({ id: "urn:uuid:consumer-pid-3" });
+			const retrieved = await service.get(id);
+			expect(retrieved.expires).toBeGreaterThan(before);
+		});
+
+		test("throws GeneralError when organization context is not set", async () => {
+			ContextIdStore.getContextIds = vi.fn().mockImplementation(() => ({}));
+			const service = new PolicyNegotiationAdminPointService();
+			await expect(service.create({ id: "urn:uuid:no-org" })).rejects.toMatchObject({
+				name: "GeneralError"
+			});
+		});
+
+		test("concurrent creates with same id: exactly one succeeds", async () => {
+			const service = new PolicyNegotiationAdminPointService();
+			const results = await Promise.allSettled([
+				service.create({ id: "urn:uuid:race" }),
+				service.create({ id: "urn:uuid:race" })
+			]);
+			const fulfilled = results.filter(
+				(r): r is PromiseFulfilledResult<string> => r.status === "fulfilled"
+			);
+			const rejected = results.filter((r): r is PromiseRejectedResult => r.status === "rejected");
+			expect(fulfilled).toHaveLength(1);
+			expect(rejected).toHaveLength(1);
+			expect(rejected[0].reason).toMatchObject({
+				name: expect.stringMatching("AlreadyExistsError")
+			});
+		});
+
+		test("concurrent creates with different ids: both succeed", async () => {
+			const service = new PolicyNegotiationAdminPointService();
+			const results = await Promise.allSettled([
+				service.create({ id: "urn:uuid:concurrent-a" }),
+				service.create({ id: "urn:uuid:concurrent-b" })
+			]);
+			expect(results.every(r => r.status === "fulfilled")).toBe(true);
+		});
+	});
 });

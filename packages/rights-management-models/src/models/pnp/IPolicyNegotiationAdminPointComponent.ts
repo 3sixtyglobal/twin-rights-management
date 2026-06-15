@@ -3,6 +3,7 @@
 import type { IComponent } from "@twin.org/core";
 import type { DataspaceProtocolContractNegotiationStateType } from "@twin.org/standards-dataspace-protocol";
 import type { IPolicyNegotiation } from "./IPolicyNegotiation.js";
+import type { IPnapCreateBody } from "../api/pnap/IPnapCreateBody.js";
 
 /**
  * Interface describing a Policy Negotiation Admin Point (PNAP) contract.
@@ -10,6 +11,15 @@ import type { IPolicyNegotiation } from "./IPolicyNegotiation.js";
  * @see https://eclipse-dataspace-protocol-base.github.io/DataspaceProtocol/2025-1/#negotiation-protocol
  */
 export interface IPolicyNegotiationAdminPointComponent extends IComponent {
+	/**
+	 * Pre-registers a consumer-side negotiation entry.
+	 * id must be the consumer's chosen consumerPid — it becomes the primary key used by offerFromProvider().
+	 * dateCreated, organizationIdentity and correlationId are set by the service.
+	 * @param negotiation The partial negotiation data.
+	 * @returns The negotiation id (same as the caller-supplied id).
+	 */
+	create(negotiation: IPnapCreateBody): Promise<string>;
+
 	/**
 	 * Retrieves a policy negotiation.
 	 * @param id The ID of the policy to retrieve the negotiation for.
