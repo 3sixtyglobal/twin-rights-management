@@ -108,17 +108,17 @@ A promise that resolves when the component has stopped.
 
 ### create() {#create}
 
-> **create**(`negotiation`): `Promise`\<`string`\>
+> **create**(`id`): `Promise`\<`string`\>
 
 Pre-registers a consumer-side negotiation entry.
 
 #### Parameters
 
-##### negotiation
+##### id
 
-`IPnapCreateBody`
+`string`
 
-The partial negotiation data; id (consumerPid) is required.
+The consumer-side negotiation identifier (DSP consumerPid).
 
 #### Returns
 

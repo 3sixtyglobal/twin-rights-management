@@ -60,7 +60,6 @@
 - [IRightsManagementOffer](type-aliases/IRightsManagementOffer.md)
 - [IRightsManagementPolicy](type-aliases/IRightsManagementPolicy.md)
 - [IRightsManagementSet](type-aliases/IRightsManagementSet.md)
-- [IPnapCreateBody](type-aliases/IPnapCreateBody.md)
 - [OdrlProfiles](type-aliases/OdrlProfiles.md)
 - [PolicyDecision](type-aliases/PolicyDecision.md)
 - [PolicyDecisionStage](type-aliases/PolicyDecisionStage.md)

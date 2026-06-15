@@ -6,6 +6,12 @@ The request structure for creating a policy negotiation entry.
 
 ### body {#body}
 
-> **body**: [`IPnapCreateBody`](../type-aliases/IPnapCreateBody.md)
+> **body**: `object`
 
 The partial negotiation to pre-register.
+
+#### id
+
+> **id**: `string`
+
+The consumer-side negotiation identifier (DSP consumerPid).

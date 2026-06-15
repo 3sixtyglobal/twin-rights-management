@@ -2044,13 +2044,12 @@
 					"content": {
 						"application/json": {
 							"schema": {
-								"$ref": "#/components/schemas/PnapCreateBody"
+								"$ref": "#/components/schemas/PnapCreateRequest"
 							},
 							"examples": {
 								"pnapCreateRequestExample": {
 									"value": {
-										"id": "urn:contract-negotiation:consumer-pid",
-										"state": "REQUESTED"
+										"id": "urn:contract-negotiation:consumer-pid"
 									}
 								}
 							}
@@ -2813,97 +2812,18 @@
 				},
 				"description": "The body of the response."
 			},
-			"PnapCreateBody": {
-				"description": "The body of a PNAP create request.\ndateCreated, organizationIdentity and correlationId are server-managed and must not be supplied.\nid must be the consumer's chosen consumerPid — it becomes the primary key used by offerFromProvider().\n\nOnly id needs to be supplied for a correct pre-registration. All other optional fields are\nunsupported at pre-registration time. In particular, supplying a state other than REQUESTED\nwill cause offerFromProvider() to reject the incoming ContractOfferMessage (it requires\nstate === REQUESTED at policyNegotiationPointService.ts).",
+			"PnapCreateRequest": {
 				"type": "object",
 				"properties": {
 					"id": {
 						"type": "string",
-						"description": "The consumer-side negotiation identifier (DSP consumerPid). Stored as the primary key."
-					},
-					"policyId": {
-						"type": "string",
-						"description": "The unique identifier for the policy."
-					},
-					"expires": {
-						"type": "number",
-						"description": "The expiration time for the policy negotiation if it's a manual process."
-					},
-					"state": {
-						"$ref": "https://schema.twindev.org/dataspace-protocol/DataspaceProtocolContractNegotiationStateType"
-					},
-					"callbackAddress": {
-						"type": "string",
-						"description": "The callback address to send updates to the requester."
-					},
-					"publicOrigin": {
-						"type": "string",
-						"description": "The public origin of the server that initiated or received this negotiation.\nUsed to construct callback URLs in subsequent async messages."
-					},
-					"offer": {
-						"$ref": "https://schema.twindev.org/dataspace-protocol/DataspaceProtocolOffer"
-					},
-					"agreement": {
-						"$ref": "https://schema.twindev.org/dataspace-protocol/DataspaceProtocolAgreement"
-					},
-					"trustVerificationInfo": {
-						"$ref": "#/components/schemas/TrustVerificationInfo"
-					},
-					"code": {
-						"type": "string",
-						"description": "A reason code for when the negotiation errors."
-					},
-					"reason": {
-						"type": "array",
-						"items": {
-							"type": "object",
-							"properties": {
-								"@value": {
-									"type": "string"
-								},
-								"@language": {
-									"type": "string"
-								}
-							},
-							"required": [
-								"@value"
-							]
-						},
-						"description": "A more detailed reason for the negotiation error."
-					},
-					"description": {
-						"type": "array",
-						"items": {
-							"type": "object",
-							"properties": {
-								"@value": {
-									"type": "string"
-								},
-								"@language": {
-									"type": "string"
-								}
-							},
-							"required": [
-								"@value"
-							]
-						},
-						"description": "A more detailed reason for the negotiation error."
-					},
-					"errorDetails": {
-						"$ref": "#/components/schemas/Error"
-					},
-					"handlerId": {
-						"type": "string",
-						"description": "The id of the handler, on provider side this is the negotiator, on consumer side this is the requester."
-					},
-					"interventionRequired": {
-						"type": "boolean",
-						"description": "Is manual intervention required to complete the negotiation?"
+						"description": "The consumer-side negotiation identifier (DSP consumerPid)."
 					}
 				},
 				"required": [
 					"id"
-				]
+				],
+				"description": "The partial negotiation to pre-register."
 			},
 			"PnapQueryResponse": {
 				"type": "array",

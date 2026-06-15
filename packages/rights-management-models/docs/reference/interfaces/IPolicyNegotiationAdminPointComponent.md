@@ -15,19 +15,18 @@ https://eclipse-dataspace-protocol-base.github.io/DataspaceProtocol/2025-1/#nego
 
 ### create() {#create}
 
-> **create**(`negotiation`): `Promise`\<`string`\>
+> **create**(`id`): `Promise`\<`string`\>
 
 Pre-registers a consumer-side negotiation entry.
 id must be the consumer's chosen consumerPid — it becomes the primary key used by offerFromProvider().
-dateCreated, organizationIdentity and correlationId are set by the service.
 
 #### Parameters
 
-##### negotiation
+##### id
 
-[`IPnapCreateBody`](../type-aliases/IPnapCreateBody.md)
+`string`
 
-The partial negotiation data.
+The consumer-side negotiation identifier.
 
 #### Returns
 
