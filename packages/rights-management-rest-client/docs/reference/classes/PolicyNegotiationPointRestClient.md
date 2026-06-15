@@ -379,6 +379,8 @@ The consumer negotiation id.
 
 `Promise`\<`void`\>
 
+A promise that resolves when the terminate message has been sent.
+
 #### Implementation of
 
 `IPolicyNegotiationPointComponent.sendTerminateToConsumer`

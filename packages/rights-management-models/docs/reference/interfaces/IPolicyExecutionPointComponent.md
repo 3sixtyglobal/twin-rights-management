@@ -59,4 +59,4 @@ The stage at which the PXP is executed in the PDP.
 
 `Promise`\<`void`\>
 
-Nothing.
+A promise that resolves when all registered actions have been executed.

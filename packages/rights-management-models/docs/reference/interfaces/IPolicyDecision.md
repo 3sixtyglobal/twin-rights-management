@@ -16,7 +16,7 @@ The target object for the decision, using JSON-path syntax.
 
 > **decision**: [`PolicyDecision`](../type-aliases/PolicyDecision.md)
 
-The type of the proof.
+The outcome of the policy decision.
 
 ***
 

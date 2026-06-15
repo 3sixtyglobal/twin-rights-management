@@ -72,7 +72,7 @@ The offer to check.
 
 `boolean`
 
-Sets the supports flag if it can be offered, and the interventionRequired flag if manual agreement is needed.
+True if the negotiator supports the given offer.
 
 #### Implementation of
 

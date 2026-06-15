@@ -82,7 +82,7 @@ The id of the negotiation.
 
 `Promise`\<`void`\>
 
-Nothing.
+A promise that resolves when the finalisation has been processed.
 
 ***
 
@@ -104,4 +104,4 @@ The id of the negotiation.
 
 `Promise`\<`void`\>
 
-Nothing.
+A promise that resolves when the termination has been processed.

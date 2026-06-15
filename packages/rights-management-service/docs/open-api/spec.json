@@ -2026,6 +2026,225 @@
 				}
 			}
 		},
+		"/rights-management/negotiations/admin": {
+			"post": {
+				"operationId": "pnapCreate",
+				"summary": "Pre-register a consumer-side policy negotiation entry",
+				"tags": [
+					"Policy Negotiation Administration Point"
+				],
+				"security": [
+					{
+						"jwtBearerAuthScheme": []
+					}
+				],
+				"requestBody": {
+					"description": "The request structure for creating a policy negotiation entry.",
+					"required": true,
+					"content": {
+						"application/json": {
+							"schema": {
+								"$ref": "#/components/schemas/PnapCreateBody"
+							},
+							"examples": {
+								"pnapCreateRequestExample": {
+									"value": {
+										"id": "urn:contract-negotiation:consumer-pid",
+										"state": "REQUESTED"
+									}
+								}
+							}
+						}
+					}
+				},
+				"responses": {
+					"201": {
+						"description": "The rest request ended in created response.",
+						"headers": {
+							"location": {
+								"schema": {
+									"type": "string"
+								},
+								"description": "e.g. urn:contract-negotiation:01970000-0000-7000-8000-000000000000"
+							}
+						}
+					},
+					"400": {
+						"description": "The server cannot process the request, see the content for more details.",
+						"content": {
+							"application/json": {
+								"schema": {
+									"$ref": "#/components/schemas/Error"
+								},
+								"examples": {
+									"exampleResponse": {
+										"value": {
+											"name": "GeneralError",
+											"message": "errorMessage",
+											"properties": {
+												"foo": "bar"
+											}
+										}
+									}
+								}
+							}
+						}
+					},
+					"401": {
+						"description": "You are not authorized to use the API or no credentials were supplied, see the content for more details.",
+						"content": {
+							"application/json": {
+								"schema": {
+									"$ref": "#/components/schemas/Error"
+								},
+								"examples": {
+									"exampleResponse": {
+										"value": {
+											"name": "UnauthorizedError",
+											"message": "errorMessage"
+										}
+									}
+								}
+							}
+						}
+					},
+					"500": {
+						"description": "The server has encountered a situation it does not know how to handle, see the content for more details.",
+						"content": {
+							"application/json": {
+								"schema": {
+									"$ref": "#/components/schemas/Error"
+								},
+								"examples": {
+									"exampleResponse": {
+										"value": {
+											"name": "InternalServerError",
+											"message": "errorMessage"
+										}
+									}
+								}
+							}
+						}
+					}
+				}
+			},
+			"get": {
+				"operationId": "pnapQuery",
+				"summary": "Query policy negotiations",
+				"tags": [
+					"Policy Negotiation Administration Point"
+				],
+				"parameters": [
+					{
+						"name": "state",
+						"description": "The state of the policy negotiations.",
+						"in": "query",
+						"required": false,
+						"schema": {
+							"$ref": "https://schema.twindev.org/dataspace-protocol/DataspaceProtocolContractNegotiationStateType"
+						},
+						"example": "ACCEPTED"
+					},
+					{
+						"name": "cursor",
+						"description": "The cursor for pagination.",
+						"in": "query",
+						"required": false,
+						"schema": {
+							"type": "string"
+						},
+						"example": "next-cursor"
+					}
+				],
+				"security": [
+					{
+						"jwtBearerAuthScheme": []
+					}
+				],
+				"responses": {
+					"200": {
+						"description": "The response structure for querying manual policy negotiations.",
+						"content": {
+							"application/json": {
+								"schema": {
+									"$ref": "#/components/schemas/PnapQueryResponse"
+								},
+								"examples": {
+									"pnapQueryResponseExample": {
+										"value": [
+											{
+												"id": "pid",
+												"correlationId": "cid",
+												"dateCreated": "2025-09-03T00:00:00.000Z",
+												"state": "REQUESTED",
+												"organizationIdentity": "did:iota:123456789abcdefghi"
+											}
+										]
+									}
+								}
+							}
+						}
+					},
+					"400": {
+						"description": "The server cannot process the request, see the content for more details.",
+						"content": {
+							"application/json": {
+								"schema": {
+									"$ref": "#/components/schemas/Error"
+								},
+								"examples": {
+									"exampleResponse": {
+										"value": {
+											"name": "GeneralError",
+											"message": "errorMessage",
+											"properties": {
+												"foo": "bar"
+											}
+										}
+									}
+								}
+							}
+						}
+					},
+					"401": {
+						"description": "You are not authorized to use the API or no credentials were supplied, see the content for more details.",
+						"content": {
+							"application/json": {
+								"schema": {
+									"$ref": "#/components/schemas/Error"
+								},
+								"examples": {
+									"exampleResponse": {
+										"value": {
+											"name": "UnauthorizedError",
+											"message": "errorMessage"
+										}
+									}
+								}
+							}
+						}
+					},
+					"500": {
+						"description": "The server has encountered a situation it does not know how to handle, see the content for more details.",
+						"content": {
+							"application/json": {
+								"schema": {
+									"$ref": "#/components/schemas/Error"
+								},
+								"examples": {
+									"exampleResponse": {
+										"value": {
+											"name": "InternalServerError",
+											"message": "errorMessage"
+										}
+									}
+								}
+							}
+						}
+					}
+				}
+			}
+		},
 		"/rights-management/negotiations/admin/{policyId}": {
 			"get": {
 				"operationId": "pnapGet",
@@ -2268,124 +2487,6 @@
 				"responses": {
 					"204": {
 						"description": "The rest request ended in success with no data."
-					},
-					"400": {
-						"description": "The server cannot process the request, see the content for more details.",
-						"content": {
-							"application/json": {
-								"schema": {
-									"$ref": "#/components/schemas/Error"
-								},
-								"examples": {
-									"exampleResponse": {
-										"value": {
-											"name": "GeneralError",
-											"message": "errorMessage",
-											"properties": {
-												"foo": "bar"
-											}
-										}
-									}
-								}
-							}
-						}
-					},
-					"401": {
-						"description": "You are not authorized to use the API or no credentials were supplied, see the content for more details.",
-						"content": {
-							"application/json": {
-								"schema": {
-									"$ref": "#/components/schemas/Error"
-								},
-								"examples": {
-									"exampleResponse": {
-										"value": {
-											"name": "UnauthorizedError",
-											"message": "errorMessage"
-										}
-									}
-								}
-							}
-						}
-					},
-					"500": {
-						"description": "The server has encountered a situation it does not know how to handle, see the content for more details.",
-						"content": {
-							"application/json": {
-								"schema": {
-									"$ref": "#/components/schemas/Error"
-								},
-								"examples": {
-									"exampleResponse": {
-										"value": {
-											"name": "InternalServerError",
-											"message": "errorMessage"
-										}
-									}
-								}
-							}
-						}
-					}
-				}
-			}
-		},
-		"/rights-management/negotiations/admin": {
-			"get": {
-				"operationId": "pnapQuery",
-				"summary": "Query policy negotiations",
-				"tags": [
-					"Policy Negotiation Administration Point"
-				],
-				"parameters": [
-					{
-						"name": "state",
-						"description": "The state of the policy negotiations.",
-						"in": "query",
-						"required": false,
-						"schema": {
-							"$ref": "https://schema.twindev.org/dataspace-protocol/DataspaceProtocolContractNegotiationStateType"
-						},
-						"example": "ACCEPTED"
-					},
-					{
-						"name": "cursor",
-						"description": "The cursor for pagination.",
-						"in": "query",
-						"required": false,
-						"schema": {
-							"type": "string"
-						},
-						"example": "next-cursor"
-					}
-				],
-				"security": [
-					{
-						"jwtBearerAuthScheme": []
-					}
-				],
-				"responses": {
-					"200": {
-						"description": "The response structure for querying manual policy negotiations.",
-						"content": {
-							"application/json": {
-								"schema": {
-									"$ref": "#/components/schemas/PnapQueryResponse"
-								},
-								"examples": {
-									"pnapQueryResponseExample": {
-										"value": [
-											{
-												"id": "pid",
-												"correlationId": "cid",
-												"dateCreated": "2025-09-03T00:00:00.000Z",
-												"state": "REQUESTED",
-												"organizationIdentity": "did:iota:123456789abcdefghi"
-											}
-										]
-									}
-								}
-							}
-						}
 					},
 					"400": {
 						"description": "The server cannot process the request, see the content for more details.",
@@ -2711,6 +2812,98 @@
 					"$ref": "https://schema.twindev.org/rights-management/RightsManagementPolicy"
 				},
 				"description": "The body of the response."
+			},
+			"PnapCreateBody": {
+				"description": "The body of a PNAP create request.\ndateCreated, organizationIdentity and correlationId are server-managed and must not be supplied.\nid must be the consumer's chosen consumerPid — it becomes the primary key used by offerFromProvider().\n\nOnly id needs to be supplied for a correct pre-registration. All other optional fields are\nunsupported at pre-registration time. In particular, supplying a state other than REQUESTED\nwill cause offerFromProvider() to reject the incoming ContractOfferMessage (it requires\nstate === REQUESTED at policyNegotiationPointService.ts).",
+				"type": "object",
+				"properties": {
+					"id": {
+						"type": "string",
+						"description": "The consumer-side negotiation identifier (DSP consumerPid). Stored as the primary key."
+					},
+					"policyId": {
+						"type": "string",
+						"description": "The unique identifier for the policy."
+					},
+					"expires": {
+						"type": "number",
+						"description": "The expiration time for the policy negotiation if it's a manual process."
+					},
+					"state": {
+						"$ref": "https://schema.twindev.org/dataspace-protocol/DataspaceProtocolContractNegotiationStateType"
+					},
+					"callbackAddress": {
+						"type": "string",
+						"description": "The callback address to send updates to the requester."
+					},
+					"publicOrigin": {
+						"type": "string",
+						"description": "The public origin of the server that initiated or received this negotiation.\nUsed to construct callback URLs in subsequent async messages."
+					},
+					"offer": {
+						"$ref": "https://schema.twindev.org/dataspace-protocol/DataspaceProtocolOffer"
+					},
+					"agreement": {
+						"$ref": "https://schema.twindev.org/dataspace-protocol/DataspaceProtocolAgreement"
+					},
+					"trustVerificationInfo": {
+						"$ref": "#/components/schemas/TrustVerificationInfo"
+					},
+					"code": {
+						"type": "string",
+						"description": "A reason code for when the negotiation errors."
+					},
+					"reason": {
+						"type": "array",
+						"items": {
+							"type": "object",
+							"properties": {
+								"@value": {
+									"type": "string"
+								},
+								"@language": {
+									"type": "string"
+								}
+							},
+							"required": [
+								"@value"
+							]
+						},
+						"description": "A more detailed reason for the negotiation error."
+					},
+					"description": {
+						"type": "array",
+						"items": {
+							"type": "object",
+							"properties": {
+								"@value": {
+									"type": "string"
+								},
+								"@language": {
+									"type": "string"
+								}
+							},
+							"required": [
+								"@value"
+							]
+						},
+						"description": "A more detailed reason for the negotiation error."
+					},
+					"errorDetails": {
+						"$ref": "#/components/schemas/Error"
+					},
+					"handlerId": {
+						"type": "string",
+						"description": "The id of the handler, on provider side this is the negotiator, on consumer side this is the requester."
+					},
+					"interventionRequired": {
+						"type": "boolean",
+						"description": "Is manual intervention required to complete the negotiation?"
+					}
+				},
+				"required": [
+					"id"
+				]
 			},
 			"PnapQueryResponse": {
 				"type": "array",

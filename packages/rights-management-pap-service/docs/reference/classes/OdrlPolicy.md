@@ -138,7 +138,7 @@ Server-controlled JSON-LD context persisted by PAP (entity field `context` avoid
 
 > **assignerIndex**: `string`
 
-The assignerIndex.
+Pipe-delimited index of all assigner party IDs for efficient query filtering.
 
 ***
 
@@ -146,7 +146,7 @@ The assignerIndex.
 
 > **assigneeIndex**: `string`
 
-The assigneeIndex.
+Pipe-delimited index of all assignee party IDs for efficient query filtering.
 
 ***
 
@@ -154,7 +154,7 @@ The assigneeIndex.
 
 > **targetIndex**: `string`
 
-The targetIndex.
+Pipe-delimited index of all target asset IDs for efficient query filtering.
 
 ***
 
@@ -162,4 +162,4 @@ The targetIndex.
 
 > **actionIndex**: `string`
 
-The actionIndex.
+Pipe-delimited index of all action identifiers for efficient query filtering.

@@ -1,6 +1,6 @@
 # Interface: IPolicyInformationPointComponent
 
-Interface describing a Policy Information Point (PEP) contract.
+Interface describing a Policy Information Point (PIP) contract.
 Provides additional information to the Policy Decision Point (PDP) when
 it is making decisions.
 

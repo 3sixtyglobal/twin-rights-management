@@ -135,7 +135,6 @@ The negotiation id.
 > **requestFromConsumer**(`message`, `trustPayload`, `publicOrigin?`): `Promise`\<`IDataspaceProtocolContractNegotiation` \| `IDataspaceProtocolContractNegotiationError`\>
 
 Processes an incoming request on a provider from a consumer.
-https://eclipse-dataspace-protocol-base.github.io/DataspaceProtocol/2025-1/#contract-request-message.
 
 #### Parameters
 
@@ -162,6 +161,10 @@ The public origin url of this PNP service.
 `Promise`\<`IDataspaceProtocolContractNegotiation` \| `IDataspaceProtocolContractNegotiationError`\>
 
 The current state of the contract negotiation or an error.
+
+#### See
+
+https://eclipse-dataspace-protocol-base.github.io/DataspaceProtocol/2025-1/#contract-request-message
 
 #### Implementation of
 
@@ -371,6 +374,8 @@ The consumer negotiation id.
 #### Returns
 
 `Promise`\<`void`\>
+
+A promise that resolves when the terminate message has been sent.
 
 #### Implementation of
 

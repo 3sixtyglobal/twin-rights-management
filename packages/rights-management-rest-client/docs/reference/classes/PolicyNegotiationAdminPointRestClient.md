@@ -62,6 +62,32 @@ The class name of the component.
 
 ***
 
+### create() {#create}
+
+> **create**(`negotiation`): `Promise`\<`string`\>
+
+Pre-registers a consumer-side negotiation entry.
+
+#### Parameters
+
+##### negotiation
+
+`IPnapCreateBody`
+
+The partial negotiation data; id (consumerPid) is required.
+
+#### Returns
+
+`Promise`\<`string`\>
+
+The negotiation id (same as the caller-supplied id).
+
+#### Implementation of
+
+`IPolicyNegotiationAdminPointComponent.create`
+
+***
+
 ### get() {#get}
 
 > **get**(`policyId`): `Promise`\<`IPolicyNegotiation`\>
@@ -106,7 +132,7 @@ The updated policy negotiation.
 
 `Promise`\<`void`\>
 
-Nothing.
+A promise that resolves when the negotiation has been stored.
 
 #### Implementation of
 
@@ -132,7 +158,7 @@ The ID of the policy to cancel.
 
 `Promise`\<`void`\>
 
-Nothing.
+A promise that resolves when the negotiation has been removed.
 
 #### Implementation of
 

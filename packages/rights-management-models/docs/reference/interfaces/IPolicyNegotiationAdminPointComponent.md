@@ -2,6 +2,9 @@
 
 Interface describing a Policy Negotiation Admin Point (PNAP) contract.
 Components performs administration tasks on the policy negotiations.
+
+## See
+
 https://eclipse-dataspace-protocol-base.github.io/DataspaceProtocol/2025-1/#negotiation-protocol
 
 ## Extends
@@ -9,6 +12,30 @@ https://eclipse-dataspace-protocol-base.github.io/DataspaceProtocol/2025-1/#nego
 - `IComponent`
 
 ## Methods
+
+### create() {#create}
+
+> **create**(`negotiation`): `Promise`\<`string`\>
+
+Pre-registers a consumer-side negotiation entry.
+id must be the consumer's chosen consumerPid — it becomes the primary key used by offerFromProvider().
+dateCreated, organizationIdentity and correlationId are set by the service.
+
+#### Parameters
+
+##### negotiation
+
+[`IPnapCreateBody`](../type-aliases/IPnapCreateBody.md)
+
+The partial negotiation data.
+
+#### Returns
+
+`Promise`\<`string`\>
+
+The negotiation id (same as the caller-supplied id).
+
+***
 
 ### get() {#get}
 
@@ -50,7 +77,7 @@ The updated policy negotiation.
 
 `Promise`\<`void`\>
 
-Nothing.
+A promise that resolves when the negotiation has been stored.
 
 ***
 
@@ -72,7 +99,7 @@ The ID of the policy to cancel.
 
 `Promise`\<`void`\>
 
-Nothing.
+A promise that resolves when the negotiation has been removed.
 
 ***
 

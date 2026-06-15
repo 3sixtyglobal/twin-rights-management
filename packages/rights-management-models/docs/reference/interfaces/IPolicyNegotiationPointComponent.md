@@ -3,6 +3,9 @@
 Interface describing a Policy Negotiation Point (PNP) contract.
 When receiving a request from another component, the PNP will negotiate the terms
 of the request and determine the appropriate policies to create.
+
+## See
+
 https://eclipse-dataspace-protocol-base.github.io/DataspaceProtocol/2025-1/#negotiation-protocol
 
 ## Extends

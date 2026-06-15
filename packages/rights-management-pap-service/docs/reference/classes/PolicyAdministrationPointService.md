@@ -98,7 +98,7 @@ The policy to update (must include uid).
 
 `Promise`\<`void`\>
 
-Nothing.
+A promise that resolves when the policy has been updated.
 
 #### Implementation of
 
@@ -228,6 +228,8 @@ The ID of the policy to remove.
 
 `Promise`\<`void`\>
 
+A promise that resolves when the policy has been removed.
+
 #### Implementation of
 
 `IPolicyAdministrationPointComponent.remove`
@@ -292,7 +294,7 @@ The number of results to return per page.
 
 `Promise`\<\{ `cursor?`: `string`; `policies`: `IRightsManagementPolicy`[]; \}\>
 
-The policies.
+The matching policies and an optional cursor for the next page of results.
 
 #### Implementation of
 

@@ -48,7 +48,7 @@ The policy to update (must include uid).
 
 `Promise`\<`void`\>
 
-Nothing.
+A promise that resolves when the policy has been updated.
 
 ***
 
@@ -158,7 +158,7 @@ The id of the policy to remove.
 
 `Promise`\<`void`\>
 
-Nothing.
+A promise that resolves when the policy has been removed.
 
 ***
 

@@ -19,6 +19,7 @@
 - [papRemove](functions/papRemove.md)
 - [papQuery](functions/papQuery.md)
 - [generateRestRoutesPolicyNegotiationAdminPoint](functions/generateRestRoutesPolicyNegotiationAdminPoint.md)
+- [pnapCreate](functions/pnapCreate.md)
 - [pnapGet](functions/pnapGet.md)
 - [pnapSet](functions/pnapSet.md)
 - [pnapRemove](functions/pnapRemove.md)
