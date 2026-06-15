@@ -64,8 +64,7 @@ export function generateRestRoutesPolicyNegotiationAdminPoint(
 					id: "pnapCreateRequestExample",
 					request: {
 						body: {
-							id: "urn:contract-negotiation:consumer-pid",
-							state: DataspaceProtocolContractNegotiationStateType.REQUESTED
+							id: "urn:contract-negotiation:consumer-pid"
 						}
 					}
 				}
@@ -245,7 +244,7 @@ export async function pnapCreate(
 	Guards.object<IPnapCreateRequest["body"]>(ROUTES_SOURCE, nameof(request.body), request.body);
 
 	const component = ComponentFactory.get<IPolicyNegotiationAdminPointComponent>(componentName);
-	const id = await component.create(request.body);
+	const id = await component.create(request.body.id);
 
 	return {
 		statusCode: HttpStatusCode.created,

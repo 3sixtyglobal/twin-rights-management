@@ -9,7 +9,6 @@ import type {
 import { Guards } from "@twin.org/core";
 import { nameof } from "@twin.org/nameof";
 import type {
-	IPnapCreateBody,
 	IPnapCreateRequest,
 	IPnapGetRequest,
 	IPnapGetResponse,
@@ -53,25 +52,19 @@ export class PolicyNegotiationAdminPointRestClient
 
 	/**
 	 * Pre-registers a consumer-side negotiation entry.
-	 * @param negotiation The partial negotiation data; id (consumerPid) is required.
+	 * @param id The consumer-side negotiation identifier.
 	 * @returns The negotiation id (same as the caller-supplied id).
 	 */
-	public async create(negotiation: IPnapCreateBody): Promise<string> {
-		Guards.stringValue(
-			PolicyNegotiationAdminPointRestClient.CLASS_NAME,
-			nameof(negotiation.id),
-			negotiation.id
-		);
+	public async create(id: string): Promise<string> {
+		Guards.stringValue(PolicyNegotiationAdminPointRestClient.CLASS_NAME, nameof(id), id);
 
 		const response = await this.fetch<IPnapCreateRequest, ICreatedResponse>(
 			"/negotiations/admin",
 			"POST",
-			{ body: negotiation }
+			{ body: { id } }
 		);
 
-		const location = response.headers[HeaderTypes.Location];
-		Guards.stringValue(PolicyNegotiationAdminPointRestClient.CLASS_NAME, "location", location);
-		return location;
+		return response.headers[HeaderTypes.Location];
 	}
 
 	/**

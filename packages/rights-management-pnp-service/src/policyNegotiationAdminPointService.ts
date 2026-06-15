@@ -20,7 +20,6 @@ import {
 import type { ILoggingComponent } from "@twin.org/logging-models";
 import { nameof } from "@twin.org/nameof";
 import type {
-	IPnapCreateBody,
 	IPolicyNegotiation,
 	IPolicyNegotiationAdminPointComponent,
 	IPolicyNegotiationPointComponent
@@ -146,24 +145,20 @@ export class PolicyNegotiationAdminPointService implements IPolicyNegotiationAdm
 
 	/**
 	 * Pre-registers a consumer-side negotiation entry.
-	 * @param negotiation The partial negotiation data; id (consumerPid) is required.
+	 * @param id The consumer-side negotiation identifier (DSP consumerPid).
 	 * @returns The negotiation id (same as the caller-supplied id).
 	 */
-	public async create(negotiation: IPnapCreateBody): Promise<string> {
-		Guards.stringValue(
-			PolicyNegotiationAdminPointService.CLASS_NAME,
-			nameof(negotiation.id),
-			negotiation.id
-		);
+	public async create(id: string): Promise<string> {
+		Guards.stringValue(PolicyNegotiationAdminPointService.CLASS_NAME, nameof(id), id);
 
-		await Mutex.lock(negotiation.id);
+		await Mutex.lock(id);
 		try {
-			const existing = await this._policyNegotiationEntityStorage.get(negotiation.id);
+			const existing = await this._policyNegotiationEntityStorage.get(id);
 			if (!Is.empty(existing)) {
 				throw new AlreadyExistsError(
 					PolicyNegotiationAdminPointService.CLASS_NAME,
 					"negotiationAlreadyExists",
-					negotiation.id
+					id
 				);
 			}
 
@@ -172,12 +167,12 @@ export class PolicyNegotiationAdminPointService implements IPolicyNegotiationAdm
 			const organizationIdentity = contextIds[ContextIdKeys.Organization];
 
 			await this.set({
-				...negotiation,
 				// correlationId (the provider's pid) is unknown at pre-registration time;
 				// offerFromProvider() fills it in when the ContractOfferMessage arrives.
+				id,
 				correlationId: "",
 				dateCreated: new Date(Date.now()).toISOString(),
-				state: negotiation.state ?? DataspaceProtocolContractNegotiationStateType.REQUESTED,
+				state: DataspaceProtocolContractNegotiationStateType.REQUESTED,
 				organizationIdentity
 			});
 
@@ -186,12 +181,12 @@ export class PolicyNegotiationAdminPointService implements IPolicyNegotiationAdm
 				ts: Date.now(),
 				source: PolicyNegotiationAdminPointService.CLASS_NAME,
 				message: "negotiationCreated",
-				data: { id: negotiation.id }
+				data: { id }
 			});
 
-			return negotiation.id;
+			return id;
 		} finally {
-			Mutex.unlock(negotiation.id);
+			Mutex.unlock(id);
 		}
 	}
 

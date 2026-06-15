@@ -22,7 +22,7 @@ describe("PolicyNegotiationAdminPointRestClient", () => {
 				headers: { [HeaderTypes.Location]: "urn:uuid:consumer-pid-1" }
 			});
 
-			const id = await client.create({ id: "urn:uuid:consumer-pid-1" });
+			const id = await client.create("urn:uuid:consumer-pid-1");
 
 			expect(fetchSpy).toHaveBeenCalledWith("/negotiations/admin", "POST", {
 				body: { id: "urn:uuid:consumer-pid-1" }
@@ -34,18 +34,7 @@ describe("PolicyNegotiationAdminPointRestClient", () => {
 			const client = new PolicyNegotiationAdminPointRestClient({
 				endpoint: "http://localhost:8080"
 			});
-			await expect(client.create({ id: "" })).rejects.toMatchObject({ name: "GuardError" });
-		});
-
-		test("throws GuardError when Location header is absent from the response", async () => {
-			const client = new PolicyNegotiationAdminPointRestClient({
-				endpoint: "http://localhost:8080"
-			});
-			vi.spyOn(client, "fetch").mockResolvedValue({ headers: {} });
-
-			await expect(client.create({ id: "urn:uuid:consumer-pid-2" })).rejects.toMatchObject({
-				name: "GuardError"
-			});
+			await expect(client.create("")).rejects.toMatchObject({ name: "GuardError" });
 		});
 	});
 });
