@@ -46,7 +46,8 @@ describe("PolicyInformationPointService", () => {
 		initSchema();
 
 		loggingMemoryEntityStorage = new MemoryEntityStorageConnector<LogEntry>({
-			entitySchema: nameof<LogEntry>()
+			entitySchema: nameof<LogEntry>(),
+			config: { storageKey: "log-entry" }
 		});
 		EntityStorageConnectorFactory.register("log-entry", () => loggingMemoryEntityStorage);
 		LoggingConnectorFactory.register(
@@ -61,6 +62,10 @@ describe("PolicyInformationPointService", () => {
 			isMultiTenant: () => false,
 			execute: async (method: () => Promise<void>) => method()
 		}));
+	});
+
+	afterEach(async () => {
+		await loggingMemoryEntityStorage?.teardown();
 	});
 
 	test("can create the service", async () => {
@@ -258,7 +263,7 @@ describe("PolicyInformationPointService", () => {
 			{ foo: "bar" }
 		);
 
-		const logEntries = loggingMemoryEntityStorage.getStore();
+		const logEntries = await loggingMemoryEntityStorage.getStore();
 		expect(logEntries.length).toBe(1);
 		expect(logEntries[0].level).toBe("error");
 		expect(logEntries[0].message).toBe("sourceRetrieveFailed");

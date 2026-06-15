@@ -120,7 +120,8 @@ describe("PolicyExecutionPointService", () => {
 		initSchema();
 
 		loggingMemoryEntityStorage = new MemoryEntityStorageConnector<LogEntry>({
-			entitySchema: nameof<LogEntry>()
+			entitySchema: nameof<LogEntry>(),
+			config: { storageKey: "log-entry" }
 		});
 		EntityStorageConnectorFactory.register("log-entry", () => loggingMemoryEntityStorage);
 		LoggingConnectorFactory.register(
@@ -135,6 +136,10 @@ describe("PolicyExecutionPointService", () => {
 			isMultiTenant: () => false,
 			execute: async (method: () => Promise<void>) => method()
 		}));
+	});
+
+	afterEach(async () => {
+		await loggingMemoryEntityStorage?.teardown();
 	});
 
 	test("can create the service", async () => {
@@ -280,7 +285,7 @@ describe("PolicyExecutionPointService", () => {
 			)
 		).rejects.toBeInstanceOf(GeneralError);
 
-		const logEntries = loggingMemoryEntityStorage.getStore();
+		const logEntries = await loggingMemoryEntityStorage.getStore();
 		const messages = logEntries.map(l => l.message);
 		expect(messages).toContain("executingActions");
 		expect(messages).toContain("executingAction");
@@ -345,7 +350,7 @@ describe("PolicyExecutionPointService", () => {
 		// Check both custom action was called and logging occurred
 		expect(mockLoggingAction.execute).toHaveBeenCalledOnce();
 		expect(mockLoggingAction2.execute).toHaveBeenCalledOnce();
-		const logEntries = loggingMemoryEntityStorage.getStore();
+		const logEntries = await loggingMemoryEntityStorage.getStore();
 		const messages = logEntries.map(l => l.message);
 		expect(messages).toContain("executingActions");
 		expect(messages.filter(m => m === "executingAction").length).toBe(2);
@@ -381,7 +386,7 @@ describe("PolicyExecutionPointService", () => {
 			PolicyDecisionStage.Before
 		);
 
-		const logEntries = loggingMemoryEntityStorage.getStore();
+		const logEntries = await loggingMemoryEntityStorage.getStore();
 		const messages = logEntries.map(l => l.message);
 		expect(messages).toContain("executingActions");
 		expect(messages).toContain("executingAction");
@@ -422,7 +427,7 @@ describe("PolicyExecutionPointService", () => {
 			PolicyDecisionStage.After
 		);
 
-		const logEntries = loggingMemoryEntityStorage.getStore();
+		const logEntries = await loggingMemoryEntityStorage.getStore();
 		const policyLog = logEntries.find(l => l.message === "policyActionExecutedAfter");
 		expect(policyLog?.data).toEqual({
 			policyId: "policy2",
@@ -453,7 +458,7 @@ describe("PolicyExecutionPointService", () => {
 			PolicyDecisionStage.Before
 		);
 
-		const logEntries = loggingMemoryEntityStorage.getStore();
+		const logEntries = await loggingMemoryEntityStorage.getStore();
 		const policyLog = logEntries.find(l => l.message === "policyActionExecutedBefore");
 		expect(policyLog?.data).toEqual({
 			policyId: "policy123",
@@ -494,7 +499,7 @@ describe("PolicyExecutionPointService", () => {
 			PolicyDecisionStage.After
 		);
 
-		const logEntries = loggingMemoryEntityStorage.getStore();
+		const logEntries = await loggingMemoryEntityStorage.getStore();
 		const beforeLog = logEntries.find(
 			l => l.message === "executingAction" && l.data?.stage === PolicyDecisionStage.Before
 		);
@@ -532,7 +537,7 @@ describe("PolicyExecutionPointService", () => {
 			PolicyDecisionStage.Before
 		);
 
-		const logEntries = loggingMemoryEntityStorage.getStore();
+		const logEntries = await loggingMemoryEntityStorage.getStore();
 		const policyLog = logEntries.find(l => l.message === "policyActionExecutedBefore");
 		// Verify that sensitive data is not logged
 		expect(JSON.stringify(policyLog)).not.toContain("secret123");

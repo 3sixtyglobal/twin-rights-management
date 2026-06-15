@@ -35,7 +35,8 @@ describe("DefaultPolicyEnforcementProcessor", () => {
 		initSchema();
 
 		loggingMemoryEntityStorage = new MemoryEntityStorageConnector<LogEntry>({
-			entitySchema: nameof<LogEntry>()
+			entitySchema: nameof<LogEntry>(),
+			config: { storageKey: "log-entry" }
 		});
 		EntityStorageConnectorFactory.register("log-entry", () => loggingMemoryEntityStorage);
 		LoggingConnectorFactory.register(
@@ -52,6 +53,10 @@ describe("DefaultPolicyEnforcementProcessor", () => {
 		}));
 	});
 
+	afterEach(async () => {
+		await loggingMemoryEntityStorage?.teardown();
+	});
+
 	test("can create the source", async () => {
 		const policyInformationSource = new DefaultPolicyEnforcementProcessor();
 		expect(policyInformationSource).toBeInstanceOf(DefaultPolicyEnforcementProcessor);
@@ -63,7 +68,7 @@ describe("DefaultPolicyEnforcementProcessor", () => {
 
 		await processor.process(createAgreement("policy:abc"), [], { a: 1 });
 
-		const logs = loggingMemoryEntityStorage.getStore();
+		const logs = await loggingMemoryEntityStorage.getStore();
 		expect(logs).toHaveLength(1);
 		expect(logs[0]).toMatchObject({
 			level: "info",

@@ -90,7 +90,8 @@ describe("DefaultPolicyArbiter", () => {
 		initSchema();
 
 		loggingMemoryEntityStorage = new MemoryEntityStorageConnector<LogEntry>({
-			entitySchema: nameof<LogEntry>()
+			entitySchema: nameof<LogEntry>(),
+			config: { storageKey: "log-entry" }
 		});
 		EntityStorageConnectorFactory.register("log-entry", () => loggingMemoryEntityStorage);
 		LoggingConnectorFactory.register(
@@ -123,7 +124,7 @@ describe("DefaultPolicyArbiter", () => {
 		ComponentFactory.register("policy-administration-point", () => defaultPap);
 	});
 
-	afterEach(() => {
+	afterEach(async () => {
 		for (const enforcerId of registeredObligationEnforcers) {
 			PolicyObligationEnforcerFactory.unregister(enforcerId);
 		}
@@ -138,6 +139,8 @@ describe("DefaultPolicyArbiter", () => {
 			}
 			registeredPapComponentType = undefined;
 		}
+
+		await loggingMemoryEntityStorage?.teardown();
 	});
 
 	test("grants when a permission has no constraints", async () => {
@@ -1821,7 +1824,7 @@ describe("DefaultPolicyArbiter", () => {
 
 		await arbiter.decide(policy);
 
-		const logs = loggingMemoryEntityStorage.getStore();
+		const logs = await loggingMemoryEntityStorage.getStore();
 		expect(logs).toHaveLength(1);
 		expect(logs[0]).toMatchObject({
 			level: "info",

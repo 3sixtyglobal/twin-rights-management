@@ -48,7 +48,8 @@ describe("RightsManagementService", () => {
 		initSchemaPolicyAdministrationPoint();
 
 		loggingMemoryEntityStorage = new MemoryEntityStorageConnector<LogEntry>({
-			entitySchema: nameof<LogEntry>()
+			entitySchema: nameof<LogEntry>(),
+			config: { storageKey: "log-entry" }
 		});
 		EntityStorageConnectorFactory.register("log-entry", () => loggingMemoryEntityStorage);
 		LoggingConnectorFactory.register(
@@ -65,7 +66,8 @@ describe("RightsManagementService", () => {
 		}));
 
 		odrlPolicyMemoryEntityStorage = new MemoryEntityStorageConnector<OdrlPolicy>({
-			entitySchema: nameof<OdrlPolicy>()
+			entitySchema: nameof<OdrlPolicy>(),
+			config: { storageKey: "odrl-policy" }
 		});
 		EntityStorageConnectorFactory.register("odrl-policy", () => odrlPolicyMemoryEntityStorage);
 
@@ -132,6 +134,11 @@ describe("RightsManagementService", () => {
 		);
 	});
 
+	afterEach(async () => {
+		await loggingMemoryEntityStorage?.teardown();
+		await odrlPolicyMemoryEntityStorage?.teardown();
+	});
+
 	test("can perform a full workflow", async () => {
 		const testPolicy: IDataspaceProtocolPolicy = {
 			"@context": OdrlContexts.Context,
@@ -163,7 +170,9 @@ describe("RightsManagementService", () => {
 
 		expect(response).toEqual(testData);
 
-		expect(loggingMemoryEntityStorage.getStore().map(l => `${l.source}:${l.message}`)).toEqual([
+		expect(
+			(await loggingMemoryEntityStorage.getStore()).map(l => `${l.source}:${l.message}`)
+		).toEqual([
 			"PolicyEnforcementPointService:intercepting",
 			"PolicyExecutionPointService:executingActions",
 			"PolicyExecutionPointService:executingAction",

@@ -37,7 +37,8 @@ describe("PolicyNegotiationAdminPointService", () => {
 		initSchema();
 
 		loggingMemoryEntityStorage = new MemoryEntityStorageConnector<LogEntry>({
-			entitySchema: nameof<LogEntry>()
+			entitySchema: nameof<LogEntry>(),
+			config: { storageKey: "log-entry" }
 		});
 		EntityStorageConnectorFactory.register("log-entry", () => loggingMemoryEntityStorage);
 		LoggingConnectorFactory.register("logging", () => new EntityStorageLoggingConnector());
@@ -47,14 +48,16 @@ describe("PolicyNegotiationAdminPointService", () => {
 			"scheduled-task",
 			() =>
 				new MemoryEntityStorageConnector<ScheduledTask>({
-					entitySchema: nameof<ScheduledTask>()
+					entitySchema: nameof<ScheduledTask>(),
+					config: { storageKey: "scheduled-task" }
 				})
 		);
 
 		const taskSchedulerComponent = new TaskSchedulerService({ config: { intervalMs: 500 } });
 		ComponentFactory.register("task-scheduler", () => taskSchedulerComponent);
 		policyNegotiationMemoryEntityStorage = new MemoryEntityStorageConnector<PolicyNegotiation>({
-			entitySchema: nameof<PolicyNegotiation>()
+			entitySchema: nameof<PolicyNegotiation>(),
+			config: { storageKey: "policy-negotiation" }
 		});
 		EntityStorageConnectorFactory.register(
 			"policy-negotiation",

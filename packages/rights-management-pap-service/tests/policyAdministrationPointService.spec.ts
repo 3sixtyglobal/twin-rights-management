@@ -34,6 +34,10 @@ describe("PolicyAdministrationPointService", () => {
 		});
 	});
 
+	afterEach(async () => {
+		await odrlPolicyEntityStorage?.teardown();
+	});
+
 	afterAll(async () => {
 		if (existsSync(TEST_DIRECTORY_ROOT)) {
 			await rm(TEST_DIRECTORY_ROOT, { recursive: true });
@@ -50,7 +54,7 @@ describe("PolicyAdministrationPointService", () => {
 		expect(typeof resultUid).toBe("string");
 		expect(resultUid).toMatch(/^urn:policy:/);
 
-		const store = odrlPolicyEntityStorage.getStore();
+		const store = await odrlPolicyEntityStorage.getStore();
 		expect(store).toBeDefined();
 		expect(store.length).toEqual(1);
 
@@ -125,7 +129,7 @@ describe("PolicyAdministrationPointService", () => {
 		ObjectHelper.propertyDelete(policyWithoutUid, "@id");
 		const createdUid = await policyAdminPoint.create(policyWithoutUid);
 
-		let store = odrlPolicyEntityStorage.getStore();
+		let store = await odrlPolicyEntityStorage.getStore();
 		expect(store.length).toEqual(1);
 
 		const retrievedPolicy = await policyAdminPoint.get(createdUid);
@@ -133,7 +137,7 @@ describe("PolicyAdministrationPointService", () => {
 
 		await policyAdminPoint.remove(createdUid);
 
-		store = odrlPolicyEntityStorage.getStore();
+		store = await odrlPolicyEntityStorage.getStore();
 		expect(store.length).toEqual(0);
 
 		await expect(policyAdminPoint.get(createdUid)).rejects.toThrow();
@@ -142,7 +146,7 @@ describe("PolicyAdministrationPointService", () => {
 	test("should query policies without conditions", async () => {
 		await createTestPolicies(policyAdminPoint);
 
-		const store = odrlPolicyEntityStorage.getStore();
+		const store = await odrlPolicyEntityStorage.getStore();
 		expect(store.length).toEqual(10);
 
 		const result = await policyAdminPoint.query();
@@ -554,7 +558,7 @@ describe("PolicyAdministrationPointService", () => {
 		};
 
 		const uid = await policyAdminPoint.create(policy);
-		const store = odrlPolicyEntityStorage.getStore();
+		const store = await odrlPolicyEntityStorage.getStore();
 		expect(store).toHaveLength(1);
 		const stored = store[0];
 		expect(stored.id).toEqual(uid);
@@ -658,7 +662,7 @@ describe("PolicyAdministrationPointService", () => {
 			]
 		});
 
-		const store = odrlPolicyEntityStorage.getStore();
+		const store = await odrlPolicyEntityStorage.getStore();
 		expect(store).toHaveLength(1);
 		expect(store[0].targetIndex).toContain("|http://example.com/asset/a|");
 		expect(store[0].targetIndex).toContain("|http://example.com/asset/b|");
@@ -686,7 +690,7 @@ describe("PolicyAdministrationPointService", () => {
 			]
 		});
 
-		const store = odrlPolicyEntityStorage.getStore();
+		const store = await odrlPolicyEntityStorage.getStore();
 		expect(store).toHaveLength(1);
 		expect(store[0].targetIndex).toEqual("|http://example.com/asset/only-in-permission|");
 		expect(store[0].actionIndex).toEqual("|use|");

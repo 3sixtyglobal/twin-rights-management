@@ -136,13 +136,13 @@ async function waitForState(
 	entity: "consumer" | "provider"
 ): Promise<void> {
 	for (let i = 0; i < 30; i++) {
-		const store = storage.getStore();
+		const store = await storage.getStore();
 		if (store[0].state === state) {
 			return;
 		}
 		await new Promise(resolve => setTimeout(resolve, 100));
 	}
-	console.debug(storage.getStore()[0]);
+	console.debug((await storage.getStore())[0]);
 	throw new Error(`Timeout waiting for state ${state} for ${entity}`);
 }
 
@@ -161,7 +161,8 @@ describe("PolicyNegotiationPointService", () => {
 		initSchema();
 
 		loggingMemoryEntityStorage = new MemoryEntityStorageConnector<LogEntry>({
-			entitySchema: nameof<LogEntry>()
+			entitySchema: nameof<LogEntry>(),
+			config: { storageKey: "log-entry" }
 		});
 		EntityStorageConnectorFactory.register("log-entry", () => loggingMemoryEntityStorage);
 		LoggingConnectorFactory.register("logging", () => new EntityStorageLoggingConnector());
@@ -171,7 +172,8 @@ describe("PolicyNegotiationPointService", () => {
 			"scheduled-task",
 			() =>
 				new MemoryEntityStorageConnector<ScheduledTask>({
-					entitySchema: nameof<ScheduledTask>()
+					entitySchema: nameof<ScheduledTask>(),
+					config: { storageKey: "scheduled-task" }
 				})
 		);
 
@@ -182,11 +184,13 @@ describe("PolicyNegotiationPointService", () => {
 			"vault-key",
 			() =>
 				new MemoryEntityStorageConnector<VaultKey>({
-					entitySchema: nameof<VaultKey>()
+					entitySchema: nameof<VaultKey>(),
+					config: { storageKey: "vault-key" }
 				})
 		);
 		const secretEntityStorage = new MemoryEntityStorageConnector<VaultSecret>({
-			entitySchema: nameof<VaultSecret>()
+			entitySchema: nameof<VaultSecret>(),
+			config: { storageKey: "vault-secret" }
 		});
 		EntityStorageConnectorFactory.register("vault-secret", () => secretEntityStorage);
 
@@ -194,7 +198,8 @@ describe("PolicyNegotiationPointService", () => {
 		VaultConnectorFactory.register("vault", () => vaultConnector);
 
 		const identityDocumentEntityStorage = new MemoryEntityStorageConnector<IdentityDocument>({
-			entitySchema: nameof<IdentityDocument>()
+			entitySchema: nameof<IdentityDocument>(),
+			config: { storageKey: "identity-document" }
 		});
 		EntityStorageConnectorFactory.register(
 			"identity-document",
@@ -230,13 +235,15 @@ describe("PolicyNegotiationPointService", () => {
 		};
 
 		odrlPolicyMemoryEntityStorage = new MemoryEntityStorageConnector<OdrlPolicy>({
-			entitySchema: nameof<OdrlPolicy>()
+			entitySchema: nameof<OdrlPolicy>(),
+			config: { storageKey: "odrl-policy" }
 		});
 		EntityStorageConnectorFactory.register("odrl-policy", () => odrlPolicyMemoryEntityStorage);
 
 		policyNegotiationProviderMemoryEntityStorage =
 			new MemoryEntityStorageConnector<PolicyNegotiation>({
-				entitySchema: nameof<PolicyNegotiation>()
+				entitySchema: nameof<PolicyNegotiation>(),
+				config: { storageKey: "policy-negotiation-provider" }
 			});
 		EntityStorageConnectorFactory.register(
 			"policy-negotiation-provider",
@@ -245,7 +252,8 @@ describe("PolicyNegotiationPointService", () => {
 
 		policyNegotiationConsumerMemoryEntityStorage =
 			new MemoryEntityStorageConnector<PolicyNegotiation>({
-				entitySchema: nameof<PolicyNegotiation>()
+				entitySchema: nameof<PolicyNegotiation>(),
+				config: { storageKey: "policy-negotiation-consumer" }
 			});
 		EntityStorageConnectorFactory.register(
 			"policy-negotiation-consumer",
@@ -334,8 +342,12 @@ describe("PolicyNegotiationPointService", () => {
 		}));
 	});
 
-	afterEach(() => {
+	afterEach(async () => {
 		vi.restoreAllMocks();
+		await loggingMemoryEntityStorage?.teardown();
+		await odrlPolicyMemoryEntityStorage?.teardown();
+		await policyNegotiationProviderMemoryEntityStorage?.teardown();
+		await policyNegotiationConsumerMemoryEntityStorage?.teardown();
 	});
 
 	test("can create the service", async () => {
@@ -509,9 +521,9 @@ describe("PolicyNegotiationPointService", () => {
 			"http://localhost:4000"
 		);
 
-		const consumerStore = policyNegotiationConsumerMemoryEntityStorage.getStore();
+		const consumerStore = await policyNegotiationConsumerMemoryEntityStorage.getStore();
 		expect(consumerStore).toHaveLength(1);
-		const providerStore = policyNegotiationProviderMemoryEntityStorage.getStore();
+		const providerStore = await policyNegotiationProviderMemoryEntityStorage.getStore();
 		expect(providerStore).toHaveLength(1);
 
 		expect(consumerStore[0]).toMatchObject({
@@ -580,15 +592,15 @@ describe("PolicyNegotiationPointService", () => {
 			"http://localhost:4000"
 		);
 
-		const consumerStore = policyNegotiationConsumerMemoryEntityStorage.getStore();
+		const consumerStore = await policyNegotiationConsumerMemoryEntityStorage.getStore();
 		expect(consumerStore).toHaveLength(1);
-		const providerStore = policyNegotiationProviderMemoryEntityStorage.getStore();
+		const providerStore = await policyNegotiationProviderMemoryEntityStorage.getStore();
 		expect(providerStore).toHaveLength(1);
 
 		await waitForState(policyNegotiationConsumerMemoryEntityStorage, "ACCEPTED", "consumer");
 
-		const consumerStore2 = policyNegotiationConsumerMemoryEntityStorage.getStore();
-		const providerStore2 = policyNegotiationProviderMemoryEntityStorage.getStore();
+		const consumerStore2 = await policyNegotiationConsumerMemoryEntityStorage.getStore();
+		const providerStore2 = await policyNegotiationProviderMemoryEntityStorage.getStore();
 
 		// The consumer has ACCEPTED the offer
 		expect(consumerStore2[0]).toMatchObject({
@@ -619,8 +631,8 @@ describe("PolicyNegotiationPointService", () => {
 
 		await waitForState(policyNegotiationProviderMemoryEntityStorage, "OFFERED", "provider");
 
-		const consumerStore3 = policyNegotiationConsumerMemoryEntityStorage.getStore();
-		const providerStore3 = policyNegotiationProviderMemoryEntityStorage.getStore();
+		const consumerStore3 = await policyNegotiationConsumerMemoryEntityStorage.getStore();
+		const providerStore3 = await policyNegotiationProviderMemoryEntityStorage.getStore();
 
 		// The provider has not yet received the ACCEPTED state, so is still in OFFERED state
 		expect(providerStore3[0]).toMatchObject({
@@ -641,8 +653,8 @@ describe("PolicyNegotiationPointService", () => {
 		// We wait for the consumer to respond with the ACCEPTED state
 		await waitForState(policyNegotiationProviderMemoryEntityStorage, "ACCEPTED", "provider");
 
-		const consumerStore4 = policyNegotiationConsumerMemoryEntityStorage.getStore();
-		const providerStore4 = policyNegotiationProviderMemoryEntityStorage.getStore();
+		const consumerStore4 = await policyNegotiationConsumerMemoryEntityStorage.getStore();
+		const providerStore4 = await policyNegotiationProviderMemoryEntityStorage.getStore();
 
 		// Now the provider should also have the ACCEPTED state
 		expect(providerStore4[0]).toMatchObject({
@@ -663,8 +675,8 @@ describe("PolicyNegotiationPointService", () => {
 		// Now we wait for the provider to send the AGREED state
 		await waitForState(policyNegotiationConsumerMemoryEntityStorage, "AGREED", "consumer");
 
-		const consumerStore5 = policyNegotiationConsumerMemoryEntityStorage.getStore();
-		const providerStore5 = policyNegotiationProviderMemoryEntityStorage.getStore();
+		const consumerStore5 = await policyNegotiationConsumerMemoryEntityStorage.getStore();
+		const providerStore5 = await policyNegotiationProviderMemoryEntityStorage.getStore();
 
 		// The consumer has now received the AGREED state
 		expect(consumerStore5[0]).toMatchObject({
@@ -691,8 +703,8 @@ describe("PolicyNegotiationPointService", () => {
 
 		await waitForState(policyNegotiationProviderMemoryEntityStorage, "AGREED", "provider");
 
-		const consumerStore6 = policyNegotiationConsumerMemoryEntityStorage.getStore();
-		const providerStore6 = policyNegotiationProviderMemoryEntityStorage.getStore();
+		const consumerStore6 = await policyNegotiationConsumerMemoryEntityStorage.getStore();
+		const providerStore6 = await policyNegotiationProviderMemoryEntityStorage.getStore();
 
 		// The provider has now also set the AGREED state
 		expect(providerStore6[0]).toMatchObject({
@@ -720,8 +732,8 @@ describe("PolicyNegotiationPointService", () => {
 		// Now we wait for the consumer to VERIFIED the agreement
 		await waitForState(policyNegotiationConsumerMemoryEntityStorage, "VERIFIED", "consumer");
 
-		const consumerStore7 = policyNegotiationConsumerMemoryEntityStorage.getStore();
-		const providerStore7 = policyNegotiationProviderMemoryEntityStorage.getStore();
+		const consumerStore7 = await policyNegotiationConsumerMemoryEntityStorage.getStore();
+		const providerStore7 = await policyNegotiationProviderMemoryEntityStorage.getStore();
 
 		// The consumer has now VERIFIED the agreement
 		expect(consumerStore7[0]).toMatchObject({
@@ -748,8 +760,8 @@ describe("PolicyNegotiationPointService", () => {
 
 		await waitForState(policyNegotiationProviderMemoryEntityStorage, "FINALIZED", "provider");
 
-		const consumerStore8 = policyNegotiationConsumerMemoryEntityStorage.getStore();
-		const providerStore8 = policyNegotiationProviderMemoryEntityStorage.getStore();
+		const consumerStore8 = await policyNegotiationConsumerMemoryEntityStorage.getStore();
+		const providerStore8 = await policyNegotiationProviderMemoryEntityStorage.getStore();
 
 		expect(providerStore8[0]).toMatchObject({
 			id: consumerStore8[0].correlationId,
@@ -776,8 +788,8 @@ describe("PolicyNegotiationPointService", () => {
 		// Now we wait for the consumer to received the FINALIZED state
 		await waitForState(policyNegotiationConsumerMemoryEntityStorage, "FINALIZED", "consumer");
 
-		const consumerStore9 = policyNegotiationConsumerMemoryEntityStorage.getStore();
-		const providerStore9 = policyNegotiationProviderMemoryEntityStorage.getStore();
+		const consumerStore9 = await policyNegotiationConsumerMemoryEntityStorage.getStore();
+		const providerStore9 = await policyNegotiationProviderMemoryEntityStorage.getStore();
 
 		expect(consumerStore9[0]).toMatchObject({
 			id: consumerPid,
@@ -803,8 +815,8 @@ describe("PolicyNegotiationPointService", () => {
 
 		await waitForState(policyNegotiationProviderMemoryEntityStorage, "FINALIZED", "provider");
 
-		const consumerStore10 = policyNegotiationConsumerMemoryEntityStorage.getStore();
-		const providerStore10 = policyNegotiationProviderMemoryEntityStorage.getStore();
+		const consumerStore10 = await policyNegotiationConsumerMemoryEntityStorage.getStore();
+		const providerStore10 = await policyNegotiationProviderMemoryEntityStorage.getStore();
 
 		expect(providerStore10[0]).toMatchObject({
 			id: consumerStore10[0].correlationId,
@@ -1103,13 +1115,13 @@ describe("PolicyNegotiationPointService", () => {
 			);
 
 			// getStore() returns a copy; use the connector's remove() to delete from the live store
-			const snapshot = policyNegotiationProviderMemoryEntityStorage.getStore();
+			const snapshot = await policyNegotiationProviderMemoryEntityStorage.getStore();
 			expect(snapshot).toHaveLength(1);
 			await policyNegotiationProviderMemoryEntityStorage.remove(snapshot[0].id);
 
 			await new Promise(resolve => setTimeout(resolve, 300));
 
-			expect(policyNegotiationProviderMemoryEntityStorage.getStore()).toHaveLength(0);
+			expect(await policyNegotiationProviderMemoryEntityStorage.getStore()).toHaveLength(0);
 			expect(offerSpy).not.toHaveBeenCalled();
 		});
 
@@ -1129,7 +1141,7 @@ describe("PolicyNegotiationPointService", () => {
 			);
 
 			// Use the admin point service to update the live store (getStore() returns a copy)
-			const snapshot = policyNegotiationProviderMemoryEntityStorage.getStore();
+			const snapshot = await policyNegotiationProviderMemoryEntityStorage.getStore();
 			expect(snapshot).toHaveLength(1);
 			await negotiationProviderAdminPointComponent.set({
 				...snapshot[0],
@@ -1139,7 +1151,7 @@ describe("PolicyNegotiationPointService", () => {
 			await new Promise(resolve => setTimeout(resolve, 300));
 
 			// sendOfferToConsumer must have aborted: state stays TERMINATED, not overwritten with OFFERED
-			const final = policyNegotiationProviderMemoryEntityStorage.getStore();
+			const final = await policyNegotiationProviderMemoryEntityStorage.getStore();
 			expect(final[0].state).toBe(DataspaceProtocolContractNegotiationStateType.TERMINATED);
 			expect(offerSpy).not.toHaveBeenCalled();
 		});
@@ -1160,7 +1172,7 @@ describe("PolicyNegotiationPointService", () => {
 				const result = await originalEvent(message, destination, trustPayload);
 				if (!acceptedHandled && message.event === "ACCEPTED" && destination === "provider") {
 					acceptedHandled = true;
-					const providerSnapshot = policyNegotiationProviderMemoryEntityStorage.getStore();
+					const providerSnapshot = await policyNegotiationProviderMemoryEntityStorage.getStore();
 					if (providerSnapshot.length > 0) {
 						await negotiationProviderAdminPointComponent.set({
 							...providerSnapshot[0],
@@ -1181,7 +1193,7 @@ describe("PolicyNegotiationPointService", () => {
 			await new Promise(resolve => setTimeout(resolve, 600));
 
 			// Provider must stay TERMINATED, never move to AGREED
-			const final = policyNegotiationProviderMemoryEntityStorage.getStore();
+			const final = await policyNegotiationProviderMemoryEntityStorage.getStore();
 			expect(final.length).toBeGreaterThan(0);
 			expect(final[0].state).toBe(DataspaceProtocolContractNegotiationStateType.TERMINATED);
 		});
@@ -1202,7 +1214,7 @@ describe("PolicyNegotiationPointService", () => {
 			const originalEvent = provider.event.bind(provider);
 			vi.spyOn(provider, "event").mockImplementation(async (message, destination, trustPayload) => {
 				if (message.event === "ACCEPTED" && destination === "provider") {
-					const providerSnapshot = policyNegotiationProviderMemoryEntityStorage.getStore();
+					const providerSnapshot = await policyNegotiationProviderMemoryEntityStorage.getStore();
 					if (providerSnapshot.length > 0) {
 						await negotiationProviderAdminPointComponent.set({
 							...providerSnapshot[0],
@@ -1259,7 +1271,7 @@ describe("PolicyNegotiationPointService", () => {
 					const result = await originalAgreement(message, trustPayload);
 					if (!agreedHandled) {
 						agreedHandled = true;
-						const consumerSnapshot = policyNegotiationConsumerMemoryEntityStorage.getStore();
+						const consumerSnapshot = await policyNegotiationConsumerMemoryEntityStorage.getStore();
 						if (
 							consumerSnapshot.length > 0 &&
 							consumerSnapshot[0].state === DataspaceProtocolContractNegotiationStateType.AGREED
@@ -1284,7 +1296,7 @@ describe("PolicyNegotiationPointService", () => {
 			await new Promise(resolve => setTimeout(resolve, 800));
 
 			// Consumer must stay TERMINATED, never move to VERIFIED
-			const final = policyNegotiationConsumerMemoryEntityStorage.getStore();
+			const final = await policyNegotiationConsumerMemoryEntityStorage.getStore();
 			expect(final.length).toBeGreaterThan(0);
 			expect(final[0].state).toBe(DataspaceProtocolContractNegotiationStateType.TERMINATED);
 		});
@@ -1318,7 +1330,7 @@ describe("PolicyNegotiationPointService", () => {
 					className: () => "FakeConsumerDeletesAndRejects",
 					offerFromProvider: async () => {
 						// Simulate admin DELETE landing while the provider awaits this response
-						const store = policyNegotiationProviderMemoryEntityStorage.getStore();
+						const store = await policyNegotiationProviderMemoryEntityStorage.getStore();
 						if (store.length > 0) {
 							await policyNegotiationProviderMemoryEntityStorage.remove(store[0].id);
 						}
@@ -1377,7 +1389,7 @@ describe("PolicyNegotiationPointService", () => {
 
 			// setIfExists() detected the record was gone and returned false.
 			// The admin DELETE was respected — no upsert happened.
-			const store = policyNegotiationProviderMemoryEntityStorage.getStore();
+			const store = await policyNegotiationProviderMemoryEntityStorage.getStore();
 			expect(store).toHaveLength(0);
 		});
 
@@ -1458,7 +1470,7 @@ describe("PolicyNegotiationPointService", () => {
 				.mockImplementationOnce(async id => originalGet(id))
 				.mockImplementationOnce(async id => {
 					const result = await originalGet(id);
-					const snapshot = policyNegotiationProviderMemoryEntityStorage.getStore();
+					const snapshot = await policyNegotiationProviderMemoryEntityStorage.getStore();
 					if (snapshot.length > 0) {
 						await policyNegotiationProviderMemoryEntityStorage.remove(snapshot[0].id);
 					}
@@ -1491,7 +1503,7 @@ describe("PolicyNegotiationPointService", () => {
 			// In that scenario: get() sees the record → DELETE lands at DB level → set() upserts.
 			// Closing this fully requires a storage-layer atomic write (Option A from the plan:
 			// UPDATE ... WHERE id = ? that no-ops if the row was already deleted).
-			const toctouStore = policyNegotiationProviderMemoryEntityStorage.getStore();
+			const toctouStore = await policyNegotiationProviderMemoryEntityStorage.getStore();
 			expect(toctouStore).toHaveLength(1);
 			expect(toctouStore[0].state).toBe(DataspaceProtocolContractNegotiationStateType.TERMINATED);
 			expect(toctouStore[0].code).toBe("consumer.rejectedOffer");
@@ -1527,7 +1539,7 @@ describe("PolicyNegotiationPointService", () => {
 				expect(result.state).toBe(DataspaceProtocolContractNegotiationStateType.REQUESTED);
 			}
 
-			const stored = policyNegotiationProviderMemoryEntityStorage.getStore();
+			const stored = await policyNegotiationProviderMemoryEntityStorage.getStore();
 			expect(stored).toHaveLength(1);
 			expect(stored[0].callbackAddress).toBeUndefined();
 		});
@@ -1560,7 +1572,7 @@ describe("PolicyNegotiationPointService", () => {
 			// sendOfferToConsumer advances state to OFFERED regardless of callbackAddress;
 			// only the HTTP push to the consumer is gated on the callback being present. A polling
 			// client observes the OFFERED transition via GET /negotiations/admin/:id.
-			const stored = policyNegotiationProviderMemoryEntityStorage.getStore();
+			const stored = await policyNegotiationProviderMemoryEntityStorage.getStore();
 			expect(stored).toHaveLength(1);
 			expect(stored[0].state).toBe(DataspaceProtocolContractNegotiationStateType.OFFERED);
 			expect(stored[0].callbackAddress).toBeUndefined();
@@ -1657,7 +1669,7 @@ describe("PolicyNegotiationPointService", () => {
 			// Wait past the setTimeout(100) the ACCEPTED handler uses to schedule sendAgreementToConsumer.
 			await new Promise(resolve => setTimeout(resolve, 250));
 
-			const stored = policyNegotiationProviderMemoryEntityStorage.getStore();
+			const stored = await policyNegotiationProviderMemoryEntityStorage.getStore();
 			expect(stored).toHaveLength(1);
 			// sendAgreementToConsumer advances state to AGREED regardless of callbackAddress.
 			expect(stored[0].state).toBe(DataspaceProtocolContractNegotiationStateType.AGREED);
@@ -1710,7 +1722,7 @@ describe("PolicyNegotiationPointService", () => {
 			// Wait past the setTimeout(100) used to schedule sendAgreementVerificationToProvider.
 			await new Promise(resolve => setTimeout(resolve, 250));
 
-			const stored = policyNegotiationConsumerMemoryEntityStorage.getStore();
+			const stored = await policyNegotiationConsumerMemoryEntityStorage.getStore();
 			expect(stored).toHaveLength(1);
 			// sendAgreementVerificationToProvider advances state to VERIFIED regardless of callback.
 			expect(stored[0].state).toBe(DataspaceProtocolContractNegotiationStateType.VERIFIED);
@@ -1769,7 +1781,7 @@ describe("PolicyNegotiationPointService", () => {
 
 			expect(result).toBeUndefined();
 
-			const stored = policyNegotiationConsumerMemoryEntityStorage.getStore();
+			const stored = await policyNegotiationConsumerMemoryEntityStorage.getStore();
 			expect(stored[0].state).toBe(DataspaceProtocolContractNegotiationStateType.FINALIZED);
 			expect(mockPolicyRequester.finalised).toHaveBeenCalledWith("consumer-pid-175");
 
@@ -1827,7 +1839,7 @@ describe("PolicyNegotiationPointService", () => {
 
 			// AlreadyExists is swallowed: finalize still succeeds.
 			expect(result).toBeUndefined();
-			const stored = policyNegotiationConsumerMemoryEntityStorage.getStore();
+			const stored = await policyNegotiationConsumerMemoryEntityStorage.getStore();
 			expect(stored[0].state).toBe(DataspaceProtocolContractNegotiationStateType.FINALIZED);
 		});
 

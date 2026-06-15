@@ -48,7 +48,8 @@ EntityStorageConnectorFactory.register(
 	"odrl-policy",
 	() =>
 		new MemoryEntityStorageConnector<OdrlPolicy>({
-			entitySchema: nameof<OdrlPolicy>()
+			entitySchema: nameof<OdrlPolicy>(),
+			config: { storageKey: "odrl-policy" }
 		})
 );
 
@@ -63,7 +64,8 @@ export function resetOdrlPolicyStorage(): MemoryEntityStorageConnector<OdrlPolic
 		"odrl-policy",
 		() =>
 			new MemoryEntityStorageConnector<OdrlPolicy>({
-				entitySchema: nameof<OdrlPolicy>()
+				entitySchema: nameof<OdrlPolicy>(),
+				config: { storageKey: "odrl-policy" }
 			})
 	);
 	return EntityStorageConnectorFactory.get<MemoryEntityStorageConnector<OdrlPolicy>>("odrl-policy");
