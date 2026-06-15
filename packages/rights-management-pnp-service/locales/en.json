@@ -30,6 +30,9 @@
 	"warn": {
 		"policyNegotiationAdminPointService": {
 			"sendTerminateFailed": "Failed to send terminate to consumer for negotiation id: \"{id}\", correlation id: \"{correlationId}\""
+		},
+		"policyNegotiationPointService": {
+			"terminatedCallbackFailed": "Failed to notify requester via terminated() for negotiation id: \"{negotiationId}\""
 		}
 	}
 }

@@ -1894,6 +1894,121 @@ describe("PolicyNegotiationPointService", () => {
 			expect(result).toBeDefined();
 			await expect(adminPointComponent.getAgreement(collidingId)).rejects.toThrow();
 		});
+
+		test("event(FINALIZED) fires terminated() and skips finalised() when PAP create throws a non-AlreadyExists error", async () => {
+			PolicyRequesterFactory.register("requester-2", () => mockPolicyRequester);
+
+			const consumer = new PolicyNegotiationPointService({
+				policyNegotiationAdministrationPointComponentType:
+					"policy-negotiation-consumer-admin-point",
+				policyNegotiationPointRemoteComponentType: "pnp-remote",
+				config: { callbackPath: "/callback" }
+			});
+
+			const agreement = {
+				"@context": OdrlContexts.Context,
+				"@type": OdrlTypes.Agreement,
+				"@id": "urn:policy:agreement-176-fail",
+				assigner: testIdentityProvider,
+				assignee: testIdentityConsumer
+			};
+
+			await negotiationConsumerAdminPointComponent.set({
+				id: "consumer-pid-176-fail",
+				correlationId: "provider-pid-176-fail",
+				dateCreated: new Date(Date.now()).toISOString(),
+				offer: mockOffer,
+				agreement,
+				state: DataspaceProtocolContractNegotiationStateType.VERIFIED,
+				organizationIdentity: testIdentityConsumer,
+				trustVerificationInfo: { identity: testIdentityConsumer },
+				handlerId: "requester-2"
+			});
+
+			const createSpy = vi
+				.spyOn(adminPointComponent, "create")
+				.mockRejectedValueOnce(new Error("simulated pap storage failure"));
+
+			const result = await consumer.event(
+				{
+					"@context": [DataspaceProtocolContexts.Context],
+					"@type": DataspaceProtocolContractNegotiationTypes.ContractNegotiationEventMessage,
+					providerPid: "provider-pid-176-fail",
+					consumerPid: "consumer-pid-176-fail",
+					event: DataspaceProtocolContractNegotiationStateType.FINALIZED
+				},
+				"consumer",
+				`token:${testIdentityConsumer}`
+			);
+
+			createSpy.mockRestore();
+
+			// setErrorState was called — an error response is returned
+			expect(result).toBeDefined();
+
+			// terminated() fires promptly — requester receives the failure signal
+			expect(mockPolicyRequester.terminated).toHaveBeenCalledWith("consumer-pid-176-fail");
+
+			// finalised() is NOT called — the early return prevents the happy-path callback
+			expect(mockPolicyRequester.finalised).not.toHaveBeenCalled();
+
+			// The agreement was never written to the PAP
+			await expect(
+				adminPointComponent.getAgreement("urn:policy:agreement-176-fail")
+			).rejects.toThrow();
+		});
+
+		test("event(FINALIZED) PAP failure: terminated() is called exactly once for the negotiation — no double-callback from the outer catch", async () => {
+			PolicyRequesterFactory.register("requester-2", () => mockPolicyRequester);
+
+			const consumer = new PolicyNegotiationPointService({
+				policyNegotiationAdministrationPointComponentType:
+					"policy-negotiation-consumer-admin-point",
+				policyNegotiationPointRemoteComponentType: "pnp-remote",
+				config: { callbackPath: "/callback" }
+			});
+
+			const agreement = {
+				"@context": OdrlContexts.Context,
+				"@type": OdrlTypes.Agreement,
+				"@id": "urn:policy:agreement-177-fail",
+				assigner: testIdentityProvider,
+				assignee: testIdentityConsumer
+			};
+
+			await negotiationConsumerAdminPointComponent.set({
+				id: "consumer-pid-177-fail",
+				correlationId: "provider-pid-177-fail",
+				dateCreated: new Date(Date.now()).toISOString(),
+				offer: mockOffer,
+				agreement,
+				state: DataspaceProtocolContractNegotiationStateType.VERIFIED,
+				organizationIdentity: testIdentityConsumer,
+				trustVerificationInfo: { identity: testIdentityConsumer },
+				handlerId: "requester-2"
+			});
+
+			const createSpy = vi
+				.spyOn(adminPointComponent, "create")
+				.mockRejectedValueOnce(new Error("simulated pap storage failure"));
+
+			await consumer.event(
+				{
+					"@context": [DataspaceProtocolContexts.Context],
+					"@type": DataspaceProtocolContractNegotiationTypes.ContractNegotiationEventMessage,
+					providerPid: "provider-pid-177-fail",
+					consumerPid: "consumer-pid-177-fail",
+					event: DataspaceProtocolContractNegotiationStateType.FINALIZED
+				},
+				"consumer",
+				`token:${testIdentityConsumer}`
+			);
+
+			createSpy.mockRestore();
+
+			expect(mockPolicyRequester.terminated).toHaveBeenCalledTimes(1);
+			expect(mockPolicyRequester.terminated).toHaveBeenCalledWith("consumer-pid-177-fail");
+		});
 	});
 
 	describe("consumer composite assignee on agreement creation", () => {

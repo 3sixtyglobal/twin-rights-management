@@ -67,7 +67,6 @@ export class PolicyNegotiationPointService implements IPolicyNegotiationPointCom
 	 * The logging component.
 	 * @internal
 	 */
-	// eslint-disable-next-line @typescript-eslint/no-unused-private-class-members
 	private readonly _logging?: ILoggingComponent;
 
 	/**
@@ -1042,8 +1041,35 @@ export class PolicyNegotiationPointService implements IPolicyNegotiationPointCom
 					try {
 						await this._policyAdministrationPointComponent.create(policyNegotiation.agreement);
 					} catch (error) {
+						// An AlreadyExistsError falls through to finalised(), the agreement is already in the PAP
 						if (!BaseError.isErrorName(error, AlreadyExistsError.CLASS_NAME)) {
-							throw error;
+							const err = await this.setErrorState(
+								message.providerPid,
+								message.consumerPid,
+								policyNegotiation,
+								BaseError.fromError(error)
+							);
+							if (Is.stringValue(policyNegotiation.handlerId)) {
+								// getIfExists returning undefined is intentionally not treated as a
+								// requesterNotFound error here: a second setErrorState would overwrite
+								// the stored PAP-failure diagnostics with a less useful code/reason.
+								const policyRequester = PolicyRequesterFactory.getIfExists(
+									policyNegotiation.handlerId
+								);
+								try {
+									await policyRequester?.terminated(policyNegotiation.id);
+								} catch (terminatedError) {
+									await this._logging?.log({
+										level: "warn",
+										source: PolicyNegotiationPointService.CLASS_NAME,
+										ts: Date.now(),
+										message: "terminatedCallbackFailed",
+										data: { negotiationId: policyNegotiation.id },
+										error: BaseError.fromError(terminatedError)
+									});
+								}
+							}
+							return err;
 						}
 					}
 				}
