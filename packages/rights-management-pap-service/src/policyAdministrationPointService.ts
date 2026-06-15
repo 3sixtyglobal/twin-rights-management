@@ -179,7 +179,7 @@ export class PolicyAdministrationPointService implements IPolicyAdministrationPo
 	/**
 	 * Update an existing policy.
 	 * @param policy The policy to update (must include uid).
-	 * @returns Nothing.
+	 * @returns A promise that resolves when the policy has been updated.
 	 */
 	public async update(policy: IRightsManagementPolicy): Promise<void> {
 		Guards.object(PolicyAdministrationPointService.CLASS_NAME, nameof(policy), policy);
@@ -365,6 +365,7 @@ export class PolicyAdministrationPointService implements IPolicyAdministrationPo
 	/**
 	 * Remove a policy from the entity storage.
 	 * @param policyId The ID of the policy to remove.
+	 * @returns A promise that resolves when the policy has been removed.
 	 */
 	public async remove(policyId: string): Promise<void> {
 		Guards.stringValue(PolicyAdministrationPointService.CLASS_NAME, nameof(policyId), policyId);
@@ -382,7 +383,7 @@ export class PolicyAdministrationPointService implements IPolicyAdministrationPo
 	 * @param conditions The conditions to query the entity storage with.
 	 * @param cursor The cursor to use for pagination.
 	 * @param limit The number of results to return per page.
-	 * @returns The policies.
+	 * @returns The matching policies and an optional cursor for the next page of results.
 	 */
 	public async query(
 		options?: {

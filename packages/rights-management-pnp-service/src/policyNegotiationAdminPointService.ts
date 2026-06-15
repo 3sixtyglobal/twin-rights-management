@@ -105,7 +105,7 @@ export class PolicyNegotiationAdminPointService implements IPolicyNegotiationAdm
 	/**
 	 * The component needs to be started when the node is initialized.
 	 * @param nodeLoggingComponentType The node logging component type.
-	 * @returns Nothing.
+	 * @returns A promise that resolves when the component has started.
 	 */
 	public async start(nodeLoggingComponentType?: string): Promise<void> {
 		await this._taskScheduler.addTask(
@@ -128,7 +128,7 @@ export class PolicyNegotiationAdminPointService implements IPolicyNegotiationAdm
 	/**
 	 * The component needs to be stopped when the node is closed.
 	 * @param nodeLoggingComponentType The node logging component type.
-	 * @returns Nothing.
+	 * @returns A promise that resolves when the component has stopped.
 	 */
 	public async stop(nodeLoggingComponentType?: string): Promise<void> {
 		await this._taskScheduler.removeTask("policy-negotiation");
@@ -153,7 +153,7 @@ export class PolicyNegotiationAdminPointService implements IPolicyNegotiationAdm
 	/**
 	 * Sets a policy negotiation.
 	 * @param negotiation The updated policy negotiation.
-	 * @returns Nothing.
+	 * @returns A promise that resolves when the negotiation has been stored.
 	 */
 	public async set(negotiation: IPolicyNegotiation): Promise<void> {
 		Guards.object<IPolicyNegotiation>(
@@ -180,7 +180,7 @@ export class PolicyNegotiationAdminPointService implements IPolicyNegotiationAdm
 	 * Acquires a per-id mutex so it cannot interleave with a concurrent setIfExists() call
 	 * in the Policy Negotiation Point service.
 	 * @param policyId The ID of the policy to cancel.
-	 * @returns Nothing.
+	 * @returns A promise that resolves when the negotiation has been removed.
 	 */
 	public async remove(policyId: string): Promise<void> {
 		Guards.stringValue(PolicyNegotiationAdminPointService.CLASS_NAME, nameof(policyId), policyId);
@@ -234,6 +234,7 @@ export class PolicyNegotiationAdminPointService implements IPolicyNegotiationAdm
 	/**
 	 * Cleans up old negotiation states for a specific partition (tenant).
 	 * Sends terminate to consumer callbacks when PNP component is configured, then removes.
+	 * @returns A promise that resolves when all expired negotiations have been cleaned up.
 	 * @internal
 	 */
 	private async cleanupOldStatesPartition(): Promise<void> {

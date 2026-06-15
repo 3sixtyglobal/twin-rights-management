@@ -51,7 +51,7 @@ export class PassThroughPolicyNegotiator implements IPolicyNegotiator {
 	/**
 	 * Determines if the negotiator supports the given offer.
 	 * @param offer The offer to check.
-	 * @returns Sets the supports flag if it can be offered, and the interventionRequired flag if manual agreement is needed.
+	 * @returns True if the negotiator supports the given offer.
 	 */
 	public supportsOffer(offer: IDataspaceProtocolOffer): boolean {
 		return true;

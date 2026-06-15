@@ -73,7 +73,7 @@ export class PolicyNegotiationAdminPointRestClient
 	/**
 	 * Sets a policy negotiation.
 	 * @param negotiation The updated policy negotiation.
-	 * @returns Nothing.
+	 * @returns A promise that resolves when the negotiation has been stored.
 	 */
 	public async set(negotiation: IPolicyNegotiation): Promise<void> {
 		Guards.object<IPolicyNegotiation>(
@@ -93,7 +93,7 @@ export class PolicyNegotiationAdminPointRestClient
 	/**
 	 * Cancels an ongoing negotiation for a resource.
 	 * @param policyId The ID of the policy to cancel.
-	 * @returns Nothing.
+	 * @returns A promise that resolves when the negotiation has been removed.
 	 */
 	public async remove(policyId: string): Promise<void> {
 		Guards.stringValue(

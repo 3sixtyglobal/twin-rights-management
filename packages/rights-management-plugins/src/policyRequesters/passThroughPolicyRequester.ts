@@ -89,7 +89,7 @@ export class PassThroughPolicyRequester implements IPolicyRequester {
 	/**
 	 * A policy finalisation has been sent by a provider, let the request handler know about it.
 	 * @param negotiationId The id of the negotiation.
-	 * @returns Nothing.
+	 * @returns A promise that resolves when the finalisation has been processed.
 	 */
 	public async finalised(negotiationId: string): Promise<void> {
 		await this._logging?.log({
@@ -106,7 +106,7 @@ export class PassThroughPolicyRequester implements IPolicyRequester {
 	/**
 	 * A policy termination has been sent by a provider, let the request handler know about it.
 	 * @param negotiationId The id of the negotiation.
-	 * @returns Nothing.
+	 * @returns A promise that resolves when the termination has been processed.
 	 */
 	public async terminated(negotiationId: string): Promise<void> {
 		await this._logging?.log({

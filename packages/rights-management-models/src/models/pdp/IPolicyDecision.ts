@@ -12,7 +12,7 @@ export interface IPolicyDecision {
 	target: string;
 
 	/**
-	 * The type of the proof.
+	 * The outcome of the policy decision.
 	 */
 	decision: PolicyDecision;
 

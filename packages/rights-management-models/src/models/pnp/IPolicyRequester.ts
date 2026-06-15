@@ -36,14 +36,14 @@ export interface IPolicyRequester extends IComponent {
 	/**
 	 * A policy finalisation has been sent by a provider, let the requester know about it.
 	 * @param negotiationId The id of the negotiation.
-	 * @returns Nothing.
+	 * @returns A promise that resolves when the finalisation has been processed.
 	 */
 	finalised(negotiationId: string): Promise<void>;
 
 	/**
 	 * A policy termination has been sent by a provider, let the requester know about it.
 	 * @param negotiationId The id of the negotiation.
-	 * @returns Nothing.
+	 * @returns A promise that resolves when the termination has been processed.
 	 */
 	terminated(negotiationId: string): Promise<void>;
 }

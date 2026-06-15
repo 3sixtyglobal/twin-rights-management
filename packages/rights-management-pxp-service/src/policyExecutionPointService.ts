@@ -52,7 +52,7 @@ export class PolicyExecutionPointService implements IPolicyExecutionPointCompone
 	 * @param data The data used in the decision by the PDP.
 	 * @param action The action used in the decision by the PDP.
 	 * @param stage The stage at which the PXP is executed in the PDP.
-	 * @returns Nothing.
+	 * @returns A promise that resolves when all registered actions have been executed.
 	 */
 	public async executeActions<D = unknown>(
 		policy: IRightsManagementPolicy,

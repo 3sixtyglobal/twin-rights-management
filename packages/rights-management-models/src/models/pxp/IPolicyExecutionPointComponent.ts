@@ -20,7 +20,7 @@ export interface IPolicyExecutionPointComponent extends IComponent {
 	 * @param data The data used in the decision by the PDP.
 	 * @param action The action that was evaluated.
 	 * @param stage The stage at which the PXP is executed in the PDP.
-	 * @returns Nothing.
+	 * @returns A promise that resolves when all registered actions have been executed.
 	 */
 	executeActions<D = unknown>(
 		policy: IRightsManagementPolicy,

@@ -451,6 +451,7 @@ export class PolicyNegotiationPointRestClient
 	 * @param callbackAddress The consumer callback URL to send the termination to.
 	 * @param providerPid The provider negotiation id.
 	 * @param consumerPid The consumer negotiation id.
+	 * @returns A promise that resolves when the terminate message has been sent.
 	 */
 	public async sendTerminateToConsumer(
 		callbackAddress: string,

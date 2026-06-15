@@ -7,7 +7,7 @@ import type { IRightsManagementPolicy } from "../IRightsManagementPolicy.js";
 import type { PolicyInformationAccessMode } from "./policyInformationAccessMode.js";
 
 /**
- * Interface describing a Policy Information Point (PEP) contract.
+ * Interface describing a Policy Information Point (PIP) contract.
  * Provides additional information to the Policy Decision Point (PDP) when
  * it is making decisions.
  */

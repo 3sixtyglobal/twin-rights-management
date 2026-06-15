@@ -22,7 +22,7 @@ export interface IPolicyAdministrationPointComponent extends IComponent {
 	/**
 	 * Update an existing policy.
 	 * @param policy The policy to update (must include uid).
-	 * @returns Nothing.
+	 * @returns A promise that resolves when the policy has been updated.
 	 */
 	update(policy: IRightsManagementPolicy): Promise<void>;
 
@@ -57,7 +57,7 @@ export interface IPolicyAdministrationPointComponent extends IComponent {
 	/**
 	 * Remove a policy.
 	 * @param policyId The id of the policy to remove.
-	 * @returns Nothing.
+	 * @returns A promise that resolves when the policy has been removed.
 	 */
 	remove(policyId: string): Promise<void>;
 

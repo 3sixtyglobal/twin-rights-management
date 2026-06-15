@@ -16,7 +16,7 @@ import type {
  * Interface describing a Policy Negotiation Point (PNP) contract.
  * When receiving a request from another component, the PNP will negotiate the terms
  * of the request and determine the appropriate policies to create.
- * https://eclipse-dataspace-protocol-base.github.io/DataspaceProtocol/2025-1/#negotiation-protocol
+ * @see https://eclipse-dataspace-protocol-base.github.io/DataspaceProtocol/2025-1/#negotiation-protocol
  */
 export interface IPolicyNegotiationPointComponent extends IComponent {
 	/**

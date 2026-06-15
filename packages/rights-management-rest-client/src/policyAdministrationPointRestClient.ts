@@ -85,7 +85,7 @@ export class PolicyAdministrationPointRestClient
 	/**
 	 * Update an existing policy.
 	 * @param policy The policy to update (must include uid).
-	 * @returns Nothing.
+	 * @returns A promise that resolves when the policy has been updated.
 	 */
 	public async update(policy: IRightsManagementPolicy): Promise<void> {
 		Guards.object(PolicyAdministrationPointRestClient.CLASS_NAME, nameof(policy), policy);
@@ -188,7 +188,7 @@ export class PolicyAdministrationPointRestClient
 	/**
 	 * Remove a policy.
 	 * @param policyId The id of the policy to remove.
-	 * @returns Nothing.
+	 * @returns A promise that resolves when the policy has been removed.
 	 */
 	public async remove(policyId: string): Promise<void> {
 		Guards.stringValue(PolicyAdministrationPointRestClient.CLASS_NAME, nameof(policyId), policyId);

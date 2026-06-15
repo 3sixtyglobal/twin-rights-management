@@ -301,11 +301,11 @@ export class PolicyNegotiationPointService implements IPolicyNegotiationPointCom
 
 	/**
 	 * Processes an incoming request on a provider from a consumer.
-	 * https://eclipse-dataspace-protocol-base.github.io/DataspaceProtocol/2025-1/#contract-request-message.
 	 * @param message The negotiation request.
 	 * @param trustPayload Trust payload to verify the requesters identity.
 	 * @param publicOrigin The public origin url of this PNP service.
 	 * @returns The current state of the contract negotiation or an error.
+	 * @see https://eclipse-dataspace-protocol-base.github.io/DataspaceProtocol/2025-1/#contract-request-message
 	 */
 	public async requestFromConsumer(
 		message: IDataspaceProtocolContractRequestMessage,
@@ -1207,6 +1207,7 @@ export class PolicyNegotiationPointService implements IPolicyNegotiationPointCom
 	 * @param callbackAddress The consumer callback URL to send the termination to.
 	 * @param providerPid The provider negotiation id.
 	 * @param consumerPid The consumer negotiation id.
+	 * @returns A promise that resolves when the terminate message has been sent.
 	 */
 	public async sendTerminateToConsumer(
 		callbackAddress: string,
@@ -1375,7 +1376,7 @@ export class PolicyNegotiationPointService implements IPolicyNegotiationPointCom
 	 * Send an offer message to the consumer.
 	 * @param callbackAddress The callback address to send the offer to.
 	 * @param policyNegotiation The current state of the policy negotiation.
-	 * @returns Nothing.
+	 * @returns A promise that resolves when the offer has been sent.
 	 * @internal
 	 */
 	private async sendOfferToConsumer(
@@ -1450,8 +1451,8 @@ export class PolicyNegotiationPointService implements IPolicyNegotiationPointCom
 	 * @param callbackAddress The callback address to send the agreement to.
 	 * @param policyNegotiation The current state of the policy negotiation.
 	 * @param event The event to send to the provider.
-	 * @param destination The destination for the event
-	 * @returns Nothing.
+	 * @param destination The destination for the event.
+	 * @returns A promise that resolves when the event has been sent.
 	 * @internal
 	 */
 	private async sendEvent(
@@ -1522,7 +1523,7 @@ export class PolicyNegotiationPointService implements IPolicyNegotiationPointCom
 	 * Send an agreement message to the consumer.
 	 * @param callbackAddress The callback address to send the agreement to.
 	 * @param policyNegotiation The current state of the policy negotiation.
-	 * @returns Nothing.
+	 * @returns A promise that resolves when the agreement has been sent.
 	 * @internal
 	 */
 	private async sendAgreementToConsumer(
@@ -1646,7 +1647,7 @@ export class PolicyNegotiationPointService implements IPolicyNegotiationPointCom
 	 * Send an agreement verification message to the provider.
 	 * @param callbackAddress The callback address to send the offer to.
 	 * @param policyNegotiation The current state of the policy negotiation.
-	 * @returns Nothing.
+	 * @returns A promise that resolves when the verification message has been sent.
 	 * @internal
 	 */
 	private async sendAgreementVerificationToProvider(
@@ -1736,7 +1737,7 @@ export class PolicyNegotiationPointService implements IPolicyNegotiationPointCom
 	 * The result possible contains a failure, if it does then terminate the negotiation.
 	 * @param response The response to check for an error.
 	 * @param policyNegotiation The negotiation to update.
-	 * @returns Nothing
+	 * @returns A promise that resolves when the negotiation state has been updated if an error was detected.
 	 * @internal
 	 */
 	private async terminateIfResponseError(

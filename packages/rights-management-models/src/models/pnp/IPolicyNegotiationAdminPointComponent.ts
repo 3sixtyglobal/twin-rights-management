@@ -7,7 +7,7 @@ import type { IPolicyNegotiation } from "./IPolicyNegotiation.js";
 /**
  * Interface describing a Policy Negotiation Admin Point (PNAP) contract.
  * Components performs administration tasks on the policy negotiations.
- * https://eclipse-dataspace-protocol-base.github.io/DataspaceProtocol/2025-1/#negotiation-protocol
+ * @see https://eclipse-dataspace-protocol-base.github.io/DataspaceProtocol/2025-1/#negotiation-protocol
  */
 export interface IPolicyNegotiationAdminPointComponent extends IComponent {
 	/**
@@ -20,14 +20,14 @@ export interface IPolicyNegotiationAdminPointComponent extends IComponent {
 	/**
 	 * Sets a policy negotiation.
 	 * @param negotiation The updated policy negotiation.
-	 * @returns Nothing.
+	 * @returns A promise that resolves when the negotiation has been stored.
 	 */
 	set(negotiation: IPolicyNegotiation): Promise<void>;
 
 	/**
 	 * Cancels an ongoing negotiation for a resource.
 	 * @param policyId The ID of the policy to cancel.
-	 * @returns Nothing.
+	 * @returns A promise that resolves when the negotiation has been removed.
 	 */
 	remove(policyId: string): Promise<void>;
 

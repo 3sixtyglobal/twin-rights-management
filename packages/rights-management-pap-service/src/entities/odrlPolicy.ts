@@ -100,25 +100,25 @@ export class OdrlPolicy {
 	public context?: OdrlContextType;
 
 	/**
-	 * The assignerIndex.
+	 * Pipe-delimited index of all assigner party IDs for efficient query filtering.
 	 */
 	@property({ type: "string" })
 	public assignerIndex!: string;
 
 	/**
-	 * The assigneeIndex.
+	 * Pipe-delimited index of all assignee party IDs for efficient query filtering.
 	 */
 	@property({ type: "string" })
 	public assigneeIndex!: string;
 
 	/**
-	 * The targetIndex.
+	 * Pipe-delimited index of all target asset IDs for efficient query filtering.
 	 */
 	@property({ type: "string" })
 	public targetIndex!: string;
 
 	/**
-	 * The actionIndex.
+	 * Pipe-delimited index of all action identifiers for efficient query filtering.
 	 */
 	@property({ type: "string" })
 	public actionIndex!: string;
