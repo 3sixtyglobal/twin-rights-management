@@ -6,6 +6,20 @@
 
 * remove EcosystemPolicy-specific PAP APIs (`getEcosystemPolicy`) and error contracts for v2.
 
+## [0.0.3-next.48](https://github.com/iotaledger/twin-rights-management/compare/rights-management-pap-service-v0.0.3-next.47...rights-management-pap-service-v0.0.3-next.48) (2026-06-15)
+
+
+### Bug Fixes
+
+* use async getStore in tests ([61b9951](https://github.com/iotaledger/twin-rights-management/commit/61b99512f90faa26d22d57b6fbd3186a5cb53672))
+
+
+### Dependencies
+
+* The following workspace dependencies were updated
+  * dependencies
+    * @twin.org/rights-management-models bumped from 0.0.3-next.47 to 0.0.3-next.48
+
 ## [0.0.3-next.47](https://github.com/iotaledger/twin-rights-management/compare/rights-management-pap-service-v0.0.3-next.46...rights-management-pap-service-v0.0.3-next.47) (2026-06-12)
 
 

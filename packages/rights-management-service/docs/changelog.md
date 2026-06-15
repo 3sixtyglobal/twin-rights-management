@@ -6,6 +6,33 @@
 
 * remove EcosystemPolicy support from PAP/REST routes and generated API surface for v2.
 
+## [0.0.3-next.48](https://github.com/iotaledger/twin-rights-management/compare/rights-management-service-v0.0.3-next.47...rights-management-service-v0.0.3-next.48) (2026-06-15)
+
+
+### Features
+
+* add create() to pre-register consumer-side contract negotiations ([#187](https://github.com/iotaledger/twin-rights-management/issues/187)) ([6007f83](https://github.com/iotaledger/twin-rights-management/commit/6007f83579cc8d4dbc4c2243fed0cbe948371f82))
+
+
+### Bug Fixes
+
+* use async getStore in tests ([61b9951](https://github.com/iotaledger/twin-rights-management/commit/61b99512f90faa26d22d57b6fbd3186a5cb53672))
+
+
+### Dependencies
+
+* The following workspace dependencies were updated
+  * dependencies
+    * @twin.org/rights-management-models bumped from 0.0.3-next.47 to 0.0.3-next.48
+  * devDependencies
+    * @twin.org/rights-management-pap-service bumped from 0.0.3-next.47 to 0.0.3-next.48
+    * @twin.org/rights-management-pdp-service bumped from 0.0.3-next.47 to 0.0.3-next.48
+    * @twin.org/rights-management-pep-service bumped from 0.0.3-next.47 to 0.0.3-next.48
+    * @twin.org/rights-management-pip-service bumped from 0.0.3-next.47 to 0.0.3-next.48
+    * @twin.org/rights-management-pmp-service bumped from 0.0.3-next.47 to 0.0.3-next.48
+    * @twin.org/rights-management-pnp-service bumped from 0.0.3-next.47 to 0.0.3-next.48
+    * @twin.org/rights-management-pxp-service bumped from 0.0.3-next.47 to 0.0.3-next.48
+
 ## [0.0.3-next.47](https://github.com/iotaledger/twin-rights-management/compare/rights-management-service-v0.0.3-next.46...rights-management-service-v0.0.3-next.47) (2026-06-12)
 
 

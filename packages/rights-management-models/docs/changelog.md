@@ -6,6 +6,13 @@
 
 * remove EcosystemPolicy models/DTOs and standardize policy typing on `OdrlPolicyType` for v2.
 
+## [0.0.3-next.48](https://github.com/iotaledger/twin-rights-management/compare/rights-management-models-v0.0.3-next.47...rights-management-models-v0.0.3-next.48) (2026-06-15)
+
+
+### Features
+
+* add create() to pre-register consumer-side contract negotiations ([#187](https://github.com/iotaledger/twin-rights-management/issues/187)) ([6007f83](https://github.com/iotaledger/twin-rights-management/commit/6007f83579cc8d4dbc4c2243fed0cbe948371f82))
+
 ## [0.0.3-next.47](https://github.com/iotaledger/twin-rights-management/compare/rights-management-models-v0.0.3-next.46...rights-management-models-v0.0.3-next.47) (2026-06-12)
 
 
