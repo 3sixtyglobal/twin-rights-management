@@ -37,6 +37,7 @@
 		"@twin.org/core": "next",
 		"@twin.org/data-json-ld": "next",
 		"@twin.org/data-json-path": "next",
+		"@twin.org/identity-models": "next",
 		"@twin.org/logging-models": "next",
 		"@twin.org/nameof": "next",
 		"@twin.org/rights-management-models": "0.0.3-next.50",

@@ -3,6 +3,9 @@
 		"identityPolicyInformationSource": {
 			"identityRetrievalFailed": "Failed to retrieve identity \"{id}\" information for policy id: \"{policyId}\""
 		},
+		"identityProfilePolicyInformationSource": {
+			"profileRetrievalFailed": "Failed to retrieve identity profile \"{id}\" information for policy id: \"{policyId}\""
+		},
 		"defaultPolicyArbiter": {
 			"ruleTargetNotSupported": "Rule target \"{target}\" is not supported. Only twin:<object>:<jsonPath> targets are currently supported.",
 			"multipleTargetsNotSupported": "Multiple targets in a single permission are not supported.",
@@ -34,6 +37,9 @@
 	"info": {
 		"identityPolicyInformationSource": {
 			"identityRetrieving": "Retrieving identity \"{id}\" information for policy id: \"{policyId}\""
+		},
+		"identityProfilePolicyInformationSource": {
+			"profileRetrieving": "Retrieving identity profile \"{id}\" information for policy id: \"{policyId}\""
 		},
 		"staticPolicyInformationSource": {
 			"staticRetrieving": "Retrieving static policy information for policy id: \"{policyId}\" with access mode: \"{accessMode}\"",

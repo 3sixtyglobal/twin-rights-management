@@ -6,6 +6,7 @@ export * from "./models/IDefaultPolicyArbiterConfig.js";
 export * from "./models/IDefaultPolicyArbiterConstructorOptions.js";
 export * from "./models/IDefaultPolicyEnforcementProcessorConstructorOptions.js";
 export * from "./models/IIdentityPolicyInformationSourceConstructorOptions.js";
+export * from "./models/IIdentityProfilePolicyInformationSourceConstructorOptions.js";
 export * from "./models/ILoggingPolicyExecutionActionConfig.js";
 export * from "./models/ILoggingPolicyExecutionActionConstructorOptions.js";
 export * from "./models/IPassThroughPolicyArbiterConstructorOptions.js";
@@ -23,6 +24,7 @@ export * from "./policyEnforcementProcessor/passThroughPolicyEnforcementProcesso
 export * from "./policyExecutionActions/automationPolicyExecutionAction.js";
 export * from "./policyExecutionActions/loggingPolicyExecutionAction.js";
 export * from "./policyInformationSources/identityPolicyInformationSource.js";
+export * from "./policyInformationSources/identityProfilePolicyInformationSource.js";
 export * from "./policyInformationSources/staticPolicyInformationSource.js";
 export * from "./policyNegotiators/passThroughPolicyNegotiator.js";
 export * from "./policyObligationEnforcers/passThroughPolicyObligationEnforcer.js";
