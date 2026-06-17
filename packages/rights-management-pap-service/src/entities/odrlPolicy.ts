@@ -1,5 +1,6 @@
 // Copyright 2025 IOTA Stiftung.
 // SPDX-License-Identifier: Apache-2.0.
+import type { IJsonLdNodeObject } from "@twin.org/data-json-ld";
 import { entity, property } from "@twin.org/entity";
 import type { IDataspaceProtocolPolicy } from "@twin.org/standards-dataspace-protocol";
 import type { OdrlContextType, OdrlPolicyType } from "@twin.org/standards-w3c-odrl";
@@ -98,6 +99,12 @@ export class OdrlPolicy {
 	 */
 	@property({ type: "object", format: "json", optional: true })
 	public context?: OdrlContextType;
+
+	/**
+	 * Trust verification data captured at the beginning of the negotiation.
+	 */
+	@property({ type: "object", format: "json", optional: true })
+	public trustData?: { [key: string]: IJsonLdNodeObject };
 
 	/**
 	 * Pipe-delimited index of all assigner party IDs for efficient query filtering.

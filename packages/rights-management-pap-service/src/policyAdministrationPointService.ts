@@ -2,6 +2,7 @@
 // SPDX-License-Identifier: Apache-2.0.
 import {
 	AlreadyExistsError,
+	ArrayHelper,
 	BaseError,
 	ComponentFactory,
 	GeneralError,
@@ -29,16 +30,18 @@ import {
 	type IRightsManagementAgreement,
 	type IRightsManagementOffer,
 	type IRightsManagementPolicy,
+	type IRightsManagementPolicyMetadata,
 	type IRightsManagementSet
 } from "@twin.org/rights-management-models";
-import { OdrlDataTypes, OdrlPolicyType } from "@twin.org/standards-w3c-odrl";
-import type { OdrlPolicy } from "./entities/odrlPolicy.js";
-import type { IPolicyAdministrationPointServiceConstructorOptions } from "./models/IPolicyAdministrationPointServiceConstructorOptions.js";
 import {
-	convertFromStoragePolicy,
-	convertToStoragePolicy,
-	buildStorageContext
-} from "./utils/odrlPolicyConverters.js";
+	OdrlContexts,
+	OdrlDataTypes,
+	OdrlPolicyType,
+	type OdrlContextType
+} from "@twin.org/standards-w3c-odrl";
+import { OdrlPolicy } from "./entities/odrlPolicy.js";
+import type { IPolicyAdministrationPointServiceConstructorOptions } from "./models/IPolicyAdministrationPointServiceConstructorOptions.js";
+import { buildPapStorageContext, hasPolicyMetadata } from "./utils/policyContextHelper.js";
 
 /**
  * Class implementation of Policy Administration Point Component.
@@ -75,28 +78,6 @@ export class PolicyAdministrationPointService implements IPolicyAdministrationPo
 		this._odrlPolicyEntityStorage = EntityStorageConnectorFactory.get(
 			options?.odrlPolicyEntityStorageType ?? "odrl-policy"
 		);
-	}
-
-	/**
-	 * Strip PAP-managed fields before ODRL validation.
-	 * @param policy The policy to prepare for validation.
-	 * @param uid The policy uid for validation.
-	 * @returns The policy shape expected by JsonLdHelper validation.
-	 * @internal
-	 */
-	private static toValidatePolicy(
-		policy: JsonLdObjectWithOptionalAtId<IRightsManagementPolicy> | IRightsManagementPolicy,
-		uid: string
-	): IRightsManagementPolicy & { uid: string } {
-		const policyForValidation = ObjectHelper.clone(policy) as IRightsManagementPolicy;
-		ObjectHelper.propertyDelete(policyForValidation, "@id");
-		ObjectHelper.propertyDelete(policyForValidation, "dateCreated");
-		ObjectHelper.propertyDelete(policyForValidation, "dateModified");
-
-		return {
-			...policyForValidation,
-			uid
-		};
 	}
 
 	/**
@@ -148,7 +129,7 @@ export class PolicyAdministrationPointService implements IPolicyAdministrationPo
 		const id = policyUid ?? Urn.generateRandom(RightsManagementNamespaces.Policy).toString(false);
 		const now = new Date().toISOString();
 
-		const validatePolicy = PolicyAdministrationPointService.toValidatePolicy(policy, id);
+		const validatePolicy = this.toValidatePolicy(policy, id);
 
 		const validationFailures: IValidationFailure[] = [];
 		await JsonLdHelper.validate(JsonLdHelper.toNodeObject(validatePolicy), validationFailures, {
@@ -160,7 +141,7 @@ export class PolicyAdministrationPointService implements IPolicyAdministrationPo
 			validationFailures
 		);
 
-		const storagePolicy = convertToStoragePolicy(
+		const storagePolicy = this.convertToStoragePolicy(
 			{
 				...policy,
 				"@id": id
@@ -169,7 +150,7 @@ export class PolicyAdministrationPointService implements IPolicyAdministrationPo
 				dateCreated: now,
 				dateModified: now
 			},
-			buildStorageContext()
+			this.buildStorageContext()
 		);
 		await this._odrlPolicyEntityStorage.set(storagePolicy);
 
@@ -196,7 +177,7 @@ export class PolicyAdministrationPointService implements IPolicyAdministrationPo
 			);
 		}
 
-		const validatePolicy = PolicyAdministrationPointService.toValidatePolicy(policy, policyUid);
+		const validatePolicy = this.toValidatePolicy(policy, policyUid);
 
 		const validationFailures: IValidationFailure[] = [];
 		await JsonLdHelper.validate(JsonLdHelper.toNodeObject(validatePolicy), validationFailures, {
@@ -212,7 +193,7 @@ export class PolicyAdministrationPointService implements IPolicyAdministrationPo
 		const dateCreated = existingStoragePolicy.dateCreated ?? now;
 		const dateModified = now;
 
-		const storagePolicy = convertToStoragePolicy(
+		const storagePolicy = this.convertToStoragePolicy(
 			{
 				...policy,
 				"@id": policyUid
@@ -221,7 +202,7 @@ export class PolicyAdministrationPointService implements IPolicyAdministrationPo
 				dateCreated,
 				dateModified
 			},
-			buildStorageContext()
+			this.buildStorageContext()
 		);
 		await this._odrlPolicyEntityStorage.set(storagePolicy);
 	}
@@ -251,7 +232,7 @@ export class PolicyAdministrationPointService implements IPolicyAdministrationPo
 			);
 		}
 
-		return convertFromStoragePolicy<IRightsManagementPolicy>(policy);
+		return this.convertFromStoragePolicy(policy);
 	}
 
 	/**
@@ -291,7 +272,7 @@ export class PolicyAdministrationPointService implements IPolicyAdministrationPo
 			});
 		}
 
-		return convertFromStoragePolicy<IRightsManagementAgreement>(policy);
+		return this.convertFromStoragePolicy(policy);
 	}
 
 	/**
@@ -327,7 +308,7 @@ export class PolicyAdministrationPointService implements IPolicyAdministrationPo
 			});
 		}
 
-		return convertFromStoragePolicy<IRightsManagementOffer>(policy);
+		return this.convertFromStoragePolicy(policy);
 	}
 
 	/**
@@ -359,7 +340,7 @@ export class PolicyAdministrationPointService implements IPolicyAdministrationPo
 			});
 		}
 
-		return convertFromStoragePolicy<IRightsManagementSet>(policy);
+		return this.convertFromStoragePolicy(policy);
 	}
 
 	/**
@@ -459,7 +440,139 @@ export class PolicyAdministrationPointService implements IPolicyAdministrationPo
 		);
 		return {
 			cursor: result.cursor,
-			policies: result.entities.map(entity => convertFromStoragePolicy(entity as OdrlPolicy))
+			policies: result.entities.map(entity => this.convertFromStoragePolicy(entity as OdrlPolicy))
 		};
+	}
+
+	/**
+	 * Strip PAP-managed fields before ODRL validation.
+	 * @param policy The policy to prepare for validation.
+	 * @param uid The policy uid for validation.
+	 * @returns The policy shape expected by JsonLdHelper validation.
+	 * @internal
+	 */
+	private toValidatePolicy(
+		policy: JsonLdObjectWithOptionalAtId<IRightsManagementPolicy> | IRightsManagementPolicy,
+		uid: string
+	): IRightsManagementPolicy & { uid: string } {
+		const policyForValidation = ObjectHelper.clone(policy) as IRightsManagementPolicy;
+		ObjectHelper.propertyDelete(policyForValidation, "@id");
+		ObjectHelper.propertyDelete(policyForValidation, "dateCreated");
+		ObjectHelper.propertyDelete(policyForValidation, "dateModified");
+		ObjectHelper.propertyDelete(policyForValidation, "trustData");
+
+		return {
+			...policyForValidation,
+			uid
+		};
+	}
+
+	/**
+	 * Converts an IDataspaceProtocolPolicy to an OdrlPolicy for storage.
+	 * @param policy The policy to convert.
+	 * @param metadata PAP-managed lifecycle metadata.
+	 * @param context Server-controlled JSON-LD context to persist.
+	 * @returns The converted policy.
+	 * @internal
+	 */
+	private convertToStoragePolicy<T extends IRightsManagementPolicy>(
+		policy: T,
+		metadata?: IRightsManagementPolicyMetadata,
+		context?: OdrlContextType
+	): OdrlPolicy {
+		const storagePolicy = new OdrlPolicy();
+		storagePolicy.id = OdrlPolicyHelper.getUid(policy) ?? "";
+		storagePolicy.type = (OdrlPolicyHelper.getType(policy) ??
+			OdrlPolicyType.Policy) as OdrlPolicyType;
+
+		storagePolicy.profile = policy.profile;
+		storagePolicy.assigner = policy.assigner;
+		storagePolicy.assignee = policy.assignee;
+		storagePolicy.target = policy.target;
+		storagePolicy.action = policy.action;
+		storagePolicy.inheritFrom = policy.inheritFrom;
+		storagePolicy.conflict = policy.conflict;
+		storagePolicy.permission = policy.permission;
+		storagePolicy.prohibition = policy.prohibition;
+		storagePolicy.obligation = policy.obligation;
+
+		if (Is.stringValue(metadata?.dateCreated)) {
+			storagePolicy.dateCreated = metadata.dateCreated;
+		}
+		if (Is.stringValue(metadata?.dateModified)) {
+			storagePolicy.dateModified = metadata.dateModified;
+		}
+		if (!Is.empty(context)) {
+			storagePolicy.context = context;
+		}
+		if (!Is.empty(policy.trustData)) {
+			storagePolicy.trustData = policy.trustData;
+		}
+
+		// Build the indexes
+		const assigner = ArrayHelper.fromObjectOrArray(OdrlPolicyHelper.getPartyIds(policy.assigner));
+		storagePolicy.assignerIndex = `|${assigner.join("|")}|`;
+
+		const assignee = ArrayHelper.fromObjectOrArray(OdrlPolicyHelper.getPartyIds(policy.assignee));
+		storagePolicy.assigneeIndex = `|${assignee.join("|")}|`;
+
+		const targetTokens: string[] = OdrlPolicyHelper.getTargets(policy);
+		storagePolicy.targetIndex = `|${targetTokens.join("|")}|`;
+
+		const actionTokens: string[] = OdrlPolicyHelper.getActions(policy);
+		storagePolicy.actionIndex = `|${actionTokens.join("|")}|`;
+
+		return storagePolicy;
+	}
+
+	/**
+	 * Converts an OdrlPolicy from storage to an IDataspaceProtocolPolicy.
+	 * @param storagePolicy The storage policy to convert.
+	 * @returns The converted IDataspaceProtocolPolicy.
+	 * @internal
+	 */
+	private convertFromStoragePolicy<T extends IRightsManagementPolicy>(
+		storagePolicy: OdrlPolicy
+	): T {
+		const hasMetadata = hasPolicyMetadata(storagePolicy);
+
+		const policy: IRightsManagementPolicy = {
+			"@context": hasMetadata
+				? (storagePolicy.context ?? buildPapStorageContext())
+				: OdrlContexts.Context,
+			"@type": storagePolicy.type,
+			"@id": storagePolicy.id
+		};
+
+		policy.profile = storagePolicy.profile;
+		policy.assigner = storagePolicy.assigner;
+		policy.assignee = storagePolicy.assignee;
+		policy.target = storagePolicy.target;
+		policy.action = storagePolicy.action;
+		policy.inheritFrom = storagePolicy.inheritFrom;
+		policy.conflict = storagePolicy.conflict;
+		policy.permission = storagePolicy.permission;
+		policy.prohibition = storagePolicy.prohibition;
+		policy.obligation = storagePolicy.obligation;
+
+		if (hasMetadata) {
+			policy.dateCreated = storagePolicy.dateCreated;
+			policy.dateModified = storagePolicy.dateModified;
+		}
+
+		if (!Is.empty(storagePolicy.trustData)) {
+			policy.trustData = storagePolicy.trustData;
+		}
+
+		return policy as T;
+	}
+
+	/**
+	 * Builds the server-controlled JSON-LD context stored for policies with lifecycle timestamps.
+	 * @returns The context to persist, with lifecycle term definitions included.
+	 * @internal
+	 */
+	private buildStorageContext(): ReturnType<typeof buildPapStorageContext> {
+		return buildPapStorageContext();
 	}
 }

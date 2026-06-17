@@ -1,6 +1,7 @@
 // Copyright 2025 IOTA Stiftung.
 // SPDX-License-Identifier: Apache-2.0.
 import type { IComponent } from "@twin.org/core";
+import type { IJsonLdNodeObject } from "@twin.org/data-json-ld";
 import type { IDataspaceProtocolAgreement } from "@twin.org/standards-dataspace-protocol";
 import type { OdrlActionType } from "@twin.org/standards-w3c-odrl";
 
@@ -16,12 +17,14 @@ export interface IPolicyEnforcementPointComponent extends IComponent {
 	 * @param agreement The agreement to enforce.
 	 * @param data The data to process.
 	 * @param action Optional action to make a decision on, if not provided, the arbiter will evaluate all actions in the agreement.
+	 * @param trustData Trust verification data to pass to the PDP alongside PIP-retrieved information.
 	 * @returns The manipulated data with any policies applied.
 	 */
 	interceptWithPolicy<D = unknown, R = D>(
 		agreement: IDataspaceProtocolAgreement,
 		data?: D,
-		action?: OdrlActionType | string
+		action?: OdrlActionType | string,
+		trustData?: { [key: string]: IJsonLdNodeObject }
 	): Promise<R>;
 
 	/**

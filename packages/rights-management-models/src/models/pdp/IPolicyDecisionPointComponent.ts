@@ -1,6 +1,7 @@
 // Copyright 2025 IOTA Stiftung.
 // SPDX-License-Identifier: Apache-2.0.
 import type { IComponent } from "@twin.org/core";
+import type { IJsonLdNodeObject } from "@twin.org/data-json-ld";
 import type { IDataspaceProtocolAgreement } from "@twin.org/standards-dataspace-protocol";
 import type { OdrlActionType } from "@twin.org/standards-w3c-odrl";
 import type { IPolicyDecision } from "./IPolicyDecision.js";
@@ -21,12 +22,14 @@ export interface IPolicyDecisionPointComponent extends IComponent {
 	 * @param agreement The agreement to evaluate.
 	 * @param data The data to make a decision on.
 	 * @param action Optional action to make a decision on, if not provided, the PDP will evaluate all actions in the agreement.
+	 * @param trustData Trust verification data to merge with PIP-retrieved information before arbitration.
 	 * @returns Returns the policy decisions which apply to the data so that the PEP
 	 * can manipulate the data accordingly.
 	 */
 	evaluate<D = unknown>(
 		agreement: IDataspaceProtocolAgreement,
 		data?: D,
-		action?: OdrlActionType | string
+		action?: OdrlActionType | string,
+		trustData?: { [key: string]: IJsonLdNodeObject }
 	): Promise<IPolicyDecision[]>;
 }

@@ -1,6 +1,7 @@
 // Copyright 2025 IOTA Stiftung.
 // SPDX-License-Identifier: Apache-2.0.
 import { BaseError, ComponentFactory, GeneralError, Guards, ObjectHelper } from "@twin.org/core";
+import type { IJsonLdNodeObject } from "@twin.org/data-json-ld";
 import type { ILoggingComponent } from "@twin.org/logging-models";
 import { nameof } from "@twin.org/nameof";
 import {
@@ -9,7 +10,8 @@ import {
 	type IPolicyAdministrationPointComponent,
 	type IPolicyDecisionPointComponent,
 	type IPolicyEnforcementPointComponent,
-	type IPolicyManagementPointComponent
+	type IPolicyManagementPointComponent,
+	type IRightsManagementAgreement
 } from "@twin.org/rights-management-models";
 import type { IDataspaceProtocolAgreement } from "@twin.org/standards-dataspace-protocol";
 import { OdrlPolicyType, type OdrlActionType } from "@twin.org/standards-w3c-odrl";
@@ -79,12 +81,14 @@ export class PolicyEnforcementPointService implements IPolicyEnforcementPointCom
 	 * @param agreement The agreement to enforce.
 	 * @param data The data to process.
 	 * @param action Optional action to make a decision on, if not provided, the arbiter will evaluate all actions in the agreement.
+	 * @param trustData Trust verification data to pass to the PDP alongside PIP-retrieved information.
 	 * @returns The manipulated data with any policies applied.
 	 */
 	public async interceptWithPolicy<D = unknown, R = D>(
 		agreement: IDataspaceProtocolAgreement,
 		data?: D,
-		action?: OdrlActionType | string
+		action?: OdrlActionType | string,
+		trustData?: { [key: string]: IJsonLdNodeObject }
 	): Promise<R> {
 		Guards.objectValue<IDataspaceProtocolAgreement>(
 			PolicyEnforcementPointService.CLASS_NAME,
@@ -102,7 +106,12 @@ export class PolicyEnforcementPointService implements IPolicyEnforcementPointCom
 			}
 		});
 
-		const decisions = await this._policyDecisionPointComponent.evaluate(agreement, data, action);
+		const decisions = await this._policyDecisionPointComponent.evaluate(
+			agreement,
+			data,
+			action,
+			trustData
+		);
 
 		let processedData: unknown = ObjectHelper.clone(data);
 
@@ -170,7 +179,7 @@ export class PolicyEnforcementPointService implements IPolicyEnforcementPointCom
 
 		const agreement = await this._policyAdministrationPointComponent.getAgreement(uid);
 
-		return this.interceptWithPolicy<D, R>(agreement, data, action);
+		return this.interceptWithPolicy<D, R>(agreement, data, action, agreement.trustData);
 	}
 
 	/**
@@ -198,7 +207,7 @@ export class PolicyEnforcementPointService implements IPolicyEnforcementPointCom
 
 		const agreements = policiesResult.policies.filter(
 			p => OdrlPolicyHelper.getType(p) === OdrlPolicyType.Agreement
-		) as IDataspaceProtocolAgreement[];
+		) as IRightsManagementAgreement[];
 
 		if (agreements.length === 0) {
 			throw new GeneralError(PolicyEnforcementPointService.CLASS_NAME, "noAgreementsFound", {
@@ -210,6 +219,6 @@ export class PolicyEnforcementPointService implements IPolicyEnforcementPointCom
 			});
 		}
 
-		return this.interceptWithPolicy<D, R>(agreements[0], data, action);
+		return this.interceptWithPolicy<D, R>(agreements[0], data, action, agreements[0].trustData);
 	}
 }

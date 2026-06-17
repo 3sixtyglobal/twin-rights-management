@@ -33,6 +33,7 @@
 		"@twin.org/rights-management-models": "0.0.3-next.51",
 		"@twin.org/logging-models": "next",
 		"@twin.org/nameof": "next",
+		"@twin.org/data-json-ld": "next",
 		"@twin.org/standards-w3c-odrl": "next"
 	},
 	"devDependencies": {

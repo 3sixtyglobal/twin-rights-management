@@ -1,6 +1,7 @@
 // Copyright 2025 IOTA Stiftung.
 // SPDX-License-Identifier: Apache-2.0.
 import { ComponentFactory, Factory, GeneralError } from "@twin.org/core";
+import type { IJsonLdNodeObject } from "@twin.org/data-json-ld";
 import { MemoryEntityStorageConnector } from "@twin.org/entity-storage-connector-memory";
 import { EntityStorageConnectorFactory } from "@twin.org/entity-storage-models";
 import {
@@ -195,7 +196,7 @@ describe("PolicyEnforcementPointService", () => {
 		const policy = createPolicy({ target: "document", action: "read", assignee: "assignee123" });
 		const result = await policyEnforcementPoint.interceptWithPolicy(policy, inputData);
 
-		expect(mockPdp.evaluate).toHaveBeenCalledWith(policy, inputData, undefined);
+		expect(mockPdp.evaluate).toHaveBeenCalledWith(policy, inputData, undefined, undefined);
 		expect(mockProcessor.process).toHaveBeenCalledWith(
 			policy,
 			mockDecisions,
@@ -574,5 +575,75 @@ describe("PolicyEnforcementPointService", () => {
 			encrypted: true,
 			key: "secret-key"
 		});
+	});
+
+	test("interceptWithId passes trustData from stored agreement through to evaluate", async () => {
+		const mockPdp = ComponentFactory.get<MockPolicyDecisionPointComponent>("policy-decision-point");
+		mockPdp.evaluate.mockResolvedValue([]);
+
+		const pap = ComponentFactory.get<PolicyAdministrationPointService>(
+			"policy-administration-point"
+		);
+		const trustData: { [key: string]: IJsonLdNodeObject } = {
+			"did:example:trust": { "@type": "TrustRecord" }
+		};
+		const uid = await pap.create({
+			"@context": OdrlContexts.Context,
+			"@type": OdrlPolicyType.Agreement,
+			assigner: "assigner",
+			action: "action",
+			target: "target",
+			assignee: "assignee",
+			trustData
+		});
+
+		const pep = new PolicyEnforcementPointService();
+		const mockProcessor = new MockPolicyEnforcementProcessor();
+		mockProcessor.process.mockResolvedValue(undefined);
+		PolicyEnforcementProcessorFactory.register("proc", () => mockProcessor);
+
+		await pep.interceptWithId(uid);
+
+		expect(mockPdp.evaluate).toHaveBeenCalledWith(
+			expect.objectContaining({ "@id": uid }),
+			undefined,
+			undefined,
+			trustData
+		);
+	});
+
+	test("interceptWithLocator passes trustData from found agreement through to evaluate", async () => {
+		const mockPdp = ComponentFactory.get<MockPolicyDecisionPointComponent>("policy-decision-point");
+		mockPdp.evaluate.mockResolvedValue([]);
+
+		const pap = ComponentFactory.get<PolicyAdministrationPointService>(
+			"policy-administration-point"
+		);
+		const trustData: { [key: string]: IJsonLdNodeObject } = {
+			"did:example:loc": { "@type": "TrustRecord" }
+		};
+		await pap.create({
+			"@context": OdrlContexts.Context,
+			"@type": OdrlPolicyType.Agreement,
+			assigner: "assigner",
+			action: "action",
+			target: "locator-target",
+			assignee: "locator-assignee",
+			trustData
+		});
+
+		const pep = new PolicyEnforcementPointService();
+		const mockProcessor = new MockPolicyEnforcementProcessor();
+		mockProcessor.process.mockResolvedValue(undefined);
+		PolicyEnforcementProcessorFactory.register("proc", () => mockProcessor);
+
+		await pep.interceptWithLocator({ assignee: "locator-assignee", target: "locator-target" });
+
+		expect(mockPdp.evaluate).toHaveBeenCalledWith(
+			expect.objectContaining({ assignee: "locator-assignee" }),
+			undefined,
+			undefined,
+			trustData
+		);
 	});
 });

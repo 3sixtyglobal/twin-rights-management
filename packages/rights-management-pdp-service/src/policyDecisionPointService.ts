@@ -1,6 +1,7 @@
 // Copyright 2025 IOTA Stiftung.
 // SPDX-License-Identifier: Apache-2.0.
 import { BaseError, ComponentFactory, GeneralError, Guards } from "@twin.org/core";
+import type { IJsonLdNodeObject } from "@twin.org/data-json-ld";
 import type { ILoggingComponent } from "@twin.org/logging-models";
 import { nameof } from "@twin.org/nameof";
 import {
@@ -74,13 +75,15 @@ export class PolicyDecisionPointService implements IPolicyDecisionPointComponent
 	 * @param agreement The agreement to evaluate.
 	 * @param data The data to make a decision on.
 	 * @param action Optional action to make a decision on, if not provided, the PDP will evaluate all actions in the agreement.
+	 * @param trustData Trust verification data to merge with PIP-retrieved information before arbitration.
 	 * @returns Returns the policy decisions which apply to the data so that the PEP
 	 * can manipulate the data accordingly.
 	 */
 	public async evaluate<D = unknown>(
 		agreement: IDataspaceProtocolAgreement,
 		data?: D,
-		action?: OdrlActionType | string
+		action?: OdrlActionType | string,
+		trustData?: { [key: string]: IJsonLdNodeObject }
 	): Promise<IPolicyDecision[]> {
 		Guards.objectValue<IDataspaceProtocolAgreement>(
 			PolicyDecisionPointService.CLASS_NAME,
@@ -112,9 +115,11 @@ export class PolicyDecisionPointService implements IPolicyDecisionPointComponent
 			action
 		);
 
+		const combinedInformation = { ...information, ...trustData };
+
 		for (const arbiter of arbiters) {
 			try {
-				const arbiterDecisions = await arbiter.decide(agreement, information, data, action);
+				const arbiterDecisions = await arbiter.decide(agreement, combinedInformation, data, action);
 				decisions.push(...arbiterDecisions);
 			} catch (error) {
 				await this._logging?.log({

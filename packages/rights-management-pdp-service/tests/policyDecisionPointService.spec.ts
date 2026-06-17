@@ -1,6 +1,7 @@
 // Copyright 2025 IOTA Stiftung.
 // SPDX-License-Identifier: Apache-2.0.
 import { ComponentFactory } from "@twin.org/core";
+import type { IJsonLdNodeObject } from "@twin.org/data-json-ld";
 import { MemoryEntityStorageConnector } from "@twin.org/entity-storage-connector-memory";
 import { EntityStorageConnectorFactory } from "@twin.org/entity-storage-models";
 import {
@@ -113,5 +114,39 @@ describe("PolicyDecisionPointService", () => {
 		PolicyArbiterFactory.register("arbiter1", () => mockArbiter);
 		const policy = createPolicy({ target: "asset:1234", action: "read", assignee: "node1" });
 		await expect(pdp.evaluate(policy)).rejects.toThrow("decidingFailed");
+	});
+
+	test("evaluate merges trustData into information passed to arbiter decide", async () => {
+		const pdp = new PolicyDecisionPointService();
+		const decideSpy = vi.fn().mockResolvedValue([]);
+		PolicyArbiterFactory.register("arbiter1", () => ({
+			className: () => "arbiter1",
+			supportedPolicies: () => [],
+			decide: decideSpy
+		}));
+		const policy = createPolicy({ target: "asset:1234", action: "read" });
+		const trustData: { [key: string]: IJsonLdNodeObject } = {
+			"did:example:identity": { "@type": "VerifiedIdentity" }
+		};
+		await pdp.evaluate(policy, undefined, undefined, trustData);
+		expect(decideSpy).toHaveBeenCalledWith(
+			policy,
+			expect.objectContaining({ "did:example:identity": { "@type": "VerifiedIdentity" } }),
+			undefined,
+			undefined
+		);
+	});
+
+	test("evaluate passes only pip information to arbiter when trustData is omitted", async () => {
+		const pdp = new PolicyDecisionPointService();
+		const decideSpy = vi.fn().mockResolvedValue([]);
+		PolicyArbiterFactory.register("arbiter1", () => ({
+			className: () => "arbiter1",
+			supportedPolicies: () => [],
+			decide: decideSpy
+		}));
+		const policy = createPolicy({ target: "asset:1234", action: "read" });
+		await pdp.evaluate(policy);
+		expect(decideSpy).toHaveBeenCalledWith(policy, {}, undefined, undefined);
 	});
 });

@@ -898,7 +898,10 @@ export class PolicyNegotiationPointService implements IPolicyNegotiationPointCom
 			}
 
 			// Now that the agreement is finalised create the policy in the PAP
-			await this._policyAdministrationPointComponent.create(policyNegotiation.agreement);
+			await this._policyAdministrationPointComponent.create({
+				...policyNegotiation.agreement,
+				trustData: trustInfo.data
+			});
 
 			// The agreement was created, so update the state to finalized
 			policyNegotiation.state = DataspaceProtocolContractNegotiationStateType.FINALIZED;
@@ -1039,7 +1042,10 @@ export class PolicyNegotiationPointService implements IPolicyNegotiationPointCom
 						);
 					}
 					try {
-						await this._policyAdministrationPointComponent.create(policyNegotiation.agreement);
+						await this._policyAdministrationPointComponent.create({
+							...policyNegotiation.agreement,
+							trustData: trustInfo.data
+						});
 					} catch (error) {
 						// An AlreadyExistsError falls through to finalised(), the agreement is already in the PAP
 						if (!BaseError.isErrorName(error, AlreadyExistsError.CLASS_NAME)) {
