@@ -2,6 +2,13 @@
 
 PAP-managed metadata attached to stored and returned ODRL policies.
 
+## Extended by
+
+- [`IRightsManagementAgreement`](IRightsManagementAgreement.md)
+- [`IRightsManagementOffer`](IRightsManagementOffer.md)
+- [`IRightsManagementPolicy`](IRightsManagementPolicy.md)
+- [`IRightsManagementSet`](IRightsManagementSet.md)
+
 ## Properties
 
 ### dateCreated? {#datecreated}

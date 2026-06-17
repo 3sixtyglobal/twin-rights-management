@@ -24,7 +24,7 @@ Retrieve information from the sources.
 
 ##### policy
 
-[`IRightsManagementPolicy`](../type-aliases/IRightsManagementPolicy.md) \| `undefined`
+[`IRightsManagementPolicy`](IRightsManagementPolicy.md) \| `undefined`
 
 The policy to retrieve information for if available.
 

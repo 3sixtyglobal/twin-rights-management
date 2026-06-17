@@ -12,7 +12,8 @@
 ## Functions
 
 - [initSchema](functions/initSchema.md)
-- [convertToStoragePolicy](functions/convertToStoragePolicy.md)
-- [convertFromStoragePolicy](functions/convertFromStoragePolicy.md)
-- [buildStorageContext](functions/buildStorageContext.md)
+- [normalizeContext](functions/normalizeContext.md)
+- [hasPolicyMetadataContext](functions/hasPolicyMetadataContext.md)
+- [ensurePolicyMetadataContext](functions/ensurePolicyMetadataContext.md)
 - [buildPapStorageContext](functions/buildPapStorageContext.md)
+- [hasPolicyMetadata](functions/hasPolicyMetadata.md)

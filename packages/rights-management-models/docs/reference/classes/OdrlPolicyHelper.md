@@ -151,7 +151,7 @@ Get the dataset targets from policy.
 
 ##### policy
 
-[`IRightsManagementPolicy`](../type-aliases/IRightsManagementPolicy.md)
+[`IRightsManagementPolicy`](../interfaces/IRightsManagementPolicy.md)
 
 The policy to extract the dataset targets from.
 
@@ -176,7 +176,7 @@ their target exclusively on a rule are correctly indexed for query().
 
 ##### policy
 
-[`IRightsManagementPolicy`](../type-aliases/IRightsManagementPolicy.md)
+[`IRightsManagementPolicy`](../interfaces/IRightsManagementPolicy.md)
 
 The policy to extract the targets from.
 
@@ -201,7 +201,7 @@ their action exclusively on a rule are correctly indexed for query().
 
 ##### policy
 
-[`IRightsManagementPolicy`](../type-aliases/IRightsManagementPolicy.md)
+[`IRightsManagementPolicy`](../interfaces/IRightsManagementPolicy.md)
 
 The policy to extract the actions from.
 
@@ -223,7 +223,7 @@ Does the policy match.
 
 ##### policy
 
-[`IRightsManagementPolicy`](../type-aliases/IRightsManagementPolicy.md) \| `undefined`
+[`IRightsManagementPolicy`](../interfaces/IRightsManagementPolicy.md) \| `undefined`
 
 The policy to try and match.
 

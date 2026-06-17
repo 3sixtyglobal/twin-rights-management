@@ -18,7 +18,7 @@ Create a new policy with auto-generated UID.
 
 ##### policy
 
-`JsonLdObjectWithOptionalAtId`\<[`IRightsManagementPolicy`](../type-aliases/IRightsManagementPolicy.md)\>
+`JsonLdObjectWithOptionalAtId`\<[`IRightsManagementPolicy`](IRightsManagementPolicy.md)\>
 
 The policy to create (uid will be auto-generated).
 
@@ -40,7 +40,7 @@ Update an existing policy.
 
 ##### policy
 
-[`IRightsManagementPolicy`](../type-aliases/IRightsManagementPolicy.md)
+[`IRightsManagementPolicy`](IRightsManagementPolicy.md)
 
 The policy to update (must include uid).
 
@@ -54,7 +54,7 @@ A promise that resolves when the policy has been updated.
 
 ### get() {#get}
 
-> **get**(`policyId`): `Promise`\<[`IRightsManagementPolicy`](../type-aliases/IRightsManagementPolicy.md)\>
+> **get**(`policyId`): `Promise`\<[`IRightsManagementPolicy`](IRightsManagementPolicy.md)\>
 
 Get a policy.
 
@@ -68,7 +68,7 @@ The id of the policy to get.
 
 #### Returns
 
-`Promise`\<[`IRightsManagementPolicy`](../type-aliases/IRightsManagementPolicy.md)\>
+`Promise`\<[`IRightsManagementPolicy`](IRightsManagementPolicy.md)\>
 
 The policy.
 
@@ -76,7 +76,7 @@ The policy.
 
 ### getAgreement() {#getagreement}
 
-> **getAgreement**(`agreementId`): `Promise`\<[`IRightsManagementAgreement`](../type-aliases/IRightsManagementAgreement.md)\>
+> **getAgreement**(`agreementId`): `Promise`\<[`IRightsManagementAgreement`](IRightsManagementAgreement.md)\>
 
 Get an agreement.
 
@@ -90,7 +90,7 @@ The id of the agreement to get.
 
 #### Returns
 
-`Promise`\<[`IRightsManagementAgreement`](../type-aliases/IRightsManagementAgreement.md)\>
+`Promise`\<[`IRightsManagementAgreement`](IRightsManagementAgreement.md)\>
 
 The agreement.
 
@@ -98,7 +98,7 @@ The agreement.
 
 ### getSet() {#getset}
 
-> **getSet**(`setId`): `Promise`\<[`IRightsManagementSet`](../type-aliases/IRightsManagementSet.md)\>
+> **getSet**(`setId`): `Promise`\<[`IRightsManagementSet`](IRightsManagementSet.md)\>
 
 Get a set.
 
@@ -112,7 +112,7 @@ The id of the set to get.
 
 #### Returns
 
-`Promise`\<[`IRightsManagementSet`](../type-aliases/IRightsManagementSet.md)\>
+`Promise`\<[`IRightsManagementSet`](IRightsManagementSet.md)\>
 
 The set.
 
@@ -120,7 +120,7 @@ The set.
 
 ### getOffer() {#getoffer}
 
-> **getOffer**(`offerId`): `Promise`\<[`IRightsManagementOffer`](../type-aliases/IRightsManagementOffer.md)\>
+> **getOffer**(`offerId`): `Promise`\<[`IRightsManagementOffer`](IRightsManagementOffer.md)\>
 
 Get an offer.
 
@@ -134,7 +134,7 @@ The id of the offer to get.
 
 #### Returns
 
-`Promise`\<[`IRightsManagementOffer`](../type-aliases/IRightsManagementOffer.md)\>
+`Promise`\<[`IRightsManagementOffer`](IRightsManagementOffer.md)\>
 
 The offer.
 
@@ -164,7 +164,7 @@ A promise that resolves when the policy has been removed.
 
 ### query() {#query}
 
-> **query**(`options?`, `conditions?`, `cursor?`, `limit?`): `Promise`\<\{ `cursor?`: `string`; `policies`: [`IRightsManagementPolicy`](../type-aliases/IRightsManagementPolicy.md)[]; \}\>
+> **query**(`options?`, `conditions?`, `cursor?`, `limit?`): `Promise`\<\{ `cursor?`: `string`; `policies`: [`IRightsManagementPolicy`](IRightsManagementPolicy.md)[]; \}\>
 
 Query the policies using the specified conditions.
 
@@ -200,7 +200,7 @@ The action to filter by.
 
 ##### conditions?
 
-`EntityCondition`\<[`IRightsManagementPolicy`](../type-aliases/IRightsManagementPolicy.md)\>
+`EntityCondition`\<[`IRightsManagementPolicy`](IRightsManagementPolicy.md)\>
 
 The conditions to use for the query.
 
@@ -218,6 +218,6 @@ The number of results to return per page.
 
 #### Returns
 
-`Promise`\<\{ `cursor?`: `string`; `policies`: [`IRightsManagementPolicy`](../type-aliases/IRightsManagementPolicy.md)[]; \}\>
+`Promise`\<\{ `cursor?`: `string`; `policies`: [`IRightsManagementPolicy`](IRightsManagementPolicy.md)[]; \}\>
 
 Cursor for next page of results and the policies matching the query.

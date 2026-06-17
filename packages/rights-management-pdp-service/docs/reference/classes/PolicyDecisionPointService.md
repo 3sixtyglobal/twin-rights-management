@@ -56,7 +56,7 @@ The class name of the component.
 
 ### evaluate() {#evaluate}
 
-> **evaluate**\<`D`\>(`agreement`, `data?`, `action?`): `Promise`\<`IPolicyDecision`[]\>
+> **evaluate**\<`D`\>(`agreement`, `data?`, `action?`, `trustData?`): `Promise`\<`IPolicyDecision`[]\>
 
 Evaluate requests from a Policy Enforcement Point (PEP).
 Uses the Policy Management Point (PMP) to retrieve the policies and the
@@ -88,6 +88,10 @@ The data to make a decision on.
 `string`
 
 Optional action to make a decision on, if not provided, the PDP will evaluate all actions in the agreement.
+
+##### trustData?
+
+Trust verification data to merge with PIP-retrieved information before arbitration.
 
 #### Returns
 

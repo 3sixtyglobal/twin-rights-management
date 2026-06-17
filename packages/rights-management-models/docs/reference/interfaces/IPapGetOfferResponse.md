@@ -6,6 +6,6 @@ The response structure for getting an offer.
 
 ### body {#body}
 
-> **body**: [`IRightsManagementOffer`](../type-aliases/IRightsManagementOffer.md)
+> **body**: [`IRightsManagementOffer`](IRightsManagementOffer.md)
 
 The body of the response.

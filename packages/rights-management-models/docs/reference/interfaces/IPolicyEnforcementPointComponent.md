@@ -13,7 +13,7 @@ be returned.
 
 ### interceptWithPolicy() {#interceptwithpolicy}
 
-> **interceptWithPolicy**\<`D`, `R`\>(`agreement`, `data?`, `action?`): `Promise`\<`R`\>
+> **interceptWithPolicy**\<`D`, `R`\>(`agreement`, `data?`, `action?`, `trustData?`): `Promise`\<`R`\>
 
 Process the data using Policy Decision Point (PDP) and return the manipulated data.
 
@@ -46,6 +46,10 @@ The data to process.
 `string`
 
 Optional action to make a decision on, if not provided, the arbiter will evaluate all actions in the agreement.
+
+##### trustData?
+
+Trust verification data to pass to the PDP alongside PIP-retrieved information.
 
 #### Returns
 

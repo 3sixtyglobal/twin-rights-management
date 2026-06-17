@@ -24,7 +24,7 @@ Enforces obligations regarding policy access to data.
 
 ##### policy
 
-[`IRightsManagementPolicy`](../type-aliases/IRightsManagementPolicy.md)
+[`IRightsManagementPolicy`](IRightsManagementPolicy.md)
 
 The policy to evaluate.
 

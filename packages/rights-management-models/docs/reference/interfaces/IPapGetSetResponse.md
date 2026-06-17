@@ -6,6 +6,6 @@ The response structure for getting a set.
 
 ### body {#body}
 
-> **body**: [`IRightsManagementSet`](../type-aliases/IRightsManagementSet.md)
+> **body**: [`IRightsManagementSet`](IRightsManagementSet.md)
 
 The body of the response.

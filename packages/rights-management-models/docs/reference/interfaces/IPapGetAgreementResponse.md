@@ -6,6 +6,6 @@ The response structure for getting an agreement.
 
 ### body {#body}
 
-> **body**: [`IRightsManagementAgreement`](../type-aliases/IRightsManagementAgreement.md)
+> **body**: [`IRightsManagementAgreement`](IRightsManagementAgreement.md)
 
 The body of the response.

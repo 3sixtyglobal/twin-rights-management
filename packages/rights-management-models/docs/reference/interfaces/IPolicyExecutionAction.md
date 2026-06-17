@@ -38,7 +38,7 @@ Execute function type for policy actions.
 
 ##### policy
 
-[`IRightsManagementPolicy`](../type-aliases/IRightsManagementPolicy.md)
+[`IRightsManagementPolicy`](IRightsManagementPolicy.md)
 
 The policy that applied to the data.
 

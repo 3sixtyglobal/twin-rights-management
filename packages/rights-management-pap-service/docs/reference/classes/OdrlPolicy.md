@@ -134,6 +134,18 @@ Server-controlled JSON-LD context persisted by PAP (entity field `context` avoid
 
 ***
 
+### trustData? {#trustdata}
+
+> `optional` **trustData?**: `object`
+
+Trust verification data captured at the beginning of the negotiation.
+
+#### Index Signature
+
+\[`key`: `string`\]: `IJsonLdNodeObject`
+
+***
+
 ### assignerIndex {#assignerindex}
 
 > **assignerIndex**: `string`

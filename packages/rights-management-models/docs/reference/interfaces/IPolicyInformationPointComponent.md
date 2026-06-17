@@ -26,7 +26,7 @@ Retrieve additional information which is relevant in the PDP decision making.
 
 ##### policy
 
-[`IRightsManagementPolicy`](../type-aliases/IRightsManagementPolicy.md) \| `undefined`
+[`IRightsManagementPolicy`](IRightsManagementPolicy.md) \| `undefined`
 
 The policy to retrieve the information for if available.
 
