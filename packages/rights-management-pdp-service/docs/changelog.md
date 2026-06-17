@@ -1,5 +1,24 @@
 # Changelog
 
+## [0.0.3-next.52](https://github.com/iotaledger/twin-rights-management/compare/rights-management-pdp-service-v0.0.3-next.51...rights-management-pdp-service-v0.0.3-next.52) (2026-06-17)
+
+
+### Features
+
+* persist trust data ([#198](https://github.com/iotaledger/twin-rights-management/issues/198)) ([af94704](https://github.com/iotaledger/twin-rights-management/commit/af94704e366122f57ff6d664d3c51a371edfb043))
+
+
+### Dependencies
+
+* The following workspace dependencies were updated
+  * dependencies
+    * @twin.org/rights-management-models bumped from 0.0.3-next.51 to 0.0.3-next.52
+  * devDependencies
+    * @twin.org/rights-management-pap-service bumped from 0.0.3-next.51 to 0.0.3-next.52
+    * @twin.org/rights-management-pip-service bumped from 0.0.3-next.51 to 0.0.3-next.52
+    * @twin.org/rights-management-pmp-service bumped from 0.0.3-next.51 to 0.0.3-next.52
+    * @twin.org/rights-management-pxp-service bumped from 0.0.3-next.51 to 0.0.3-next.52
+
 ## [0.0.3-next.51](https://github.com/iotaledger/twin-rights-management/compare/rights-management-pdp-service-v0.0.3-next.50...rights-management-pdp-service-v0.0.3-next.51) (2026-06-16)
 
 
