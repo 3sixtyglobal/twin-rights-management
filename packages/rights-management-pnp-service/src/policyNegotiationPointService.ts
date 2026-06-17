@@ -900,7 +900,7 @@ export class PolicyNegotiationPointService implements IPolicyNegotiationPointCom
 			// Now that the agreement is finalised create the policy in the PAP
 			await this._policyAdministrationPointComponent.create({
 				...policyNegotiation.agreement,
-				trustData: trustInfo.data
+				trustData: policyNegotiation.trustVerificationInfo?.data
 			});
 
 			// The agreement was created, so update the state to finalized
@@ -1044,7 +1044,7 @@ export class PolicyNegotiationPointService implements IPolicyNegotiationPointCom
 					try {
 						await this._policyAdministrationPointComponent.create({
 							...policyNegotiation.agreement,
-							trustData: trustInfo.data
+							trustData: policyNegotiation.trustVerificationInfo?.data
 						});
 					} catch (error) {
 						// An AlreadyExistsError falls through to finalised(), the agreement is already in the PAP

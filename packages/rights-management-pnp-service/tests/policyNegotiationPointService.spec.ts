@@ -7,6 +7,7 @@ import {
 } from "@twin.org/background-task-scheduler";
 import { ContextIdKeys, ContextIdStore } from "@twin.org/context";
 import { ComponentFactory, Factory, Is } from "@twin.org/core";
+import type { IJsonLdNodeObject } from "@twin.org/data-json-ld";
 import { MemoryEntityStorageConnector } from "@twin.org/entity-storage-connector-memory";
 import { EntityStorageConnectorFactory } from "@twin.org/entity-storage-models";
 import {
@@ -860,6 +861,65 @@ describe("PolicyNegotiationPointService", () => {
 		expect(mockPolicyRequester.finalised).toHaveBeenCalledWith(consumerPid);
 
 		expect(mockPolicyRequester.terminated).toHaveBeenCalledTimes(0);
+	});
+
+	test("trust data from negotiation initial payload is stored on the finalized PAP agreement", async () => {
+		const TRUST_PAYLOAD: { [key: string]: IJsonLdNodeObject } = {
+			"did:example:trust": { "@type": "TrustRecord" }
+		};
+
+		// Override verify to return trust data in the info object
+		mockTrustComponent.verify = vi.fn(async (payload: unknown) => ({
+			verified: true,
+			info: {
+				identity: (payload as string).slice(6),
+				data: TRUST_PAYLOAD
+			}
+		}));
+
+		const providerPoints: { [id: string]: PolicyNegotiationPointService } = {};
+
+		const policyNegotiationConsumerPoint = new PolicyNegotiationPointService({
+			policyNegotiationAdministrationPointComponentType: "policy-negotiation-consumer-admin-point",
+			policyNegotiationPointRemoteComponentType: "pnp-remote",
+			config: { callbackPath: "/callback" }
+		});
+
+		const policyNegotiationProviderPoint = new PolicyNegotiationPointService({
+			policyNegotiationAdministrationPointComponentType: "policy-negotiation-provider-admin-point",
+			policyNegotiationPointRemoteComponentType: "pnp-remote",
+			config: { callbackPath: "/callback" }
+		});
+		providerPoints.provider = policyNegotiationProviderPoint;
+		providerPoints.consumer = policyNegotiationConsumerPoint;
+		remoteComponentResolver = (params: { endpoint: string }) => {
+			if (params.endpoint.startsWith(providerOrigin)) {
+				return createRemoteComponent(providerPoints.provider, providerOrigin);
+			}
+			if (params.endpoint.startsWith(consumerOrigin)) {
+				return createRemoteComponent(providerPoints.consumer, consumerOrigin);
+			}
+			throw new TypeError(`Unknown remote url ${params.endpoint}`);
+		};
+
+		PolicyRequesterFactory.register("requester-trust", () => mockPolicyRequester);
+		await adminPointComponent.create(mockOffer);
+		PolicyNegotiatorFactory.register("MockPolicyNegotiator", () => mockNegotiator);
+
+		await policyNegotiationConsumerPoint.sendRequestToProvider(
+			"http://localhost:3000",
+			"requester-trust",
+			"urn:policy:offer-1",
+			"http://localhost:4000"
+		);
+
+		await waitForState(policyNegotiationProviderMemoryEntityStorage, "FINALIZED", "provider");
+		await waitForState(policyNegotiationConsumerMemoryEntityStorage, "FINALIZED", "consumer");
+
+		// The agreement ID is allocated by mockNegotiator.createAgreement
+		const agreement = await adminPointComponent.getAgreement("urn:policy:agreement-1");
+
+		expect(agreement.trustData).toEqual(TRUST_PAYLOAD);
 	});
 
 	test("getNegotiation should return error when caller is not a negotiation party", async () => {

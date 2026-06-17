@@ -3,7 +3,7 @@
 import { existsSync } from "node:fs";
 import { rm } from "node:fs/promises";
 import { ArrayHelper, Is, ObjectHelper } from "@twin.org/core";
-import type { JsonLdObjectWithOptionalAtId } from "@twin.org/data-json-ld";
+import type { IJsonLdNodeObject, JsonLdObjectWithOptionalAtId } from "@twin.org/data-json-ld";
 import type { EntityCondition } from "@twin.org/entity";
 import type { MemoryEntityStorageConnector } from "@twin.org/entity-storage-connector-memory";
 import type { IDataspaceProtocolPolicy } from "@twin.org/standards-dataspace-protocol";
@@ -1019,6 +1019,99 @@ describe("PolicyAdministrationPointService", () => {
 			expect(updatedLegacy.dateCreated).toBe("2025-06-10T12:00:00.000Z");
 			expect(updatedLegacy.dateModified).toBe("2025-06-10T12:00:00.000Z");
 			expect(updatedLegacy["@context"]).toEqual(buildPapStorageContext());
+		});
+	});
+
+	describe("trustData", () => {
+		const TRUST_DATA: { [key: string]: IJsonLdNodeObject } = {
+			"did:example:identity": { "@type": "VerifiedIdentity" }
+		};
+
+		test("survives create -> get round-trip", async () => {
+			const uid = await policyAdminPoint.create({
+				"@context": OdrlContexts.Context,
+				"@type": OdrlPolicyType.Set,
+				permission: [{ target: TEST_ASSET_ID, action: "use" }],
+				trustData: TRUST_DATA
+			});
+
+			const retrieved = await policyAdminPoint.get(uid);
+
+			expect(retrieved.trustData).toEqual(TRUST_DATA);
+		});
+
+		test("survives create -> getAgreement round-trip", async () => {
+			const uid = await policyAdminPoint.create({
+				"@context": OdrlContexts.Context,
+				"@type": OdrlPolicyType.Agreement,
+				assigner: "did:example:assigner",
+				assignee: "did:example:assignee",
+				permission: [{ target: TEST_ASSET_ID, action: "use" }],
+				trustData: TRUST_DATA
+			});
+
+			const agreement = await policyAdminPoint.getAgreement(uid);
+
+			expect(agreement.trustData).toEqual(TRUST_DATA);
+		});
+
+		test("is stripped before ODRL validation so create does not fail", async () => {
+			await expect(
+				policyAdminPoint.create({
+					"@context": OdrlContexts.Context,
+					"@type": OdrlPolicyType.Agreement,
+					assigner: "did:example:assigner",
+					assignee: "did:example:assignee",
+					permission: [{ target: TEST_ASSET_ID, action: "use" }],
+					trustData: TRUST_DATA
+				})
+			).resolves.toMatch(/^urn:policy:/);
+		});
+
+		test("is stripped before ODRL validation on update so update does not fail", async () => {
+			const uid = await policyAdminPoint.create({
+				"@context": OdrlContexts.Context,
+				"@type": OdrlPolicyType.Agreement,
+				assigner: "did:example:assigner",
+				assignee: "did:example:assignee",
+				permission: [{ target: TEST_ASSET_ID, action: "use" }],
+				trustData: TRUST_DATA
+			});
+
+			const retrieved = await policyAdminPoint.getAgreement(uid);
+
+			// Feeding the retrieved body (which carries trustData) straight back into update
+			// must not fail ODRL validation.
+			await expect(policyAdminPoint.update(retrieved)).resolves.toBeUndefined();
+		});
+
+		test("is absent from stored entity when not supplied", async () => {
+			const uid = await policyAdminPoint.create({
+				"@context": OdrlContexts.Context,
+				"@type": OdrlPolicyType.Agreement,
+				assigner: "did:example:assigner",
+				assignee: "did:example:assignee",
+				permission: [{ target: TEST_ASSET_ID, action: "use" }]
+			});
+
+			const stored = await odrlPolicyEntityStorage.get(uid);
+
+			expect(stored?.trustData).toBeUndefined();
+		});
+
+		test("is present on stored entity when supplied", async () => {
+			const uid = await policyAdminPoint.create({
+				"@context": OdrlContexts.Context,
+				"@type": OdrlPolicyType.Agreement,
+				assigner: "did:example:assigner",
+				assignee: "did:example:assignee",
+				permission: [{ target: TEST_ASSET_ID, action: "use" }],
+				trustData: TRUST_DATA
+			});
+
+			const stored = await odrlPolicyEntityStorage.get(uid);
+
+			expect(stored?.trustData).toEqual(TRUST_DATA);
 		});
 	});
 });
