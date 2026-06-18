@@ -46,6 +46,8 @@ The offer to check.
 
 ##### information?
 
+[`IRightsManagementInformation`](IRightsManagementInformation.md)
+
 Information provided by the requester to determine if a policy can be created.
 
 #### Returns
@@ -77,6 +79,8 @@ The offer to create the agreement from.
 The assignee of the agreement.
 
 ##### information?
+
+[`IRightsManagementInformation`](IRightsManagementInformation.md)
 
 Information provided by the requester to aid in the creation of the agreement.
 

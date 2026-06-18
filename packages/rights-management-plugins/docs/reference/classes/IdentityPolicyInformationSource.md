@@ -56,7 +56,7 @@ The class name of the component.
 
 ### retrieve() {#retrieve}
 
-> **retrieve**\<`D`\>(`policy`, `accessMode`, `data?`, `action?`): `Promise`\<\{\[`id`: `string`\]: `IJsonLdNodeObject`; \} \| `undefined`\>
+> **retrieve**\<`D`\>(`policy`, `accessMode`, `data?`, `action?`): `Promise`\<`IRightsManagementInformation` \| `undefined`\>
 
 Retrieve information from the sources.
 
@@ -94,7 +94,7 @@ The action that was evaluated.
 
 #### Returns
 
-`Promise`\<\{\[`id`: `string`\]: `IJsonLdNodeObject`; \} \| `undefined`\>
+`Promise`\<`IRightsManagementInformation` \| `undefined`\>
 
 The objects containing relevant information or undefined if nothing relevant is found.
 

@@ -12,7 +12,7 @@ it is making decisions.
 
 ### retrieve() {#retrieve}
 
-> **retrieve**\<`D`\>(`policy`, `accessMode`, `data?`, `action?`): `Promise`\<\{\[`id`: `string`\]: `IJsonLdNodeObject`; \}\>
+> **retrieve**\<`D`\>(`policy`, `accessMode`, `data?`, `action?`): `Promise`\<[`IRightsManagementInformation`](IRightsManagementInformation.md)\>
 
 Retrieve additional information which is relevant in the PDP decision making.
 
@@ -50,6 +50,6 @@ Optional action to make a decision on, if not provided, the PIP will evaluate al
 
 #### Returns
 
-`Promise`\<\{\[`id`: `string`\]: `IJsonLdNodeObject`; \}\>
+`Promise`\<[`IRightsManagementInformation`](IRightsManagementInformation.md)\>
 
 Returns additional information based on the data and identities.

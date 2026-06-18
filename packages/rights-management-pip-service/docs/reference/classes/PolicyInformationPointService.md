@@ -56,7 +56,7 @@ The class name of the component.
 
 ### retrieve() {#retrieve}
 
-> **retrieve**\<`D`\>(`policy`, `accessMode`, `data?`, `action?`): `Promise`\<\{\[`id`: `string`\]: `IJsonLdNodeObject`; \}\>
+> **retrieve**\<`D`\>(`policy`, `accessMode`, `data?`, `action?`): `Promise`\<`IRightsManagementInformation`\>
 
 Retrieve additional information which is relevant in the PDP decision making.
 
@@ -94,7 +94,7 @@ The action to get any additional information for.
 
 #### Returns
 
-`Promise`\<\{\[`id`: `string`\]: `IJsonLdNodeObject`; \}\>
+`Promise`\<`IRightsManagementInformation`\>
 
 Returns additional information based on the data and identities.
 

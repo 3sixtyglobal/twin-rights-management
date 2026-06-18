@@ -30,7 +30,10 @@ The agreement to evaluate.
 
 ##### information?
 
-Information provided by the requester to determine if a policy can be created.
+[`IRightsManagementInformation`](IRightsManagementInformation.md)
+
+Named objects available to the arbiter during evaluation. Values are accessed
+via JSONPath and may be any type - structured JSON-LD nodes, plain objects, or scalar primitives.
 
 ##### data?
 

@@ -10,7 +10,7 @@ Interface for policy information sources.
 
 ### retrieve() {#retrieve}
 
-> **retrieve**\<`D`\>(`policy`, `accessMode`, `data?`, `action?`): `Promise`\<\{\[`id`: `string`\]: `IJsonLdNodeObject`; \} \| `undefined`\>
+> **retrieve**\<`D`\>(`policy`, `accessMode`, `data?`, `action?`): `Promise`\<[`IRightsManagementInformation`](IRightsManagementInformation.md) \| `undefined`\>
 
 Retrieve information from the sources.
 
@@ -48,6 +48,6 @@ Optional action to make a decision on, if not provided, the PIP will evaluate al
 
 #### Returns
 
-`Promise`\<\{\[`id`: `string`\]: `IJsonLdNodeObject`; \} \| `undefined`\>
+`Promise`\<[`IRightsManagementInformation`](IRightsManagementInformation.md) \| `undefined`\>
 
 The objects containing relevant information or undefined if nothing relevant is found.

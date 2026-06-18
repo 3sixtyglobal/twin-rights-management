@@ -7,6 +7,7 @@
 ## Interfaces
 
 - [IRightsManagementAgreement](interfaces/IRightsManagementAgreement.md)
+- [IRightsManagementInformation](interfaces/IRightsManagementInformation.md)
 - [IRightsManagementOffer](interfaces/IRightsManagementOffer.md)
 - [IRightsManagementPolicy](interfaces/IRightsManagementPolicy.md)
 - [IRightsManagementPolicyMetadata](interfaces/IRightsManagementPolicyMetadata.md)

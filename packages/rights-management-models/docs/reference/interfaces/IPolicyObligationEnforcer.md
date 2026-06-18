@@ -36,6 +36,8 @@ The duty to enforce.
 
 ##### information?
 
+[`IRightsManagementInformation`](IRightsManagementInformation.md)
+
 Information provided by the requester to determine if a policy can be created.
 
 ##### data?

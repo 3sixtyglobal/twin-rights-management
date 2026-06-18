@@ -38,10 +38,6 @@ Information is only provided for the specified locator combination.
 
 ### objects {#objects}
 
-> **objects**: `object`
+> **objects**: `IRightsManagementInformation`
 
 The objects containing the information.
-
-#### Index Signature
-
-\[`id`: `string`\]: `IJsonLdNodeObject`
