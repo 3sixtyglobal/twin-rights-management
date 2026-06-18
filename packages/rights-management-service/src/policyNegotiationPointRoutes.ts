@@ -1,11 +1,6 @@
 // Copyright 2025 IOTA Stiftung.
 // SPDX-License-Identifier: Apache-2.0.
-import type {
-	IHostingComponent,
-	IHttpRequestContext,
-	IRestRoute,
-	ITag
-} from "@twin.org/api-models";
+import type { IHttpRequestContext, IRestRoute, ITag } from "@twin.org/api-models";
 import { ComponentFactory, Guards, Is } from "@twin.org/core";
 import { nameof } from "@twin.org/nameof";
 import {
@@ -648,15 +643,10 @@ export async function pnpNegotiationRequest(
 	);
 	Guards.object<IPnpNegotiateRequest["body"]>(ROUTES_SOURCE, nameof(request.body), request.body);
 
-	const hostingComponent = ComponentFactory.get<IHostingComponent>(
-		httpRequestContext.hostingComponentType ?? "hosting"
-	);
-
 	const component = ComponentFactory.get<IPolicyNegotiationPointComponent>(componentName);
 	const result = await component.requestFromConsumer(
 		request.body,
-		HeaderHelper.extractBearer(request.headers?.[HeaderTypes.Authorization]),
-		await hostingComponent.getPublicOrigin(httpRequestContext.serverRequest.url)
+		HeaderHelper.extractBearer(request.headers?.[HeaderTypes.Authorization])
 	);
 
 	const isUpdate = Is.stringValue(request.pathParams?.id);

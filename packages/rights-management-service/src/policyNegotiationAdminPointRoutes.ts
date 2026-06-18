@@ -1,13 +1,15 @@
 // Copyright 2025 IOTA Stiftung.
 // SPDX-License-Identifier: Apache-2.0.
-import type {
-	ICreatedResponse,
-	IHostingComponent,
-	IHttpRequestContext,
-	INoContentResponse,
-	IRestRoute,
-	ITag
+import {
+	HttpContextIdKeys,
+	HttpUrlHelper,
+	type ICreatedResponse,
+	type IHttpRequestContext,
+	type INoContentResponse,
+	type IRestRoute,
+	type ITag
 } from "@twin.org/api-models";
+import { ContextIdStore } from "@twin.org/context";
 import { ComponentFactory, Guards, Is } from "@twin.org/core";
 import { nameof } from "@twin.org/nameof";
 import type {
@@ -353,18 +355,18 @@ export async function pnapQuery(
 ): Promise<IPnapQueryResponse> {
 	Guards.object<IPnapQueryRequest>(ROUTES_SOURCE, nameof(request), request);
 
-	const hostingComponent = ComponentFactory.get<IHostingComponent>(
-		httpRequestContext.hostingComponentType ?? "hosting"
-	);
-
 	const component = ComponentFactory.get<IPolicyNegotiationAdminPointComponent>(componentName);
 	const result = await component.query(request.query?.state, request.query?.cursor);
 
 	const headers: IPnapQueryResponse["headers"] = {};
 
 	if (Is.stringValue(result.cursor)) {
+		const contextIds = await ContextIdStore.getContextIds();
 		headers[HeaderTypes.Link] = HeaderHelper.createLinkHeader(
-			await hostingComponent.buildPublicUrl(httpRequestContext.serverRequest.url),
+			HttpUrlHelper.replaceOrigin(
+				httpRequestContext.serverRequest.url,
+				contextIds?.[HttpContextIdKeys.PublicOrigin]
+			),
 			{ cursor: result.cursor },
 			"next"
 		);

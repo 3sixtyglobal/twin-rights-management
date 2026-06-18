@@ -1,6 +1,6 @@
 // Copyright 2025 IOTA Stiftung.
 // SPDX-License-Identifier: Apache-2.0.
-import { HttpUrlHelper } from "@twin.org/api-models";
+import { HttpContextIdKeys, HttpUrlHelper } from "@twin.org/api-models";
 import { ContextIdHelper, ContextIdKeys, ContextIdStore } from "@twin.org/context";
 import {
 	AlreadyExistsError,
@@ -302,14 +302,12 @@ export class PolicyNegotiationPointService implements IPolicyNegotiationPointCom
 	 * Processes an incoming request on a provider from a consumer.
 	 * @param message The negotiation request.
 	 * @param trustPayload Trust payload to verify the requesters identity.
-	 * @param publicOrigin The public origin url of this PNP service.
 	 * @returns The current state of the contract negotiation or an error.
 	 * @see https://eclipse-dataspace-protocol-base.github.io/DataspaceProtocol/2025-1/#contract-request-message
 	 */
 	public async requestFromConsumer(
 		message: IDataspaceProtocolContractRequestMessage,
-		trustPayload: unknown,
-		publicOrigin?: string
+		trustPayload: unknown
 	): Promise<IDataspaceProtocolContractNegotiation | IDataspaceProtocolContractNegotiationError> {
 		Guards.object<IDataspaceProtocolContractRequestMessage>(
 			PolicyNegotiationPointService.CLASS_NAME,
@@ -400,6 +398,7 @@ export class PolicyNegotiationPointService implements IPolicyNegotiationPointCom
 			const requestContextIds = await ContextIdStore.getContextIds();
 			ContextIdHelper.guard(requestContextIds, ContextIdKeys.Organization);
 			const requestOrganizationId = requestContextIds[ContextIdKeys.Organization];
+			const publicOrigin = requestContextIds[HttpContextIdKeys.PublicOrigin];
 
 			// Construct a new negotiation or update an existing one
 			if (Is.stringValue(message.providerPid)) {

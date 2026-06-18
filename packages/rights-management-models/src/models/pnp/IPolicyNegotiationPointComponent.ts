@@ -49,13 +49,11 @@ export interface IPolicyNegotiationPointComponent extends IComponent {
 	 * Processes an incoming request on a provider from a consumer.
 	 * @param message The negotiation request.
 	 * @param trustPayload Trust payload to verify the requesters identity.
-	 * @param publicOrigin The public origin url of this PNP service.
 	 * @returns The current state of the contract negotiation or an error.
 	 */
 	requestFromConsumer(
 		message: IDataspaceProtocolContractRequestMessage,
-		trustPayload: unknown,
-		publicOrigin?: string
+		trustPayload: unknown
 	): Promise<IDataspaceProtocolContractNegotiation | IDataspaceProtocolContractNegotiationError>;
 
 	/**

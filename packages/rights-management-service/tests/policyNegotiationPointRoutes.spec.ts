@@ -1,6 +1,6 @@
 // Copyright 2025 IOTA Stiftung.
 // SPDX-License-Identifier: Apache-2.0.
-import type { IHostingComponent, IHttpRequestContext } from "@twin.org/api-models";
+import type { IHttpRequestContext } from "@twin.org/api-models";
 import { ComponentFactory, Factory } from "@twin.org/core";
 import type {
 	IPnpNegotiateRequest,
@@ -21,22 +21,12 @@ import {
 	pnpNegotiationRequest
 } from "../src/policyNegotiationPointRoutes.js";
 
-const TEST_PUBLIC_ORIGIN = "http://localhost:3000";
-
 const mockContractNegotiation: IDataspaceProtocolContractNegotiation = {
 	"@context": DataspaceProtocolContexts.Context,
 	"@type": DataspaceProtocolContractNegotiationTypes.ContractNegotiation,
 	providerPid: "urn:negotiation:provider-1",
 	consumerPid: "urn:negotiation:consumer-1",
 	state: DataspaceProtocolContractNegotiationStateType.REQUESTED
-};
-
-const mockHostingComponent: IHostingComponent = {
-	className: () => "MockHostingComponent",
-	getPublicOrigin: vi.fn(async () => TEST_PUBLIC_ORIGIN),
-	getTenantOrigin: vi.fn(async () => undefined),
-	buildPublicUrl: vi.fn(async (url: string) => `${TEST_PUBLIC_ORIGIN}${url}`),
-	matchesLocalOrigin: vi.fn(async () => undefined)
 };
 
 const mockPnpComponent: IPolicyNegotiationPointComponent = {
@@ -54,7 +44,6 @@ const mockPnpComponent: IPolicyNegotiationPointComponent = {
 
 const mockHttpRequestContext: IHttpRequestContext = {
 	serverRequest: { url: "http://localhost:3000/rights-management/negotiations" },
-	hostingComponentType: "hosting",
 	processorState: {}
 };
 
@@ -82,7 +71,6 @@ describe("policyNegotiationPointRoutes", () => {
 		Factory.clearFactories();
 		vi.clearAllMocks();
 
-		ComponentFactory.register("hosting", () => mockHostingComponent);
 		ComponentFactory.register("pnp", () => mockPnpComponent);
 	});
 

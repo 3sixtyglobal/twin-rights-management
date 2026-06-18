@@ -97,14 +97,12 @@ export class PolicyNegotiationPointRestClient
 	 * @param url The url of the provider to send the request to.
 	 * @param requesterType The type of the requester to use for the request, will use the registered requester to provide update.
 	 * @param odrlOfferId The id of the offer to request.
-	 * @param publicOrigin The public origin of the server (unused in REST client).
 	 * @returns The negotiation id.
 	 */
 	public async sendRequestToProvider(
 		url: string,
 		requesterType: string,
-		odrlOfferId: string,
-		publicOrigin: string
+		odrlOfferId: string
 	): Promise<string> {
 		throw new NotSupportedError(
 			PolicyNegotiationPointRestClient.CLASS_NAME,

@@ -1,14 +1,16 @@
 // Copyright 2025 IOTA Stiftung.
 // SPDX-License-Identifier: Apache-2.0.
 import {
+	HttpContextIdKeys,
 	HttpParameterHelper,
-	type IHostingComponent,
+	HttpUrlHelper,
 	type ICreatedResponse,
 	type IHttpRequestContext,
 	type INoContentResponse,
 	type IRestRoute,
 	type ITag
 } from "@twin.org/api-models";
+import { ContextIdStore } from "@twin.org/context";
 import { Coerce, ComponentFactory, Guards, Is } from "@twin.org/core";
 import { nameof } from "@twin.org/nameof";
 import {
@@ -645,10 +647,6 @@ export async function papQuery(
 ): Promise<IPapQueryResponse> {
 	Guards.object<IPapQueryRequest>(ROUTES_SOURCE, nameof(request), request);
 
-	const hostingComponent = ComponentFactory.get<IHostingComponent>(
-		httpRequestContext.hostingComponentType ?? "hosting"
-	);
-
 	const component = ComponentFactory.get<IPolicyAdministrationPointComponent>(componentName);
 	const result = await component.query(
 		{
@@ -665,8 +663,13 @@ export async function papQuery(
 	const headers: IPapQueryResponse["headers"] = {};
 
 	if (Is.stringValue(result.cursor)) {
+		const contextIds = await ContextIdStore.getContextIds();
+
 		headers[HeaderTypes.Link] = HeaderHelper.createLinkHeader(
-			await hostingComponent.buildPublicUrl(httpRequestContext.serverRequest.url),
+			HttpUrlHelper.replaceOrigin(
+				httpRequestContext.serverRequest.url,
+				contextIds?.[HttpContextIdKeys.PublicOrigin]
+			),
 			{ cursor: result.cursor },
 			"next"
 		);

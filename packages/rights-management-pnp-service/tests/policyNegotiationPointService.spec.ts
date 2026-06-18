@@ -1,5 +1,6 @@
 // Copyright 2025 IOTA Stiftung.
 // SPDX-License-Identifier: Apache-2.0.
+import { HttpContextIdKeys } from "@twin.org/api-models";
 import {
 	TaskSchedulerService,
 	initSchema as initSchemaScheduler,
@@ -97,8 +98,8 @@ function createRemoteComponent(
 		getNegotiation: async (id, trustPayload) => target.getNegotiation(id, trustPayload),
 		sendRequestToProvider: async (url, requesterType, odrlOfferId, publicOrigin) =>
 			target.sendRequestToProvider(url, requesterType, odrlOfferId, publicOrigin),
-		requestFromConsumer: async (message, trustPayload, publicOrigin) =>
-			target.requestFromConsumer(message, trustPayload, targetOrigin),
+		requestFromConsumer: async (message, trustPayload) =>
+			target.requestFromConsumer(message, trustPayload),
 		offerFromProvider: async (message, trustPayload) =>
 			target.offerFromProvider(message, trustPayload),
 		agreementFromProvider: async (message, trustPayload) =>
@@ -339,7 +340,8 @@ describe("PolicyNegotiationPointService", () => {
 		// Signing identity is the node DID
 		ContextIdStore.getContextIds = vi.fn().mockImplementation(() => ({
 			[ContextIdKeys.Node]: testIdentityConsumer,
-			[ContextIdKeys.Organization]: testOrganizationId
+			[ContextIdKeys.Organization]: testOrganizationId,
+			[HttpContextIdKeys.PublicOrigin]: providerOrigin
 		}));
 	});
 
@@ -1590,8 +1592,7 @@ describe("PolicyNegotiationPointService", () => {
 					offer: mockOffer
 					// callbackAddress intentionally omitted — must be accepted per DSP spec
 				},
-				`token:${testIdentityConsumer}`,
-				providerOrigin
+				`token:${testIdentityConsumer}`
 			);
 
 			expect(result["@type"]).toBe(DataspaceProtocolContractNegotiationTypes.ContractNegotiation);
@@ -1622,8 +1623,7 @@ describe("PolicyNegotiationPointService", () => {
 					consumerPid: "urn:contract-negotiation:no-cb-auto-accept",
 					offer: mockOffer
 				},
-				`token:${testIdentityConsumer}`,
-				providerOrigin
+				`token:${testIdentityConsumer}`
 			);
 
 			// Wait past the setTimeout(100) the auto-accept path uses to schedule sendOfferToConsumer.
