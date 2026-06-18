@@ -84,7 +84,7 @@ The negotiation id.
 
 ### requestFromConsumer() {#requestfromconsumer}
 
-> **requestFromConsumer**(`message`, `trustPayload`, `publicOrigin?`): `Promise`\<`IDataspaceProtocolContractNegotiation` \| `IDataspaceProtocolContractNegotiationError`\>
+> **requestFromConsumer**(`message`, `trustPayload`): `Promise`\<`IDataspaceProtocolContractNegotiation` \| `IDataspaceProtocolContractNegotiationError`\>
 
 Processes an incoming request on a provider from a consumer.
 
@@ -101,12 +101,6 @@ The negotiation request.
 `unknown`
 
 Trust payload to verify the requesters identity.
-
-##### publicOrigin?
-
-`string`
-
-The public origin url of this PNP service.
 
 #### Returns
 
