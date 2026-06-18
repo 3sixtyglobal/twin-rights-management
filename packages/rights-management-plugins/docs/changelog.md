@@ -6,6 +6,28 @@
 
 * remove EcosystemPolicy-related examples/assumptions; plugins now target standard ODRL policy types for v2.
 
+## [0.0.3-next.54](https://github.com/iotaledger/twin-rights-management/compare/rights-management-plugins-v0.0.3-next.53...rights-management-plugins-v0.0.3-next.54) (2026-06-18)
+
+
+### Features
+
+* left operators ([#203](https://github.com/iotaledger/twin-rights-management/issues/203)) ([93dced6](https://github.com/iotaledger/twin-rights-management/commit/93dced6186097794ef5f3620bcf8cc86c0a77f9d))
+
+
+### Dependencies
+
+* The following workspace dependencies were updated
+  * dependencies
+    * @twin.org/rights-management-models bumped from 0.0.3-next.53 to 0.0.3-next.54
+  * devDependencies
+    * @twin.org/rights-management-pap-service bumped from 0.0.3-next.53 to 0.0.3-next.54
+    * @twin.org/rights-management-pdp-service bumped from 0.0.3-next.53 to 0.0.3-next.54
+    * @twin.org/rights-management-pep-service bumped from 0.0.3-next.53 to 0.0.3-next.54
+    * @twin.org/rights-management-pip-service bumped from 0.0.3-next.53 to 0.0.3-next.54
+    * @twin.org/rights-management-pmp-service bumped from 0.0.3-next.53 to 0.0.3-next.54
+    * @twin.org/rights-management-pnp-service bumped from 0.0.3-next.53 to 0.0.3-next.54
+    * @twin.org/rights-management-pxp-service bumped from 0.0.3-next.53 to 0.0.3-next.54
+
 ## [0.0.3-next.53](https://github.com/iotaledger/twin-rights-management/compare/rights-management-plugins-v0.0.3-next.52...rights-management-plugins-v0.0.3-next.53) (2026-06-17)
 
 
