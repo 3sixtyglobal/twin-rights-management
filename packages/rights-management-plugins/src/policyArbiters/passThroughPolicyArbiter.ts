@@ -1,14 +1,14 @@
 // Copyright 2025 IOTA Stiftung.
 // SPDX-License-Identifier: Apache-2.0.
 import { ComponentFactory, Guards } from "@twin.org/core";
-import type { IJsonLdNodeObject } from "@twin.org/data-json-ld";
 import type { ILoggingComponent } from "@twin.org/logging-models";
 import { nameof } from "@twin.org/nameof";
 import {
 	OdrlPolicyHelper,
 	PolicyDecision,
 	type IPolicyArbiter,
-	type IPolicyDecision
+	type IPolicyDecision,
+	type IRightsManagementInformation
 } from "@twin.org/rights-management-models";
 import type { IDataspaceProtocolAgreement } from "@twin.org/standards-dataspace-protocol";
 import type { OdrlActionType } from "@twin.org/standards-w3c-odrl";
@@ -55,7 +55,7 @@ export class PassThroughPolicyArbiter implements IPolicyArbiter {
 	 */
 	public async decide<D = unknown>(
 		agreement: IDataspaceProtocolAgreement,
-		information?: { [id: string]: IJsonLdNodeObject },
+		information?: IRightsManagementInformation,
 		data?: D,
 		action?: OdrlActionType | string
 	): Promise<IPolicyDecision[]> {

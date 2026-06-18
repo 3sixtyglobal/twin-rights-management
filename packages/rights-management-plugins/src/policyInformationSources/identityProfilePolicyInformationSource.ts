@@ -1,15 +1,16 @@
 // Copyright 2025 IOTA Stiftung.
 // SPDX-License-Identifier: Apache-2.0.
 import { BaseError, ComponentFactory, Guards, Is, NotFoundError } from "@twin.org/core";
-import { JsonLdHelper, type IJsonLdNodeObject } from "@twin.org/data-json-ld";
+import { type IJsonLdNodeObject, JsonLdHelper } from "@twin.org/data-json-ld";
 import type { IIdentityProfileComponent } from "@twin.org/identity-models";
 import type { ILoggingComponent } from "@twin.org/logging-models";
 import { nameof } from "@twin.org/nameof";
 import {
-	type IPolicyInformationSource,
-	type IRightsManagementPolicy,
 	OdrlPolicyHelper,
-	PolicyInformationAccessMode
+	PolicyInformationAccessMode,
+	type IPolicyInformationSource,
+	type IRightsManagementInformation,
+	type IRightsManagementPolicy
 } from "@twin.org/rights-management-models";
 import type { OdrlActionType } from "@twin.org/standards-w3c-odrl";
 import type { IIdentityProfilePolicyInformationSourceConstructorOptions } from "../models/IIdentityProfilePolicyInformationSourceConstructorOptions.js";
@@ -67,7 +68,7 @@ export class IdentityProfilePolicyInformationSource implements IPolicyInformatio
 		accessMode: PolicyInformationAccessMode,
 		data?: D,
 		action?: OdrlActionType | string
-	): Promise<{ [id: string]: IJsonLdNodeObject } | undefined> {
+	): Promise<IRightsManagementInformation | undefined> {
 		Guards.arrayOneOf(
 			IdentityProfilePolicyInformationSource.CLASS_NAME,
 			nameof(accessMode),
@@ -75,7 +76,7 @@ export class IdentityProfilePolicyInformationSource implements IPolicyInformatio
 			Object.values(PolicyInformationAccessMode)
 		);
 
-		const information: { [id: string]: IJsonLdNodeObject } = {};
+		const information: IRightsManagementInformation = {};
 
 		if (Is.object<IRightsManagementPolicy>(policy)) {
 			const ids = [];
@@ -100,18 +101,18 @@ export class IdentityProfilePolicyInformationSource implements IPolicyInformatio
 						}
 					});
 
+					const profile = (information.profile as { [id: string]: IJsonLdNodeObject }) ?? {};
+
 					if (accessMode === PolicyInformationAccessMode.Public) {
 						const publicProfile = await this._identityProfile.getPublic(id);
-						information.profile ??= {};
-						information.profile[id] = {
+						profile[id] = {
 							public: Is.object(publicProfile)
 								? JsonLdHelper.toNodeObject(publicProfile)
 								: undefined
 						};
 					} else {
 						const result = await this._identityProfile.get(undefined, undefined, id);
-						information.profile ??= {};
-						information.profile[id] = {
+						profile[id] = {
 							public: Is.object(result.publicProfile)
 								? JsonLdHelper.toNodeObject(result.publicProfile)
 								: undefined,
@@ -120,6 +121,7 @@ export class IdentityProfilePolicyInformationSource implements IPolicyInformatio
 								: undefined
 						};
 					}
+					information.profile = profile;
 				} catch (err) {
 					if (!BaseError.someErrorName(err, NotFoundError.CLASS_NAME)) {
 						await this._logging?.log({

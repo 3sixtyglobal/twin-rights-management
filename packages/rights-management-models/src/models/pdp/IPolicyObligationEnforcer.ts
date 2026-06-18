@@ -1,8 +1,8 @@
 // Copyright 2025 IOTA Stiftung.
 // SPDX-License-Identifier: Apache-2.0.
 import type { IComponent } from "@twin.org/core";
-import type { IJsonLdNodeObject } from "@twin.org/data-json-ld";
 import type { OdrlActionType, IOdrlDuty } from "@twin.org/standards-w3c-odrl";
+import type { IRightsManagementInformation } from "../IRightsManagementInformation.js";
 import type { IRightsManagementPolicy } from "../IRightsManagementPolicy.js";
 
 /**
@@ -21,7 +21,7 @@ export interface IPolicyObligationEnforcer extends IComponent {
 	enforce<D = unknown>(
 		policy: IRightsManagementPolicy,
 		duty: IOdrlDuty,
-		information?: { [id: string]: IJsonLdNodeObject },
+		information?: IRightsManagementInformation,
 		data?: D,
 		action?: OdrlActionType | string
 	): Promise<boolean>;

@@ -25,6 +25,7 @@ import type {
 import {
 	OdrlConflictStrategyType,
 	OdrlContexts,
+	OdrlLeftOperandType,
 	OdrlOperatorType,
 	OdrlPolicyType,
 	type IOdrlConstraint,
@@ -4232,6 +4233,823 @@ describe("DefaultPolicyArbiter", () => {
 			await expect(arbiter.decide(childPolicy, undefined, {})).rejects.toThrow(
 				"inheritedPolicyProfileNotSupported"
 			);
+		});
+	});
+
+	describe("dateTime left operand", () => {
+		test("grants when current date is before the lt bound", async () => {
+			const arbiter = new DefaultPolicyArbiter();
+			const futureDate = new Date();
+			futureDate.setFullYear(futureDate.getFullYear() + 1);
+			const policy: IDataspaceProtocolAgreement = {
+				"@context": OdrlContexts.Context,
+				"@type": OdrlPolicyType.Agreement,
+				assigner: "did:example:default-assigner",
+				assignee: "did:example:default-assignee",
+				"@id": "policy:datetime-lt-future",
+				permission: [
+					{
+						constraint: [
+							{
+								leftOperand: OdrlLeftOperandType.DateTime,
+								operator: OdrlOperatorType.Lt,
+								rightOperand: {
+									"@value": futureDate.toISOString(),
+									"@type": "xsd:dateTime"
+								}
+							}
+						]
+					}
+				]
+			};
+
+			const decisions = await arbiter.decide(policy, undefined, {});
+			expect(decisions[0].decision).toBe(PolicyDecision.Granted);
+		});
+
+		test("denies when current date is after the lt bound", async () => {
+			const arbiter = new DefaultPolicyArbiter();
+			const policy: IDataspaceProtocolAgreement = {
+				"@context": OdrlContexts.Context,
+				"@type": OdrlPolicyType.Agreement,
+				assigner: "did:example:default-assigner",
+				assignee: "did:example:default-assignee",
+				"@id": "policy:datetime-lt-past",
+				permission: [
+					{
+						constraint: [
+							{
+								leftOperand: OdrlLeftOperandType.DateTime,
+								operator: OdrlOperatorType.Lt,
+								rightOperand: {
+									"@value": "2018-01-01",
+									"@type": "xsd:date"
+								}
+							}
+						]
+					}
+				]
+			};
+
+			const decisions = await arbiter.decide(policy, undefined, {});
+			expect(decisions[0].decision).toBe(PolicyDecision.Denied);
+		});
+
+		test("grants when current date is within a gteq/lteq window", async () => {
+			const arbiter = new DefaultPolicyArbiter();
+			const past = new Date();
+			past.setFullYear(past.getFullYear() - 1);
+			const future = new Date();
+			future.setFullYear(future.getFullYear() + 1);
+			const policy: IDataspaceProtocolAgreement = {
+				"@context": OdrlContexts.Context,
+				"@type": OdrlPolicyType.Agreement,
+				assigner: "did:example:default-assigner",
+				assignee: "did:example:default-assignee",
+				"@id": "policy:datetime-window",
+				permission: [
+					{
+						constraint: [
+							{
+								leftOperand: OdrlLeftOperandType.DateTime,
+								operator: OdrlOperatorType.Gteq,
+								rightOperand: { "@value": past.toISOString(), "@type": "xsd:dateTime" }
+							},
+							{
+								leftOperand: OdrlLeftOperandType.DateTime,
+								operator: OdrlOperatorType.Lteq,
+								rightOperand: { "@value": future.toISOString(), "@type": "xsd:dateTime" }
+							}
+						]
+					}
+				]
+			};
+
+			const decisions = await arbiter.decide(policy, undefined, {});
+			expect(decisions[0].decision).toBe(PolicyDecision.Granted);
+		});
+	});
+
+	describe("unsupported ODRL built-in left operands", () => {
+		test.each([
+			OdrlLeftOperandType.Count,
+			OdrlLeftOperandType.ElapsedTime,
+			OdrlLeftOperandType.Language,
+			OdrlLeftOperandType.Purpose,
+			OdrlLeftOperandType.PayAmount
+		])("throws for built-in left operand '%s' when information is absent", async leftOperand => {
+			const arbiter = new DefaultPolicyArbiter();
+			const policy: IDataspaceProtocolAgreement = {
+				"@context": OdrlContexts.Context,
+				"@type": OdrlPolicyType.Agreement,
+				assigner: "did:example:default-assigner",
+				assignee: "did:example:default-assignee",
+				"@id": "policy:unsupported-operand",
+				permission: [
+					{
+						constraint: [
+							{
+								leftOperand,
+								operator: OdrlOperatorType.Eq,
+								rightOperand: "any"
+							}
+						]
+					}
+				]
+			};
+
+			await expect(arbiter.decide(policy, undefined, {})).rejects.toThrow(
+				"leftOperandNotSupported"
+			);
+		});
+	});
+
+	describe("information key left operands", () => {
+		test("grants when purpose eq matches information value", async () => {
+			const arbiter = new DefaultPolicyArbiter();
+			const policy: IDataspaceProtocolAgreement = {
+				"@context": OdrlContexts.Context,
+				"@type": OdrlPolicyType.Agreement,
+				assigner: "did:example:default-assigner",
+				assignee: "did:example:default-assignee",
+				"@id": "policy:info-purpose-eq",
+				permission: [
+					{
+						constraint: [
+							{
+								leftOperand: OdrlLeftOperandType.Purpose,
+								operator: OdrlOperatorType.Eq,
+								rightOperand: "research"
+							}
+						]
+					}
+				]
+			};
+
+			const granted = await arbiter.decide(policy, { purpose: "research" }, {});
+			expect(granted[0].decision).toBe(PolicyDecision.Granted);
+
+			const denied = await arbiter.decide(policy, { purpose: "commercial" }, {});
+			expect(denied[0].decision).toBe(PolicyDecision.Denied);
+		});
+
+		test("grants when purpose neq does not match information value", async () => {
+			const arbiter = new DefaultPolicyArbiter();
+			const policy: IDataspaceProtocolAgreement = {
+				"@context": OdrlContexts.Context,
+				"@type": OdrlPolicyType.Agreement,
+				assigner: "did:example:default-assigner",
+				assignee: "did:example:default-assignee",
+				"@id": "policy:info-purpose-neq",
+				permission: [
+					{
+						constraint: [
+							{
+								leftOperand: OdrlLeftOperandType.Purpose,
+								operator: OdrlOperatorType.Neq,
+								rightOperand: "commercial"
+							}
+						]
+					}
+				]
+			};
+
+			const granted = await arbiter.decide(policy, { purpose: "research" }, {});
+			expect(granted[0].decision).toBe(PolicyDecision.Granted);
+
+			const denied = await arbiter.decide(policy, { purpose: "commercial" }, {});
+			expect(denied[0].decision).toBe(PolicyDecision.Denied);
+		});
+
+		test("grants when count gt information value exceeds threshold", async () => {
+			const arbiter = new DefaultPolicyArbiter();
+			const policy: IDataspaceProtocolAgreement = {
+				"@context": OdrlContexts.Context,
+				"@type": OdrlPolicyType.Agreement,
+				assigner: "did:example:default-assigner",
+				assignee: "did:example:default-assignee",
+				"@id": "policy:info-count-gt",
+				permission: [
+					{
+						constraint: [
+							{
+								leftOperand: OdrlLeftOperandType.Count,
+								operator: OdrlOperatorType.Gt,
+								rightOperand: { "@value": "3", "@type": "xsd:integer" }
+							}
+						]
+					}
+				]
+			};
+
+			const granted = await arbiter.decide(policy, { count: 5 }, {});
+			expect(granted[0].decision).toBe(PolicyDecision.Granted);
+
+			const denied = await arbiter.decide(policy, { count: 2 }, {});
+			expect(denied[0].decision).toBe(PolicyDecision.Denied);
+		});
+
+		test("grants when count lteq information value is within limit", async () => {
+			const arbiter = new DefaultPolicyArbiter();
+			const policy: IDataspaceProtocolAgreement = {
+				"@context": OdrlContexts.Context,
+				"@type": OdrlPolicyType.Agreement,
+				assigner: "did:example:default-assigner",
+				assignee: "did:example:default-assignee",
+				"@id": "policy:info-count-lteq",
+				permission: [
+					{
+						constraint: [
+							{
+								leftOperand: OdrlLeftOperandType.Count,
+								operator: OdrlOperatorType.Lteq,
+								rightOperand: { "@value": "10", "@type": "xsd:integer" }
+							}
+						]
+					}
+				]
+			};
+
+			const granted = await arbiter.decide(policy, { count: 10 }, {});
+			expect(granted[0].decision).toBe(PolicyDecision.Granted);
+
+			const denied = await arbiter.decide(policy, { count: 11 }, {});
+			expect(denied[0].decision).toBe(PolicyDecision.Denied);
+		});
+
+		test("grants with isAnyOf when purpose is in the permitted set", async () => {
+			const arbiter = new DefaultPolicyArbiter();
+			const policy: IDataspaceProtocolAgreement = {
+				"@context": OdrlContexts.Context,
+				"@type": OdrlPolicyType.Agreement,
+				assigner: "did:example:default-assigner",
+				assignee: "did:example:default-assignee",
+				"@id": "policy:info-isanyof",
+				permission: [
+					{
+						constraint: [
+							{
+								leftOperand: OdrlLeftOperandType.Purpose,
+								operator: OdrlOperatorType.IsAnyOf,
+								rightOperand: ["research", "education"]
+							}
+						]
+					}
+				]
+			};
+
+			const granted = await arbiter.decide(policy, { purpose: "education" }, {});
+			expect(granted[0].decision).toBe(PolicyDecision.Granted);
+
+			const denied = await arbiter.decide(policy, { purpose: "commercial" }, {});
+			expect(denied[0].decision).toBe(PolicyDecision.Denied);
+		});
+
+		test("grants with isNoneOf when purpose is not in the blocked set", async () => {
+			const arbiter = new DefaultPolicyArbiter();
+			const policy: IDataspaceProtocolAgreement = {
+				"@context": OdrlContexts.Context,
+				"@type": OdrlPolicyType.Agreement,
+				assigner: "did:example:default-assigner",
+				assignee: "did:example:default-assignee",
+				"@id": "policy:info-isnoneof",
+				permission: [
+					{
+						constraint: [
+							{
+								leftOperand: OdrlLeftOperandType.Purpose,
+								operator: OdrlOperatorType.IsNoneOf,
+								rightOperand: ["commercial", "advertising"]
+							}
+						]
+					}
+				]
+			};
+
+			const granted = await arbiter.decide(policy, { purpose: "research" }, {});
+			expect(granted[0].decision).toBe(PolicyDecision.Granted);
+
+			const denied = await arbiter.decide(policy, { purpose: "commercial" }, {});
+			expect(denied[0].decision).toBe(PolicyDecision.Denied);
+		});
+
+		describe("spatial left operands", () => {
+			test("locTimeEq grants when spatial region matches", async () => {
+				const arbiter = new DefaultPolicyArbiter();
+				const policy: IDataspaceProtocolAgreement = {
+					"@context": OdrlContexts.Context,
+					"@type": OdrlPolicyType.Agreement,
+					assigner: "did:example:default-assigner",
+					assignee: "did:example:default-assignee",
+					"@id": "policy:spatial-loctimeeq",
+					permission: [
+						{
+							constraint: [
+								{
+									leftOperand: OdrlLeftOperandType.Spatial,
+									operator: OdrlOperatorType.LocTimeEq,
+									rightOperand: "urn:example:region:EU"
+								}
+							]
+						}
+					]
+				};
+
+				const granted = await arbiter.decide(policy, { spatial: "urn:example:region:EU" }, {});
+				expect(granted[0].decision).toBe(PolicyDecision.Granted);
+
+				const denied = await arbiter.decide(policy, { spatial: "urn:example:region:US" }, {});
+				expect(denied[0].decision).toBe(PolicyDecision.Denied);
+			});
+
+			test("locTimeEq grants when virtualLocation matches", async () => {
+				const arbiter = new DefaultPolicyArbiter();
+				const policy: IDataspaceProtocolAgreement = {
+					"@context": OdrlContexts.Context,
+					"@type": OdrlPolicyType.Agreement,
+					assigner: "did:example:default-assigner",
+					assignee: "did:example:default-assignee",
+					"@id": "policy:virtual-loctimeeq",
+					permission: [
+						{
+							constraint: [
+								{
+									leftOperand: OdrlLeftOperandType.VirtualLocation,
+									operator: OdrlOperatorType.LocTimeEq,
+									rightOperand: "https://example.org/space/alpha"
+								}
+							]
+						}
+					]
+				};
+
+				const granted = await arbiter.decide(
+					policy,
+					{ virtualLocation: "https://example.org/space/alpha" },
+					{}
+				);
+				expect(granted[0].decision).toBe(PolicyDecision.Granted);
+
+				const denied = await arbiter.decide(
+					policy,
+					{ virtualLocation: "https://example.org/space/beta" },
+					{}
+				);
+				expect(denied[0].decision).toBe(PolicyDecision.Denied);
+			});
+
+			test("locTimeGteq grants when absoluteSpatialPosition meets the threshold", async () => {
+				const arbiter = new DefaultPolicyArbiter();
+				const policy: IDataspaceProtocolAgreement = {
+					"@context": OdrlContexts.Context,
+					"@type": OdrlPolicyType.Agreement,
+					assigner: "did:example:default-assigner",
+					assignee: "did:example:default-assignee",
+					"@id": "policy:spatial-locgtimegteq",
+					permission: [
+						{
+							constraint: [
+								{
+									leftOperand: OdrlLeftOperandType.AbsoluteSpatialPosition,
+									operator: OdrlOperatorType.LocTimeGteq,
+									rightOperand: { "@value": "51.0", "@type": "xsd:decimal" }
+								}
+							]
+						}
+					]
+				};
+
+				const granted = await arbiter.decide(policy, { absoluteSpatialPosition: 51.5 }, {});
+				expect(granted[0].decision).toBe(PolicyDecision.Granted);
+
+				const denied = await arbiter.decide(policy, { absoluteSpatialPosition: 50.9 }, {});
+				expect(denied[0].decision).toBe(PolicyDecision.Denied);
+			});
+		});
+
+		test("throws when known built-in key is absent from information", async () => {
+			const arbiter = new DefaultPolicyArbiter();
+			const policy: IDataspaceProtocolAgreement = {
+				"@context": OdrlContexts.Context,
+				"@type": OdrlPolicyType.Agreement,
+				assigner: "did:example:default-assigner",
+				assignee: "did:example:default-assignee",
+				"@id": "policy:info-key-absent",
+				permission: [
+					{
+						constraint: [
+							{
+								leftOperand: OdrlLeftOperandType.Purpose,
+								operator: OdrlOperatorType.Eq,
+								rightOperand: "research"
+							}
+						]
+					}
+				]
+			};
+
+			await expect(arbiter.decide(policy, { language: "en" }, {})).rejects.toThrow(
+				"leftOperandNotSupported"
+			);
+		});
+
+		test.each([OdrlOperatorType.IsA, OdrlOperatorType.HasPart, OdrlOperatorType.IsPartOf])(
+			"structural operator '%s' still throws for known built-in even with information present",
+			async operator => {
+				const arbiter = new DefaultPolicyArbiter();
+				const policy: IDataspaceProtocolAgreement = {
+					"@context": OdrlContexts.Context,
+					"@type": OdrlPolicyType.Agreement,
+					assigner: "did:example:default-assigner",
+					assignee: "did:example:default-assignee",
+					"@id": "policy:structural-operator",
+					permission: [
+						{
+							constraint: [
+								{
+									leftOperand: OdrlLeftOperandType.Purpose,
+									operator,
+									rightOperand: "research"
+								}
+							]
+						}
+					]
+				};
+
+				await expect(arbiter.decide(policy, { purpose: "research" }, {})).rejects.toThrow(
+					"leftOperandNotSupported"
+				);
+			}
+		);
+
+		test("resolves custom non-ODRL key directly from information", async () => {
+			const arbiter = new DefaultPolicyArbiter();
+			const policy: IDataspaceProtocolAgreement = {
+				"@context": OdrlContexts.Context,
+				"@type": OdrlPolicyType.Agreement,
+				assigner: "did:example:default-assigner",
+				assignee: "did:example:default-assignee",
+				"@id": "policy:custom-info-key",
+				permission: [
+					{
+						constraint: [
+							{
+								leftOperand: "contractTier",
+								operator: OdrlOperatorType.Eq,
+								rightOperand: "premium"
+							}
+						]
+					}
+				]
+			};
+
+			const granted = await arbiter.decide(policy, { contractTier: "premium" }, {});
+			expect(granted[0].decision).toBe(PolicyDecision.Granted);
+
+			const denied = await arbiter.decide(policy, { contractTier: "standard" }, {});
+			expect(denied[0].decision).toBe(PolicyDecision.Denied);
+		});
+	});
+
+	describe("left operand spec coverage", () => {
+		// Builds a minimal agreement with a single constraint, reused across many tests below.
+		const makeAgreement = (
+			id: string,
+			leftOperand: string,
+			operator: string,
+			rightOperand: IOdrlConstraint["rightOperand"]
+		): IDataspaceProtocolAgreement => ({
+			"@context": OdrlContexts.Context,
+			"@type": OdrlPolicyType.Agreement,
+			assigner: "did:example:default-assigner",
+			assignee: "did:example:default-assignee",
+			"@id": id,
+			permission: [
+				{
+					constraint: [{ leftOperand, operator: operator as OdrlOperatorType, rightOperand }]
+				}
+			]
+		});
+
+		// ── String / URI operands ──────────────────────────────────────────────────
+		// Spec: fileFormat, industry, media, product, deliveryChannel, systemDevice,
+		//       unitOfCount, recipient, version all carry string or IRI values and are
+		//       compared with equality operators.
+
+		test.each([
+			[OdrlLeftOperandType.FileFormat, "image/jpeg", "image/png"],
+			[OdrlLeftOperandType.Industry, "publishing", "finance"],
+			[OdrlLeftOperandType.Media, "print", "electronic"],
+			[OdrlLeftOperandType.Product, "urn:product:enterprise", "urn:product:basic"],
+			[OdrlLeftOperandType.DeliveryChannel, "mobile", "web"],
+			[OdrlLeftOperandType.SystemDevice, "did:device:sensor-1", "did:device:sensor-2"],
+			[OdrlLeftOperandType.UnitOfCount, "perUser", "perDevice"],
+			[OdrlLeftOperandType.Recipient, "did:example:alice", "did:example:bob"],
+			[OdrlLeftOperandType.Version, "2.0", "1.0"]
+		] as [string, string, string][])(
+			"string/URI operand '%s' eq grants when matching, denies otherwise",
+			async (leftOperand, matchValue, otherValue) => {
+				const arbiter = new DefaultPolicyArbiter();
+				const policy = makeAgreement(
+					`policy:str-${leftOperand}`,
+					leftOperand,
+					OdrlOperatorType.Eq,
+					matchValue
+				);
+
+				const granted = await arbiter.decide(policy, { [leftOperand]: matchValue }, {});
+				expect(granted[0].decision).toBe(PolicyDecision.Granted);
+
+				const denied = await arbiter.decide(policy, { [leftOperand]: otherValue }, {});
+				expect(denied[0].decision).toBe(PolicyDecision.Denied);
+			}
+		);
+
+		test("media isAnyOf grants when value is within the allowed set", async () => {
+			const arbiter = new DefaultPolicyArbiter();
+			const policy = makeAgreement(
+				"policy:media-isanyof",
+				OdrlLeftOperandType.Media,
+				OdrlOperatorType.IsAnyOf,
+				["print", "electronic"]
+			);
+
+			const granted = await arbiter.decide(policy, { media: "electronic" }, {});
+			expect(granted[0].decision).toBe(PolicyDecision.Granted);
+
+			const denied = await arbiter.decide(policy, { media: "advertising" }, {});
+			expect(denied[0].decision).toBe(PolicyDecision.Denied);
+		});
+
+		// ── Numeric operands ──────────────────────────────────────────────────────
+		// Spec: payAmount (xsd:decimal), percentage (xsd:decimal 0-100),
+		//       absoluteSize, relativeSize, relativeTemporalPosition, resolution
+		//       all carry numeric values and support ordered comparison operators.
+
+		test.each([
+			// [leftOperand, infoValue (grants), threshold, operator]
+			[OdrlLeftOperandType.PayAmount, 50, 100, OdrlOperatorType.Lteq],
+			[OdrlLeftOperandType.Percentage, 75, 50, OdrlOperatorType.Gt],
+			[OdrlLeftOperandType.AbsoluteSize, 1024, 2048, OdrlOperatorType.Lt],
+			[OdrlLeftOperandType.RelativeSize, 80, 80, OdrlOperatorType.Gteq],
+			[OdrlLeftOperandType.Resolution, 300, 300, OdrlOperatorType.Gteq],
+			[OdrlLeftOperandType.RelativeTemporalPosition, 25, 50, OdrlOperatorType.Lt]
+		] as [string, number, number, string][])(
+			"numeric operand '%s' with '%s' grants when threshold is met",
+			async (leftOperand, infoValue, threshold, operator) => {
+				const arbiter = new DefaultPolicyArbiter();
+				const policy = makeAgreement(`policy:num-${leftOperand}`, leftOperand, operator, {
+					"@value": String(threshold),
+					"@type": "xsd:decimal"
+				});
+
+				const granted = await arbiter.decide(policy, { [leftOperand]: infoValue }, {});
+				expect(granted[0].decision).toBe(PolicyDecision.Granted);
+			}
+		);
+
+		// ── Event operand temporal semantics ─────────────────────────────────────
+		// Spec: operators signal before (lt), during (eq) or after (gt) the named event.
+		// When event context and reference are ISO date strings, string ordering matches
+		// chronological ordering, making lt/eq/gt semantically correct.
+
+		test("event lt grants when context date is before the event date", async () => {
+			const arbiter = new DefaultPolicyArbiter();
+			const policy = makeAgreement(
+				"policy:event-lt",
+				OdrlLeftOperandType.Event,
+				OdrlOperatorType.Lt,
+				"2025-01-01"
+			);
+
+			const granted = await arbiter.decide(policy, { event: "2024-06-01" }, {});
+			expect(granted[0].decision).toBe(PolicyDecision.Granted);
+
+			const denied = await arbiter.decide(policy, { event: "2026-01-01" }, {});
+			expect(denied[0].decision).toBe(PolicyDecision.Denied);
+		});
+
+		test("event eq grants during (matching) the named event", async () => {
+			const arbiter = new DefaultPolicyArbiter();
+			const policy = makeAgreement(
+				"policy:event-eq",
+				OdrlLeftOperandType.Event,
+				OdrlOperatorType.Eq,
+				"urn:event:conference-2024"
+			);
+
+			const granted = await arbiter.decide(policy, { event: "urn:event:conference-2024" }, {});
+			expect(granted[0].decision).toBe(PolicyDecision.Granted);
+
+			const denied = await arbiter.decide(policy, { event: "urn:event:conference-2025" }, {});
+			expect(denied[0].decision).toBe(PolicyDecision.Denied);
+		});
+
+		test("event gt grants when context date is after the event date", async () => {
+			const arbiter = new DefaultPolicyArbiter();
+			const policy = makeAgreement(
+				"policy:event-gt",
+				OdrlLeftOperandType.Event,
+				OdrlOperatorType.Gt,
+				"2023-06-15"
+			);
+
+			const granted = await arbiter.decide(policy, { event: "2024-01-01" }, {});
+			expect(granted[0].decision).toBe(PolicyDecision.Granted);
+
+			const denied = await arbiter.decide(policy, { event: "2022-01-01" }, {});
+			expect(denied[0].decision).toBe(PolicyDecision.Denied);
+		});
+
+		// ── Duration operands ─────────────────────────────────────────────────────
+		// Spec: delayPeriod (eq/gt/gteq), elapsedTime (eq/lt/lteq),
+		//       meteredTime (eq/lt/lteq), timeInterval (eq only) — all xsd:duration.
+		// ISO 8601 strings are supported end-to-end: coerceXsdType maps xsd:duration
+		// to Coerce.duration, and compareOrdered resolves duration strings on either side.
+
+		test("delayPeriod gteq grants when ISO 8601 delay meets minimum (spec: eq/gt/gteq)", async () => {
+			const arbiter = new DefaultPolicyArbiter();
+			const policy = makeAgreement(
+				"policy:delayperiod-gteq",
+				OdrlLeftOperandType.DelayPeriod,
+				OdrlOperatorType.Gteq,
+				{ "@value": "PT30M", "@type": "xsd:duration" }
+			);
+
+			// PT1H (3600s) >= PT30M (1800s)
+			const granted = await arbiter.decide(policy, { delayPeriod: "PT1H" }, {});
+			expect(granted[0].decision).toBe(PolicyDecision.Granted);
+
+			// PT15M (900s) is not >= PT30M (1800s)
+			const denied = await arbiter.decide(policy, { delayPeriod: "PT15M" }, {});
+			expect(denied[0].decision).toBe(PolicyDecision.Denied);
+		});
+
+		test("elapsedTime lteq grants when ISO 8601 elapsed time is within limit (spec: eq/lt/lteq)", async () => {
+			const arbiter = new DefaultPolicyArbiter();
+			const policy = makeAgreement(
+				"policy:elapsedtime-lteq",
+				OdrlLeftOperandType.ElapsedTime,
+				OdrlOperatorType.Lteq,
+				{ "@value": "PT1H", "@type": "xsd:duration" }
+			);
+
+			// PT30M (1800s) <= PT1H (3600s)
+			const granted = await arbiter.decide(policy, { elapsedTime: "PT30M" }, {});
+			expect(granted[0].decision).toBe(PolicyDecision.Granted);
+
+			// PT2H (7200s) is not <= PT1H (3600s)
+			const denied = await arbiter.decide(policy, { elapsedTime: "PT2H" }, {});
+			expect(denied[0].decision).toBe(PolicyDecision.Denied);
+		});
+
+		test("meteredTime lteq grants when ISO 8601 metered time is within budget (spec: eq/lt/lteq)", async () => {
+			const arbiter = new DefaultPolicyArbiter();
+			const policy = makeAgreement(
+				"policy:meteredtime-lteq",
+				OdrlLeftOperandType.MeteredTime,
+				OdrlOperatorType.Lteq,
+				{ "@value": "PT10M", "@type": "xsd:duration" }
+			);
+
+			// PT5M (300s) <= PT10M (600s)
+			const granted = await arbiter.decide(policy, { meteredTime: "PT5M" }, {});
+			expect(granted[0].decision).toBe(PolicyDecision.Granted);
+
+			// PT11M (660s) is not <= PT10M (600s)
+			const denied = await arbiter.decide(policy, { meteredTime: "PT11M" }, {});
+			expect(denied[0].decision).toBe(PolicyDecision.Denied);
+		});
+
+		test("timeInterval eq grants when ISO 8601 interval matches (spec: eq only)", async () => {
+			const arbiter = new DefaultPolicyArbiter();
+			const policy = makeAgreement(
+				"policy:timeinterval-eq",
+				OdrlLeftOperandType.TimeInterval,
+				OdrlOperatorType.Eq,
+				{ "@value": "P1D", "@type": "xsd:duration" }
+			);
+
+			// P1D (86400s) == P1D (86400s)
+			const granted = await arbiter.decide(policy, { timeInterval: "P1D" }, {});
+			expect(granted[0].decision).toBe(PolicyDecision.Granted);
+
+			// PT12H (43200s) != P1D (86400s)
+			const denied = await arbiter.decide(policy, { timeInterval: "PT12H" }, {});
+			expect(denied[0].decision).toBe(PolicyDecision.Denied);
+		});
+
+		// ── Coordinate and complex operands ───────────────────────────────────────
+		// Spec: spatialCoordinates carries longitude/latitude/altitude values;
+		//       absoluteTemporalPosition carries a Media Fragment URI string.
+		// For structured coordinate objects, only deep equality (eq) is meaningful.
+		// Ordering operators are not defined by the spec for coordinate types.
+
+		test("spatialCoordinates eq grants when coordinate object matches exactly", async () => {
+			const arbiter = new DefaultPolicyArbiter();
+			const coords = { lon: 13.405, lat: 52.52, datum: "WGS84" };
+			const policy = makeAgreement(
+				"policy:spatialcoords-eq",
+				OdrlLeftOperandType.SpatialCoordinates,
+				OdrlOperatorType.Eq,
+				JSON.stringify(coords)
+			);
+
+			const granted = await arbiter.decide(
+				policy,
+				{ spatialCoordinates: JSON.stringify(coords) },
+				{}
+			);
+			expect(granted[0].decision).toBe(PolicyDecision.Granted);
+
+			const denied = await arbiter.decide(
+				policy,
+				{ spatialCoordinates: JSON.stringify({ lon: 2.35, lat: 48.85, datum: "WGS84" }) },
+				{}
+			);
+			expect(denied[0].decision).toBe(PolicyDecision.Denied);
+		});
+
+		test("absoluteTemporalPosition eq grants when media fragment URI matches", async () => {
+			const arbiter = new DefaultPolicyArbiter();
+			// Media Fragment URI format: t=<start>,<end> (seconds in media stream)
+			const policy = makeAgreement(
+				"policy:abstemporalpos-eq",
+				OdrlLeftOperandType.AbsoluteTemporalPosition,
+				OdrlOperatorType.Eq,
+				"t=30,60"
+			);
+
+			const granted = await arbiter.decide(policy, { absoluteTemporalPosition: "t=30,60" }, {});
+			expect(granted[0].decision).toBe(PolicyDecision.Granted);
+
+			const denied = await arbiter.decide(policy, { absoluteTemporalPosition: "t=0,30" }, {});
+			expect(denied[0].decision).toBe(PolicyDecision.Denied);
+		});
+
+		// ── Bug regression tests ───────────────────────────────────────────────────
+
+		test("neq correctly denies when ISO 8601 duration string matches xsd:duration right operand", async () => {
+			const arbiter = new DefaultPolicyArbiter();
+			const policy = makeAgreement(
+				"policy:neq-duration-regression",
+				OdrlLeftOperandType.DelayPeriod,
+				OdrlOperatorType.Neq,
+				{ "@value": "PT1H", "@type": "xsd:duration" }
+			);
+
+			// "PT1H" == "PT1H" semantically → Neq must DENY
+			const denied = await arbiter.decide(policy, { delayPeriod: "PT1H" }, {});
+			expect(denied[0].decision).toBe(PolicyDecision.Denied);
+
+			// "PT2H" != "PT1H" → Neq must GRANT
+			const granted = await arbiter.decide(policy, { delayPeriod: "PT2H" }, {});
+			expect(granted[0].decision).toBe(PolicyDecision.Granted);
+		});
+
+		test("eq does not grant when boolean false and string '0' are compared", async () => {
+			const arbiter = new DefaultPolicyArbiter();
+			const policy = makeAgreement("policy:eq-boolean-zero", "enabled", OdrlOperatorType.Eq, "0");
+
+			// false is not equal to "0" — no numeric coercion should bridge them
+			const denied = await arbiter.decide(policy, { enabled: false }, {});
+			expect(denied[0].decision).toBe(PolicyDecision.Denied);
+		});
+
+		test("isNoneOf correctly denies when numeric information value is in string-array right operand", async () => {
+			const arbiter = new DefaultPolicyArbiter();
+			const policy = makeAgreement(
+				"policy:isnone-numeric",
+				OdrlLeftOperandType.Count,
+				OdrlOperatorType.IsNoneOf,
+				["1", "2", "3"]
+			);
+
+			// count = 1 (number) is in ["1","2","3"] → IsNoneOf must DENY
+			const denied = await arbiter.decide(policy, { count: 1 }, {});
+			expect(denied[0].decision).toBe(PolicyDecision.Denied);
+
+			// count = 4 is not in ["1","2","3"] → IsNoneOf must GRANT
+			const granted = await arbiter.decide(policy, { count: 4 }, {});
+			expect(granted[0].decision).toBe(PolicyDecision.Granted);
+		});
+
+		test("xsd:duration right operand accepts non-ISO numeric string as seconds", async () => {
+			const arbiter = new DefaultPolicyArbiter();
+			const policy = makeAgreement(
+				"policy:duration-numeric-fallback",
+				OdrlLeftOperandType.DelayPeriod,
+				OdrlOperatorType.Gteq,
+				{ "@value": "1800", "@type": "xsd:duration" }
+			);
+
+			// 3600s >= 1800s → GRANT
+			const granted = await arbiter.decide(policy, { delayPeriod: 3600 }, {});
+			expect(granted[0].decision).toBe(PolicyDecision.Granted);
+
+			// 900s < 1800s → DENY
+			const denied = await arbiter.decide(policy, { delayPeriod: 900 }, {});
+			expect(denied[0].decision).toBe(PolicyDecision.Denied);
 		});
 	});
 });

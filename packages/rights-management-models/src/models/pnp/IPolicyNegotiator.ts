@@ -1,12 +1,12 @@
 // Copyright 2025 IOTA Stiftung.
 // SPDX-License-Identifier: Apache-2.0.
 import type { IComponent } from "@twin.org/core";
-import type { IJsonLdNodeObject } from "@twin.org/data-json-ld";
 import type {
 	IDataspaceProtocolAgreement,
 	IDataspaceProtocolOffer
 } from "@twin.org/standards-dataspace-protocol";
 import type { IOdrlParty } from "@twin.org/standards-w3c-odrl";
+import type { IRightsManagementInformation } from "../IRightsManagementInformation.js";
 
 /**
  * Interface describing a Policy Negotiator.
@@ -27,7 +27,7 @@ export interface IPolicyNegotiator extends IComponent {
 	 */
 	handleOffer(
 		offer: IDataspaceProtocolOffer,
-		information?: { [id: string]: IJsonLdNodeObject }
+		information?: IRightsManagementInformation
 	): Promise<{
 		accepted: boolean;
 		interventionRequired: boolean;
@@ -43,6 +43,6 @@ export interface IPolicyNegotiator extends IComponent {
 	createAgreement(
 		offer: IDataspaceProtocolOffer,
 		assignee: string | IOdrlParty,
-		information?: { [id: string]: IJsonLdNodeObject }
+		information?: IRightsManagementInformation
 	): Promise<IDataspaceProtocolAgreement | undefined>;
 }

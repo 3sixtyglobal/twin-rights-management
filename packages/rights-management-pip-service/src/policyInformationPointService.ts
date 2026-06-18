@@ -1,11 +1,11 @@
 // Copyright 2025 IOTA Stiftung.
 // SPDX-License-Identifier: Apache-2.0.
 import { BaseError, ComponentFactory, Guards, Is } from "@twin.org/core";
-import type { IJsonLdNodeObject } from "@twin.org/data-json-ld";
 import type { ILoggingComponent } from "@twin.org/logging-models";
 import { nameof } from "@twin.org/nameof";
 import {
 	type IPolicyInformationPointComponent,
+	type IRightsManagementInformation,
 	type IRightsManagementPolicy,
 	OdrlPolicyHelper,
 	PolicyInformationAccessMode,
@@ -58,7 +58,7 @@ export class PolicyInformationPointService implements IPolicyInformationPointCom
 		accessMode: PolicyInformationAccessMode,
 		data?: D,
 		action?: OdrlActionType | string
-	): Promise<{ [id: string]: IJsonLdNodeObject }> {
+	): Promise<IRightsManagementInformation> {
 		Guards.arrayOneOf(
 			PolicyInformationPointService.CLASS_NAME,
 			nameof(accessMode),
@@ -66,7 +66,7 @@ export class PolicyInformationPointService implements IPolicyInformationPointCom
 			Object.values(PolicyInformationAccessMode)
 		);
 
-		let information: { [id: string]: IJsonLdNodeObject } = {};
+		let information: IRightsManagementInformation = {};
 
 		const sourceNames = PolicyInformationSourceFactory.names();
 		const sources = sourceNames.map(sourceName => PolicyInformationSourceFactory.get(sourceName));

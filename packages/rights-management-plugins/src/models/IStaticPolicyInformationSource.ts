@@ -1,7 +1,9 @@
 // Copyright 2025 IOTA Stiftung.
 // SPDX-License-Identifier: Apache-2.0.
-import type { IJsonLdNodeObject } from "@twin.org/data-json-ld";
-import type { PolicyInformationAccessMode } from "@twin.org/rights-management-models";
+import type {
+	IRightsManagementInformation,
+	PolicyInformationAccessMode
+} from "@twin.org/rights-management-models";
 
 /**
  * Configuration for the Static Policy Information Source Component.
@@ -25,5 +27,5 @@ export interface IStaticPolicyInformationSource {
 	/**
 	 * The objects containing the information.
 	 */
-	objects: { [id: string]: IJsonLdNodeObject };
+	objects: IRightsManagementInformation;
 }

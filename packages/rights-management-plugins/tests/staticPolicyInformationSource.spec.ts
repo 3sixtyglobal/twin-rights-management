@@ -1,7 +1,6 @@
 // Copyright 2025 IOTA Stiftung.
 // SPDX-License-Identifier: Apache-2.0.
 import { ComponentFactory } from "@twin.org/core";
-import type { IJsonLdNodeObject } from "@twin.org/data-json-ld";
 import { MemoryEntityStorageConnector } from "@twin.org/entity-storage-connector-memory";
 import { EntityStorageConnectorFactory } from "@twin.org/entity-storage-models";
 import {
@@ -12,7 +11,10 @@ import {
 import { LoggingConnectorFactory } from "@twin.org/logging-models";
 import { LoggingService } from "@twin.org/logging-service";
 import { nameof } from "@twin.org/nameof";
-import { PolicyInformationAccessMode } from "@twin.org/rights-management-models";
+import {
+	type IRightsManagementInformation,
+	PolicyInformationAccessMode
+} from "@twin.org/rights-management-models";
 import type { IDataspaceProtocolPolicy } from "@twin.org/standards-dataspace-protocol";
 import { OdrlContexts, OdrlPolicyType } from "@twin.org/standards-w3c-odrl";
 import { StaticPolicyInformationSource } from "../src/policyInformationSources/staticPolicyInformationSource.js";
@@ -130,7 +132,7 @@ describe("StaticPolicyInformationSource", () => {
 		["Public", PolicyInformationAccessMode.Public],
 		["Private", PolicyInformationAccessMode.Private]
 	])("falls back to Any when only Any configured (%s)", async (name, accessMode) => {
-		const anyInfo: { [id: string]: IJsonLdNodeObject } = {
+		const anyInfo: IRightsManagementInformation = {
 			any1: { "@id": "any1", "@type": "AnyInfo", visibility: "any" }
 		};
 
@@ -213,7 +215,7 @@ describe("StaticPolicyInformationSource", () => {
 	});
 
 	test("returns information when matchLocators is undefined (matches all)", async () => {
-		const allMap: { [id: string]: IJsonLdNodeObject } = {
+		const allMap: IRightsManagementInformation = {
 			all1: { "@id": "all1", "@type": "AllInfo", data: "matches everything" }
 		};
 
@@ -246,7 +248,7 @@ describe("StaticPolicyInformationSource", () => {
 	});
 
 	test("returns information for specific target and action combination", async () => {
-		const specificMap: { [id: string]: IJsonLdNodeObject } = {
+		const specificMap: IRightsManagementInformation = {
 			specific1: { "@id": "specific1", "@type": "SpecificInfo", data: "document-read only" }
 		};
 
@@ -279,7 +281,7 @@ describe("StaticPolicyInformationSource", () => {
 	});
 
 	test("returns information when target is undefined (matches all targets)", async () => {
-		const readInfo: { [id: string]: IJsonLdNodeObject } = {
+		const readInfo: IRightsManagementInformation = {
 			read1: { "@id": "read1", "@type": "ReadInfo", data: "all targets read action" }
 		};
 
@@ -319,7 +321,7 @@ describe("StaticPolicyInformationSource", () => {
 	});
 
 	test("returns information when action is undefined (matches all actions)", async () => {
-		const documentMap: { [id: string]: IJsonLdNodeObject } = {
+		const documentMap: IRightsManagementInformation = {
 			doc1: { "@id": "doc1", "@type": "DocumentInfo", data: "all document actions" }
 		};
 
@@ -359,7 +361,7 @@ describe("StaticPolicyInformationSource", () => {
 	});
 
 	test("returns information when both target and action are undefined (matches all)", async () => {
-		const universalMap: { [id: string]: IJsonLdNodeObject } = {
+		const universalMap: IRightsManagementInformation = {
 			universal1: { "@id": "universal1", "@type": "UniversalInfo", data: "matches everything" }
 		};
 
@@ -392,7 +394,7 @@ describe("StaticPolicyInformationSource", () => {
 	});
 
 	test("handles multiple matchLocators combinations", async () => {
-		const multiMap: { [id: string]: IJsonLdNodeObject } = {
+		const multiMap: IRightsManagementInformation = {
 			multi1: { "@id": "multi1", "@type": "MultiInfo", data: "multiple combinations" }
 		};
 
@@ -443,10 +445,10 @@ describe("StaticPolicyInformationSource", () => {
 	});
 
 	test("combines accessMode and matchLocators filtering", async () => {
-		const publicDocMap: { [id: string]: IJsonLdNodeObject } = {
+		const publicDocMap: IRightsManagementInformation = {
 			pubdoc1: { "@id": "pubdoc1", "@type": "PublicDocInfo", data: "public document read" }
 		};
-		const privateImageMap: { [id: string]: IJsonLdNodeObject } = {
+		const privateImageMap: IRightsManagementInformation = {
 			privimg1: { "@id": "privimg1", "@type": "PrivateImageInfo", data: "private image write" }
 		};
 
@@ -498,7 +500,7 @@ describe("StaticPolicyInformationSource", () => {
 	});
 
 	test("returns all entries when matchLocators array is empty", async () => {
-		const emptyMatchMap: { [id: string]: IJsonLdNodeObject } = {
+		const emptyMatchMap: IRightsManagementInformation = {
 			empty1: { "@id": "empty1", "@type": "EmptyMatchInfo", data: "should never match" }
 		};
 
@@ -527,7 +529,7 @@ describe("StaticPolicyInformationSource", () => {
 		const policyInformationSource = new StaticPolicyInformationSource({
 			config: { information: [] }
 		});
-		const dynamicInfo: { [id: string]: IJsonLdNodeObject } = {
+		const dynamicInfo: IRightsManagementInformation = {
 			dyn1: { "@id": "dyn1", "@type": "DynamicInfo", value: "dynamic" }
 		};
 
@@ -572,7 +574,7 @@ describe("StaticPolicyInformationSource", () => {
 		expect(() =>
 			policyInformationSource.addInformation({
 				accessMode: PolicyInformationAccessMode.Any,
-				objects: [] as unknown as { [id: string]: IJsonLdNodeObject }
+				objects: [] as unknown as IRightsManagementInformation
 			})
 		).toThrow();
 	});

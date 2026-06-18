@@ -1,7 +1,6 @@
 // Copyright 2025 IOTA Stiftung.
 // SPDX-License-Identifier: Apache-2.0.
 import { ComponentFactory, Factory } from "@twin.org/core";
-import type { IJsonLdNodeObject } from "@twin.org/data-json-ld";
 import { MemoryEntityStorageConnector } from "@twin.org/entity-storage-connector-memory";
 import { EntityStorageConnectorFactory } from "@twin.org/entity-storage-models";
 import {
@@ -15,7 +14,8 @@ import { nameof } from "@twin.org/nameof";
 import {
 	PolicyInformationAccessMode,
 	PolicyInformationSourceFactory,
-	type IPolicyInformationSource
+	type IPolicyInformationSource,
+	type IRightsManagementInformation
 } from "@twin.org/rights-management-models";
 import { OdrlContexts } from "@twin.org/standards-w3c-odrl";
 import { PolicyInformationPointService } from "../src/policyInformationPointService.js";
@@ -85,7 +85,7 @@ describe("PolicyInformationPointService", () => {
 
 	test("can retrieve information from a registered source", async () => {
 		const policyInformationPoint = new PolicyInformationPointService();
-		const mockInformation: { [id: string]: IJsonLdNodeObject } = {
+		const mockInformation: IRightsManagementInformation = {
 			mock: {
 				"@context": "http://www.w3.org/ns/did/v1",
 				"@type": "VerifiableCredential",
@@ -132,10 +132,10 @@ describe("PolicyInformationPointService", () => {
 
 	test("can retrieve information from multiple sources", async () => {
 		const policyInformationPoint = new PolicyInformationPointService();
-		const identityInfo: { [id: string]: IJsonLdNodeObject } = {
+		const identityInfo: IRightsManagementInformation = {
 			identity: { "@type": "Identity", "@id": "user123", role: "admin" }
 		};
-		const contextInfo: { [id: string]: IJsonLdNodeObject } = {
+		const contextInfo: IRightsManagementInformation = {
 			context: { "@type": "Context", "@id": "context1", location: "EU", timeZone: "UTC+1" }
 		};
 		const identitySource = new MockPolicyInformationSource("identity");
@@ -215,7 +215,7 @@ describe("PolicyInformationPointService", () => {
 		const workingSource = new MockPolicyInformationSource("working");
 		const failingSource = new MockPolicyInformationSource("failing");
 
-		const workingInfo: { [id: string]: IJsonLdNodeObject } = {
+		const workingInfo: IRightsManagementInformation = {
 			working: { "@id": "working-info", "@type": "Info" }
 		};
 		workingSource.retrieve.mockResolvedValue(workingInfo);

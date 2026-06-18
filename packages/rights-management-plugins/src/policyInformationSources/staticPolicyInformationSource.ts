@@ -1,13 +1,13 @@
 // Copyright 2025 IOTA Stiftung.
 // SPDX-License-Identifier: Apache-2.0.
 import { ComponentFactory, Guards, Is } from "@twin.org/core";
-import type { IJsonLdNodeObject } from "@twin.org/data-json-ld";
 import type { ILoggingComponent } from "@twin.org/logging-models";
 import { nameof } from "@twin.org/nameof";
 import {
 	OdrlPolicyHelper,
 	PolicyInformationAccessMode,
 	type IPolicyInformationSource,
+	type IRightsManagementInformation,
 	type IRightsManagementPolicy
 } from "@twin.org/rights-management-models";
 import type { OdrlActionType } from "@twin.org/standards-w3c-odrl";
@@ -65,7 +65,7 @@ export class StaticPolicyInformationSource implements IPolicyInformationSource {
 		accessMode: PolicyInformationAccessMode,
 		data?: D,
 		action?: OdrlActionType | string
-	): Promise<{ [id: string]: IJsonLdNodeObject } | undefined> {
+	): Promise<IRightsManagementInformation | undefined> {
 		Guards.arrayOneOf(
 			StaticPolicyInformationSource.CLASS_NAME,
 			nameof(accessMode),
@@ -73,7 +73,7 @@ export class StaticPolicyInformationSource implements IPolicyInformationSource {
 			Object.values(PolicyInformationAccessMode)
 		);
 
-		let information: { [id: string]: IJsonLdNodeObject } = {};
+		let information: IRightsManagementInformation = {};
 
 		await this._logging?.log({
 			level: "info",
@@ -131,7 +131,7 @@ export class StaticPolicyInformationSource implements IPolicyInformationSource {
 			info.accessMode,
 			Object.values(PolicyInformationAccessMode)
 		);
-		Guards.objectValue<{ [id: string]: IJsonLdNodeObject }>(
+		Guards.objectValue<IRightsManagementInformation>(
 			StaticPolicyInformationSource.CLASS_NAME,
 			nameof(info.objects),
 			info.objects

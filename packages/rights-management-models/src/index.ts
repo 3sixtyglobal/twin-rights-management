@@ -37,6 +37,7 @@ export * from "./models/api/pnp/IPnpNegotiationGetRequest.js";
 export * from "./models/api/pnp/IPnpOfferRequest.js";
 export * from "./models/api/pnp/IPnpTerminateRequest.js";
 export * from "./models/IRightsManagementAgreement.js";
+export * from "./models/IRightsManagementInformation.js";
 export * from "./models/IRightsManagementOffer.js";
 export * from "./models/IRightsManagementPolicy.js";
 export * from "./models/IRightsManagementPolicyMetadata.js";

@@ -4,13 +4,13 @@ import {
 	ArrayHelper,
 	Coerce,
 	ComponentFactory,
+	Duration,
 	GeneralError,
 	Guards,
 	Is,
 	ObjectHelper,
 	StringHelper
 } from "@twin.org/core";
-import type { IJsonLdNodeObject } from "@twin.org/data-json-ld";
 import { JsonPathHelper } from "@twin.org/data-json-path";
 import type { ILoggingComponent } from "@twin.org/logging-models";
 import { nameof } from "@twin.org/nameof";
@@ -22,12 +22,14 @@ import {
 	type IPolicyAdministrationPointComponent,
 	type IPolicyArbiter,
 	type IPolicyDecision,
+	type IRightsManagementInformation,
 	type IRightsManagementPolicy
 } from "@twin.org/rights-management-models";
 import type { IDataspaceProtocolAgreement } from "@twin.org/standards-dataspace-protocol";
 import {
 	type IOdrlAssetCollection,
 	OdrlConflictStrategyType,
+	OdrlLeftOperandType,
 	OdrlLogicalConstraintType,
 	OdrlOperatorType,
 	OdrlTypes,
@@ -171,7 +173,7 @@ export class DefaultPolicyArbiter implements IPolicyArbiter {
 	 */
 	public async decide<D = unknown>(
 		agreement: IDataspaceProtocolAgreement,
-		information?: { [id: string]: IJsonLdNodeObject },
+		information?: IRightsManagementInformation,
 		data?: D,
 		action?: OdrlActionType | string
 	): Promise<IPolicyDecision[]> {
@@ -1185,7 +1187,7 @@ export class DefaultPolicyArbiter implements IPolicyArbiter {
 	): Promise<boolean> {
 		const enforcerNames = PolicyObligationEnforcerFactory.names();
 		const information = dataSources[DefaultPolicyArbiter._INFORMATION_SOURCE_KEY] as
-			| { [id: string]: IJsonLdNodeObject }
+			| IRightsManagementInformation
 			| undefined;
 
 		if (enforcerNames.length === 0) {
@@ -1781,12 +1783,14 @@ export class DefaultPolicyArbiter implements IPolicyArbiter {
 		const leftValue = this.calculateOperandValue(
 			regularConstraint.leftOperand,
 			dataSources,
-			regularConstraint
+			regularConstraint,
+			true
 		);
 		const rightValue = this.calculateOperandValue(
 			regularConstraint.rightOperand,
 			dataSources,
-			regularConstraint
+			regularConstraint,
+			false
 		);
 		const mainSatisfied = this.evaluateOperator(regularConstraint.operator, leftValue, rightValue);
 
@@ -1978,13 +1982,16 @@ export class DefaultPolicyArbiter implements IPolicyArbiter {
 	 * @param operand The operand.
 	 * @param dataSources The available prefixed operand sources.
 	 * @param constraint Optional constraint providing additional context for operand resolution.
+	 * @param isLeftOperand True when resolving the left operand of the constraint.
 	 * @returns The resolved operand value.
+	 * @throws GeneralError When a known ODRL built-in left operand cannot be resolved.
 	 * @internal
 	 */
 	private calculateOperandValue(
 		operand: IOdrlConstraint["leftOperand"] | IOdrlConstraint["rightOperand"] | string,
 		dataSources: { [source: string]: unknown },
-		constraint?: IOdrlConstraint
+		constraint?: IOdrlConstraint,
+		isLeftOperand?: boolean
 	): unknown {
 		let jsonPath: string | undefined;
 		let operandRoot: unknown;
@@ -2008,6 +2015,28 @@ export class DefaultPolicyArbiter implements IPolicyArbiter {
 			if (lookup) {
 				jsonPath = lookup.jsonPath;
 				operandRoot = lookup.source;
+			} else {
+				const builtIn = this.resolveOdrlBuiltInLeftOperand(operand);
+				if (!Is.undefined(builtIn)) {
+					return builtIn;
+				}
+				if (isLeftOperand) {
+					if (this.operatorSupportsInformationLookup(constraint?.operator)) {
+						const infoResult = this.resolveInformationKeyOperand(operand, dataSources);
+						if (infoResult.found) {
+							return infoResult.value;
+						}
+						if (this.isKnownOdrlBuiltInOperand(operand)) {
+							throw new GeneralError(DefaultPolicyArbiter.CLASS_NAME, "leftOperandNotSupported", {
+								leftOperand: operand
+							});
+						}
+					} else if (this.isKnownOdrlBuiltInOperand(operand)) {
+						throw new GeneralError(DefaultPolicyArbiter.CLASS_NAME, "leftOperandNotSupported", {
+							leftOperand: operand
+						});
+					}
+				}
 			}
 		} else if (Is.object<{ "@type": unknown; "@value": unknown }>(operand)) {
 			const typedOperand = operand as {
@@ -2181,9 +2210,13 @@ export class DefaultPolicyArbiter implements IPolicyArbiter {
 
 		switch (operator) {
 			case OdrlOperatorType.Eq:
-				return leftValues.some(v => ObjectHelper.equal(v, right, false));
+				return leftValues.some(
+					v => ObjectHelper.equal(v, right, false) || this.compareDurationEq(v, right)
+				);
 			case OdrlOperatorType.Neq:
-				return leftValues.every(v => !ObjectHelper.equal(v, right, false));
+				return leftValues.every(
+					v => !ObjectHelper.equal(v, right, false) && !this.compareDurationEq(v, right)
+				);
 			case OdrlOperatorType.Gt:
 				return leftValues.some(v => this.compareOrdered(v, right, (a, b) => a > b));
 			case OdrlOperatorType.Gteq:
@@ -2205,7 +2238,11 @@ export class DefaultPolicyArbiter implements IPolicyArbiter {
 				return ObjectHelper.equal(leftValues, ArrayHelper.fromObjectOrArray(right) ?? [], false);
 			}
 			case OdrlOperatorType.IsNoneOf: {
-				return leftValues.every(v => !(ArrayHelper.fromObjectOrArray(right) ?? []).includes(v));
+				return leftValues.every(v => {
+					const stringValue =
+						Is.string(v) || Is.number(v) || Is.boolean(v) ? String(v) : JSON.stringify(v);
+					return !(ArrayHelper.fromObjectOrArray(right) ?? []).includes(stringValue);
+				});
 			}
 			case OdrlOperatorType.LocTimeEq:
 				return leftValues.some(v => ObjectHelper.equal(v, right, false));
@@ -2245,6 +2282,11 @@ export class DefaultPolicyArbiter implements IPolicyArbiter {
 		if (!Is.undefined(leftDate) && !Is.undefined(rightDate)) {
 			return compare(leftDate.getTime(), rightDate.getTime());
 		}
+		const leftDuration = Coerce.duration(left);
+		const rightDuration = Coerce.duration(right);
+		if (!Is.undefined(leftDuration) && !Is.undefined(rightDuration)) {
+			return compare(Duration.toSeconds(leftDuration), Duration.toSeconds(rightDuration));
+		}
 
 		// Only use string ordering when both operands are actual strings.
 		// Avoid coercing other types into strings, as that can cause
@@ -2254,6 +2296,96 @@ export class DefaultPolicyArbiter implements IPolicyArbiter {
 		}
 
 		return false;
+	}
+
+	/**
+	 * Test whether two values are equal when interpreted as ISO 8601 durations.
+	 * Returns false if either side cannot be coerced to a duration.
+	 * @param left The left value.
+	 * @param right The right value.
+	 * @returns True when both sides represent the same duration in seconds.
+	 * @internal
+	 */
+	private compareDurationEq(left: unknown, right: unknown): boolean {
+		const leftDuration = Coerce.duration(left);
+		const rightDuration = Coerce.duration(right);
+		if (!Is.undefined(leftDuration) && !Is.undefined(rightDuration)) {
+			return Duration.toSeconds(leftDuration) === Duration.toSeconds(rightDuration);
+		}
+		return false;
+	}
+
+	/**
+	 * Resolve an ODRL built-in left operand to its runtime value.
+	 * Returns the resolved value for natively-handled operands and undefined for all others.
+	 * Callers are responsible for throwing when an unresolved known built-in is unacceptable.
+	 * @param operand The left operand string.
+	 * @returns The resolved value, or undefined when the operand has no native resolution.
+	 * @internal
+	 */
+	private resolveOdrlBuiltInLeftOperand(operand: string): unknown {
+		if (operand === OdrlLeftOperandType.DateTime) {
+			return new Date();
+		}
+		return undefined;
+	}
+
+	/**
+	 * Determine whether the operand string is a recognised ODRL built-in left operand.
+	 * @param operand The operand string to test.
+	 * @returns True when the operand appears in the OdrlLeftOperandType vocabulary.
+	 * @internal
+	 */
+	private isKnownOdrlBuiltInOperand(operand: string): boolean {
+		return (Object.values(OdrlLeftOperandType) as string[]).includes(operand);
+	}
+
+	/**
+	 * Determine whether the operator supports resolving left operands from the information object.
+	 * Value-comparison and set operators are supported; structural/relationship operators are not.
+	 * @param operator The operator to test.
+	 * @returns True when information-key lookup is appropriate for this operator.
+	 * @internal
+	 */
+	private operatorSupportsInformationLookup(
+		operator: OdrlOperatorType | string | undefined
+	): boolean {
+		switch (operator) {
+			case OdrlOperatorType.Eq:
+			case OdrlOperatorType.Neq:
+			case OdrlOperatorType.Gt:
+			case OdrlOperatorType.Gteq:
+			case OdrlOperatorType.Lt:
+			case OdrlOperatorType.Lteq:
+			case OdrlOperatorType.IsAnyOf:
+			case OdrlOperatorType.IsAllOf:
+			case OdrlOperatorType.IsNoneOf:
+			case OdrlOperatorType.LocTimeEq:
+			case OdrlOperatorType.LocTimeGteq:
+				return true;
+			default:
+				return false;
+		}
+	}
+
+	/**
+	 * Attempt to resolve a left operand string as a key in the information object.
+	 * @param operand The left operand string.
+	 * @param dataSources The available data sources.
+	 * @returns An object indicating whether the key was found and its value when present.
+	 * @internal
+	 */
+	private resolveInformationKeyOperand(
+		operand: string,
+		dataSources: { [source: string]: unknown }
+	): { found: boolean; value?: unknown } {
+		const information = dataSources[DefaultPolicyArbiter._INFORMATION_SOURCE_KEY] as
+			| IRightsManagementInformation
+			| undefined;
+		if (Is.object(information) && !Is.empty(information[operand])) {
+			return { found: true, value: information[operand] };
+		}
+		return { found: false };
 	}
 
 	/**
@@ -2296,6 +2428,11 @@ export class DefaultPolicyArbiter implements IPolicyArbiter {
 		} else if (["xsd:date", "xsd:dateTime", "xsd:time"].includes(type)) {
 			// Handle standard xsd types
 			return Coerce.dateTime(value);
+		} else if (type === "xsd:duration") {
+			// Handle standard xsd types - convert to total seconds for ordered comparison.
+			// Falls back to numeric coercion for non-ISO values (e.g. bare seconds as a number).
+			const dur = Coerce.duration(value);
+			return Is.undefined(dur) ? Coerce.number(value) : Duration.toSeconds(dur);
 		}
 		return undefined;
 	}
