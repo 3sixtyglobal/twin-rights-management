@@ -6,6 +6,20 @@
 
 * remove EcosystemPolicy-specific references in documentation for v2.
 
+## [0.0.3-next.58](https://github.com/iotaledger/twin-rights-management/compare/rights-management-pip-service-v0.0.3-next.57...rights-management-pip-service-v0.0.3-next.58) (2026-06-19)
+
+
+### Features
+
+* local optimization ([#216](https://github.com/iotaledger/twin-rights-management/issues/216)) ([13858ea](https://github.com/iotaledger/twin-rights-management/commit/13858ea223654468b69c7ac5793fa6a03a0a61e0))
+
+
+### Dependencies
+
+* The following workspace dependencies were updated
+  * dependencies
+    * @twin.org/rights-management-models bumped from 0.0.3-next.57 to 0.0.3-next.58
+
 ## [0.0.3-next.57](https://github.com/iotaledger/twin-rights-management/compare/rights-management-pip-service-v0.0.3-next.56...rights-management-pip-service-v0.0.3-next.57) (2026-06-19)
 
 
