@@ -6,6 +6,7 @@ import { ContextIdHelper, ContextIdKeys, ContextIdStore } from "@twin.org/contex
 import {
 	AlreadyExistsError,
 	BaseError,
+	Coerce,
 	ComponentFactory,
 	Guards,
 	Is,
@@ -69,6 +70,12 @@ export class PolicyNegotiationAdminPointService implements IPolicyNegotiationAdm
 	private readonly _negotiationStateTtlMs: number;
 
 	/**
+	 * Timeout in milliseconds to wait when acquiring a mutex lock.
+	 * @internal
+	 */
+	private readonly _mutexTimeoutMs?: number;
+
+	/**
 	 * Optional PNP component type for sending terminate to consumer callbacks during expired cleanup.
 	 * @internal
 	 */
@@ -97,6 +104,7 @@ export class PolicyNegotiationAdminPointService implements IPolicyNegotiationAdm
 				PolicyNegotiationAdminPointService._DEFAULT_NEGOTIATION_STATE_TTL_DEFAULT_MINUTES) *
 			60 *
 			1000;
+		this._mutexTimeoutMs = Coerce.integer(options?.config?.mutexTimeoutMs);
 		this._policyNegotiationPointComponentType = options?.policyNegotiationPointComponentType;
 		this._platformComponent = ComponentFactory.get<IPlatformComponent>(
 			options?.platformComponentType ?? "platform"
@@ -151,7 +159,7 @@ export class PolicyNegotiationAdminPointService implements IPolicyNegotiationAdm
 	public async create(id: string): Promise<string> {
 		Guards.stringValue(PolicyNegotiationAdminPointService.CLASS_NAME, nameof(id), id);
 
-		await Mutex.lock(id);
+		await Mutex.lock(id, { throwOnTimeout: true, timeoutMs: this._mutexTimeoutMs });
 		try {
 			const existing = await this._policyNegotiationEntityStorage.get(id);
 			if (!Is.empty(existing)) {
@@ -240,7 +248,7 @@ export class PolicyNegotiationAdminPointService implements IPolicyNegotiationAdm
 	 */
 	public async remove(policyId: string): Promise<void> {
 		Guards.stringValue(PolicyNegotiationAdminPointService.CLASS_NAME, nameof(policyId), policyId);
-		await Mutex.lock(policyId);
+		await Mutex.lock(policyId, { throwOnTimeout: true, timeoutMs: this._mutexTimeoutMs });
 		try {
 			await this._policyNegotiationEntityStorage.remove(policyId);
 		} finally {

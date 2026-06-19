@@ -5,6 +5,7 @@ import { ContextIdHelper, ContextIdKeys, ContextIdStore } from "@twin.org/contex
 import {
 	AlreadyExistsError,
 	BaseError,
+	Coerce,
 	ComponentFactory,
 	ErrorHelper,
 	GeneralError,
@@ -118,6 +119,12 @@ export class PolicyNegotiationPointService implements IPolicyNegotiationPointCom
 	private readonly _includeErrorDetails: boolean;
 
 	/**
+	 * Timeout in milliseconds to wait when acquiring a mutex lock.
+	 * @internal
+	 */
+	private readonly _mutexTimeoutMs?: number;
+
+	/**
 	 * Create a new instance of PolicyNegotiationPointService (PNP).
 	 * @param options The options for the component.
 	 */
@@ -145,6 +152,7 @@ export class PolicyNegotiationPointService implements IPolicyNegotiationPointCom
 			: "";
 		this._overrideTrustGeneratorType = options?.config?.overrideTrustGeneratorType;
 		this._includeErrorDetails = options?.config?.includeErrorDetails ?? false;
+		this._mutexTimeoutMs = Coerce.integer(options?.config?.mutexTimeoutMs);
 	}
 
 	/**
@@ -1747,7 +1755,7 @@ export class PolicyNegotiationPointService implements IPolicyNegotiationPointCom
 	 * @internal
 	 */
 	private async setIfExists(negotiation: IPolicyNegotiation): Promise<boolean> {
-		await Mutex.lock(negotiation.id);
+		await Mutex.lock(negotiation.id, { throwOnTimeout: true, timeoutMs: this._mutexTimeoutMs });
 		try {
 			try {
 				await this._policyNegotiationAdminPointComponent.get(negotiation.id);

@@ -21,4 +21,9 @@ export interface IPolicyNegotiationPointServiceConfig {
 	 * @default false
 	 */
 	includeErrorDetails?: boolean;
+
+	/**
+	 * Timeout in milliseconds to wait when acquiring a mutex lock.
+	 */
+	mutexTimeoutMs?: number;
 }

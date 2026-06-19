@@ -10,4 +10,9 @@ export interface IPolicyNegotiationAdminPointServiceConfig {
 	 * @default 1440
 	 */
 	negotiationStateTtlMinutes?: number;
+
+	/**
+	 * Timeout in milliseconds to wait when acquiring a mutex lock.
+	 */
+	mutexTimeoutMs?: number;
 }
