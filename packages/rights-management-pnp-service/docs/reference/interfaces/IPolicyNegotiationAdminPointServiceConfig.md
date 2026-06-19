@@ -15,3 +15,11 @@ How long should the states live in the store after a negotiation.
 ```ts
 1440
 ```
+
+***
+
+### mutexTimeoutMs? {#mutextimeoutms}
+
+> `optional` **mutexTimeoutMs?**: `number`
+
+Timeout in milliseconds to wait when acquiring a mutex lock.

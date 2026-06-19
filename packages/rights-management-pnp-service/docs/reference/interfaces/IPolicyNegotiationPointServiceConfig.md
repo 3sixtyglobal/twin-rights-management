@@ -32,3 +32,11 @@ Whether to include error details in the responses from the admin point.
 ```ts
 false
 ```
+
+***
+
+### mutexTimeoutMs? {#mutextimeoutms}
+
+> `optional` **mutexTimeoutMs?**: `number`
+
+Timeout in milliseconds to wait when acquiring a mutex lock.
