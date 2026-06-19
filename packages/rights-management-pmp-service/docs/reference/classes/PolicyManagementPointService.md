@@ -56,39 +56,17 @@ The class name of the component.
 
 ### retrieve() {#retrieve}
 
-> **retrieve**(`options?`, `cursor?`): `Promise`\<\{ `policies`: `IRightsManagementPolicy`[]; `cursor?`: `string`; \}\>
+> **retrieve**(`locator?`, `cursor?`): `Promise`\<\{ `policies`: `IRightsManagementPolicy`[]; `cursor?`: `string`; \}\>
 
 Get the policies from a PAP based on the data and identities.
 
 #### Parameters
 
-##### options?
+##### locator?
 
-Optional options to filter by assigner or assignee.
+`IPolicyLocator`
 
-###### assigner?
-
-`string`
-
-The assigner to filter by.
-
-###### assignee?
-
-`string`
-
-The assignee to filter by.
-
-###### target?
-
-`string`
-
-The target to filter by.
-
-###### action?
-
-`string`
-
-The action to filter by.
+Optional locator to filter by type, assigner, assignee, target, or action.
 
 ##### cursor?
 

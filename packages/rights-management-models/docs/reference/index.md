@@ -43,6 +43,7 @@
 - [IPnpOfferRequest](interfaces/IPnpOfferRequest.md)
 - [IPnpTerminateRequest](interfaces/IPnpTerminateRequest.md)
 - [IPolicyAdministrationPointComponent](interfaces/IPolicyAdministrationPointComponent.md)
+- [IPolicyLocator](interfaces/IPolicyLocator.md)
 - [IPolicyArbiter](interfaces/IPolicyArbiter.md)
 - [IPolicyDecision](interfaces/IPolicyDecision.md)
 - [IPolicyDecisionPointComponent](interfaces/IPolicyDecisionPointComponent.md)

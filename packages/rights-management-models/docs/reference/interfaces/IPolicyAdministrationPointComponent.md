@@ -164,39 +164,17 @@ A promise that resolves when the policy has been removed.
 
 ### query() {#query}
 
-> **query**(`options?`, `conditions?`, `cursor?`, `limit?`): `Promise`\<\{ `cursor?`: `string`; `policies`: [`IRightsManagementPolicy`](IRightsManagementPolicy.md)[]; \}\>
+> **query**(`locator?`, `conditions?`, `cursor?`, `limit?`): `Promise`\<\{ `cursor?`: `string`; `policies`: [`IRightsManagementPolicy`](IRightsManagementPolicy.md)[]; \}\>
 
 Query the policies using the specified conditions.
 
 #### Parameters
 
-##### options?
+##### locator?
 
-Optional options to filter by assigner or assignee.
+[`IPolicyLocator`](IPolicyLocator.md)
 
-###### assigner?
-
-`string`
-
-The assigner to filter by.
-
-###### assignee?
-
-`string`
-
-The assignee to filter by.
-
-###### target?
-
-`string`
-
-The target to filter by.
-
-###### action?
-
-`string`
-
-The action to filter by.
+Optional locator to filter by type, assigner, assignee, target, or action.
 
 ##### conditions?
 
