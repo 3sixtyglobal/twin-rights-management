@@ -6,7 +6,7 @@ import {
 	initSchema as initSchemaScheduler,
 	type ScheduledTask
 } from "@twin.org/background-task-scheduler";
-import { ContextIdKeys, ContextIdStore } from "@twin.org/context";
+import { ContextIdKeys, ContextIdStore, type IContextIds } from "@twin.org/context";
 import { ComponentFactory, Factory, Is } from "@twin.org/core";
 import type { IJsonLdNodeObject } from "@twin.org/data-json-ld";
 import { MemoryEntityStorageConnector } from "@twin.org/entity-storage-connector-memory";
@@ -265,7 +265,8 @@ describe("PolicyNegotiationPointService", () => {
 		ComponentFactory.register("platform", () => ({
 			className: () => "MockPlatformComponent",
 			isMultiTenant: () => false,
-			execute: async (method: () => Promise<void>) => method()
+			execute: async (method: () => Promise<void>) => method(),
+			getLocalOriginContext: async (url: string) => undefined
 		}));
 
 		negotiationProviderAdminPointComponent = new PolicyNegotiationAdminPointService({
@@ -2165,6 +2166,233 @@ describe("PolicyNegotiationPointService", () => {
 				testIdentityConsumer,
 				undefined
 			);
+		});
+	});
+
+	describe("local dispatch", () => {
+		function registerPlatformMock(localContext: IContextIds | undefined): void {
+			ComponentFactory.register("platform", () => ({
+				className: () => "MockPlatformComponent",
+				isMultiTenant: () => false,
+				execute: async (method: () => Promise<void>) => method(),
+				getLocalOriginContext: async (url: string) => localContext
+			}));
+		}
+
+		test("routes to self and never invokes remote factory when getLocalOriginContext returns a context", async () => {
+			registerPlatformMock({
+				[ContextIdKeys.Node]: testIdentityConsumer,
+				[ContextIdKeys.Organization]: testOrganizationId,
+				[HttpContextIdKeys.PublicOrigin]: providerOrigin
+			});
+
+			let remoteFactoryInvoked = false;
+			ComponentFactory.register("pnp-remote", () => {
+				remoteFactoryInvoked = true;
+				return {} as IPolicyNegotiationPointComponent;
+			});
+
+			const policyNegotiationPoint = new PolicyNegotiationPointService({
+				policyNegotiationAdministrationPointComponentType:
+					"policy-negotiation-provider-admin-point",
+				policyNegotiationPointRemoteComponentType: "pnp-remote",
+				config: { callbackPath: "/callback" }
+			});
+
+			PolicyRequesterFactory.register("requester-local-dispatch-1", () => mockPolicyRequester);
+			await adminPointComponent.create(mockOffer);
+			PolicyNegotiatorFactory.register("MockPolicyNegotiator", () => mockNegotiator);
+
+			await policyNegotiationPoint.sendRequestToProvider(
+				providerOrigin,
+				"requester-local-dispatch-1",
+				"urn:policy:offer-1",
+				providerOrigin
+			);
+
+			expect(remoteFactoryInvoked).toBe(false);
+		});
+
+		test("invokes remote factory when getLocalOriginContext returns undefined", async () => {
+			// Default platform mock already returns undefined; verify remote path is taken.
+			let remoteFactoryInvoked = false;
+			remoteComponentResolver = (params: { endpoint: string }) => {
+				remoteFactoryInvoked = true;
+				const providerPoint = new PolicyNegotiationPointService({
+					policyNegotiationAdministrationPointComponentType:
+						"policy-negotiation-provider-admin-point",
+					policyNegotiationPointRemoteComponentType: "pnp-remote",
+					config: { callbackPath: "/callback" }
+				});
+				if (params.endpoint.startsWith(providerOrigin)) {
+					return createRemoteComponent(providerPoint, providerOrigin);
+				}
+				throw new TypeError(`Unknown remote url ${params.endpoint}`);
+			};
+
+			const consumer = new PolicyNegotiationPointService({
+				policyNegotiationAdministrationPointComponentType:
+					"policy-negotiation-consumer-admin-point",
+				policyNegotiationPointRemoteComponentType: "pnp-remote",
+				config: { callbackPath: "/callback" }
+			});
+
+			PolicyRequesterFactory.register("requester-remote-dispatch-1", () => mockPolicyRequester);
+			await adminPointComponent.create(mockOffer);
+			PolicyNegotiatorFactory.register("MockPolicyNegotiator", () => mockNegotiator);
+
+			await consumer.sendRequestToProvider(
+				providerOrigin,
+				"requester-remote-dispatch-1",
+				"urn:policy:offer-1",
+				consumerOrigin
+			);
+
+			expect(remoteFactoryInvoked).toBe(true);
+		});
+
+		test("sendTerminateToConsumer routes to self when getLocalOriginContext returns a context", async () => {
+			registerPlatformMock({
+				[ContextIdKeys.Node]: testIdentityConsumer,
+				[ContextIdKeys.Organization]: testOrganizationId,
+				[HttpContextIdKeys.PublicOrigin]: providerOrigin
+			});
+
+			let remoteFactoryInvoked = false;
+			ComponentFactory.register("pnp-remote", () => {
+				remoteFactoryInvoked = true;
+				return {} as IPolicyNegotiationPointComponent;
+			});
+
+			const policyNegotiationPoint = new PolicyNegotiationPointService({
+				policyNegotiationAdministrationPointComponentType:
+					"policy-negotiation-provider-admin-point",
+				policyNegotiationPointRemoteComponentType: "pnp-remote",
+				config: { callbackPath: "/callback" }
+			});
+
+			const callbackAddress = `${providerOrigin}/callback`;
+
+			await negotiationProviderAdminPointComponent.set({
+				id: "local-terminate-provider-pid",
+				correlationId: "local-terminate-consumer-pid",
+				dateCreated: new Date(Date.now()).toISOString(),
+				offer: mockOffer,
+				state: DataspaceProtocolContractNegotiationStateType.REQUESTED,
+				callbackAddress,
+				organizationIdentity: testIdentityProvider,
+				trustVerificationInfo: { identity: testIdentityConsumer },
+				handlerId: "MockPolicyNegotiator"
+			});
+
+			await policyNegotiationPoint.sendTerminateToConsumer(
+				callbackAddress,
+				"local-terminate-provider-pid",
+				"local-terminate-consumer-pid"
+			);
+
+			expect(remoteFactoryInvoked).toBe(false);
+		});
+
+		test("full negotiation lifecycle completes without invoking remote factory when getLocalOriginContext always returns a context", async () => {
+			// getLocalOriginContext returns a context for every URL, so withPolicyNegotiationPointComponent
+			// routes all outbound calls to `this`. A single service instance handles both consumer
+			// and provider roles, writing all negotiations into the single admin point
+			// (policy-negotiation-provider-admin-point). The lifecycle is identical to the
+			// two-service remote case; only the dispatch path differs.
+			registerPlatformMock({
+				[ContextIdKeys.Node]: testIdentityConsumer,
+				[ContextIdKeys.Organization]: testOrganizationId,
+				[HttpContextIdKeys.PublicOrigin]: providerOrigin
+			});
+
+			let remoteFactoryInvoked = false;
+			ComponentFactory.register("pnp-remote", () => {
+				remoteFactoryInvoked = true;
+				return {} as IPolicyNegotiationPointComponent;
+			});
+
+			const policyNegotiationPoint = new PolicyNegotiationPointService({
+				policyNegotiationAdministrationPointComponentType:
+					"policy-negotiation-provider-admin-point",
+				policyNegotiationPointRemoteComponentType: "pnp-remote",
+				config: { callbackPath: "/callback" }
+			});
+
+			PolicyRequesterFactory.register("requester-local-lifecycle", () => mockPolicyRequester);
+			await adminPointComponent.create(mockOffer);
+			PolicyNegotiatorFactory.register("MockPolicyNegotiator", () => mockNegotiator);
+
+			await policyNegotiationPoint.sendRequestToProvider(
+				providerOrigin,
+				"requester-local-lifecycle",
+				"urn:policy:offer-1",
+				providerOrigin
+			);
+
+			// Consumer and provider negotiations both land in policy-negotiation-provider-admin-point
+			// because local dispatch routes all callbacks to `this`. Wait until both are FINALIZED.
+			for (let i = 0; i < 60; i++) {
+				const store = await policyNegotiationProviderMemoryEntityStorage.getStore();
+				if (store.filter(n => n.state === "FINALIZED").length >= 2) {
+					break;
+				}
+				if (i === 59) {
+					const snapshot = await policyNegotiationProviderMemoryEntityStorage.getStore();
+					console.debug("local dispatch lifecycle timeout, store:", snapshot);
+					throw new Error(
+						"Timeout waiting for both negotiations to reach FINALIZED via local dispatch"
+					);
+				}
+				await new Promise(resolve => setTimeout(resolve, 100));
+			}
+
+			const finalStore = await policyNegotiationProviderMemoryEntityStorage.getStore();
+			expect(finalStore.filter(n => n.state === "FINALIZED")).toHaveLength(2);
+			expect(remoteFactoryInvoked).toBe(false);
+		});
+
+		test("cross-tenant: ContextIdStore.run is called with the context returned by getLocalOriginContext, not the caller's context", async () => {
+			// Simulates a co-located cross-tenant call: the current context has org A
+			// (testOrganizationId) but getLocalOriginContext returns org B's context.
+			// withPolicyNegotiationPointComponent must pass org B's context to
+			// ContextIdStore.run so the action executes under the correct tenant.
+			const crossTenantOrgId = "did:test:org-b-cross-tenant";
+			const crossTenantContext = {
+				[ContextIdKeys.Node]: testIdentityConsumer,
+				[ContextIdKeys.Organization]: crossTenantOrgId,
+				[HttpContextIdKeys.PublicOrigin]: providerOrigin
+			};
+
+			registerPlatformMock(crossTenantContext);
+
+			const runSpy = vi.spyOn(ContextIdStore, "run");
+
+			ComponentFactory.register("pnp-remote", () => ({}) as IPolicyNegotiationPointComponent);
+
+			const policyNegotiationPoint = new PolicyNegotiationPointService({
+				policyNegotiationAdministrationPointComponentType:
+					"policy-negotiation-provider-admin-point",
+				policyNegotiationPointRemoteComponentType: "pnp-remote",
+				config: { callbackPath: "/callback" }
+			});
+
+			PolicyRequesterFactory.register("requester-cross-tenant", () => mockPolicyRequester);
+			await adminPointComponent.create(mockOffer);
+			PolicyNegotiatorFactory.register("MockPolicyNegotiator", () => mockNegotiator);
+
+			await policyNegotiationPoint.sendRequestToProvider(
+				providerOrigin,
+				"requester-cross-tenant",
+				"urn:policy:offer-1",
+				providerOrigin
+			);
+
+			// The action must run under the cross-tenant context, not the caller's context.
+			// Local dispatch (no remote component) must still occur.
+			expect(runSpy).toHaveBeenCalledWith(crossTenantContext, expect.any(Function));
+
+			runSpy.mockRestore();
 		});
 	});
 });

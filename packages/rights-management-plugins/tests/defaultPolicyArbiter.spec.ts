@@ -105,7 +105,8 @@ describe("DefaultPolicyArbiter", () => {
 		ComponentFactory.register("platform", () => ({
 			className: () => "MockPlatformComponent",
 			isMultiTenant: () => false,
-			execute: async (method: () => Promise<void>) => method()
+			execute: async (method: () => Promise<void>) => method(),
+			getLocalOriginContext: async () => undefined
 		}));
 
 		// Register a default PAP that rejects all requests (for tests that don't use inheritance)

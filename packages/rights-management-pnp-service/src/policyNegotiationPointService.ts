@@ -1,6 +1,6 @@
 // Copyright 2025 IOTA Stiftung.
 // SPDX-License-Identifier: Apache-2.0.
-import { HttpContextIdKeys, HttpUrlHelper } from "@twin.org/api-models";
+import { HttpContextIdKeys, HttpUrlHelper, type IPlatformComponent } from "@twin.org/api-models";
 import { ContextIdHelper, ContextIdKeys, ContextIdStore } from "@twin.org/context";
 import {
 	AlreadyExistsError,
@@ -101,6 +101,12 @@ export class PolicyNegotiationPointService implements IPolicyNegotiationPointCom
 	private readonly _policyNegotiationPointRemoteComponentType: string;
 
 	/**
+	 * The platform component.
+	 * @internal
+	 */
+	private readonly _platformComponent: IPlatformComponent;
+
+	/**
 	 * The path to append to the public origin for callback addresses.
 	 * @internal
 	 */
@@ -147,6 +153,9 @@ export class PolicyNegotiationPointService implements IPolicyNegotiationPointCom
 		);
 		this._policyNegotiationPointRemoteComponentType =
 			options?.policyNegotiationPointRemoteComponentType ?? "policy-negotiation-point-remote";
+		this._platformComponent = ComponentFactory.get<IPlatformComponent>(
+			options?.platformComponentType ?? "platform"
+		);
 		this._callbackPath = Is.stringValue(options?.config?.callbackPath)
 			? StringHelper.trimLeadingSlashes(options.config.callbackPath)
 			: "";
@@ -259,11 +268,6 @@ export class PolicyNegotiationPointService implements IPolicyNegotiationPointCom
 			}
 		);
 
-		const negotiationComponent = ComponentFactory.create<IPolicyNegotiationPointComponent>(
-			this._policyNegotiationPointRemoteComponentType,
-			{ endpoint: url, pathPrefix: "" }
-		);
-
 		const requestMessage: IDataspaceProtocolContractRequestMessage = {
 			"@context": [DataspaceProtocolContexts.Context],
 			"@type": DataspaceProtocolContractNegotiationTypes.ContractRequestMessage,
@@ -276,7 +280,9 @@ export class PolicyNegotiationPointService implements IPolicyNegotiationPointCom
 			callbackAddress: await this.buildCallbackUrl(publicOrigin, organizationIdentity)
 		};
 
-		const response = await negotiationComponent.requestFromConsumer(requestMessage, trustPayload);
+		const response = await this.withPolicyNegotiationPointComponent(url, async c =>
+			c.requestFromConsumer(requestMessage, trustPayload)
+		);
 
 		if (
 			OdrlPolicyHelper.getType(response) ===
@@ -1276,12 +1282,9 @@ export class PolicyNegotiationPointService implements IPolicyNegotiationPointCom
 			consumerPid
 		});
 
-		const negotiationComponent = ComponentFactory.create<IPolicyNegotiationPointComponent>(
-			this._policyNegotiationPointRemoteComponentType,
-			{ endpoint: callbackAddress, pathPrefix: "" }
+		await this.withPolicyNegotiationPointComponent(callbackAddress, async c =>
+			c.terminate(terminationMessage, "consumer", trustPayload)
 		);
-
-		await negotiationComponent.terminate(terminationMessage, "consumer", trustPayload);
 	}
 
 	/**
@@ -1462,12 +1465,9 @@ export class PolicyNegotiationPointService implements IPolicyNegotiationPointCom
 			// consumer is expected to poll GET /negotiations/admin/:policyId, which returns
 			// the full negotiation entity (offer included).
 			if (Is.stringValue(callbackAddress)) {
-				const negotiationComponent = ComponentFactory.create<IPolicyNegotiationPointComponent>(
-					this._policyNegotiationPointRemoteComponentType,
-					{ endpoint: callbackAddress, pathPrefix: "" }
+				const response = await this.withPolicyNegotiationPointComponent(callbackAddress, async c =>
+					c.offerFromProvider(offerMessage, trustPayload)
 				);
-
-				const response = await negotiationComponent.offerFromProvider(offerMessage, trustPayload);
 
 				// If there was no error then the consumer will now send an event if they accepted the offer
 				await this.terminateIfResponseError(response, policyNegotiation);
@@ -1536,12 +1536,9 @@ export class PolicyNegotiationPointService implements IPolicyNegotiationPointCom
 			// Only push the event when a callbackAddress was supplied. Without one the peer
 			// polls GET /negotiations/admin/:policyId to discover the transition.
 			if (Is.stringValue(callbackAddress)) {
-				const negotiationComponent = ComponentFactory.create<IPolicyNegotiationPointComponent>(
-					this._policyNegotiationPointRemoteComponentType,
-					{ endpoint: callbackAddress, pathPrefix: "" }
+				const response = await this.withPolicyNegotiationPointComponent(callbackAddress, async c =>
+					c.event(eventMessage, destination, trustPayload)
 				);
-
-				const response = await negotiationComponent.event(eventMessage, destination, trustPayload);
 
 				await this.terminateIfResponseError(response, policyNegotiation);
 			}
@@ -1654,14 +1651,9 @@ export class PolicyNegotiationPointService implements IPolicyNegotiationPointCom
 					// consumer polls GET /negotiations/admin/:policyId, which returns the full
 					// negotiation entity (agreement included).
 					if (Is.stringValue(callbackAddress)) {
-						const negotiationComponent = ComponentFactory.create<IPolicyNegotiationPointComponent>(
-							this._policyNegotiationPointRemoteComponentType,
-							{ endpoint: callbackAddress, pathPrefix: "" }
-						);
-
-						const response = await negotiationComponent.agreementFromProvider(
-							agreementMessage,
-							trustPayload
+						const response = await this.withPolicyNegotiationPointComponent(
+							callbackAddress,
+							async c => c.agreementFromProvider(agreementMessage, trustPayload)
 						);
 
 						// If there was no error then the consumer will now send an agreement verification
@@ -1722,14 +1714,8 @@ export class PolicyNegotiationPointService implements IPolicyNegotiationPointCom
 			// Only push to the provider when a callbackAddress was supplied. Without one the
 			// provider polls GET /negotiations/admin/:policyId to discover the new VERIFIED state.
 			if (Is.stringValue(callbackAddress)) {
-				const negotiationComponent = ComponentFactory.create<IPolicyNegotiationPointComponent>(
-					this._policyNegotiationPointRemoteComponentType,
-					{ endpoint: callbackAddress, pathPrefix: "" }
-				);
-
-				const response = await negotiationComponent.agreementVerificationFromConsumer(
-					agreementVerificationMessage,
-					trustPayload
+				const response = await this.withPolicyNegotiationPointComponent(callbackAddress, async c =>
+					c.agreementVerificationFromConsumer(agreementVerificationMessage, trustPayload)
 				);
 
 				await this.terminateIfResponseError(response, policyNegotiation);
@@ -1812,6 +1798,35 @@ export class PolicyNegotiationPointService implements IPolicyNegotiationPointCom
 		const url = Is.stringValue(this._callbackPath) ? `${origin}/${this._callbackPath}` : origin;
 
 		return HttpUrlHelper.addQueryStringParam(url, ContextIdKeys.Organization, organizationId);
+	}
+
+	/**
+	 * Invoke an action against the negotiation component for a given endpoint URL.
+	 * When the URL resolves to this node via the platform component, the action runs
+	 * against this service directly under the correct local context, bypassing HTTP.
+	 * Falls back to a freshly constructed remote component otherwise.
+	 * @param url The endpoint URL to resolve.
+	 * @param action The action to perform with the resolved component.
+	 * @returns The result of the action.
+	 * @internal
+	 */
+	private async withPolicyNegotiationPointComponent<T>(
+		url: string,
+		action: (component: IPolicyNegotiationPointComponent) => Promise<T>
+	): Promise<T> {
+		try {
+			const localContext = await this._platformComponent.getLocalOriginContext(url);
+			if (!Is.empty(localContext)) {
+				return await ContextIdStore.run(localContext, async () => action(this));
+			}
+		} catch {
+			// Fall back to remote component if locality check throws
+		}
+		const remoteComponent = ComponentFactory.create<IPolicyNegotiationPointComponent>(
+			this._policyNegotiationPointRemoteComponentType,
+			{ endpoint: url, pathPrefix: "" }
+		);
+		return action(remoteComponent);
 	}
 
 	/**

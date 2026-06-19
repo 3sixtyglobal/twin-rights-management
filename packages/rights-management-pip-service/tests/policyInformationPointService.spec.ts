@@ -60,7 +60,8 @@ describe("PolicyInformationPointService", () => {
 		ComponentFactory.register("platform", () => ({
 			className: () => "MockPlatformComponent",
 			isMultiTenant: () => false,
-			execute: async (method: () => Promise<void>) => method()
+			execute: async (method: () => Promise<void>) => method(),
+			getLocalOriginContext: async () => undefined
 		}));
 	});
 

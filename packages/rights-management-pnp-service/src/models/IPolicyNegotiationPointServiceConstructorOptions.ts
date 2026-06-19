@@ -43,6 +43,12 @@ export interface IPolicyNegotiationPointServiceConstructorOptions {
 	policyNegotiationPointRemoteComponentType?: string;
 
 	/**
+	 * Platform component type.
+	 * @default platform
+	 */
+	platformComponentType?: string;
+
+	/**
 	 * Configuration options for the policy negotiation point service.
 	 */
 	config?: IPolicyNegotiationPointServiceConfig;
