@@ -83,6 +83,20 @@ policy-negotiation-point-remote
 
 ***
 
+### platformComponentType? {#platformcomponenttype}
+
+> `optional` **platformComponentType?**: `string`
+
+Platform component type.
+
+#### Default
+
+```ts
+platform
+```
+
+***
+
 ### config? {#config}
 
 > `optional` **config?**: [`IPolicyNegotiationPointServiceConfig`](IPolicyNegotiationPointServiceConfig.md)
