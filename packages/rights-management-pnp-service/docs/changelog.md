@@ -6,6 +6,23 @@
 
 * remove EcosystemPolicy-specific negotiation guard and related locale contract for v2.
 
+## [0.0.3-next.56](https://github.com/iotaledger/twin-rights-management/compare/rights-management-pnp-service-v0.0.3-next.55...rights-management-pnp-service-v0.0.3-next.56) (2026-06-19)
+
+
+### Features
+
+* configurable timeout for mutex ([d59d1b9](https://github.com/iotaledger/twin-rights-management/commit/d59d1b97996e5478aeee4adcb7c69246a238c78c))
+
+
+### Dependencies
+
+* The following workspace dependencies were updated
+  * dependencies
+    * @twin.org/rights-management-models bumped from 0.0.3-next.55 to 0.0.3-next.56
+  * devDependencies
+    * @twin.org/rights-management-pap-service bumped from 0.0.3-next.55 to 0.0.3-next.56
+    * @twin.org/rights-management-pip-service bumped from 0.0.3-next.55 to 0.0.3-next.56
+
 ## [0.0.3-next.55](https://github.com/iotaledger/twin-rights-management/compare/rights-management-pnp-service-v0.0.3-next.54...rights-management-pnp-service-v0.0.3-next.55) (2026-06-18)
 
 

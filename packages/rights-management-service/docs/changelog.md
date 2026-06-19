@@ -6,6 +6,28 @@
 
 * remove EcosystemPolicy support from PAP/REST routes and generated API surface for v2.
 
+## [0.0.3-next.56](https://github.com/iotaledger/twin-rights-management/compare/rights-management-service-v0.0.3-next.55...rights-management-service-v0.0.3-next.56) (2026-06-19)
+
+
+### Miscellaneous Chores
+
+* **rights-management-service:** Synchronize repo versions
+
+
+### Dependencies
+
+* The following workspace dependencies were updated
+  * dependencies
+    * @twin.org/rights-management-models bumped from 0.0.3-next.55 to 0.0.3-next.56
+  * devDependencies
+    * @twin.org/rights-management-pap-service bumped from 0.0.3-next.55 to 0.0.3-next.56
+    * @twin.org/rights-management-pdp-service bumped from 0.0.3-next.55 to 0.0.3-next.56
+    * @twin.org/rights-management-pep-service bumped from 0.0.3-next.55 to 0.0.3-next.56
+    * @twin.org/rights-management-pip-service bumped from 0.0.3-next.55 to 0.0.3-next.56
+    * @twin.org/rights-management-pmp-service bumped from 0.0.3-next.55 to 0.0.3-next.56
+    * @twin.org/rights-management-pnp-service bumped from 0.0.3-next.55 to 0.0.3-next.56
+    * @twin.org/rights-management-pxp-service bumped from 0.0.3-next.55 to 0.0.3-next.56
+
 ## [0.0.3-next.55](https://github.com/iotaledger/twin-rights-management/compare/rights-management-service-v0.0.3-next.54...rights-management-service-v0.0.3-next.55) (2026-06-18)
 
 
