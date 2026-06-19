@@ -5,6 +5,7 @@ import type { ILoggingComponent } from "@twin.org/logging-models";
 import { nameof } from "@twin.org/nameof";
 import type {
 	IPolicyAdministrationPointComponent,
+	IPolicyLocator,
 	IPolicyManagementPointComponent,
 	IRightsManagementPolicy
 } from "@twin.org/rights-management-models";
@@ -53,52 +54,43 @@ export class PolicyManagementPointService implements IPolicyManagementPointCompo
 
 	/**
 	 * Get the policies from a PAP based on the data and identities.
-	 * @param options Optional options to filter by assigner or assignee.
-	 * @param options.assigner The assigner to filter by.
-	 * @param options.assignee The assignee to filter by.
-	 * @param options.target The target to filter by.
-	 * @param options.action The action to filter by.
+	 * @param locator Optional locator to filter by type, assigner, assignee, target, or action.
 	 * @param cursor An optional cursor to continue a previous query.
 	 * @returns Returns the policies which apply to the data and context so that the PDP can make a decision.
 	 */
 	public async retrieve(
-		options?: {
-			assigner?: string;
-			assignee?: string;
-			target?: string;
-			action?: string;
-		},
+		locator?: IPolicyLocator,
 		cursor?: string
 	): Promise<{
 		policies: IRightsManagementPolicy[];
 		cursor?: string;
 	}> {
-		if (!Is.empty(options?.assigner)) {
+		if (!Is.empty(locator?.assigner)) {
 			Guards.string(
 				PolicyManagementPointService.CLASS_NAME,
-				nameof(options.assigner),
-				options.assigner
+				nameof(locator.assigner),
+				locator.assigner
 			);
 		}
-		if (!Is.empty(options?.assignee)) {
+		if (!Is.empty(locator?.assignee)) {
 			Guards.string(
 				PolicyManagementPointService.CLASS_NAME,
-				nameof(options.assignee),
-				options.assignee
+				nameof(locator.assignee),
+				locator.assignee
 			);
 		}
-		if (!Is.empty(options?.target)) {
+		if (!Is.empty(locator?.target)) {
 			Guards.string(
 				PolicyManagementPointService.CLASS_NAME,
-				nameof(options.target),
-				options.target
+				nameof(locator.target),
+				locator.target
 			);
 		}
-		if (!Is.empty(options?.action)) {
+		if (!Is.empty(locator?.action)) {
 			Guards.string(
 				PolicyManagementPointService.CLASS_NAME,
-				nameof(options.action),
-				options.action
+				nameof(locator.action),
+				locator.action
 			);
 		}
 
@@ -108,11 +100,11 @@ export class PolicyManagementPointService implements IPolicyManagementPointCompo
 			ts: Date.now(),
 			message: "retrieving",
 			data: {
-				locator: JSON.stringify(options ?? {})
+				locator: JSON.stringify(locator ?? {})
 			}
 		});
 
-		const result = await this._policyAdministrationPointComponent.query(options, undefined, cursor);
+		const result = await this._policyAdministrationPointComponent.query(locator, undefined, cursor);
 
 		await this._logging?.log({
 			level: "info",
@@ -120,7 +112,7 @@ export class PolicyManagementPointService implements IPolicyManagementPointCompo
 			ts: Date.now(),
 			message: "retrieved",
 			data: {
-				locator: JSON.stringify(options ?? {}),
+				locator: JSON.stringify(locator ?? {}),
 				count: result.policies.length
 			}
 		});

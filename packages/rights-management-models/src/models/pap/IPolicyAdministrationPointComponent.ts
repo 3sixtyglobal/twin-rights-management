@@ -7,6 +7,7 @@ import type { IRightsManagementAgreement } from "../IRightsManagementAgreement.j
 import type { IRightsManagementOffer } from "../IRightsManagementOffer.js";
 import type { IRightsManagementPolicy } from "../IRightsManagementPolicy.js";
 import type { IRightsManagementSet } from "../IRightsManagementSet.js";
+import type { IPolicyLocator } from "./IPolicyLocator.js";
 
 /**
  * Interface describing a Policy Administration Point (PAP) component that manages ODRL policies.
@@ -63,23 +64,14 @@ export interface IPolicyAdministrationPointComponent extends IComponent {
 
 	/**
 	 * Query the policies using the specified conditions.
-	 * @param options Optional options to filter by assigner or assignee.
-	 * @param options.assigner The assigner to filter by.
-	 * @param options.assignee The assignee to filter by.
-	 * @param options.target The target to filter by.
-	 * @param options.action The action to filter by.
+	 * @param locator Optional locator to filter by type, assigner, assignee, target, or action.
 	 * @param conditions The conditions to use for the query.
 	 * @param cursor The cursor to use for pagination.
 	 * @param limit The number of results to return per page.
 	 * @returns Cursor for next page of results and the policies matching the query.
 	 */
 	query(
-		options?: {
-			assigner?: string;
-			assignee?: string;
-			target?: string;
-			action?: string;
-		},
+		locator?: IPolicyLocator,
 		conditions?: EntityCondition<IRightsManagementPolicy>,
 		cursor?: string,
 		limit?: number

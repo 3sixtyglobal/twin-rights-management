@@ -45,6 +45,7 @@ export * from "./models/IRightsManagementPolicyTrust.js";
 export * from "./models/IRightsManagementSet.js";
 export * from "./models/odrlProfiles.js";
 export * from "./models/pap/IPolicyAdministrationPointComponent.js";
+export * from "./models/pap/IPolicyLocator.js";
 export * from "./models/pdp/IPolicyArbiter.js";
 export * from "./models/pdp/IPolicyDecision.js";
 export * from "./models/pdp/IPolicyDecisionPointComponent.js";
