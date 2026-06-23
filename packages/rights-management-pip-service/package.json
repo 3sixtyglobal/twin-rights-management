@@ -1,6 +1,6 @@
 {
 	"name": "@twin.org/rights-management-pip-service",
-	"version": "0.9.0-next.0",
+	"version": "0.9.0-next.1",
 	"description": "Policy information point service for supplying context facts to evaluations.",
 	"repository": {
 		"type": "git",
@@ -32,7 +32,7 @@
 		"@twin.org/core": "0.9.0-next.1",
 		"@twin.org/data-json-ld": "0.9.0-next.1",
 		"@twin.org/identity-models": "0.0.3-next.36",
-		"@twin.org/rights-management-models": "0.9.0-next.0",
+		"@twin.org/rights-management-models": "0.9.0-next.1",
 		"@twin.org/logging-models": "0.9.0-next.1",
 		"@twin.org/nameof": "0.9.0-next.1"
 	},
