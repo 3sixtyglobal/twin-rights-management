@@ -29,20 +29,20 @@
 		"dist:no-test": "npm run clean && npm run build && npm run test:build"
 	},
 	"dependencies": {
-		"@twin.org/core": "0.9.0-next.1",
+		"@twin.org/core": "next",
 		"@twin.org/rights-management-models": "0.9.0-next.1",
-		"@twin.org/logging-models": "0.9.0-next.1",
-		"@twin.org/nameof": "0.9.0-next.1",
-		"@twin.org/data-json-ld": "0.9.0-next.1",
-		"@twin.org/standards-w3c-odrl": "0.9.0-next.1"
+		"@twin.org/logging-models": "next",
+		"@twin.org/nameof": "next",
+		"@twin.org/data-json-ld": "next",
+		"@twin.org/standards-w3c-odrl": "next"
 	},
 	"devDependencies": {
-		"@twin.org/entity-storage-connector-memory": "0.9.0-next.1",
-		"@twin.org/logging-connector-entity-storage": "0.9.0-next.1",
-		"@twin.org/logging-service": "0.9.0-next.1",
-		"@twin.org/nameof-transformer": "0.9.0-next.1",
-		"@twin.org/nameof-vitest-plugin": "0.9.0-next.1",
-		"@twin.org/validate-locales": "0.9.0-next.1",
+		"@twin.org/entity-storage-connector-memory": "next",
+		"@twin.org/logging-connector-entity-storage": "next",
+		"@twin.org/logging-service": "next",
+		"@twin.org/nameof-transformer": "next",
+		"@twin.org/nameof-vitest-plugin": "next",
+		"@twin.org/validate-locales": "next",
 		"@twin.org/rights-management-pap-service": "0.9.0-next.1",
 		"@twin.org/rights-management-pdp-service": "0.9.0-next.1",
 		"@twin.org/rights-management-pip-service": "0.9.0-next.1",
