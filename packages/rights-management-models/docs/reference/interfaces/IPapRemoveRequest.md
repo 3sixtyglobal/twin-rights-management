@@ -4,7 +4,7 @@ The request structure for removing a policy.
 
 ## Properties
 
-### pathParams
+### pathParams {#pathparams}
 
 > **pathParams**: `object`
 

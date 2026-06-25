@@ -12,14 +12,14 @@
 		}
 	],
 	"externalReferences": {
-		"IJsonLd(.*)": "https://schema.twindev.org/json-ld/JsonLd$1",
-		"IOdrl(.*)": "https://schema.twindev.org/odrl/Odrl$1",
-		"ActionType": "https://schema.twindev.org/odrl/ActionType",
-		"ConflictStrategyType": "https://schema.twindev.org/odrl/ConflictStrategyType",
-		"LeftOperandType": "https://schema.twindev.org/odrl/LeftOperandType",
-		"OdrlContextType": "https://schema.twindev.org/odrl/OdrlContextType",
-		"OperatorType": "https://schema.twindev.org/odrl/OperatorType",
-		"PolicyType": "https://schema.twindev.org/odrl/PolicyType",
-		"StatusType": "https://schema.twindev.org/odrl/StatusType"
+		"JsonLd(.*)": "https://schema.twindev.org/json-ld/JsonLd$1",
+		"Odrl(.*)": "https://schema.twindev.org/w3c-odrl/Odrl$1",
+		"RightsManagement(.*)": "https://schema.twindev.org/rights-management/RightsManagement$1",
+		"ProofTypes": "https://schema.twindev.org/w3c-did/ProofTypes",
+		"Proof": "https://schema.twindev.org/w3c-did/Proof",
+		"DataIntegrityProof": "https://schema.twindev.org/w3c-did/DataIntegrityProof",
+		"DataAccess(.*)": "https://schema.twindev.org/rights-management/DataAccessQuery$1",
+		"Contract(.*)": "https://schema.twindev.org/ids-contract-negotiation/Contract$1",
+		"DataspaceProtocol(.*)": "https://schema.twindev.org/dataspace-protocol/DataspaceProtocol$1"
 	}
 }

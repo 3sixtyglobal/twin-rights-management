@@ -18,7 +18,7 @@ Create a new instance of PolicyAdministrationPointService (PAP).
 
 ##### options?
 
-[`IPolicyAdministrationPointServiceOptions`](../interfaces/IPolicyAdministrationPointServiceOptions.md)
+[`IPolicyAdministrationPointServiceConstructorOptions`](../interfaces/IPolicyAdministrationPointServiceConstructorOptions.md)
 
 The options for the component.
 
@@ -28,27 +28,33 @@ The options for the component.
 
 ## Properties
 
-### NAMESPACE
+### CLASS\_NAME {#class_name}
 
-> `readonly` `static` **NAMESPACE**: `string` = `"pap"`
-
-The namespace supported by the Policy Administration Point entity storage implementation.
-
-***
-
-### CLASS\_NAME
-
-> `readonly` **CLASS\_NAME**: `string`
+> `readonly` `static` **CLASS\_NAME**: `string`
 
 The class name of the Policy Administration Point Service.
 
-#### Implementation of
-
-`IPolicyAdministrationPointComponent.CLASS_NAME`
-
 ## Methods
 
-### create()
+### className() {#classname}
+
+> **className**(): `string`
+
+Returns the class name of the component.
+
+#### Returns
+
+`string`
+
+The class name of the component.
+
+#### Implementation of
+
+`IPolicyAdministrationPointComponent.className`
+
+***
+
+### create() {#create}
 
 > **create**(`policy`): `Promise`\<`string`\>
 
@@ -58,7 +64,7 @@ Create a new policy with auto-generated UID.
 
 ##### policy
 
-`Omit`\<`IOdrlPolicy`, `"uid"`\>
+`JsonLdObjectWithOptionalAtId`\<`IRightsManagementPolicy`\>
 
 The policy to create (uid will be auto-generated).
 
@@ -74,7 +80,7 @@ The UID of the created policy.
 
 ***
 
-### update()
+### update() {#update}
 
 > **update**(`policy`): `Promise`\<`void`\>
 
@@ -84,7 +90,7 @@ Update an existing policy.
 
 ##### policy
 
-`IOdrlPolicy`
+`IRightsManagementPolicy`
 
 The policy to update (must include uid).
 
@@ -92,7 +98,7 @@ The policy to update (must include uid).
 
 `Promise`\<`void`\>
 
-Nothing.
+A promise that resolves when the policy has been updated.
 
 #### Implementation of
 
@@ -100,11 +106,11 @@ Nothing.
 
 ***
 
-### retrieve()
+### get() {#get}
 
-> **retrieve**(`policyId`): `Promise`\<`IOdrlPolicy`\>
+> **get**(`policyId`): `Promise`\<`IRightsManagementPolicy`\>
 
-Retrieve a policy from the entity storage.
+Get a policy from the entity storage.
 
 #### Parameters
 
@@ -112,21 +118,99 @@ Retrieve a policy from the entity storage.
 
 `string`
 
-The ID of the policy to retrieve.
+The ID of the policy to get.
 
 #### Returns
 
-`Promise`\<`IOdrlPolicy`\>
+`Promise`\<`IRightsManagementPolicy`\>
 
 The policy.
 
 #### Implementation of
 
-`IPolicyAdministrationPointComponent.retrieve`
+`IPolicyAdministrationPointComponent.get`
 
 ***
 
-### remove()
+### getAgreement() {#getagreement}
+
+> **getAgreement**(`agreementId`): `Promise`\<`IRightsManagementAgreement`\>
+
+Get an agreement from the entity storage.
+
+#### Parameters
+
+##### agreementId
+
+`string`
+
+The ID of the agreement to get.
+
+#### Returns
+
+`Promise`\<`IRightsManagementAgreement`\>
+
+The agreement.
+
+#### Implementation of
+
+`IPolicyAdministrationPointComponent.getAgreement`
+
+***
+
+### getOffer() {#getoffer}
+
+> **getOffer**(`offerId`): `Promise`\<`IRightsManagementOffer`\>
+
+Get an offer from the entity storage.
+
+#### Parameters
+
+##### offerId
+
+`string`
+
+The ID of the offer to get.
+
+#### Returns
+
+`Promise`\<`IRightsManagementOffer`\>
+
+The offer.
+
+#### Implementation of
+
+`IPolicyAdministrationPointComponent.getOffer`
+
+***
+
+### getSet() {#getset}
+
+> **getSet**(`setId`): `Promise`\<`IRightsManagementSet`\>
+
+Get a set from the entity storage.
+
+#### Parameters
+
+##### setId
+
+`string`
+
+The ID of the set to get.
+
+#### Returns
+
+`Promise`\<`IRightsManagementSet`\>
+
+The set.
+
+#### Implementation of
+
+`IPolicyAdministrationPointComponent.getSet`
+
+***
+
+### remove() {#remove}
 
 > **remove**(`policyId`): `Promise`\<`void`\>
 
@@ -144,23 +228,31 @@ The ID of the policy to remove.
 
 `Promise`\<`void`\>
 
+A promise that resolves when the policy has been removed.
+
 #### Implementation of
 
 `IPolicyAdministrationPointComponent.remove`
 
 ***
 
-### query()
+### query() {#query}
 
-> **query**(`conditions?`, `cursor?`, `pageSize?`): `Promise`\<\{ `cursor?`: `string`; `policies`: `IOdrlPolicy`[]; \}\>
+> **query**(`locator?`, `conditions?`, `cursor?`, `limit?`): `Promise`\<\{ `cursor?`: `string`; `policies`: `IRightsManagementPolicy`[]; \}\>
 
 Query the entity storage for policies.
 
 #### Parameters
 
+##### locator?
+
+`IPolicyLocator`
+
+Optional locator to filter by type, assigner, assignee, target, or action.
+
 ##### conditions?
 
-`EntityCondition`\<`IOdrlPolicy`\>
+`EntityCondition`\<`IRightsManagementPolicy`\>
 
 The conditions to query the entity storage with.
 
@@ -170,7 +262,7 @@ The conditions to query the entity storage with.
 
 The cursor to use for pagination.
 
-##### pageSize?
+##### limit?
 
 `number`
 
@@ -178,9 +270,9 @@ The number of results to return per page.
 
 #### Returns
 
-`Promise`\<\{ `cursor?`: `string`; `policies`: `IOdrlPolicy`[]; \}\>
+`Promise`\<\{ `cursor?`: `string`; `policies`: `IRightsManagementPolicy`[]; \}\>
 
-The policies.
+The matching policies and an optional cursor for the next page of results.
 
 #### Implementation of
 

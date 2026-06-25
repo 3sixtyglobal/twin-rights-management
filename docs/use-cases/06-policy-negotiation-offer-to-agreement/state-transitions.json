@@ -1,0 +1,104 @@
+{
+	"$comment": "IDS Contract Negotiation state machine transitions - Complete audit trail of the negotiation lifecycle from initiation to finalization. Each transition records timestamp, actors, triggers, and outcomes.",
+	"negotiationId": "neg-vet-cert-12345",
+	"offerId": "https://giw-node.example.org/policies/offers/vet-cert-offer-001",
+	"agreementId": "https://giw-node.example.org/policies/agreements/agreement-vet-cert-12345",
+	"provider": {
+		"identity": "did:iota:testnet:0xfcfa55894cab90504af7eaf38087addd5f77791a89bd3ebbe76d9c2b1a6ce567",
+		"organization": "Polish Veterinary Agency (GIW)",
+		"endpoint": "https://giw-node.example.org"
+	},
+	"consumer": {
+		"identity": "did:iota:testnet:0x1ee831611a9fe9877c82e05075d9670c4970b4fd0904c208082ee50e45817a9d",
+		"organization": "Polish Exporter Ltd",
+		"endpoint": "https://polish-exporter-node.example.org"
+	},
+	"transitions": [
+		{
+			"transitionId": "trans-001",
+			"timestamp": "2025-10-02T09:55:00Z",
+			"fromState": null,
+			"toState": "REQUESTED",
+			"trigger": "Consumer initiates contract negotiation",
+			"actor": "Consumer",
+			"actorIdentity": "did:iota:testnet:0x1ee831611a9fe9877c82e05075d9670c4970b4fd0904c208082ee50e45817a9d",
+			"protocolMessage": "dspace:ContractRequestMessage",
+			"outcome": "Negotiation created and entered REQUESTED state",
+			"metadata": {
+				"consumerCallback": "https://polish-exporter-node.example.org/negotiations/callback",
+				"consumerPid": "consumer-neg-98765",
+				"requestedOffer": "https://giw-node.example.org/policies/offers/vet-cert-offer-001"
+			}
+		},
+		{
+			"transitionId": "trans-002",
+			"timestamp": "2025-10-02T09:56:00Z",
+			"fromState": "REQUESTED",
+			"toState": "OFFERED",
+			"trigger": "Provider Negotiator evaluates and accepts request",
+			"actor": "Provider Negotiator",
+			"actorIdentity": "did:iota:testnet:0xfcfa55894cab90504af7eaf38087addd5f77791a89bd3ebbe76d9c2b1a6ce567",
+			"protocolMessage": "dspace:ContractOfferMessage",
+			"outcome": "Negotiator approved request, Offer presented to Consumer",
+			"metadata": {
+				"negotiatorDecision": "ACCEPT_AS_IS",
+				"constraintsSatisfied": true,
+				"evaluationDuration": "450ms",
+				"counterOfferGenerated": false,
+				"pnapApprovalRequired": false
+			}
+		},
+		{
+			"transitionId": "trans-003",
+			"timestamp": "2025-10-02T09:58:00Z",
+			"fromState": "OFFERED",
+			"toState": "AGREED",
+			"trigger": "Consumer accepts Offer terms",
+			"actor": "Consumer",
+			"actorIdentity": "did:iota:testnet:0x1ee831611a9fe9877c82e05075d9670c4970b4fd0904c208082ee50e45817a9d",
+			"protocolMessage": "dspace:ContractAgreementMessage",
+			"outcome": "Consumer accepted terms, Agreement ready for finalization",
+			"metadata": {
+				"termsAccepted": true,
+				"consumerSignature": "z5XqJ8KN9mH7Pk3VyT2sL4wR1cF6bD8nA9eG3hK5mP2jQ7tU4vX6yZ8aB1dC3eF5gH7iJ9kL2mN4oP6qR8sT1uV3w",
+				"signatureVerified": true
+			}
+		},
+		{
+			"transitionId": "trans-004",
+			"timestamp": "2025-10-02T10:00:00Z",
+			"fromState": "AGREED",
+			"toState": "FINALIZED",
+			"trigger": "PNP persists Agreement to PAP",
+			"actor": "PNP System",
+			"actorIdentity": "system",
+			"protocolMessage": "Internal: PAP Storage",
+			"outcome": "Agreement successfully stored in PAP, negotiation complete",
+			"metadata": {
+				"agreementId": "https://giw-node.example.org/policies/agreements/agreement-vet-cert-12345",
+				"papStorageConfirmed": true,
+				"consumerNotified": true,
+				"providerNotified": true,
+				"agreementType": "odrl:Agreement",
+				"transformations": [
+					"PartyCollection -> specific assignee DID",
+					"Offer -> Agreement policy type",
+					"Added negotiation metadata"
+				]
+			}
+		}
+	],
+	"finalState": "FINALIZED",
+	"negotiationDuration": "5 minutes",
+	"totalTransitions": 4,
+	"successfulOutcome": true,
+	"terminationReason": null,
+	"stateHistory": ["REQUESTED", "OFFERED", "AGREED", "FINALIZED"],
+	"protocolVersion": "IDS Data Spaces Protocol 2024/1",
+	"complianceNotes": {
+		"idsCompliant": true,
+		"odrlCompliant": true,
+		"allSignaturesVerified": true,
+		"stateTransitionsValid": true
+	}
+}

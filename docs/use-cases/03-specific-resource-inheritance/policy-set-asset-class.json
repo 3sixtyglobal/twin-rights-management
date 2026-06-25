@@ -1,0 +1,18 @@
+{
+	"@context": "http://www.w3.org/ns/odrl.jsonld",
+	"@type": "Set",
+	"uid": "http://example.com/policy-consignment-class:base",
+	"permission": [
+		{
+			"action": "read",
+			"target": "Consignment",
+			"constraint": [
+				{
+					"leftOperand": "purpose",
+					"operator": "eq",
+					"rightOperand": "logistics-operation"
+				}
+			]
+		}
+	]
+}

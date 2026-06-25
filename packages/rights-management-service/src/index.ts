@@ -1,6 +1,6 @@
-// Copyright 2024 IOTA Stiftung.
+// Copyright 2025 IOTA Stiftung.
 // SPDX-License-Identifier: Apache-2.0.
-export * from "./models/IRightsManagementServiceConstructorOptions";
-export * from "./rightsManagementRoutes";
-export * from "./rightsManagementService";
-export * from "./restEntryPoints";
+export * from "./policyAdministrationPointRoutes.js";
+export * from "./policyNegotiationAdminPointRoutes.js";
+export * from "./policyNegotiationPointRoutes.js";
+export * from "./restEntryPoints.js";

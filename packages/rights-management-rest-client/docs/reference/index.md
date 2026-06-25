@@ -2,4 +2,6 @@
 
 ## Classes
 
-- [RightsManagementClient](classes/RightsManagementClient.md)
+- [PolicyAdministrationPointRestClient](classes/PolicyAdministrationPointRestClient.md)
+- [PolicyNegotiationAdminPointRestClient](classes/PolicyNegotiationAdminPointRestClient.md)
+- [PolicyNegotiationPointRestClient](classes/PolicyNegotiationPointRestClient.md)

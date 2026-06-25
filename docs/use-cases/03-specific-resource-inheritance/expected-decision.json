@@ -1,0 +1,54 @@
+{
+	"decision": "permit",
+	"reasoning": "Both asset class policy and specific resource policy grant permission. Specific policy adds temporal constraint which is currently satisfied.",
+	"appliedPolicies": [
+		{
+			"uid": "http://example.com/policy-consignment-class:base",
+			"type": "Set",
+			"level": "asset-class",
+			"result": "permit"
+		},
+		{
+			"uid": "http://example.com/policy-consignment:CONS000001",
+			"type": "Agreement",
+			"level": "specific-resource",
+			"result": "permit",
+			"precedence": "specific-overrides-general"
+		}
+	],
+	"evaluatedConstraints": [
+		{
+			"policyUid": "http://example.com/policy-consignment-class:base",
+			"constraint": {
+				"leftOperand": "purpose",
+				"operator": "eq",
+				"rightOperand": "logistics-operation"
+			},
+			"leftOperandValue": "logistics-operation",
+			"result": "satisfied"
+		},
+		{
+			"policyUid": "http://example.com/policy-consignment:CONS000001",
+			"constraint": {
+				"leftOperand": "dateTime",
+				"operator": "lteq",
+				"rightOperand": "2025-12-31T23:59:59Z"
+			},
+			"leftOperandValue": "2025-09-30T10:00:00Z",
+			"result": "satisfied"
+		}
+	],
+	"obligations": [],
+	"grantedPermissions": [
+		{
+			"action": "read",
+			"target": "https://twin.example.org/consignments/CONS000001",
+			"source": "specific-resource-policy"
+		}
+	],
+	"inheritanceChain": [
+		"Asset Class Policy (Set) → Base permission granted",
+		"Specific Resource Policy (Agreement) → Additional temporal constraint satisfied",
+		"Result: Specific policy takes precedence, permission granted"
+	]
+}

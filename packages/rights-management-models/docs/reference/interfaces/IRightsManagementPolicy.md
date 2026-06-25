@@ -1,0 +1,47 @@
+# Interface: IRightsManagementPolicy
+
+Base type for any ODRL policy stored and managed by the TWIN rights-management PAP.
+
+## Extends
+
+- `IDataspaceProtocolPolicy`.[`IRightsManagementPolicyMetadata`](IRightsManagementPolicyMetadata.md).[`IRightsManagementPolicyTrust`](IRightsManagementPolicyTrust.md)
+
+## Properties
+
+### dateCreated? {#datecreated}
+
+> `optional` **dateCreated?**: `string`
+
+schema.org dateCreated — ISO 8601 date-time set by PAP on create.
+
+#### Inherited from
+
+[`IRightsManagementPolicyMetadata`](IRightsManagementPolicyMetadata.md).[`dateCreated`](IRightsManagementPolicyMetadata.md#datecreated)
+
+***
+
+### dateModified? {#datemodified}
+
+> `optional` **dateModified?**: `string`
+
+schema.org dateModified — ISO 8601 date-time set by PAP on create and update.
+
+#### Inherited from
+
+[`IRightsManagementPolicyMetadata`](IRightsManagementPolicyMetadata.md).[`dateModified`](IRightsManagementPolicyMetadata.md#datemodified)
+
+***
+
+### trustData? {#trustdata}
+
+> `optional` **trustData?**: `object`
+
+Trust verification data captured at the beginning of the negotiation.
+
+#### Index Signature
+
+\[`key`: `string`\]: `IJsonLdNodeObject`
+
+#### Inherited from
+
+[`IRightsManagementPolicyTrust`](IRightsManagementPolicyTrust.md).[`trustData`](IRightsManagementPolicyTrust.md#trustdata)

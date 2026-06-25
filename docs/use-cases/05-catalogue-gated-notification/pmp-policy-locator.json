@@ -1,0 +1,91 @@
+﻿{
+	"$comment": "PMP (Policy Management Point) - Policy locator for notification permission with duty clause. Shows federated catalogue integration and obligation tracking.",
+	"policyQuery": {
+		"assigner": "did:iota:testnet:0xfcfa55894cab90504af7eaf38087addd5f77791a89bd3ebbe76d9c2b1a6ce567",
+		"action": "permission",
+		"target": {
+			"uid": "https://twin.example.org/service-offerings/vet-cert-notification",
+			"type": "ServiceOffering"
+		},
+		"assigneeContext": {
+			"did": "did:iota:testnet:0xac534b750ac453d573a55954760af140f87358c7be9a18000a831c452c32f246",
+			"certifications": ["FSA-Trusted-Notifier", "ISO27001"]
+		},
+		"pipContext": {
+			"resource": {
+				"destinationCountry": {
+					"countryId": "GB"
+				}
+			},
+			"payload": {
+				"documentTypeCode": "unece:DocumentCodeList#853"
+			}
+		}
+	},
+	"lookupStrategy": {
+		"primaryIndex": "assigner:action:target",
+		"lookupKey": "assigner:did:iota:testnet:0xfcfa55894cab90504af7eaf38087addd5f77791a89bd3ebbe76d9c2b1a6ce567:action:permission:target:service-offering",
+		"filterCriteria": [
+			{
+				"field": "targetType",
+				"operator": "eq",
+				"value": "ServiceOffering"
+			},
+			{
+				"field": "targetUid",
+				"operator": "eq",
+				"value": "https://twin.example.org/service-offerings/vet-cert-notification"
+			},
+			{
+				"field": "assigneeType",
+				"operator": "eq",
+				"value": "PartyCollection"
+			}
+		],
+		"requiresFederatedCatalogue": true
+	},
+	"matchedPolicies": [
+		{
+			"policyUid": "http://example.com/policy-service-offering:vet-cert-notification",
+			"policyType": "Agreement",
+			"matchScore": 1.0,
+			"matchedCriteria": ["assigner", "action", "targetType", "targetUid"],
+			"assigneePattern": "PartyCollection",
+			"requiresRuntimeEvaluation": true,
+			"constraints": [
+				{
+					"type": "PartyCollection.refinement",
+					"leftOperand": "twin:jsonPath",
+					"twin:jsonPathExpression": ".certifications",
+					"operator": "contains",
+					"rightOperand": "FSA-Trusted-Notifier"
+				},
+				{
+					"type": "permission.constraint",
+					"leftOperand": "twin:jsonPath",
+					"twin:jsonPathExpression": ".resource.destinationCountry.countryId",
+					"operator": "eq",
+					"rightOperand": "GB"
+				}
+			],
+			"obligations": [
+				{
+					"action": "notify",
+					"target": "https://my-ds-connectors.example.org/ds-connector-uk-fsa/notify",
+					"constraint": {
+						"leftOperand": "twin:jsonPath",
+						"twin:jsonPathExpression": ".payload.documentTypeCode",
+						"operator": "eq",
+						"rightOperand": "unece:DocumentCodeList#853"
+					}
+				}
+			],
+			"hasDutyClause": true
+		}
+	],
+	"policySelectionResult": {
+		"selectedPolicy": "http://example.com/policy-service-offering:vet-cert-notification",
+		"selectionReason": "Match on assigner, action, and ServiceOffering target. PartyCollection requires Federated Catalogue lookup for assignee certifications. Policy includes duty obligation.",
+		"nextStep": "Forward to PDP for evaluation: 1) Query Federated Catalogue for assignee certifications, 2) Verify certifications contain FSA-Trusted-Notifier, 3) Check destinationCountry equals GB, 4) Extract duty obligation for PXP scheduling."
+	}
+}

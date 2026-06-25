@@ -1,0 +1,7 @@
+{
+	"assignee": "did:iota:testnet:0xac534b750ac453d573a55954760af140f87358c7be9a18000a831c452c32f246",
+	"action": "use",
+	"assetType": "ServiceOffering",
+	"resourceId": "https://twin.example.org/service-offerings/api-access-vet-cert",
+	"description": "Request permission to use the service (simple grant/deny, no data returned)"
+}

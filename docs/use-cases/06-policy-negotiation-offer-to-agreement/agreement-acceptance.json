@@ -1,0 +1,27 @@
+{
+	"$comment": "Consumer accepts the Agreement - IDS Protocol. After reviewing the Offer terms, the consumer accepts and signals readiness to finalize the Agreement.",
+	"@context": "https://w3id.org/dspace/2024/1/context.json",
+	"@type": "dspace:ContractAgreementMessage",
+	"dspace:providerPid": "neg-vet-cert-12345",
+	"dspace:consumerPid": "consumer-neg-98765",
+	"dspace:agreement": {
+		"@id": "https://giw-node.example.org/policies/agreements/agreement-vet-cert-12345",
+		"@type": "odrl:Agreement",
+		"assigner": "did:iota:testnet:0xfcfa55894cab90504af7eaf38087addd5f77791a89bd3ebbe76d9c2b1a6ce567",
+		"assignee": "did:iota:testnet:0x1ee831611a9fe9877c82e05075d9670c4970b4fd0904c208082ee50e45817a9d"
+	},
+	"acceptanceTimestamp": "2025-10-02T09:58:00Z",
+	"consumerSignature": {
+		"type": "Ed25519Signature2020",
+		"created": "2025-10-02T09:58:00Z",
+		"verificationMethod": "did:iota:testnet:0x1ee831611a9fe9877c82e05075d9670c4970b4fd0904c208082ee50e45817a9d#keys-1",
+		"proofPurpose": "authentication",
+		"proofValue": "z5XqJ8KN9mH7Pk3VyT2sL4wR1cF6bD8nA9eG3hK5mP2jQ7tU4vX6yZ8aB1dC3eF5gH7iJ9kL2mN4oP6qR8sT1uV3w"
+	},
+	"termsAccepted": {
+		"action": "read",
+		"target": "DataResource asset class",
+		"constraints": ["Legal address country code must equal PL"],
+		"obligations": []
+	}
+}

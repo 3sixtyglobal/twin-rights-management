@@ -14,88 +14,164 @@ Class describing an ODRL policy for entity storage.
 
 ## Properties
 
-### uid
+### id {#id}
 
-> **uid**: `string`
+> **id**: `string`
 
 The unique identifier for the policy.
 
 ***
 
-### @type
+### type {#type}
 
-> **@type**: `PolicyType`
+> **type**: `OdrlPolicyType`
 
 The type of policy.
 
 ***
 
-### profile?
+### profile? {#profile}
 
-> `optional` **profile**: `string` \| `string`[]
+> `optional` **profile?**: `ObjectOrArray`\<`string`\>
 
 The profile(s) this policy conforms to.
 
 ***
 
-### assigner?
+### assigner? {#assigner}
 
-> `optional` **assigner**: `string` \| `IOdrlParty`
+> `optional` **assigner?**: `ObjectOrArray`\<`string` \| `IOdrlParty` \| `IOdrlPartyCollection`\>
 
 The assigner of the policy.
 
 ***
 
-### assignee?
+### assignee? {#assignee}
 
-> `optional` **assignee**: `string` \| `IOdrlParty`
+> `optional` **assignee?**: `ObjectOrArray`\<`string` \| `IOdrlParty` \| `IOdrlPartyCollection`\>
 
 The assignee of the policy.
 
 ***
 
-### target?
+### target? {#target}
 
-> `optional` **target**: `string` \| `IOdrlAsset` \| (`string` \| `IOdrlAsset`)[]
+> `optional` **target?**: `ObjectOrArray`\<`string` \| `IOdrlAsset` \| `IOdrlAssetCollection`\>
 
 The target asset for the rule.
 
 ***
 
-### action?
+### action? {#action}
 
-> `optional` **action**: `ActionType` \| `IOdrlAction` \| ActionType \| IOdrlAction[]
+> `optional` **action?**: `ObjectOrArray`\<`string` \| `IOdrlAction`\>
 
 The action associated with the rule.
 
 ***
 
-### conflict?
+### inheritFrom? {#inheritfrom}
 
-> `optional` **conflict**: `ConflictStrategyType`
+> `optional` **inheritFrom?**: `ObjectOrArray`\<`string`\>
+
+The parent policy(ies) this policy inherits from.
+
+***
+
+### conflict? {#conflict}
+
+> `optional` **conflict?**: `OdrlConflictStrategyType`
 
 The conflict resolution strategy.
 
 ***
 
-### permission?
+### permission? {#permission}
 
-> `optional` **permission**: `IOdrlPermission`[]
+> `optional` **permission?**: `ObjectOrArray`\<`IOdrlPermission`\>
 
 The permissions in the policy.
 
 ***
 
-### prohibition?
+### prohibition? {#prohibition}
 
-> `optional` **prohibition**: `IOdrlProhibition`[]
+> `optional` **prohibition?**: `ObjectOrArray`\<`IOdrlProhibition`\>
 
 The prohibitions in the policy.
 
 ***
 
-### obligation?
+### obligation? {#obligation}
 
-> `optional` **obligation**: `IOdrlDuty`[]
+> `optional` **obligation?**: `ObjectOrArray`\<`IOdrlDuty`\>
 
 The obligations in the policy.
+
+***
+
+### dateCreated? {#datecreated}
+
+> `optional` **dateCreated?**: `string`
+
+schema.org dateCreated — ISO 8601 date-time set by PAP on create.
+
+***
+
+### dateModified? {#datemodified}
+
+> `optional` **dateModified?**: `string`
+
+schema.org dateModified — ISO 8601 date-time set by PAP on create and update.
+
+***
+
+### context? {#context}
+
+> `optional` **context?**: `OdrlContextType`
+
+Server-controlled JSON-LD context persisted by PAP (entity field `context` avoids the at-prefix).
+
+***
+
+### trustData? {#trustdata}
+
+> `optional` **trustData?**: `object`
+
+Trust verification data captured at the beginning of the negotiation.
+
+#### Index Signature
+
+\[`key`: `string`\]: `IJsonLdNodeObject`
+
+***
+
+### assignerIndex {#assignerindex}
+
+> **assignerIndex**: `string`
+
+Pipe-delimited index of all assigner party IDs for efficient query filtering.
+
+***
+
+### assigneeIndex {#assigneeindex}
+
+> **assigneeIndex**: `string`
+
+Pipe-delimited index of all assignee party IDs for efficient query filtering.
+
+***
+
+### targetIndex {#targetindex}
+
+> **targetIndex**: `string`
+
+Pipe-delimited index of all target asset IDs for efficient query filtering.
+
+***
+
+### actionIndex {#actionindex}
+
+> **actionIndex**: `string`
+
+Pipe-delimited index of all action identifiers for efficient query filtering.

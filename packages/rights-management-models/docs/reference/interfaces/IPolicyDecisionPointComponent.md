@@ -12,56 +12,48 @@ Point (PEP) will execute any registered actions.
 
 ## Methods
 
-### evaluate()
+### evaluate() {#evaluate}
 
-> **evaluate**\<`T`\>(`assetType`, `action`, `data`, `userIdentity`, `nodeIdentity`): `Promise`\<`IOdrlPolicy`[]\>
+> **evaluate**\<`D`\>(`agreement`, `data?`, `action?`, `trustData?`): `Promise`\<[`IPolicyDecision`](IPolicyDecision.md)[]\>
 
 Evaluate requests from a Policy Enforcement Point (PEP).
 Uses the Policy Management Point (PMP) to retrieve the policies and the
 Policy Information Point (PIP) to retrieve additional information.
-Executes any actions on the Policy Execution Point (PXP) when the decision is made.
+Executes any actions on the Policy Execution Point (PXP) before and after decision is made.
 
 #### Type Parameters
 
-##### T
+##### D
 
-`T` = `unknown`
+`D` = `unknown`
 
 #### Parameters
 
-##### assetType
+##### agreement
 
-`string`
+`IDataspaceProtocolAgreement`
 
-The type of asset being processed.
+The agreement to evaluate.
 
-##### action
+##### data?
 
-`string`
-
-The action being performed on the asset.
-
-##### data
+`D`
 
 The data to make a decision on.
 
-`undefined` | `T`
-
-##### userIdentity
+##### action?
 
 `string`
 
-The user identity to use in the decision making.
+Optional action to make a decision on, if not provided, the PDP will evaluate all actions in the agreement.
 
-##### nodeIdentity
+##### trustData?
 
-`string`
-
-The node identity to use in the decision making.
+Trust verification data to merge with PIP-retrieved information before arbitration.
 
 #### Returns
 
-`Promise`\<`IOdrlPolicy`[]\>
+`Promise`\<[`IPolicyDecision`](IPolicyDecision.md)[]\>
 
 Returns the policy decisions which apply to the data so that the PEP
 can manipulate the data accordingly.

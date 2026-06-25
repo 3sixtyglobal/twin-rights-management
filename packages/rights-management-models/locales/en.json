@@ -1,3 +1,8 @@
 {
-	"error": {}
+	"error": {
+		"odrlPolicyHelper": {
+			"policyMissingAssignee": "The {policyType} with id \"{policyId}\" is missing an assignee.",
+			"policyMissingAssigner": "The {policyType} with id \"{policyId}\" is missing an assigner."
+		}
+	}
 }

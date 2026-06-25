@@ -1,0 +1,13 @@
+{
+	"error": {
+		"policyExecutionPointService": {
+			"actionExecutionFailed": "Action execution failed for id: \"{actionId}\", at stage \"{stage}\", policy id: \"{policyId}\""
+		}
+	},
+	"info": {
+		"policyExecutionPointService": {
+			"executingActions": "Executing actions for stage: \"{stage}\", policy id: \"{policyId}\"",
+			"executingAction": "Executing action for stage: \"{stage}\", policy id: \"{policyId}\""
+		}
+	}
+}

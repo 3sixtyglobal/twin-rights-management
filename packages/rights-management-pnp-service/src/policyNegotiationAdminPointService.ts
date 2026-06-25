@@ -1,0 +1,428 @@
+// Copyright 2025 IOTA Stiftung.
+// SPDX-License-Identifier: Apache-2.0.
+import type { IPlatformComponent } from "@twin.org/api-models";
+import type { ITaskSchedulerComponent } from "@twin.org/background-task-models";
+import { ContextIdHelper, ContextIdKeys, ContextIdStore } from "@twin.org/context";
+import {
+	AlreadyExistsError,
+	BaseError,
+	Coerce,
+	ComponentFactory,
+	Guards,
+	Is,
+	Mutex,
+	NotFoundError
+} from "@twin.org/core";
+import { ComparisonOperator, LogicalOperator, SortDirection } from "@twin.org/entity";
+import {
+	EntityStorageConnectorFactory,
+	type IEntityStorageConnector
+} from "@twin.org/entity-storage-models";
+import type { ILoggingComponent } from "@twin.org/logging-models";
+import { nameof } from "@twin.org/nameof";
+import type {
+	IPolicyNegotiation,
+	IPolicyNegotiationAdminPointComponent,
+	IPolicyNegotiationPointComponent
+} from "@twin.org/rights-management-models";
+import { DataspaceProtocolContractNegotiationStateType } from "@twin.org/standards-dataspace-protocol";
+import type { PolicyNegotiation } from "./entities/policyNegotiation.js";
+import type { IPolicyNegotiationAdminPointServiceConstructorOptions } from "./models/IPolicyNegotiationAdminPointServiceConstructorOptions.js";
+
+/**
+ * Class implementation of Policy Negotiation Admin Point Component.
+ */
+export class PolicyNegotiationAdminPointService implements IPolicyNegotiationAdminPointComponent {
+	/**
+	 * The class name of the Policy Negotiation Admin Point Service.
+	 */
+	public static readonly CLASS_NAME: string = nameof<PolicyNegotiationAdminPointService>();
+
+	/**
+	 * The default time-to-live (TTL) for negotiation states in minutes.
+	 * @default 1440
+	 * @internal
+	 */
+	private static readonly _DEFAULT_NEGOTIATION_STATE_TTL_DEFAULT_MINUTES = 1440; // One Day
+
+	/**
+	 * The logging component.
+	 * @internal
+	 */
+	private readonly _logging?: ILoggingComponent;
+
+	/**
+	 * The task scheduler component.
+	 * @internal
+	 */
+	private readonly _taskScheduler: ITaskSchedulerComponent;
+
+	/**
+	 * The entity storage component for storing policy state.
+	 * @internal
+	 */
+	private readonly _policyNegotiationEntityStorage: IEntityStorageConnector<PolicyNegotiation>;
+
+	/**
+	 * The time-to-live (TTL) for negotiation states in minutes.
+	 * @internal
+	 */
+	private readonly _negotiationStateTtlMs: number;
+
+	/**
+	 * Timeout in milliseconds to wait when acquiring a mutex lock.
+	 * @internal
+	 */
+	private readonly _mutexTimeoutMs?: number;
+
+	/**
+	 * Optional PNP component type for sending terminate to consumer callbacks during expired cleanup.
+	 * @internal
+	 */
+	private readonly _policyNegotiationPointComponentType?: string;
+
+	/**
+	 * The platform component.
+	 * @internal
+	 */
+	private readonly _platformComponent: IPlatformComponent;
+
+	/**
+	 * Create a new instance of PolicyNegotiationPointService (PNP).
+	 * @param options The options for the component.
+	 */
+	constructor(options?: IPolicyNegotiationAdminPointServiceConstructorOptions) {
+		this._logging = ComponentFactory.getIfExists<ILoggingComponent>(options?.loggingComponentType);
+		this._taskScheduler = ComponentFactory.get<ITaskSchedulerComponent>(
+			options?.taskSchedulerComponentType ?? "task-scheduler"
+		);
+		this._policyNegotiationEntityStorage = EntityStorageConnectorFactory.get(
+			options?.policyNegotiationEntityStorageType ?? "policy-negotiation"
+		);
+		this._negotiationStateTtlMs =
+			(options?.config?.negotiationStateTtlMinutes ??
+				PolicyNegotiationAdminPointService._DEFAULT_NEGOTIATION_STATE_TTL_DEFAULT_MINUTES) *
+			60 *
+			1000;
+		this._mutexTimeoutMs = Coerce.integer(options?.config?.mutexTimeoutMs);
+		this._policyNegotiationPointComponentType = options?.policyNegotiationPointComponentType;
+		this._platformComponent = ComponentFactory.get<IPlatformComponent>(
+			options?.platformComponentType ?? "platform"
+		);
+	}
+
+	/**
+	 * Returns the class name of the component.
+	 * @returns The class name of the component.
+	 */
+	public className(): string {
+		return PolicyNegotiationAdminPointService.CLASS_NAME;
+	}
+
+	/**
+	 * The component needs to be started when the node is initialized.
+	 * @param nodeLoggingComponentType The node logging component type.
+	 * @returns A promise that resolves when the component has started.
+	 */
+	public async start(nodeLoggingComponentType?: string): Promise<void> {
+		await this._taskScheduler.addTask(
+			"policy-negotiation",
+			[
+				{
+					nextTriggerTime: Date.now(),
+					intervalMinutes: 5
+				}
+			],
+			async () => {
+				// Clean up old negotiation states (expired); sends terminate to consumer when configured
+				// Since we might have many expired negotiations, we need to page through them
+				// and delete them in batches per partition
+				await this._platformComponent.execute(async () => this.cleanupOldStatesPartition());
+			}
+		);
+	}
+
+	/**
+	 * The component needs to be stopped when the node is closed.
+	 * @param nodeLoggingComponentType The node logging component type.
+	 * @returns A promise that resolves when the component has stopped.
+	 */
+	public async stop(nodeLoggingComponentType?: string): Promise<void> {
+		await this._taskScheduler.removeTask("policy-negotiation");
+	}
+
+	/**
+	 * Pre-registers a consumer-side negotiation entry.
+	 * @param id The consumer-side negotiation identifier (DSP consumerPid).
+	 * @returns The negotiation id (same as the caller-supplied id).
+	 */
+	public async create(id: string): Promise<string> {
+		Guards.stringValue(PolicyNegotiationAdminPointService.CLASS_NAME, nameof(id), id);
+
+		await Mutex.lock(id, { throwOnTimeout: true, timeoutMs: this._mutexTimeoutMs });
+		try {
+			const existing = await this._policyNegotiationEntityStorage.get(id);
+			if (!Is.empty(existing)) {
+				throw new AlreadyExistsError(
+					PolicyNegotiationAdminPointService.CLASS_NAME,
+					"negotiationAlreadyExists",
+					id
+				);
+			}
+
+			const contextIds = await ContextIdStore.getContextIds();
+			ContextIdHelper.guard(contextIds, ContextIdKeys.Organization);
+			const organizationIdentity = contextIds[ContextIdKeys.Organization];
+
+			await this.set({
+				// correlationId (the provider's pid) is unknown at pre-registration time;
+				// offerFromProvider() fills it in when the ContractOfferMessage arrives.
+				id,
+				correlationId: "",
+				dateCreated: new Date(Date.now()).toISOString(),
+				state: DataspaceProtocolContractNegotiationStateType.REQUESTED,
+				organizationIdentity
+			});
+
+			await this._logging?.log({
+				level: "info",
+				ts: Date.now(),
+				source: PolicyNegotiationAdminPointService.CLASS_NAME,
+				message: "negotiationCreated",
+				data: { id }
+			});
+
+			return id;
+		} finally {
+			Mutex.unlock(id);
+		}
+	}
+
+	/**
+	 * Retrieves a policy negotiation.
+	 * @param id The ID of the policy to retrieve the negotiation for.
+	 * @returns The policy negotiation.
+	 */
+	public async get(id: string): Promise<IPolicyNegotiation> {
+		Guards.stringValue(PolicyNegotiationAdminPointService.CLASS_NAME, nameof(id), id);
+
+		const entity = await this._policyNegotiationEntityStorage.get(id);
+		if (Is.empty(entity)) {
+			throw new NotFoundError(PolicyNegotiationAdminPointService.CLASS_NAME, "policyNotFound", id);
+		}
+
+		return this.entityToModel(entity);
+	}
+
+	/**
+	 * Sets a policy negotiation.
+	 * @param negotiation The updated policy negotiation.
+	 * @returns A promise that resolves when the negotiation has been stored.
+	 */
+	public async set(negotiation: IPolicyNegotiation): Promise<void> {
+		Guards.object<IPolicyNegotiation>(
+			PolicyNegotiationAdminPointService.CLASS_NAME,
+			nameof(negotiation),
+			negotiation
+		);
+		const entity = this.modelToEntity(negotiation);
+
+		// Every time the negotiation is updated, extend the expiry time
+		// unless intervention is required then we don't want it to expire
+		// and we want it to be handled manually
+		if (entity.interventionRequired) {
+			entity.expires = undefined;
+		} else {
+			entity.expires = Date.now() + this._negotiationStateTtlMs;
+		}
+
+		await this._policyNegotiationEntityStorage.set(entity);
+	}
+
+	/**
+	 * Cancels an ongoing negotiation for a resource.
+	 * Acquires a per-id mutex so it cannot interleave with a concurrent setIfExists() call
+	 * in the Policy Negotiation Point service.
+	 * @param policyId The ID of the policy to cancel.
+	 * @returns A promise that resolves when the negotiation has been removed.
+	 */
+	public async remove(policyId: string): Promise<void> {
+		Guards.stringValue(PolicyNegotiationAdminPointService.CLASS_NAME, nameof(policyId), policyId);
+		await Mutex.lock(policyId, { throwOnTimeout: true, timeoutMs: this._mutexTimeoutMs });
+		try {
+			await this._policyNegotiationEntityStorage.remove(policyId);
+		} finally {
+			Mutex.unlock(policyId);
+		}
+	}
+
+	/**
+	 * Get a list of the negotiations.
+	 * @param status The status of the negotiations to retrieve.
+	 * @param cursor The cursor to use for pagination.
+	 * @returns A list of negotiations and cursor if there are more entries.
+	 */
+	public async query(
+		status?: DataspaceProtocolContractNegotiationStateType,
+		cursor?: string
+	): Promise<{
+		items: IPolicyNegotiation[];
+		cursor?: string;
+	}> {
+		let condition;
+
+		if (Is.arrayOneOf(status, Object.values(DataspaceProtocolContractNegotiationStateType))) {
+			condition = {
+				conditions: [
+					{
+						property: "status",
+						comparison: ComparisonOperator.Equals,
+						value: status
+					}
+				]
+			};
+		}
+		const result = await this._policyNegotiationEntityStorage.query(
+			condition,
+			[{ property: "dateCreated", sortDirection: SortDirection.Ascending }],
+			undefined,
+			cursor
+		);
+
+		return {
+			items: (result.entities as PolicyNegotiation[]).map(entity => this.entityToModel(entity)),
+			cursor: result.cursor
+		};
+	}
+
+	/**
+	 * Cleans up old negotiation states for a specific partition (tenant).
+	 * Sends terminate to consumer callbacks when PNP component is configured, then removes.
+	 * @returns A promise that resolves when all expired negotiations have been cleaned up.
+	 * @internal
+	 */
+	private async cleanupOldStatesPartition(): Promise<void> {
+		try {
+			let cursor: string | undefined;
+			const now = Date.now();
+
+			const pnpComponent = ComponentFactory.getIfExists<IPolicyNegotiationPointComponent>(
+				this._policyNegotiationPointComponentType
+			);
+
+			do {
+				const result = await this._policyNegotiationEntityStorage.query({
+					conditions: [
+						{
+							property: "expires",
+							comparison: ComparisonOperator.LessThan,
+							value: now
+						},
+						{
+							property: "expires",
+							comparison: ComparisonOperator.NotEquals,
+							value: undefined
+						}
+					],
+					logicalOperator: LogicalOperator.And
+				});
+				if (Is.arrayValue(result.entities)) {
+					for (const item of result.entities as PolicyNegotiation[]) {
+						if (Is.stringValue(item.id)) {
+							if (!Is.empty(pnpComponent) && Is.stringValue(item.callbackAddress)) {
+								try {
+									await pnpComponent.sendTerminateToConsumer(
+										item.callbackAddress,
+										item.id,
+										item.correlationId
+									);
+								} catch (error) {
+									await this._logging?.log({
+										level: "warn",
+										source: PolicyNegotiationAdminPointService.CLASS_NAME,
+										ts: Date.now(),
+										message: "sendTerminateFailed",
+										data: {
+											id: item.id,
+											correlationId: item.correlationId
+										},
+										error: BaseError.fromError(error)
+									});
+								}
+							}
+							await this._policyNegotiationEntityStorage.remove(item.id);
+						}
+					}
+					cursor = result.cursor;
+				} else {
+					cursor = undefined;
+				}
+			} while (Is.stringValue(cursor));
+		} catch (error) {
+			await this._logging?.log({
+				level: "error",
+				source: PolicyNegotiationAdminPointService.CLASS_NAME,
+				ts: Date.now(),
+				message: "cleanupFailed",
+				error: BaseError.fromError(error)
+			});
+		}
+	}
+
+	/**
+	 * Converts a PolicyNegotiation entity to a model.
+	 * @param entity The PolicyNegotiation entity to convert.
+	 * @returns The converted IPolicyNegotiation model.
+	 * @internal
+	 */
+	private entityToModel(entity: PolicyNegotiation): IPolicyNegotiation {
+		return {
+			id: entity.id,
+			correlationId: entity.correlationId,
+			policyId: entity.policyId,
+			dateCreated: entity.dateCreated,
+			expires: entity.expires,
+			state: entity.state,
+			callbackAddress: entity.callbackAddress,
+			publicOrigin: entity.publicOrigin,
+			organizationIdentity: entity.organizationIdentity,
+			offer: entity.offer,
+			agreement: entity.agreement,
+			trustVerificationInfo: entity.trustVerificationInfo,
+			code: entity.code,
+			reason: entity.reason,
+			description: entity.description,
+			handlerId: entity.handlerId,
+			interventionRequired: entity.interventionRequired
+		};
+	}
+
+	/**
+	 * Converts a model to a PolicyNegotiation entity.
+	 * @param model The IPolicyNegotiation model to convert.
+	 * @returns The converted PolicyNegotiation entity.
+	 * @internal
+	 */
+	private modelToEntity(model: IPolicyNegotiation): PolicyNegotiation {
+		return {
+			id: model.id,
+			correlationId: model.correlationId,
+			policyId: model.policyId,
+			dateCreated: model.dateCreated,
+			expires: model.expires,
+			state: model.state,
+			callbackAddress: model.callbackAddress,
+			publicOrigin: model.publicOrigin,
+			organizationIdentity: model.organizationIdentity,
+			offer: model.offer,
+			agreement: model.agreement,
+			trustVerificationInfo: model.trustVerificationInfo,
+			code: model.code,
+			reason: model.reason,
+			errorDetails: model.errorDetails,
+			description: model.description,
+			handlerId: model.handlerId,
+			interventionRequired: model.interventionRequired
+		};
+	}
+}

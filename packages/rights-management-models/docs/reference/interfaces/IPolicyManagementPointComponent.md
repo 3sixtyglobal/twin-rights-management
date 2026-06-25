@@ -9,52 +9,28 @@ Provide the policies to the Policy Decision Point (PDP) based on the data and id
 
 ## Methods
 
-### retrieve()
+### retrieve() {#retrieve}
 
-> **retrieve**\<`T`\>(`assetType`, `action`, `data`, `userIdentity`, `nodeIdentity`): `Promise`\<`IOdrlPolicy`[]\>
+> **retrieve**(`locator?`, `cursor?`): `Promise`\<\{ `policies`: [`IRightsManagementPolicy`](IRightsManagementPolicy.md)[]; `cursor?`: `string`; \}\>
 
 Get the policies from a PAP based on the data and identities.
 
-#### Type Parameters
-
-##### T
-
-`T` = `unknown`
-
 #### Parameters
 
-##### assetType
+##### locator?
+
+[`IPolicyLocator`](IPolicyLocator.md)
+
+Optional locator to filter by type, assigner, assignee, target, or action.
+
+##### cursor?
 
 `string`
 
-The type of asset being processed.
-
-##### action
-
-`string`
-
-The action being performed on the asset.
-
-##### data
-
-The data to retrieve the policies for.
-
-`undefined` | `T`
-
-##### userIdentity
-
-`string`
-
-The user identity to retrieve the policies for.
-
-##### nodeIdentity
-
-`string`
-
-The node identity to retrieve the policies for.
+An optional cursor to continue a previous query.
 
 #### Returns
 
-`Promise`\<`IOdrlPolicy`[]\>
+`Promise`\<\{ `policies`: [`IRightsManagementPolicy`](IRightsManagementPolicy.md)[]; `cursor?`: `string`; \}\>
 
 Returns the policies which apply to the data and identities so that the PDP can make a decision.

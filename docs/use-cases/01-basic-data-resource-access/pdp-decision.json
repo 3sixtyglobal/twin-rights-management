@@ -1,0 +1,36 @@
+﻿{
+	"$comment": "PDP Decision Output - New format with dataDecisions array. This shows decisions on data elements, not just the overall permit/deny.",
+	"decision": "Permit",
+	"reasoning": "Assignee's legal address country code 'PL' matches the PartyCollection refinement constraint",
+	"appliedPolicy": {
+		"uid": "http://example.com/policy-data-resource-giw:1010",
+		"type": "Agreement",
+		"assigner": "did:iota:testnet:0xfcfa55894cab90504af7eaf38087addd5f77791a89bd3ebbe76d9c2b1a6ce567"
+	},
+	"evaluatedConstraints": [
+		{
+			"constraint": {
+				"leftOperand": "twin:jsonPath",
+				"twin:jsonPathExpression": ".legalAddress.countryCode",
+				"operator": "eq",
+				"rightOperand": "PL"
+			},
+			"leftOperandValue": "PL",
+			"result": "satisfied"
+		}
+	],
+	"obligations": [],
+	"dataDecisions": [
+		{
+			"target": "$..*",
+			"decision": "Granted",
+			"reasoning": "Full data access granted - all constraints satisfied"
+		}
+	],
+	"grantedPermissions": [
+		{
+			"action": "read",
+			"target": "https://twin.example.org/data-resources/vet-cert-doc-6ce567"
+		}
+	]
+}

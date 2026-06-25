@@ -1,0 +1,54 @@
+# Interface: IPolicyArbiter
+
+Interface describing a Policy Arbiter.
+
+## Extends
+
+- `IComponent`
+
+## Methods
+
+### decide() {#decide}
+
+> **decide**\<`D`\>(`agreement`, `information?`, `data?`, `action?`): `Promise`\<[`IPolicyDecision`](IPolicyDecision.md)[]\>
+
+Makes decisions regarding policy access to data.
+
+#### Type Parameters
+
+##### D
+
+`D` = `unknown`
+
+#### Parameters
+
+##### agreement
+
+`IDataspaceProtocolAgreement`
+
+The agreement to evaluate.
+
+##### information?
+
+[`IRightsManagementInformation`](IRightsManagementInformation.md)
+
+Named objects available to the arbiter during evaluation. Values are accessed
+via JSONPath and may be any type - structured JSON-LD nodes, plain objects, or scalar primitives.
+
+##### data?
+
+`D`
+
+The data to make a decision on.
+
+##### action?
+
+`string`
+
+Optional action to make a decision on, if not provided, the arbiter will evaluate all actions in the agreement.
+
+#### Returns
+
+`Promise`\<[`IPolicyDecision`](IPolicyDecision.md)[]\>
+
+The decisions about access to the data.

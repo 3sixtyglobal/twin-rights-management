@@ -1,0 +1,12 @@
+// Copyright 2025 IOTA Stiftung.
+// SPDX-License-Identifier: Apache-2.0.
+import { Factory } from "@twin.org/core";
+import type { IPolicyInformationSource } from "../models/pip/IPolicyInformationSource.js";
+
+/**
+ * Factory for managing policy information sources registration and retrieval.
+ */
+// eslint-disable-next-line @typescript-eslint/naming-convention
+export const PolicyInformationSourceFactory = Factory.createFactory<IPolicyInformationSource>(
+	"policy-information-source"
+);

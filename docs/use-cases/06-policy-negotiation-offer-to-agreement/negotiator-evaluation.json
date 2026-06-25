@@ -1,0 +1,105 @@
+{
+	"$comment": "Provider Negotiator evaluation trace - Shows the decision-making process on the Provider side when evaluating a negotiation request. The Negotiator checks constraints and determines whether to accept, counter, reject, or pause for manual approval.",
+	"negotiationId": "neg-vet-cert-12345",
+	"offerId": "https://giw-node.example.org/policies/offers/vet-cert-offer-001",
+	"consumerIdentity": "did:iota:testnet:0x1ee831611a9fe9877c82e05075d9670c4970b4fd0904c208082ee50e45817a9d",
+	"currentState": "REQUESTED",
+	"evaluationTimestamp": "2025-10-02T09:56:00Z",
+	"evaluationSteps": [
+		{
+			"step": 1,
+			"action": "validateConsumerIdentity",
+			"description": "Verify consumer DID exists and is valid on IOTA blockchain",
+			"didResolution": {
+				"did": "did:iota:testnet:0x1ee831611a9fe9877c82e05075d9670c4970b4fd0904c208082ee50e45817a9d",
+				"status": "resolved",
+				"verified": true,
+				"controllerVerified": true
+			},
+			"result": "PASS",
+			"details": "DID successfully resolved and verified on IOTA testnet"
+		},
+		{
+			"step": 2,
+			"action": "extractConsumerAttributes",
+			"description": "Extract relevant attributes from consumer context for constraint evaluation",
+			"extractedAttributes": {
+				"legalAddress.countryCode": "PL",
+				"organizationName": "Polish Exporter Ltd",
+				"taxID": "PL1234567890"
+			},
+			"result": "PASS",
+			"details": "Successfully extracted country code: PL"
+		},
+		{
+			"step": 3,
+			"action": "evaluatePartyCollectionRefinement",
+			"description": "Check if consumer satisfies PartyCollection refinement constraint",
+			"constraint": {
+				"leftOperand": ".legalAddress.countryCode",
+				"operator": "eq",
+				"rightOperand": "PL"
+			},
+			"evaluation": {
+				"consumerCountryCode": "PL",
+				"requiredCountryCode": "PL",
+				"satisfied": true
+			},
+			"result": "PASS",
+			"details": "Consumer country code matches Offer requirement"
+		},
+		{
+			"step": 4,
+			"action": "assessDataSensitivity",
+			"description": "Determine if data requires manual approval (PNAP intervention)",
+			"dataSensitivityLevel": "standard",
+			"requiresManualApproval": false,
+			"result": "PASS",
+			"details": "Veterinary certificates are standard data, automated approval permitted"
+		},
+		{
+			"step": 5,
+			"action": "checkAdditionalBusinessRules",
+			"description": "Evaluate any custom business rules or compliance requirements",
+			"businessRules": [
+				{
+					"rule": "verifyOrganizationNotBlacklisted",
+					"result": "PASS",
+					"details": "Organization not in denial list"
+				},
+				{
+					"rule": "checkActiveRegistration",
+					"result": "PASS",
+					"details": "Organization has valid tax registration in Poland"
+				}
+			],
+			"result": "PASS",
+			"details": "All business rules satisfied"
+		},
+		{
+			"step": 6,
+			"action": "determineNegotiationDecision",
+			"description": "Make final decision: accept, counter, reject, or pause",
+			"decision": "ACCEPT_AS_IS",
+			"reasoning": "All constraints satisfied, no modifications needed",
+			"result": "PASS",
+			"details": "Consumer meets all requirements, proceed with original Offer terms"
+		}
+	],
+	"finalDecision": {
+		"decision": "ACCEPT_AS_IS",
+		"nextState": "OFFERED",
+		"modifications": [],
+		"counterOfferGenerated": false,
+		"pnapApprovalRequired": false,
+		"agreementWillInclude": {
+			"assignee": "did:iota:testnet:0x1ee831611a9fe9877c82e05075d9670c4970b4fd0904c208082ee50e45817a9d",
+			"permissions": "same_as_offer",
+			"constraints": "same_as_offer",
+			"obligations": []
+		}
+	},
+	"evaluationDuration": "450ms",
+	"evaluatorComponent": "VeterinaryAgencyNegotiator",
+	"evaluatorVersion": "1.0.0"
+}

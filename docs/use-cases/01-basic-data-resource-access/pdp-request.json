@@ -1,0 +1,6 @@
+{
+	"assignee": "did:iota:testnet:0x1ee831611a9fe9877c82e05075d9670c4970b4fd0904c208082ee50e45817a9d",
+	"action": "read",
+	"assetType": "DataResource",
+	"resourceId": "https://twin.example.org/data-resources/vet-cert-doc-6ce567"
+}

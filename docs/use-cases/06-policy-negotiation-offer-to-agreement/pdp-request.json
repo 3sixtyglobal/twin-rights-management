@@ -1,0 +1,51 @@
+﻿{
+	"$comment": "PDP Request - Evaluation request for Agreement enforcement after policy negotiation. Shows the request structure sent to PDP after PMP locates the negotiated Agreement.",
+	"requestId": "req-2025-09-30-11-00-001",
+	"timestamp": "2025-09-30T11:00:00Z",
+	"action": "read",
+	"assignee": "did:iota:testnet:0xac534b750ac453d573a55954760af140f87358c7be9a18000a831c452c32f246",
+	"resource": {
+		"@type": "AssetCollection",
+		"source": "DataResource",
+		"description": "Collection of veterinary certificate data resources",
+		"providedBy": "did:iota:testnet:0xfcfa55894cab90504af7eaf38087addd5f77791a89bd3ebbe76d9c2b1a6ce567"
+	},
+	"applicablePolicy": {
+		"uid": "https://giw-node.example.org/policies/agreements/agr-001",
+		"@type": "Agreement",
+		"derivedFrom": {
+			"@id": "https://giw-node.example.org/policies/offers/vet-cert-offer-001",
+			"@type": "Offer"
+		}
+	},
+	"context": {
+		"assigneeAttributes": {
+			"@id": "did:iota:testnet:0xac534b750ac453d573a55954760af140f87358c7be9a18000a831c452c32f246",
+			"name": "Polish Agricultural Exporter Co.",
+			"legalAddress": {
+				"streetAddress": "ul. Przemysłowa 45",
+				"addressLocality": "Poznań",
+				"postalCode": "61-245",
+				"addressCountry": "PL",
+				"countryCode": "PL"
+			},
+			"taxID": "PL9876543210",
+			"registeredIn": "Poland",
+			"organizationType": "agricultural-exporter"
+		},
+		"negotiationContext": {
+			"agreementUid": "https://giw-node.example.org/policies/agreements/agr-001",
+			"originalOffer": "https://giw-node.example.org/policies/offers/vet-cert-offer-001",
+			"negotiationId": "neg-2025-09-30-001",
+			"negotiationCompleted": "2025-09-30T10:05:00Z",
+			"constraintValidatedDuringNegotiation": {
+				"leftOperand": "twin:jsonPath",
+				"twin:jsonPathExpression": ".legalAddress.countryCode",
+				"operator": "eq",
+				"rightOperand": "PL",
+				"result": "satisfied"
+			}
+		},
+		"currentDateTime": "2025-09-30T11:00:00Z"
+	}
+}

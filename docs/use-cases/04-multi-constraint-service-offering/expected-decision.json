@@ -1,0 +1,59 @@
+{
+	"decision": "permit",
+	"reasoning": "All constraints satisfied: current date within valid period AND assignee possesses required security certification",
+	"appliedPolicy": {
+		"uid": "http://example.com/policy-service-offering:api-access-2025",
+		"type": "Agreement",
+		"assigner": "did:iota:testnet:0xfcfa55894cab90504af7eaf38087addd5f77791a89bd3ebbe76d9c2b1a6ce567",
+		"assignee": "did:iota:testnet:0xac534b750ac453d573a55954760af140f87358c7be9a18000a831c452c32f246"
+	},
+	"evaluatedConstraints": [
+		{
+			"constraint": {
+				"leftOperand": "dateTime",
+				"operator": "gteq",
+				"rightOperand": "2025-01-01T00:00:00Z"
+			},
+			"leftOperandValue": "2025-09-30T10:00:00Z",
+			"evaluation": "2025-09-30T10:00:00Z >= 2025-01-01T00:00:00Z",
+			"result": "satisfied"
+		},
+		{
+			"constraint": {
+				"leftOperand": "dateTime",
+				"operator": "lteq",
+				"rightOperand": "2025-12-31T23:59:59Z"
+			},
+			"leftOperandValue": "2025-09-30T10:00:00Z",
+			"evaluation": "2025-09-30T10:00:00Z <= 2025-12-31T23:59:59Z",
+			"result": "satisfied"
+		},
+		{
+			"constraint": {
+				"leftOperand": ".certifications",
+				"operator": "isAnyOf",
+				"rightOperand": ["ISO27001", "SOC2"]
+			},
+			"leftOperandValue": ["ISO27001", "SOC2", "ISO9001"],
+			"evaluation": "assignee certifications ∩ required certifications = ['ISO27001', 'SOC2']",
+			"result": "satisfied"
+		}
+	],
+	"constraintLogic": "AND",
+	"constraintsSatisfied": 3,
+	"constraintsTotal": 3,
+	"obligations": [],
+	"grantedPermissions": [
+		{
+			"action": "use",
+			"target": "https://twin.example.org/service-offerings/api-access-vet-cert",
+			"type": "service-access"
+		}
+	],
+	"enforcementGuidance": {
+		"type": "simple-grant",
+		"description": "Grant API access to assignee, no data filtering required",
+		"accessToken": "should-be-issued",
+		"validUntil": "2025-12-31T23:59:59Z"
+	}
+}

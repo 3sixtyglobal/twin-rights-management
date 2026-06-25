@@ -1,0 +1,8 @@
+{
+	"info": {
+		"policyManagementPointService": {
+			"retrieving": "Retrieving policies for locator \"locator\"",
+			"retrieved": "Retrieved {count} policies for locator \"locator\"."
+		}
+	}
+}

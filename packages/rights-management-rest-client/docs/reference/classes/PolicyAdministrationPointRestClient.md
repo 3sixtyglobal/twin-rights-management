@@ -1,0 +1,309 @@
+# Class: PolicyAdministrationPointRestClient
+
+Client for performing Rights Management Policy Administration through to REST endpoints.
+
+## Extends
+
+- `BaseRestClient`
+
+## Implements
+
+- `IPolicyAdministrationPointComponent`
+
+## Constructors
+
+### Constructor
+
+> **new PolicyAdministrationPointRestClient**(`config`): `PolicyAdministrationPointRestClient`
+
+Create a new instance of PolicyAdministrationPointRestClient.
+
+#### Parameters
+
+##### config
+
+`IBaseRestClientConfig`
+
+The configuration for the client.
+
+#### Returns
+
+`PolicyAdministrationPointRestClient`
+
+#### Overrides
+
+`BaseRestClient.constructor`
+
+## Properties
+
+### CLASS\_NAME {#class_name}
+
+> `readonly` `static` **CLASS\_NAME**: `string`
+
+Runtime name for the class.
+
+## Methods
+
+### className() {#classname}
+
+> **className**(): `string`
+
+Returns the class name of the component.
+
+#### Returns
+
+`string`
+
+The class name of the component.
+
+#### Implementation of
+
+`IPolicyAdministrationPointComponent.className`
+
+***
+
+### create() {#create}
+
+> **create**(`policy`): `Promise`\<`string`\>
+
+Create a new policy with auto-generated UID.
+
+#### Parameters
+
+##### policy
+
+`JsonLdObjectWithOptionalAtId`\<`IRightsManagementPolicy`\>
+
+The policy to create (uid will be auto-generated).
+
+#### Returns
+
+`Promise`\<`string`\>
+
+The UID of the created policy.
+
+#### Implementation of
+
+`IPolicyAdministrationPointComponent.create`
+
+***
+
+### update() {#update}
+
+> **update**(`policy`): `Promise`\<`void`\>
+
+Update an existing policy.
+
+#### Parameters
+
+##### policy
+
+`IRightsManagementPolicy`
+
+The policy to update (must include uid).
+
+#### Returns
+
+`Promise`\<`void`\>
+
+A promise that resolves when the policy has been updated.
+
+#### Implementation of
+
+`IPolicyAdministrationPointComponent.update`
+
+***
+
+### get() {#get}
+
+> **get**(`policyId`): `Promise`\<`IRightsManagementPolicy`\>
+
+Get a policy.
+
+#### Parameters
+
+##### policyId
+
+`string`
+
+The id of the policy to get.
+
+#### Returns
+
+`Promise`\<`IRightsManagementPolicy`\>
+
+The policy.
+
+#### Implementation of
+
+`IPolicyAdministrationPointComponent.get`
+
+***
+
+### getAgreement() {#getagreement}
+
+> **getAgreement**(`agreementId`): `Promise`\<`IRightsManagementAgreement`\>
+
+Get an agreement.
+
+#### Parameters
+
+##### agreementId
+
+`string`
+
+The id of the agreement to get.
+
+#### Returns
+
+`Promise`\<`IRightsManagementAgreement`\>
+
+The agreement.
+
+#### Implementation of
+
+`IPolicyAdministrationPointComponent.getAgreement`
+
+***
+
+### getSet() {#getset}
+
+> **getSet**(`setId`): `Promise`\<`IRightsManagementSet`\>
+
+Get a set.
+
+#### Parameters
+
+##### setId
+
+`string`
+
+The id of the set to get.
+
+#### Returns
+
+`Promise`\<`IRightsManagementSet`\>
+
+The set.
+
+#### Implementation of
+
+`IPolicyAdministrationPointComponent.getSet`
+
+***
+
+### getOffer() {#getoffer}
+
+> **getOffer**(`offerId`): `Promise`\<`IRightsManagementOffer`\>
+
+Get an offer.
+
+#### Parameters
+
+##### offerId
+
+`string`
+
+The id of the offer to get.
+
+#### Returns
+
+`Promise`\<`IRightsManagementOffer`\>
+
+The offer.
+
+#### Implementation of
+
+`IPolicyAdministrationPointComponent.getOffer`
+
+***
+
+### remove() {#remove}
+
+> **remove**(`policyId`): `Promise`\<`void`\>
+
+Remove a policy.
+
+#### Parameters
+
+##### policyId
+
+`string`
+
+The id of the policy to remove.
+
+#### Returns
+
+`Promise`\<`void`\>
+
+A promise that resolves when the policy has been removed.
+
+#### Implementation of
+
+`IPolicyAdministrationPointComponent.remove`
+
+***
+
+### query() {#query}
+
+> **query**(`options?`, `conditions?`, `cursor?`, `limit?`): `Promise`\<\{ `cursor?`: `string`; `policies`: `IRightsManagementPolicy`[]; \}\>
+
+Query the policies using the specified conditions.
+
+#### Parameters
+
+##### options?
+
+Optional options to filter by assigner or assignee.
+
+###### assigner?
+
+`string`
+
+The assigner to filter by.
+
+###### assignee?
+
+`string`
+
+The assignee to filter by.
+
+###### target?
+
+`string`
+
+The target to filter by.
+
+###### action?
+
+`string`
+
+The action to filter by.
+
+##### conditions?
+
+`EntityCondition`\<`IRightsManagementPolicy`\>
+
+The conditions to use for the query.
+
+##### cursor?
+
+`string`
+
+The cursor to use for pagination.
+
+##### limit?
+
+`number`
+
+The number of results to return per page.
+
+#### Returns
+
+`Promise`\<\{ `cursor?`: `string`; `policies`: `IRightsManagementPolicy`[]; \}\>
+
+Cursor for next page of results and the policies matching the query.
+
+#### Implementation of
+
+`IPolicyAdministrationPointComponent.query`

@@ -1,0 +1,16 @@
+{
+	"error": {
+		"policyEnforcementPointService": {
+			"noProcessors": "No processors available to process information",
+			"processingFailed": "Failed to process information using processor with id: \"{processorId}\", policy id: \"{policyId}\"",
+			"noAgreementsFound": "No agreements found for locator: \"{locator}\"",
+			"multipleAgreementsFound": "Multiple agreements found for locator: \"{locator}\""
+		}
+	},
+	"info": {
+		"policyEnforcementPointService": {
+			"processing": "Processing information using processor with id: \"{processorId}\", policy id: \"{policyId}\"",
+			"intercepting": "Intercepting information for policy id: \"{policyId}\""
+		}
+	}
+}

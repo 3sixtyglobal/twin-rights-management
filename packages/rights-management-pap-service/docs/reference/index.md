@@ -7,10 +7,13 @@
 
 ## Interfaces
 
-- [IPolicyAdministrationPointServiceOptions](interfaces/IPolicyAdministrationPointServiceOptions.md)
+- [IPolicyAdministrationPointServiceConstructorOptions](interfaces/IPolicyAdministrationPointServiceConstructorOptions.md)
 
 ## Functions
 
 - [initSchema](functions/initSchema.md)
-- [convertToStoragePolicy](functions/convertToStoragePolicy.md)
-- [convertFromStoragePolicy](functions/convertFromStoragePolicy.md)
+- [normalizeContext](functions/normalizeContext.md)
+- [hasPolicyMetadataContext](functions/hasPolicyMetadataContext.md)
+- [ensurePolicyMetadataContext](functions/ensurePolicyMetadataContext.md)
+- [buildPapStorageContext](functions/buildPapStorageContext.md)
+- [hasPolicyMetadata](functions/hasPolicyMetadata.md)

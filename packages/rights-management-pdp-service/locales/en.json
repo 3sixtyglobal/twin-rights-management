@@ -1,0 +1,8 @@
+{
+	"error": {
+		"policyDecisionPointService": {
+			"decidingFailed": "Deciding on policies for policy id \"{policyId}\" failed in arbiter with id: \"{arbiterId}\"",
+			"noArbiters": "No policy arbiters are registered in the system."
+		}
+	}
+}

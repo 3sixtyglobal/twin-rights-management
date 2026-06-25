@@ -1,6 +1,6 @@
 # Interface: IPolicyInformationPointComponent
 
-Interface describing a Policy Information Point (PEP) contract.
+Interface describing a Policy Information Point (PIP) contract.
 Provides additional information to the Policy Decision Point (PDP) when
 it is making decisions.
 
@@ -10,52 +10,46 @@ it is making decisions.
 
 ## Methods
 
-### retrieve()
+### retrieve() {#retrieve}
 
-> **retrieve**\<`T`\>(`assetType`, `action`, `data`, `userIdentity`, `nodeIdentity`): `Promise`\<`IJsonLdNodeObject`[]\>
+> **retrieve**\<`D`\>(`policy`, `accessMode`, `data?`, `action?`): `Promise`\<[`IRightsManagementInformation`](IRightsManagementInformation.md)\>
 
 Retrieve additional information which is relevant in the PDP decision making.
 
 #### Type Parameters
 
-##### T
+##### D
 
-`T` = `unknown`
+`D` = `unknown`
 
 #### Parameters
 
-##### assetType
+##### policy
 
-`string`
+[`IRightsManagementPolicy`](IRightsManagementPolicy.md) \| `undefined`
 
-The type of asset being processed.
+The policy to retrieve the information for if available.
 
-##### action
+##### accessMode
 
-`string`
+[`PolicyInformationAccessMode`](../type-aliases/PolicyInformationAccessMode.md)
 
-The action being performed on the asset.
+The access mode to use for the retrieval.
 
-##### data
+##### data?
+
+`D`
 
 The data to get any additional information for.
 
-`undefined` | `T`
-
-##### userIdentity
+##### action?
 
 `string`
 
-The user identity to get additional information for.
-
-##### nodeIdentity
-
-`string`
-
-The node identity to get additional information for.
+Optional action to make a decision on, if not provided, the PIP will evaluate all actions in the policy.
 
 #### Returns
 
-`Promise`\<`IJsonLdNodeObject`[]\>
+`Promise`\<[`IRightsManagementInformation`](IRightsManagementInformation.md)\>
 
 Returns additional information based on the data and identities.

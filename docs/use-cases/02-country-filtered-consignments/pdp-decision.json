@@ -1,0 +1,65 @@
+﻿{
+	"$comment": "PDP Decision Output - Partial grant with array filtering. Shows individual dataDecisions for array elements.",
+	"decision": "Permit",
+	"reasoning": "Assignee has permission to view Consignment asset class with country-based filtering applied",
+	"appliedPolicy": {
+		"uid": "http://example.com/policy-exporter-data-resource:6750",
+		"type": "Agreement",
+		"assigner": "did:iota:testnet:0x1ee831611a9fe9877c82e05075d9670c4970b4fd0904c208082ee50e45817a9d",
+		"assignee": "did:iota:testnet:0xac534b750ac453d573a55954760af140f87358c7be9a18000a831c452c32f246"
+	},
+	"evaluatedConstraints": [
+		{
+			"constraint": {
+				"leftOperand": "destinationCountry",
+				"operator": "eq",
+				"rightOperand": "assignee.countryCode"
+			},
+			"description": "Filter consignments where destination country matches assignee country code",
+			"result": "satisfied"
+		}
+	],
+	"obligations": [],
+	"dataDecisions": [
+		{
+			"target": "$.consignments[0]",
+			"decision": "Granted",
+			"reasoning": "destinationCountry 'PL' matches assignee countryCode 'PL'"
+		},
+		{
+			"target": "$.consignments[1]",
+			"decision": "Denied",
+			"reasoning": "destinationCountry 'DE' does not match assignee countryCode 'PL'"
+		},
+		{
+			"target": "$.consignments[2]",
+			"decision": "Denied",
+			"reasoning": "destinationCountry 'FR' does not match assignee countryCode 'PL'"
+		},
+		{
+			"target": "$.consignments[3]",
+			"decision": "Granted",
+			"reasoning": "destinationCountry 'PL' matches assignee countryCode 'PL'"
+		}
+	],
+	"dataTransformation": {
+		"type": "filter",
+		"rule": "destinationCountry === assigneeAttributes.countryCode",
+		"description": "Return only consignments with destination country 'PL'"
+	},
+	"grantedPermissions": [
+		{
+			"action": "read",
+			"target": {
+				"@type": "AssetCollection",
+				"source": "https://twin.example.org/consignments",
+				"refinement": {
+					"leftOperand": "twin:jsonPath",
+					"twin:jsonPathExpression": ".assetType",
+					"operator": "eq",
+					"rightOperand": "Consignment"
+				}
+			}
+		}
+	]
+}

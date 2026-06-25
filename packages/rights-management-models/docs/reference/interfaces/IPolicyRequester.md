@@ -1,0 +1,107 @@
+# Interface: IPolicyRequester
+
+Interface describing a Policy Requester.
+
+## Extends
+
+- `IComponent`
+
+## Methods
+
+### offer() {#offer}
+
+> **offer**(`negotiationId`, `offer`): `Promise`\<`boolean`\>
+
+A policy has been offered by a provider, let the requester know about it.
+
+#### Parameters
+
+##### negotiationId
+
+`string`
+
+The id of the negotiation.
+
+##### offer
+
+`JsonLdObjectWithOptionalContext`\<`IDataspaceProtocolOffer`\>
+
+The offer sent by the provider.
+
+#### Returns
+
+`Promise`\<`boolean`\>
+
+True if the offer was accepted, false otherwise.
+
+***
+
+### agreement() {#agreement}
+
+> **agreement**(`negotiationId`, `agreement`): `Promise`\<`boolean`\>
+
+A policy agreement has been sent by a provider, let the requester know about it.
+
+#### Parameters
+
+##### negotiationId
+
+`string`
+
+The id of the negotiation.
+
+##### agreement
+
+`JsonLdObjectWithOptionalContext`\<`IDataspaceProtocolAgreement`\>
+
+The agreement sent by the provider.
+
+#### Returns
+
+`Promise`\<`boolean`\>
+
+True if the agreement was accepted, false otherwise.
+
+***
+
+### finalised() {#finalised}
+
+> **finalised**(`negotiationId`): `Promise`\<`void`\>
+
+A policy finalisation has been sent by a provider, let the requester know about it.
+
+#### Parameters
+
+##### negotiationId
+
+`string`
+
+The id of the negotiation.
+
+#### Returns
+
+`Promise`\<`void`\>
+
+A promise that resolves when the finalisation has been processed.
+
+***
+
+### terminated() {#terminated}
+
+> **terminated**(`negotiationId`): `Promise`\<`void`\>
+
+A policy termination has been sent by a provider, let the requester know about it.
+
+#### Parameters
+
+##### negotiationId
+
+`string`
+
+The id of the negotiation.
+
+#### Returns
+
+`Promise`\<`void`\>
+
+A promise that resolves when the termination has been processed.

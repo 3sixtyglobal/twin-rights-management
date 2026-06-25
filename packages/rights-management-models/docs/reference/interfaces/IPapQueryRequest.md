@@ -4,26 +4,50 @@ The request structure for querying policies.
 
 ## Properties
 
-### query?
+### query? {#query}
 
-> `optional` **query**: `object`
+> `optional` **query?**: `object`
 
 The query parameters of the request.
 
+#### assigner?
+
+> `optional` **assigner?**: `string`
+
+The assigner to filter by.
+
+#### assignee?
+
+> `optional` **assignee?**: `string`
+
+The assignee to filter by.
+
+#### action?
+
+> `optional` **action?**: `string`
+
+The action to filter by.
+
+#### target?
+
+> `optional` **target?**: `string`
+
+The target to filter by.
+
 #### conditions?
 
-> `optional` **conditions**: `string`
+> `optional` **conditions?**: `string`
 
 The condition for the query.
 
-#### pageSize?
+#### limit?
 
-> `optional` **pageSize**: `string` \| `number`
+> `optional` **limit?**: `string`
 
-The number of entries to return per page.
+Limit the number of entities to return.
 
 #### cursor?
 
-> `optional` **cursor**: `string`
+> `optional` **cursor?**: `string`
 
 The cursor to get next chunk of data, returned in previous response.

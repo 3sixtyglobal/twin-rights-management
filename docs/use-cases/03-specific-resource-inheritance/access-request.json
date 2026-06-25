@@ -1,0 +1,7 @@
+{
+	"$comment": "Policy Locator - Used by PMP to query PAP for matching policies. With resourceId specified, PAP returns BOTH Set (asset class) + Agreement (specific resource) policies for layered evaluation.",
+	"assetType": "Consignment",
+	"action": "read",
+	"resourceId": "https://twin.example.org/consignments/CONS000001",
+	"requestingNodeIdentity": "did:iota:testnet:0xac534b750ac453d573a55954760af140f87358c7be9a18000a831c452c32f246"
+}

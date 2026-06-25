@@ -1,0 +1,28 @@
+{
+	"$comment": "PIP Context - Runtime facts provided by Information Sources to PDP during policy evaluation (Phase 2). Includes Federated Catalogue certification lookup for PartyCollection refinement and resource attributes for geographic constraint.",
+	"currentDateTime": "2025-10-01T10:15:00Z",
+	"assigneeAttributes": {
+		"did": "did:iota:testnet:0x83e99fd9b8804966fd474da212aa93a5769f39f2150714a3c6701d20b5353975",
+		"legalName": "Food Standards Agency",
+		"certifications": ["FSA-Trusted-Notifier", "ISO27001"]
+	},
+	"resourceAttributes": {
+		"serviceOffering": "https://twin.example.org/service-offerings/vet-cert-notification",
+		"consignment": {
+			"globalId": "CONS-UK-00042",
+			"destinationCountry": {
+				"countryId": "GB"
+			}
+		},
+		"latestDocument": {
+			"documentId": "DOC-UK-2025-0001",
+			"documentTypeCode": "unece:DocumentCodeList#853"
+		}
+	},
+	"environmentAttributes": {
+		"catalogueLookup": {
+			"endpoint": "http://localhost:44444/data-space-connector",
+			"fetchedAt": "2025-10-01T10:14:30Z"
+		}
+	}
+}

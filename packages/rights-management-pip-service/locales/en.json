@@ -1,0 +1,7 @@
+{
+	"error": {
+		"policyInformationPointService": {
+			"sourceRetrieveFailed": "Failed to retrieve information from source with id: \"{sourceId}\", for policy: \"{policyId}\""
+		}
+	}
+}

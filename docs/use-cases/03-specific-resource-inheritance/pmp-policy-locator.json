@@ -1,0 +1,79 @@
+{
+	"$comment": "PMP (Policy Management Point) - Policy locator demonstrating policy hierarchy lookup. Shows how PMP finds both asset-class and specific-resource policies.",
+	"policyQuery": {
+		"assigner": "did:iota:testnet:0x1ee831611a9fe9877c82e05075d9670c4970b4fd0904c208082ee50e45817a9d",
+		"assignee": "did:iota:testnet:0xac534b750ac453d573a55954760af140f87358c7be9a18000a831c452c32f246",
+		"action": "read",
+		"target": {
+			"uid": "https://twin.example.org/consignments/CONS000001",
+			"type": "Asset",
+			"class": "Consignment"
+		},
+		"pipContext": {
+			"purpose": "logistics-operation",
+			"dateTime": "2025-09-30T10:00:00Z"
+		}
+	},
+	"lookupStrategy": {
+		"hierarchicalLookup": true,
+		"lookupSequence": [
+			{
+				"level": "specific-resource",
+				"primaryIndex": "target:action",
+				"lookupKey": "target:https://twin.example.org/consignments/CONS000001:action:read"
+			},
+			{
+				"level": "asset-class",
+				"primaryIndex": "targetClass:action",
+				"lookupKey": "targetClass:Consignment:action:read"
+			}
+		]
+	},
+	"matchedPolicies": [
+		{
+			"policyUid": "http://example.com/policy-consignment:CONS000001",
+			"policyType": "Agreement",
+			"level": "specific-resource",
+			"matchScore": 1.0,
+			"matchedCriteria": ["assigner", "assignee", "action", "targetUid"],
+			"precedence": "specific-overrides-general",
+			"constraints": [
+				{
+					"leftOperand": "dateTime",
+					"operator": "lteq",
+					"rightOperand": "2025-12-31T23:59:59Z"
+				}
+			],
+			"inheritsFrom": "http://example.com/policy-consignment-class:base"
+		},
+		{
+			"policyUid": "http://example.com/policy-consignment-class:base",
+			"policyType": "Set",
+			"level": "asset-class",
+			"matchScore": 0.8,
+			"matchedCriteria": ["action", "targetClass"],
+			"precedence": "general",
+			"constraints": [
+				{
+					"leftOperand": "purpose",
+					"operator": "eq",
+					"rightOperand": "logistics-operation"
+				}
+			],
+			"appliesTo": "all Consignment assets"
+		}
+	],
+	"policySelectionResult": {
+		"selectedPolicies": [
+			"http://example.com/policy-consignment:CONS000001",
+			"http://example.com/policy-consignment-class:base"
+		],
+		"selectionReason": "Both policies apply. Specific-resource policy takes precedence but inherits constraints from asset-class policy.",
+		"evaluationOrder": [
+			"1. Evaluate asset-class policy constraints (purpose)",
+			"2. Evaluate specific-resource policy constraints (dateTime)",
+			"3. Apply specific-resource policy if both satisfied"
+		],
+		"nextStep": "Forward both policies to PDP for hierarchical evaluation. PDP will check base policy constraints first, then specific policy constraints."
+	}
+}

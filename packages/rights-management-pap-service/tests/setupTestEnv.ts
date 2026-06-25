@@ -1,37 +1,37 @@
-// Copyright 2024 IOTA Stiftung.
+// Copyright 2025 IOTA Stiftung.
 // SPDX-License-Identifier: Apache-2.0.
 import path from "node:path";
-import { Converter, RandomHelper } from "@twin.org/core";
+import { Converter, RandomHelper, Urn } from "@twin.org/core";
 import { MemoryEntityStorageConnector } from "@twin.org/entity-storage-connector-memory";
 import { EntityStorageConnectorFactory } from "@twin.org/entity-storage-models";
 import { nameof } from "@twin.org/nameof";
-import {
-	type ActionType,
-	OdrlContexts,
-	type PolicyType,
-	type IOdrlPolicy
-} from "@twin.org/standards-w3c-odrl";
+import { RightsManagementNamespaces } from "@twin.org/rights-management-models";
+import type { IDataspaceProtocolPolicy } from "@twin.org/standards-dataspace-protocol";
+import { OdrlContexts, OdrlPolicyType, type OdrlActionType } from "@twin.org/standards-w3c-odrl";
 import * as dotenv from "dotenv";
-import type { OdrlPolicy } from "../src/entities/odrlPolicy";
-import type { PolicyAdministrationPointService } from "../src/policyAdministrationPointService";
-import { initSchema } from "../src/schema";
+import type { OdrlPolicy } from "../src/entities/odrlPolicy.js";
+import type { PolicyAdministrationPointService } from "../src/policyAdministrationPointService.js";
+import { initSchema } from "../src/schema.js";
 
 console.debug("Setting up test environment from .env and .env.dev files");
 
-dotenv.config({ path: [path.join(__dirname, ".env"), path.join(__dirname, ".env.dev")] });
+dotenv.config({
+	path: [path.join(__dirname, ".env"), path.join(__dirname, ".env.dev")],
+	quiet: true
+});
 
 export const TEST_DIRECTORY_ROOT = "./.tmp/";
 export const TEST_DIRECTORY = `${TEST_DIRECTORY_ROOT}test-data-${Converter.bytesToHex(RandomHelper.generate(8))}`;
 
-export const TEST_POLICY_ID = "http://example.com/policy/1";
+export const TEST_POLICY_ID = Urn.generateRandom(RightsManagementNamespaces.Policy).toString(false);
 export const TEST_ASSET_ID = "http://example.com/asset/1";
 export const TEST_USER_IDENTITY = "user:1234";
 export const TEST_NODE_IDENTITY = "node:5678";
 
-export const SAMPLE_POLICY: IOdrlPolicy = {
-	"@context": OdrlContexts.ContextRoot,
+export const SAMPLE_POLICY: IDataspaceProtocolPolicy = {
+	"@context": OdrlContexts.Context,
 	"@type": "Set",
-	uid: TEST_POLICY_ID,
+	"@id": TEST_POLICY_ID,
 	permission: [
 		{
 			target: TEST_ASSET_ID,
@@ -48,27 +48,53 @@ EntityStorageConnectorFactory.register(
 	"odrl-policy",
 	() =>
 		new MemoryEntityStorageConnector<OdrlPolicy>({
-			entitySchema: nameof<OdrlPolicy>()
+			entitySchema: nameof<OdrlPolicy>(),
+			config: { storageKey: "odrl-policy" }
 		})
 );
 
-// Helper function to create test policy without UID (for auto-generation)
-const createTestPolicy = (
-	id: string,
-	policyType: PolicyType,
-	assetId: string,
-	action: ActionType
-): Omit<IOdrlPolicy, "uid"> => ({
-	"@context": OdrlContexts.ContextRoot,
-	"@type": policyType,
-	permission: [
-		{
-			target: assetId,
-			action
-		}
-	]
-});
+/**
+ * Re-register the ODRL policy storage to force a fresh store instance.
+ * Call this in beforeEach to ensure each test starts with an empty store,
+ * since getStore() now returns a copy (not the internal array).
+ * @returns The new MemoryEntityStorageConnector instance for ODRL policies.
+ */
+export function resetOdrlPolicyStorage(): MemoryEntityStorageConnector<OdrlPolicy> {
+	EntityStorageConnectorFactory.register(
+		"odrl-policy",
+		() =>
+			new MemoryEntityStorageConnector<OdrlPolicy>({
+				entitySchema: nameof<OdrlPolicy>(),
+				config: { storageKey: "odrl-policy" }
+			})
+	);
+	return EntityStorageConnectorFactory.get<MemoryEntityStorageConnector<OdrlPolicy>>("odrl-policy");
+}
 
+// Helper function to create test policy without UID (for auto-generation)
+function createTestPolicy(
+	id: string,
+	policyType: OdrlPolicyType,
+	assetId: string,
+	action: OdrlActionType
+): Omit<IDataspaceProtocolPolicy, "@id"> & { "@id"?: string } {
+	const policy: Omit<IDataspaceProtocolPolicy, "@id"> & { "@id"?: string } = {
+		"@context": OdrlContexts.Context,
+		"@type": policyType,
+		permission: [
+			{
+				target: assetId,
+				action
+			}
+		]
+	};
+
+	if (policyType === OdrlPolicyType.Offer) {
+		policy.assigner = TEST_USER_IDENTITY;
+	}
+
+	return policy;
+}
 // Store mapping of expected ID to generated UID
 export const testPolicyMapping = new Map<string, string>();
 
@@ -78,9 +104,9 @@ export const createTestPolicies = async (
 	testPolicyMapping.clear();
 
 	for (let i = 1; i <= 10; i++) {
-		const policyType = i % 2 === 0 ? ("Set" as PolicyType) : ("Offer" as PolicyType);
+		const policyType = i % 2 === 0 ? OdrlPolicyType.Set : OdrlPolicyType.Offer;
 		const assetId = `http://example.com/asset/${Math.ceil(i / 2)}`;
-		const action = i % 3 === 0 ? ("display" as ActionType) : ("use" as ActionType);
+		const action = i % 3 === 0 ? ("display" as OdrlActionType) : ("use" as OdrlActionType);
 
 		const policy = createTestPolicy(i.toString(), policyType, assetId, action);
 		const generatedUid = await policyAdminPoint.create(policy);

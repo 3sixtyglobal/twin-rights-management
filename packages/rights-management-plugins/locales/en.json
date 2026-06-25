@@ -1,0 +1,79 @@
+{
+	"error": {
+		"identityPolicyInformationSource": {
+			"identityRetrievalFailed": "Failed to retrieve identity \"{id}\" information for policy id: \"{policyId}\""
+		},
+		"identityProfilePolicyInformationSource": {
+			"profileRetrievalFailed": "Failed to retrieve identity profile \"{id}\" information for policy id: \"{policyId}\""
+		},
+		"defaultPolicyArbiter": {
+			"ruleTargetNotSupported": "Rule target \"{target}\" is not supported. Only twin:<object>:<jsonPath> targets are currently supported.",
+			"multipleTargetsNotSupported": "Multiple targets in a single permission are not supported.",
+			"circularInheritanceDetected": "Circular inheritance detected: policy \"{policyId}\" inherits from \"{inheritFromId}\" which creates a cycle.",
+			"logicalConstraintOperandNotUnique": "Logical constraint operand is not unique within the policy, each operand must be unique.",
+			"inheritedPolicyNotFound": "The inherited policy with id \"{inheritFromId}\" could not be found in the Policy Administration Point.",
+			"assetCollectionSourceNotSupported": "AssetCollection source \"{source}\" is not supported. It must be a twin:jsonPath target.",
+			"partyCollectionSourceNotSupported": "PartyCollection source \"{source}\" is not supported.",
+			"assetHasPolicyNotSupported": "Asset hasPolicy is not supported. Policies must be referenced through the agreement directly.",
+			"assetPartOfNotSupported": "Asset partOf is not supported. AssetCollection membership is resolved through the agreement directly.",
+			"partyAssignerOfNotSupported": "Party assignerOf is not supported. Assigner roles must be specified directly on individual rules or the agreement.",
+			"partyAssigneeOfNotSupported": "Party assigneeOf is not supported. Assignee roles must be specified directly on individual rules or the agreement.",
+			"partyPartOfNotSupported": "Party partOf is not supported. PartyCollection membership is resolved through the agreement directly.",
+			"noObligationEnforcersRegistered": "No Policy Obligation Enforcers are registered and they are required to enforce duties.",
+			"maxInheritanceDepthExceeded": "The maximum inheritance depth of {maxInheritanceDepth} has been exceeded when processing policy \"{policyId}\".",
+			"rightOperandReferenceNotSupported": "Constraint rightOperandReference is not supported. Use rightOperand with a typed JSONPath value instead.",
+			"constraintDataTypeNotSupported": "Constraint dataType is not supported. Value coercion based on dataType is not implemented.",
+			"constraintUnitNotSupported": "Constraint unit is not supported. Unit-aware comparison is not implemented.",
+			"constraintStatusNotSupported": "Constraint status is not supported. State-based evaluation is not implemented.",
+			"jsonPathExpressionMissing": "Canonical JSONPath expression is missing for \"{operand}\". Provide twin:jsonPathExpression.",
+			"policyProfileNotSupported": "Policy \"{policyId}\" declares unsupported profile \"{unsupportedProfile}\". Only known profiles are supported.",
+			"inheritedPolicyProfileNotSupported": "Inherited policy \"{policyId}\" declares an unsupported profile. All policies in the inheritFrom chain must declare only supported profiles.",
+			"leftOperandNotSupported": "Constraint leftOperand \"{leftOperand}\" is a recognised ODRL built-in but is not yet supported by this arbiter."
+		},
+		"defaultPolicyEnforcementProcessor": {
+			"targetNotJsonPath": "The policy decision target \"{target}\" is not a valid JSON-path string, it should be a minimum of $.",
+			"replaceValueMissing": "The policy decision replaceValue was not provided for target \"{target}\"."
+		}
+	},
+	"info": {
+		"identityPolicyInformationSource": {
+			"identityRetrieving": "Retrieving identity \"{id}\" information for policy id: \"{policyId}\""
+		},
+		"identityProfilePolicyInformationSource": {
+			"profileRetrieving": "Retrieving identity profile \"{id}\" information for policy id: \"{policyId}\""
+		},
+		"staticPolicyInformationSource": {
+			"staticRetrieving": "Retrieving static policy information for policy id: \"{policyId}\" with access mode: \"{accessMode}\"",
+			"staticRetrieved": "Retrieved static policy information for policy id: \"{policyId}\" with access mode: \"{accessMode}\", item count: {itemCount}"
+		},
+		"loggingPolicyExecutionAction": {
+			"policyActionExecutedBefore": "Policy executed for policyId: \"{policyId}\", stage: \"{stage}\", data: \"{data}\", policy: \"{policy}\", decisions: \"{decisions}\"",
+			"policyActionExecutedAfter": "Policy executed for policyId: \"{policyId}\", stage: \"{stage}\", data: \"{data}\", policy: \"{policy}\", decisions: \"{decisions}\""
+		},
+		"passThroughPolicyEnforcementProcessor": {
+			"processingPolicy": "Processing policy enforcement for policy id: \"{policyId}\""
+		},
+		"defaultPolicyEnforcementProcessor": {
+			"processingPolicy": "Processing policy enforcement for policy id: \"{policyId}\""
+		},
+		"passThroughPolicyArbiter": {
+			"decidingPolicy": "Deciding policy for policy id: \"{policyId}\""
+		},
+		"defaultPolicyArbiter": {
+			"decidingPolicy": "Deciding policy for policy id: \"{policyId}\""
+		},
+		"passThroughPolicyNegotiator": {
+			"handlingOffer": "Handling offer negotiation for offer id: \"{offerId}\"",
+			"createAgreement": "Creating agreement for policy id: \"{offerId}\""
+		},
+		"passThroughPolicyRequester": {
+			"offer": "Logging offer request for offer id: \"{offerId}\", negotiation id: \"{negotiationId}\"",
+			"agreement": "Logging agreement request for agreement id: \"{agreementId}\", negotiation id: \"{negotiationId}\"",
+			"finalised": "Logging finalised request for negotiation id: \"{negotiationId}\"",
+			"terminated": "Logging terminated request for negotiation id: \"{negotiationId}\""
+		},
+		"passThroughPolicyObligationEnforcer": {
+			"enforcingDuty": "Enforcing duty for policy id: \"{policyId}\""
+		}
+	}
+}

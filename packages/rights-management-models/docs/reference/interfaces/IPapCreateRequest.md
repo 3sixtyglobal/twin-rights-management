@@ -4,8 +4,8 @@ The request structure for creating a policy.
 
 ## Properties
 
-### body
+### body {#body}
 
-> **body**: `Omit`\<`IOdrlPolicy`, `"uid"`\>
+> **body**: `JsonLdObjectWithOptionalAtId`\<[`IRightsManagementPolicy`](IRightsManagementPolicy.md)\>
 
-The body of the request - the policy to create (uid will be auto-generated).
+The body of the request - the policy to create (id will be auto-generated if not provided).

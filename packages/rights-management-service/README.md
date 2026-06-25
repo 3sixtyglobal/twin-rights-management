@@ -1,12 +1,20 @@
 # TWIN Rights Management Service
 
-Rights Management service implementation and REST endpoint definitions.
+This package provides a unified rights management service exposing policy and negotiation capabilities. It is designed for deployments that want a consolidated service interface.
 
 ## Installation
 
-```shell
+`shell
 npm install @twin.org/rights-management-service
-```
+`
+
+## Testing
+
+Run the package test suite with:
+
+`shell
+npm test
+`
 
 ## Examples
 

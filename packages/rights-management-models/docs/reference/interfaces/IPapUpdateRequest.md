@@ -4,7 +4,7 @@ The request structure for updating a policy.
 
 ## Properties
 
-### pathParams
+### pathParams {#pathparams}
 
 > **pathParams**: `object`
 
@@ -18,8 +18,8 @@ The ID of the policy to update.
 
 ***
 
-### body
+### body {#body}
 
-> **body**: `IOdrlPolicy`
+> **body**: [`IRightsManagementPolicy`](IRightsManagementPolicy.md)
 
-The body of the request - the policy to update (must include uid).
+The body of the request.
