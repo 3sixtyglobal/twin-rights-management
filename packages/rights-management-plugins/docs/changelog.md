@@ -6,6 +6,14 @@
 
 * remove EcosystemPolicy-related examples/assumptions; plugins now target standard ODRL policy types for v2.
 
+## [0.9.0](https://github.com/iotaledger/twin-rights-management/compare/rights-management-plugins-v0.9.0...rights-management-plugins-v0.9.0) (2026-06-25)
+
+
+### Features
+
+* release to production ([947f85a](https://github.com/iotaledger/twin-rights-management/commit/947f85ab9e23c117135dba7008a75c2d85435259))
+* release to production ([#223](https://github.com/iotaledger/twin-rights-management/issues/223)) ([8188fe6](https://github.com/iotaledger/twin-rights-management/commit/8188fe643107e3d4989b45a313d3f451e51e4b52))
+
 ## [0.9.0-next.1](https://github.com/iotaledger/twin-rights-management/compare/rights-management-plugins-v0.9.0-next.0...rights-management-plugins-v0.9.0-next.1) (2026-06-23)
 
 
