@@ -1,13 +1,13 @@
 {
-	"packages/rights-management-models": "0.9.0-next.1",
-	"packages/rights-management-pap-service": "0.9.0-next.1",
-	"packages/rights-management-pdp-service": "0.9.0-next.1",
-	"packages/rights-management-pep-service": "0.9.0-next.1",
-	"packages/rights-management-pip-service": "0.9.0-next.1",
-	"packages/rights-management-pmp-service": "0.9.0-next.1",
-	"packages/rights-management-pnp-service": "0.9.0-next.1",
-	"packages/rights-management-pxp-service": "0.9.0-next.1",
-	"packages/rights-management-service": "0.9.0-next.1",
-	"packages/rights-management-rest-client": "0.9.0-next.1",
-	"packages/rights-management-plugins": "0.9.0-next.1"
+	"packages/rights-management-models": "0.9.1-next.0",
+	"packages/rights-management-pap-service": "0.9.1-next.0",
+	"packages/rights-management-pdp-service": "0.9.1-next.0",
+	"packages/rights-management-pep-service": "0.9.1-next.0",
+	"packages/rights-management-pip-service": "0.9.1-next.0",
+	"packages/rights-management-pmp-service": "0.9.1-next.0",
+	"packages/rights-management-pnp-service": "0.9.1-next.0",
+	"packages/rights-management-pxp-service": "0.9.1-next.0",
+	"packages/rights-management-service": "0.9.1-next.0",
+	"packages/rights-management-rest-client": "0.9.1-next.0",
+	"packages/rights-management-plugins": "0.9.1-next.0"
 }
