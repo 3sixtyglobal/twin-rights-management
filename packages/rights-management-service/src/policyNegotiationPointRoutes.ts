@@ -1,6 +1,11 @@
 // Copyright 2025 IOTA Stiftung.
 // SPDX-License-Identifier: Apache-2.0.
-import type { IHttpRequestContext, IRestRoute, ITag } from "@twin.org/api-models";
+import {
+	HttpHeaderHelper,
+	type IHttpRequestContext,
+	type IRestRoute,
+	type ITag
+} from "@twin.org/api-models";
 import { ComponentFactory, Guards, Is } from "@twin.org/core";
 import { nameof } from "@twin.org/nameof";
 import {
@@ -25,7 +30,13 @@ import {
 	type IDataspaceProtocolContractNegotiationError
 } from "@twin.org/standards-dataspace-protocol";
 import { OdrlTypes } from "@twin.org/standards-w3c-odrl";
-import { HeaderHelper, HeaderTypes, HttpStatusCode, MimeTypes } from "@twin.org/web";
+import {
+	HeaderHelper,
+	HeaderTypes,
+	HttpStatusCode,
+	type IHttpHeaders,
+	MimeTypes
+} from "@twin.org/web";
 
 /**
  * The source used when communicating about these routes.
@@ -611,14 +622,12 @@ export async function pnpGetNegotiation(
 		HeaderHelper.extractBearer(request.headers?.[HeaderTypes.Authorization])
 	);
 
+	const headers: IHttpHeaders = {};
+	HttpHeaderHelper.buildJsonContentType(headers, request.headers);
+
 	return {
 		statusCode: mapError(result),
-		headers: {
-			[HeaderTypes.ContentType]:
-				request.headers?.[HeaderTypes.Accept] === MimeTypes.JsonLd
-					? MimeTypes.JsonLd
-					: MimeTypes.Json
-		},
+		headers,
 		body: result
 	};
 }
@@ -651,14 +660,12 @@ export async function pnpNegotiationRequest(
 
 	const isUpdate = Is.stringValue(request.pathParams?.id);
 
+	const headers: IHttpHeaders = {};
+	HttpHeaderHelper.buildJsonContentType(headers, request.headers);
+
 	return {
 		statusCode: mapError(result) ?? (isUpdate ? undefined : HttpStatusCode.created),
-		headers: {
-			[HeaderTypes.ContentType]:
-				request.headers?.[HeaderTypes.Accept] === MimeTypes.JsonLd
-					? MimeTypes.JsonLd
-					: MimeTypes.Json
-		},
+		headers,
 		body: result
 	};
 }
@@ -695,14 +702,12 @@ export async function pnpNegotiationProviderEvents(
 		HeaderHelper.extractBearer(request.headers?.[HeaderTypes.Authorization])
 	);
 
+	const headers: IHttpHeaders = {};
+	HttpHeaderHelper.buildJsonContentType(headers, request.headers);
+
 	return {
 		statusCode: mapError(result),
-		headers: {
-			[HeaderTypes.ContentType]:
-				request.headers?.[HeaderTypes.Accept] === MimeTypes.JsonLd
-					? MimeTypes.JsonLd
-					: MimeTypes.Json
-		},
+		headers,
 		body: result
 	};
 }
@@ -742,14 +747,12 @@ export async function pnpNegotiationAgreementVerification(
 		HeaderHelper.extractBearer(request.headers?.[HeaderTypes.Authorization])
 	);
 
+	const headers: IHttpHeaders = {};
+	HttpHeaderHelper.buildJsonContentType(headers, request.headers);
+
 	return {
 		statusCode: mapError(result),
-		headers: {
-			[HeaderTypes.ContentType]:
-				request.headers?.[HeaderTypes.Accept] === MimeTypes.JsonLd
-					? MimeTypes.JsonLd
-					: MimeTypes.Json
-		},
+		headers,
 		body: result
 	};
 }
@@ -786,14 +789,12 @@ export async function pnpNegotiationTermination(
 		HeaderHelper.extractBearer(request.headers?.[HeaderTypes.Authorization])
 	);
 
+	const headers: IHttpHeaders = {};
+	HttpHeaderHelper.buildJsonContentType(headers, request.headers);
+
 	return {
 		statusCode: mapError(result),
-		headers: {
-			[HeaderTypes.ContentType]:
-				request.headers?.[HeaderTypes.Accept] === MimeTypes.JsonLd
-					? MimeTypes.JsonLd
-					: MimeTypes.Json
-		},
+		headers,
 		body: result
 	};
 }
@@ -826,14 +827,12 @@ export async function pnpNegotiationOffer(
 
 	const isUpdate = Is.stringValue(request.pathParams?.id);
 
+	const headers: IHttpHeaders = {};
+	HttpHeaderHelper.buildJsonContentType(headers, request.headers);
+
 	return {
 		statusCode: mapError(result) ?? (isUpdate ? undefined : HttpStatusCode.created),
-		headers: {
-			[HeaderTypes.ContentType]:
-				request.headers?.[HeaderTypes.Accept] === MimeTypes.JsonLd
-					? MimeTypes.JsonLd
-					: MimeTypes.Json
-		},
+		headers,
 		body: result
 	};
 }
@@ -869,14 +868,12 @@ export async function pnpNegotiationAgreement(
 		HeaderHelper.extractBearer(request.headers?.[HeaderTypes.Authorization])
 	);
 
+	const headers: IHttpHeaders = {};
+	HttpHeaderHelper.buildJsonContentType(headers, request.headers);
+
 	return {
 		statusCode: mapError(result),
-		headers: {
-			[HeaderTypes.ContentType]:
-				request.headers?.[HeaderTypes.Accept] === MimeTypes.JsonLd
-					? MimeTypes.JsonLd
-					: MimeTypes.Json
-		},
+		headers,
 		body: result
 	};
 }

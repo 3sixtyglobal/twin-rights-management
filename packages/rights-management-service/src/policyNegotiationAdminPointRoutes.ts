@@ -2,7 +2,7 @@
 // SPDX-License-Identifier: Apache-2.0.
 import {
 	HttpContextIdKeys,
-	HttpUrlHelper,
+	HttpHeaderHelper,
 	type ICreatedResponse,
 	type IHttpRequestContext,
 	type INoContentResponse,
@@ -10,7 +10,7 @@ import {
 	type ITag
 } from "@twin.org/api-models";
 import { ContextIdStore } from "@twin.org/context";
-import { ComponentFactory, Guards, Is } from "@twin.org/core";
+import { ComponentFactory, Guards } from "@twin.org/core";
 import { nameof } from "@twin.org/nameof";
 import type {
 	IPnapCreateRequest,
@@ -23,7 +23,7 @@ import type {
 	IPolicyNegotiationAdminPointComponent
 } from "@twin.org/rights-management-models";
 import { DataspaceProtocolContractNegotiationStateType } from "@twin.org/standards-dataspace-protocol";
-import { HeaderHelper, HeaderTypes, HttpMethod, HttpStatusCode } from "@twin.org/web";
+import { HeaderTypes, HttpMethod, HttpStatusCode, type IHttpHeaders } from "@twin.org/web";
 
 /**
  * The source used when communicating about these routes.
@@ -248,11 +248,12 @@ export async function pnapCreate(
 	const component = ComponentFactory.get<IPolicyNegotiationAdminPointComponent>(componentName);
 	const id = await component.create(request.body.id);
 
+	const headers: IHttpHeaders = {};
+	HttpHeaderHelper.buildId(headers, id);
+
 	return {
 		statusCode: HttpStatusCode.created,
-		headers: {
-			[HeaderTypes.Location]: id
-		}
+		headers
 	};
 }
 
@@ -360,17 +361,13 @@ export async function pnapQuery(
 
 	const headers: IPnapQueryResponse["headers"] = {};
 
-	if (Is.stringValue(result.cursor)) {
-		const contextIds = await ContextIdStore.getContextIds();
-		headers[HeaderTypes.Link] = HeaderHelper.createLinkHeader(
-			HttpUrlHelper.replaceOrigin(
-				httpRequestContext.serverRequest.url,
-				contextIds?.[HttpContextIdKeys.PublicOrigin]
-			),
-			{ cursor: result.cursor },
-			"next"
-		);
-	}
+	const contextIds = await ContextIdStore.getContextIds();
+	HttpHeaderHelper.buildCursor(
+		headers,
+		httpRequestContext.serverRequest.url,
+		contextIds?.[HttpContextIdKeys.PublicOrigin],
+		result.cursor
+	);
 
 	return {
 		headers,

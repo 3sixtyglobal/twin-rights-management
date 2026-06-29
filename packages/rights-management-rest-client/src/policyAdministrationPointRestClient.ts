@@ -2,6 +2,7 @@
 // SPDX-License-Identifier: Apache-2.0.
 import { BaseRestClient } from "@twin.org/api-core";
 import {
+	HttpHeaderHelper,
 	HttpParameterHelper,
 	type IBaseRestClientConfig,
 	type ICreatedResponse
@@ -31,7 +32,7 @@ import {
 	type IPolicyAdministrationPointComponent,
 	OdrlPolicyHelper
 } from "@twin.org/rights-management-models";
-import { HeaderHelper, HeaderTypes } from "@twin.org/web";
+import { HttpMethod } from "@twin.org/web";
 
 /**
  * Client for performing Rights Management Policy Administration through to REST endpoints.
@@ -73,13 +74,13 @@ export class PolicyAdministrationPointRestClient
 
 		const response = await this.fetch<IPapCreateRequest, ICreatedResponse>(
 			"/policy/admin",
-			"POST",
+			HttpMethod.POST,
 			{
 				body: policy
 			}
 		);
 
-		return response.headers.location;
+		return HttpHeaderHelper.extractId(response.headers);
 	}
 
 	/**
@@ -93,7 +94,7 @@ export class PolicyAdministrationPointRestClient
 		const policyId = OdrlPolicyHelper.getUid(policy);
 		Guards.stringValue(PolicyAdministrationPointRestClient.CLASS_NAME, nameof(policyId), policyId);
 
-		await this.fetch<IPapUpdateRequest, never>("/policy/admin/:id", "PUT", {
+		await this.fetch<IPapUpdateRequest, never>("/policy/admin/:id", HttpMethod.PUT, {
 			pathParams: {
 				id: policyId
 			},
@@ -109,11 +110,15 @@ export class PolicyAdministrationPointRestClient
 	public async get(policyId: string): Promise<IRightsManagementPolicy> {
 		Guards.stringValue(PolicyAdministrationPointRestClient.CLASS_NAME, nameof(policyId), policyId);
 
-		const response = await this.fetch<IPapGetRequest, IPapGetResponse>("/policy/admin/:id", "GET", {
-			pathParams: {
-				id: policyId
+		const response = await this.fetch<IPapGetRequest, IPapGetResponse>(
+			"/policy/admin/:id",
+			HttpMethod.GET,
+			{
+				pathParams: {
+					id: policyId
+				}
 			}
-		});
+		);
 
 		return response.body;
 	}
@@ -132,7 +137,7 @@ export class PolicyAdministrationPointRestClient
 
 		const response = await this.fetch<IPapGetAgreementRequest, IPapGetAgreementResponse>(
 			"/policy/admin/agreement/:id",
-			"GET",
+			HttpMethod.GET,
 			{
 				pathParams: {
 					id: agreementId
@@ -153,7 +158,7 @@ export class PolicyAdministrationPointRestClient
 
 		const response = await this.fetch<IPapGetSetRequest, IPapGetSetResponse>(
 			"/policy/admin/set/:id",
-			"GET",
+			HttpMethod.GET,
 			{
 				pathParams: {
 					id: setId
@@ -174,7 +179,7 @@ export class PolicyAdministrationPointRestClient
 
 		const response = await this.fetch<IPapGetOfferRequest, IPapGetOfferResponse>(
 			"/policy/admin/offer/:id",
-			"GET",
+			HttpMethod.GET,
 			{
 				pathParams: {
 					id: offerId
@@ -193,7 +198,7 @@ export class PolicyAdministrationPointRestClient
 	public async remove(policyId: string): Promise<void> {
 		Guards.stringValue(PolicyAdministrationPointRestClient.CLASS_NAME, nameof(policyId), policyId);
 
-		await this.fetch<IPapRemoveRequest, never>("/policy/admin/:id", "DELETE", {
+		await this.fetch<IPapRemoveRequest, never>("/policy/admin/:id", HttpMethod.DELETE, {
 			pathParams: {
 				id: policyId
 			}
@@ -226,22 +231,25 @@ export class PolicyAdministrationPointRestClient
 		cursor?: string;
 		policies: IRightsManagementPolicy[];
 	}> {
-		const response = await this.fetch<IPapQueryRequest, IPapQueryResponse>("/policy/admin", "GET", {
-			query: {
-				assigner: options?.assigner,
-				assignee: options?.assignee,
-				target: options?.target,
-				action: options?.action,
-				cursor,
-				conditions: HttpParameterHelper.objectToString(conditions),
-				limit: Coerce.string(limit)
+		const response = await this.fetch<IPapQueryRequest, IPapQueryResponse>(
+			"/policy/admin",
+			HttpMethod.GET,
+			{
+				query: {
+					assigner: options?.assigner,
+					assignee: options?.assignee,
+					target: options?.target,
+					action: options?.action,
+					cursor,
+					conditions: HttpParameterHelper.objectToString(conditions),
+					limit: Coerce.string(limit)
+				}
 			}
-		});
+		);
 
 		return {
 			policies: response.body,
-			cursor: HeaderHelper.extractLinkHeaderRelation(response.headers?.[HeaderTypes.Link], "next")
-				?.urlQueryParams?.cursor
+			cursor: HttpHeaderHelper.extractCursor(response.headers)
 		};
 	}
 }

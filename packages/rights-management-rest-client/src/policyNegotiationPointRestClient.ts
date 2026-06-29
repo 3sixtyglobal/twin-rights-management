@@ -28,7 +28,7 @@ import type {
 	IDataspaceProtocolContractRequestMessage,
 	IDataspaceProtocolOffer
 } from "@twin.org/standards-dataspace-protocol";
-import { HeaderHelper, HeaderTypes, MimeTypes } from "@twin.org/web";
+import { HeaderHelper, HeaderTypes, HttpMethod, MimeTypes } from "@twin.org/web";
 
 /**
  * Client for performing Rights Management Policy Negotiation through to REST endpoints.
@@ -77,7 +77,7 @@ export class PolicyNegotiationPointRestClient
 
 		const response = await this.fetch<IPnpNegotiationGetRequest, IPnpContractNegotiationResponse>(
 			"/negotiations/:id",
-			"GET",
+			HttpMethod.GET,
 			{
 				headers: {
 					[HeaderTypes.Accept]: MimeTypes.JsonLd,
@@ -164,7 +164,7 @@ export class PolicyNegotiationPointRestClient
 
 		const response = await this.fetch<IPnpNegotiateRequest, IPnpContractNegotiationResponse>(
 			Is.stringValue(message.providerPid) ? "/negotiations/:id/request" : "/negotiations/request",
-			"POST",
+			HttpMethod.POST,
 			{
 				headers: {
 					[HeaderTypes.Accept]: MimeTypes.JsonLd,
@@ -208,7 +208,7 @@ export class PolicyNegotiationPointRestClient
 
 		const response = await this.fetch<IPnpOfferRequest, IPnpContractNegotiationResponse>(
 			Is.stringValue(message.consumerPid) ? "/negotiations/:id/offers" : "/negotiations/offers",
-			"POST",
+			HttpMethod.POST,
 			{
 				headers: {
 					[HeaderTypes.Accept]: MimeTypes.JsonLd,
@@ -264,7 +264,7 @@ export class PolicyNegotiationPointRestClient
 		);
 		const response = await this.fetch<IPnpAgreementRequest, IPnpContractResponse>(
 			"/negotiations/:id/agreement",
-			"POST",
+			HttpMethod.POST,
 			{
 				headers: {
 					[HeaderTypes.Accept]: MimeTypes.JsonLd,
@@ -313,7 +313,7 @@ export class PolicyNegotiationPointRestClient
 
 		const response = await this.fetch<IPnpAgreementVerificationRequest, IPnpContractResponse>(
 			"/negotiations/:id/agreement/verification",
-			"POST",
+			HttpMethod.POST,
 			{
 				headers: {
 					[HeaderTypes.Accept]: MimeTypes.JsonLd,
@@ -370,7 +370,7 @@ export class PolicyNegotiationPointRestClient
 
 		const response = await this.fetch<IPnpEventRequest, IPnpContractResponse>(
 			"/negotiations/:id/events",
-			"POST",
+			HttpMethod.POST,
 			{
 				headers: {
 					[HeaderTypes.Accept]: MimeTypes.JsonLd,
@@ -427,7 +427,7 @@ export class PolicyNegotiationPointRestClient
 
 		const response = await this.fetch<IPnpTerminateRequest, IPnpContractResponse>(
 			"/negotiations/:id/termination",
-			"POST",
+			HttpMethod.POST,
 			{
 				headers: {
 					[HeaderTypes.Accept]: MimeTypes.JsonLd,
