@@ -1,6 +1,6 @@
 # Function: pnapCreate()
 
-> **pnapCreate**(`httpRequestContext`, `componentName`, `request`): `Promise`\<`ICreatedResponse`\>
+> **pnapCreate**(`httpRequestContext`, `componentName`, `request`, `baseRouteName`): `Promise`\<`ICreatedResponse`\>
 
 PNAP: Pre-register a consumer-side policy negotiation entry.
 
@@ -23,6 +23,12 @@ The name of the component to use in the routes.
 `IPnapCreateRequest`
 
 The request.
+
+### baseRouteName
+
+`string`
+
+The base route name to use for the Location header.
 
 ## Returns
 
