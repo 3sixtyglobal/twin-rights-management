@@ -99,12 +99,12 @@ describe("PolicyAdministrationPointRestClient", () => {
 			expect(body["@id"]).toBe(POLICY_ID);
 		});
 
-		test("returns the Location header value", async () => {
+		test("returns the policy ID", async () => {
 			fetchMock.mockResolvedValueOnce(createdResponse(LOCATION));
 
 			const result = await client.create(TEST_POLICY);
 
-			expect(result).toBe(LOCATION);
+			expect(result).toBe(POLICY_ID);
 		});
 	});
 

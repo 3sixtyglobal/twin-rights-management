@@ -4,6 +4,7 @@ import {
 	HttpContextIdKeys,
 	HttpHeaderHelper,
 	HttpParameterHelper,
+	HttpUrlHelper,
 	type ICreatedResponse,
 	type IHttpRequestContext,
 	type INoContentResponse,
@@ -31,7 +32,7 @@ import {
 	type IPolicyAdministrationPointComponent
 } from "@twin.org/rights-management-models";
 import { OdrlContexts, OdrlPolicyType, type OdrlContextType } from "@twin.org/standards-w3c-odrl";
-import { HttpStatusCode } from "@twin.org/web";
+import { HttpStatusCode, type IHttpHeaders } from "@twin.org/web";
 
 /**
  * The source used when communicating about these routes.
@@ -79,7 +80,7 @@ export function generateRestRoutesPolicyAdministrationPoint(
 		method: "POST",
 		path: `${baseRouteName}/policy/admin`,
 		handler: async (httpRequestContext, request) =>
-			papCreate(httpRequestContext, componentName, request),
+			papCreate(httpRequestContext, componentName, request, baseRouteName),
 		requestType: {
 			type: nameof<IPapCreateRequest>(),
 			examples: [
@@ -445,12 +446,14 @@ export function generateRestRoutesPolicyAdministrationPoint(
  * @param httpRequestContext The request context for the API.
  * @param componentName The name of the component to use in the routes.
  * @param request The request.
+ * @param baseRouteName The base route name to use for generating the location header.
  * @returns The response object with additional http response properties.
  */
 export async function papCreate(
 	httpRequestContext: IHttpRequestContext,
 	componentName: string,
-	request: IPapCreateRequest
+	request: IPapCreateRequest,
+	baseRouteName: string
 ): Promise<ICreatedResponse> {
 	Guards.object<IPapCreateRequest>(ROUTES_SOURCE, nameof(request), request);
 	Guards.object<IPapCreateRequest["body"]>(ROUTES_SOURCE, nameof(request.body), request.body);
@@ -459,6 +462,16 @@ export async function papCreate(
 
 	const policy = request.body;
 	const uid = await component.create(policy);
+
+	const contextIds = await ContextIdStore.getContextIds();
+	const publicOrigin = contextIds?.[HttpContextIdKeys.PublicOrigin];
+
+	const headers: IHttpHeaders = {};
+	HttpHeaderHelper.buildId(
+		headers,
+		uid,
+		HttpUrlHelper.combineOriginPath(publicOrigin, `${baseRouteName}/policy/admin/:id`)
+	);
 
 	return {
 		statusCode: HttpStatusCode.created,

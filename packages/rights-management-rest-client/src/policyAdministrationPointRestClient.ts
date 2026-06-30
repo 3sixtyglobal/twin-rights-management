@@ -80,7 +80,7 @@ export class PolicyAdministrationPointRestClient
 			}
 		);
 
-		return HttpHeaderHelper.extractId(response.headers);
+		return HttpHeaderHelper.extractId(response.headers, `${this.getPathPrefix()}/policy/admin/:id`);
 	}
 
 	/**

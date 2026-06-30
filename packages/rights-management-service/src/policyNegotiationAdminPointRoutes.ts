@@ -3,6 +3,7 @@
 import {
 	HttpContextIdKeys,
 	HttpHeaderHelper,
+	HttpUrlHelper,
 	type ICreatedResponse,
 	type IHttpRequestContext,
 	type INoContentResponse,
@@ -58,7 +59,7 @@ export function generateRestRoutesPolicyNegotiationAdminPoint(
 		method: HttpMethod.POST,
 		path: `${baseRouteName}/negotiations/admin`,
 		handler: async (httpRequestContext, request) =>
-			pnapCreate(httpRequestContext, componentName, request),
+			pnapCreate(httpRequestContext, componentName, request, baseRouteName),
 		requestType: {
 			type: nameof<IPnapCreateRequest>(),
 			examples: [
@@ -235,12 +236,14 @@ export function generateRestRoutesPolicyNegotiationAdminPoint(
  * @param httpRequestContext The request context for the API.
  * @param componentName The name of the component to use in the routes.
  * @param request The request.
+ * @param baseRouteName The base route name to use for the Location header.
  * @returns The response object with additional http response properties.
  */
 export async function pnapCreate(
 	httpRequestContext: IHttpRequestContext,
 	componentName: string,
-	request: IPnapCreateRequest
+	request: IPnapCreateRequest,
+	baseRouteName: string
 ): Promise<ICreatedResponse> {
 	Guards.object<IPnapCreateRequest>(ROUTES_SOURCE, nameof(request), request);
 	Guards.object<IPnapCreateRequest["body"]>(ROUTES_SOURCE, nameof(request.body), request.body);
@@ -248,8 +251,15 @@ export async function pnapCreate(
 	const component = ComponentFactory.get<IPolicyNegotiationAdminPointComponent>(componentName);
 	const id = await component.create(request.body.id);
 
+	const contextIds = await ContextIdStore.getContextIds();
+	const publicOrigin = contextIds?.[HttpContextIdKeys.PublicOrigin];
+
 	const headers: IHttpHeaders = {};
-	HttpHeaderHelper.buildId(headers, id);
+	HttpHeaderHelper.buildId(
+		headers,
+		id,
+		HttpUrlHelper.combineOriginPath(publicOrigin, `${baseRouteName}/negotiations/admin/:id`)
+	);
 
 	return {
 		statusCode: HttpStatusCode.created,

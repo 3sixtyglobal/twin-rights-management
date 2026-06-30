@@ -65,7 +65,10 @@ export class PolicyNegotiationAdminPointRestClient
 			{ body: { id } }
 		);
 
-		return HttpHeaderHelper.extractId(response.headers);
+		return HttpHeaderHelper.extractId(
+			response.headers,
+			`${this.getPathPrefix()}/negotiations/admin/:id`
+		);
 	}
 
 	/**

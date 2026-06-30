@@ -6,6 +6,7 @@ import { DataspaceProtocolContractNegotiationStateType } from "@twin.org/standar
 import { HttpMethod } from "@twin.org/web";
 import { PolicyNegotiationAdminPointRestClient } from "../src/policyNegotiationAdminPointRestClient.js";
 import {
+	createdResponse,
 	jsonResponse,
 	noContentResponse,
 	setupFetchMock,
@@ -18,6 +19,7 @@ const PREFIX = "rights-management";
 
 const POLICY_ID = "urn:rm:negotiation:provider001";
 const CONSUMER_PID = "urn:rm:negotiation:consumer001";
+const LOCATION = `${ENDPOINT}/${PREFIX}/negotiations/admin/${POLICY_ID}`;
 
 const TEST_NEGOTIATION: IPolicyNegotiation = {
 	id: POLICY_ID,
@@ -50,12 +52,7 @@ describe("PolicyNegotiationAdminPointRestClient", () => {
 		});
 
 		test("sends POST to /{prefix}/negotiations/admin", async () => {
-			fetchMock.mockResolvedValueOnce({
-				ok: true,
-				status: 201,
-				headers: new Headers({ location: POLICY_ID }),
-				arrayBuffer: async () => new ArrayBuffer(0)
-			});
+			fetchMock.mockResolvedValueOnce(createdResponse(LOCATION));
 
 			await client.create(POLICY_ID);
 
@@ -65,12 +62,7 @@ describe("PolicyNegotiationAdminPointRestClient", () => {
 		});
 
 		test("sends id in the request body", async () => {
-			fetchMock.mockResolvedValueOnce({
-				ok: true,
-				status: 201,
-				headers: new Headers({ location: POLICY_ID }),
-				arrayBuffer: async () => new ArrayBuffer(0)
-			});
+			fetchMock.mockResolvedValueOnce(createdResponse(LOCATION));
 
 			await client.create(POLICY_ID);
 
@@ -79,13 +71,8 @@ describe("PolicyNegotiationAdminPointRestClient", () => {
 			expect(body.id).toBe(POLICY_ID);
 		});
 
-		test("returns the Location header value", async () => {
-			fetchMock.mockResolvedValueOnce({
-				ok: true,
-				status: 201,
-				headers: new Headers({ location: POLICY_ID }),
-				arrayBuffer: async () => new ArrayBuffer(0)
-			});
+		test("returns the policy ID", async () => {
+			fetchMock.mockResolvedValueOnce(createdResponse(LOCATION));
 
 			const result = await client.create(POLICY_ID);
 
