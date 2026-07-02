@@ -21,6 +21,7 @@
 - [IAutomationPolicyExecutionActionConstructorOptions](interfaces/IAutomationPolicyExecutionActionConstructorOptions.md)
 - [IDefaultPolicyArbiterConfig](interfaces/IDefaultPolicyArbiterConfig.md)
 - [IDefaultPolicyArbiterConstructorOptions](interfaces/IDefaultPolicyArbiterConstructorOptions.md)
+- [IDefaultPolicyEnforcementProcessorConfig](interfaces/IDefaultPolicyEnforcementProcessorConfig.md)
 - [IDefaultPolicyEnforcementProcessorConstructorOptions](interfaces/IDefaultPolicyEnforcementProcessorConstructorOptions.md)
 - [IIdentityPolicyInformationSourceConstructorOptions](interfaces/IIdentityPolicyInformationSourceConstructorOptions.md)
 - [IIdentityProfilePolicyInformationSourceConstructorOptions](interfaces/IIdentityProfilePolicyInformationSourceConstructorOptions.md)
