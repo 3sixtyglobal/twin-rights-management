@@ -1551,6 +1551,20 @@ export class DefaultPolicyArbiter implements IPolicyArbiter {
 		);
 		const matches = JsonPathHelper.query(sourceLookup.target, sourceLookup.source);
 		if (matches.length === 0) {
+			// Distinguish "array exists but is empty" from "path not found in source".
+			// An empty array yields no per-item targets; the closed-world fallback then
+			// handles the decision rather than letting evaluatePermission throw on [*].
+			if (sourceLookup.target.includes("[*]")) {
+				const arrayPath = sourceLookup.target.split("[*]")[0];
+				const parentMatches = JsonPathHelper.query(arrayPath, sourceLookup.source);
+				if (
+					parentMatches.length === 1 &&
+					Is.array(parentMatches[0].value) &&
+					parentMatches[0].value.length === 0
+				) {
+					return [];
+				}
+			}
 			return [resolvedTarget];
 		}
 

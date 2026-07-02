@@ -4,6 +4,7 @@ export * from "./models/IAutomationPolicyExecutionActionConfig.js";
 export * from "./models/IAutomationPolicyExecutionActionConstructorOptions.js";
 export * from "./models/IDefaultPolicyArbiterConfig.js";
 export * from "./models/IDefaultPolicyArbiterConstructorOptions.js";
+export * from "./models/IDefaultPolicyEnforcementProcessorConfig.js";
 export * from "./models/IDefaultPolicyEnforcementProcessorConstructorOptions.js";
 export * from "./models/IIdentityPolicyInformationSourceConstructorOptions.js";
 export * from "./models/IIdentityProfilePolicyInformationSourceConstructorOptions.js";

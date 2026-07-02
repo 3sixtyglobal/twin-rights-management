@@ -24,10 +24,27 @@ export class DefaultPolicyEnforcementProcessor implements IPolicyEnforcementProc
 	public static readonly CLASS_NAME: string = nameof<DefaultPolicyEnforcementProcessor>();
 
 	/**
+	 * Default set of top-level keys treated as document-structural fields.
+	 */
+	public static readonly DEFAULT_STRUCTURAL_KEYS: string[] = [
+		"@context",
+		"@type",
+		"@id",
+		"type",
+		"id"
+	];
+
+	/**
 	 * The logging component.
 	 * @internal
 	 */
 	private readonly _logging?: ILoggingComponent;
+
+	/**
+	 * Keys unconditionally passed through from source to output.
+	 * @internal
+	 */
+	private readonly _structuralKeys: string[];
 
 	/**
 	 * Create a new instance of DefaultPolicyEnforcementProcessor.
@@ -35,6 +52,8 @@ export class DefaultPolicyEnforcementProcessor implements IPolicyEnforcementProc
 	 */
 	constructor(options?: IDefaultPolicyEnforcementProcessorConstructorOptions) {
 		this._logging = ComponentFactory.getIfExists<ILoggingComponent>(options?.loggingComponentType);
+		this._structuralKeys =
+			options?.config?.structuralKeys ?? DefaultPolicyEnforcementProcessor.DEFAULT_STRUCTURAL_KEYS;
 	}
 
 	/**
@@ -126,9 +145,43 @@ export class DefaultPolicyEnforcementProcessor implements IPolicyEnforcementProc
 
 				this.processDecision<D, R>(data, outputObject, policyDecision);
 			}
+			this.compactArrays(outputObject);
+
+			// Well-known JSON-LD envelope fields carry document structure, not
+			// access-controlled data. Pass them through unconditionally so that a policy
+			// targeting only a nested array does not strip @context / type from the root.
+			if (!isOriginalEmpty && Is.object(data) && Is.object(outputObject)) {
+				for (const structuralKey of this._structuralKeys) {
+					const structuralData = ObjectHelper.propertyGet(data, structuralKey);
+					if (!Is.empty(structuralData)) {
+						ObjectHelper.propertySet(outputObject, structuralKey, structuralData);
+					}
+				}
+			}
 		}
 
 		return outputObject;
+	}
+
+	/**
+	 * Remove undefined holes left by deleteAtLocation from every array in the object tree.
+	 * @param obj The object to compact in place.
+	 * @internal
+	 */
+	private compactArrays(obj: unknown): void {
+		if (Is.array(obj)) {
+			for (let i = obj.length - 1; i >= 0; i--) {
+				if (Is.undefined(obj[i])) {
+					obj.splice(i, 1);
+				} else {
+					this.compactArrays(obj[i]);
+				}
+			}
+		} else if (Is.object(obj)) {
+			for (const value of Object.values(obj)) {
+				this.compactArrays(value);
+			}
+		}
 	}
 
 	/**

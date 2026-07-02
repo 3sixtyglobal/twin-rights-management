@@ -1579,6 +1579,38 @@ describe("DefaultPolicyArbiter", () => {
 		expect(denied).toEqual([{ target: "$.items[0]", decision: PolicyDecision.Denied }]);
 	});
 
+	test("returns root grant and no per-item decisions for AssetCollection targeting an empty array", async () => {
+		const arbiter = new DefaultPolicyArbiter();
+		const policy: IDataspaceProtocolAgreement = {
+			"@context": OdrlContexts.Context,
+			"@type": OdrlPolicyType.Agreement,
+			assigner: "did:example:default-assigner",
+			assignee: "did:example:default-assignee",
+			"@id": "policy:asset-collection-empty-array",
+			permission: [
+				{
+					action: "read",
+					target: {
+						"@type": "AssetCollection",
+						source: "twin:jsonPath",
+						"twin:jsonPathExpression": "$.items[*]",
+						refinement: {
+							leftOperand: "twin:jsonPath",
+							"twin:jsonPathExpression": "$.region",
+							operator: OdrlOperatorType.Eq,
+							rightOperand: "EU"
+						}
+					}
+				}
+			]
+		};
+
+		// Should resolve without throwing (no ruleTargetNotSupported error).
+		// With an empty array no items are granted, so the closed-world fallback denies root.
+		const decisions = await arbiter.decide(policy, undefined, { region: "EU", items: [] }, "read");
+		expect(decisions).toEqual([{ target: "$", decision: PolicyDecision.Denied }]);
+	});
+
 	test("throws when AssetCollection source is missing", async () => {
 		const arbiter = new DefaultPolicyArbiter();
 		const policy: IDataspaceProtocolAgreement = {
