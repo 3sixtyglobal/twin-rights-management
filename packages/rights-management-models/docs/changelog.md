@@ -6,6 +6,13 @@
 
 * remove EcosystemPolicy models/DTOs and standardize policy typing on `OdrlPolicyType` for v2.
 
+## [0.9.1-next.5](https://github.com/iotaledger/twin-rights-management/compare/rights-management-models-v0.9.1-next.4...rights-management-models-v0.9.1-next.5) (2026-07-14)
+
+
+### Features
+
+* support direct REQUESTED -&gt; AGREED contract negotiation shortcut ([#239](https://github.com/iotaledger/twin-rights-management/issues/239)) ([99aff32](https://github.com/iotaledger/twin-rights-management/commit/99aff32f867d097f8567bf61ed36996d194e3c0b))
+
 ## [0.9.1-next.4](https://github.com/iotaledger/twin-rights-management/compare/rights-management-models-v0.9.1-next.3...rights-management-models-v0.9.1-next.4) (2026-07-02)
 
 
