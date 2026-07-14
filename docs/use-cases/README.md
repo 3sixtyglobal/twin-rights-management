@@ -149,6 +149,7 @@ The following architectural components are implemented and functional:
 | [UC4](./04-multi-constraint-service-offering/)     | Multi-Constraint Service Offering       | `use`       | ServiceOffering                             | Multiple constraints (temporal + attribute), **PEP permission checks**                                     | Phase 2     |
 | [UC5](./05-catalogue-gated-notification/)          | Catalogue-Gated Notification            | `notify`    | NotificationService + Consignment           | ODRL duty clauses, Data Space Connector integration, Federated Catalogue, **PXP obligations**              | Phase 2     |
 | [UC6](./06-policy-negotiation-offer-to-agreement/) | Policy Negotiation - Offer to Agreement | N/A         | Offer → Agreement                           | **IDS Contract Negotiation**, PNP state machine, Negotiator evaluation, **Offer→Agreement transformation** | **Phase 1** |
+| [UC7](./07-policy-negotiation-direct-agreement/)   | Policy Negotiation - Direct Agreement   | N/A         | Offer → Agreement                           | **DSP 2025-1 REQUESTED→AGREED shortcut**, `directAgreement` signal, contrasts with UC6 full cycle          | **Phase 1** |
 
 ## Component Format
 

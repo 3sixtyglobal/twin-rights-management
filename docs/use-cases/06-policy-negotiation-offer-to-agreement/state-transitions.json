@@ -1,5 +1,5 @@
 {
-	"$comment": "IDS Contract Negotiation state machine transitions - Complete audit trail of the negotiation lifecycle from initiation to finalization. Each transition records timestamp, actors, triggers, and outcomes.",
+	"$comment": "IDS Contract Negotiation state machine transitions - Complete audit trail of the negotiation lifecycle from initiation to finalization. Each transition records timestamp, actors, triggers, and outcomes. Corrected against the DSP 2025-1 state machine (specifications/negotiation/figures/contract.negotiation.state.machine.puml): the full cycle is REQUESTED -> OFFERED -> ACCEPTED -> AGREED -> VERIFIED -> FINALIZED. ContractAgreementMessage (AGREED) and the FINALIZED event are Provider-sent; ACCEPTED and VERIFIED are Consumer-sent. See also use case 07 for the DSP-permitted direct REQUESTED -> AGREED shortcut, which skips OFFERED and ACCEPTED entirely.",
 	"negotiationId": "neg-vet-cert-12345",
 	"offerId": "https://giw-node.example.org/policies/offers/vet-cert-offer-001",
 	"agreementId": "https://giw-node.example.org/policies/agreements/agreement-vet-cert-12345",
@@ -45,40 +45,70 @@
 				"constraintsSatisfied": true,
 				"evaluationDuration": "450ms",
 				"counterOfferGenerated": false,
+				"directAgreement": false,
 				"pnapApprovalRequired": false
 			}
 		},
 		{
 			"transitionId": "trans-003",
-			"timestamp": "2025-10-02T09:58:00Z",
+			"timestamp": "2025-10-02T09:57:30Z",
 			"fromState": "OFFERED",
-			"toState": "AGREED",
+			"toState": "ACCEPTED",
 			"trigger": "Consumer accepts Offer terms",
 			"actor": "Consumer",
 			"actorIdentity": "did:iota:testnet:0x1ee831611a9fe9877c82e05075d9670c4970b4fd0904c208082ee50e45817a9d",
-			"protocolMessage": "dspace:ContractAgreementMessage",
-			"outcome": "Consumer accepted terms, Agreement ready for finalization",
+			"protocolMessage": "dspace:ContractNegotiationEventMessage",
+			"outcome": "Consumer signalled acceptance of Offer terms; Provider now builds the Agreement",
 			"metadata": {
-				"termsAccepted": true,
+				"event": "ACCEPTED",
+				"termsAccepted": true
+			}
+		},
+		{
+			"transitionId": "trans-004",
+			"timestamp": "2025-10-02T09:58:00Z",
+			"fromState": "ACCEPTED",
+			"toState": "AGREED",
+			"trigger": "Provider builds and sends the Agreement",
+			"actor": "Provider",
+			"actorIdentity": "did:iota:testnet:0xfcfa55894cab90504af7eaf38087addd5f77791a89bd3ebbe76d9c2b1a6ce567",
+			"protocolMessage": "dspace:ContractAgreementMessage",
+			"outcome": "Agreement built from the accepted Offer and sent to Consumer",
+			"metadata": {
+				"agreementBuilt": true,
+				"assigneeResolved": "did:iota:testnet:0x1ee831611a9fe9877c82e05075d9670c4970b4fd0904c208082ee50e45817a9d"
+			}
+		},
+		{
+			"transitionId": "trans-005",
+			"timestamp": "2025-10-02T09:59:00Z",
+			"fromState": "AGREED",
+			"toState": "VERIFIED",
+			"trigger": "Consumer verifies the received Agreement",
+			"actor": "Consumer",
+			"actorIdentity": "did:iota:testnet:0x1ee831611a9fe9877c82e05075d9670c4970b4fd0904c208082ee50e45817a9d",
+			"protocolMessage": "dspace:ContractAgreementVerificationMessage",
+			"outcome": "Consumer confirmed the Agreement matches the accepted terms",
+			"metadata": {
 				"consumerSignature": "z5XqJ8KN9mH7Pk3VyT2sL4wR1cF6bD8nA9eG3hK5mP2jQ7tU4vX6yZ8aB1dC3eF5gH7iJ9kL2mN4oP6qR8sT1uV3w",
 				"signatureVerified": true
 			}
 		},
 		{
-			"transitionId": "trans-004",
+			"transitionId": "trans-006",
 			"timestamp": "2025-10-02T10:00:00Z",
-			"fromState": "AGREED",
+			"fromState": "VERIFIED",
 			"toState": "FINALIZED",
-			"trigger": "PNP persists Agreement to PAP",
-			"actor": "PNP System",
-			"actorIdentity": "system",
-			"protocolMessage": "Internal: PAP Storage",
+			"trigger": "Provider persists Agreement to PAP and sends the finalized event",
+			"actor": "Provider",
+			"actorIdentity": "did:iota:testnet:0xfcfa55894cab90504af7eaf38087addd5f77791a89bd3ebbe76d9c2b1a6ce567",
+			"protocolMessage": "dspace:ContractNegotiationEventMessage",
 			"outcome": "Agreement successfully stored in PAP, negotiation complete",
 			"metadata": {
+				"event": "FINALIZED",
 				"agreementId": "https://giw-node.example.org/policies/agreements/agreement-vet-cert-12345",
 				"papStorageConfirmed": true,
 				"consumerNotified": true,
-				"providerNotified": true,
 				"agreementType": "odrl:Agreement",
 				"transformations": [
 					"PartyCollection -> specific assignee DID",
@@ -90,11 +120,11 @@
 	],
 	"finalState": "FINALIZED",
 	"negotiationDuration": "5 minutes",
-	"totalTransitions": 4,
+	"totalTransitions": 6,
 	"successfulOutcome": true,
 	"terminationReason": null,
-	"stateHistory": ["REQUESTED", "OFFERED", "AGREED", "FINALIZED"],
-	"protocolVersion": "IDS Data Spaces Protocol 2024/1",
+	"stateHistory": ["REQUESTED", "OFFERED", "ACCEPTED", "AGREED", "VERIFIED", "FINALIZED"],
+	"protocolVersion": "IDS Dataspace Protocol 2025-1",
 	"complianceNotes": {
 		"idsCompliant": true,
 		"odrlCompliant": true,

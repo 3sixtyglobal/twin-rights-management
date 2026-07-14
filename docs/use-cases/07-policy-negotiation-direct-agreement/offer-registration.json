@@ -1,0 +1,45 @@
+{
+	"$comment": "Provider registers this Offer in PNP - Phase 1 (Policy Negotiation). Unlike vet-cert-offer-001 (UC6), this Offer is for low-sensitivity public health advisory data and is configured with a fast-track Negotiator that returns directAgreement: true, permitting the DSP 2025-1 direct REQUESTED -> AGREED transition (skipping OFFERED/ACCEPTED) for any verified Polish organization.",
+	"@context": [
+		"https://www.w3.org/ns/odrl.jsonld",
+		{
+			"twin": "https://w3id.org/twin/odrl/"
+		}
+	],
+	"@type": "Offer",
+	"@id": "https://giw-node.example.org/policies/offers/health-bulletin-offer-001",
+	"profile": "https://w3id.org/twin/odrl/profile",
+	"assigner": "did:iota:testnet:0xfcfa55894cab90504af7eaf38087addd5f77791a89bd3ebbe76d9c2b1a6ce567",
+	"permission": [
+		{
+			"target": {
+				"@type": "AssetCollection",
+				"refinement": [
+					{
+						"leftOperand": "twin:jsonPath",
+						"twin:jsonPathExpression": ".assetType",
+						"operator": "eq",
+						"rightOperand": "PublicHealthAdvisory"
+					}
+				]
+			},
+			"action": "read",
+			"assignee": {
+				"@type": "PartyCollection",
+				"source": "https://twin.example.org/identity/organizations",
+				"refinement": [
+					{
+						"leftOperand": "twin:jsonPath",
+						"twin:jsonPathExpression": ".legalAddress.countryCode",
+						"operator": "eq",
+						"rightOperand": "PL"
+					}
+				]
+			}
+		}
+	],
+	"negotiationConfig": {
+		"negotiatorType": "fast-track-health-bulletin-negotiator",
+		"$comment": "Provider-side configuration only, not part of the ODRL policy itself - shown here to make explicit which Negotiator handles this Offer's negotiations"
+	}
+}

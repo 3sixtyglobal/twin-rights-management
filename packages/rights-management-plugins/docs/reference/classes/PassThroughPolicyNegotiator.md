@@ -82,7 +82,7 @@ True if the negotiator supports the given offer.
 
 ### handleOffer() {#handleoffer}
 
-> **handleOffer**(`offer`, `information?`): `Promise`\<\{ `accepted`: `boolean`; `interventionRequired`: `boolean`; \}\>
+> **handleOffer**(`offer`, `information?`): `Promise`\<\{ `accepted`: `boolean`; `interventionRequired`: `boolean`; `directAgreement?`: `boolean`; \}\>
 
 Handle the offer.
 
@@ -102,9 +102,9 @@ Information provided by the requester to determine if a policy can be created.
 
 #### Returns
 
-`Promise`\<\{ `accepted`: `boolean`; `interventionRequired`: `boolean`; \}\>
+`Promise`\<\{ `accepted`: `boolean`; `interventionRequired`: `boolean`; `directAgreement?`: `boolean`; \}\>
 
-Sets the accepted flag if it can be offered, and the interventionRequired flag if manual agreement is needed.
+Sets the accepted flag if it can be offered, the interventionRequired flag if manual agreement is needed, and directAgreement per the constructor's directAgreement option (default true).
 
 #### Implementation of
 

@@ -108,17 +108,31 @@ PNP sends the Offer details to the consumer's callback endpoint via Requester:
 
 **Consumer Requester**: Receives offer callback, validates terms
 
-#### 5. Agreement Acceptance (Consumer → Provider PNP)
+#### 5. Offer Acceptance (Consumer → Provider PNP)
 
-Consumer reviews Offer terms and accepts:
+Consumer reviews Offer terms and signals acceptance:
 
-- Sends acceptance message with negotiation ID
+- Sends a `ContractNegotiationEventMessage` (`event: ACCEPTED`) with negotiation ID
 - Confirms agreement to all constraints
-- Provides signature/authentication
 
-**PNP State**: OFFERED → AGREED
+**PNP State**: OFFERED → ACCEPTED
 
-#### 6. Agreement Finalization (PNP → PAP)
+#### 6. Agreement Delivery (Provider → Consumer)
+
+Having received the Consumer's acceptance, the Provider builds the Agreement and sends it:
+
+- Provider transforms the accepted Offer into an Agreement (see transformations below) and sends a `ContractAgreementMessage` — per the DSP 2025-1 spec this message is always Provider-sent, never Consumer-sent
+- Consumer signature/authentication is recorded when the Consumer subsequently verifies the Agreement (step 7)
+
+**PNP State**: ACCEPTED → AGREED
+
+#### 7. Agreement Verification (Consumer → Provider PNP)
+
+Consumer verifies the received Agreement matches the accepted terms and sends a `ContractAgreementVerificationMessage`, including a signature over the accepted terms.
+
+**PNP State**: AGREED → VERIFIED
+
+#### 8. Agreement Finalization (PNP → PAP)
 
 PNP transforms the Offer into an Agreement:
 
@@ -131,7 +145,7 @@ PNP transforms the Offer into an Agreement:
 
 The finalized Agreement is persisted to PAP for runtime evaluation.
 
-**PNP State**: AGREED → FINALIZED
+**PNP State**: VERIFIED → FINALIZED
 
 **Consumer Requester**: Receives finalized callback with Agreement ID
 
@@ -149,7 +163,7 @@ Once the Agreement exists in PAP, the consumer can request access to veterinary 
 
 - Manages IDS Contract Negotiation state machine
 - Coordinates message exchange between Provider and Consumer
-- Handles state transitions: REQUESTED → OFFERED → AGREED → FINALIZED
+- Handles state transitions: REQUESTED → OFFERED → ACCEPTED → AGREED → VERIFIED → FINALIZED
 - Invokes Negotiator for Provider-side evaluation
 - Dispatches events to Requester for Consumer-side callbacks
 - Finalizes Agreement and persists to PAP
@@ -191,16 +205,20 @@ Once the Agreement is in PAP, all Phase 2 components are used:
 ## IDS Contract Negotiation State Machine
 
 ```text
-REQUESTED → OFFERED → AGREED → FINALIZED
-    ↓           ↓         ↓
-TERMINATED  TERMINATED  TERMINATED
+REQUESTED → OFFERED → ACCEPTED → AGREED → VERIFIED → FINALIZED
+    ↓           ↓          ↓         ↓         ↓
+TERMINATED  TERMINATED TERMINATED TERMINATED TERMINATED
 ```
+
+DSP 2025-1 also permits a direct `REQUESTED → AGREED` transition (Provider-initiated), skipping `OFFERED`/`ACCEPTED` entirely when the Provider's Negotiator can auto-approve — see [UC7](../07-policy-negotiation-direct-agreement/) for that variant. This use case demonstrates the full six-state cycle.
 
 **States**:
 
 - **REQUESTED**: Consumer initiates, awaiting Provider evaluation
 - **OFFERED**: Provider presents Offer (or counter-offer), awaiting Consumer acceptance
-- **AGREED**: Consumer accepts, awaiting finalization
+- **ACCEPTED**: Consumer has accepted the Offer terms, awaiting the Provider's Agreement
+- **AGREED**: Provider has sent the Agreement, awaiting Consumer verification
+- **VERIFIED**: Consumer has verified the Agreement, awaiting Provider finalization
 - **FINALIZED**: Agreement persisted to PAP, negotiation complete
 - **TERMINATED**: Negotiation failed at any stage (with reason code)
 
@@ -208,8 +226,10 @@ TERMINATED  TERMINATED  TERMINATED
 
 1. Consumer initiates → REQUESTED
 2. Negotiator accepts → OFFERED
-3. Consumer accepts → AGREED
-4. PNP persists to PAP → FINALIZED
+3. Consumer accepts Offer terms → ACCEPTED
+4. Provider sends the Agreement → AGREED
+5. Consumer verifies the Agreement → VERIFIED
+6. Provider persists to PAP and finalizes → FINALIZED
 
 **Error Paths**:
 
@@ -291,7 +311,7 @@ This negotiation pattern is used in:
 
 ## Testing Focus
 
-- Verify PNP state machine transitions (REQUESTED → OFFERED → AGREED → FINALIZED)
+- Verify PNP state machine transitions (REQUESTED → OFFERED → ACCEPTED → AGREED → VERIFIED → FINALIZED)
 - Test Negotiator evaluation logic with various consumer contexts
 - Validate Requester callback delivery for all lifecycle events
 - Ensure Offer → Agreement transformation preserves constraints
@@ -327,6 +347,6 @@ Implementers can extend Requester for:
 
 - **UC1 (Basic Data Resource Access)**: Uses the Agreement created in UC6
 - **UC2-UC5**: All assume pre-existing Agreements that could be created via UC6
-- **UC7 (Future)**: Would extend UC6 with PNAP manual intervention for sensitive data
+- **UC7 (Policy Negotiation - Direct Agreement)**: Contrasts with UC6 by demonstrating the DSP 2025-1 direct `REQUESTED → AGREED` shortcut (no `OFFERED`/`ACCEPTED`), for Offers where the registered Negotiator can auto-approve without the full round-trip
 
 **Critical Connection**: Without UC6, developers don't understand where UC1-UC5 Agreements come from. UC6 completes the policy lifecycle story.

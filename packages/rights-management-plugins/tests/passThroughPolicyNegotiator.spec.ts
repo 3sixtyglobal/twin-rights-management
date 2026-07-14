@@ -60,6 +60,21 @@ describe("PassThroughPolicyNegotiator", () => {
 		const result = await negotiator.handleOffer(offer);
 		expect(result.accepted).toBe(true);
 		expect(result.interventionRequired).toBe(false);
+		expect(result.directAgreement).toBe(true);
+	});
+
+	test("handleOffer signals directAgreement: false when configured for the full negotiation cycle", async () => {
+		const negotiator = new PassThroughPolicyNegotiator({ directAgreement: false });
+		const offer: IDataspaceProtocolOffer = {
+			"@context": OdrlContexts.Context,
+			"@type": OdrlTypes.Offer,
+			"@id": "urn:policy:test-offer",
+			assigner: "did:iota:test-provider"
+		};
+		const result = await negotiator.handleOffer(offer);
+		expect(result.accepted).toBe(true);
+		expect(result.interventionRequired).toBe(false);
+		expect(result.directAgreement).toBe(false);
 	});
 
 	test("createAgreement generates a unique ID different from the offer", async () => {

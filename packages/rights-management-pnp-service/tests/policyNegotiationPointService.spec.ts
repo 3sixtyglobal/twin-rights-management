@@ -2395,4 +2395,727 @@ describe("PolicyNegotiationPointService", () => {
 			runSpy.mockRestore();
 		});
 	});
+
+	describe("direct agreement fast path (feat-150)", () => {
+		test("directAgreement skips OFFERED/ACCEPTED: negotiation reaches AGREED directly, then VERIFIED, then FINALIZED", async () => {
+			const providerPoints: { [id: string]: PolicyNegotiationPointService } = {};
+
+			const policyNegotiationConsumerPoint = new PolicyNegotiationPointService({
+				policyNegotiationAdministrationPointComponentType:
+					"policy-negotiation-consumer-admin-point",
+				policyNegotiationPointRemoteComponentType: "pnp-remote",
+				config: { callbackPath: "/callback" }
+			});
+			const policyNegotiationProviderPoint = new PolicyNegotiationPointService({
+				policyNegotiationAdministrationPointComponentType:
+					"policy-negotiation-provider-admin-point",
+				policyNegotiationPointRemoteComponentType: "pnp-remote",
+				config: { callbackPath: "/callback" }
+			});
+			providerPoints.provider = policyNegotiationProviderPoint;
+			providerPoints.consumer = policyNegotiationConsumerPoint;
+			remoteComponentResolver = (params: { endpoint: string }) => {
+				if (params.endpoint.startsWith(providerOrigin)) {
+					return createRemoteComponent(providerPoints.provider, providerOrigin);
+				}
+				if (params.endpoint.startsWith(consumerOrigin)) {
+					return createRemoteComponent(providerPoints.consumer, consumerOrigin);
+				}
+				throw new TypeError(`Unknown remote url ${params.endpoint}`);
+			};
+
+			PolicyRequesterFactory.register("requester-direct-agreement", () => mockPolicyRequester);
+			await adminPointComponent.create(mockOffer);
+			mockNegotiator.handleOffer = vi.fn(async () => ({
+				accepted: true,
+				interventionRequired: false,
+				directAgreement: true
+			}));
+			PolicyNegotiatorFactory.register("MockPolicyNegotiator", () => mockNegotiator);
+
+			const consumerPid = await policyNegotiationConsumerPoint.sendRequestToProvider(
+				providerOrigin,
+				"requester-direct-agreement",
+				"urn:policy:offer-1",
+				consumerOrigin
+			);
+
+			await waitForState(policyNegotiationConsumerMemoryEntityStorage, "AGREED", "consumer");
+			await waitForState(policyNegotiationProviderMemoryEntityStorage, "AGREED", "provider");
+			await waitForState(policyNegotiationConsumerMemoryEntityStorage, "VERIFIED", "consumer");
+			await waitForState(policyNegotiationProviderMemoryEntityStorage, "FINALIZED", "provider");
+			await waitForState(policyNegotiationConsumerMemoryEntityStorage, "FINALIZED", "consumer");
+
+			const consumerStore = await policyNegotiationConsumerMemoryEntityStorage.getStore();
+			const providerStore = await policyNegotiationProviderMemoryEntityStorage.getStore();
+
+			expect(consumerStore[0]).toMatchObject({
+				id: consumerPid,
+				state: "FINALIZED",
+				agreement: expect.objectContaining({ "@type": "Agreement" })
+			});
+			expect(providerStore[0]).toMatchObject({
+				state: "FINALIZED",
+				agreement: expect.objectContaining({ "@type": "Agreement" })
+			});
+
+			// The offer/accept round-trip must never have happened: the consumer's requester
+			// callback for an OFFERED message (offer()) must never fire on the fast path.
+			expect(mockPolicyRequester.offer).not.toHaveBeenCalled();
+			expect(mockPolicyRequester.agreement).toHaveBeenCalledTimes(1);
+			expect(mockPolicyRequester.agreement).toHaveBeenCalledWith(
+				consumerPid,
+				expect.objectContaining({ "@type": "Agreement" })
+			);
+			expect(mockPolicyRequester.finalised).toHaveBeenCalledTimes(1);
+			expect(mockPolicyRequester.finalised).toHaveBeenCalledWith(consumerPid);
+			expect(mockPolicyRequester.terminated).not.toHaveBeenCalled();
+			expect(mockNegotiator.handleOffer).toHaveBeenCalledTimes(1);
+			expect(mockNegotiator.createAgreement).toHaveBeenCalledTimes(1);
+		});
+
+		test("interventionRequired takes precedence over directAgreement: negotiation stays REQUESTED", async () => {
+			const providerPoints: { [id: string]: PolicyNegotiationPointService } = {};
+
+			const policyNegotiationConsumerPoint = new PolicyNegotiationPointService({
+				policyNegotiationAdministrationPointComponentType:
+					"policy-negotiation-consumer-admin-point",
+				policyNegotiationPointRemoteComponentType: "pnp-remote",
+				config: { callbackPath: "/callback" }
+			});
+			const policyNegotiationProviderPoint = new PolicyNegotiationPointService({
+				policyNegotiationAdministrationPointComponentType:
+					"policy-negotiation-provider-admin-point",
+				policyNegotiationPointRemoteComponentType: "pnp-remote",
+				config: { callbackPath: "/callback" }
+			});
+			providerPoints.provider = policyNegotiationProviderPoint;
+			providerPoints.consumer = policyNegotiationConsumerPoint;
+			remoteComponentResolver = (params: { endpoint: string }) => {
+				if (params.endpoint.startsWith(providerOrigin)) {
+					return createRemoteComponent(providerPoints.provider, providerOrigin);
+				}
+				if (params.endpoint.startsWith(consumerOrigin)) {
+					return createRemoteComponent(providerPoints.consumer, consumerOrigin);
+				}
+				throw new TypeError(`Unknown remote url ${params.endpoint}`);
+			};
+
+			PolicyRequesterFactory.register("requester-intervention", () => mockPolicyRequester);
+			await adminPointComponent.create(mockOffer);
+			mockNegotiator.handleOffer = vi.fn(async () => ({
+				accepted: true,
+				interventionRequired: true,
+				directAgreement: true
+			}));
+			PolicyNegotiatorFactory.register("MockPolicyNegotiator", () => mockNegotiator);
+
+			await policyNegotiationConsumerPoint.sendRequestToProvider(
+				providerOrigin,
+				"requester-intervention",
+				"urn:policy:offer-1",
+				consumerOrigin
+			);
+
+			// Wait past the 100ms scheduling window used by both the offer and direct-agreement branches.
+			await new Promise(resolve => setTimeout(resolve, 300));
+
+			const providerStore = await policyNegotiationProviderMemoryEntityStorage.getStore();
+			expect(providerStore).toHaveLength(1);
+			expect(providerStore[0].state).toBe(DataspaceProtocolContractNegotiationStateType.REQUESTED);
+			expect(mockPolicyRequester.offer).not.toHaveBeenCalled();
+			expect(mockNegotiator.createAgreement).not.toHaveBeenCalled();
+		});
+
+		test("mixed-version safety net: provider terminates cleanly when the consumer rejects a direct-path agreement", async () => {
+			// Simulates negotiating with a consumer whose deployed pnp-service predates this
+			// feature: it only accepts a ContractAgreementMessage when its own negotiation is
+			// ACCEPTED, so a direct-path message (arriving while it's still REQUESTED) is rejected.
+			// This is the exact mixed-version failure mode documented in
+			// docs/architecture/components.md's "Upgrade order (breaking change)" note - this test
+			// proves the degradation is safe (provider terminates, doesn't hang or corrupt state)
+			// rather than just asserting it in prose.
+			const providerPoints: { [id: string]: PolicyNegotiationPointService } = {};
+
+			const policyNegotiationConsumerPoint = new PolicyNegotiationPointService({
+				policyNegotiationAdministrationPointComponentType:
+					"policy-negotiation-consumer-admin-point",
+				policyNegotiationPointRemoteComponentType: "pnp-remote",
+				config: { callbackPath: "/callback" }
+			});
+			const policyNegotiationProviderPoint = new PolicyNegotiationPointService({
+				policyNegotiationAdministrationPointComponentType:
+					"policy-negotiation-provider-admin-point",
+				policyNegotiationPointRemoteComponentType: "pnp-remote",
+				config: { callbackPath: "/callback" }
+			});
+			providerPoints.provider = policyNegotiationProviderPoint;
+			providerPoints.consumer = policyNegotiationConsumerPoint;
+			remoteComponentResolver = (params: { endpoint: string }) => {
+				if (params.endpoint.startsWith(providerOrigin)) {
+					return createRemoteComponent(providerPoints.provider, providerOrigin);
+				}
+				if (params.endpoint.startsWith(consumerOrigin)) {
+					return createRemoteComponent(providerPoints.consumer, consumerOrigin);
+				}
+				throw new TypeError(`Unknown remote url ${params.endpoint}`);
+			};
+
+			PolicyRequesterFactory.register("requester-mixed-version", () => mockPolicyRequester);
+			await adminPointComponent.create(mockOffer);
+			mockNegotiator.handleOffer = vi.fn(async () => ({
+				accepted: true,
+				interventionRequired: false,
+				directAgreement: true
+			}));
+			PolicyNegotiatorFactory.register("MockPolicyNegotiator", () => mockNegotiator);
+
+			// Stand in for the old consumer's guard: reject with the same invalidState shape
+			// pre-feature code returns, instead of actually processing the message.
+			vi.spyOn(policyNegotiationConsumerPoint, "agreementFromProvider").mockImplementation(
+				async message => ({
+					"@context": [DataspaceProtocolContexts.Context],
+					"@type": DataspaceProtocolContractNegotiationTypes.ContractNegotiationError,
+					providerPid: message.providerPid,
+					consumerPid: message.consumerPid,
+					code: "PolicyNegotiationPointService.invalidState",
+					reason: [
+						{
+							"@value": "simulated pre-feature consumer: REQUESTED is not ACCEPTED",
+							"@language": "en-US"
+						}
+					]
+				})
+			);
+
+			await policyNegotiationConsumerPoint.sendRequestToProvider(
+				providerOrigin,
+				"requester-mixed-version",
+				"urn:policy:offer-1",
+				consumerOrigin
+			);
+
+			// Wait past the 100ms scheduling window for the direct-agreement send.
+			await new Promise(resolve => setTimeout(resolve, 300));
+
+			const providerStore = await policyNegotiationProviderMemoryEntityStorage.getStore();
+			expect(providerStore).toHaveLength(1);
+			expect(providerStore[0].state).toBe(DataspaceProtocolContractNegotiationStateType.TERMINATED);
+			expect(providerStore[0].code).toBe("PolicyNegotiationPointService.invalidState");
+
+			// The consumer's own record is untouched by the response it sent - it's still
+			// wherever sendRequestToProvider left it, matching the real old-consumer guard
+			// (which calls setErrorState with an undefined record, so nothing is persisted there).
+			const consumerStore = await policyNegotiationConsumerMemoryEntityStorage.getStore();
+			expect(consumerStore).toHaveLength(1);
+			expect(consumerStore[0].state).toBe(DataspaceProtocolContractNegotiationStateType.REQUESTED);
+		});
+
+		test("mixed-version safety net: directAgreement: false succeeds against the same simulated old consumer", async () => {
+			// Direct pair to the previous test, proving the documented mitigation actually works,
+			// not just that the full cycle happens to succeed in isolation. The simulated consumer
+			// here is the same "pre-feature guard" behavior (reject unless its own negotiation is
+			// already ACCEPTED) - but because the negotiator signals directAgreement: false, the
+			// provider never attempts the fast path, so the consumer's guard is never triggered:
+			// agreementFromProvider is only ever called once the consumer has legitimately reached
+			// ACCEPTED via the normal OFFERED round-trip, which the simulated guard allows through.
+			const providerPoints: { [id: string]: PolicyNegotiationPointService } = {};
+
+			const policyNegotiationConsumerPoint = new PolicyNegotiationPointService({
+				policyNegotiationAdministrationPointComponentType:
+					"policy-negotiation-consumer-admin-point",
+				policyNegotiationPointRemoteComponentType: "pnp-remote",
+				config: { callbackPath: "/callback" }
+			});
+			const policyNegotiationProviderPoint = new PolicyNegotiationPointService({
+				policyNegotiationAdministrationPointComponentType:
+					"policy-negotiation-provider-admin-point",
+				policyNegotiationPointRemoteComponentType: "pnp-remote",
+				config: { callbackPath: "/callback" }
+			});
+			providerPoints.provider = policyNegotiationProviderPoint;
+			providerPoints.consumer = policyNegotiationConsumerPoint;
+			remoteComponentResolver = (params: { endpoint: string }) => {
+				if (params.endpoint.startsWith(providerOrigin)) {
+					return createRemoteComponent(providerPoints.provider, providerOrigin);
+				}
+				if (params.endpoint.startsWith(consumerOrigin)) {
+					return createRemoteComponent(providerPoints.consumer, consumerOrigin);
+				}
+				throw new TypeError(`Unknown remote url ${params.endpoint}`);
+			};
+
+			PolicyRequesterFactory.register(
+				"requester-mixed-version-mitigated",
+				() => mockPolicyRequester
+			);
+			await adminPointComponent.create(mockOffer);
+			mockNegotiator.handleOffer = vi.fn(async () => ({
+				accepted: true,
+				interventionRequired: false,
+				directAgreement: false
+			}));
+			PolicyNegotiatorFactory.register("MockPolicyNegotiator", () => mockNegotiator);
+
+			const originalAgreementFromProvider =
+				policyNegotiationConsumerPoint.agreementFromProvider.bind(policyNegotiationConsumerPoint);
+			vi.spyOn(policyNegotiationConsumerPoint, "agreementFromProvider").mockImplementation(
+				async (message, trustPayload) => {
+					const stored = await policyNegotiationConsumerMemoryEntityStorage.getStore();
+					const negotiation = stored.find(n => n.id === message.consumerPid);
+					if (negotiation?.state !== DataspaceProtocolContractNegotiationStateType.ACCEPTED) {
+						return {
+							"@context": [DataspaceProtocolContexts.Context],
+							"@type": DataspaceProtocolContractNegotiationTypes.ContractNegotiationError,
+							providerPid: message.providerPid,
+							consumerPid: message.consumerPid,
+							code: "PolicyNegotiationPointService.invalidState",
+							reason: [
+								{
+									"@value": "simulated pre-feature consumer: REQUESTED is not ACCEPTED",
+									"@language": "en-US"
+								}
+							]
+						};
+					}
+					return originalAgreementFromProvider(message, trustPayload);
+				}
+			);
+
+			await policyNegotiationConsumerPoint.sendRequestToProvider(
+				providerOrigin,
+				"requester-mixed-version-mitigated",
+				"urn:policy:offer-1",
+				consumerOrigin
+			);
+
+			await waitForState(policyNegotiationConsumerMemoryEntityStorage, "FINALIZED", "consumer");
+
+			const consumerStore = await policyNegotiationConsumerMemoryEntityStorage.getStore();
+			expect(consumerStore[0].state).toBe(DataspaceProtocolContractNegotiationStateType.FINALIZED);
+			// Proves the full OFFERED round-trip actually happened rather than the fast path
+			// slipping through some other way.
+			expect(mockPolicyRequester.offer).toHaveBeenCalledTimes(1);
+		});
+
+		test("agreementFromProvider accepts a ContractAgreementMessage when the consumer negotiation is still REQUESTED", async () => {
+			// handlerId on the CONSUMER side identifies the requester (not the negotiator).
+			PolicyRequesterFactory.register("requester-direct-guard", () => mockPolicyRequester);
+
+			const consumer = new PolicyNegotiationPointService({
+				policyNegotiationAdministrationPointComponentType:
+					"policy-negotiation-consumer-admin-point",
+				policyNegotiationPointRemoteComponentType: "pnp-remote",
+				config: { callbackPath: "/callback" }
+			});
+
+			// No trustVerificationInfo seeded: on the real fast path the consumer's negotiation
+			// never goes through offerFromProvider (which is where it's normally first pinned),
+			// so this call is the first trusted interaction for this negotiation.
+			await negotiationConsumerAdminPointComponent.set({
+				id: "consumer-pid-direct-agreement",
+				correlationId: "provider-pid-direct-agreement",
+				dateCreated: new Date(Date.now()).toISOString(),
+				offer: mockOffer,
+				state: DataspaceProtocolContractNegotiationStateType.REQUESTED,
+				organizationIdentity: testIdentityConsumer,
+				handlerId: "requester-direct-guard"
+			});
+
+			const result = await consumer.agreementFromProvider(
+				{
+					"@context": [DataspaceProtocolContexts.Context],
+					"@type": DataspaceProtocolContractNegotiationTypes.ContractAgreementMessage,
+					providerPid: "provider-pid-direct-agreement",
+					consumerPid: "consumer-pid-direct-agreement",
+					agreement: {
+						"@type": OdrlTypes.Agreement,
+						"@id": "urn:policy:agreement-direct",
+						assigner: testIdentityProvider,
+						assignee: testIdentityConsumer
+					}
+				},
+				`token:${testIdentityProvider}`
+			);
+
+			expect(result).toBeUndefined();
+			const stored = await policyNegotiationConsumerMemoryEntityStorage.getStore();
+			expect(stored[0].state).toBe(DataspaceProtocolContractNegotiationStateType.AGREED);
+			// The provider's identity must now be pinned even though OFFERED never happened.
+			expect(stored[0].trustVerificationInfo?.identity).toBe(testIdentityProvider);
+		});
+
+		test("agreementFromProvider rejects when handlerId resolves as a registered negotiator (cross-role record confusion guard)", async () => {
+			// Simulates review Finding 5: IPolicyNegotiation has no role discriminator, so a
+			// long-lived Provider-side record (handlerId is a negotiator class name) could
+			// otherwise be addressed here by a counterparty who legitimately knows its id, since
+			// widening the state guard to admit REQUESTED made such a record reachable for far
+			// longer than the old transient ACCEPTED-only window. A handlerId that resolves as a
+			// registered negotiator is refused here even though state and trust-pinning would
+			// otherwise pass.
+			//
+			// Registered under a kebab-case key deliberately DIFFERENT from the negotiator's own
+			// className() (per round-2 review N1) - this mirrors how the real engine registers
+			// negotiators (nameofKebabCase(...) as the registration key, never the class name), so
+			// this test only passes if the guard compares against className() and would fail
+			// against the original buggy guard, which compared handlerId to the registration key.
+			PolicyNegotiatorFactory.register("mock-policy-negotiator", () => mockNegotiator);
+
+			const consumer = new PolicyNegotiationPointService({
+				policyNegotiationAdministrationPointComponentType:
+					"policy-negotiation-consumer-admin-point",
+				policyNegotiationPointRemoteComponentType: "pnp-remote",
+				config: { callbackPath: "/callback" }
+			});
+
+			await negotiationConsumerAdminPointComponent.set({
+				id: "consumer-pid-handler-collision",
+				correlationId: "provider-pid-handler-collision",
+				dateCreated: new Date(Date.now()).toISOString(),
+				offer: mockOffer,
+				state: DataspaceProtocolContractNegotiationStateType.REQUESTED,
+				organizationIdentity: testIdentityConsumer,
+				trustVerificationInfo: { identity: testIdentityProvider },
+				// Collides with a registered negotiator name rather than a requester type.
+				handlerId: "MockPolicyNegotiator"
+			});
+
+			const result = await consumer.agreementFromProvider(
+				{
+					"@context": [DataspaceProtocolContexts.Context],
+					"@type": DataspaceProtocolContractNegotiationTypes.ContractAgreementMessage,
+					providerPid: "provider-pid-handler-collision",
+					consumerPid: "consumer-pid-handler-collision",
+					agreement: {
+						"@type": OdrlTypes.Agreement,
+						"@id": "urn:policy:agreement-handler-collision",
+						assigner: testIdentityProvider,
+						assignee: testIdentityConsumer
+					}
+				},
+				`token:${testIdentityProvider}`
+			);
+
+			expect(result).toBeDefined();
+			expect(result?.code).toMatch(/invalidState/);
+
+			const stored = await policyNegotiationConsumerMemoryEntityStorage.getStore();
+			expect(stored[0].state).toBe(DataspaceProtocolContractNegotiationStateType.REQUESTED);
+			expect(stored[0].agreement).toBeUndefined();
+		});
+
+		test("agreementFromProvider still rejects a ContractAgreementMessage when the consumer negotiation is in OFFERED state", async () => {
+			const consumer = new PolicyNegotiationPointService({
+				policyNegotiationAdministrationPointComponentType:
+					"policy-negotiation-consumer-admin-point",
+				policyNegotiationPointRemoteComponentType: "pnp-remote",
+				config: { callbackPath: "/callback" }
+			});
+
+			await negotiationConsumerAdminPointComponent.set({
+				id: "consumer-pid-offered-guard",
+				correlationId: "provider-pid-offered-guard",
+				dateCreated: new Date(Date.now()).toISOString(),
+				offer: mockOffer,
+				state: DataspaceProtocolContractNegotiationStateType.OFFERED,
+				organizationIdentity: testIdentityConsumer,
+				trustVerificationInfo: { identity: testIdentityProvider },
+				handlerId: "MockPolicyNegotiator"
+			});
+
+			const result = await consumer.agreementFromProvider(
+				{
+					"@context": [DataspaceProtocolContexts.Context],
+					"@type": DataspaceProtocolContractNegotiationTypes.ContractAgreementMessage,
+					providerPid: "provider-pid-offered-guard",
+					consumerPid: "consumer-pid-offered-guard",
+					agreement: {
+						"@type": OdrlTypes.Agreement,
+						"@id": "urn:policy:agreement-offered-guard",
+						assigner: testIdentityProvider,
+						assignee: testIdentityConsumer
+					}
+				},
+				`token:${testIdentityProvider}`
+			);
+
+			expect(result).toBeDefined();
+			expect(result?.code).toMatch(/invalidState/);
+			const stored = await policyNegotiationConsumerMemoryEntityStorage.getStore();
+			expect(stored[0].state).toBe(DataspaceProtocolContractNegotiationStateType.OFFERED);
+		});
+
+		test("agreementFromProvider still rejects a ContractAgreementMessage when the consumer negotiation is TERMINATED", async () => {
+			const consumer = new PolicyNegotiationPointService({
+				policyNegotiationAdministrationPointComponentType:
+					"policy-negotiation-consumer-admin-point",
+				policyNegotiationPointRemoteComponentType: "pnp-remote",
+				config: { callbackPath: "/callback" }
+			});
+
+			await negotiationConsumerAdminPointComponent.set({
+				id: "consumer-pid-terminated-guard",
+				correlationId: "provider-pid-terminated-guard",
+				dateCreated: new Date(Date.now()).toISOString(),
+				offer: mockOffer,
+				state: DataspaceProtocolContractNegotiationStateType.TERMINATED,
+				organizationIdentity: testIdentityConsumer,
+				trustVerificationInfo: { identity: testIdentityProvider },
+				handlerId: "MockPolicyNegotiator"
+			});
+
+			const result = await consumer.agreementFromProvider(
+				{
+					"@context": [DataspaceProtocolContexts.Context],
+					"@type": DataspaceProtocolContractNegotiationTypes.ContractAgreementMessage,
+					providerPid: "provider-pid-terminated-guard",
+					consumerPid: "consumer-pid-terminated-guard",
+					agreement: {
+						"@type": OdrlTypes.Agreement,
+						"@id": "urn:policy:agreement-terminated-guard",
+						assigner: testIdentityProvider,
+						assignee: testIdentityConsumer
+					}
+				},
+				`token:${testIdentityProvider}`
+			);
+
+			expect(result).toBeDefined();
+			expect(result?.code).toMatch(/invalidState/);
+			const stored = await policyNegotiationConsumerMemoryEntityStorage.getStore();
+			expect(stored[0].state).toBe(DataspaceProtocolContractNegotiationStateType.TERMINATED);
+		});
+
+		test("agreementFromProvider rejects a different verified identity than the one already pinned", async () => {
+			// The security-relevant half of the trust-pinning fix: once an identity is pinned
+			// (here, simulating a negotiation that already went through the fast path once),
+			// a DIFFERENT verified caller must be rejected, not silently re-pinned/hijacked.
+			const consumer = new PolicyNegotiationPointService({
+				policyNegotiationAdministrationPointComponentType:
+					"policy-negotiation-consumer-admin-point",
+				policyNegotiationPointRemoteComponentType: "pnp-remote",
+				config: { callbackPath: "/callback" }
+			});
+
+			await negotiationConsumerAdminPointComponent.set({
+				id: "consumer-pid-wrong-caller",
+				correlationId: "provider-pid-wrong-caller",
+				dateCreated: new Date(Date.now()).toISOString(),
+				offer: mockOffer,
+				state: DataspaceProtocolContractNegotiationStateType.REQUESTED,
+				organizationIdentity: testIdentityConsumer,
+				trustVerificationInfo: { identity: testIdentityProvider },
+				handlerId: "requester-wrong-caller"
+			});
+
+			const result = await consumer.agreementFromProvider(
+				{
+					"@context": [DataspaceProtocolContexts.Context],
+					"@type": DataspaceProtocolContractNegotiationTypes.ContractAgreementMessage,
+					providerPid: "provider-pid-wrong-caller",
+					consumerPid: "consumer-pid-wrong-caller",
+					agreement: {
+						"@type": OdrlTypes.Agreement,
+						"@id": "urn:policy:agreement-wrong-caller",
+						assigner: testIdentityProvider,
+						assignee: testIdentityConsumer
+					}
+				},
+				// A different verified identity than the one pinned on the negotiation above.
+				"token:did:iota:testnet:attacker-identity"
+			);
+
+			expect(result).toBeDefined();
+			expect(result?.code).toMatch(/callerNotAuthorizedForNegotiation/);
+
+			// No hijack: the originally pinned identity is unchanged (setErrorState only sets
+			// state/code/reason, never trustVerificationInfo).
+			const stored = await policyNegotiationConsumerMemoryEntityStorage.getStore();
+			expect(stored[0].trustVerificationInfo?.identity).toBe(testIdentityProvider);
+		});
+
+		test("agreementFromProvider replay at AGREED leaves the stored record untouched", async () => {
+			const consumer = new PolicyNegotiationPointService({
+				policyNegotiationAdministrationPointComponentType:
+					"policy-negotiation-consumer-admin-point",
+				policyNegotiationPointRemoteComponentType: "pnp-remote",
+				config: { callbackPath: "/callback" }
+			});
+
+			await negotiationConsumerAdminPointComponent.set({
+				id: "consumer-pid-replay",
+				correlationId: "provider-pid-replay",
+				dateCreated: new Date(Date.now()).toISOString(),
+				offer: mockOffer,
+				state: DataspaceProtocolContractNegotiationStateType.AGREED,
+				agreement: {
+					"@context": OdrlContexts.Context,
+					"@type": OdrlTypes.Agreement,
+					"@id": "urn:policy:agreement-original",
+					assigner: testIdentityProvider,
+					assignee: testIdentityConsumer
+				},
+				organizationIdentity: testIdentityConsumer,
+				trustVerificationInfo: { identity: testIdentityProvider },
+				handlerId: "requester-replay"
+			});
+
+			const result = await consumer.agreementFromProvider(
+				{
+					"@context": [DataspaceProtocolContexts.Context],
+					"@type": DataspaceProtocolContractNegotiationTypes.ContractAgreementMessage,
+					providerPid: "provider-pid-replay",
+					consumerPid: "consumer-pid-replay",
+					agreement: {
+						"@type": OdrlTypes.Agreement,
+						"@id": "urn:policy:agreement-REPLAYED-DIFFERENT",
+						assigner: testIdentityProvider,
+						assignee: testIdentityConsumer
+					}
+				},
+				`token:${testIdentityProvider}`
+			);
+
+			expect(result).toBeDefined();
+			expect(result?.code).toMatch(/invalidState/);
+
+			const stored = await policyNegotiationConsumerMemoryEntityStorage.getStore();
+			expect(stored[0].state).toBe(DataspaceProtocolContractNegotiationStateType.AGREED);
+			expect(stored[0].agreement?.["@id"]).toBe("urn:policy:agreement-original");
+		});
+
+		test("requestFromConsumer: accepted false with directAgreement true still terminates via negotiationFailed", async () => {
+			PolicyNegotiatorFactory.register("MockPolicyNegotiator", () => mockNegotiator);
+			await adminPointComponent.create(mockOffer);
+			mockNegotiator.handleOffer = vi.fn(async () => ({
+				accepted: false,
+				interventionRequired: false,
+				directAgreement: true
+			}));
+
+			const provider = new PolicyNegotiationPointService({
+				policyNegotiationAdministrationPointComponentType:
+					"policy-negotiation-provider-admin-point",
+				policyNegotiationPointRemoteComponentType: "pnp-remote",
+				config: { callbackPath: "/callback" }
+			});
+
+			const result = await provider.requestFromConsumer(
+				{
+					"@context": [DataspaceProtocolContexts.Context],
+					"@type": DataspaceProtocolContractNegotiationTypes.ContractRequestMessage,
+					consumerPid: "urn:contract-negotiation:accepted-false-direct-true",
+					offer: mockOffer,
+					callbackAddress: "http://localhost:4000/callback"
+				},
+				`token:${testIdentityConsumer}`
+			);
+
+			expect(result).toBeDefined();
+			expect("code" in result).toBe(true);
+			if ("code" in result) {
+				expect(result.code).toMatch(/negotiationFailed/);
+			}
+
+			const stored = await policyNegotiationProviderMemoryEntityStorage.getStore();
+			expect(stored[0].state).toBe(DataspaceProtocolContractNegotiationStateType.TERMINATED);
+		});
+
+		test("directAgreement fast path advances state to AGREED even when no callbackAddress is provided (polling mode)", async () => {
+			PolicyNegotiatorFactory.register("MockPolicyNegotiator", () => mockNegotiator);
+			await adminPointComponent.create(mockOffer);
+			mockNegotiator.handleOffer = vi.fn(async () => ({
+				accepted: true,
+				interventionRequired: false,
+				directAgreement: true
+			}));
+
+			const provider = new PolicyNegotiationPointService({
+				policyNegotiationAdministrationPointComponentType:
+					"policy-negotiation-provider-admin-point",
+				policyNegotiationPointRemoteComponentType: "pnp-remote",
+				config: { callbackPath: "/callback" }
+			});
+
+			await provider.requestFromConsumer(
+				{
+					"@context": [DataspaceProtocolContexts.Context],
+					"@type": DataspaceProtocolContractNegotiationTypes.ContractRequestMessage,
+					consumerPid: "urn:contract-negotiation:no-cb-direct-agreement",
+					offer: mockOffer
+					// callbackAddress intentionally omitted — must be accepted per DSP spec
+				},
+				`token:${testIdentityConsumer}`
+			);
+
+			// Wait past the setTimeout(100) the direct-agreement branch uses to schedule
+			// sendAgreementToConsumer.
+			await new Promise(resolve => setTimeout(resolve, 250));
+
+			const stored = await policyNegotiationProviderMemoryEntityStorage.getStore();
+			expect(stored).toHaveLength(1);
+			expect(stored[0].state).toBe(DataspaceProtocolContractNegotiationStateType.AGREED);
+			expect(stored[0].callbackAddress).toBeUndefined();
+			expect(stored[0].agreement).toBeDefined();
+		});
+
+		test("sendRequestToProvider persists the requested offer on the consumer's own record", async () => {
+			// Regression for review Finding 6: previously this record only ever had `offer`
+			// populated by offerFromProvider (the OFFERED step), which the direct-agreement fast
+			// path never runs - leaving `offer` permanently undefined for fast-path negotiations
+			// and silently disabling the agreementOfferIdCollision guard (which compares the
+			// agreement's id against this field) further down the line. sendRequestToProvider now
+			// persists it directly, regardless of which path the negotiation later takes.
+			const providerPoints: { [id: string]: PolicyNegotiationPointService } = {};
+
+			const policyNegotiationConsumerPoint = new PolicyNegotiationPointService({
+				policyNegotiationAdministrationPointComponentType:
+					"policy-negotiation-consumer-admin-point",
+				policyNegotiationPointRemoteComponentType: "pnp-remote",
+				config: { callbackPath: "/callback" }
+			});
+			const policyNegotiationProviderPoint = new PolicyNegotiationPointService({
+				policyNegotiationAdministrationPointComponentType:
+					"policy-negotiation-provider-admin-point",
+				policyNegotiationPointRemoteComponentType: "pnp-remote",
+				config: { callbackPath: "/callback" }
+			});
+			providerPoints.provider = policyNegotiationProviderPoint;
+			providerPoints.consumer = policyNegotiationConsumerPoint;
+			remoteComponentResolver = (params: { endpoint: string }) => {
+				if (params.endpoint.startsWith(providerOrigin)) {
+					return createRemoteComponent(providerPoints.provider, providerOrigin);
+				}
+				if (params.endpoint.startsWith(consumerOrigin)) {
+					return createRemoteComponent(providerPoints.consumer, consumerOrigin);
+				}
+				throw new TypeError(`Unknown remote url ${params.endpoint}`);
+			};
+
+			PolicyRequesterFactory.register("requester-offer-persisted", () => mockPolicyRequester);
+			await adminPointComponent.create(mockOffer);
+			mockNegotiator.handleOffer = vi.fn(async () => ({
+				accepted: true,
+				interventionRequired: false,
+				directAgreement: true
+			}));
+			PolicyNegotiatorFactory.register("MockPolicyNegotiator", () => mockNegotiator);
+
+			const consumerPid = await policyNegotiationConsumerPoint.sendRequestToProvider(
+				providerOrigin,
+				"requester-offer-persisted",
+				"urn:policy:offer-1",
+				consumerOrigin
+			);
+
+			const consumerStore = await policyNegotiationConsumerMemoryEntityStorage.getStore();
+			expect(consumerStore).toHaveLength(1);
+			expect(consumerStore[0].id).toBe(consumerPid);
+			expect(consumerStore[0].offer?.["@id"]).toBe("urn:policy:offer-1");
+
+			// The existing (unmodified) "event(FINALIZED) fails loudly ... offer id" test proves
+			// the agreementOfferIdCollision guard itself works correctly once this field is
+			// populated - the two tests together cover Finding 6 end-to-end.
+		});
+	});
 });

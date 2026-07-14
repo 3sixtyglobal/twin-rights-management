@@ -4,6 +4,7 @@ import { HttpContextIdKeys, HttpUrlHelper, type IPlatformComponent } from "@twin
 import { ContextIdHelper, ContextIdKeys, ContextIdStore } from "@twin.org/context";
 import {
 	AlreadyExistsError,
+	ArrayHelper,
 	BaseError,
 	Coerce,
 	ComponentFactory,
@@ -304,7 +305,14 @@ export class PolicyNegotiationPointService implements IPolicyNegotiationPointCom
 			state: DataspaceProtocolContractNegotiationStateType.REQUESTED,
 			dateCreated: new Date(Date.now()).toISOString(),
 			organizationIdentity,
-			handlerId: requesterType
+			handlerId: requesterType,
+			// Persist the requested offer so agreementOfferIdCollision has something to compare
+			// against on the direct-agreement fast path too, where offerFromProvider (which
+			// populates this on the full cycle) is never called.
+			offer: {
+				"@context": OdrlContexts.Context,
+				...requestMessage.offer
+			}
 		};
 
 		await this._policyNegotiationAdminPointComponent.set(policyNegotiation);
@@ -484,12 +492,22 @@ export class PolicyNegotiationPointService implements IPolicyNegotiationPointCom
 					const callbackAddress = message.callbackAddress;
 					const pol = policyNegotiation;
 
-					// Schedule the state advancement (REQUESTED → OFFERED) on the next cycle so we
-					// don't delay the current response. sendOfferToConsumer advances state regardless
-					// of callbackAddress; when omitted (spec-allowed) the consumer polls instead.
-					setTimeout(async () => {
-						await this.sendOfferToConsumer(callbackAddress, pol);
-					}, 100);
+					if (negotiateResult.directAgreement) {
+						// DSP 2025-1 permits a direct REQUESTED -> AGREED transition (see
+						// docs/architecture/components.md). Skip the OFFERED/ACCEPTED round-trip
+						// and go straight to building and sending the agreement, on the next cycle
+						// so we don't delay the current response.
+						setTimeout(async () => {
+							await this.sendAgreementToConsumer(callbackAddress, pol);
+						}, 100);
+					} else {
+						// Schedule the state advancement (REQUESTED → OFFERED) on the next cycle so we
+						// don't delay the current response. sendOfferToConsumer advances state regardless
+						// of callbackAddress; when omitted (spec-allowed) the consumer polls instead.
+						setTimeout(async () => {
+							await this.sendOfferToConsumer(callbackAddress, pol);
+						}, 100);
+					}
 				}
 
 				// Return the current state of the negotiation
@@ -743,8 +761,14 @@ export class PolicyNegotiationPointService implements IPolicyNegotiationPointCom
 				throw error;
 			}
 
-			// The negotiation must be in the ACCEPTED state to accept an agreement
-			if (policyNegotiation.state !== DataspaceProtocolContractNegotiationStateType.ACCEPTED) {
+			// ACCEPTED is the full-cycle predecessor; REQUESTED is valid when the provider used
+			// the DSP-permitted direct REQUESTED -> AGREED shortcut, so this negotiation never
+			// passed through OFFERED/ACCEPTED locally either (see docs/architecture/components.md).
+			const validPredecessorStates: DataspaceProtocolContractNegotiationStateType[] = [
+				DataspaceProtocolContractNegotiationStateType.ACCEPTED,
+				DataspaceProtocolContractNegotiationStateType.REQUESTED
+			];
+			if (!validPredecessorStates.includes(policyNegotiation.state)) {
 				const err = await this.setErrorState(
 					message.providerPid,
 					message.consumerPid,
@@ -757,7 +781,46 @@ export class PolicyNegotiationPointService implements IPolicyNegotiationPointCom
 				return err;
 			}
 
-			this.validateCallerIsNegotiationParty(policyNegotiation, trustInfo);
+			// IPolicyNegotiation has no role discriminator: a Provider-side record (handlerId is a
+			// negotiator class name, set via negotiator.className()) and a Consumer-side record
+			// (handlerId is an integrator-chosen requester type) share the same storage shape.
+			// Widening the state guard above to admit REQUESTED means a long-lived Provider-side
+			// record (up to the cleanup TTL, or indefinitely under interventionRequired) could
+			// otherwise be addressed here by a counterparty who legitimately knows its id. Reject
+			// early if handlerId matches a registered negotiator's className() - a strong signal
+			// this is a Provider-side record, not ours to process as a Consumer-side agreement.
+			// Compare against className(), not PolicyNegotiatorFactory.names(): names() returns
+			// registration keys, which the engine sets to a kebab-case type name distinct from the
+			// class name actually stored in handlerId.
+			const handlerId = policyNegotiation.handlerId;
+			if (
+				Is.stringValue(handlerId) &&
+				PolicyNegotiatorFactory.names().some(
+					name => PolicyNegotiatorFactory.get(name).className() === handlerId
+				)
+			) {
+				const err = await this.setErrorState(
+					message.providerPid,
+					message.consumerPid,
+					undefined,
+					new GeneralError(PolicyNegotiationPointService.CLASS_NAME, "invalidState", {
+						state: policyNegotiation.state,
+						negotiationId: message.providerPid
+					})
+				);
+				return err;
+			}
+
+			if (Is.stringValue(policyNegotiation.trustVerificationInfo?.identity)) {
+				// A prior OFFERED interaction already pinned the counterparty identity
+				// (offerFromProvider does this on the full cycle); verify against it.
+				this.validateCallerIsNegotiationParty(policyNegotiation, trustInfo);
+			} else {
+				// REQUESTED predecessor via the directAgreement fast path skipped OFFERED, so this
+				// is the first trusted interaction for this negotiation — pin it now, mirroring what
+				// offerFromProvider does on the full cycle.
+				policyNegotiation.trustVerificationInfo = trustInfo;
+			}
 
 			// If we have an associated requester then notify it
 			const requesterType = policyNegotiation.handlerId;
@@ -1288,9 +1351,9 @@ export class PolicyNegotiationPointService implements IPolicyNegotiationPointCom
 	}
 
 	/**
-	 * Check that a stored negotiation exists and is in the expected state.
+	 * Check that a stored negotiation exists and is in one of the expected states.
 	 * @param negotiationId The id of the negotiation to look up.
-	 * @param expectedState The state the negotiation must be in to proceed.
+	 * @param expectedState The state, or one of the states, the negotiation must be in to proceed.
 	 * @returns The current negotiation record if the state matches.
 	 * @throws NotFoundError if the negotiation does not exist.
 	 * @throws GeneralError with code "invalidState" if the negotiation is in a different state.
@@ -1298,10 +1361,15 @@ export class PolicyNegotiationPointService implements IPolicyNegotiationPointCom
 	 */
 	private async checkNegotiationInState(
 		negotiationId: string,
-		expectedState: DataspaceProtocolContractNegotiationStateType
+		expectedState:
+			| DataspaceProtocolContractNegotiationStateType
+			| DataspaceProtocolContractNegotiationStateType[]
 	): Promise<IPolicyNegotiation> {
 		const negotiation = await this._policyNegotiationAdminPointComponent.get(negotiationId);
-		if (negotiation.state !== expectedState) {
+		const validStates = ArrayHelper.fromObjectOrArray(
+			expectedState
+		) as DataspaceProtocolContractNegotiationStateType[];
+		if (!validStates.includes(negotiation.state)) {
 			throw new GeneralError(PolicyNegotiationPointService.CLASS_NAME, "invalidState", {
 				state: negotiation.state,
 				negotiationId
@@ -1585,10 +1653,13 @@ export class PolicyNegotiationPointService implements IPolicyNegotiationPointCom
 				policyNegotiation.trustVerificationInfo
 			);
 
-			await this.checkNegotiationInState(
-				policyNegotiation.id,
-				DataspaceProtocolContractNegotiationStateType.ACCEPTED
-			);
+			// ACCEPTED is the full-cycle predecessor; REQUESTED is valid when the negotiator
+			// signalled directAgreement and the OFFERED/ACCEPTED round-trip was skipped (see
+			// docs/architecture/components.md, DSP 2025-1 REQUESTED -> AGREED transition).
+			await this.checkNegotiationInState(policyNegotiation.id, [
+				DataspaceProtocolContractNegotiationStateType.ACCEPTED,
+				DataspaceProtocolContractNegotiationStateType.REQUESTED
+			]);
 
 			const negotiatorNames = PolicyNegotiatorFactory.names();
 			const negotiators = negotiatorNames.map(name => PolicyNegotiatorFactory.get(name));

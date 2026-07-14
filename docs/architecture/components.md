@@ -209,6 +209,20 @@ Extensibility:
 
 A Negotiator MAY request a pause requiring administrative action. Such negotiations enter a managed state handled through PNAP operations before resumption.
 
+### Direct Agreement (REQUESTED → AGREED Shortcut)
+
+The [IDS Contract Negotiation state machine](https://eclipse-dataspace-protocol-base.github.io/DataspaceProtocol/2025-1/#state-machine) permits a Provider-initiated `REQUESTED → AGREED` transition as a first-class alternative to the full `REQUESTED → OFFERED → ACCEPTED → AGREED` cycle — both are explicit transitions in the canonical state machine, not one being an approximation of the other.
+
+A `Negotiator` opts a negotiation into this shortcut by setting `directAgreement: true` on the result of `handleOffer()`, alongside `accepted`. When set (and `interventionRequired` is not also set — that always takes precedence, since a shortcut must never bypass a required manual review), the PNP skips scheduling the Offer message and instead builds and sends the Agreement directly. `VERIFIED` and `FINALIZED` proceed identically to the full cycle regardless of which path produced `AGREED`.
+
+`PassThroughPolicyNegotiator` sets `directAgreement: true` by default, matching its unconditional auto-accept behavior. Pass `{ directAgreement: false }` to its constructor to keep the full negotiation cycle instead. See [use case 7](../use-cases/07-policy-negotiation-direct-agreement/) for a worked example contrasted against the full-cycle [use case 6](../use-cases/06-policy-negotiation-offer-to-agreement/).
+
+#### Upgrade order (breaking change)
+
+A negotiation only reaches `AGREED` directly if the **consumer's** deployed `rights-management-pnp-service` accepts an inbound `ContractAgreementMessage` while its local negotiation is still `REQUESTED` (not only `ACCEPTED`, which is all older versions accept). A Provider whose Negotiator signals `directAgreement: true` while talking to a Consumer running an older version will see that negotiation fail: the Consumer rejects the message and its own record is silently abandoned in `REQUESTED` (recovered only by PNAP's cleanup sweep), while the Provider's record is separately marked `TERMINATED`.
+
+Because `PassThroughPolicyNegotiator` now defaults to `directAgreement: true`, **upgrade every Consumer-side deployment before any Provider-side deployment that uses `PassThroughPolicyNegotiator` picks up this version.** If providers and consumers cannot be upgraded together, pass `{ directAgreement: false }` on the Provider side until every Consumer it negotiates with is confirmed upgraded.
+
 ## Policy Negotiation Admin Point (PNAP)
 
 PNAP exposes administrative CRUD + query over negotiation instances.
