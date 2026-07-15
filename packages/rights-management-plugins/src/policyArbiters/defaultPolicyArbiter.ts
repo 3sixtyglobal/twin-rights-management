@@ -852,24 +852,49 @@ export class DefaultPolicyArbiter implements IPolicyArbiter {
 		const assignerContext = this.resolveRulePartyContext(rule.assigner);
 		const assigneeContext = this.resolveRulePartyContext(rule.assignee);
 
-		if (!this.isPartyApplicable(assignerContext.partyIds, agreementAssigner)) {
+		if (!this.isPartyContextApplicable(assignerContext, agreementAssigner, dataSources)) {
+			return false;
+		}
+
+		if (!this.isPartyContextApplicable(assigneeContext, agreementAssignee, dataSources)) {
+			return false;
+		}
+
+		return true;
+	}
+
+	/**
+	 * Determine whether a resolved party context (ids and/or refinements) applies to an agreement party.
+	 * A refinement-bearing context with no resolvable ids (e.g. a source-less PartyCollection) is decided
+	 * by evaluating its refinements instead of failing on the empty id list. A context with neither ids
+	 * nor refinements (e.g. a malformed/untyped party entry) is NOT treated as "no constraint" here - it
+	 * falls through to isPartyApplicable, which keeps the pre-existing fail-closed behaviour (denies,
+	 * since an empty id list never matches). An id-bearing context keeps matching by id, ANDing in any
+	 * refinements exactly as before.
+	 * @param context The resolved party context (ids and refinements) from the rule.
+	 * @param context.partyIds The party ids resolved from the rule (empty when none are resolvable).
+	 * @param context.refinements The refinement constraints resolved from the rule.
+	 * @param agreementPartyIds The party ids extracted from the agreement.
+	 * @param dataSources The operand lookup sources for refinement evaluation.
+	 * @returns True if the party context is satisfied.
+	 * @internal
+	 */
+	private isPartyContextApplicable(
+		context: { partyIds: string[]; refinements: (IOdrlConstraint | IOdrlLogicalConstraint)[] },
+		agreementPartyIds: string[] | undefined,
+		dataSources: { [source: string]: unknown }
+	): boolean {
+		if (context.partyIds.length === 0 && context.refinements.length > 0) {
+			return context.refinements.every(c => this.evaluateConstraint(c, dataSources));
+		}
+
+		if (!this.isPartyApplicable(context.partyIds, agreementPartyIds)) {
 			return false;
 		}
 
 		if (
-			assignerContext.refinements.length > 0 &&
-			!assignerContext.refinements.every(c => this.evaluateConstraint(c, dataSources))
-		) {
-			return false;
-		}
-
-		if (!this.isPartyApplicable(assigneeContext.partyIds, agreementAssignee)) {
-			return false;
-		}
-
-		if (
-			assigneeContext.refinements.length > 0 &&
-			!assigneeContext.refinements.every(c => this.evaluateConstraint(c, dataSources))
+			context.refinements.length > 0 &&
+			!context.refinements.every(c => this.evaluateConstraint(c, dataSources))
 		) {
 			return false;
 		}
@@ -878,8 +903,9 @@ export class DefaultPolicyArbiter implements IPolicyArbiter {
 	}
 
 	/**
-	 * Resolve rule party identifiers and refinements.
-	 * PartyCollection source values are currently not supported for party matching.
+	 * Resolve rule party identifiers and refinements. A refinement-only PartyCollection (no source)
+	 * contributes no ids and is matched by evaluating its refinements instead; PartyCollection source
+	 * values remain unsupported for party matching and throw.
 	 * @param party The rule party value.
 	 * @returns Resolved party identifiers and refinement constraints.
 	 * @throws GeneralError if PartyCollection source has a value.

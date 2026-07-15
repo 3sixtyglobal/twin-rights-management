@@ -35,7 +35,8 @@
 			"action": "evaluatePartyCollectionRefinement",
 			"description": "Check if consumer satisfies PartyCollection refinement constraint",
 			"constraint": {
-				"leftOperand": ".legalAddress.countryCode",
+				"leftOperand": "twin:jsonPath",
+				"twin:jsonPathExpression": "$.legalAddress.countryCode",
 				"operator": "eq",
 				"rightOperand": "PL"
 			},

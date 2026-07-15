@@ -1,5 +1,7 @@
 // Copyright 2025 IOTA Stiftung.
 // SPDX-License-Identifier: Apache-2.0.
+import { readFileSync } from "node:fs";
+import path from "node:path";
 import { ComponentFactory } from "@twin.org/core";
 import { MemoryEntityStorageConnector } from "@twin.org/entity-storage-connector-memory";
 import { EntityStorageConnectorFactory } from "@twin.org/entity-storage-models";
@@ -269,12 +271,51 @@ describe("DefaultPolicyArbiter", () => {
 		);
 	});
 
-	test("does not throw and denies when PartyCollection source is missing", async () => {
+	test("real UC6 offer-registration.json example grants/denies correctly (docs stay in sync with the arbiter)", async () => {
+		const arbiter = new DefaultPolicyArbiter();
+		const offerPath = path.join(
+			__dirname,
+			"../../../docs/use-cases/06-policy-negotiation-offer-to-agreement/offer-registration.json"
+		);
+		let offerFileContents = readFileSync(offerPath, "utf8");
+		if (offerFileContents.charCodeAt(0) === 0xfeff) {
+			offerFileContents = offerFileContents.slice(1);
+		}
+		const offer = JSON.parse(offerFileContents) as IDataspaceProtocolAgreement;
+
+		// Loads the actual documentation fixture from disk rather than a hand-authored stand-in, so a
+		// future edit to the doc (e.g. reintroducing a missing "$" prefix or an unsupported
+		// PartyCollection source) is caught here instead of silently drifting from what the arbiter
+		// actually accepts.
+		const granted = await arbiter.decide(
+			offer,
+			undefined,
+			{
+				assets: [{ id: "vet-cert-doc-6ce567", assetType: "DataResource" }],
+				legalAddress: { countryCode: "PL" }
+			},
+			"read"
+		);
+		expect(granted).toEqual([{ target: "$.assets[0]", decision: PolicyDecision.Granted }]);
+
+		const denied = await arbiter.decide(
+			offer,
+			undefined,
+			{
+				assets: [{ id: "vet-cert-doc-6ce567", assetType: "DataResource" }],
+				legalAddress: { countryCode: "US" }
+			},
+			"read"
+		);
+		expect(denied).toEqual([{ target: "$.assets[0]", decision: PolicyDecision.Denied }]);
+	});
+
+	test("grants when assignee PartyCollection refinement matches the data datasource (source still missing, no longer denied)", async () => {
 		const arbiter = new DefaultPolicyArbiter();
 		const agreement: IDataspaceProtocolAgreement = {
 			"@context": OdrlContexts.Context,
 			"@type": OdrlPolicyType.Agreement,
-			"@id": "agreement:party-collection-source-missing-allowed",
+			"@id": "agreement:party-collection-source-missing-grant",
 			assigner: "did:example:assigner",
 			assignee: "did:example:assignee",
 			permission: [
@@ -296,6 +337,36 @@ describe("DefaultPolicyArbiter", () => {
 		};
 
 		const decisions = await arbiter.decide(agreement, undefined, { region: "EU" });
+		expect(decisions).toEqual([{ target: "$", decision: PolicyDecision.Granted }]);
+	});
+
+	test("denies when assignee PartyCollection refinement does not match the data datasource (source still missing)", async () => {
+		const arbiter = new DefaultPolicyArbiter();
+		const agreement: IDataspaceProtocolAgreement = {
+			"@context": OdrlContexts.Context,
+			"@type": OdrlPolicyType.Agreement,
+			"@id": "agreement:party-collection-source-missing-deny",
+			assigner: "did:example:assigner",
+			assignee: "did:example:assignee",
+			permission: [
+				{
+					action: "read",
+					assignee: {
+						"@type": "PartyCollection",
+						refinement: [
+							{
+								leftOperand: "twin:jsonPath",
+								"twin:jsonPathExpression": "$.region",
+								operator: OdrlOperatorType.Eq,
+								rightOperand: "EU"
+							}
+						]
+					}
+				}
+			]
+		};
+
+		const decisions = await arbiter.decide(agreement, undefined, { region: "US" });
 		expect(decisions).toEqual([{ target: "$", decision: PolicyDecision.Denied }]);
 	});
 
@@ -322,6 +393,485 @@ describe("DefaultPolicyArbiter", () => {
 
 		expect(context.partyIds).toEqual([]);
 		expect(context.refinements).toHaveLength(1);
+	});
+
+	describe("assignee/assigner PartyCollection refinements", () => {
+		test("grants when assignee PartyCollection refinement matches the consumer's verified attributes in the information datasource", async () => {
+			const arbiter = new DefaultPolicyArbiter();
+			const agreement: IDataspaceProtocolAgreement = {
+				"@context": OdrlContexts.Context,
+				"@type": OdrlPolicyType.Agreement,
+				"@id": "agreement:party-collection-info-refinement-match",
+				assigner: "did:example:assigner",
+				assignee: "did:example:assignee",
+				permission: [
+					{
+						action: "read",
+						assignee: {
+							"@type": "PartyCollection",
+							refinement: [
+								{
+									leftOperand: "twin:jsonPath",
+									"twin:jsonPathDataSource": "information",
+									"twin:jsonPathExpression": "$.subject.role",
+									operator: OdrlOperatorType.Eq,
+									rightOperand: "BorderAgency"
+								}
+							]
+						}
+					}
+				]
+			};
+
+			const information = { subject: { role: "BorderAgency" } };
+
+			// An assignee scoped by attribute refinement rather than a fixed id now behaves like any
+			// other satisfied constraint: the refinement matches (subject.role === "BorderAgency"), so
+			// this grants.
+			const decisions = await arbiter.decide(agreement, information, { any: "data" });
+			expect(decisions).toEqual([{ target: "$", decision: PolicyDecision.Granted }]);
+		});
+
+		test("denies when assignee PartyCollection refinement does not match the information datasource", async () => {
+			const arbiter = new DefaultPolicyArbiter();
+			const agreement: IDataspaceProtocolAgreement = {
+				"@context": OdrlContexts.Context,
+				"@type": OdrlPolicyType.Agreement,
+				"@id": "agreement:party-collection-info-refinement-mismatch",
+				assigner: "did:example:assigner",
+				assignee: "did:example:assignee",
+				permission: [
+					{
+						action: "read",
+						assignee: {
+							"@type": "PartyCollection",
+							refinement: [
+								{
+									leftOperand: "twin:jsonPath",
+									"twin:jsonPathDataSource": "information",
+									"twin:jsonPathExpression": "$.subject.role",
+									operator: OdrlOperatorType.Eq,
+									rightOperand: "BorderAgency"
+								}
+							]
+						}
+					}
+				]
+			};
+
+			const information = { subject: { role: "Carrier" } };
+
+			const decisions = await arbiter.decide(agreement, information, { any: "data" });
+			expect(decisions).toEqual([{ target: "$", decision: PolicyDecision.Denied }]);
+		});
+
+		test("grants when assignee PartyCollection refinement is a logical 'or' constraint that matches one branch", async () => {
+			const arbiter = new DefaultPolicyArbiter();
+			const agreement: IDataspaceProtocolAgreement = {
+				"@context": OdrlContexts.Context,
+				"@type": OdrlPolicyType.Agreement,
+				"@id": "agreement:party-collection-info-refinement-logical-or",
+				assigner: "did:example:assigner",
+				assignee: "did:example:assignee",
+				permission: [
+					{
+						action: "read",
+						assignee: {
+							"@type": "PartyCollection",
+							refinement: [
+								{
+									or: {
+										"@list": [
+											{
+												leftOperand: "twin:jsonPath",
+												"twin:jsonPathDataSource": "information",
+												"twin:jsonPathExpression": "$.subject.role",
+												operator: OdrlOperatorType.Eq,
+												rightOperand: "BorderAgency"
+											},
+											{
+												leftOperand: "twin:jsonPath",
+												"twin:jsonPathDataSource": "information",
+												"twin:jsonPathExpression": "$.subject.role",
+												operator: OdrlOperatorType.Eq,
+												rightOperand: "CustomsOfficer"
+											}
+										]
+									}
+								} as unknown as IOdrlConstraint | IOdrlLogicalConstraint
+							]
+						}
+					}
+				]
+			};
+
+			// Mirrors the real-world assignee PartyCollection shape used by
+			// twin-supply-chain's isn-notify-template.json (a role-refinement matched against multiple
+			// acceptable roles), proving evaluateConstraint's logical-constraint path (not just plain
+			// constraints) works through the new empty-partyIds branch.
+			const granted = await arbiter.decide(
+				agreement,
+				{ subject: { role: "CustomsOfficer" } },
+				{ any: "data" }
+			);
+			expect(granted).toEqual([{ target: "$", decision: PolicyDecision.Granted }]);
+
+			const denied = await arbiter.decide(
+				agreement,
+				{ subject: { role: "Carrier" } },
+				{ any: "data" }
+			);
+			expect(denied).toEqual([{ target: "$", decision: PolicyDecision.Denied }]);
+		});
+
+		test("prohibition with matching assignee PartyCollection refinement now applies (deny-overrides)", async () => {
+			const arbiter = new DefaultPolicyArbiter();
+			const agreement: IDataspaceProtocolAgreement = {
+				"@context": OdrlContexts.Context,
+				"@type": OdrlPolicyType.Agreement,
+				"@id": "agreement:prohibition-party-collection-refinement-match",
+				assigner: "did:example:assigner",
+				assignee: "did:example:assignee",
+				permission: [{ action: "read" }],
+				prohibition: [
+					{
+						action: "read",
+						assignee: {
+							"@type": "PartyCollection",
+							refinement: [
+								{
+									leftOperand: "twin:jsonPath",
+									"twin:jsonPathDataSource": "information",
+									"twin:jsonPathExpression": "$.subject.role",
+									operator: OdrlOperatorType.Eq,
+									rightOperand: "BorderAgency"
+								}
+							]
+						}
+					}
+				]
+			};
+
+			const information = { subject: { role: "BorderAgency" } };
+
+			// The prohibition's assignee refinement matches, so under the default Invalid conflict
+			// strategy (alongside the unconditional permission) it now applies and denies.
+			const decisions = await arbiter.decide(agreement, information, { any: "data" });
+			expect(decisions).toEqual([{ target: "$", decision: PolicyDecision.Denied }]);
+		});
+
+		test("prohibition with non-matching assignee PartyCollection refinement does not apply", async () => {
+			const arbiter = new DefaultPolicyArbiter();
+			const agreement: IDataspaceProtocolAgreement = {
+				"@context": OdrlContexts.Context,
+				"@type": OdrlPolicyType.Agreement,
+				"@id": "agreement:prohibition-party-collection-refinement-mismatch",
+				assigner: "did:example:assigner",
+				assignee: "did:example:assignee",
+				permission: [{ action: "read" }],
+				prohibition: [
+					{
+						action: "read",
+						assignee: {
+							"@type": "PartyCollection",
+							refinement: [
+								{
+									leftOperand: "twin:jsonPath",
+									"twin:jsonPathDataSource": "information",
+									"twin:jsonPathExpression": "$.subject.role",
+									operator: OdrlOperatorType.Eq,
+									rightOperand: "BorderAgency"
+								}
+							]
+						}
+					}
+				]
+			};
+
+			const information = { subject: { role: "Carrier" } };
+
+			// The prohibition's refinement does not match, so it stays inapplicable and the
+			// unconditional permission still grants.
+			const decisions = await arbiter.decide(agreement, information, { any: "data" });
+			expect(decisions).toEqual([{ target: "$", decision: PolicyDecision.Granted }]);
+		});
+
+		test("obligation with matching assignee PartyCollection refinement is now enforced", async () => {
+			registerObligationEnforcer(
+				"deny-party-refinement-obligation",
+				vi.fn().mockResolvedValue(false)
+			);
+
+			const arbiter = new DefaultPolicyArbiter();
+			const agreement: IDataspaceProtocolAgreement = {
+				"@context": OdrlContexts.Context,
+				"@type": OdrlPolicyType.Agreement,
+				"@id": "agreement:obligation-party-collection-refinement-match",
+				assigner: "did:example:assigner",
+				assignee: "did:example:assignee",
+				permission: [{ action: "read" }],
+				obligation: [
+					{
+						action: "compensate",
+						assignee: {
+							"@type": "PartyCollection",
+							refinement: [
+								{
+									leftOperand: "twin:jsonPath",
+									"twin:jsonPathDataSource": "information",
+									"twin:jsonPathExpression": "$.subject.role",
+									operator: OdrlOperatorType.Eq,
+									rightOperand: "BorderAgency"
+								}
+							]
+						}
+					}
+				]
+			};
+
+			const information = { subject: { role: "BorderAgency" } };
+
+			// The obligation's assignee refinement matches, so it is now applicable — and since no
+			// enforcer fulfills it, the whole decision is denied.
+			const decisions = await arbiter.decide(agreement, information, { any: "data" });
+			expect(decisions).toEqual([{ target: "$", decision: PolicyDecision.Denied }]);
+		});
+
+		test("obligation with non-matching assignee PartyCollection refinement is skipped", async () => {
+			registerObligationEnforcer(
+				"deny-party-refinement-obligation-mismatch",
+				vi.fn().mockResolvedValue(false)
+			);
+
+			const arbiter = new DefaultPolicyArbiter();
+			const agreement: IDataspaceProtocolAgreement = {
+				"@context": OdrlContexts.Context,
+				"@type": OdrlPolicyType.Agreement,
+				"@id": "agreement:obligation-party-collection-refinement-mismatch",
+				assigner: "did:example:assigner",
+				assignee: "did:example:assignee",
+				permission: [{ action: "read" }],
+				obligation: [
+					{
+						action: "compensate",
+						assignee: {
+							"@type": "PartyCollection",
+							refinement: [
+								{
+									leftOperand: "twin:jsonPath",
+									"twin:jsonPathDataSource": "information",
+									"twin:jsonPathExpression": "$.subject.role",
+									operator: OdrlOperatorType.Eq,
+									rightOperand: "BorderAgency"
+								}
+							]
+						}
+					}
+				]
+			};
+
+			const information = { subject: { role: "Carrier" } };
+
+			// The obligation's refinement does not match, so it stays inapplicable, is treated as
+			// fulfilled without calling the enforcer, and the unconditional permission grants.
+			const decisions = await arbiter.decide(agreement, information, { any: "data" });
+			expect(decisions).toEqual([{ target: "$", decision: PolicyDecision.Granted }]);
+		});
+
+		test("grants when assigner PartyCollection refinement matches", async () => {
+			const arbiter = new DefaultPolicyArbiter();
+			const agreement: IDataspaceProtocolAgreement = {
+				"@context": OdrlContexts.Context,
+				"@type": OdrlPolicyType.Agreement,
+				"@id": "agreement:assigner-party-collection-refinement-match",
+				assigner: "did:example:assigner",
+				assignee: "did:example:assignee",
+				permission: [
+					{
+						action: "read",
+						assigner: {
+							"@type": "PartyCollection",
+							refinement: [
+								{
+									leftOperand: "twin:jsonPath",
+									"twin:jsonPathDataSource": "information",
+									"twin:jsonPathExpression": "$.subject.role",
+									operator: OdrlOperatorType.Eq,
+									rightOperand: "TrustedPublisher"
+								}
+							]
+						}
+					}
+				]
+			};
+
+			const information = { subject: { role: "TrustedPublisher" } };
+
+			// Symmetric to the assignee case above but on the assigner side — resolveRulePartyContext
+			// and isPartyContextApplicable treat assigner and assignee identically, so this now grants
+			// too.
+			const decisions = await arbiter.decide(agreement, information, { any: "data" });
+			expect(decisions).toEqual([{ target: "$", decision: PolicyDecision.Granted }]);
+		});
+
+		test("denies when assigner PartyCollection refinement does not match", async () => {
+			const arbiter = new DefaultPolicyArbiter();
+			const agreement: IDataspaceProtocolAgreement = {
+				"@context": OdrlContexts.Context,
+				"@type": OdrlPolicyType.Agreement,
+				"@id": "agreement:assigner-party-collection-refinement-mismatch",
+				assigner: "did:example:assigner",
+				assignee: "did:example:assignee",
+				permission: [
+					{
+						action: "read",
+						assigner: {
+							"@type": "PartyCollection",
+							refinement: [
+								{
+									leftOperand: "twin:jsonPath",
+									"twin:jsonPathDataSource": "information",
+									"twin:jsonPathExpression": "$.subject.role",
+									operator: OdrlOperatorType.Eq,
+									rightOperand: "TrustedPublisher"
+								}
+							]
+						}
+					}
+				]
+			};
+
+			const information = { subject: { role: "UnknownPublisher" } };
+
+			const decisions = await arbiter.decide(agreement, information, { any: "data" });
+			expect(decisions).toEqual([{ target: "$", decision: PolicyDecision.Denied }]);
+		});
+
+		test("denies when assignee PartyCollection has no source and no refinement (empty party context stays fail-closed)", async () => {
+			const arbiter = new DefaultPolicyArbiter();
+			const agreement: IDataspaceProtocolAgreement = {
+				"@context": OdrlContexts.Context,
+				"@type": OdrlPolicyType.Agreement,
+				"@id": "agreement:empty-party-collection",
+				assigner: "did:example:assigner",
+				assignee: "did:example:assignee",
+				permission: [
+					{
+						action: "read",
+						assignee: {
+							"@type": "PartyCollection"
+						}
+					}
+				]
+			};
+
+			// A PartyCollection with neither a source nor a refinement resolves to an empty party
+			// context ({ partyIds: [], refinements: [] }). This must NOT be treated as "no constraint,
+			// applies to anyone" - it falls through to isPartyApplicable, which keeps the pre-existing
+			// fail-closed behavior (an empty id list never matches). Guards against a malformed or
+			// degenerate PartyCollection silently granting to any assignee.
+			const decisions = await arbiter.decide(agreement, undefined, { any: "data" });
+			expect(decisions).toEqual([{ target: "$", decision: PolicyDecision.Denied }]);
+		});
+
+		test("denies when assignee is an untyped object carrying source/refinement but no @type (malformed party stays fail-closed)", async () => {
+			const arbiter = new DefaultPolicyArbiter();
+			const agreement: IDataspaceProtocolAgreement = {
+				"@context": OdrlContexts.Context,
+				"@type": OdrlPolicyType.Agreement,
+				"@id": "agreement:untyped-source-bearing-party",
+				assigner: "did:example:assigner",
+				assignee: "did:example:assignee",
+				permission: [
+					{
+						action: "read",
+						// Mirrors twin-supply-chain's isn-read-policy.json assignee shape: a party object
+						// carrying `source`/`refinement` but no `@type`. OdrlPolicyHelper.getType() reads
+						// only "@type"/"type", so this is NOT recognized as a PartyCollection - it bypasses
+						// the partyCollectionSourceNotSupported throw entirely, and its refinement is never
+						// collected (that only happens inside the PartyCollection branch). It resolves to
+						// the same empty party context as the test above, and must stay denied rather than
+						// silently matching any assignee.
+						assignee: {
+							source: "urn:supply-chain:notification-recipients",
+							refinement: [
+								{
+									leftOperand: "information:$.role",
+									operator: OdrlOperatorType.Eq,
+									rightOperand: "BorderAgency"
+								}
+							]
+						}
+					}
+				]
+			};
+
+			const decisions = await arbiter.decide(agreement, undefined, { any: "data" });
+			expect(decisions).toEqual([{ target: "$", decision: PolicyDecision.Denied }]);
+		});
+
+		test("grants when assignee Party object with uid matches the agreement (regression pin)", async () => {
+			const arbiter = new DefaultPolicyArbiter();
+			const agreement: IDataspaceProtocolAgreement = {
+				"@context": OdrlContexts.Context,
+				"@type": OdrlPolicyType.Agreement,
+				"@id": "agreement:party-object-uid-match",
+				assigner: "did:example:assigner",
+				assignee: "did:example:assignee",
+				permission: [
+					{
+						action: "read",
+						assignee: { uid: "did:example:assignee" }
+					}
+				]
+			};
+
+			const decisions = await arbiter.decide(agreement, undefined, { any: "data" });
+			expect(decisions).toEqual([{ target: "$", decision: PolicyDecision.Granted }]);
+		});
+
+		test("grants via a mixed assignee array when the plain id matches, even though the PartyCollection refinement does not (compact-form OR expansion, regression pin)", async () => {
+			const arbiter = new DefaultPolicyArbiter();
+			const agreement: IDataspaceProtocolAgreement = {
+				"@context": OdrlContexts.Context,
+				"@type": OdrlPolicyType.Agreement,
+				"@id": "agreement:mixed-assignee-array-or-expansion",
+				assigner: "did:example:assigner",
+				assignee: "did:example:assignee",
+				permission: [
+					{
+						action: "read",
+						assignee: [
+							"did:example:assignee",
+							{
+								"@type": "PartyCollection",
+								refinement: [
+									{
+										leftOperand: "twin:jsonPath",
+										"twin:jsonPathDataSource": "information",
+										"twin:jsonPathExpression": "$.subject.role",
+										operator: OdrlOperatorType.Eq,
+										rightOperand: "BorderAgency"
+									}
+								]
+							}
+						]
+					}
+				]
+			};
+
+			const information = { subject: { role: "Carrier" } };
+
+			// An array-valued assignee is NOT evaluated as one combined (ids AND refinements)
+			// context: expandRule cross-multiplies compact rule fields into independent atomic
+			// permissions before isRuleApplicableToParties ever runs, one atomic permission per
+			// array element. This test expands into two atomic rules sharing target "$": one with
+			// plain assignee "did:example:assignee" (matches), one with the PartyCollection
+			// refinement (does not match). Either atomic rule applying grants the shared target:
+			// OR-across-array semantics, not AND-within-one-rule (pre-existing behavior).
+			const decisions = await arbiter.decide(agreement, information, { any: "data" });
+			expect(decisions).toEqual([{ target: "$", decision: PolicyDecision.Granted }]);
+		});
 	});
 
 	test("throws when assignee party has assignerOf set", async () => {

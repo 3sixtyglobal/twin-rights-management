@@ -53,7 +53,7 @@
 				{
 					"type": "inherited-from-offer",
 					"leftOperand": "twin:jsonPath",
-					"twin:jsonPathExpression": ".legalAddress.countryCode",
+					"twin:jsonPathExpression": "$.legalAddress.countryCode",
 					"operator": "eq",
 					"rightOperand": "PL",
 					"inheritedFrom": "PartyCollection.refinement"

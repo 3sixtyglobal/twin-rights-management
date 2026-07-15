@@ -1,5 +1,5 @@
 {
-	"$comment": "Provider registers this Offer in PNP - Phase 1 (Policy Negotiation). Unlike vet-cert-offer-001 (UC6), this Offer is for low-sensitivity public health advisory data and is configured with a fast-track Negotiator that returns directAgreement: true, permitting the DSP 2025-1 direct REQUESTED -> AGREED transition (skipping OFFERED/ACCEPTED) for any verified Polish organization.",
+	"$comment": "Provider registers this Offer in PNP - Phase 1 (Policy Negotiation). Unlike vet-cert-offer-001 (UC6), this Offer is for low-sensitivity public health advisory data and is configured with a fast-track Negotiator that returns directAgreement: true, permitting the DSP 2025-1 direct REQUESTED -> AGREED transition (skipping OFFERED/ACCEPTED) for any verified Polish organization. The assignee PartyCollection has no `source` (member ids resolved from an external source at decision time is not supported by DefaultPolicyArbiter - see docs/architecture/components.md's Party Scoping note); it is matched entirely by evaluating its `refinement` against the request data. Both refinements use the canonical `$`-prefixed twin:jsonPath expression form, and the AssetCollection target carries the `source`/expression pair DefaultPolicyArbiter requires to resolve it - this example is executable as written against the current arbiter, not just illustrative.",
 	"@context": [
 		"https://www.w3.org/ns/odrl.jsonld",
 		{
@@ -8,16 +8,18 @@
 	],
 	"@type": "Offer",
 	"@id": "https://giw-node.example.org/policies/offers/health-bulletin-offer-001",
-	"profile": "https://w3id.org/twin/odrl/profile",
+	"profile": "https://schema.twindev.org/odrl/v1/profile",
 	"assigner": "did:iota:testnet:0xfcfa55894cab90504af7eaf38087addd5f77791a89bd3ebbe76d9c2b1a6ce567",
 	"permission": [
 		{
 			"target": {
 				"@type": "AssetCollection",
+				"source": "twin:jsonPath",
+				"twin:jsonPathExpression": "$.assets[*]",
 				"refinement": [
 					{
 						"leftOperand": "twin:jsonPath",
-						"twin:jsonPathExpression": ".assetType",
+						"twin:jsonPathExpression": "$.assets[*].assetType",
 						"operator": "eq",
 						"rightOperand": "PublicHealthAdvisory"
 					}
@@ -26,11 +28,10 @@
 			"action": "read",
 			"assignee": {
 				"@type": "PartyCollection",
-				"source": "https://twin.example.org/identity/organizations",
 				"refinement": [
 					{
 						"leftOperand": "twin:jsonPath",
-						"twin:jsonPathExpression": ".legalAddress.countryCode",
+						"twin:jsonPathExpression": "$.legalAddress.countryCode",
 						"operator": "eq",
 						"rightOperand": "PL"
 					}

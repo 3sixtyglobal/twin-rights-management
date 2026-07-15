@@ -141,6 +141,15 @@ Error handling: If zero Arbiters are registered an error (e.g. `noSupportedArbit
 
 Arbiters SHOULD be deterministic for identical inputs and MUST NOT mutate shared policy objects.
 
+### Party Scoping (PartyCollection Refinements)
+
+A rule's `assigner`/`assignee` may be a plain party id, a `Party` object with a `uid`, or an ODRL `PartyCollection` scoping the rule to parties matching a `refinement` (e.g. "applies to any assignee whose verified `role` is `BorderAgency`") instead of a fixed id. This is the ODRL-idiomatic way to express attribute-scoped rules, and the default Arbiter supports it as follows:
+
+- A `PartyCollection` with **no `source`** but **with a `refinement`**: the collection contributes no party id, so the rule's applicability to that party is decided entirely by evaluating its `refinement` constraints against the same datasources (`data`, `information`) used for rule-level constraints — including verified counterparty attributes carried in `information` via the negotiated Agreement's `trustData`. A rule with both a resolvable id **and** a refinement-only collection (a compact-form array) is expanded into independent alternative rules per ODRL's compact-form semantics — each is evaluated on its own, not ANDed together.
+- A party entry that resolves to **neither** a party id **nor** a refinement (e.g. a `PartyCollection` with no `source` and no `refinement`, or a malformed/untyped party object the Arbiter can't otherwise classify) is **not** treated as "no constraint, applies to anyone." It falls back to the ordinary id-matching path, which denies on an empty id list — the same fail-closed behavior as before this scoping mechanism existed. Only a genuine, non-empty `refinement` unlocks the attribute-matching path above.
+- A `PartyCollection` **with a `source`** (member ids resolved from an external source at decision time) is **not supported** and the Arbiter throws `partyCollectionSourceNotSupported`. This is a deliberate, permanent limitation, not a gap pending a future fix — resolving collection membership from an external source at decision time is a materially larger capability (network lookups inside the Arbiter) that no current deployment requires.
+- This applies identically to permissions, prohibitions, and obligations, and to both `assigner` and `assignee`.
+
 ## Policy Enforcement Point (PEP)
 
 The PEP applies PDP decisions to a candidate data set.
