@@ -1,6 +1,6 @@
 {
 	"name": "@twin.org/rights-management-pmp-service",
-	"version": "0.9.1-next.5",
+	"version": "0.9.1-next.6",
 	"description": "Policy management point service for locating and preparing candidate policies.",
 	"repository": {
 		"type": "git",
@@ -31,7 +31,7 @@
 	"dependencies": {
 		"@twin.org/core": "next",
 		"@twin.org/entity": "next",
-		"@twin.org/rights-management-models": "0.9.1-next.5",
+		"@twin.org/rights-management-models": "0.9.1-next.6",
 		"@twin.org/logging-models": "next",
 		"@twin.org/nameof": "next",
 		"@twin.org/standards-w3c-odrl": "next"
@@ -43,7 +43,7 @@
 		"@twin.org/nameof-transformer": "next",
 		"@twin.org/nameof-vitest-plugin": "next",
 		"@twin.org/validate-locales": "next",
-		"@twin.org/rights-management-pap-service": "0.9.1-next.5",
+		"@twin.org/rights-management-pap-service": "0.9.1-next.6",
 		"@types/node": "26.0.0",
 		"@vitest/coverage-v8": "4.1.9",
 		"copyfiles": "2.4.1",
