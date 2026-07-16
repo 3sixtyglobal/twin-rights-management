@@ -6,6 +6,20 @@
 
 * remove EcosystemPolicy-specific references in documentation for v2.
 
+## [0.9.1-next.7](https://github.com/iotaledger/twin-rights-management/compare/rights-management-pxp-service-v0.9.1-next.6...rights-management-pxp-service-v0.9.1-next.7) (2026-07-16)
+
+
+### Miscellaneous Chores
+
+* **rights-management-pxp-service:** Synchronize repo versions
+
+
+### Dependencies
+
+* The following workspace dependencies were updated
+  * dependencies
+    * @twin.org/rights-management-models bumped from 0.9.1-next.6 to 0.9.1-next.7
+
 ## [0.9.1-next.6](https://github.com/iotaledger/twin-rights-management/compare/rights-management-pxp-service-v0.9.1-next.5...rights-management-pxp-service-v0.9.1-next.6) (2026-07-15)
 
 

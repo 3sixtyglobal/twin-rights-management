@@ -1,6 +1,6 @@
 {
 	"name": "@twin.org/rights-management-models",
-	"version": "0.9.1-next.6",
+	"version": "0.9.1-next.7",
 	"description": "Data model definitions for rights management policies, negotiations, and service contracts.",
 	"repository": {
 		"type": "git",
