@@ -42,7 +42,7 @@ JSONPath constraint evaluation is implemented in the default arbiter using canon
 ```json
 {
   "leftOperand": "twin:jsonPath",
-  "twin:jsonPathExpression": "$.legalAddress.countryCode",
+  "twin:jsonPathExpression": "$.assigneeAttributes.legalAddress.countryCode",
   "operator": "eq",
   "rightOperand": "PL"
 }

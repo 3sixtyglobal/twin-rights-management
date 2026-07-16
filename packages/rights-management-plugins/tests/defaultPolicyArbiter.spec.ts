@@ -3,6 +3,7 @@
 import { readFileSync } from "node:fs";
 import path from "node:path";
 import { ComponentFactory } from "@twin.org/core";
+import { JsonPathHelper } from "@twin.org/data-json-path";
 import { MemoryEntityStorageConnector } from "@twin.org/entity-storage-connector-memory";
 import { EntityStorageConnectorFactory } from "@twin.org/entity-storage-models";
 import {
@@ -59,6 +60,15 @@ const registerObligationEnforcer = (
 	};
 	PolicyObligationEnforcerFactory.register(id, () => enforcer);
 	registeredObligationEnforcers.push(id);
+};
+
+const loadUseCaseFixture = <T = IDataspaceProtocolAgreement>(relativePath: string): T => {
+	const fixturePath = path.join(__dirname, "../../../docs/use-cases", relativePath);
+	let fileContents = readFileSync(fixturePath, "utf8");
+	if (fileContents.charCodeAt(0) === 0xfeff) {
+		fileContents = fileContents.slice(1);
+	}
+	return JSON.parse(fileContents) as T;
 };
 
 const registerPolicyAdministrationPointComponent = (
@@ -308,6 +318,226 @@ describe("DefaultPolicyArbiter", () => {
 			"read"
 		);
 		expect(denied).toEqual([{ target: "$.assets[0]", decision: PolicyDecision.Denied }]);
+	});
+
+	describe("real use-case fixtures", () => {
+		test("UC1 policy.json grants/denies correctly (docs stay in sync with the arbiter)", async () => {
+			const arbiter = new DefaultPolicyArbiter();
+			const policy = loadUseCaseFixture("01-basic-data-resource-access/policy.json");
+
+			// The unresolvable Asset+uid target was removed (this use case is about assignee-attribute
+			// scoping, not target filtering - "is this the right resource" is a policy-lookup-layer
+			// concern, not something the arbiter's target mechanism needs to re-enforce here), and the
+			// assignee refinement's missing-"$" prefix is fixed, so this now grants/denies correctly.
+			// Loads the real pip-context.json rather than a hand-authored stand-in, so this proves the
+			// policy is genuinely executable against its own committed fixture - legalAddress.countryCode
+			// is nested under assigneeAttributes there, not at the top level.
+			const pipContext = loadUseCaseFixture<{
+				assigneeAttributes: { legalAddress: { countryCode: string } };
+			}>("01-basic-data-resource-access/pip-context.json");
+			const granted = await arbiter.decide(policy, undefined, pipContext, "read");
+			expect(granted).toEqual([{ target: "$", decision: PolicyDecision.Granted }]);
+
+			const denied = await arbiter.decide(
+				policy,
+				undefined,
+				{ assigneeAttributes: { legalAddress: { countryCode: "US" } } },
+				"read"
+			);
+			expect(denied).toEqual([{ target: "$", decision: PolicyDecision.Denied }]);
+		});
+
+		test("UC2 policy.json filters consignments per-item correctly (docs stay in sync with the arbiter)", async () => {
+			const arbiter = new DefaultPolicyArbiter();
+			const policy = loadUseCaseFixture("02-country-filtered-consignments/policy.json");
+			const sourceData = loadUseCaseFixture<{
+				consignments: { destinationCountry: string }[];
+			}>("02-country-filtered-consignments/source-data.json");
+
+			// The AssetCollection target now resolves via "twin:jsonPath" over the real consignments
+			// array (source-data.json, loaded from disk so doc drift is caught here), the refinement's
+			// "$" prefix is fixed and correctly wildcard-scoped per item, and the unsupported
+			// PropertyReference rightOperand is replaced with a supported twin:jsonPath/information
+			// lookup - so this now filters exactly as description.md's narrative describes: only the
+			// PL-bound consignments (indices 0 and 2) are granted.
+			const decisions = await arbiter.decide(
+				policy,
+				{ assigneeAttributes: { countryCode: "PL" } },
+				sourceData,
+				"read"
+			);
+			expect(decisions).toEqual([
+				{ target: "$.consignments[0]", decision: PolicyDecision.Granted },
+				{ target: "$.consignments[1]", decision: PolicyDecision.Denied },
+				{ target: "$.consignments[2]", decision: PolicyDecision.Granted },
+				{ target: "$.consignments[3]", decision: PolicyDecision.Denied }
+			]);
+
+			// A country absent from every consignment (PL/DE/FR are the only ones present) proves the
+			// filter is genuinely comparing per-item, not vacuously granting everything.
+			const deniedAll = await arbiter.decide(
+				policy,
+				{ assigneeAttributes: { countryCode: "GB" } },
+				sourceData,
+				"read"
+			);
+			expect(deniedAll).toEqual([
+				{ target: "$.consignments[0]", decision: PolicyDecision.Denied },
+				{ target: "$.consignments[1]", decision: PolicyDecision.Denied },
+				{ target: "$.consignments[2]", decision: PolicyDecision.Denied },
+				{ target: "$.consignments[3]", decision: PolicyDecision.Denied }
+			]);
+		});
+
+		test("UC4 policy.json grants/denies correctly (docs stay in sync with the arbiter)", async () => {
+			const arbiter = new DefaultPolicyArbiter();
+			const policy = loadUseCaseFixture("04-multi-constraint-service-offering/policy.json");
+
+			// The unresolvable ServiceOffering target was removed (same "one specific, singular thing"
+			// treatment as UC1 - "is this the right service" is a policy-lookup-layer concern, not
+			// something the arbiter's target mechanism needs to re-enforce here), and the
+			// certifications refinement's missing-"$" prefix is fixed, so this now grants/denies
+			// correctly across all three AND'd constraints (dateTime window x2 + certifications).
+			// The built-in "dateTime" leftOperand resolves via the real system clock (not injectable),
+			// and the fixture's window ends 2035-12-31 - pin the clock inside this test so it keeps
+			// proving doc/arbiter sync instead of going red the day the real window actually expires.
+			vi.setSystemTime(new Date("2026-07-01T00:00:00Z"));
+			try {
+				const granted = await arbiter.decide(
+					policy,
+					undefined,
+					{ assigneeAttributes: { certifications: ["ISO27001"] } },
+					"use"
+				);
+				expect(granted).toEqual([{ target: "$", decision: PolicyDecision.Granted }]);
+
+				const denied = await arbiter.decide(
+					policy,
+					undefined,
+					{ assigneeAttributes: { certifications: ["ISO9001"] } },
+					"use"
+				);
+				expect(denied).toEqual([{ target: "$", decision: PolicyDecision.Denied }]);
+			} finally {
+				vi.useRealTimers();
+			}
+		});
+
+		test("UC5 policy.json grants/denies correctly, per-constraint (docs stay in sync with the arbiter)", async () => {
+			const arbiter = new DefaultPolicyArbiter();
+			const policy = loadUseCaseFixture("05-catalogue-gated-notification/policy.json");
+
+			// The unresolvable ServiceOffering target was removed, the assignee refinement's invalid
+			// "contains" operator was replaced with the supported "isAnyOf" (the correct "list contains
+			// value" semantics), and both the rule-level and duty-level constraints' missing-"$" prefixes
+			// are fixed. The duty's own constraint is never evaluated by the built-in arbiter itself
+			// (enforceDuty() delegates entirely to registered IPolicyObligationEnforcer implementations -
+			// confirmed by reading defaultPolicyArbiter.ts), so this test registers an enforcer that
+			// actually resolves the duty's twin:jsonPath constraint via the real JsonPathHelper, proving
+			// the "$" fix is meaningful for any real implementer, not just cosmetically correct.
+			registerObligationEnforcer(
+				"uc5-notify-enforcer",
+				async (enforcedPolicy, duty, information, ruleDataContext) => {
+					const dutyRecord = duty as unknown as {
+						constraint?: { "twin:jsonPathExpression"?: string; rightOperand?: unknown }[];
+					};
+					const constraint = dutyRecord.constraint?.[0];
+					if (!constraint?.["twin:jsonPathExpression"]) {
+						return true;
+					}
+					const matches = JsonPathHelper.query(
+						constraint["twin:jsonPathExpression"],
+						ruleDataContext
+					);
+					return matches.length === 1 && matches[0].value === constraint.rightOperand;
+				}
+			);
+
+			const base = {
+				assigneeAttributes: { certifications: ["FSA-Trusted-Notifier"] },
+				resourceAttributes: {
+					consignment: { destinationCountry: { countryId: "GB" } },
+					latestDocument: { documentTypeCode: "unece:DocumentCodeList#853" }
+				}
+			};
+
+			const granted = await arbiter.decide(policy, undefined, base, "permission");
+			expect(granted).toEqual([{ target: "$", decision: PolicyDecision.Granted }]);
+
+			// Each mismatch proves its own constraint is genuinely load-bearing, not vacuously true.
+			const wrongCertification = await arbiter.decide(
+				policy,
+				undefined,
+				{ ...base, assigneeAttributes: { certifications: ["ISO27001"] } },
+				"permission"
+			);
+			expect(wrongCertification).toEqual([{ target: "$", decision: PolicyDecision.Denied }]);
+
+			const wrongCountry = await arbiter.decide(
+				policy,
+				undefined,
+				{
+					...base,
+					resourceAttributes: {
+						...base.resourceAttributes,
+						consignment: { destinationCountry: { countryId: "FR" } }
+					}
+				},
+				"permission"
+			);
+			expect(wrongCountry).toEqual([{ target: "$", decision: PolicyDecision.Denied }]);
+
+			const wrongDocumentType = await arbiter.decide(
+				policy,
+				undefined,
+				{
+					...base,
+					resourceAttributes: {
+						...base.resourceAttributes,
+						latestDocument: { documentTypeCode: "unece:DocumentCodeList#002" }
+					}
+				},
+				"permission"
+			);
+			expect(wrongDocumentType).toEqual([{ target: "$", decision: PolicyDecision.Denied }]);
+		});
+
+		test("legacy jsonPathSelector shape never matches, even when the data satisfies it (regression guard, description.md no longer documents this)", async () => {
+			const arbiter = new DefaultPolicyArbiter();
+			// Mirrors the legacy shape that description.md:275 used to document as a supported extension
+			// Removed that false claim. Not loaded from disk, since this guards
+			// against the shape itself resurfacing, not any prose. Kept as a regression guard: the arbiter
+			// still silently fails closed on this shape rather than throwing, which is worth pinning.
+			const agreement: IDataspaceProtocolAgreement = {
+				"@context": OdrlContexts.Context,
+				"@type": OdrlPolicyType.Agreement,
+				"@id": "agreement:jsonpath-selector-doc-probe",
+				assigner: "did:example:assigner",
+				assignee: "did:example:assignee",
+				permission: [
+					{
+						action: "read",
+						constraint: [
+							{
+								leftOperand: {
+									"@id": "https://w3id.org/twin/odrl/propertyValue",
+									jsonPathSelector: ".legalAddress.countryCode"
+								},
+								operator: OdrlOperatorType.Eq,
+								rightOperand: "PL"
+							} as unknown as IOdrlConstraint
+						]
+					}
+				]
+			};
+
+			// The data genuinely satisfies the documented intent (countryCode is "PL"), but the shape
+			// never resolves, so this denies regardless - proving the doc teaches a non-working pattern.
+			const decisions = await arbiter.decide(agreement, undefined, {
+				legalAddress: { countryCode: "PL" }
+			});
+			expect(decisions).toEqual([{ target: "$", decision: PolicyDecision.Denied }]);
+		});
 	});
 
 	test("grants when assignee PartyCollection refinement matches the data datasource (source still missing, no longer denied)", async () => {
@@ -4911,6 +5141,104 @@ describe("DefaultPolicyArbiter", () => {
 			const decisions = await arbiter.decide(policy, undefined, {});
 			expect(decisions[0].decision).toBe(PolicyDecision.Granted);
 		});
+
+		test("grants when current date is within a gteq/lteq window expressed as bare ISO strings", async () => {
+			// Regression test when the leftOperand resolves to a genuine Date instance (as the built-in "dateTime"
+			// operand always does) and the rightOperand is a bare ISO string rather than the typed
+			// {"@value": ..., "@type": "xsd:dateTime"} wrapper used by every other test in this describe
+			// block, Coerce.number(dateInstance) returns its epoch millisecond timestamp while
+			// Coerce.number(isoString) uses Number.parseFloat, which silently truncates at the first
+			// "-" and returns just the leading year (e.g. "2035-12-31..." -> 2035). Both sides were
+			// "defined numbers", so compareOrdered's numeric-first branch fired and compared an
+			// epoch millisecond timestamp against a bare 4-digit year - gteq spuriously passed (huge >= small
+			// year) while lteq spuriously failed (huge <= small year is false), regardless of the
+			// actual dates involved.
+			const arbiter = new DefaultPolicyArbiter();
+			const policy: IDataspaceProtocolAgreement = {
+				"@context": OdrlContexts.Context,
+				"@type": OdrlPolicyType.Agreement,
+				assigner: "did:example:default-assigner",
+				assignee: "did:example:default-assignee",
+				"@id": "policy:datetime-window-bare-string",
+				permission: [
+					{
+						constraint: [
+							{
+								leftOperand: OdrlLeftOperandType.DateTime,
+								operator: OdrlOperatorType.Gteq,
+								rightOperand: "2020-01-01T00:00:00Z"
+							},
+							{
+								leftOperand: OdrlLeftOperandType.DateTime,
+								operator: OdrlOperatorType.Lteq,
+								rightOperand: "2099-12-31T23:59:59Z"
+							}
+						]
+					}
+				]
+			};
+
+			const decisions = await arbiter.decide(policy, undefined, {});
+			expect(decisions[0].decision).toBe(PolicyDecision.Granted);
+		});
+
+		test("denies when current date is after a bare-ISO-string lteq bound", async () => {
+			const arbiter = new DefaultPolicyArbiter();
+			const policy: IDataspaceProtocolAgreement = {
+				"@context": OdrlContexts.Context,
+				"@type": OdrlPolicyType.Agreement,
+				assigner: "did:example:default-assigner",
+				assignee: "did:example:default-assignee",
+				"@id": "policy:datetime-lteq-bare-string-expired",
+				permission: [
+					{
+						constraint: [
+							{
+								leftOperand: OdrlLeftOperandType.DateTime,
+								operator: OdrlOperatorType.Lteq,
+								rightOperand: "2020-12-31T23:59:59Z"
+							}
+						]
+					}
+				]
+			};
+
+			const decisions = await arbiter.decide(policy, undefined, {});
+			expect(decisions[0].decision).toBe(PolicyDecision.Denied);
+		});
+
+		test("denies (fails closed) when the dateTime rightOperand is a malformed date string", async () => {
+			// Regression test: a Date on one side (the built-in "dateTime" leftOperand) means this can
+			// only be a date comparison. If the other side is a string that fails Date parsing (e.g.
+			// "31/12/2035", day/month/year order - genuinely Invalid Date in JS, not just non-ISO), the
+			// old code fell through to the numeric branch: Coerce.number(dateInstance) = epoch ms,
+			// Coerce.number("31/12/2035") = Number.parseFloat's prefix-truncated 31 - reproducing the
+			// exact epoch-ms-vs-truncated-number bug this whole guard exists to prevent (gteq always
+			// true, lteq always false, regardless of the real dates). Failing closed (deny) instead is
+			// strictly safer than a nonsensical comparison.
+			const arbiter = new DefaultPolicyArbiter();
+			const policy: IDataspaceProtocolAgreement = {
+				"@context": OdrlContexts.Context,
+				"@type": OdrlPolicyType.Agreement,
+				assigner: "did:example:default-assigner",
+				assignee: "did:example:default-assignee",
+				"@id": "policy:datetime-malformed-string",
+				permission: [
+					{
+						constraint: [
+							{
+								leftOperand: OdrlLeftOperandType.DateTime,
+								operator: OdrlOperatorType.Gteq,
+								rightOperand: "31/12/2035"
+							}
+						]
+					}
+				]
+			};
+
+			const decisions = await arbiter.decide(policy, undefined, {});
+			expect(decisions[0].decision).toBe(PolicyDecision.Denied);
+		});
 	});
 
 	describe("unsupported ODRL built-in left operands", () => {
@@ -5569,8 +5897,6 @@ describe("DefaultPolicyArbiter", () => {
 			const denied = await arbiter.decide(policy, { absoluteTemporalPosition: "t=0,30" }, {});
 			expect(denied[0].decision).toBe(PolicyDecision.Denied);
 		});
-
-		// ── Bug regression tests ───────────────────────────────────────────────────
 
 		test("neq correctly denies when ISO 8601 duration string matches xsd:duration right operand", async () => {
 			const arbiter = new DefaultPolicyArbiter();

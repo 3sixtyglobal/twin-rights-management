@@ -12,13 +12,15 @@
 			"certifications": ["FSA-Trusted-Notifier", "ISO27001"]
 		},
 		"pipContext": {
-			"resource": {
-				"destinationCountry": {
-					"countryId": "GB"
+			"resourceAttributes": {
+				"consignment": {
+					"destinationCountry": {
+						"countryId": "GB"
+					}
+				},
+				"latestDocument": {
+					"documentTypeCode": "unece:DocumentCodeList#853"
 				}
-			},
-			"payload": {
-				"documentTypeCode": "unece:DocumentCodeList#853"
 			}
 		}
 	},
@@ -56,14 +58,14 @@
 				{
 					"type": "PartyCollection.refinement",
 					"leftOperand": "twin:jsonPath",
-					"twin:jsonPathExpression": ".certifications",
-					"operator": "contains",
+					"twin:jsonPathExpression": "$.assigneeAttributes.certifications",
+					"operator": "isAnyOf",
 					"rightOperand": "FSA-Trusted-Notifier"
 				},
 				{
 					"type": "permission.constraint",
 					"leftOperand": "twin:jsonPath",
-					"twin:jsonPathExpression": ".resource.destinationCountry.countryId",
+					"twin:jsonPathExpression": "$.resourceAttributes.consignment.destinationCountry.countryId",
 					"operator": "eq",
 					"rightOperand": "GB"
 				}
@@ -74,7 +76,7 @@
 					"target": "https://my-ds-connectors.example.org/ds-connector-uk-fsa/notify",
 					"constraint": {
 						"leftOperand": "twin:jsonPath",
-						"twin:jsonPathExpression": ".payload.documentTypeCode",
+						"twin:jsonPathExpression": "$.resourceAttributes.latestDocument.documentTypeCode",
 						"operator": "eq",
 						"rightOperand": "unece:DocumentCodeList#853"
 					}

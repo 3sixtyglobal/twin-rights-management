@@ -2312,6 +2312,25 @@ export class DefaultPolicyArbiter implements IPolicyArbiter {
 		right: unknown,
 		compare: (a: number, b: number) => boolean
 	): boolean {
+		// A genuine Date instance (e.g. the built-in "dateTime" left operand, which resolves to
+		// new Date()) must always be compared as a date. Falling through to the generic numeric
+		// branch below is unsafe here: Coerce.number(dateInstance) returns its epoch millisecond
+		// timestamp, while Coerce.number(isoDateString) uses Number.parseFloat, which silently
+		// truncates at the first "-" and returns just the leading year (e.g. "2035-12-31..." -> 2035)
+		// - comparing an epoch millisecond timestamp against a bare 4-digit year is never meaningful.
+		if (Is.date(left) || Is.date(right)) {
+			const dateLeft = Coerce.dateTime(left);
+			const dateRight = Coerce.dateTime(right);
+			// A Date on one side means this can only be a date comparison - if the other side fails to
+			// coerce (e.g. a malformed date string), fail closed rather than falling through to the
+			// numeric branch below, which would reproduce the exact epoch-ms-vs-truncated-number bug
+			// this whole guard exists to prevent.
+			if (Is.undefined(dateLeft) || Is.undefined(dateRight)) {
+				return false;
+			}
+			return compare(dateLeft.getTime(), dateRight.getTime());
+		}
+
 		const leftNum = Coerce.number(left);
 		const rightNum = Coerce.number(right);
 		if (!Is.undefined(leftNum) && !Is.undefined(rightNum)) {

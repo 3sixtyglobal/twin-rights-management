@@ -155,7 +155,7 @@ const policy = await pap.getPolicy({
 ```typescript
 // INTERNAL PDP PROCESS (not application code):
 // PDP obtains assignee certifications from Federated Catalogue via PIP context
-// Using leftOperand: "twin:jsonPath", twin:jsonPathExpression: ".certifications"
+// Using leftOperand: "twin:jsonPath", twin:jsonPathExpression: "$.assigneeAttributes.certifications"
 const assigneeCerts = /* PIP provides from catalogue source */ ['FSA-Trusted-Notifier', 'ISO27001'];
 
 // Constraint: certifications must contain "FSA-Trusted-Notifier"
@@ -167,7 +167,7 @@ const certConstraint = assigneeCerts.includes('FSA-Trusted-Notifier'); // ✓ tr
 ```typescript
 // INTERNAL PDP PROCESS (not application code):
 // PDP obtains consignment destination country from resource attributes via PIP context
-// Using leftOperand: "twin:jsonPath", twin:jsonPathExpression: ".resource.destinationCountry.countryId"
+// Using leftOperand: "twin:jsonPath", twin:jsonPathExpression: "$.resourceAttributes.consignment.destinationCountry.countryId"
 const destinationCountry = /* PIP provides from resource source */ 'GB';
 
 // Constraint: destinationCountry equals "GB"
@@ -474,7 +474,7 @@ This pattern ensures:
 - `IOdrlConstraint` - PartyCollection refinement + geographic constraint + duty constraint
 - `IOdrlPartyCollection` - Refinement with certification requirement
 - Action: `"notify"` (notification permission), `"notifyThirdParty"` (duty action)
-- Custom extension: `twin:jsonPath` leftOperand with companion `twin:jsonPathExpression` property for nested property extraction (`.certifications`, `.resource.destinationCountry.countryId`, `.payload.documentTypeCode`)
+- Custom extension: `twin:jsonPath` leftOperand with companion `twin:jsonPathExpression` property for nested property extraction (`$.assigneeAttributes.certifications`, `$.resourceAttributes.consignment.destinationCountry.countryId`, `$.resourceAttributes.latestDocument.documentTypeCode` - each expression must start with `$`, the JSONPath root)
 
 ## Real-World Application
 

@@ -109,7 +109,7 @@ For this use case, we demonstrate application code calling PEP.
 - Orchestrates evaluation pipeline:
   1. Invoke PXP `before` actions (pre-evaluation hooks)
   2. Pass Agreement + PIP context to registered Arbiters
-  3. Arbiters evaluate PartyCollection refinement constraint (`.legalAddress.countryCode` eq "PL")
+  3. Arbiters evaluate PartyCollection refinement constraint (`$.assigneeAttributes.legalAddress.countryCode` eq "PL")
   4. Normalize and merge Arbiter decisions
   5. Invoke PXP `after` actions (telemetry, obligations)
   6. Return decision: **Permit** (country code matches) or **Deny** (doesn't match)
@@ -201,13 +201,13 @@ async function getDataResource(
 
 ### Successful Access (Country Code = "PL")
 
-- PDP evaluates constraint: `.legalAddress.countryCode` equals "PL" ✓
+- PDP evaluates constraint: `$.assigneeAttributes.legalAddress.countryCode` equals "PL" ✓
 - Decision: **Permit**
 - Enforcement: Grant read access to veterinary certificates
 
 ### Failed Access (Country Code ≠ "PL")
 
-- PDP evaluates constraint: `.legalAddress.countryCode` not equals "PL" ✗
+- PDP evaluates constraint: `$.assigneeAttributes.legalAddress.countryCode` not equals "PL" ✗
 - Decision: **Deny**
 - Enforcement: Access denied, no data returned
 
@@ -262,7 +262,7 @@ async function getDataResource(
 
 1. **ODRL Agreement Policy**: Bilateral policy with specific assigner and assignee pattern (PartyCollection)
 2. **PartyCollection with Refinement**: Filters assignees based on attributes rather than specific identities
-3. **JSON Path Selectors**: Custom ODRL extension using `"leftOperand": "twin:jsonPath"` with a companion `"twin:jsonPathExpression"` property for extracting nested attribute values (e.g., `".legalAddress.countryCode"`)
+3. **JSON Path Selectors**: Custom ODRL extension using `"leftOperand": "twin:jsonPath"` with a companion `"twin:jsonPathExpression"` property for extracting nested attribute values (e.g., `"$.assigneeAttributes.legalAddress.countryCode"` - the expression must start with `$`, the JSONPath root)
 4. **Geographic Constraints**: Country-based access control for cross-border data sharing
 5. **Simple Read Permission**: Grant/deny decision without data filtering or transformation
 
@@ -272,7 +272,6 @@ async function getDataResource(
 - `IOdrlPermission` - Permission rule
 - `IOdrlPartyCollection` - Filtered party collection
 - `IOdrlConstraint` - Refinement constraint with leftOperand, operator, rightOperand
-- Custom extension: `twin:jsonPathSelector` for property value extraction
 
 ## Real-World Application
 

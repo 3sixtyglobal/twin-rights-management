@@ -10,9 +10,14 @@
 	"evaluatedConstraints": [
 		{
 			"constraint": {
-				"leftOperand": "destinationCountry",
+				"leftOperand": "twin:jsonPath",
+				"twin:jsonPathExpression": "$.consignments[*].destinationCountry",
 				"operator": "eq",
-				"rightOperand": "assignee.countryCode"
+				"rightOperand": {
+					"@type": "twin:jsonPath",
+					"twin:jsonPathDataSource": "information",
+					"twin:jsonPathExpression": "$.assigneeAttributes.countryCode"
+				}
 			},
 			"description": "Filter consignments where destination country matches assignee country code",
 			"result": "satisfied"

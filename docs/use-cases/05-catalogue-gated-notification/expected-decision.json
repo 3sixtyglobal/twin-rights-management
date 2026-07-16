@@ -1,9 +1,9 @@
 {
 	"decision": "permit",
 	"appliedConstraints": [
-		"certification.contains:FSA-Trusted-Notifier",
-		"resource.destinationCountry.countryId:eq:GB",
-		"payload.documentTypeCode:eq:unece:DocumentCodeList#853"
+		"assigneeAttributes.certifications.isAnyOf:FSA-Trusted-Notifier",
+		"resourceAttributes.consignment.destinationCountry.countryId:eq:GB",
+		"resourceAttributes.latestDocument.documentTypeCode:eq:unece:DocumentCodeList#853"
 	],
 	"obligations": [
 		{
