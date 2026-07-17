@@ -147,7 +147,7 @@ The following architectural components are implemented and functional:
 | [UC2](./02-country-filtered-consignments/)         | Country Filtered Consignments           | `view`      | Consignment (asset class)                   | Data filtering, PIP integration, reduced datasets, **PEP data transformation**                             | Phase 2     |
 | [UC3](./03-specific-resource-inheritance/)         | Specific Resource Inheritance           | `read`      | CONS000001 (specific) + Consignment (class) | Policy inheritance, Set + Agreement, **PEP layered evaluation**                                            | Phase 2     |
 | [UC4](./04-multi-constraint-service-offering/)     | Multi-Constraint Service Offering       | `use`       | ServiceOffering                             | Multiple constraints (temporal + attribute), **PEP permission checks**                                     | Phase 2     |
-| [UC5](./05-catalogue-gated-notification/)          | Catalogue-Gated Notification            | `notify`    | NotificationService + Consignment           | ODRL duty clauses, Data Space Connector integration, Federated Catalogue, **PXP obligations**              | Phase 2     |
+| [UC5](./05-catalogue-gated-notification/)          | Catalogue-Gated Notification            | `use`       | NotificationService + Consignment           | ODRL duty clauses, Data Space Connector integration, Federated Catalogue, **duty enforcement**             | Phase 2     |
 | [UC6](./06-policy-negotiation-offer-to-agreement/) | Policy Negotiation - Offer to Agreement | N/A         | Offer → Agreement                           | **IDS Contract Negotiation**, PNP state machine, Negotiator evaluation, **Offer→Agreement transformation** | **Phase 1** |
 | [UC7](./07-policy-negotiation-direct-agreement/)   | Policy Negotiation - Direct Agreement   | N/A         | Offer → Agreement                           | **DSP 2025-1 REQUESTED→AGREED shortcut**, `directAgreement` signal, contrasts with UC6 full cycle          | **Phase 1** |
 
@@ -255,19 +255,20 @@ Expected PDP decision and enforcement result:
 
 **7. notification-trace.json** _(Optional for duty-based policies)_
 
-Trace of notification events and obligations for policies that include ODRL duty clauses:
+Trace of the notification delivery made to satisfy an ODRL duty clause:
 
 ```json
 {
-  "notificationSent": true,
-  "timestamp": "ISO 8601",
-  "targetEndpoint": "https://clearing-house.federated-catalogue.eu/notifications",
-  "status": "success | failure",
-  "dutyFulfilled": true
+  "notifyActivityRequest": {
+    "endpoint": "https://<duty-target-endpoint>",
+    "method": "POST",
+    "body": { "...": "Activity Streams payload delivered to the duty's target" }
+  },
+  "notes": "Notification is sent only when the PDP decision is permit and the duty is successfully enforced."
 }
 ```
 
-Used in UC5 (Catalogue-Gated Notification) to demonstrate duty-based policy enforcement where permissions come with obligations (e.g., notify a third party after receiving notification).
+Used in UC5 (Catalogue-Gated Notification) to trace the actual delivery to the duty's target endpoint (the assignee's own connector), which is what satisfies the attached duty for veterinary-certificate documents.
 
 **source-data.json** - Sample unfiltered data for view actions demonstrating PEP post-action transformation (used in UC2)
 
@@ -433,8 +434,9 @@ PMP (Policy Management Point)
 
 PDP (Policy Decision Point)
   ├─ Input: policy.json + pip-context.json
-  ├─ Evaluates: Constraints and duties
-  ├─ Internal: PXP for logging/obligation tracking (not called directly)
+  ├─ Evaluates: Constraints and duties (duties are enforced synchronously by the
+  │             Arbiter via a registered obligation enforcer, gating the decision)
+  ├─ Internal: PXP before/after decision interception (not involved in duty enforcement itself)
   └─ Output: expected-decision.json
 
 PIP (Policy Information Point)
@@ -442,10 +444,10 @@ PIP (Policy Information Point)
   ├─ Sources: Identity systems, Federated Catalogue, resource storage
   └─ Provides: Runtime facts for PDP evaluation
 
-PXP (Policy Execution Point) - Internal to PDP
-  ├─ Used by: PDP for internal logging and obligation tracking
-  ├─ Schedules: Obligation tracking with deadlines (as PDP annotations)
-  └─ Monitors: Duty fulfillment and compliance
+PXP (Policy Execution Point)
+  ├─ Used by: PDP for ordered before/after decision-computation interception
+  ├─ Provides: Telemetry, context enrichment, or short-circuiting around a decision
+  └─ Not involved in permission-duty enforcement (that happens inside the Arbiter itself)
 ```
 
 **Demonstrated in**: UC1-UC5 (all current use cases)
@@ -468,8 +470,7 @@ All policies conform to W3C ODRL 2.2 specification using TypeScript interfaces:
 
 - **read** - Simple read access with PEP pre-action authorization (grant/deny) - UC1, UC3
 - **view** - Read access with PEP post-action data filtering/reduction - UC2
-- **use** - Service usage permission check (no data operations) - UC4
-- **notify** - Notification delivery authorization with duty obligations - UC5
+- **use** - Service usage permission check (no data operations) - UC4, UC5 (UC5 also carries an attached duty clause enforced alongside the permission)
 
 ### Constraint Patterns
 
@@ -517,10 +518,10 @@ Without UC6, UC1-UC5 assume Agreements "magically exist" in PAP. UC6 shows where
 - ✅ ODRL duty clause patterns (permissions with obligations)
 - ✅ Data Space Connector integration with rights-managed notifications
 - ✅ Federated Catalogue certification-based authorization
-- ✅ PXP obligation tracking and compliance monitoring
+- ✅ Duty enforcement gated on the same permit decision via a registered obligation enforcer
 - ✅ Notification trace audit trails for duty fulfillment
 
-This use case prepares the framework for federated data space ecosystems with clearing house integration.
+This use case prepares the framework for federated data space ecosystems with document-type-scoped delivery obligations between connectors.
 
 ## Usage Guidelines
 

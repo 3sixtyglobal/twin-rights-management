@@ -1,7 +1,7 @@
 {
-	"$comment": "Policy Locator - Used by PMP to query PAP for matching Agreement policies. This is a notification authorization request (action='notify'), not a PNP negotiation request.",
+	"$comment": "Policy Locator - Used by PMP to query PAP for matching Agreement policies. This is a notification authorization request (action='use'), not a PNP negotiation request.",
 	"assetType": "NotificationService",
-	"action": "notify",
+	"action": "use",
 	"resourceId": "https://twin.example.org/services/vet-cert-notifications",
 	"requestingNodeIdentity": "did:iota:testnet:0xac534b750ac453d573a55954760af140f87358c7be9a18000a831c452c32f246"
 }

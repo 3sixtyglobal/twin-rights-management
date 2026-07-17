@@ -1,5 +1,5 @@
 ﻿{
-	"$comment": "PAP (Policy Administration Point) - Stored Agreement with ODRL duty clause. Shows notification permission with clearing house notification obligation.",
+	"$comment": "PAP (Policy Administration Point) - Stored Agreement with ODRL duty clause. Shows notification permission with a delivery obligation to the assignee's own connector endpoint, scoped to veterinary-certificate documents.",
 	"@context": [
 		"http://www.w3.org/ns/odrl.jsonld",
 		{
@@ -12,7 +12,7 @@
 	"description": "Permit veterinary certificate notifications to UK authority when certification and destination constraints are satisfied",
 	"permission": [
 		{
-			"action": "permission",
+			"action": "use",
 			"assignee": {
 				"@type": "PartyCollection",
 				"refinement": {
@@ -35,7 +35,7 @@
 				{
 					"action": {
 						"@type": "Action",
-						"rdf:value": "notify"
+						"rdf:value": "inform"
 					},
 					"target": "https://my-ds-connectors.example.org/ds-connector-uk-fsa/notify",
 					"constraint": [
@@ -59,22 +59,22 @@
 		"lastModified": "2025-09-15T08:00:00Z",
 		"indexedFields": {
 			"assigner": "did:iota:testnet:0xfcfa55894cab90504af7eaf38087addd5f77791a89bd3ebbe76d9c2b1a6ce567",
-			"action": "permission",
+			"action": "use",
 			"targetType": "ServiceOffering",
 			"targetUid": "https://twin.example.org/service-offerings/vet-cert-notification",
 			"assigneeType": "PartyCollection",
 			"hasDutyClause": true,
-			"dutyAction": "notify"
+			"dutyAction": "inform"
 		},
 		"policyLocatorHints": {
-			"lookupKey": "assigner:did:iota:testnet:0xfcfa55894cab90504af7eaf38087addd5f77791a89bd3ebbe76d9c2b1a6ce567:action:permission:target:service-offering",
+			"lookupKey": "assigner:did:iota:testnet:0xfcfa55894cab90504af7eaf38087addd5f77791a89bd3ebbe76d9c2b1a6ce567:action:use:target:service-offering",
 			"searchableConstraints": [
 				"assigneeAttributes.certifications",
 				"resourceAttributes.consignment.destinationCountry.countryId",
 				"resourceAttributes.latestDocument.documentTypeCode"
 			],
 			"requiresFederatedCatalogue": true,
-			"obligationTracking": "duty-notify-clearing-house"
+			"obligationTracking": "duty-inform-fsa-connector"
 		}
 	}
 }

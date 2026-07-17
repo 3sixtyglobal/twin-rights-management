@@ -7,7 +7,7 @@
 	],
 	"obligations": [
 		{
-			"type": "notify",
+			"type": "inform",
 			"target": "https://my-ds-connectors.example.org/ds-connector-uk-fsa/notify",
 			"payloadPreview": {
 				"consignmentGlobalId": "CONS-UK-00042",

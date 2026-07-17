@@ -11,7 +11,7 @@
 	"description": "Permit veterinary certificate notifications to UK authority when certification and destination constraints are satisfied",
 	"permission": [
 		{
-			"action": "permission",
+			"action": "use",
 			"assignee": {
 				"@type": "PartyCollection",
 				"refinement": {
@@ -34,7 +34,7 @@
 				{
 					"action": {
 						"@type": "Action",
-						"rdf:value": "notify"
+						"rdf:value": "inform"
 					},
 					"target": "https://my-ds-connectors.example.org/ds-connector-uk-fsa/notify",
 					"constraint": [

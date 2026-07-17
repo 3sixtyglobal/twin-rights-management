@@ -1,5 +1,5 @@
 ﻿{
-	"$comment": "PDP Decision Output - Permission with duty obligations. Shows notification authorization with clearing house notification requirement.",
+	"$comment": "PDP Decision Output - Permission with duty obligations. Shows notification authorization with a delivery obligation to the assignee's own connector endpoint, scoped to veterinary-certificate documents.",
 	"decision": "Permit",
 	"reasoning": "All constraints satisfied: certification verified, destination country matches, and document type constraint satisfied",
 	"appliedPolicy": {
@@ -41,7 +41,7 @@
 	],
 	"obligations": [
 		{
-			"action": "notify",
+			"action": "inform",
 			"target": "https://my-ds-connectors.example.org/ds-connector-uk-fsa/notify",
 			"constraint": {
 				"leftOperand": "twin:jsonPath",
@@ -65,7 +65,7 @@
 	],
 	"grantedPermissions": [
 		{
-			"action": "permission",
+			"action": "use",
 			"target": "$"
 		}
 	],

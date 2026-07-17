@@ -8,9 +8,9 @@ The Polish Veterinary Agency publishes veterinary certificates for consignments 
 
 1. The requesting connector proves specific certifications (FSA-Trusted-Notifier)
 2. The consignment destination country matches "GB"
-3. The consumer fulfills the duty obligation to notify a third-party clearing house
+3. The permission carries an attached duty: the Polish agency must actually deliver (`inform`) the notification to the FSA's own connector endpoint - checked and enforced as part of the same decision, and scoped to only apply when the document is specifically a veterinary certificate
 
-This use case demonstrates ODRL duty clauses, Data Space Connector integration, certification-based access, and notification obligations.
+This use case demonstrates ODRL duty clauses, Data Space Connector integration, certification-based access, and document-type-scoped duty enforcement.
 
 ## Prerequisites
 
@@ -24,7 +24,7 @@ For this scenario, the Polish Veterinary Agency has already created an Agreement
 
 - PartyCollection refinement (certification: FSA-Trusted-Notifier)
 - Geographic constraint (destination country: GB)
-- ODRL duty clause (obligation to notify clearing house after receiving notification)
+- ODRL duty clause (obligation on the assigner to deliver the notification to the FSA's connector endpoint, scoped to veterinary-certificate documents)
 
 ## Component Files
 
@@ -51,9 +51,9 @@ This use case includes the following component example files:
 
 - [`access-request.json`](./access-request.json) - Notification service access request
 
-**Duty Tracking**:
+**Notification Trace**:
 
-- [`notification-trace.json`](./notification-trace.json) - Activity Stream notification with duty fulfillment tracking
+- [`notification-trace.json`](./notification-trace.json) - Activity Stream record of the notification delivery that satisfies the attached duty
 
 **Legacy/Reference**:
 
@@ -85,14 +85,15 @@ The Agreement policy already exists in PAP through negotiation or administrative
 - Type: `IOdrlAgreement` (bilateral with UK FSA connector)
 - Assignee: `did:iota:testnet:0xac534b750ac453d573a55954760af140f87358c7be9a18000a831c452c32f246`
 - Target: Notification service (veterinary certificate events)
-- Action: `"notify"` (permission to receive notifications)
+- Action: `"use"` (permission to receive notifications)
 - Constraints:
   - **PartyCollection Refinement**: Assignee certifications must contain "FSA-Trusted-Notifier"
   - **Geographic Constraint**: Consignment destination country equals "GB"
 - Duty:
-  - **Obligation**: After receiving notification, assignee must notify clearing house endpoint
-  - **Action**: `"notifyThirdParty"`
-  - **Target**: `"https://clearing-house.federated-catalogue.eu/notifications"`
+  - **Obligation**: Assigner must actually deliver (`inform`) the notification to the FSA's own connector endpoint - the delivery itself is what satisfies the duty
+  - **Action**: `"inform"`
+  - **Target**: `"https://my-ds-connectors.example.org/ds-connector-uk-fsa/notify"`
+  - **Constraint**: Only applies when `documentTypeCode` equals `"unece:DocumentCodeList#853"` (veterinary certificates)
 
 ### Phase 2: Access Request and Evaluation (Runtime)
 
@@ -129,7 +130,7 @@ const authorizedSubscribers = await dsc.getAuthorizedNotificationRecipients({
 The application's integrated PMP constructs a Policy Locator for each potential subscriber:
 
 - **assetType**: `"NotificationService"`
-- **action**: `"notify"` (permission to receive notification)
+- **action**: `"use"` (permission to receive notification)
 - **assignee**: `did:iota:testnet:0xac534b750ac453d573a55954760af140f87358c7be9a18000a831c452c32f246` (UK FSA)
 - **resourceId**: `"https://twin.example.org/services/vet-cert-notifications"`
 
@@ -143,7 +144,7 @@ The PDP evaluates the Agreement policy with constraints and duty:
 // PMP queries PAP with Policy Locator
 const policy = await pap.getPolicy({
   assetType: 'NotificationService',
-  action: 'notify',
+  action: 'use',
   assignee: 'did:iota:testnet:0xac534b750ac453d573a55954760af140f87358c7be9a18000a831c452c32f246',
   resourceId: 'https://twin.example.org/services/vet-cert-notifications'
 });
@@ -174,35 +175,47 @@ const destinationCountry = /* PIP provides from resource source */ 'GB';
 const geoConstraint = destinationCountry === 'GB'; // ✓ true
 ```
 
-##### Step 4: Extract Duty Obligation
+##### Step 4: Enforce the Duty Obligation
 
 ```typescript
 // INTERNAL PDP PROCESS (not application code):
-// PDP extracts duty from permission for PXP scheduling
+// PDP extracts the duty attached to the permission and enforces it via a
+// registered obligation enforcer, as part of the same decision - not a
+// separately scheduled, best-effort follow-up
 const duty = policy.permission[0].duty[0];
 // {
-//   action: "notifyThirdParty",
-//   target: "https://clearing-house.federated-catalogue.eu/notifications",
-//   constraint: { event: "afterNotificationReceived" }
+//   action: { "@type": "Action", "rdf:value": "inform" },
+//   target: "https://my-ds-connectors.example.org/ds-connector-uk-fsa/notify",
+//   constraint: [{
+//     leftOperand: "twin:jsonPath",
+//     "twin:jsonPathExpression": "$.resourceAttributes.latestDocument.documentTypeCode",
+//     operator: "eq",
+//     rightOperand: "unece:DocumentCodeList#853"
+//   }]
 // }
+
+// The registered enforcer confirms delivery to the duty's target can be made
+// for this document type; if it can't, the whole permission is denied
+const dutyEnforced = await dutyObligationEnforcer.enforce(policy, duty, information);
 ```
 
 ##### Step 5: Combine Results
 
 ```typescript
 // INTERNAL PDP PROCESS (not application code):
-// All constraints satisfied + duty obligation identified
-const finalDecision = certConstraint && geoConstraint; // true
-// Result: Permit with duty obligation
+// All constraints satisfied and the duty successfully enforced
+const finalDecision = certConstraint && geoConstraint && dutyEnforced; // true
+// Result: Permit
 ```
 
-#### 4. Notification Delivery with Duty (PEP + DSC)
+#### 4. Notification Delivery (Duty Fulfilled by the Delivery Itself)
 
-The PEP authorizes notification delivery and tracks duty fulfillment:
+The PEP authorizes and performs notification delivery - for this policy, that delivery _is_ the duty fulfillment:
 
 ```typescript
 if (finalDecision) {
-  // Send notification to UK FSA connector
+  // Send notification to UK FSA connector - this delivery, to the duty's
+  // target endpoint, is what satisfies the duty for vet-cert documents
   await dsc.notifyActivity({
     to: 'did:iota:testnet:0xac534b750ac453d573a55954760af140f87358c7be9a18000a831c452c32f246',
     activity: {
@@ -214,46 +227,20 @@ if (finalDecision) {
     }
   });
 
-  // PDP internally tracks duty obligation via PXP (not called directly by application)
-  // PXP schedules duty monitoring with deadline: 2025-10-01T12:00:00Z (2 hours after notification)
+  // No separate deadline or downstream tracking is scheduled here - the
+  // duty's obligation enforcer already confirmed (in Step 4) that this
+  // delivery satisfies the duty, before the permission was granted
 }
-```
-
-#### 5. Duty Fulfillment (Consumer Obligation)
-
-The UK FSA connector fulfills the duty obligation:
-
-```typescript
-// UK FSA Data Space Connector receives notification
-dsc.onActivityReceived(async activity => {
-  // Process notification
-  await processVeterinaryCertificate(activity.object);
-
-  // Fulfill duty: notify clearing house
-  await http.post('https://clearing-house.federated-catalogue.eu/notifications', {
-    notificationId: activity.id,
-    receiver: 'did:iota:testnet:0xac534b750ac453d573a55954760af140f87358c7be9a18000a831c452c32f246',
-    timestamp: new Date().toISOString(),
-    eventType: 'VeterinaryCertificateReceived'
-  });
-
-  // Report duty fulfillment back to provider (optional)
-  await dsc.reportDutyFulfillment({
-    policyId: policy.uid,
-    dutyAction: 'notifyThirdParty',
-    completedAt: new Date().toISOString()
-  });
-});
 ```
 
 ## Expected Behavior
 
-### Successful Notification (All Constraints Satisfied + Duty Tracked)
+### Successful Notification (All Constraints Satisfied, Duty Enforced)
 
 - Certification constraint: FSA-Trusted-Notifier present ✓
 - Geographic constraint: Destination country = "GB" ✓
-- **Result**: Notification permitted and delivered
-- **Duty**: Consumer obligated to notify clearing house within 2 hours
+- Duty: delivery to the FSA's connector endpoint enforced for this vet-cert document ✓
+- **Result**: Notification permitted and delivered - the delivery itself satisfies the attached duty
 
 ### Failed Notification Scenarios
 
@@ -269,20 +256,19 @@ dsc.onActivityReceived(async activity => {
 - Geographic constraint: "FR" ≠ "GB" ✗
 - **Result**: Notification denied (not relevant for UK FSA)
 
-#### Scenario C: Duty Not Fulfilled
+#### Scenario C: Duty Cannot Be Enforced
 
-- Notification delivered ✓
-- Clearing house notification not sent within deadline ✗
-- **Result**: Duty violation recorded, potential policy revocation
+- Certification and geographic constraints satisfied ✓
+- The registered obligation enforcer(s) cannot confirm delivery to the duty's target for this document ✗ (with no enforcer registered at all, the arbiter fails loud with a `noObligationEnforcersRegistered` error instead of returning a decision)
+- **Result**: Permission denied - the duty gates the decision, so an unenforceable duty blocks the notification even though the other constraints passed
 
 ## Expected Outcome
 
-When the assignee provides valid certifications from the catalogue and the consignment's destination country equals `GB`, the PDP returns `permit` with duty obligation, enabling:
+When the assignee provides valid certifications from the catalogue, the consignment's destination country equals `GB`, and the attached duty is successfully enforced for this document type, the PDP returns `permit`, enabling:
 
 1. Release of the veterinary certificate metadata to the UK FSA connector
 2. Emission of notification via the Data Space Connector
-3. Tracking of duty obligation for clearing house notification
-4. Potential compliance monitoring and policy enforcement based on duty fulfillment
+3. Delivery to the duty's target endpoint, satisfying the attached obligation as part of the same decision
 
 ## PEP Integration (Data Space Connector Notification)
 
@@ -306,12 +292,12 @@ dsc.onActivityEmitted(async activity => {
     objectType: activity.object.type
   });
 
-  // Check each subscriber's authorization via PEP/PEP
+  // Check each subscriber's authorization via PEP
   for (const subscriber of subscribers) {
     const authorized = await dap.checkPermission({
       assetType: 'NotificationService',
       resourceId: 'https://twin.example.org/services/vet-cert-notifications',
-      action: 'notify',
+      action: 'use',
       credentials: {
         nodeIdentity: subscriber.identity,
         context: {
@@ -321,82 +307,37 @@ dsc.onActivityEmitted(async activity => {
     });
 
     if (authorized.permitted) {
-      // Send notification to authorized subscriber
+      // Send notification to authorized subscriber - this delivery is what
+      // satisfies the duty attached to the permission (see Step 4 above);
+      // checkPermission() above would already have returned permitted: false
+      // if the duty could not be enforced
       await dsc.notifyActivity({
         to: subscriber.identity,
         activity: activity
       });
-
-      // PDP internally tracks duty obligation via PXP if policy includes duty
-      // (PXP is not called directly by application - it's internal to PDP)
-      // Duty details are included in PDP decision annotations
     }
   }
 });
-```
-
-### Consumer Node Setup (UK FSA Data Space Connector)
-
-The UK FSA's Data Space Connector receives notifications and fulfills duties:
-
-```typescript
-import { ComponentFactory } from '@twin.org/framework';
-import type { IDataSpaceConnector } from '@twin.org/rights-management-models';
-
-// Initialize Data Space Connector
-const dsc = ComponentFactory.get<IDataSpaceConnector>('data-space-connector');
-
-// Handle incoming notifications
-dsc.onActivityReceived(async (activity, policyContext) => {
-  // Process veterinary certificate notification
-  await processVeterinaryCertificate(activity.object);
-
-  // Check if policy includes duty obligation
-  if (policyContext.duty) {
-    // Fulfill duty: notify clearing house
-    await fulfillDutyObligation(policyContext.duty);
-
-    // Report duty fulfillment (optional)
-    await dsc.reportDutyFulfillment({
-      policyId: policyContext.policyId,
-      dutyAction: policyContext.duty.action,
-      completedAt: new Date().toISOString()
-    });
-  }
-});
-
-async function fulfillDutyObligation(duty: IOdrlDuty): Promise<void> {
-  // Notify clearing house as required by duty
-  await http.post(duty.target, {
-    notificationId: activity.id,
-    receiver: dsc.identity,
-    timestamp: new Date().toISOString(),
-    eventType: 'VeterinaryCertificateReceived'
-  });
-}
 ```
 
 ### Notification Authorization Flow with Duty
 
 1. **Event Emission**: Polish agency's DSC emits Create activity for veterinary certificate
 2. **Subscriber Discovery**: Query Federated Catalogue for notification subscribers
-3. **Authorization Check**: For each subscriber, PEP/PEP evaluates Agreement policy:
+3. **Authorization Check**: For each subscriber, PEP evaluates Agreement policy:
    - PMP constructs Policy Locator
    - PAP returns Agreement with constraints + duty
    - PDP evaluates certification + geographic constraints
-   - PDP extracts duty obligation from policy
-4. **Notification Delivery**: If permitted, send notification to authorized subscribers
-5. **Duty Tracking**: PXP schedules duty obligation with deadline
-6. **Duty Fulfillment**: Consumer fulfills obligation (notify clearing house)
-7. **Compliance Monitoring**: Track duty fulfillment for policy enforcement
+   - PDP enforces the attached duty via a registered obligation enforcer
+4. **Notification Delivery**: If permitted (constraints satisfied and duty enforced), send notification to the authorized subscriber - this delivery is what satisfies the duty for vet-cert documents
 
 This pattern ensures:
 
 - **Certification-Based Authorization**: Only certified connectors receive notifications
 - **Geographic Filtering**: Notifications limited to relevant jurisdictions
-- **ODRL Duty Compliance**: Consumers obligated to fulfill third-party notification
+- **ODRL Duty Enforcement**: The provider's delivery to the duty's target is checked as part of the same permit decision, scoped to veterinary-certificate documents
 - **Federated Catalogue Integration**: Dynamic participant discovery and certification lookup
-- **Rights-Managed Automation**: Policy-driven notification distribution with obligation tracking
+- **Rights-Managed Automation**: Policy-driven notification distribution with duty enforcement
 
 ## Architecture Components Used
 
@@ -429,8 +370,8 @@ This pattern ensures:
 - Coordinates with PIP to obtain runtime context:
   - Assignee certifications from Federated Catalogue
   - Consignment destination country from resource attributes
-- Extracts duty obligation from permission for PXP scheduling
-- Returns permit decision with duty clause for PEP enforcement
+- Enforces the duty attached to the permission via a registered obligation enforcer, gating the permit decision
+- Returns a permit decision only if all constraints are satisfied and the duty is successfully enforced
 
 #### PIP (Policy Information Point)
 
@@ -443,55 +384,53 @@ This pattern ensures:
 
 #### PXP (Policy Execution Point)
 
-- Schedules duty obligations with deadlines
-- Tracks duty fulfillment status
-- Monitors compliance and reports violations
-- Integrated within application's notification delivery flow
+- Not directly involved in this use case's duty mechanism - the duty is enforced synchronously inside the Arbiter's own evaluation (`enforcePermissionDuties`/`enforceDuty`), not via PXP's before/after decision interception
+- Available for other cross-cutting concerns (telemetry, enrichment) around the same PDP decision, if registered
 
 #### PEP (Policy Enforcement Point)
 
-- Enforces permit decision for notification delivery
-- Coordinates with PXP to schedule duty obligations
+- Enforces the permit decision for notification delivery
+- Performs the actual notification delivery, which is also what satisfies the duty attached to the permission
 - Controls notification distribution to authorized subscribers
 - Integrated within Data Space Connector's activity flow
 
 ## Key Features Demonstrated
 
-1. **ODRL Duty Clauses**: Permission with attached obligation (notify third party)
+1. **ODRL Duty Clauses**: Permission with an attached duty (deliver notification to the FSA's connector endpoint, scoped to veterinary-certificate documents)
 2. **Data Space Connector Integration**: Notification service authorization pattern
 3. **Federated Catalogue Integration**: Dynamic certification lookup and participant discovery
 4. **PartyCollection Refinement**: Certification-based access control
 5. **Geographic Constraints**: Destination country filtering for notifications
-6. **Obligation Tracking**: PXP schedules and monitors duty fulfillment
-7. **Compliance Monitoring**: Track duty violations for policy enforcement
+6. **Duty Enforcement**: A registered obligation enforcer confirms delivery as part of the same permit decision
+7. **Document-Type Scoping**: The registered enforcer evaluates the duty's own constraint to limit when it applies, independent of the top-level permission constraints (the arbiter hands the whole duty to the enforcer rather than evaluating duty constraints itself)
 8. **Rights-Managed Automation**: Policy-driven notification distribution
 
 ## ODRL Standards Utilized
 
 - `IOdrlAgreement` - Bilateral agreement with duty clause
 - `IOdrlPermission` - Permission rule with attached duty
-- `IOdrlDuty` - Obligation to notify third party after receiving notification
+- `IOdrlDuty` - Obligation on the assigner to deliver (`inform`) the notification to the FSA's connector endpoint, scoped by a document-type constraint
 - `IOdrlConstraint` - PartyCollection refinement + geographic constraint + duty constraint
 - `IOdrlPartyCollection` - Refinement with certification requirement
-- Action: `"notify"` (notification permission), `"notifyThirdParty"` (duty action)
+- Action: `"use"` (notification permission), `"inform"` (duty action)
 - Custom extension: `twin:jsonPath` leftOperand with companion `twin:jsonPathExpression` property for nested property extraction (`$.assigneeAttributes.certifications`, `$.resourceAttributes.consignment.destinationCountry.countryId`, `$.resourceAttributes.latestDocument.documentTypeCode` - each expression must start with `$`, the JSONPath root)
 
 ## Real-World Application
 
 This pattern is commonly used in:
 
-- **Regulatory Compliance**: Government agencies with notification obligations to clearing houses
+- **Regulatory Compliance**: Government agencies with document-type-scoped delivery obligations to counterpart agencies
 - **Supply Chain Traceability**: Automated notifications with audit trail requirements
 - **Data Space Ecosystems**: Federated notification systems with certification-based access
-- **Multi-Party Workflows**: Notifications triggering third-party obligations
-- **Compliance Monitoring**: Track obligation fulfillment for policy enforcement
+- **Bilateral Data Space Agreements**: Duties attached directly to the permission between two connectors, enforced as part of the same decision rather than tracked separately
+- **Conditional Obligations**: Duties scoped to apply only for specific document types or attributes
 
 ## Testing Focus
 
 - Verify PartyCollection constraint with Federated Catalogue certification lookup
 - Test geographic constraint with consignment destination country filtering
-- Validate duty extraction from permission and PXP scheduling
+- Validate that duty enforcement gates the permit decision via a registered obligation enforcer
 - Ensure notification delivery only to authorized, certified participants
-- Test duty fulfillment tracking and compliance monitoring
-- Confirm notification-trace.json audit trail for duty compliance
+- Test that the duty's own constraint (document type) is evaluated independently of the top-level permission constraints
+- Confirm notification-trace.json audit trail reflects delivery to the duty's target
 - Verify Data Space Connector integration with rights management

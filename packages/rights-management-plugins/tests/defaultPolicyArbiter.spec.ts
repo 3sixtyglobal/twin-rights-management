@@ -436,7 +436,7 @@ describe("DefaultPolicyArbiter", () => {
 			// actually resolves the duty's twin:jsonPath constraint via the real JsonPathHelper, proving
 			// the "$" fix is meaningful for any real implementer, not just cosmetically correct.
 			registerObligationEnforcer(
-				"uc5-notify-enforcer",
+				"uc5-inform-enforcer",
 				async (enforcedPolicy, duty, information, ruleDataContext) => {
 					const dutyRecord = duty as unknown as {
 						constraint?: { "twin:jsonPathExpression"?: string; rightOperand?: unknown }[];
@@ -461,7 +461,7 @@ describe("DefaultPolicyArbiter", () => {
 				}
 			};
 
-			const granted = await arbiter.decide(policy, undefined, base, "permission");
+			const granted = await arbiter.decide(policy, undefined, base, "use");
 			expect(granted).toEqual([{ target: "$", decision: PolicyDecision.Granted }]);
 
 			// Each mismatch proves its own constraint is genuinely load-bearing, not vacuously true.
@@ -469,7 +469,7 @@ describe("DefaultPolicyArbiter", () => {
 				policy,
 				undefined,
 				{ ...base, assigneeAttributes: { certifications: ["ISO27001"] } },
-				"permission"
+				"use"
 			);
 			expect(wrongCertification).toEqual([{ target: "$", decision: PolicyDecision.Denied }]);
 
@@ -483,7 +483,7 @@ describe("DefaultPolicyArbiter", () => {
 						consignment: { destinationCountry: { countryId: "FR" } }
 					}
 				},
-				"permission"
+				"use"
 			);
 			expect(wrongCountry).toEqual([{ target: "$", decision: PolicyDecision.Denied }]);
 
@@ -497,7 +497,7 @@ describe("DefaultPolicyArbiter", () => {
 						latestDocument: { documentTypeCode: "unece:DocumentCodeList#002" }
 					}
 				},
-				"permission"
+				"use"
 			);
 			expect(wrongDocumentType).toEqual([{ target: "$", decision: PolicyDecision.Denied }]);
 		});
