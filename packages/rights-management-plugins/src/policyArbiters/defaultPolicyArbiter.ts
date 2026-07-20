@@ -2331,6 +2331,35 @@ export class DefaultPolicyArbiter implements IPolicyArbiter {
 			return compare(dateLeft.getTime(), dateRight.getTime());
 		}
 
+		// ISO date/datetime strings must be compared as dates; Coerce.number() silently
+		// truncates at the first "-" so same-year dates (e.g. "2025-06-01" vs "2025-12-31")
+		// both become 2025 and compare equal, masking the real chronological difference.
+		if (
+			Is.dateTimeString(left) ||
+			Is.dateString(left) ||
+			Is.dateTimeString(right) ||
+			Is.dateString(right)
+		) {
+			const dateLeft = Coerce.dateTime(left);
+			const dateRight = Coerce.dateTime(right);
+			if (Is.undefined(dateLeft) || Is.undefined(dateRight)) {
+				return false;
+			}
+			return compare(dateLeft.getTime(), dateRight.getTime());
+		}
+
+		// Time strings have the same truncation problem: Coerce.number("09:30:00") = 9,
+		// so same-hour times compare equal. Coerce.time normalises both sides to a
+		// 1970-01-01 base date for a meaningful time-of-day comparison.
+		if (Is.timeString(left) || Is.timeString(right)) {
+			const timeLeft = Coerce.time(left);
+			const timeRight = Coerce.time(right);
+			if (Is.undefined(timeLeft) || Is.undefined(timeRight)) {
+				return false;
+			}
+			return compare(timeLeft.getTime(), timeRight.getTime());
+		}
+
 		const leftNum = Coerce.number(left);
 		const rightNum = Coerce.number(right);
 		if (!Is.undefined(leftNum) && !Is.undefined(rightNum)) {

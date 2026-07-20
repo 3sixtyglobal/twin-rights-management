@@ -5772,6 +5772,65 @@ describe("DefaultPolicyArbiter", () => {
 			expect(denied[0].decision).toBe(PolicyDecision.Denied);
 		});
 
+		test("same-year ISO date strings compare chronologically, not as truncated year numbers", async () => {
+			// Regression: Coerce.number("2025-06-01") == Coerce.number("2025-12-31") == 2025
+			// because Number.parseFloat truncates at the first "-", making any two same-year
+			// dates compare as equal. The date-string guard must fire before the numeric branch.
+			const arbiter = new DefaultPolicyArbiter();
+			const gteqPolicy = makeAgreement(
+				"policy:event-date-string-gteq",
+				OdrlLeftOperandType.Event,
+				OdrlOperatorType.Gteq,
+				"2025-12-31"
+			);
+
+			// June 1 is NOT >= December 31 (same year)
+			const denied = await arbiter.decide(gteqPolicy, { event: "2025-06-01" }, {});
+			expect(denied[0].decision).toBe(PolicyDecision.Denied);
+
+			// December 31 IS >= June 1 (same year)
+			const granted = await arbiter.decide(gteqPolicy, { event: "2025-12-31" }, {});
+			expect(granted[0].decision).toBe(PolicyDecision.Granted);
+		});
+
+		test("same-year ISO datetime strings compare chronologically with lt", async () => {
+			const arbiter = new DefaultPolicyArbiter();
+			const policy = makeAgreement(
+				"policy:event-datetime-string-lt",
+				OdrlLeftOperandType.Event,
+				OdrlOperatorType.Lt,
+				"2025-12-31T23:59:59Z"
+			);
+
+			// June 1 IS < December 31 (same year)
+			const granted = await arbiter.decide(policy, { event: "2025-06-01T00:00:00Z" }, {});
+			expect(granted[0].decision).toBe(PolicyDecision.Granted);
+
+			// December 31 is NOT < June 1 (same year)
+			const denied = await arbiter.decide(policy, { event: "2025-12-31T23:59:59Z" }, {});
+			expect(denied[0].decision).toBe(PolicyDecision.Denied);
+		});
+
+		test("same-hour ISO time strings compare chronologically, not as truncated hour numbers", async () => {
+			// Regression: Coerce.number("09:30:00") == Coerce.number("09:45:00") == 9
+			// because Number.parseFloat truncates at the first ":".
+			const arbiter = new DefaultPolicyArbiter();
+			const policy = makeAgreement(
+				"policy:event-time-string-lt",
+				OdrlLeftOperandType.Event,
+				OdrlOperatorType.Lt,
+				"09:45:00"
+			);
+
+			// 09:30 IS < 09:45 (same hour)
+			const granted = await arbiter.decide(policy, { event: "09:30:00" }, {});
+			expect(granted[0].decision).toBe(PolicyDecision.Granted);
+
+			// 09:45 is NOT < 09:30 (same hour)
+			const denied = await arbiter.decide(policy, { event: "09:45:00" }, {});
+			expect(denied[0].decision).toBe(PolicyDecision.Denied);
+		});
+
 		// ── Duration operands ─────────────────────────────────────────────────────
 		// Spec: delayPeriod (eq/gt/gteq), elapsedTime (eq/lt/lteq),
 		//       meteredTime (eq/lt/lteq), timeInterval (eq only) — all xsd:duration.
