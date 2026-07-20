@@ -2246,6 +2246,135 @@ describe("DefaultPolicyArbiter", () => {
 		);
 	});
 
+	test("grants when an untargeted permission inherits a plain policy-level asset target", async () => {
+		const arbiter = new DefaultPolicyArbiter();
+		const policy: IDataspaceProtocolAgreement = {
+			"@context": OdrlContexts.Context,
+			"@type": OdrlPolicyType.Agreement,
+			assigner: "did:example:default-assigner",
+			assignee: "did:example:default-assignee",
+			"@id": "policy:negotiated-asset-target",
+			target: "https://provider.example.com/datasets/asset-1",
+			permission: [{ action: "read" }]
+		};
+
+		const decisions = await arbiter.decide(policy, undefined, { any: "data" });
+		expect(decisions).toEqual([{ target: "$", decision: PolicyDecision.Granted }]);
+	});
+
+	test("keeps target-scoped denial when the policy has a plain asset target and the prohibition uses twin:jsonPath", async () => {
+		const arbiter = new DefaultPolicyArbiter();
+		const policy: IDataspaceProtocolAgreement = {
+			"@context": OdrlContexts.Context,
+			"@type": OdrlPolicyType.Agreement,
+			assigner: "did:example:default-assigner",
+			assignee: "did:example:default-assignee",
+			"@id": "policy:negotiated-asset-target-prohibition",
+			target: "https://provider.example.com/datasets/asset-1",
+			permission: [{ action: "read" }],
+			prohibition: [
+				{
+					action: "read",
+					target: { "@type": "twin:jsonPath", "twin:jsonPathExpression": "$.secret" }
+				}
+			]
+		};
+
+		const decisions = await arbiter.decide(policy, undefined, { secret: "value", other: "data" });
+		expect(decisions).toEqual([
+			{ target: "$", decision: PolicyDecision.Granted },
+			{ target: "$.secret", decision: PolicyDecision.Denied }
+		]);
+	});
+
+	test("grants when a rule target explicitly equals the plain policy-level asset target", async () => {
+		const arbiter = new DefaultPolicyArbiter();
+		const policy: IDataspaceProtocolAgreement = {
+			"@context": OdrlContexts.Context,
+			"@type": OdrlPolicyType.Agreement,
+			assigner: "did:example:default-assigner",
+			assignee: "did:example:default-assignee",
+			"@id": "policy:explicit-asset-target",
+			target: "https://provider.example.com/datasets/asset-1",
+			permission: [{ action: "read", target: "https://provider.example.com/datasets/asset-1" }]
+		};
+
+		const decisions = await arbiter.decide(policy, undefined, { any: "data" });
+		expect(decisions).toEqual([{ target: "$", decision: PolicyDecision.Granted }]);
+	});
+
+	test("still throws when a rule target is a plain id different from the policy-level target", async () => {
+		const arbiter = new DefaultPolicyArbiter();
+		const policy: IDataspaceProtocolAgreement = {
+			"@context": OdrlContexts.Context,
+			"@type": OdrlPolicyType.Agreement,
+			assigner: "did:example:default-assigner",
+			assignee: "did:example:default-assignee",
+			"@id": "policy:foreign-asset-target",
+			target: "https://provider.example.com/datasets/asset-1",
+			permission: [{ action: "read", target: "https://provider.example.com/datasets/other" }]
+		};
+
+		await expect(arbiter.decide(policy, undefined, { any: "data" })).rejects.toThrow(
+			"ruleTargetNotSupported"
+		);
+	});
+
+	test("keeps jsonPath scoping when a string-form twin:jsonPath policy-level target is inherited", async () => {
+		const arbiter = new DefaultPolicyArbiter();
+		const policy: IDataspaceProtocolAgreement = {
+			"@context": OdrlContexts.Context,
+			"@type": OdrlPolicyType.Agreement,
+			assigner: "did:example:default-assigner",
+			assignee: "did:example:default-assignee",
+			"@id": "policy:jsonpath-policy-target",
+			target: "twin:jsonPath:$.items",
+			permission: [{ action: "read" }]
+		};
+
+		const decisions = await arbiter.decide(policy, undefined, { items: [{ id: "a" }] });
+		expect(decisions).toEqual([{ target: "$.items", decision: PolicyDecision.Granted }]);
+	});
+
+	test("evaluates an obligation inheriting a plain policy-level asset target", async () => {
+		registerObligationEnforcer("asset-target-obligation-enforcer", vi.fn().mockResolvedValue(true));
+
+		const arbiter = new DefaultPolicyArbiter();
+		const policy: IDataspaceProtocolAgreement = {
+			"@context": OdrlContexts.Context,
+			"@type": OdrlPolicyType.Agreement,
+			assigner: "did:example:default-assigner",
+			assignee: "did:example:default-assignee",
+			"@id": "policy:negotiated-asset-target-obligation",
+			target: "https://provider.example.com/datasets/asset-1",
+			permission: [{ action: "read" }],
+			obligation: [{ action: "compensate" }]
+		};
+
+		const decisions = await arbiter.decide(policy, undefined, { any: "data" });
+		expect(decisions).toEqual([{ target: "$", decision: PolicyDecision.Granted }]);
+	});
+
+	test("grants and denies by action when untargeted rules inherit a plain policy-level asset target", async () => {
+		const arbiter = new DefaultPolicyArbiter();
+		const policy: IDataspaceProtocolAgreement = {
+			"@context": OdrlContexts.Context,
+			"@type": OdrlPolicyType.Agreement,
+			assigner: "did:example:default-assigner",
+			assignee: "did:example:default-assignee",
+			"@id": "policy:negotiated-action-only-rules",
+			target: "https://provider.example.com/datasets/asset-1",
+			permission: [{ action: "read" }],
+			prohibition: [{ action: "delete" }]
+		};
+
+		const readDecisions = await arbiter.decide(policy, undefined, { any: "data" }, "read");
+		expect(readDecisions).toEqual([{ target: "$", decision: PolicyDecision.Granted }]);
+
+		const deleteDecisions = await arbiter.decide(policy, undefined, { any: "data" }, "delete");
+		expect(deleteDecisions).toEqual([{ target: "$", decision: PolicyDecision.Denied }]);
+	});
+
 	test("returns target-scoped denial when prohibition target uses twin:jsonPath", async () => {
 		const arbiter = new DefaultPolicyArbiter();
 		const policy: IDataspaceProtocolAgreement = {

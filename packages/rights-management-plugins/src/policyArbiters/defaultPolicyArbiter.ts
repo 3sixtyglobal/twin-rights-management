@@ -236,6 +236,7 @@ export class DefaultPolicyArbiter implements IPolicyArbiter {
 		// Extract agreement parties once for use in rule evaluation
 		const agreementAssigner = OdrlPolicyHelper.getPartyIds(agreement.assigner);
 		const agreementAssignee = OdrlPolicyHelper.getPartyIds(agreement.assignee);
+		const policyTargetId = this.tryGetPolicyAssetTargetId(expandedPolicy);
 		const obligationsFulfilled = await this.evaluatePolicyObligations(
 			agreementAssigner,
 			agreementAssignee,
@@ -261,7 +262,11 @@ export class DefaultPolicyArbiter implements IPolicyArbiter {
 
 		const permissions = ArrayHelper.fromObjectOrArray(expandedPolicy.permission ?? []);
 		for (const permission of permissions) {
-			const decisionTargets = this.resolveRuleDecisionTargets(permission, dataSources);
+			const decisionTargets = this.resolveRuleDecisionTargets(
+				permission,
+				dataSources,
+				policyTargetId
+			);
 			for (const decisionTarget of decisionTargets) {
 				const state = this.getOrCreateTargetState(targetStates, decisionTarget.target);
 				if (
@@ -285,7 +290,11 @@ export class DefaultPolicyArbiter implements IPolicyArbiter {
 			expandedPolicy.prohibition ?? []
 		);
 		for (const prohibition of prohibitions) {
-			const decisionTargets = this.resolveRuleDecisionTargets(prohibition, dataSources);
+			const decisionTargets = this.resolveRuleDecisionTargets(
+				prohibition,
+				dataSources,
+				policyTargetId
+			);
 			for (const decisionTarget of decisionTargets) {
 				if (
 					await this.evaluateProhibition(
@@ -518,7 +527,8 @@ export class DefaultPolicyArbiter implements IPolicyArbiter {
 				decisionTarget
 			),
 			dataSources,
-			true
+			true,
+			this.tryGetPolicyAssetTargetId(policy)
 		);
 		const ruleDataContext = prohibitionTargetLookup.value;
 
@@ -593,11 +603,13 @@ export class DefaultPolicyArbiter implements IPolicyArbiter {
 			return true;
 		}
 
-		const { refinements } = this.resolveRuleTarget(obligation, dataSources);
+		const policyTargetId = this.tryGetPolicyAssetTargetId(policy);
+		const { refinements } = this.resolveRuleTarget(obligation, dataSources, policyTargetId);
 		const obligationTargetLookup = this.tryResolveTargetDataSource(
 			this.getTargetId(obligation.target),
 			dataSources,
-			true
+			true,
+			policyTargetId
 		);
 		const ruleDataContext = obligationTargetLookup.value;
 		const constraints = [
@@ -1149,7 +1161,8 @@ export class DefaultPolicyArbiter implements IPolicyArbiter {
 				decisionTarget
 			),
 			dataSources,
-			true
+			true,
+			this.tryGetPolicyAssetTargetId(policy)
 		);
 		const ruleDataContext = permissionTargetLookup.value;
 		if (constraints.length === 0) {
@@ -1246,6 +1259,7 @@ export class DefaultPolicyArbiter implements IPolicyArbiter {
 	 * @param targetId The target identifier to resolve.
 	 * @param dataSources The available lookup sources.
 	 * @param resolveValue True to resolve an item from the target path/key.
+	 * @param policyTargetId The policy-level asset target id, a rule target equal to it scopes to the whole payload.
 	 * @returns The matching prefix, source, remaining target and optional resolved value.
 	 * @throws GeneralError if the target identifier does not match any datasource prefix.
 	 * @internal
@@ -1253,7 +1267,8 @@ export class DefaultPolicyArbiter implements IPolicyArbiter {
 	private tryResolveTargetDataSource(
 		targetId: string | undefined,
 		dataSources: { [source: string]: unknown },
-		resolveValue: boolean = false
+		resolveValue: boolean = false,
+		policyTargetId?: string
 	): { source: unknown; target: string; value?: unknown } {
 		// If there is no target id, default to the data datasource
 		if (Is.empty(targetId)) {
@@ -1280,6 +1295,18 @@ export class DefaultPolicyArbiter implements IPolicyArbiter {
 		if (matchingKey) {
 			const expression = targetId.slice(matchingKey.length + 1);
 			return this.resolveDataSourceByKey(matchingKey, expression, dataSources, resolveValue);
+		}
+
+		// A rule target equal to the policy-level asset id means the whole asset under
+		// evaluation, i.e. the entire data payload (negotiated agreements put the dataset
+		// id as the policy target and untargeted rules inherit it). Kept at the fallthrough
+		// so grammar-resolvable forms keep their scoping and unrelated asset ids still throw.
+		if (Is.stringValue(policyTargetId) && targetId === policyTargetId) {
+			return {
+				source: dataSources[DefaultPolicyArbiter._DATA_SOURCE_KEY],
+				target: "$",
+				value: dataSources[DefaultPolicyArbiter._DATA_SOURCE_KEY]
+			};
 		}
 
 		throw new GeneralError(DefaultPolicyArbiter.CLASS_NAME, "ruleTargetNotSupported", {
@@ -1375,6 +1402,28 @@ export class DefaultPolicyArbiter implements IPolicyArbiter {
 	}
 
 	/**
+	 * Get the policy-level target id when it is a single plain asset reference.
+	 * Returns undefined for absent, multiple, or twin:jsonPath targets, never throws.
+	 * @param policy The policy to read the target from.
+	 * @returns The asset id, or undefined when the policy target is not a single plain asset.
+	 * @internal
+	 */
+	private tryGetPolicyAssetTargetId(policy: IRightsManagementPolicy): string | undefined {
+		const arr = ArrayHelper.fromObjectOrArray(policy.target ?? []);
+		if (arr.length !== 1) {
+			return undefined;
+		}
+		const first = arr[0];
+		if (Is.string(first)) {
+			return first;
+		}
+		if (this.isTwinJsonPathTarget(first)) {
+			return undefined;
+		}
+		return OdrlPolicyHelper.getUid(first);
+	}
+
+	/**
 	 * Resolve the target identifier used for rule data context lookup.
 	 * For AssetCollection targets the `source` property is used because the collection has no `uid`.
 	 * Falls back to `getTargetId` for all other target forms.
@@ -1440,13 +1489,16 @@ export class DefaultPolicyArbiter implements IPolicyArbiter {
 	 * For AssetCollection targets, `source` is treated as the decision target and `refinement`
 	 * constraints are applied as additional rule constraints.
 	 * @param rule The rule to resolve the target for.
+	 * @param dataSources The operand lookup sources.
+	 * @param policyTargetId The policy-level asset target id, a rule target equal to it scopes to the whole payload.
 	 * @returns The decision target and target refinements.
 	 * @throws GeneralError if target is invalid or unsupported.
 	 * @internal
 	 */
 	private resolveRuleTarget(
 		rule: IOdrlRule,
-		dataSources: { [source: string]: unknown }
+		dataSources: { [source: string]: unknown },
+		policyTargetId?: string
 	): {
 		target: string;
 		refinements: (IOdrlConstraint | IOdrlLogicalConstraint)[];
@@ -1542,7 +1594,12 @@ export class DefaultPolicyArbiter implements IPolicyArbiter {
 			});
 		}
 
-		const targetLookup = this.tryResolveTargetDataSource(targetId, dataSources);
+		const targetLookup = this.tryResolveTargetDataSource(
+			targetId,
+			dataSources,
+			false,
+			policyTargetId
+		);
 
 		return {
 			target: targetLookup.target,
@@ -1555,17 +1612,19 @@ export class DefaultPolicyArbiter implements IPolicyArbiter {
 	 * AssetCollection wildcard targets with refinements are expanded to per-item targets.
 	 * @param rule The rule being evaluated.
 	 * @param dataSources The operand lookup sources.
+	 * @param policyTargetId The policy-level asset target id, a rule target equal to it scopes to the whole payload.
 	 * @returns The decision targets and scoped refinements.
 	 * @internal
 	 */
 	private resolveRuleDecisionTargets(
 		rule: IOdrlRule,
-		dataSources: { [source: string]: unknown }
+		dataSources: { [source: string]: unknown },
+		policyTargetId?: string
 	): {
 		target: string;
 		refinements: (IOdrlConstraint | IOdrlLogicalConstraint)[];
 	}[] {
-		const resolvedTarget = this.resolveRuleTarget(rule, dataSources);
+		const resolvedTarget = this.resolveRuleTarget(rule, dataSources, policyTargetId);
 
 		if (!this.shouldExpandToPerItemTargets(rule, resolvedTarget)) {
 			return [resolvedTarget];
