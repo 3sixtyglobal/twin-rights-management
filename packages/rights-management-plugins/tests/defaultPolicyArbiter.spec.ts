@@ -35,6 +35,7 @@ import {
 	type IOdrlLogicalConstraint
 } from "@twin.org/standards-w3c-odrl";
 import { DefaultPolicyArbiter } from "../src/policyArbiters/defaultPolicyArbiter.js";
+import { DefaultPolicyEnforcementProcessor } from "../src/policyEnforcementProcessor/defaultPolicyEnforcementProcessor.js";
 
 declare module "@twin.org/standards-w3c-odrl" {
 	interface IOdrlConstraint {
@@ -3752,6 +3753,85 @@ describe("DefaultPolicyArbiter", () => {
 			await expect(arbiter.decide(policy, undefined, { items: [{ type: "A" }] })).rejects.toThrow(
 				"assetCollectionSourceNotSupported"
 			);
+		});
+
+		test("arbiter+enforcement pipeline preserves root JSON-LD fields when array is filtered by refinement (issue #233 regression)", async () => {
+			// Reproduces the scenario reported in issue #233: the enforcement processor was
+			// stripping root-level @context/@type when the policy targeted a nested array via
+			// AssetCollection + refinement. The arbiter emits only per-item decisions (no root
+			// Denied "$") so this test also covers the gap where the existing "preserves
+			// JSON-LD envelope fields" unit test in defaultPolicyEnforcementProcessor.spec.ts
+			// used an artificial Denied "$" as its first decision.
+			const arbiter = new DefaultPolicyArbiter();
+			const processor = new DefaultPolicyEnforcementProcessor();
+
+			const policy: IDataspaceProtocolAgreement = {
+				"@context": OdrlContexts.Context,
+				"@type": OdrlPolicyType.Agreement,
+				"@id": "policy:issue-233-regression",
+				assigner: "did:example:assigner",
+				assignee: "did:example:assignee",
+				permission: [
+					{
+						action: "read",
+						target: {
+							"@type": "AssetCollection",
+							source: "twin:jsonPath",
+							"twin:jsonPathExpression": "$.itemList.itemListElement[*]",
+							refinement: {
+								leftOperand: "twin:jsonPath",
+								"twin:jsonPathExpression":
+									"$.itemList.itemListElement[*].destinationCountry.countryId",
+								operator: OdrlOperatorType.Eq,
+								rightOperand: "unece:CountryId#GB"
+							}
+						}
+					}
+				]
+			};
+
+			const sourceData = {
+				"@context": "https://schema.org",
+				"@type": "ItemList",
+				"@id": "urn:list:1",
+				type: "ItemList",
+				itemList: {
+					itemListElement: [
+						{ id: "item-1", destinationCountry: { countryId: "unece:CountryId#GB" } },
+						{ id: "item-2", destinationCountry: { countryId: "unece:CountryId#DE" } },
+						{ id: "item-3", destinationCountry: { countryId: "unece:CountryId#GB" } }
+					]
+				}
+			};
+
+			const decisions = await arbiter.decide(policy, undefined, sourceData);
+
+			// Arbiter should emit only per-item decisions — NO Denied "$"
+			expect(decisions).toHaveLength(3);
+			expect(decisions).toEqual(
+				expect.arrayContaining([
+					{ target: "$.itemList.itemListElement[0]", decision: PolicyDecision.Granted },
+					{ target: "$.itemList.itemListElement[1]", decision: PolicyDecision.Denied },
+					{ target: "$.itemList.itemListElement[2]", decision: PolicyDecision.Granted }
+				])
+			);
+			expect(decisions.every(d => d.target !== "$")).toBe(true);
+
+			const result = await processor.process(policy, decisions, sourceData);
+
+			// Root JSON-LD structural keys must survive array filtering
+			expect(result).toMatchObject({
+				"@context": "https://schema.org",
+				"@type": "ItemList",
+				"@id": "urn:list:1",
+				type: "ItemList",
+				itemList: {
+					itemListElement: [
+						{ id: "item-1", destinationCountry: { countryId: "unece:CountryId#GB" } },
+						{ id: "item-3", destinationCountry: { countryId: "unece:CountryId#GB" } }
+					]
+				}
+			});
 		});
 	});
 

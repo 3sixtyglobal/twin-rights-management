@@ -445,6 +445,46 @@ describe("DefaultPolicyEnforcementProcessor", () => {
 		});
 	});
 
+	test("preserves JSON-LD envelope fields when arbiter emits per-element decisions only (no root deny-all)", async () => {
+		const processor = new DefaultPolicyEnforcementProcessor();
+		const data = {
+			"@context": "https://schema.org",
+			"@type": "ItemList",
+			"@id": "urn:list:1",
+			type: "ItemList",
+			itemList: {
+				itemListElement: [
+					{ id: "a", countryId: "GB" },
+					{ id: "b", countryId: "DE" },
+					{ id: "c", countryId: "GB" }
+				]
+			}
+		};
+
+		const result = await processor.process(
+			createPolicy(),
+			[
+				{ decision: PolicyDecision.Granted, target: "$.itemList.itemListElement[0]" },
+				{ decision: PolicyDecision.Denied, target: "$.itemList.itemListElement[1]" },
+				{ decision: PolicyDecision.Granted, target: "$.itemList.itemListElement[2]" }
+			] as IPolicyDecision[],
+			data
+		);
+
+		expect(result).toMatchObject({
+			"@context": "https://schema.org",
+			"@type": "ItemList",
+			"@id": "urn:list:1",
+			type: "ItemList",
+			itemList: {
+				itemListElement: [
+					{ id: "a", countryId: "GB" },
+					{ id: "c", countryId: "GB" }
+				]
+			}
+		});
+	});
+
 	test("does not overwrite output envelope fields already written by a grant decision", async () => {
 		const processor = new DefaultPolicyEnforcementProcessor();
 		const data = {
