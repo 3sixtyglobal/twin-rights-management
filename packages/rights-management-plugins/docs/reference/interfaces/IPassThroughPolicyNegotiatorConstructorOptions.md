@@ -12,8 +12,8 @@ The logging component for policy negotiator.
 
 ***
 
-### directAgreement? {#directagreement}
+### config? {#config}
 
-> `optional` **directAgreement?**: `boolean`
+> `optional` **config?**: [`IPassThroughPolicyNegotiatorConfig`](IPassThroughPolicyNegotiatorConfig.md)
 
-Signal directAgreement (skip OFFERED/ACCEPTED) on handleOffer(); default true. Set false to keep the full negotiation cycle, e.g. during a staged rollout where counterparties may not yet accept a direct REQUESTED -> AGREED transition.
+The configuration options for the pass through policy negotiator.
