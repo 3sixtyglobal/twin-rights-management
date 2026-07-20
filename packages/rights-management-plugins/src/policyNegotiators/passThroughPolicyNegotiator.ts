@@ -44,7 +44,7 @@ export class PassThroughPolicyNegotiator implements IPolicyNegotiator {
 	 */
 	constructor(options?: IPassThroughPolicyNegotiatorConstructorOptions) {
 		this._logging = ComponentFactory.getIfExists<ILoggingComponent>(options?.loggingComponentType);
-		this._directAgreement = options?.directAgreement ?? true;
+		this._directAgreement = options?.config?.directAgreement ?? false;
 	}
 
 	/**

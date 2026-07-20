@@ -12,6 +12,7 @@ export * from "./models/ILoggingPolicyExecutionActionConfig.js";
 export * from "./models/ILoggingPolicyExecutionActionConstructorOptions.js";
 export * from "./models/IPassThroughPolicyArbiterConstructorOptions.js";
 export * from "./models/IPassThroughPolicyEnforcementProcessorConstructorOptions.js";
+export * from "./models/IPassThroughPolicyNegotiatorConfig.js";
 export * from "./models/IPassThroughPolicyNegotiatorConstructorOptions.js";
 export * from "./models/IPassThroughPolicyObligationEnforcerConstructorOptions.js";
 export * from "./models/IPassThroughPolicyRequesterConstructorOptions.js";
