@@ -1514,6 +1514,13 @@ export class DefaultPolicyArbiter implements IPolicyArbiter {
 				Is.object<IOdrlAssetCollection>(firstTarget) &&
 				OdrlPolicyHelper.getType(firstTarget) === OdrlTypes.AssetCollection
 			) {
+				if (!Is.stringValue(firstTarget.source)) {
+					return {
+						target: "$",
+						refinements: ArrayHelper.fromObjectOrArray(firstTarget.refinement ?? [])
+					};
+				}
+
 				if (firstTarget.source !== OdrlTwinVocabulary.JsonPath) {
 					throw new GeneralError(
 						DefaultPolicyArbiter.CLASS_NAME,

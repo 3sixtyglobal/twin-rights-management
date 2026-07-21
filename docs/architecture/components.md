@@ -150,6 +150,16 @@ A rule's `assigner`/`assignee` may be a plain party id, a `Party` object with a 
 - A `PartyCollection` **with a `source`** (member ids resolved from an external source at decision time) is **not supported** and the Arbiter throws `partyCollectionSourceNotSupported`. This is a deliberate, permanent limitation, not a gap pending a future fix — resolving collection membership from an external source at decision time is a materially larger capability (network lookups inside the Arbiter) that no current deployment requires.
 - This applies identically to permissions, prohibitions, and obligations, and to both `assigner` and `assignee`.
 
+### Asset Scoping (AssetCollection Refinements)
+
+A rule's `target` may be a plain asset id, an `Asset` object, or an ODRL `AssetCollection` scoping the rule to a set of member assets instead of a single fixed one. The default Arbiter supports it as follows, mirroring the `PartyCollection` pattern above where noted:
+
+- An `AssetCollection` **with `source: "twin:jsonPath"`**: the collection's `twin:jsonPathExpression` is resolved as a wildcard path (typically ending in `[*]`) over the data source, and a `refinement` (if present) is applied per-member, expanding to independent per-item decisions. This is the original, longer-standing mechanism (used by, e.g., `docs/use-cases/02-country-filtered-consignments`).
+- An `AssetCollection` **with no `source`** but **with a `refinement`**: the collection contributes no wildcard expansion — the target resolves to `"$"` (the whole decision payload), and the `refinement` is applied as an ordinary rule-level constraint against the same datasources used for other rule constraints, mirroring how a source-less `PartyCollection` contributes refinements without ids. This is not a per-item mechanism; there is no array to iterate without a `twin:jsonPath` source, so `shouldExpandToPerItemTargets()` never triggers for this shape.
+- An `AssetCollection` with **neither `source` nor `refinement`**: also resolves to `"$"`. Unlike the equivalent `PartyCollection` case above, which stays fail-closed and denies on an empty id list, this is treated the same as an entirely absent target and grants — there is no id-matching concept for assets the way there is for parties, so "no scoping information at all" has no fail-closed fallback to fall back to.
+- An `AssetCollection` **with any other defined `source` value** (neither absent nor `"twin:jsonPath"`) is **not supported** and the Arbiter throws `assetCollectionSourceNotSupported`. This mirrors `PartyCollection`'s treatment of an unsupported `source` — the Arbiter only recognizes `"twin:jsonPath"` as a resolvable external-source form.
+- This applies identically to permissions, prohibitions, and obligations.
+
 ## Policy Enforcement Point (PEP)
 
 The PEP applies PDP decisions to a candidate data set.

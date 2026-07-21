@@ -2550,7 +2550,129 @@ describe("DefaultPolicyArbiter", () => {
 		expect(decisions).toEqual([{ target: "$", decision: PolicyDecision.Denied }]);
 	});
 
-	test("throws when AssetCollection source is missing", async () => {
+	test("throws ruleTargetNotSupported for a uid-bearing source-less AssetCollection with a non-matching uid", async () => {
+		// A source-less, refinement-scoped AssetCollection resolves its decision target to "$"
+		// regardless of any uid it carries, but getRuleDataContextTargetId() independently falls
+		// through to that uid for the rule's data context. When the uid doesn't match the
+		// policy-level target id, this throws ruleTargetNotSupported rather than the
+		// assetCollectionSourceNotSupported this shape threw before source-less support existed.
+		// ODRL says uid should not be used alongside refinement, but nothing prevents it
+		// structurally, so this pins the (still fail-closed) behavior for that edge case.
+		const arbiter = new DefaultPolicyArbiter();
+		const policy: IDataspaceProtocolAgreement = {
+			"@context": OdrlContexts.Context,
+			"@type": OdrlPolicyType.Agreement,
+			assigner: "did:example:default-assigner",
+			assignee: "did:example:default-assignee",
+			"@id": "policy:asset-collection-source-less-uid-mismatch",
+			permission: [
+				{
+					action: "read",
+					target: {
+						"@type": "AssetCollection",
+						uid: "https://example.com/some-other-asset",
+						refinement: {
+							leftOperand: OdrlTwinVocabulary.JsonPath,
+							[OdrlTwinVocabulary.JsonPathExpression]: "$.region",
+							operator: OdrlOperatorType.Eq,
+							rightOperand: "EU"
+						}
+					}
+				}
+			]
+		};
+
+		await expect(arbiter.decide(policy, undefined, { region: "EU" }, "read")).rejects.toThrow(
+			"ruleTargetNotSupported"
+		);
+	});
+
+	test("grants root target for a uid-bearing source-less AssetCollection whose uid matches the policy-level target", async () => {
+		// The companion case to the one above: when the AssetCollection's uid equals the
+		// policy-level asset target id, getRuleDataContextTargetId()'s fallthrough to that uid
+		// resolves via the "rule target equal to policy asset target" mechanism instead of
+		// throwing, granting the whole payload - coherent with that mechanism's own semantics,
+		// not something this PR changes, but pinned here since this PR is what makes a
+		// source-less AssetCollection reach that fallthrough at all.
+		const arbiter = new DefaultPolicyArbiter();
+		const policy: IDataspaceProtocolAgreement = {
+			"@context": OdrlContexts.Context,
+			"@type": OdrlPolicyType.Agreement,
+			assigner: "did:example:default-assigner",
+			assignee: "did:example:default-assignee",
+			"@id": "policy:asset-collection-source-less-uid-match",
+			target: "https://example.com/dataset-1",
+			permission: [
+				{
+					action: "read",
+					target: {
+						"@type": "AssetCollection",
+						uid: "https://example.com/dataset-1",
+						refinement: {
+							leftOperand: OdrlTwinVocabulary.JsonPath,
+							[OdrlTwinVocabulary.JsonPathExpression]: "$.region",
+							operator: OdrlOperatorType.Eq,
+							rightOperand: "EU"
+						}
+					}
+				}
+			]
+		};
+
+		const decisions = await arbiter.decide(policy, undefined, { region: "EU" }, "read");
+		expect(decisions).toEqual([{ target: "$", decision: PolicyDecision.Granted }]);
+	});
+
+	test("treats a null or empty-string AssetCollection source as source-less, mirroring PartyCollection", async () => {
+		// resolveRulePartyContext() treats any non-string source (including null/"") as
+		// source-less via Is.stringValue(); the AssetCollection branch mirrors that exactly,
+		// rather than only recognizing a literal undefined.
+		const arbiter = new DefaultPolicyArbiter();
+		const buildPolicy = (source: unknown): IDataspaceProtocolAgreement => ({
+			"@context": OdrlContexts.Context,
+			"@type": OdrlPolicyType.Agreement,
+			assigner: "did:example:default-assigner",
+			assignee: "did:example:default-assignee",
+			"@id": "policy:asset-collection-nullish-source",
+			permission: [
+				{
+					action: "read",
+					target: {
+						"@type": "AssetCollection",
+						source,
+						refinement: {
+							leftOperand: OdrlTwinVocabulary.JsonPath,
+							[OdrlTwinVocabulary.JsonPathExpression]: "$.region",
+							operator: OdrlOperatorType.Eq,
+							rightOperand: "EU"
+						}
+					} as unknown as { "@type": string }
+				}
+			]
+		});
+
+		const nullSourceDecisions = await arbiter.decide(
+			buildPolicy(null),
+			undefined,
+			{ region: "EU" },
+			"read"
+		);
+		expect(nullSourceDecisions).toEqual([{ target: "$", decision: PolicyDecision.Granted }]);
+
+		const emptyStringSourceDecisions = await arbiter.decide(
+			buildPolicy(""),
+			undefined,
+			{ region: "EU" },
+			"read"
+		);
+		expect(emptyStringSourceDecisions).toEqual([{ target: "$", decision: PolicyDecision.Granted }]);
+	});
+
+	test("grants root target for source-less AssetCollection when refinement is satisfied", async () => {
+		// a source-less AssetCollection scoped by refinement alone is now a supported
+		// shape (mirrors PartyCollection's source-less refinement scoping) - it resolves to the
+		// whole "$" target, not a wildcard expansion, since there's no twin:jsonPath source to
+		// iterate over.
 		const arbiter = new DefaultPolicyArbiter();
 		const policy: IDataspaceProtocolAgreement = {
 			"@context": OdrlContexts.Context,
@@ -2574,9 +2696,104 @@ describe("DefaultPolicyArbiter", () => {
 			]
 		};
 
-		await expect(arbiter.decide(policy, undefined, { region: "EU" }, "read")).rejects.toThrow(
-			"assetCollectionSourceNotSupported"
+		const decisions = await arbiter.decide(policy, undefined, { region: "EU" }, "read");
+		expect(decisions).toEqual([{ target: "$", decision: PolicyDecision.Granted }]);
+	});
+
+	test("denies root target for source-less AssetCollection when refinement is not satisfied", async () => {
+		// Proves the refinement is actually evaluated for this shape, not silently skipped/passed.
+		const arbiter = new DefaultPolicyArbiter();
+		const policy: IDataspaceProtocolAgreement = {
+			"@context": OdrlContexts.Context,
+			"@type": OdrlPolicyType.Agreement,
+			assigner: "did:example:default-assigner",
+			assignee: "did:example:default-assignee",
+			"@id": "policy:asset-collection-source-missing-denied",
+			permission: [
+				{
+					action: "read",
+					target: {
+						"@type": "AssetCollection",
+						refinement: {
+							leftOperand: OdrlTwinVocabulary.JsonPath,
+							[OdrlTwinVocabulary.JsonPathExpression]: "$.region",
+							operator: OdrlOperatorType.Eq,
+							rightOperand: "EU"
+						}
+					}
+				}
+			]
+		};
+
+		const decisions = await arbiter.decide(policy, undefined, { region: "US" }, "read");
+		expect(decisions).toEqual([{ target: "$", decision: PolicyDecision.Denied }]);
+	});
+
+	test("accepts an AssetCollection with neither source nor refinement, applying no additional scoping", async () => {
+		// A third, distinct combination: no external source, no member-level refinement - the
+		// arbiter should treat the target as the whole payload, same as an empty target array,
+		// rather than throwing.
+		const arbiter = new DefaultPolicyArbiter();
+		const policy: IDataspaceProtocolAgreement = {
+			"@context": OdrlContexts.Context,
+			"@type": OdrlPolicyType.Agreement,
+			assigner: "did:example:default-assigner",
+			assignee: "did:example:default-assignee",
+			"@id": "policy:asset-collection-empty",
+			permission: [
+				{
+					action: "read",
+					target: {
+						"@type": "AssetCollection"
+					}
+				}
+			]
+		};
+
+		const decisions = await arbiter.decide(policy, undefined, { region: "EU" }, "read");
+		expect(decisions).toEqual([{ target: "$", decision: PolicyDecision.Granted }]);
+	});
+
+	test("duty enforcer receives the whole data payload as ruleDataContext for a source-less AssetCollection permission target", async () => {
+		// getRuleDataContextTargetId() has no special case for a source-less AssetCollection - it
+		// falls through to getTargetId(), which returns undefined (no uid). tryResolveTargetDataSource(
+		// undefined, ...) then defaults to the whole data source. This test proves that end-to-end
+		// via a real enforcer querying ruleDataContext, rather than assuming the fallthrough is
+		// harmless from reading the source alone.
+		registerObligationEnforcer(
+			"asset-collection-source-less-duty-enforcer",
+			async (enforcedPolicy, duty, information, ruleDataContext) => {
+				const matches = JsonPathHelper.query("$.region", ruleDataContext);
+				return matches.length === 1 && matches[0].value === "EU";
+			}
 		);
+
+		const arbiter = new DefaultPolicyArbiter();
+		const policy: IDataspaceProtocolAgreement = {
+			"@context": OdrlContexts.Context,
+			"@type": OdrlPolicyType.Agreement,
+			assigner: "did:example:default-assigner",
+			assignee: "did:example:default-assignee",
+			"@id": "policy:asset-collection-source-less-duty",
+			permission: [
+				{
+					action: "read",
+					target: {
+						"@type": "AssetCollection",
+						refinement: {
+							leftOperand: OdrlTwinVocabulary.JsonPath,
+							[OdrlTwinVocabulary.JsonPathExpression]: "$.region",
+							operator: OdrlOperatorType.Eq,
+							rightOperand: "EU"
+						}
+					},
+					duty: [{ action: "notify" }]
+				}
+			]
+		};
+
+		const decisions = await arbiter.decide(policy, undefined, { region: "EU" }, "read");
+		expect(decisions).toEqual([{ target: "$", decision: PolicyDecision.Granted }]);
 	});
 
 	test("throws when AssetCollection source is not twin:jsonPath", async () => {
