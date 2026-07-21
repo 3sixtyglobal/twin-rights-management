@@ -6,6 +6,28 @@
 
 * remove EcosystemPolicy-related examples/assumptions; plugins now target standard ODRL policy types for v2.
 
+## [0.9.1-next.13](https://github.com/iotaledger/twin-rights-management/compare/rights-management-plugins-v0.9.1-next.12...rights-management-plugins-v0.9.1-next.13) (2026-07-21)
+
+
+### Bug Fixes
+
+* support source-less, refinement-scoped AssetCollection targets in DefaultPolicyArbiter ([#264](https://github.com/iotaledger/twin-rights-management/issues/264)) ([625ede0](https://github.com/iotaledger/twin-rights-management/commit/625ede05a07833717e20a17290efdaca7b72e249))
+
+
+### Dependencies
+
+* The following workspace dependencies were updated
+  * dependencies
+    * @twin.org/rights-management-models bumped from 0.9.1-next.12 to 0.9.1-next.13
+  * devDependencies
+    * @twin.org/rights-management-pap-service bumped from 0.9.1-next.12 to 0.9.1-next.13
+    * @twin.org/rights-management-pdp-service bumped from 0.9.1-next.12 to 0.9.1-next.13
+    * @twin.org/rights-management-pep-service bumped from 0.9.1-next.12 to 0.9.1-next.13
+    * @twin.org/rights-management-pip-service bumped from 0.9.1-next.12 to 0.9.1-next.13
+    * @twin.org/rights-management-pmp-service bumped from 0.9.1-next.12 to 0.9.1-next.13
+    * @twin.org/rights-management-pnp-service bumped from 0.9.1-next.12 to 0.9.1-next.13
+    * @twin.org/rights-management-pxp-service bumped from 0.9.1-next.12 to 0.9.1-next.13
+
 ## [0.9.1-next.12](https://github.com/iotaledger/twin-rights-management/compare/rights-management-plugins-v0.9.1-next.11...rights-management-plugins-v0.9.1-next.12) (2026-07-21)
 
 

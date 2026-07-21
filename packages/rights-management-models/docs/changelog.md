@@ -6,6 +6,13 @@
 
 * remove EcosystemPolicy models/DTOs and standardize policy typing on `OdrlPolicyType` for v2.
 
+## [0.9.1-next.13](https://github.com/iotaledger/twin-rights-management/compare/rights-management-models-v0.9.1-next.12...rights-management-models-v0.9.1-next.13) (2026-07-21)
+
+
+### Miscellaneous Chores
+
+* **rights-management-models:** Synchronize repo versions
+
 ## [0.9.1-next.12](https://github.com/iotaledger/twin-rights-management/compare/rights-management-models-v0.9.1-next.11...rights-management-models-v0.9.1-next.12) (2026-07-21)
 
 

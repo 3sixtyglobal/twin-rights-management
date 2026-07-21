@@ -6,6 +6,23 @@
 
 * remove EcosystemPolicy-specific negotiation guard and related locale contract for v2.
 
+## [0.9.1-next.13](https://github.com/iotaledger/twin-rights-management/compare/rights-management-pnp-service-v0.9.1-next.12...rights-management-pnp-service-v0.9.1-next.13) (2026-07-21)
+
+
+### Bug Fixes
+
+* persist correlationId in agreementFromProvider for the direct-agreement shortcut ([#268](https://github.com/iotaledger/twin-rights-management/issues/268)) ([ee32ad6](https://github.com/iotaledger/twin-rights-management/commit/ee32ad6809de4d5b918367d452a0d2d76054ab5e))
+
+
+### Dependencies
+
+* The following workspace dependencies were updated
+  * dependencies
+    * @twin.org/rights-management-models bumped from 0.9.1-next.12 to 0.9.1-next.13
+  * devDependencies
+    * @twin.org/rights-management-pap-service bumped from 0.9.1-next.12 to 0.9.1-next.13
+    * @twin.org/rights-management-pip-service bumped from 0.9.1-next.12 to 0.9.1-next.13
+
 ## [0.9.1-next.12](https://github.com/iotaledger/twin-rights-management/compare/rights-management-pnp-service-v0.9.1-next.11...rights-management-pnp-service-v0.9.1-next.12) (2026-07-21)
 
 
