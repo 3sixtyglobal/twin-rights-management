@@ -64,6 +64,7 @@
 ## Type Aliases
 
 - [OdrlProfiles](type-aliases/OdrlProfiles.md)
+- [OdrlTwinVocabulary](type-aliases/OdrlTwinVocabulary.md)
 - [PolicyDecision](type-aliases/PolicyDecision.md)
 - [PolicyDecisionStage](type-aliases/PolicyDecisionStage.md)
 - [PolicyInformationAccessMode](type-aliases/PolicyInformationAccessMode.md)
@@ -81,6 +82,7 @@
 - [PolicyObligationEnforcerFactory](variables/PolicyObligationEnforcerFactory.md)
 - [PolicyRequesterFactory](variables/PolicyRequesterFactory.md)
 - [OdrlProfiles](variables/OdrlProfiles.md)
+- [OdrlTwinVocabulary](variables/OdrlTwinVocabulary.md)
 - [PolicyDecision](variables/PolicyDecision.md)
 - [PolicyDecisionStage](variables/PolicyDecisionStage.md)
 - [PolicyInformationAccessMode](variables/PolicyInformationAccessMode.md)
