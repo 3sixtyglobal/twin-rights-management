@@ -6,6 +6,22 @@
 
 * remove EcosystemPolicy-specific references in documentation for v2.
 
+## [0.9.1-next.12](https://github.com/iotaledger/twin-rights-management/compare/rights-management-pmp-service-v0.9.1-next.11...rights-management-pmp-service-v0.9.1-next.12) (2026-07-21)
+
+
+### Miscellaneous Chores
+
+* **rights-management-pmp-service:** Synchronize repo versions
+
+
+### Dependencies
+
+* The following workspace dependencies were updated
+  * dependencies
+    * @twin.org/rights-management-models bumped from 0.9.1-next.11 to 0.9.1-next.12
+  * devDependencies
+    * @twin.org/rights-management-pap-service bumped from 0.9.1-next.11 to 0.9.1-next.12
+
 ## [0.9.1-next.11](https://github.com/iotaledger/twin-rights-management/compare/rights-management-pmp-service-v0.9.1-next.10...rights-management-pmp-service-v0.9.1-next.11) (2026-07-20)
 
 
