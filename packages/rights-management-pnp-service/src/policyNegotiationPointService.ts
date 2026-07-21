@@ -865,6 +865,13 @@ export class PolicyNegotiationPointService implements IPolicyNegotiationPointCom
 			// The agreement was accepted by the consumer, so update the state
 			// and store the agreement
 			policyNegotiation.state = DataspaceProtocolContractNegotiationStateType.AGREED;
+			// Update correlationId from the provider's PID (may not have been set at creation time).
+			// On the full cycle this is already set by offerFromProvider to the same value, so this
+			// is idempotent there; on the direct-agreement fast path, offerFromProvider is never
+			// called, so this is the only place the consumer record ever learns the provider's pid.
+			if (Is.stringValue(message.providerPid)) {
+				policyNegotiation.correlationId = message.providerPid;
+			}
 			policyNegotiation.agreement = {
 				"@context": OdrlContexts.Context,
 				...message.agreement

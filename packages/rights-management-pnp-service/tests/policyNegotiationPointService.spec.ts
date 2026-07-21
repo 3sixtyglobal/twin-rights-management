@@ -2474,6 +2474,88 @@ describe("PolicyNegotiationPointService", () => {
 			expect(mockNegotiator.createAgreement).toHaveBeenCalledTimes(1);
 		});
 
+		test("direct agreement reaches FINALIZED for a pre-registered consumer record (correlationId is learned from the agreement message)", async () => {
+			// A consumer record pre-registered via the admin endpoint (correlationId: "", the
+			// twin-node REST-driven shape) rather than created through sendRequestToProvider (which
+			// sets correlationId up front - see the sibling test above). On the direct-agreement
+			// path, offerFromProvider is never called, so agreementFromProvider is the ONLY place
+			// the consumer record ever learns the provider's pid. If it isn't persisted there,
+			// sendAgreementVerificationToProvider later sends an empty providerPid, the provider
+			// rejects it (guard.stringEmpty), and the negotiation stalls forever at AGREED on the
+			// provider side while the consumer record terminates itself.
+			const providerPoints: { [id: string]: PolicyNegotiationPointService } = {};
+
+			const policyNegotiationConsumerPoint = new PolicyNegotiationPointService({
+				policyNegotiationAdministrationPointComponentType:
+					"policy-negotiation-consumer-admin-point",
+				policyNegotiationPointRemoteComponentType: "pnp-remote",
+				config: { callbackPath: "/callback" }
+			});
+			const policyNegotiationProviderPoint = new PolicyNegotiationPointService({
+				policyNegotiationAdministrationPointComponentType:
+					"policy-negotiation-provider-admin-point",
+				policyNegotiationPointRemoteComponentType: "pnp-remote",
+				config: { callbackPath: "/callback" }
+			});
+			providerPoints.provider = policyNegotiationProviderPoint;
+			providerPoints.consumer = policyNegotiationConsumerPoint;
+			remoteComponentResolver = (params: { endpoint: string }) => {
+				if (params.endpoint.startsWith(providerOrigin)) {
+					return createRemoteComponent(providerPoints.provider, providerOrigin);
+				}
+				if (params.endpoint.startsWith(consumerOrigin)) {
+					return createRemoteComponent(providerPoints.consumer, consumerOrigin);
+				}
+				throw new TypeError(`Unknown remote url ${params.endpoint}`);
+			};
+
+			await adminPointComponent.create(mockOffer);
+			mockNegotiator.handleOffer = vi.fn(async () => ({
+				accepted: true,
+				interventionRequired: false,
+				directAgreement: true
+			}));
+			PolicyNegotiatorFactory.register("MockPolicyNegotiator", () => mockNegotiator);
+
+			// Pre-register the consumer record via the admin endpoint (correlationId ""), the same
+			// shape twin-node's e2e suite uses - NOT sendRequestToProvider.
+			const consumerPid = "urn:uuid:pre-registered-consumer-1";
+			await negotiationConsumerAdminPointComponent.create(consumerPid);
+
+			const response = await policyNegotiationProviderPoint.requestFromConsumer(
+				{
+					"@context": [DataspaceProtocolContexts.Context],
+					"@type": DataspaceProtocolContractNegotiationTypes.ContractRequestMessage,
+					consumerPid,
+					offer: {
+						"@type": OdrlTypes.Offer,
+						"@id": "urn:policy:offer-1",
+						assigner: testIdentityProvider
+					},
+					callbackAddress: `${consumerOrigin}/callback`
+				},
+				`token:${testIdentityConsumer}`
+			);
+			const providerPid = response.providerPid;
+
+			await waitForState(policyNegotiationProviderMemoryEntityStorage, "FINALIZED", "provider");
+			await waitForState(policyNegotiationConsumerMemoryEntityStorage, "FINALIZED", "consumer");
+
+			const consumerStore = await policyNegotiationConsumerMemoryEntityStorage.getStore();
+			const providerStore = await policyNegotiationProviderMemoryEntityStorage.getStore();
+
+			expect(consumerStore[0]).toMatchObject({
+				id: consumerPid,
+				correlationId: providerPid,
+				state: "FINALIZED",
+				agreement: expect.objectContaining({ "@type": "Agreement" })
+			});
+			expect(providerStore[0]).toMatchObject({
+				state: "FINALIZED",
+				agreement: expect.objectContaining({ "@type": "Agreement" })
+			});
+		});
+
 		test("interventionRequired takes precedence over directAgreement: negotiation stays REQUESTED", async () => {
 			const providerPoints: { [id: string]: PolicyNegotiationPointService } = {};
 
