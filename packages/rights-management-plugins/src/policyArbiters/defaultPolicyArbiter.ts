@@ -17,6 +17,7 @@ import { nameof } from "@twin.org/nameof";
 import {
 	OdrlPolicyHelper,
 	OdrlProfiles,
+	OdrlTwinVocabulary,
 	PolicyDecision,
 	PolicyObligationEnforcerFactory,
 	type IPolicyAdministrationPointComponent,
@@ -69,37 +70,6 @@ export class DefaultPolicyArbiter implements IPolicyArbiter {
 	 * @internal
 	 */
 	private static readonly _DEFAULT_MAX_INHERITANCE_DEPTH = 10;
-
-	/**
-	 * Datasource key for the primary JSON path data source.
-	 * @internal
-	 */
-	private static readonly _DATA_SOURCE_KEY = "data";
-
-	/**
-	 * Datasource key for the information source used in JSON path expressions.
-	 * @internal
-	 */
-	private static readonly _INFORMATION_SOURCE_KEY = "information";
-
-	/**
-	 * TWIN prefix JSONPath canonical alias.
-	 * @internal
-	 */
-	private static readonly _TWIN_JSONPATH = "twin:jsonPath";
-
-	/**
-	 * Canonical jsonPath expression property.
-	 * @internal
-	 */
-	private static readonly _TWIN_JSONPATH_EXPRESSION = "twin:jsonPathExpression";
-
-	/**
-	 * Optional data source key property for canonical twin:jsonPath targets.
-	 * When absent, defaults to the primary data source.
-	 * @internal
-	 */
-	private static readonly _TWIN_JSONPATH_DATA_SOURCE = "twin:jsonPathDataSource";
 
 	/**
 	 * The logging component.
@@ -229,8 +199,8 @@ export class DefaultPolicyArbiter implements IPolicyArbiter {
 		const mergedPolicy = await this.mergeInheritedPolicies(agreement);
 		const expandedPolicy = this.expandCompactPolicyRules(mergedPolicy);
 		const dataSources = {
-			[DefaultPolicyArbiter._DATA_SOURCE_KEY]: data,
-			[DefaultPolicyArbiter._INFORMATION_SOURCE_KEY]: information
+			[OdrlTwinVocabulary.DataSourceKey]: data,
+			[OdrlTwinVocabulary.InformationSourceKey]: information
 		};
 
 		// Extract agreement parties once for use in rule evaluation
@@ -1225,7 +1195,7 @@ export class DefaultPolicyArbiter implements IPolicyArbiter {
 		ruleDataContext?: unknown
 	): Promise<boolean> {
 		const enforcerNames = PolicyObligationEnforcerFactory.names();
-		const information = dataSources[DefaultPolicyArbiter._INFORMATION_SOURCE_KEY] as
+		const information = dataSources[OdrlTwinVocabulary.InformationSourceKey] as
 			| IRightsManagementInformation
 			| undefined;
 
@@ -1273,19 +1243,19 @@ export class DefaultPolicyArbiter implements IPolicyArbiter {
 		// If there is no target id, default to the data datasource
 		if (Is.empty(targetId)) {
 			return {
-				source: dataSources[DefaultPolicyArbiter._DATA_SOURCE_KEY],
+				source: dataSources[OdrlTwinVocabulary.DataSourceKey],
 				target: "$",
-				value: dataSources[DefaultPolicyArbiter._DATA_SOURCE_KEY]
+				value: dataSources[OdrlTwinVocabulary.DataSourceKey]
 			};
 		}
 
 		// Handle twin:jsonPath:<datasource>:<expression> format.
 		// The datasource segment is optional; when absent the expression starts with "$"
 		// and falls back to the primary data source.
-		if (targetId.startsWith(`${DefaultPolicyArbiter._TWIN_JSONPATH}:`)) {
-			const rest = targetId.slice(DefaultPolicyArbiter._TWIN_JSONPATH.length + 1);
+		if (targetId.startsWith(`${OdrlTwinVocabulary.JsonPath}:`)) {
+			const rest = targetId.slice(OdrlTwinVocabulary.JsonPath.length + 1);
 			const matchingKey = Object.keys(dataSources).find(k => rest.startsWith(`${k}:`));
-			const sourceKey = matchingKey ?? DefaultPolicyArbiter._DATA_SOURCE_KEY;
+			const sourceKey = matchingKey ?? OdrlTwinVocabulary.DataSourceKey;
 			const expression = matchingKey ? rest.slice(matchingKey.length + 1) : rest;
 			return this.resolveDataSourceByKey(sourceKey, expression, dataSources, resolveValue);
 		}
@@ -1303,9 +1273,9 @@ export class DefaultPolicyArbiter implements IPolicyArbiter {
 		// so grammar-resolvable forms keep their scoping and unrelated asset ids still throw.
 		if (Is.stringValue(policyTargetId) && targetId === policyTargetId) {
 			return {
-				source: dataSources[DefaultPolicyArbiter._DATA_SOURCE_KEY],
+				source: dataSources[OdrlTwinVocabulary.DataSourceKey],
 				target: "$",
-				value: dataSources[DefaultPolicyArbiter._DATA_SOURCE_KEY]
+				value: dataSources[OdrlTwinVocabulary.DataSourceKey]
 			};
 		}
 
@@ -1385,17 +1355,15 @@ export class DefaultPolicyArbiter implements IPolicyArbiter {
 		}
 		if (this.isTwinJsonPathTarget(first)) {
 			const t = first as {
-				[DefaultPolicyArbiter._TWIN_JSONPATH_DATA_SOURCE]?: string;
-				[DefaultPolicyArbiter._TWIN_JSONPATH_EXPRESSION]?: string;
+				[OdrlTwinVocabulary.JsonPathDataSource]?: string;
+				[OdrlTwinVocabulary.JsonPathExpression]?: string;
 			};
-			const expression = t[DefaultPolicyArbiter._TWIN_JSONPATH_EXPRESSION];
+			const expression = t[OdrlTwinVocabulary.JsonPathExpression];
 			if (!Is.stringValue(expression)) {
 				return undefined;
 			}
-			const dataSource = t[DefaultPolicyArbiter._TWIN_JSONPATH_DATA_SOURCE];
-			const sourceKey = Is.stringValue(dataSource)
-				? dataSource
-				: DefaultPolicyArbiter._DATA_SOURCE_KEY;
+			const dataSource = t[OdrlTwinVocabulary.JsonPathDataSource];
+			const sourceKey = Is.stringValue(dataSource) ? dataSource : OdrlTwinVocabulary.DataSourceKey;
 			return `${sourceKey}:${expression}`;
 		}
 		return OdrlPolicyHelper.getUid(first);
@@ -1438,19 +1406,19 @@ export class DefaultPolicyArbiter implements IPolicyArbiter {
 			if (
 				Is.object<IOdrlAssetCollection>(firstTarget) &&
 				OdrlPolicyHelper.getType(firstTarget) === OdrlTypes.AssetCollection &&
-				firstTarget.source === DefaultPolicyArbiter._TWIN_JSONPATH
+				firstTarget.source === OdrlTwinVocabulary.JsonPath
 			) {
 				const ctx = firstTarget as unknown as {
-					[DefaultPolicyArbiter._TWIN_JSONPATH_EXPRESSION]?: string;
-					[DefaultPolicyArbiter._TWIN_JSONPATH_DATA_SOURCE]?: string;
+					[OdrlTwinVocabulary.JsonPathExpression]?: string;
+					[OdrlTwinVocabulary.JsonPathDataSource]?: string;
 				};
-				const expression = ctx[DefaultPolicyArbiter._TWIN_JSONPATH_EXPRESSION];
+				const expression = ctx[OdrlTwinVocabulary.JsonPathExpression];
 				if (Is.stringValue(expression)) {
-					const dataSource = ctx[DefaultPolicyArbiter._TWIN_JSONPATH_DATA_SOURCE];
+					const dataSource = ctx[OdrlTwinVocabulary.JsonPathDataSource];
 					const sourceKey = Is.stringValue(dataSource)
 						? dataSource
-						: DefaultPolicyArbiter._DATA_SOURCE_KEY;
-					return `${DefaultPolicyArbiter._TWIN_JSONPATH}:${sourceKey}:${expression}`;
+						: OdrlTwinVocabulary.DataSourceKey;
+					return `${OdrlTwinVocabulary.JsonPath}:${sourceKey}:${expression}`;
 				}
 			}
 		}
@@ -1519,12 +1487,12 @@ export class DefaultPolicyArbiter implements IPolicyArbiter {
 
 		if (this.isTwinJsonPathTarget(firstTarget)) {
 			const t = firstTarget as {
-				[DefaultPolicyArbiter._TWIN_JSONPATH_DATA_SOURCE]?: string;
-				[DefaultPolicyArbiter._TWIN_JSONPATH_EXPRESSION]?: string;
+				[OdrlTwinVocabulary.JsonPathDataSource]?: string;
+				[OdrlTwinVocabulary.JsonPathExpression]?: string;
 			};
 			const resolved = this.resolveDataSourceByKey(
-				t[DefaultPolicyArbiter._TWIN_JSONPATH_DATA_SOURCE] ?? DefaultPolicyArbiter._DATA_SOURCE_KEY,
-				t[DefaultPolicyArbiter._TWIN_JSONPATH_EXPRESSION],
+				t[OdrlTwinVocabulary.JsonPathDataSource] ?? OdrlTwinVocabulary.DataSourceKey,
+				t[OdrlTwinVocabulary.JsonPathExpression],
 				dataSources
 			);
 			return {
@@ -1546,7 +1514,7 @@ export class DefaultPolicyArbiter implements IPolicyArbiter {
 				Is.object<IOdrlAssetCollection>(firstTarget) &&
 				OdrlPolicyHelper.getType(firstTarget) === OdrlTypes.AssetCollection
 			) {
-				if (firstTarget.source !== DefaultPolicyArbiter._TWIN_JSONPATH) {
+				if (firstTarget.source !== OdrlTwinVocabulary.JsonPath) {
 					throw new GeneralError(
 						DefaultPolicyArbiter.CLASS_NAME,
 						"assetCollectionSourceNotSupported",
@@ -1556,18 +1524,18 @@ export class DefaultPolicyArbiter implements IPolicyArbiter {
 					);
 				}
 				const ctx = firstTarget as unknown as {
-					[DefaultPolicyArbiter._TWIN_JSONPATH_EXPRESSION]?: string;
-					[DefaultPolicyArbiter._TWIN_JSONPATH_DATA_SOURCE]?: string;
+					[OdrlTwinVocabulary.JsonPathExpression]?: string;
+					[OdrlTwinVocabulary.JsonPathDataSource]?: string;
 				};
-				const dataSource = ctx[DefaultPolicyArbiter._TWIN_JSONPATH_DATA_SOURCE];
+				const dataSource = ctx[OdrlTwinVocabulary.JsonPathDataSource];
 				const sourceKey = Is.stringValue(dataSource)
 					? dataSource
-					: DefaultPolicyArbiter._DATA_SOURCE_KEY;
+					: OdrlTwinVocabulary.DataSourceKey;
 				let sourceLookup: { source: unknown; target: string; value?: unknown };
 				try {
 					sourceLookup = this.resolveDataSourceByKey(
 						sourceKey,
-						ctx[DefaultPolicyArbiter._TWIN_JSONPATH_EXPRESSION],
+						ctx[OdrlTwinVocabulary.JsonPathExpression],
 						dataSources
 					);
 				} catch {
@@ -1575,7 +1543,7 @@ export class DefaultPolicyArbiter implements IPolicyArbiter {
 						DefaultPolicyArbiter.CLASS_NAME,
 						"assetCollectionSourceNotSupported",
 						{
-							source: ctx[DefaultPolicyArbiter._TWIN_JSONPATH_EXPRESSION] ?? ""
+							source: ctx[OdrlTwinVocabulary.JsonPathExpression] ?? ""
 						}
 					);
 				}
@@ -1717,12 +1685,11 @@ export class DefaultPolicyArbiter implements IPolicyArbiter {
 
 		const regularConstraint = refinement as IOdrlConstraint;
 		const constraintWithExtensions = regularConstraint as IOdrlConstraint & {
-			[DefaultPolicyArbiter._TWIN_JSONPATH_EXPRESSION]?: string;
+			[OdrlTwinVocabulary.JsonPathExpression]?: string;
 		};
-		const canonicalExpression =
-			constraintWithExtensions[DefaultPolicyArbiter._TWIN_JSONPATH_EXPRESSION];
+		const canonicalExpression = constraintWithExtensions[OdrlTwinVocabulary.JsonPathExpression];
 		const rewrittenConstraint: IOdrlConstraint & {
-			[DefaultPolicyArbiter._TWIN_JSONPATH_EXPRESSION]?: string;
+			[OdrlTwinVocabulary.JsonPathExpression]?: string;
 		} = {
 			...regularConstraint,
 			leftOperand: this.rewriteOperandForDecisionTarget(
@@ -1737,8 +1704,11 @@ export class DefaultPolicyArbiter implements IPolicyArbiter {
 			)
 		};
 		if (Is.stringValue(canonicalExpression)) {
-			rewrittenConstraint[DefaultPolicyArbiter._TWIN_JSONPATH_EXPRESSION] =
-				this.rewriteWildcardPath(canonicalExpression, sourceTarget, itemTarget);
+			rewrittenConstraint[OdrlTwinVocabulary.JsonPathExpression] = this.rewriteWildcardPath(
+				canonicalExpression,
+				sourceTarget,
+				itemTarget
+			);
 		}
 
 		return rewrittenConstraint;
@@ -1770,9 +1740,9 @@ export class DefaultPolicyArbiter implements IPolicyArbiter {
 					);
 				}
 
-				const canonicalExpression = typedOperand[DefaultPolicyArbiter._TWIN_JSONPATH_EXPRESSION];
+				const canonicalExpression = typedOperand[OdrlTwinVocabulary.JsonPathExpression];
 				if (Is.stringValue(canonicalExpression)) {
-					typedOperand[DefaultPolicyArbiter._TWIN_JSONPATH_EXPRESSION] = this.rewriteWildcardPath(
+					typedOperand[OdrlTwinVocabulary.JsonPathExpression] = this.rewriteWildcardPath(
 						canonicalExpression,
 						sourceTarget,
 						itemTarget
@@ -1792,9 +1762,9 @@ export class DefaultPolicyArbiter implements IPolicyArbiter {
 		// the full array of all ids per check — so all items pass the equality test.
 		if (
 			Is.stringValue(operand) &&
-			operand.startsWith(`twin:${DefaultPolicyArbiter._INFORMATION_SOURCE_KEY}:`)
+			operand.startsWith(`twin:${OdrlTwinVocabulary.InformationSourceKey}:`)
 		) {
-			const prefix = `twin:${DefaultPolicyArbiter._INFORMATION_SOURCE_KEY}:`;
+			const prefix = `twin:${OdrlTwinVocabulary.InformationSourceKey}:`;
 			const expression = operand.slice(prefix.length);
 			const rewritten = this.rewriteWildcardPath(expression, sourceTarget, itemTarget);
 			return `${prefix}${rewritten}`;
@@ -2098,10 +2068,10 @@ export class DefaultPolicyArbiter implements IPolicyArbiter {
 			const expression = this.extractJsonPathExpressionFromConstraint(constraint, operand);
 			let resolvedOperand = operand;
 			if (
-				operand === DefaultPolicyArbiter._TWIN_JSONPATH &&
+				operand === OdrlTwinVocabulary.JsonPath &&
 				Is.object<{ [key: string]: unknown }>(constraint)
 			) {
-				const dataSourceOverride = constraint[DefaultPolicyArbiter._TWIN_JSONPATH_DATA_SOURCE];
+				const dataSourceOverride = constraint[OdrlTwinVocabulary.JsonPathDataSource];
 				if (Is.stringValue(dataSourceOverride)) {
 					resolvedOperand = dataSourceOverride;
 				}
@@ -2151,7 +2121,7 @@ export class DefaultPolicyArbiter implements IPolicyArbiter {
 			if (Is.stringValue(type)) {
 				let resolvedType = type;
 				if (this.isTwinJsonPathOperandType(type)) {
-					const dataSourceOverride = typedOperand[DefaultPolicyArbiter._TWIN_JSONPATH_DATA_SOURCE];
+					const dataSourceOverride = typedOperand[OdrlTwinVocabulary.JsonPathDataSource];
 					if (Is.stringValue(dataSourceOverride)) {
 						resolvedType = dataSourceOverride;
 					}
@@ -2205,7 +2175,7 @@ export class DefaultPolicyArbiter implements IPolicyArbiter {
 	 * @internal
 	 */
 	private isTwinJsonPathOperandType(type: unknown): boolean {
-		return type === DefaultPolicyArbiter._TWIN_JSONPATH;
+		return type === OdrlTwinVocabulary.JsonPath;
 	}
 
 	/**
@@ -2216,11 +2186,11 @@ export class DefaultPolicyArbiter implements IPolicyArbiter {
 	 */
 	private normalizeTwinJsonPathOperandAlias(operandTypeOrValue: string): string {
 		if (
-			operandTypeOrValue === DefaultPolicyArbiter._TWIN_JSONPATH ||
-			operandTypeOrValue.startsWith(`${DefaultPolicyArbiter._TWIN_JSONPATH}:`)
+			operandTypeOrValue === OdrlTwinVocabulary.JsonPath ||
+			operandTypeOrValue.startsWith(`${OdrlTwinVocabulary.JsonPath}:`)
 		) {
-			const suffix = operandTypeOrValue.slice(DefaultPolicyArbiter._TWIN_JSONPATH.length);
-			return `${DefaultPolicyArbiter._DATA_SOURCE_KEY}${suffix}`;
+			const suffix = operandTypeOrValue.slice(OdrlTwinVocabulary.JsonPath.length);
+			return `${OdrlTwinVocabulary.DataSourceKey}${suffix}`;
 		}
 
 		return operandTypeOrValue;
@@ -2242,13 +2212,13 @@ export class DefaultPolicyArbiter implements IPolicyArbiter {
 			return undefined;
 		}
 
-		const expression = operand[DefaultPolicyArbiter._TWIN_JSONPATH_EXPRESSION];
+		const expression = operand[OdrlTwinVocabulary.JsonPathExpression];
 		if (Is.stringValue(expression)) {
 			return expression;
 		}
 
 		const type = operand["@type"];
-		if (type === DefaultPolicyArbiter._TWIN_JSONPATH) {
+		if (type === OdrlTwinVocabulary.JsonPath) {
 			throw new GeneralError(DefaultPolicyArbiter.CLASS_NAME, "jsonPathExpressionMissing", {
 				operand: "rightOperand"
 			});
@@ -2275,17 +2245,17 @@ export class DefaultPolicyArbiter implements IPolicyArbiter {
 			return undefined;
 		}
 
-		if (leftOperand.startsWith(`${DefaultPolicyArbiter._TWIN_JSONPATH}:`)) {
+		if (leftOperand.startsWith(`${OdrlTwinVocabulary.JsonPath}:`)) {
 			throw new GeneralError(DefaultPolicyArbiter.CLASS_NAME, "jsonPathExpressionMissing", {
 				operand: "leftOperand"
 			});
 		}
 
-		if (leftOperand !== DefaultPolicyArbiter._TWIN_JSONPATH) {
+		if (leftOperand !== OdrlTwinVocabulary.JsonPath) {
 			return undefined;
 		}
 
-		const expression = constraint[DefaultPolicyArbiter._TWIN_JSONPATH_EXPRESSION];
+		const expression = constraint[OdrlTwinVocabulary.JsonPathExpression];
 		if (Is.stringValue(expression)) {
 			return expression;
 		}
@@ -2526,7 +2496,7 @@ export class DefaultPolicyArbiter implements IPolicyArbiter {
 		operand: string,
 		dataSources: { [source: string]: unknown }
 	): { found: boolean; value?: unknown } {
-		const information = dataSources[DefaultPolicyArbiter._INFORMATION_SOURCE_KEY] as
+		const information = dataSources[OdrlTwinVocabulary.InformationSourceKey] as
 			| IRightsManagementInformation
 			| undefined;
 		if (Is.object(information) && !Is.empty(information[operand])) {

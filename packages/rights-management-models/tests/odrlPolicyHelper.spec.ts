@@ -2,6 +2,7 @@
 // SPDX-License-Identifier: Apache-2.0.
 import type { IDataspaceProtocolPolicy } from "@twin.org/standards-dataspace-protocol";
 import type { IOdrlParty } from "@twin.org/standards-w3c-odrl";
+import { OdrlTwinVocabulary } from "../src/models/odrlTwinVocabulary.js";
 import { OdrlPolicyHelper } from "../src/utils/odrlPolicyHelper.js";
 
 describe("OdrlPolicyHelper", () => {
@@ -266,7 +267,13 @@ describe("OdrlPolicyHelper", () => {
 				type: "Set",
 				"@id": "policy-46",
 				target: "dataset-1",
-				permission: [{ action: "read", target: "twin:jsonPath", "twin:jsonPathExpression": "$" }]
+				permission: [
+					{
+						action: "read",
+						target: OdrlTwinVocabulary.JsonPath,
+						[OdrlTwinVocabulary.JsonPathExpression]: "$"
+					}
+				]
 			} as unknown as IDataspaceProtocolPolicy;
 
 			expect(OdrlPolicyHelper.getDatasetTargets(policy)).toEqual(["dataset-1"]);
