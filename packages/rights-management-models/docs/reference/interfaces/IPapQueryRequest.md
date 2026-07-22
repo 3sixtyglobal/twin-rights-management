@@ -10,6 +10,12 @@ The request structure for querying policies.
 
 The query parameters of the request.
 
+#### type?
+
+> `optional` **type?**: `string`
+
+The type of policy to filter by.
+
 #### assigner?
 
 > `optional` **assigner?**: `string`
