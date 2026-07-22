@@ -663,6 +663,7 @@ export async function papQuery(
 	const component = ComponentFactory.get<IPolicyAdministrationPointComponent>(componentName);
 	const result = await component.query(
 		{
+			type: request.query?.type as OdrlPolicyType,
 			assigner: request.query?.assigner,
 			assignee: request.query?.assignee,
 			target: request.query?.target,

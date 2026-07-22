@@ -372,6 +372,42 @@ export class PolicyAdministrationPointService implements IPolicyAdministrationPo
 		cursor?: string;
 		policies: IRightsManagementPolicy[];
 	}> {
+		if (!Is.empty(locator?.type)) {
+			Guards.arrayOneOf(
+				PolicyAdministrationPointService.CLASS_NAME,
+				nameof(locator.type),
+				locator.type,
+				Object.values(OdrlPolicyType)
+			);
+		}
+		if (!Is.empty(locator?.action)) {
+			Guards.stringValue(
+				PolicyAdministrationPointService.CLASS_NAME,
+				nameof(locator.action),
+				locator.action
+			);
+		}
+		if (!Is.empty(locator?.assignee)) {
+			Guards.stringValue(
+				PolicyAdministrationPointService.CLASS_NAME,
+				nameof(locator.assignee),
+				locator.assignee
+			);
+		}
+		if (!Is.empty(locator?.assigner)) {
+			Guards.stringValue(
+				PolicyAdministrationPointService.CLASS_NAME,
+				nameof(locator.assigner),
+				locator.assigner
+			);
+		}
+		if (!Is.empty(locator?.target)) {
+			Guards.stringValue(
+				PolicyAdministrationPointService.CLASS_NAME,
+				nameof(locator.target),
+				locator.target
+			);
+		}
 		if (!Is.empty(conditions)) {
 			Guards.object(PolicyAdministrationPointService.CLASS_NAME, nameof(conditions), conditions);
 		}
