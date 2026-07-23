@@ -1196,8 +1196,7 @@ export class DefaultPolicyArbiter implements IPolicyArbiter {
 	): Promise<boolean> {
 		const enforcerNames = PolicyObligationEnforcerFactory.names();
 		const information = dataSources[OdrlTwinVocabulary.InformationSourceKey] as
-			| IRightsManagementInformation
-			| undefined;
+			IRightsManagementInformation | undefined;
 
 		if (enforcerNames.length === 0) {
 			throw new GeneralError(DefaultPolicyArbiter.CLASS_NAME, "noObligationEnforcersRegistered");
@@ -1757,9 +1756,7 @@ export class DefaultPolicyArbiter implements IPolicyArbiter {
 				}
 			}
 			return typedOperand as
-				| IOdrlConstraint["leftOperand"]
-				| IOdrlConstraint["rightOperand"]
-				| string;
+				IOdrlConstraint["leftOperand"] | IOdrlConstraint["rightOperand"] | string;
 		}
 
 		// Legacy string form: "twin:information:$.foo". Extract the prefix, rewrite the
@@ -2504,8 +2501,7 @@ export class DefaultPolicyArbiter implements IPolicyArbiter {
 		dataSources: { [source: string]: unknown }
 	): { found: boolean; value?: unknown } {
 		const information = dataSources[OdrlTwinVocabulary.InformationSourceKey] as
-			| IRightsManagementInformation
-			| undefined;
+			IRightsManagementInformation | undefined;
 		if (Is.object(information) && !Is.empty(information[operand])) {
 			return { found: true, value: information[operand] };
 		}

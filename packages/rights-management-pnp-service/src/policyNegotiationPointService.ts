@@ -1080,14 +1080,12 @@ export class PolicyNegotiationPointService implements IPolicyNegotiationPointCom
 
 			// We can only transition from OFFERED to ACCEPTED or VERIFIED to FINALIZED
 			// https://eclipse-dataspace-protocol-base.github.io/DataspaceProtocol/2025-1/#state-machine
-			if (
-				!(
-					(policyNegotiation.state === DataspaceProtocolContractNegotiationStateType.OFFERED &&
-						message.event === DataspaceProtocolContractNegotiationEventType.ACCEPTED) ||
-					(policyNegotiation.state === DataspaceProtocolContractNegotiationStateType.VERIFIED &&
-						message.event === DataspaceProtocolContractNegotiationEventType.FINALIZED)
-				)
-			) {
+			if (!(
+				(policyNegotiation.state === DataspaceProtocolContractNegotiationStateType.OFFERED &&
+					message.event === DataspaceProtocolContractNegotiationEventType.ACCEPTED) ||
+				(policyNegotiation.state === DataspaceProtocolContractNegotiationStateType.VERIFIED &&
+					message.event === DataspaceProtocolContractNegotiationEventType.FINALIZED)
+			)) {
 				const err = await this.setErrorState(
 					message.providerPid,
 					message.consumerPid,

@@ -574,9 +574,7 @@ export function generateRestRoutesPolicyNegotiationPoint(
  */
 function mapError(
 	result:
-		| IDataspaceProtocolContractNegotiation
-		| IDataspaceProtocolContractNegotiationError
-		| undefined
+		IDataspaceProtocolContractNegotiation | IDataspaceProtocolContractNegotiationError | undefined
 ): HttpStatusCode | undefined {
 	if (
 		OdrlPolicyHelper.getType(result) ===
