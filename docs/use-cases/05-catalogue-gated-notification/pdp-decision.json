@@ -1,9 +1,9 @@
 ﻿{
-	"$comment": "PDP Decision Output - Permission with duty obligations. Shows notification authorization with clearing house notification requirement.",
+	"$comment": "PDP Decision Output - Permission with duty obligations. Shows notification authorization with a delivery obligation to the assignee's own connector endpoint, scoped to veterinary-certificate documents.",
 	"decision": "Permit",
 	"reasoning": "All constraints satisfied: certification verified, destination country matches, and document type constraint satisfied",
 	"appliedPolicy": {
-		"uid": "http://example.com/policy-notification:fsa-uk-notification",
+		"uid": "http://example.com/policy-service-offering:vet-cert-notification",
 		"type": "Agreement",
 		"assigner": "did:iota:testnet:0xfcfa55894cab90504af7eaf38087addd5f77791a89bd3ebbe76d9c2b1a6ce567"
 	},
@@ -11,8 +11,8 @@
 		{
 			"constraint": {
 				"leftOperand": "twin:jsonPath",
-				"twin:jsonPathExpression": ".certifications",
-				"operator": "contains",
+				"twin:jsonPathExpression": "$.assigneeAttributes.certifications",
+				"operator": "isAnyOf",
 				"rightOperand": "FSA-Trusted-Notifier"
 			},
 			"leftOperandValue": ["FSA-Trusted-Notifier", "ISO27001"],
@@ -21,7 +21,7 @@
 		{
 			"constraint": {
 				"leftOperand": "twin:jsonPath",
-				"twin:jsonPathExpression": ".resource.destinationCountry.countryId",
+				"twin:jsonPathExpression": "$.resourceAttributes.consignment.destinationCountry.countryId",
 				"operator": "eq",
 				"rightOperand": "GB"
 			},
@@ -31,7 +31,7 @@
 		{
 			"constraint": {
 				"leftOperand": "twin:jsonPath",
-				"twin:jsonPathExpression": ".payload.documentTypeCode",
+				"twin:jsonPathExpression": "$.resourceAttributes.latestDocument.documentTypeCode",
 				"operator": "eq",
 				"rightOperand": "unece:DocumentCodeList#853"
 			},
@@ -41,11 +41,11 @@
 	],
 	"obligations": [
 		{
-			"action": "notify",
+			"action": "inform",
 			"target": "https://my-ds-connectors.example.org/ds-connector-uk-fsa/notify",
 			"constraint": {
 				"leftOperand": "twin:jsonPath",
-				"twin:jsonPathExpression": ".payload.documentTypeCode",
+				"twin:jsonPathExpression": "$.resourceAttributes.latestDocument.documentTypeCode",
 				"operator": "eq",
 				"rightOperand": "unece:DocumentCodeList#853"
 			},
@@ -65,17 +65,8 @@
 	],
 	"grantedPermissions": [
 		{
-			"action": "notify",
-			"target": {
-				"@type": "AssetCollection",
-				"source": "https://twin.example.org/notifications",
-				"refinement": {
-					"leftOperand": "twin:jsonPath",
-					"twin:jsonPathExpression": ".resource.destinationCountry.countryId",
-					"operator": "eq",
-					"rightOperand": "GB"
-				}
-			}
+			"action": "use",
+			"target": "$"
 		}
 	],
 	"notification": {

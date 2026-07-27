@@ -1,5 +1,5 @@
 ﻿{
-	"$comment": "PAP (Policy Administration Point) - Stored Agreement with AssetCollection and PropertyReference pattern for dynamic filtering.",
+	"$comment": "PAP (Policy Administration Point) - Stored Agreement with AssetCollection and twin:jsonPath/information-datasource pattern for dynamic filtering.",
 	"@context": [
 		"http://www.w3.org/ns/odrl.jsonld",
 		{
@@ -16,14 +16,16 @@
 			"action": "read",
 			"target": {
 				"@type": "AssetCollection",
-				"source": "https://twin.example.org/asset-collections/consignments",
+				"source": "twin:jsonPath",
+				"twin:jsonPathExpression": "$.consignments[*]",
 				"refinement": {
 					"leftOperand": "twin:jsonPath",
-					"twin:jsonPathExpression": ".destinationCountry",
+					"twin:jsonPathExpression": "$.consignments[*].destinationCountry",
 					"operator": "eq",
 					"rightOperand": {
-						"@type": "PropertyReference",
-						"property": "assignee.countryCode"
+						"@type": "twin:jsonPath",
+						"twin:jsonPathDataSource": "information",
+						"twin:jsonPathExpression": "$.assigneeAttributes.countryCode"
 					}
 				}
 			}
@@ -41,11 +43,11 @@
 			"action": "read",
 			"targetType": "AssetCollection",
 			"targetSource": "https://twin.example.org/asset-collections/consignments",
-			"filteringPattern": "PropertyReference"
+			"filteringPattern": "twin:jsonPath (information datasource)"
 		},
 		"policyLocatorHints": {
 			"lookupKey": "assigner:did:iota:testnet:0x1ee831611a9fe9877c82e05075d9670c4970b4fd0904c208082ee50e45817a9d:assignee:did:iota:testnet:0xac534b750ac453d573a55954760af140f87358c7be9a18000a831c452c32f246:action:read",
-			"searchableConstraints": ["destinationCountry", "assignee.countryCode"],
+			"searchableConstraints": ["destinationCountry", "assigneeAttributes.countryCode"],
 			"requiresDynamicEvaluation": true
 		}
 	}

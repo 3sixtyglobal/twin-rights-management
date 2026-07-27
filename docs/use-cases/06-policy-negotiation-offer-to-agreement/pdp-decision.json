@@ -16,7 +16,7 @@
 		{
 			"constraint": {
 				"leftOperand": "twin:jsonPath",
-				"twin:jsonPathExpression": ".legalAddress.countryCode",
+				"twin:jsonPathExpression": "$.legalAddress.countryCode",
 				"operator": "eq",
 				"rightOperand": "PL"
 			},
@@ -37,9 +37,11 @@
 			"action": "read",
 			"target": {
 				"@type": "AssetCollection",
+				"source": "twin:jsonPath",
+				"twin:jsonPathExpression": "$.assets[*]",
 				"refinement": {
 					"leftOperand": "twin:jsonPath",
-					"twin:jsonPathExpression": ".assetType",
+					"twin:jsonPathExpression": "$.assets[*].assetType",
 					"operator": "eq",
 					"rightOperand": "DataResource"
 				}

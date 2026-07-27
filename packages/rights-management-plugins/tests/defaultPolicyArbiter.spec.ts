@@ -1,6 +1,9 @@
 // Copyright 2025 IOTA Stiftung.
 // SPDX-License-Identifier: Apache-2.0.
+import { readFileSync } from "node:fs";
+import path from "node:path";
 import { ComponentFactory } from "@twin.org/core";
+import { JsonPathHelper } from "@twin.org/data-json-path";
 import { MemoryEntityStorageConnector } from "@twin.org/entity-storage-connector-memory";
 import { EntityStorageConnectorFactory } from "@twin.org/entity-storage-models";
 import {
@@ -13,6 +16,7 @@ import { LoggingService } from "@twin.org/logging-service";
 import { nameof } from "@twin.org/nameof";
 import {
 	OdrlProfiles,
+	OdrlTwinVocabulary,
 	PolicyDecision,
 	PolicyObligationEnforcerFactory,
 	type IPolicyAdministrationPointComponent,
@@ -32,6 +36,7 @@ import {
 	type IOdrlLogicalConstraint
 } from "@twin.org/standards-w3c-odrl";
 import { DefaultPolicyArbiter } from "../src/policyArbiters/defaultPolicyArbiter.js";
+import { DefaultPolicyEnforcementProcessor } from "../src/policyEnforcementProcessor/defaultPolicyEnforcementProcessor.js";
 
 declare module "@twin.org/standards-w3c-odrl" {
 	interface IOdrlConstraint {
@@ -57,6 +62,15 @@ const registerObligationEnforcer = (
 	};
 	PolicyObligationEnforcerFactory.register(id, () => enforcer);
 	registeredObligationEnforcers.push(id);
+};
+
+const loadUseCaseFixture = <T = IDataspaceProtocolAgreement>(relativePath: string): T => {
+	const fixturePath = path.join(__dirname, "../../../docs/use-cases", relativePath);
+	let fileContents = readFileSync(fixturePath, "utf8");
+	if (fileContents.charCodeAt(0) === 0xfeff) {
+		fileContents = fileContents.slice(1);
+	}
+	return JSON.parse(fileContents) as T;
 };
 
 const registerPolicyAdministrationPointComponent = (
@@ -221,8 +235,8 @@ describe("DefaultPolicyArbiter", () => {
 						source: "did:example:assignee",
 						refinement: [
 							{
-								leftOperand: "twin:jsonPath",
-								"twin:jsonPathExpression": "$.region",
+								leftOperand: OdrlTwinVocabulary.JsonPath,
+								[OdrlTwinVocabulary.JsonPathExpression]: "$.region",
 								operator: OdrlOperatorType.Eq,
 								rightOperand: "EU"
 							}
@@ -253,8 +267,8 @@ describe("DefaultPolicyArbiter", () => {
 						source: "did:example:assignee",
 						refinement: [
 							{
-								leftOperand: "twin:jsonPath",
-								"twin:jsonPathExpression": "$.region",
+								leftOperand: OdrlTwinVocabulary.JsonPath,
+								[OdrlTwinVocabulary.JsonPathExpression]: "$.region",
 								operator: OdrlOperatorType.Eq,
 								rightOperand: "EU"
 							}
@@ -269,12 +283,272 @@ describe("DefaultPolicyArbiter", () => {
 		);
 	});
 
-	test("does not throw and denies when PartyCollection source is missing", async () => {
+	test("real UC6 offer-registration.json example grants/denies correctly (docs stay in sync with the arbiter)", async () => {
+		const arbiter = new DefaultPolicyArbiter();
+		const offerPath = path.join(
+			__dirname,
+			"../../../docs/use-cases/06-policy-negotiation-offer-to-agreement/offer-registration.json"
+		);
+		let offerFileContents = readFileSync(offerPath, "utf8");
+		if (offerFileContents.charCodeAt(0) === 0xfeff) {
+			offerFileContents = offerFileContents.slice(1);
+		}
+		const offer = JSON.parse(offerFileContents) as IDataspaceProtocolAgreement;
+
+		// Loads the actual documentation fixture from disk rather than a hand-authored stand-in, so a
+		// future edit to the doc (e.g. reintroducing a missing "$" prefix or an unsupported
+		// PartyCollection source) is caught here instead of silently drifting from what the arbiter
+		// actually accepts.
+		const granted = await arbiter.decide(
+			offer,
+			undefined,
+			{
+				assets: [{ id: "vet-cert-doc-6ce567", assetType: "DataResource" }],
+				legalAddress: { countryCode: "PL" }
+			},
+			"read"
+		);
+		expect(granted).toEqual([{ target: "$.assets[0]", decision: PolicyDecision.Granted }]);
+
+		const denied = await arbiter.decide(
+			offer,
+			undefined,
+			{
+				assets: [{ id: "vet-cert-doc-6ce567", assetType: "DataResource" }],
+				legalAddress: { countryCode: "US" }
+			},
+			"read"
+		);
+		expect(denied).toEqual([{ target: "$.assets[0]", decision: PolicyDecision.Denied }]);
+	});
+
+	describe("real use-case fixtures", () => {
+		test("UC1 policy.json grants/denies correctly (docs stay in sync with the arbiter)", async () => {
+			const arbiter = new DefaultPolicyArbiter();
+			const policy = loadUseCaseFixture("01-basic-data-resource-access/policy.json");
+
+			// The unresolvable Asset+uid target was removed (this use case is about assignee-attribute
+			// scoping, not target filtering - "is this the right resource" is a policy-lookup-layer
+			// concern, not something the arbiter's target mechanism needs to re-enforce here), and the
+			// assignee refinement's missing-"$" prefix is fixed, so this now grants/denies correctly.
+			// Loads the real pip-context.json rather than a hand-authored stand-in, so this proves the
+			// policy is genuinely executable against its own committed fixture - legalAddress.countryCode
+			// is nested under assigneeAttributes there, not at the top level.
+			const pipContext = loadUseCaseFixture<{
+				assigneeAttributes: { legalAddress: { countryCode: string } };
+			}>("01-basic-data-resource-access/pip-context.json");
+			const granted = await arbiter.decide(policy, undefined, pipContext, "read");
+			expect(granted).toEqual([{ target: "$", decision: PolicyDecision.Granted }]);
+
+			const denied = await arbiter.decide(
+				policy,
+				undefined,
+				{ assigneeAttributes: { legalAddress: { countryCode: "US" } } },
+				"read"
+			);
+			expect(denied).toEqual([{ target: "$", decision: PolicyDecision.Denied }]);
+		});
+
+		test("UC2 policy.json filters consignments per-item correctly (docs stay in sync with the arbiter)", async () => {
+			const arbiter = new DefaultPolicyArbiter();
+			const policy = loadUseCaseFixture("02-country-filtered-consignments/policy.json");
+			const sourceData = loadUseCaseFixture<{
+				consignments: { destinationCountry: string }[];
+			}>("02-country-filtered-consignments/source-data.json");
+
+			// The AssetCollection target now resolves via "twin:jsonPath" over the real consignments
+			// array (source-data.json, loaded from disk so doc drift is caught here), the refinement's
+			// "$" prefix is fixed and correctly wildcard-scoped per item, and the unsupported
+			// PropertyReference rightOperand is replaced with a supported twin:jsonPath/information
+			// lookup - so this now filters exactly as description.md's narrative describes: only the
+			// PL-bound consignments (indices 0 and 2) are granted.
+			const decisions = await arbiter.decide(
+				policy,
+				{ assigneeAttributes: { countryCode: "PL" } },
+				sourceData,
+				"read"
+			);
+			expect(decisions).toEqual([
+				{ target: "$.consignments[0]", decision: PolicyDecision.Granted },
+				{ target: "$.consignments[1]", decision: PolicyDecision.Denied },
+				{ target: "$.consignments[2]", decision: PolicyDecision.Granted },
+				{ target: "$.consignments[3]", decision: PolicyDecision.Denied }
+			]);
+
+			// A country absent from every consignment (PL/DE/FR are the only ones present) proves the
+			// filter is genuinely comparing per-item, not vacuously granting everything.
+			const deniedAll = await arbiter.decide(
+				policy,
+				{ assigneeAttributes: { countryCode: "GB" } },
+				sourceData,
+				"read"
+			);
+			expect(deniedAll).toEqual([
+				{ target: "$.consignments[0]", decision: PolicyDecision.Denied },
+				{ target: "$.consignments[1]", decision: PolicyDecision.Denied },
+				{ target: "$.consignments[2]", decision: PolicyDecision.Denied },
+				{ target: "$.consignments[3]", decision: PolicyDecision.Denied }
+			]);
+		});
+
+		test("UC4 policy.json grants/denies correctly (docs stay in sync with the arbiter)", async () => {
+			const arbiter = new DefaultPolicyArbiter();
+			const policy = loadUseCaseFixture("04-multi-constraint-service-offering/policy.json");
+
+			// The unresolvable ServiceOffering target was removed (same "one specific, singular thing"
+			// treatment as UC1 - "is this the right service" is a policy-lookup-layer concern, not
+			// something the arbiter's target mechanism needs to re-enforce here), and the
+			// certifications refinement's missing-"$" prefix is fixed, so this now grants/denies
+			// correctly across all three AND'd constraints (dateTime window x2 + certifications).
+			// The built-in "dateTime" leftOperand resolves via the real system clock (not injectable),
+			// and the fixture's window ends 2035-12-31 - pin the clock inside this test so it keeps
+			// proving doc/arbiter sync instead of going red the day the real window actually expires.
+			vi.setSystemTime(new Date("2026-07-01T00:00:00Z"));
+			try {
+				const granted = await arbiter.decide(
+					policy,
+					undefined,
+					{ assigneeAttributes: { certifications: ["ISO27001"] } },
+					"use"
+				);
+				expect(granted).toEqual([{ target: "$", decision: PolicyDecision.Granted }]);
+
+				const denied = await arbiter.decide(
+					policy,
+					undefined,
+					{ assigneeAttributes: { certifications: ["ISO9001"] } },
+					"use"
+				);
+				expect(denied).toEqual([{ target: "$", decision: PolicyDecision.Denied }]);
+			} finally {
+				vi.useRealTimers();
+			}
+		});
+
+		test("UC5 policy.json grants/denies correctly, per-constraint (docs stay in sync with the arbiter)", async () => {
+			const arbiter = new DefaultPolicyArbiter();
+			const policy = loadUseCaseFixture("05-catalogue-gated-notification/policy.json");
+
+			// The unresolvable ServiceOffering target was removed, the assignee refinement's invalid
+			// "contains" operator was replaced with the supported "isAnyOf" (the correct "list contains
+			// value" semantics), and both the rule-level and duty-level constraints' missing-"$" prefixes
+			// are fixed. The duty's own constraint is never evaluated by the built-in arbiter itself
+			// (enforceDuty() delegates entirely to registered IPolicyObligationEnforcer implementations -
+			// confirmed by reading defaultPolicyArbiter.ts), so this test registers an enforcer that
+			// actually resolves the duty's twin:jsonPath constraint via the real JsonPathHelper, proving
+			// the "$" fix is meaningful for any real implementer, not just cosmetically correct.
+			registerObligationEnforcer(
+				"uc5-inform-enforcer",
+				async (enforcedPolicy, duty, information, ruleDataContext) => {
+					const dutyRecord = duty as unknown as {
+						constraint?: {
+							[OdrlTwinVocabulary.JsonPathExpression]?: string;
+							rightOperand?: unknown;
+						}[];
+					};
+					const constraint = dutyRecord.constraint?.[0];
+					const expression = constraint?.[OdrlTwinVocabulary.JsonPathExpression];
+					if (!expression) {
+						return true;
+					}
+					const matches = JsonPathHelper.query(expression, ruleDataContext);
+					return matches.length === 1 && matches[0].value === constraint.rightOperand;
+				}
+			);
+
+			const base = {
+				assigneeAttributes: { certifications: ["FSA-Trusted-Notifier"] },
+				resourceAttributes: {
+					consignment: { destinationCountry: { countryId: "GB" } },
+					latestDocument: { documentTypeCode: "unece:DocumentCodeList#853" }
+				}
+			};
+
+			const granted = await arbiter.decide(policy, undefined, base, "use");
+			expect(granted).toEqual([{ target: "$", decision: PolicyDecision.Granted }]);
+
+			// Each mismatch proves its own constraint is genuinely load-bearing, not vacuously true.
+			const wrongCertification = await arbiter.decide(
+				policy,
+				undefined,
+				{ ...base, assigneeAttributes: { certifications: ["ISO27001"] } },
+				"use"
+			);
+			expect(wrongCertification).toEqual([{ target: "$", decision: PolicyDecision.Denied }]);
+
+			const wrongCountry = await arbiter.decide(
+				policy,
+				undefined,
+				{
+					...base,
+					resourceAttributes: {
+						...base.resourceAttributes,
+						consignment: { destinationCountry: { countryId: "FR" } }
+					}
+				},
+				"use"
+			);
+			expect(wrongCountry).toEqual([{ target: "$", decision: PolicyDecision.Denied }]);
+
+			const wrongDocumentType = await arbiter.decide(
+				policy,
+				undefined,
+				{
+					...base,
+					resourceAttributes: {
+						...base.resourceAttributes,
+						latestDocument: { documentTypeCode: "unece:DocumentCodeList#002" }
+					}
+				},
+				"use"
+			);
+			expect(wrongDocumentType).toEqual([{ target: "$", decision: PolicyDecision.Denied }]);
+		});
+
+		test("legacy jsonPathSelector shape never matches, even when the data satisfies it (regression guard, description.md no longer documents this)", async () => {
+			const arbiter = new DefaultPolicyArbiter();
+			// Mirrors the legacy shape that description.md:275 used to document as a supported extension
+			// Removed that false claim. Not loaded from disk, since this guards
+			// against the shape itself resurfacing, not any prose. Kept as a regression guard: the arbiter
+			// still silently fails closed on this shape rather than throwing, which is worth pinning.
+			const agreement: IDataspaceProtocolAgreement = {
+				"@context": OdrlContexts.Context,
+				"@type": OdrlPolicyType.Agreement,
+				"@id": "agreement:jsonpath-selector-doc-probe",
+				assigner: "did:example:assigner",
+				assignee: "did:example:assignee",
+				permission: [
+					{
+						action: "read",
+						constraint: [
+							{
+								leftOperand: {
+									"@id": "https://w3id.org/twin/odrl/propertyValue",
+									jsonPathSelector: ".legalAddress.countryCode"
+								},
+								operator: OdrlOperatorType.Eq,
+								rightOperand: "PL"
+							} as unknown as IOdrlConstraint
+						]
+					}
+				]
+			};
+
+			// The data genuinely satisfies the documented intent (countryCode is "PL"), but the shape
+			// never resolves, so this denies regardless - proving the doc teaches a non-working pattern.
+			const decisions = await arbiter.decide(agreement, undefined, {
+				legalAddress: { countryCode: "PL" }
+			});
+			expect(decisions).toEqual([{ target: "$", decision: PolicyDecision.Denied }]);
+		});
+	});
+
+	test("grants when assignee PartyCollection refinement matches the data datasource (source still missing, no longer denied)", async () => {
 		const arbiter = new DefaultPolicyArbiter();
 		const agreement: IDataspaceProtocolAgreement = {
 			"@context": OdrlContexts.Context,
 			"@type": OdrlPolicyType.Agreement,
-			"@id": "agreement:party-collection-source-missing-allowed",
+			"@id": "agreement:party-collection-source-missing-grant",
 			assigner: "did:example:assigner",
 			assignee: "did:example:assignee",
 			permission: [
@@ -284,8 +558,8 @@ describe("DefaultPolicyArbiter", () => {
 						"@type": "PartyCollection",
 						refinement: [
 							{
-								leftOperand: "twin:jsonPath",
-								"twin:jsonPathExpression": "$.region",
+								leftOperand: OdrlTwinVocabulary.JsonPath,
+								[OdrlTwinVocabulary.JsonPathExpression]: "$.region",
 								operator: OdrlOperatorType.Eq,
 								rightOperand: "EU"
 							}
@@ -296,6 +570,36 @@ describe("DefaultPolicyArbiter", () => {
 		};
 
 		const decisions = await arbiter.decide(agreement, undefined, { region: "EU" });
+		expect(decisions).toEqual([{ target: "$", decision: PolicyDecision.Granted }]);
+	});
+
+	test("denies when assignee PartyCollection refinement does not match the data datasource (source still missing)", async () => {
+		const arbiter = new DefaultPolicyArbiter();
+		const agreement: IDataspaceProtocolAgreement = {
+			"@context": OdrlContexts.Context,
+			"@type": OdrlPolicyType.Agreement,
+			"@id": "agreement:party-collection-source-missing-deny",
+			assigner: "did:example:assigner",
+			assignee: "did:example:assignee",
+			permission: [
+				{
+					action: "read",
+					assignee: {
+						"@type": "PartyCollection",
+						refinement: [
+							{
+								leftOperand: OdrlTwinVocabulary.JsonPath,
+								[OdrlTwinVocabulary.JsonPathExpression]: "$.region",
+								operator: OdrlOperatorType.Eq,
+								rightOperand: "EU"
+							}
+						]
+					}
+				}
+			]
+		};
+
+		const decisions = await arbiter.decide(agreement, undefined, { region: "US" });
 		expect(decisions).toEqual([{ target: "$", decision: PolicyDecision.Denied }]);
 	});
 
@@ -312,8 +616,8 @@ describe("DefaultPolicyArbiter", () => {
 			"@type": "PartyCollection",
 			refinement: [
 				{
-					leftOperand: "twin:jsonPath",
-					"twin:jsonPathExpression": "$.region",
+					leftOperand: OdrlTwinVocabulary.JsonPath,
+					[OdrlTwinVocabulary.JsonPathExpression]: "$.region",
 					operator: OdrlOperatorType.Eq,
 					rightOperand: "EU"
 				}
@@ -322,6 +626,485 @@ describe("DefaultPolicyArbiter", () => {
 
 		expect(context.partyIds).toEqual([]);
 		expect(context.refinements).toHaveLength(1);
+	});
+
+	describe("assignee/assigner PartyCollection refinements", () => {
+		test("grants when assignee PartyCollection refinement matches the consumer's verified attributes in the information datasource", async () => {
+			const arbiter = new DefaultPolicyArbiter();
+			const agreement: IDataspaceProtocolAgreement = {
+				"@context": OdrlContexts.Context,
+				"@type": OdrlPolicyType.Agreement,
+				"@id": "agreement:party-collection-info-refinement-match",
+				assigner: "did:example:assigner",
+				assignee: "did:example:assignee",
+				permission: [
+					{
+						action: "read",
+						assignee: {
+							"@type": "PartyCollection",
+							refinement: [
+								{
+									leftOperand: OdrlTwinVocabulary.JsonPath,
+									"twin:jsonPathDataSource": OdrlTwinVocabulary.InformationSourceKey,
+									[OdrlTwinVocabulary.JsonPathExpression]: "$.subject.role",
+									operator: OdrlOperatorType.Eq,
+									rightOperand: "BorderAgency"
+								}
+							]
+						}
+					}
+				]
+			};
+
+			const information = { subject: { role: "BorderAgency" } };
+
+			// An assignee scoped by attribute refinement rather than a fixed id now behaves like any
+			// other satisfied constraint: the refinement matches (subject.role === "BorderAgency"), so
+			// this grants.
+			const decisions = await arbiter.decide(agreement, information, { any: "data" });
+			expect(decisions).toEqual([{ target: "$", decision: PolicyDecision.Granted }]);
+		});
+
+		test("denies when assignee PartyCollection refinement does not match the information datasource", async () => {
+			const arbiter = new DefaultPolicyArbiter();
+			const agreement: IDataspaceProtocolAgreement = {
+				"@context": OdrlContexts.Context,
+				"@type": OdrlPolicyType.Agreement,
+				"@id": "agreement:party-collection-info-refinement-mismatch",
+				assigner: "did:example:assigner",
+				assignee: "did:example:assignee",
+				permission: [
+					{
+						action: "read",
+						assignee: {
+							"@type": "PartyCollection",
+							refinement: [
+								{
+									leftOperand: OdrlTwinVocabulary.JsonPath,
+									"twin:jsonPathDataSource": OdrlTwinVocabulary.InformationSourceKey,
+									[OdrlTwinVocabulary.JsonPathExpression]: "$.subject.role",
+									operator: OdrlOperatorType.Eq,
+									rightOperand: "BorderAgency"
+								}
+							]
+						}
+					}
+				]
+			};
+
+			const information = { subject: { role: "Carrier" } };
+
+			const decisions = await arbiter.decide(agreement, information, { any: "data" });
+			expect(decisions).toEqual([{ target: "$", decision: PolicyDecision.Denied }]);
+		});
+
+		test("grants when assignee PartyCollection refinement is a logical 'or' constraint that matches one branch", async () => {
+			const arbiter = new DefaultPolicyArbiter();
+			const agreement: IDataspaceProtocolAgreement = {
+				"@context": OdrlContexts.Context,
+				"@type": OdrlPolicyType.Agreement,
+				"@id": "agreement:party-collection-info-refinement-logical-or",
+				assigner: "did:example:assigner",
+				assignee: "did:example:assignee",
+				permission: [
+					{
+						action: "read",
+						assignee: {
+							"@type": "PartyCollection",
+							refinement: [
+								{
+									or: {
+										"@list": [
+											{
+												leftOperand: OdrlTwinVocabulary.JsonPath,
+												"twin:jsonPathDataSource": OdrlTwinVocabulary.InformationSourceKey,
+												[OdrlTwinVocabulary.JsonPathExpression]: "$.subject.role",
+												operator: OdrlOperatorType.Eq,
+												rightOperand: "BorderAgency"
+											},
+											{
+												leftOperand: OdrlTwinVocabulary.JsonPath,
+												"twin:jsonPathDataSource": OdrlTwinVocabulary.InformationSourceKey,
+												[OdrlTwinVocabulary.JsonPathExpression]: "$.subject.role",
+												operator: OdrlOperatorType.Eq,
+												rightOperand: "CustomsOfficer"
+											}
+										]
+									}
+								} as unknown as IOdrlConstraint | IOdrlLogicalConstraint
+							]
+						}
+					}
+				]
+			};
+
+			// Mirrors the real-world assignee PartyCollection shape used by
+			// twin-supply-chain's isn-notify-template.json (a role-refinement matched against multiple
+			// acceptable roles), proving evaluateConstraint's logical-constraint path (not just plain
+			// constraints) works through the new empty-partyIds branch.
+			const granted = await arbiter.decide(
+				agreement,
+				{ subject: { role: "CustomsOfficer" } },
+				{ any: "data" }
+			);
+			expect(granted).toEqual([{ target: "$", decision: PolicyDecision.Granted }]);
+
+			const denied = await arbiter.decide(
+				agreement,
+				{ subject: { role: "Carrier" } },
+				{ any: "data" }
+			);
+			expect(denied).toEqual([{ target: "$", decision: PolicyDecision.Denied }]);
+		});
+
+		test("prohibition with matching assignee PartyCollection refinement now applies (deny-overrides)", async () => {
+			const arbiter = new DefaultPolicyArbiter();
+			const agreement: IDataspaceProtocolAgreement = {
+				"@context": OdrlContexts.Context,
+				"@type": OdrlPolicyType.Agreement,
+				"@id": "agreement:prohibition-party-collection-refinement-match",
+				assigner: "did:example:assigner",
+				assignee: "did:example:assignee",
+				permission: [{ action: "read" }],
+				prohibition: [
+					{
+						action: "read",
+						assignee: {
+							"@type": "PartyCollection",
+							refinement: [
+								{
+									leftOperand: OdrlTwinVocabulary.JsonPath,
+									"twin:jsonPathDataSource": OdrlTwinVocabulary.InformationSourceKey,
+									[OdrlTwinVocabulary.JsonPathExpression]: "$.subject.role",
+									operator: OdrlOperatorType.Eq,
+									rightOperand: "BorderAgency"
+								}
+							]
+						}
+					}
+				]
+			};
+
+			const information = { subject: { role: "BorderAgency" } };
+
+			// The prohibition's assignee refinement matches, so under the default Invalid conflict
+			// strategy (alongside the unconditional permission) it now applies and denies.
+			const decisions = await arbiter.decide(agreement, information, { any: "data" });
+			expect(decisions).toEqual([{ target: "$", decision: PolicyDecision.Denied }]);
+		});
+
+		test("prohibition with non-matching assignee PartyCollection refinement does not apply", async () => {
+			const arbiter = new DefaultPolicyArbiter();
+			const agreement: IDataspaceProtocolAgreement = {
+				"@context": OdrlContexts.Context,
+				"@type": OdrlPolicyType.Agreement,
+				"@id": "agreement:prohibition-party-collection-refinement-mismatch",
+				assigner: "did:example:assigner",
+				assignee: "did:example:assignee",
+				permission: [{ action: "read" }],
+				prohibition: [
+					{
+						action: "read",
+						assignee: {
+							"@type": "PartyCollection",
+							refinement: [
+								{
+									leftOperand: OdrlTwinVocabulary.JsonPath,
+									"twin:jsonPathDataSource": OdrlTwinVocabulary.InformationSourceKey,
+									[OdrlTwinVocabulary.JsonPathExpression]: "$.subject.role",
+									operator: OdrlOperatorType.Eq,
+									rightOperand: "BorderAgency"
+								}
+							]
+						}
+					}
+				]
+			};
+
+			const information = { subject: { role: "Carrier" } };
+
+			// The prohibition's refinement does not match, so it stays inapplicable and the
+			// unconditional permission still grants.
+			const decisions = await arbiter.decide(agreement, information, { any: "data" });
+			expect(decisions).toEqual([{ target: "$", decision: PolicyDecision.Granted }]);
+		});
+
+		test("obligation with matching assignee PartyCollection refinement is now enforced", async () => {
+			registerObligationEnforcer(
+				"deny-party-refinement-obligation",
+				vi.fn().mockResolvedValue(false)
+			);
+
+			const arbiter = new DefaultPolicyArbiter();
+			const agreement: IDataspaceProtocolAgreement = {
+				"@context": OdrlContexts.Context,
+				"@type": OdrlPolicyType.Agreement,
+				"@id": "agreement:obligation-party-collection-refinement-match",
+				assigner: "did:example:assigner",
+				assignee: "did:example:assignee",
+				permission: [{ action: "read" }],
+				obligation: [
+					{
+						action: "compensate",
+						assignee: {
+							"@type": "PartyCollection",
+							refinement: [
+								{
+									leftOperand: OdrlTwinVocabulary.JsonPath,
+									"twin:jsonPathDataSource": OdrlTwinVocabulary.InformationSourceKey,
+									[OdrlTwinVocabulary.JsonPathExpression]: "$.subject.role",
+									operator: OdrlOperatorType.Eq,
+									rightOperand: "BorderAgency"
+								}
+							]
+						}
+					}
+				]
+			};
+
+			const information = { subject: { role: "BorderAgency" } };
+
+			// The obligation's assignee refinement matches, so it is now applicable — and since no
+			// enforcer fulfills it, the whole decision is denied.
+			const decisions = await arbiter.decide(agreement, information, { any: "data" });
+			expect(decisions).toEqual([{ target: "$", decision: PolicyDecision.Denied }]);
+		});
+
+		test("obligation with non-matching assignee PartyCollection refinement is skipped", async () => {
+			registerObligationEnforcer(
+				"deny-party-refinement-obligation-mismatch",
+				vi.fn().mockResolvedValue(false)
+			);
+
+			const arbiter = new DefaultPolicyArbiter();
+			const agreement: IDataspaceProtocolAgreement = {
+				"@context": OdrlContexts.Context,
+				"@type": OdrlPolicyType.Agreement,
+				"@id": "agreement:obligation-party-collection-refinement-mismatch",
+				assigner: "did:example:assigner",
+				assignee: "did:example:assignee",
+				permission: [{ action: "read" }],
+				obligation: [
+					{
+						action: "compensate",
+						assignee: {
+							"@type": "PartyCollection",
+							refinement: [
+								{
+									leftOperand: OdrlTwinVocabulary.JsonPath,
+									"twin:jsonPathDataSource": OdrlTwinVocabulary.InformationSourceKey,
+									[OdrlTwinVocabulary.JsonPathExpression]: "$.subject.role",
+									operator: OdrlOperatorType.Eq,
+									rightOperand: "BorderAgency"
+								}
+							]
+						}
+					}
+				]
+			};
+
+			const information = { subject: { role: "Carrier" } };
+
+			// The obligation's refinement does not match, so it stays inapplicable, is treated as
+			// fulfilled without calling the enforcer, and the unconditional permission grants.
+			const decisions = await arbiter.decide(agreement, information, { any: "data" });
+			expect(decisions).toEqual([{ target: "$", decision: PolicyDecision.Granted }]);
+		});
+
+		test("grants when assigner PartyCollection refinement matches", async () => {
+			const arbiter = new DefaultPolicyArbiter();
+			const agreement: IDataspaceProtocolAgreement = {
+				"@context": OdrlContexts.Context,
+				"@type": OdrlPolicyType.Agreement,
+				"@id": "agreement:assigner-party-collection-refinement-match",
+				assigner: "did:example:assigner",
+				assignee: "did:example:assignee",
+				permission: [
+					{
+						action: "read",
+						assigner: {
+							"@type": "PartyCollection",
+							refinement: [
+								{
+									leftOperand: OdrlTwinVocabulary.JsonPath,
+									"twin:jsonPathDataSource": OdrlTwinVocabulary.InformationSourceKey,
+									[OdrlTwinVocabulary.JsonPathExpression]: "$.subject.role",
+									operator: OdrlOperatorType.Eq,
+									rightOperand: "TrustedPublisher"
+								}
+							]
+						}
+					}
+				]
+			};
+
+			const information = { subject: { role: "TrustedPublisher" } };
+
+			// Symmetric to the assignee case above but on the assigner side — resolveRulePartyContext
+			// and isPartyContextApplicable treat assigner and assignee identically, so this now grants
+			// too.
+			const decisions = await arbiter.decide(agreement, information, { any: "data" });
+			expect(decisions).toEqual([{ target: "$", decision: PolicyDecision.Granted }]);
+		});
+
+		test("denies when assigner PartyCollection refinement does not match", async () => {
+			const arbiter = new DefaultPolicyArbiter();
+			const agreement: IDataspaceProtocolAgreement = {
+				"@context": OdrlContexts.Context,
+				"@type": OdrlPolicyType.Agreement,
+				"@id": "agreement:assigner-party-collection-refinement-mismatch",
+				assigner: "did:example:assigner",
+				assignee: "did:example:assignee",
+				permission: [
+					{
+						action: "read",
+						assigner: {
+							"@type": "PartyCollection",
+							refinement: [
+								{
+									leftOperand: OdrlTwinVocabulary.JsonPath,
+									"twin:jsonPathDataSource": OdrlTwinVocabulary.InformationSourceKey,
+									[OdrlTwinVocabulary.JsonPathExpression]: "$.subject.role",
+									operator: OdrlOperatorType.Eq,
+									rightOperand: "TrustedPublisher"
+								}
+							]
+						}
+					}
+				]
+			};
+
+			const information = { subject: { role: "UnknownPublisher" } };
+
+			const decisions = await arbiter.decide(agreement, information, { any: "data" });
+			expect(decisions).toEqual([{ target: "$", decision: PolicyDecision.Denied }]);
+		});
+
+		test("denies when assignee PartyCollection has no source and no refinement (empty party context stays fail-closed)", async () => {
+			const arbiter = new DefaultPolicyArbiter();
+			const agreement: IDataspaceProtocolAgreement = {
+				"@context": OdrlContexts.Context,
+				"@type": OdrlPolicyType.Agreement,
+				"@id": "agreement:empty-party-collection",
+				assigner: "did:example:assigner",
+				assignee: "did:example:assignee",
+				permission: [
+					{
+						action: "read",
+						assignee: {
+							"@type": "PartyCollection"
+						}
+					}
+				]
+			};
+
+			// A PartyCollection with neither a source nor a refinement resolves to an empty party
+			// context ({ partyIds: [], refinements: [] }). This must NOT be treated as "no constraint,
+			// applies to anyone" - it falls through to isPartyApplicable, which keeps the pre-existing
+			// fail-closed behavior (an empty id list never matches). Guards against a malformed or
+			// degenerate PartyCollection silently granting to any assignee.
+			const decisions = await arbiter.decide(agreement, undefined, { any: "data" });
+			expect(decisions).toEqual([{ target: "$", decision: PolicyDecision.Denied }]);
+		});
+
+		test("denies when assignee is an untyped object carrying source/refinement but no @type (malformed party stays fail-closed)", async () => {
+			const arbiter = new DefaultPolicyArbiter();
+			const agreement: IDataspaceProtocolAgreement = {
+				"@context": OdrlContexts.Context,
+				"@type": OdrlPolicyType.Agreement,
+				"@id": "agreement:untyped-source-bearing-party",
+				assigner: "did:example:assigner",
+				assignee: "did:example:assignee",
+				permission: [
+					{
+						action: "read",
+						// Mirrors twin-supply-chain's isn-read-policy.json assignee shape: a party object
+						// carrying `source`/`refinement` but no `@type`. OdrlPolicyHelper.getType() reads
+						// only "@type"/"type", so this is NOT recognized as a PartyCollection - it bypasses
+						// the partyCollectionSourceNotSupported throw entirely, and its refinement is never
+						// collected (that only happens inside the PartyCollection branch). It resolves to
+						// the same empty party context as the test above, and must stay denied rather than
+						// silently matching any assignee.
+						assignee: {
+							source: "urn:supply-chain:notification-recipients",
+							refinement: [
+								{
+									leftOperand: "information:$.role",
+									operator: OdrlOperatorType.Eq,
+									rightOperand: "BorderAgency"
+								}
+							]
+						}
+					}
+				]
+			};
+
+			const decisions = await arbiter.decide(agreement, undefined, { any: "data" });
+			expect(decisions).toEqual([{ target: "$", decision: PolicyDecision.Denied }]);
+		});
+
+		test("grants when assignee Party object with uid matches the agreement (regression pin)", async () => {
+			const arbiter = new DefaultPolicyArbiter();
+			const agreement: IDataspaceProtocolAgreement = {
+				"@context": OdrlContexts.Context,
+				"@type": OdrlPolicyType.Agreement,
+				"@id": "agreement:party-object-uid-match",
+				assigner: "did:example:assigner",
+				assignee: "did:example:assignee",
+				permission: [
+					{
+						action: "read",
+						assignee: { uid: "did:example:assignee" }
+					}
+				]
+			};
+
+			const decisions = await arbiter.decide(agreement, undefined, { any: "data" });
+			expect(decisions).toEqual([{ target: "$", decision: PolicyDecision.Granted }]);
+		});
+
+		test("grants via a mixed assignee array when the plain id matches, even though the PartyCollection refinement does not (compact-form OR expansion, regression pin)", async () => {
+			const arbiter = new DefaultPolicyArbiter();
+			const agreement: IDataspaceProtocolAgreement = {
+				"@context": OdrlContexts.Context,
+				"@type": OdrlPolicyType.Agreement,
+				"@id": "agreement:mixed-assignee-array-or-expansion",
+				assigner: "did:example:assigner",
+				assignee: "did:example:assignee",
+				permission: [
+					{
+						action: "read",
+						assignee: [
+							"did:example:assignee",
+							{
+								"@type": "PartyCollection",
+								refinement: [
+									{
+										leftOperand: OdrlTwinVocabulary.JsonPath,
+										"twin:jsonPathDataSource": OdrlTwinVocabulary.InformationSourceKey,
+										[OdrlTwinVocabulary.JsonPathExpression]: "$.subject.role",
+										operator: OdrlOperatorType.Eq,
+										rightOperand: "BorderAgency"
+									}
+								]
+							}
+						]
+					}
+				]
+			};
+
+			const information = { subject: { role: "Carrier" } };
+
+			// An array-valued assignee is NOT evaluated as one combined (ids AND refinements)
+			// context: expandRule cross-multiplies compact rule fields into independent atomic
+			// permissions before isRuleApplicableToParties ever runs, one atomic permission per
+			// array element. This test expands into two atomic rules sharing target "$": one with
+			// plain assignee "did:example:assignee" (matches), one with the PartyCollection
+			// refinement (does not match). Either atomic rule applying grants the shared target:
+			// OR-across-array semantics, not AND-within-one-rule (pre-existing behavior).
+			const decisions = await arbiter.decide(agreement, information, { any: "data" });
+			expect(decisions).toEqual([{ target: "$", decision: PolicyDecision.Granted }]);
+		});
 	});
 
 	test("throws when assignee party has assignerOf set", async () => {
@@ -597,11 +1380,17 @@ describe("DefaultPolicyArbiter", () => {
 			permission: [
 				{
 					action: "read",
-					target: { "@type": "twin:jsonPath", "twin:jsonPathExpression": "$.items[*]" }
+					target: {
+						"@type": OdrlTwinVocabulary.JsonPath,
+						[OdrlTwinVocabulary.JsonPathExpression]: "$.items[*]"
+					}
 				},
 				{
 					action: "read",
-					target: { "@type": "twin:jsonPath", "twin:jsonPathExpression": "$.meta" }
+					target: {
+						"@type": OdrlTwinVocabulary.JsonPath,
+						[OdrlTwinVocabulary.JsonPathExpression]: "$.meta"
+					}
 				}
 			],
 			obligation: [{ action: "compensate" }]
@@ -633,8 +1422,8 @@ describe("DefaultPolicyArbiter", () => {
 				{
 					constraint: [
 						{
-							leftOperand: "twin:jsonPath",
-							"twin:jsonPathExpression": "$.age",
+							leftOperand: OdrlTwinVocabulary.JsonPath,
+							[OdrlTwinVocabulary.JsonPathExpression]: "$.age",
 							operator: OdrlOperatorType.Gteq,
 							rightOperand: { "@value": "18", "@type": "xsd:integer" }
 						}
@@ -643,8 +1432,8 @@ describe("DefaultPolicyArbiter", () => {
 				{
 					constraint: [
 						{
-							leftOperand: "twin:jsonPath",
-							"twin:jsonPathExpression": "$.region",
+							leftOperand: OdrlTwinVocabulary.JsonPath,
+							[OdrlTwinVocabulary.JsonPathExpression]: "$.region",
 							operator: OdrlOperatorType.Eq,
 							rightOperand: "EU"
 						}
@@ -685,8 +1474,8 @@ describe("DefaultPolicyArbiter", () => {
 				{
 					constraint: [
 						{
-							leftOperand: "twin:jsonPath",
-							"twin:jsonPathExpression": "$.region",
+							leftOperand: OdrlTwinVocabulary.JsonPath,
+							[OdrlTwinVocabulary.JsonPathExpression]: "$.region",
 							operator: OdrlOperatorType.Eq,
 							rightOperand: "EU"
 						}
@@ -715,8 +1504,8 @@ describe("DefaultPolicyArbiter", () => {
 				{
 					constraint: [
 						{
-							leftOperand: "twin:jsonPath",
-							"twin:jsonPathExpression": "$.region",
+							leftOperand: OdrlTwinVocabulary.JsonPath,
+							[OdrlTwinVocabulary.JsonPathExpression]: "$.region",
 							operator: OdrlOperatorType.Eq,
 							rightOperand: "EU"
 						}
@@ -727,8 +1516,8 @@ describe("DefaultPolicyArbiter", () => {
 				{
 					constraint: [
 						{
-							leftOperand: "twin:jsonPath",
-							"twin:jsonPathExpression": "$.region",
+							leftOperand: OdrlTwinVocabulary.JsonPath,
+							[OdrlTwinVocabulary.JsonPathExpression]: "$.region",
 							operator: OdrlOperatorType.Eq,
 							rightOperand: "EU"
 						}
@@ -754,8 +1543,8 @@ describe("DefaultPolicyArbiter", () => {
 				{
 					constraint: [
 						{
-							leftOperand: "twin:jsonPath",
-							"twin:jsonPathExpression": "$.region",
+							leftOperand: OdrlTwinVocabulary.JsonPath,
+							[OdrlTwinVocabulary.JsonPathExpression]: "$.region",
 							operator: OdrlOperatorType.Eq,
 							rightOperand: "EU"
 						}
@@ -766,8 +1555,8 @@ describe("DefaultPolicyArbiter", () => {
 				{
 					constraint: [
 						{
-							leftOperand: "twin:jsonPath",
-							"twin:jsonPathExpression": "$.region",
+							leftOperand: OdrlTwinVocabulary.JsonPath,
+							[OdrlTwinVocabulary.JsonPathExpression]: "$.region",
 							operator: OdrlOperatorType.Eq,
 							rightOperand: "EU"
 						}
@@ -793,8 +1582,8 @@ describe("DefaultPolicyArbiter", () => {
 				{
 					constraint: [
 						{
-							leftOperand: "twin:jsonPath",
-							"twin:jsonPathExpression": "$.region",
+							leftOperand: OdrlTwinVocabulary.JsonPath,
+							[OdrlTwinVocabulary.JsonPathExpression]: "$.region",
 							operator: OdrlOperatorType.Eq,
 							rightOperand: "EU"
 						}
@@ -805,8 +1594,8 @@ describe("DefaultPolicyArbiter", () => {
 				{
 					constraint: [
 						{
-							leftOperand: "twin:jsonPath",
-							"twin:jsonPathExpression": "$.region",
+							leftOperand: OdrlTwinVocabulary.JsonPath,
+							[OdrlTwinVocabulary.JsonPathExpression]: "$.region",
 							operator: OdrlOperatorType.Eq,
 							rightOperand: "EU"
 						}
@@ -831,8 +1620,8 @@ describe("DefaultPolicyArbiter", () => {
 				{
 					constraint: [
 						{
-							leftOperand: "twin:jsonPath",
-							"twin:jsonPathExpression": "$.age",
+							leftOperand: OdrlTwinVocabulary.JsonPath,
+							[OdrlTwinVocabulary.JsonPathExpression]: "$.age",
 							operator: OdrlOperatorType.Gteq,
 							rightOperand: { "@value": "18", "@type": "xsd:integer" }
 						}
@@ -858,8 +1647,8 @@ describe("DefaultPolicyArbiter", () => {
 				{
 					constraint: [
 						{
-							leftOperand: "twin:jsonPath",
-							"twin:jsonPathExpression": "$.age",
+							leftOperand: OdrlTwinVocabulary.JsonPath,
+							[OdrlTwinVocabulary.JsonPathExpression]: "$.age",
 							operator: OdrlOperatorType.Gteq,
 							rightOperand: { "@value": "18", "@type": "xsd:integer" }
 						}
@@ -887,14 +1676,14 @@ describe("DefaultPolicyArbiter", () => {
 							or: {
 								"@list": [
 									{
-										leftOperand: "twin:jsonPath",
-										"twin:jsonPathExpression": "$.age",
+										leftOperand: OdrlTwinVocabulary.JsonPath,
+										[OdrlTwinVocabulary.JsonPathExpression]: "$.age",
 										operator: OdrlOperatorType.Gteq,
 										rightOperand: { "@value": "18", "@type": "xsd:integer" }
 									},
 									{
-										leftOperand: "twin:jsonPath",
-										"twin:jsonPathExpression": "$.region",
+										leftOperand: OdrlTwinVocabulary.JsonPath,
+										[OdrlTwinVocabulary.JsonPathExpression]: "$.region",
 										operator: OdrlOperatorType.Eq,
 										rightOperand: "EU"
 									}
@@ -928,14 +1717,14 @@ describe("DefaultPolicyArbiter", () => {
 							xone: {
 								"@list": [
 									{
-										leftOperand: "twin:jsonPath",
-										"twin:jsonPathExpression": "$.age",
+										leftOperand: OdrlTwinVocabulary.JsonPath,
+										[OdrlTwinVocabulary.JsonPathExpression]: "$.age",
 										operator: OdrlOperatorType.Gteq,
 										rightOperand: { "@value": "18", "@type": "xsd:integer" }
 									},
 									{
-										leftOperand: "twin:jsonPath",
-										"twin:jsonPathExpression": "$.region",
+										leftOperand: OdrlTwinVocabulary.JsonPath,
+										[OdrlTwinVocabulary.JsonPathExpression]: "$.region",
 										operator: OdrlOperatorType.Eq,
 										rightOperand: "EU"
 									}
@@ -969,14 +1758,14 @@ describe("DefaultPolicyArbiter", () => {
 							andSequence: {
 								"@list": [
 									{
-										leftOperand: "twin:jsonPath",
-										"twin:jsonPathExpression": "$.age",
+										leftOperand: OdrlTwinVocabulary.JsonPath,
+										[OdrlTwinVocabulary.JsonPathExpression]: "$.age",
 										operator: OdrlOperatorType.Gteq,
 										rightOperand: { "@value": "18", "@type": "xsd:integer" }
 									},
 									{
-										leftOperand: "twin:jsonPath",
-										"twin:jsonPathExpression": "$.region",
+										leftOperand: OdrlTwinVocabulary.JsonPath,
+										[OdrlTwinVocabulary.JsonPathExpression]: "$.region",
 										operator: OdrlOperatorType.Eq,
 										rightOperand: "EU"
 									}
@@ -1010,15 +1799,15 @@ describe("DefaultPolicyArbiter", () => {
 							and: [
 								{
 									"@id": "constraint:1",
-									leftOperand: "twin:jsonPath",
-									"twin:jsonPathExpression": "$.age",
+									leftOperand: OdrlTwinVocabulary.JsonPath,
+									[OdrlTwinVocabulary.JsonPathExpression]: "$.age",
 									operator: OdrlOperatorType.Gteq,
 									rightOperand: { "@value": "18", "@type": "xsd:integer" }
 								},
 								{
 									"@id": "constraint:1",
-									leftOperand: "twin:jsonPath",
-									"twin:jsonPathExpression": "$.region",
+									leftOperand: OdrlTwinVocabulary.JsonPath,
+									[OdrlTwinVocabulary.JsonPathExpression]: "$.region",
 									operator: OdrlOperatorType.Eq,
 									rightOperand: "EU"
 								}
@@ -1049,15 +1838,15 @@ describe("DefaultPolicyArbiter", () => {
 							and: [
 								{
 									"@id": "constraint:1",
-									leftOperand: "twin:jsonPath",
-									"twin:jsonPathExpression": "$.age",
+									leftOperand: OdrlTwinVocabulary.JsonPath,
+									[OdrlTwinVocabulary.JsonPathExpression]: "$.age",
 									operator: OdrlOperatorType.Gteq,
 									rightOperand: { "@value": "18", "@type": "xsd:integer" }
 								},
 								{
 									"@id": "constraint:2",
-									leftOperand: "twin:jsonPath",
-									"twin:jsonPathExpression": "$.region",
+									leftOperand: OdrlTwinVocabulary.JsonPath,
+									[OdrlTwinVocabulary.JsonPathExpression]: "$.region",
 									operator: OdrlOperatorType.Eq,
 									rightOperand: "EU"
 								}
@@ -1087,8 +1876,8 @@ describe("DefaultPolicyArbiter", () => {
 				{
 					constraint: [
 						{
-							leftOperand: "twin:jsonPath",
-							"twin:jsonPathExpression": "$.code",
+							leftOperand: OdrlTwinVocabulary.JsonPath,
+							[OdrlTwinVocabulary.JsonPathExpression]: "$.code",
 							operator: OdrlOperatorType.Gt,
 							rightOperand: "a"
 						}
@@ -1116,8 +1905,8 @@ describe("DefaultPolicyArbiter", () => {
 				{
 					constraint: [
 						{
-							leftOperand: "twin:jsonPath",
-							"twin:jsonPathExpression": "$.age",
+							leftOperand: OdrlTwinVocabulary.JsonPath,
+							[OdrlTwinVocabulary.JsonPathExpression]: "$.age",
 							operator: OdrlOperatorType.Gteq,
 							rightOperand: "$.minAge"
 						}
@@ -1142,12 +1931,12 @@ describe("DefaultPolicyArbiter", () => {
 				{
 					constraint: [
 						{
-							leftOperand: "twin:jsonPath",
-							"twin:jsonPathExpression": "$.region",
+							leftOperand: OdrlTwinVocabulary.JsonPath,
+							[OdrlTwinVocabulary.JsonPathExpression]: "$.region",
 							operator: OdrlOperatorType.Eq,
 							rightOperand: {
-								"@type": "twin:jsonPath",
-								"twin:jsonPathExpression": "$.allowedRegion"
+								"@type": OdrlTwinVocabulary.JsonPath,
+								[OdrlTwinVocabulary.JsonPathExpression]: "$.allowedRegion"
 							}
 						} as unknown as IOdrlConstraint
 					]
@@ -1174,8 +1963,8 @@ describe("DefaultPolicyArbiter", () => {
 				{
 					constraint: [
 						{
-							leftOperand: "twin:jsonPath",
-							"twin:jsonPathExpression": "$.tags[*]",
+							leftOperand: OdrlTwinVocabulary.JsonPath,
+							[OdrlTwinVocabulary.JsonPathExpression]: "$.tags[*]",
 							operator: OdrlOperatorType.IsAnyOf,
 							rightOperand: ["c", "b"]
 						}
@@ -1200,8 +1989,8 @@ describe("DefaultPolicyArbiter", () => {
 				{
 					constraint: [
 						{
-							leftOperand: "twin:jsonPath",
-							"twin:jsonPathExpression": "$.age",
+							leftOperand: OdrlTwinVocabulary.JsonPath,
+							[OdrlTwinVocabulary.JsonPathExpression]: "$.age",
 							operator: OdrlOperatorType.Gteq,
 							rightOperand: { "@value": "18", "@type": "xsd:integer" }
 						}
@@ -1226,7 +2015,7 @@ describe("DefaultPolicyArbiter", () => {
 				{
 					constraint: [
 						{
-							leftOperand: "twin:jsonPath",
+							leftOperand: OdrlTwinVocabulary.JsonPath,
 							operator: OdrlOperatorType.Gteq,
 							rightOperand: { "@value": "18", "@type": "xsd:integer" }
 						}
@@ -1250,12 +2039,12 @@ describe("DefaultPolicyArbiter", () => {
 				{
 					constraint: [
 						{
-							leftOperand: "twin:jsonPath",
-							"twin:jsonPathExpression": "$.region",
+							leftOperand: OdrlTwinVocabulary.JsonPath,
+							[OdrlTwinVocabulary.JsonPathExpression]: "$.region",
 							operator: OdrlOperatorType.Eq,
 							rightOperand: {
-								"@type": "twin:jsonPath",
-								"twin:jsonPathExpression": "$.allowedRegion"
+								"@type": OdrlTwinVocabulary.JsonPath,
+								[OdrlTwinVocabulary.JsonPathExpression]: "$.allowedRegion"
 							}
 						} as unknown as IOdrlConstraint
 					]
@@ -1282,11 +2071,11 @@ describe("DefaultPolicyArbiter", () => {
 				{
 					constraint: [
 						{
-							leftOperand: "twin:jsonPath",
-							"twin:jsonPathExpression": "$.region",
+							leftOperand: OdrlTwinVocabulary.JsonPath,
+							[OdrlTwinVocabulary.JsonPathExpression]: "$.region",
 							operator: OdrlOperatorType.Eq,
 							rightOperand: {
-								"@type": "twin:jsonPath"
+								"@type": OdrlTwinVocabulary.JsonPath
 							}
 						} as unknown as IOdrlConstraint
 					]
@@ -1314,11 +2103,11 @@ describe("DefaultPolicyArbiter", () => {
 				{
 					constraint: [
 						{
-							leftOperand: "twin:jsonPath",
-							"twin:jsonPathExpression": "$.region",
+							leftOperand: OdrlTwinVocabulary.JsonPath,
+							[OdrlTwinVocabulary.JsonPathExpression]: "$.region",
 							operator: OdrlOperatorType.Eq,
 							rightOperand: {
-								"@type": "twin:jsonPath",
+								"@type": OdrlTwinVocabulary.JsonPath,
 								"@value": "$.allowedRegion"
 							}
 						}
@@ -1347,8 +2136,8 @@ describe("DefaultPolicyArbiter", () => {
 				{
 					constraint: [
 						{
-							leftOperand: "twin:jsonPath",
-							"twin:jsonPathExpression": "",
+							leftOperand: OdrlTwinVocabulary.JsonPath,
+							[OdrlTwinVocabulary.JsonPathExpression]: "",
 							operator: OdrlOperatorType.Gteq,
 							rightOperand: { "@value": "18", "@type": "xsd:integer" }
 						}
@@ -1370,11 +2159,14 @@ describe("DefaultPolicyArbiter", () => {
 			"@id": "policy:jsonpath-target",
 			permission: [
 				{
-					target: { "@type": "twin:jsonPath", "twin:jsonPathExpression": "$.items[*]" },
+					target: {
+						"@type": OdrlTwinVocabulary.JsonPath,
+						[OdrlTwinVocabulary.JsonPathExpression]: "$.items[*]"
+					},
 					constraint: [
 						{
-							leftOperand: "twin:jsonPath",
-							"twin:jsonPathExpression": "$.region",
+							leftOperand: OdrlTwinVocabulary.JsonPath,
+							[OdrlTwinVocabulary.JsonPathExpression]: "$.region",
 							operator: OdrlOperatorType.Eq,
 							rightOperand: "US"
 						}
@@ -1407,13 +2199,19 @@ describe("DefaultPolicyArbiter", () => {
 			permission: [
 				{
 					target: [
-						{ "@type": "twin:jsonPath", "twin:jsonPathExpression": "$.items[*]" },
-						{ "@type": "twin:jsonPath", "twin:jsonPathExpression": "$.meta" }
+						{
+							"@type": OdrlTwinVocabulary.JsonPath,
+							[OdrlTwinVocabulary.JsonPathExpression]: "$.items[*]"
+						},
+						{
+							"@type": OdrlTwinVocabulary.JsonPath,
+							[OdrlTwinVocabulary.JsonPathExpression]: "$.meta"
+						}
 					],
 					constraint: [
 						{
-							leftOperand: "twin:jsonPath",
-							"twin:jsonPathExpression": "$.region",
+							leftOperand: OdrlTwinVocabulary.JsonPath,
+							[OdrlTwinVocabulary.JsonPathExpression]: "$.region",
 							operator: OdrlOperatorType.Eq,
 							rightOperand: "EU"
 						}
@@ -1450,8 +2248,8 @@ describe("DefaultPolicyArbiter", () => {
 					target: "did:example:asset-1",
 					constraint: [
 						{
-							leftOperand: "twin:jsonPath",
-							"twin:jsonPathExpression": "$.region",
+							leftOperand: OdrlTwinVocabulary.JsonPath,
+							[OdrlTwinVocabulary.JsonPathExpression]: "$.region",
 							operator: OdrlOperatorType.Eq,
 							rightOperand: "EU"
 						}
@@ -1465,6 +2263,138 @@ describe("DefaultPolicyArbiter", () => {
 		);
 	});
 
+	test("grants when an untargeted permission inherits a plain policy-level asset target", async () => {
+		const arbiter = new DefaultPolicyArbiter();
+		const policy: IDataspaceProtocolAgreement = {
+			"@context": OdrlContexts.Context,
+			"@type": OdrlPolicyType.Agreement,
+			assigner: "did:example:default-assigner",
+			assignee: "did:example:default-assignee",
+			"@id": "policy:negotiated-asset-target",
+			target: "https://provider.example.com/datasets/asset-1",
+			permission: [{ action: "read" }]
+		};
+
+		const decisions = await arbiter.decide(policy, undefined, { any: "data" });
+		expect(decisions).toEqual([{ target: "$", decision: PolicyDecision.Granted }]);
+	});
+
+	test("keeps target-scoped denial when the policy has a plain asset target and the prohibition uses twin:jsonPath", async () => {
+		const arbiter = new DefaultPolicyArbiter();
+		const policy: IDataspaceProtocolAgreement = {
+			"@context": OdrlContexts.Context,
+			"@type": OdrlPolicyType.Agreement,
+			assigner: "did:example:default-assigner",
+			assignee: "did:example:default-assignee",
+			"@id": "policy:negotiated-asset-target-prohibition",
+			target: "https://provider.example.com/datasets/asset-1",
+			permission: [{ action: "read" }],
+			prohibition: [
+				{
+					action: "read",
+					target: {
+						"@type": OdrlTwinVocabulary.JsonPath,
+						[OdrlTwinVocabulary.JsonPathExpression]: "$.secret"
+					}
+				}
+			]
+		};
+
+		const decisions = await arbiter.decide(policy, undefined, { secret: "value", other: "data" });
+		expect(decisions).toEqual([
+			{ target: "$", decision: PolicyDecision.Granted },
+			{ target: "$.secret", decision: PolicyDecision.Denied }
+		]);
+	});
+
+	test("grants when a rule target explicitly equals the plain policy-level asset target", async () => {
+		const arbiter = new DefaultPolicyArbiter();
+		const policy: IDataspaceProtocolAgreement = {
+			"@context": OdrlContexts.Context,
+			"@type": OdrlPolicyType.Agreement,
+			assigner: "did:example:default-assigner",
+			assignee: "did:example:default-assignee",
+			"@id": "policy:explicit-asset-target",
+			target: "https://provider.example.com/datasets/asset-1",
+			permission: [{ action: "read", target: "https://provider.example.com/datasets/asset-1" }]
+		};
+
+		const decisions = await arbiter.decide(policy, undefined, { any: "data" });
+		expect(decisions).toEqual([{ target: "$", decision: PolicyDecision.Granted }]);
+	});
+
+	test("still throws when a rule target is a plain id different from the policy-level target", async () => {
+		const arbiter = new DefaultPolicyArbiter();
+		const policy: IDataspaceProtocolAgreement = {
+			"@context": OdrlContexts.Context,
+			"@type": OdrlPolicyType.Agreement,
+			assigner: "did:example:default-assigner",
+			assignee: "did:example:default-assignee",
+			"@id": "policy:foreign-asset-target",
+			target: "https://provider.example.com/datasets/asset-1",
+			permission: [{ action: "read", target: "https://provider.example.com/datasets/other" }]
+		};
+
+		await expect(arbiter.decide(policy, undefined, { any: "data" })).rejects.toThrow(
+			"ruleTargetNotSupported"
+		);
+	});
+
+	test("keeps jsonPath scoping when a string-form twin:jsonPath policy-level target is inherited", async () => {
+		const arbiter = new DefaultPolicyArbiter();
+		const policy: IDataspaceProtocolAgreement = {
+			"@context": OdrlContexts.Context,
+			"@type": OdrlPolicyType.Agreement,
+			assigner: "did:example:default-assigner",
+			assignee: "did:example:default-assignee",
+			"@id": "policy:jsonpath-policy-target",
+			target: `${OdrlTwinVocabulary.JsonPath}:$.items`,
+			permission: [{ action: "read" }]
+		};
+
+		const decisions = await arbiter.decide(policy, undefined, { items: [{ id: "a" }] });
+		expect(decisions).toEqual([{ target: "$.items", decision: PolicyDecision.Granted }]);
+	});
+
+	test("evaluates an obligation inheriting a plain policy-level asset target", async () => {
+		registerObligationEnforcer("asset-target-obligation-enforcer", vi.fn().mockResolvedValue(true));
+
+		const arbiter = new DefaultPolicyArbiter();
+		const policy: IDataspaceProtocolAgreement = {
+			"@context": OdrlContexts.Context,
+			"@type": OdrlPolicyType.Agreement,
+			assigner: "did:example:default-assigner",
+			assignee: "did:example:default-assignee",
+			"@id": "policy:negotiated-asset-target-obligation",
+			target: "https://provider.example.com/datasets/asset-1",
+			permission: [{ action: "read" }],
+			obligation: [{ action: "compensate" }]
+		};
+
+		const decisions = await arbiter.decide(policy, undefined, { any: "data" });
+		expect(decisions).toEqual([{ target: "$", decision: PolicyDecision.Granted }]);
+	});
+
+	test("grants and denies by action when untargeted rules inherit a plain policy-level asset target", async () => {
+		const arbiter = new DefaultPolicyArbiter();
+		const policy: IDataspaceProtocolAgreement = {
+			"@context": OdrlContexts.Context,
+			"@type": OdrlPolicyType.Agreement,
+			assigner: "did:example:default-assigner",
+			assignee: "did:example:default-assignee",
+			"@id": "policy:negotiated-action-only-rules",
+			target: "https://provider.example.com/datasets/asset-1",
+			permission: [{ action: "read" }],
+			prohibition: [{ action: "delete" }]
+		};
+
+		const readDecisions = await arbiter.decide(policy, undefined, { any: "data" }, "read");
+		expect(readDecisions).toEqual([{ target: "$", decision: PolicyDecision.Granted }]);
+
+		const deleteDecisions = await arbiter.decide(policy, undefined, { any: "data" }, "delete");
+		expect(deleteDecisions).toEqual([{ target: "$", decision: PolicyDecision.Denied }]);
+	});
+
 	test("returns target-scoped denial when prohibition target uses twin:jsonPath", async () => {
 		const arbiter = new DefaultPolicyArbiter();
 		const policy: IDataspaceProtocolAgreement = {
@@ -1476,17 +2406,23 @@ describe("DefaultPolicyArbiter", () => {
 			permission: [
 				{
 					action: "read",
-					target: { "@type": "twin:jsonPath", "twin:jsonPathExpression": "$.items[*]" }
+					target: {
+						"@type": OdrlTwinVocabulary.JsonPath,
+						[OdrlTwinVocabulary.JsonPathExpression]: "$.items[*]"
+					}
 				}
 			],
 			prohibition: [
 				{
 					action: "read",
-					target: { "@type": "twin:jsonPath", "twin:jsonPathExpression": "$.items[*]" },
+					target: {
+						"@type": OdrlTwinVocabulary.JsonPath,
+						[OdrlTwinVocabulary.JsonPathExpression]: "$.items[*]"
+					},
 					constraint: [
 						{
-							leftOperand: "twin:jsonPath",
-							"twin:jsonPathExpression": "$.region",
+							leftOperand: OdrlTwinVocabulary.JsonPath,
+							[OdrlTwinVocabulary.JsonPathExpression]: "$.region",
 							operator: OdrlOperatorType.Eq,
 							rightOperand: "EU"
 						}
@@ -1514,7 +2450,10 @@ describe("DefaultPolicyArbiter", () => {
 			permission: [
 				{
 					action: "read",
-					target: { "@type": "twin:jsonPath", "twin:jsonPathExpression": "$.profile.email" }
+					target: {
+						"@type": OdrlTwinVocabulary.JsonPath,
+						[OdrlTwinVocabulary.JsonPathExpression]: "$.profile.email"
+					}
 				}
 			],
 			prohibition: [{ action: "read" }]
@@ -1549,11 +2488,11 @@ describe("DefaultPolicyArbiter", () => {
 					action: "read",
 					target: {
 						"@type": "AssetCollection",
-						source: "twin:jsonPath",
-						"twin:jsonPathExpression": "$.items[*]",
+						source: OdrlTwinVocabulary.JsonPath,
+						[OdrlTwinVocabulary.JsonPathExpression]: "$.items[*]",
 						refinement: {
-							leftOperand: "twin:jsonPath",
-							"twin:jsonPathExpression": "$.region",
+							leftOperand: OdrlTwinVocabulary.JsonPath,
+							[OdrlTwinVocabulary.JsonPathExpression]: "$.region",
 							operator: OdrlOperatorType.Eq,
 							rightOperand: "EU"
 						}
@@ -1579,7 +2518,161 @@ describe("DefaultPolicyArbiter", () => {
 		expect(denied).toEqual([{ target: "$.items[0]", decision: PolicyDecision.Denied }]);
 	});
 
-	test("throws when AssetCollection source is missing", async () => {
+	test("returns root grant and no per-item decisions for AssetCollection targeting an empty array", async () => {
+		const arbiter = new DefaultPolicyArbiter();
+		const policy: IDataspaceProtocolAgreement = {
+			"@context": OdrlContexts.Context,
+			"@type": OdrlPolicyType.Agreement,
+			assigner: "did:example:default-assigner",
+			assignee: "did:example:default-assignee",
+			"@id": "policy:asset-collection-empty-array",
+			permission: [
+				{
+					action: "read",
+					target: {
+						"@type": "AssetCollection",
+						source: OdrlTwinVocabulary.JsonPath,
+						[OdrlTwinVocabulary.JsonPathExpression]: "$.items[*]",
+						refinement: {
+							leftOperand: OdrlTwinVocabulary.JsonPath,
+							[OdrlTwinVocabulary.JsonPathExpression]: "$.region",
+							operator: OdrlOperatorType.Eq,
+							rightOperand: "EU"
+						}
+					}
+				}
+			]
+		};
+
+		// Should resolve without throwing (no ruleTargetNotSupported error).
+		// With an empty array no items are granted, so the closed-world fallback denies root.
+		const decisions = await arbiter.decide(policy, undefined, { region: "EU", items: [] }, "read");
+		expect(decisions).toEqual([{ target: "$", decision: PolicyDecision.Denied }]);
+	});
+
+	test("throws ruleTargetNotSupported for a uid-bearing source-less AssetCollection with a non-matching uid", async () => {
+		// A source-less, refinement-scoped AssetCollection resolves its decision target to "$"
+		// regardless of any uid it carries, but getRuleDataContextTargetId() independently falls
+		// through to that uid for the rule's data context. When the uid doesn't match the
+		// policy-level target id, this throws ruleTargetNotSupported rather than the
+		// assetCollectionSourceNotSupported this shape threw before source-less support existed.
+		// ODRL says uid should not be used alongside refinement, but nothing prevents it
+		// structurally, so this pins the (still fail-closed) behavior for that edge case.
+		const arbiter = new DefaultPolicyArbiter();
+		const policy: IDataspaceProtocolAgreement = {
+			"@context": OdrlContexts.Context,
+			"@type": OdrlPolicyType.Agreement,
+			assigner: "did:example:default-assigner",
+			assignee: "did:example:default-assignee",
+			"@id": "policy:asset-collection-source-less-uid-mismatch",
+			permission: [
+				{
+					action: "read",
+					target: {
+						"@type": "AssetCollection",
+						uid: "https://example.com/some-other-asset",
+						refinement: {
+							leftOperand: OdrlTwinVocabulary.JsonPath,
+							[OdrlTwinVocabulary.JsonPathExpression]: "$.region",
+							operator: OdrlOperatorType.Eq,
+							rightOperand: "EU"
+						}
+					}
+				}
+			]
+		};
+
+		await expect(arbiter.decide(policy, undefined, { region: "EU" }, "read")).rejects.toThrow(
+			"ruleTargetNotSupported"
+		);
+	});
+
+	test("grants root target for a uid-bearing source-less AssetCollection whose uid matches the policy-level target", async () => {
+		// The companion case to the one above: when the AssetCollection's uid equals the
+		// policy-level asset target id, getRuleDataContextTargetId()'s fallthrough to that uid
+		// resolves via the "rule target equal to policy asset target" mechanism instead of
+		// throwing, granting the whole payload - coherent with that mechanism's own semantics,
+		// not something this PR changes, but pinned here since this PR is what makes a
+		// source-less AssetCollection reach that fallthrough at all.
+		const arbiter = new DefaultPolicyArbiter();
+		const policy: IDataspaceProtocolAgreement = {
+			"@context": OdrlContexts.Context,
+			"@type": OdrlPolicyType.Agreement,
+			assigner: "did:example:default-assigner",
+			assignee: "did:example:default-assignee",
+			"@id": "policy:asset-collection-source-less-uid-match",
+			target: "https://example.com/dataset-1",
+			permission: [
+				{
+					action: "read",
+					target: {
+						"@type": "AssetCollection",
+						uid: "https://example.com/dataset-1",
+						refinement: {
+							leftOperand: OdrlTwinVocabulary.JsonPath,
+							[OdrlTwinVocabulary.JsonPathExpression]: "$.region",
+							operator: OdrlOperatorType.Eq,
+							rightOperand: "EU"
+						}
+					}
+				}
+			]
+		};
+
+		const decisions = await arbiter.decide(policy, undefined, { region: "EU" }, "read");
+		expect(decisions).toEqual([{ target: "$", decision: PolicyDecision.Granted }]);
+	});
+
+	test("treats a null or empty-string AssetCollection source as source-less, mirroring PartyCollection", async () => {
+		// resolveRulePartyContext() treats any non-string source (including null/"") as
+		// source-less via Is.stringValue(); the AssetCollection branch mirrors that exactly,
+		// rather than only recognizing a literal undefined.
+		const arbiter = new DefaultPolicyArbiter();
+		const buildPolicy = (source: unknown): IDataspaceProtocolAgreement => ({
+			"@context": OdrlContexts.Context,
+			"@type": OdrlPolicyType.Agreement,
+			assigner: "did:example:default-assigner",
+			assignee: "did:example:default-assignee",
+			"@id": "policy:asset-collection-nullish-source",
+			permission: [
+				{
+					action: "read",
+					target: {
+						"@type": "AssetCollection",
+						source,
+						refinement: {
+							leftOperand: OdrlTwinVocabulary.JsonPath,
+							[OdrlTwinVocabulary.JsonPathExpression]: "$.region",
+							operator: OdrlOperatorType.Eq,
+							rightOperand: "EU"
+						}
+					} as unknown as { "@type": string }
+				}
+			]
+		});
+
+		const nullSourceDecisions = await arbiter.decide(
+			buildPolicy(null),
+			undefined,
+			{ region: "EU" },
+			"read"
+		);
+		expect(nullSourceDecisions).toEqual([{ target: "$", decision: PolicyDecision.Granted }]);
+
+		const emptyStringSourceDecisions = await arbiter.decide(
+			buildPolicy(""),
+			undefined,
+			{ region: "EU" },
+			"read"
+		);
+		expect(emptyStringSourceDecisions).toEqual([{ target: "$", decision: PolicyDecision.Granted }]);
+	});
+
+	test("grants root target for source-less AssetCollection when refinement is satisfied", async () => {
+		// a source-less AssetCollection scoped by refinement alone is now a supported
+		// shape (mirrors PartyCollection's source-less refinement scoping) - it resolves to the
+		// whole "$" target, not a wildcard expansion, since there's no twin:jsonPath source to
+		// iterate over.
 		const arbiter = new DefaultPolicyArbiter();
 		const policy: IDataspaceProtocolAgreement = {
 			"@context": OdrlContexts.Context,
@@ -1593,8 +2686,8 @@ describe("DefaultPolicyArbiter", () => {
 					target: {
 						"@type": "AssetCollection",
 						refinement: {
-							leftOperand: "twin:jsonPath",
-							"twin:jsonPathExpression": "$.region",
+							leftOperand: OdrlTwinVocabulary.JsonPath,
+							[OdrlTwinVocabulary.JsonPathExpression]: "$.region",
 							operator: OdrlOperatorType.Eq,
 							rightOperand: "EU"
 						}
@@ -1603,9 +2696,104 @@ describe("DefaultPolicyArbiter", () => {
 			]
 		};
 
-		await expect(arbiter.decide(policy, undefined, { region: "EU" }, "read")).rejects.toThrow(
-			"assetCollectionSourceNotSupported"
+		const decisions = await arbiter.decide(policy, undefined, { region: "EU" }, "read");
+		expect(decisions).toEqual([{ target: "$", decision: PolicyDecision.Granted }]);
+	});
+
+	test("denies root target for source-less AssetCollection when refinement is not satisfied", async () => {
+		// Proves the refinement is actually evaluated for this shape, not silently skipped/passed.
+		const arbiter = new DefaultPolicyArbiter();
+		const policy: IDataspaceProtocolAgreement = {
+			"@context": OdrlContexts.Context,
+			"@type": OdrlPolicyType.Agreement,
+			assigner: "did:example:default-assigner",
+			assignee: "did:example:default-assignee",
+			"@id": "policy:asset-collection-source-missing-denied",
+			permission: [
+				{
+					action: "read",
+					target: {
+						"@type": "AssetCollection",
+						refinement: {
+							leftOperand: OdrlTwinVocabulary.JsonPath,
+							[OdrlTwinVocabulary.JsonPathExpression]: "$.region",
+							operator: OdrlOperatorType.Eq,
+							rightOperand: "EU"
+						}
+					}
+				}
+			]
+		};
+
+		const decisions = await arbiter.decide(policy, undefined, { region: "US" }, "read");
+		expect(decisions).toEqual([{ target: "$", decision: PolicyDecision.Denied }]);
+	});
+
+	test("accepts an AssetCollection with neither source nor refinement, applying no additional scoping", async () => {
+		// A third, distinct combination: no external source, no member-level refinement - the
+		// arbiter should treat the target as the whole payload, same as an empty target array,
+		// rather than throwing.
+		const arbiter = new DefaultPolicyArbiter();
+		const policy: IDataspaceProtocolAgreement = {
+			"@context": OdrlContexts.Context,
+			"@type": OdrlPolicyType.Agreement,
+			assigner: "did:example:default-assigner",
+			assignee: "did:example:default-assignee",
+			"@id": "policy:asset-collection-empty",
+			permission: [
+				{
+					action: "read",
+					target: {
+						"@type": "AssetCollection"
+					}
+				}
+			]
+		};
+
+		const decisions = await arbiter.decide(policy, undefined, { region: "EU" }, "read");
+		expect(decisions).toEqual([{ target: "$", decision: PolicyDecision.Granted }]);
+	});
+
+	test("duty enforcer receives the whole data payload as ruleDataContext for a source-less AssetCollection permission target", async () => {
+		// getRuleDataContextTargetId() has no special case for a source-less AssetCollection - it
+		// falls through to getTargetId(), which returns undefined (no uid). tryResolveTargetDataSource(
+		// undefined, ...) then defaults to the whole data source. This test proves that end-to-end
+		// via a real enforcer querying ruleDataContext, rather than assuming the fallthrough is
+		// harmless from reading the source alone.
+		registerObligationEnforcer(
+			"asset-collection-source-less-duty-enforcer",
+			async (enforcedPolicy, duty, information, ruleDataContext) => {
+				const matches = JsonPathHelper.query("$.region", ruleDataContext);
+				return matches.length === 1 && matches[0].value === "EU";
+			}
 		);
+
+		const arbiter = new DefaultPolicyArbiter();
+		const policy: IDataspaceProtocolAgreement = {
+			"@context": OdrlContexts.Context,
+			"@type": OdrlPolicyType.Agreement,
+			assigner: "did:example:default-assigner",
+			assignee: "did:example:default-assignee",
+			"@id": "policy:asset-collection-source-less-duty",
+			permission: [
+				{
+					action: "read",
+					target: {
+						"@type": "AssetCollection",
+						refinement: {
+							leftOperand: OdrlTwinVocabulary.JsonPath,
+							[OdrlTwinVocabulary.JsonPathExpression]: "$.region",
+							operator: OdrlOperatorType.Eq,
+							rightOperand: "EU"
+						}
+					},
+					duty: [{ action: "notify" }]
+				}
+			]
+		};
+
+		const decisions = await arbiter.decide(policy, undefined, { region: "EU" }, "read");
+		expect(decisions).toEqual([{ target: "$", decision: PolicyDecision.Granted }]);
 	});
 
 	test("throws when AssetCollection source is not twin:jsonPath", async () => {
@@ -1623,8 +2811,8 @@ describe("DefaultPolicyArbiter", () => {
 						"@type": "AssetCollection",
 						source: "https://example.com/items",
 						refinement: {
-							leftOperand: "twin:jsonPath",
-							"twin:jsonPathExpression": "$.region",
+							leftOperand: OdrlTwinVocabulary.JsonPath,
+							[OdrlTwinVocabulary.JsonPathExpression]: "$.region",
 							operator: OdrlOperatorType.Eq,
 							rightOperand: "EU"
 						}
@@ -1649,7 +2837,10 @@ describe("DefaultPolicyArbiter", () => {
 			permission: [
 				{
 					action: "read",
-					target: { "@type": "twin:jsonPath", "twin:jsonPathExpression": "$.items[*]" }
+					target: {
+						"@type": OdrlTwinVocabulary.JsonPath,
+						[OdrlTwinVocabulary.JsonPathExpression]: "$.items[*]"
+					}
 				}
 			],
 			prohibition: [
@@ -1657,11 +2848,11 @@ describe("DefaultPolicyArbiter", () => {
 					action: "read",
 					target: {
 						"@type": "AssetCollection",
-						source: "twin:jsonPath",
-						"twin:jsonPathExpression": "$.items[*]",
+						source: OdrlTwinVocabulary.JsonPath,
+						[OdrlTwinVocabulary.JsonPathExpression]: "$.items[*]",
 						refinement: {
-							leftOperand: "twin:jsonPath",
-							"twin:jsonPathExpression": "$.region",
+							leftOperand: OdrlTwinVocabulary.JsonPath,
+							[OdrlTwinVocabulary.JsonPathExpression]: "$.region",
 							operator: OdrlOperatorType.Eq,
 							rightOperand: "EU"
 						}
@@ -1707,7 +2898,7 @@ describe("DefaultPolicyArbiter", () => {
 					action: "read",
 					target: {
 						"@type": "Asset",
-						uid: "twin:jsonPath:$.items[*]",
+						uid: `${OdrlTwinVocabulary.JsonPath}:$.items[*]`,
 						hasPolicy: "policy:governing"
 					}
 				}
@@ -1732,7 +2923,7 @@ describe("DefaultPolicyArbiter", () => {
 					action: "read",
 					target: {
 						"@type": "Asset",
-						uid: "twin:jsonPath:$.items[*]",
+						uid: `${OdrlTwinVocabulary.JsonPath}:$.items[*]`,
 						partOf: "collection:my-assets"
 					}
 				}
@@ -1757,8 +2948,8 @@ describe("DefaultPolicyArbiter", () => {
 				{
 					constraint: [
 						{
-							leftOperand: "twin:jsonPath",
-							"twin:jsonPathExpression": "$.region",
+							leftOperand: OdrlTwinVocabulary.JsonPath,
+							[OdrlTwinVocabulary.JsonPathExpression]: "$.region",
 							operator: OdrlOperatorType.Eq,
 							rightOperand: "EU"
 						}
@@ -1785,12 +2976,12 @@ describe("DefaultPolicyArbiter", () => {
 					constraint: [
 						// condition uses jsonpath-typed rightOperand for comparison
 						{
-							leftOperand: "twin:jsonPath",
-							"twin:jsonPathExpression": "$.region",
+							leftOperand: OdrlTwinVocabulary.JsonPath,
+							[OdrlTwinVocabulary.JsonPathExpression]: "$.region",
 							operator: OdrlOperatorType.Eq,
 							rightOperand: {
-								"@type": "twin:jsonPath",
-								"twin:jsonPathExpression": "$.blockedRegion"
+								"@type": OdrlTwinVocabulary.JsonPath,
+								[OdrlTwinVocabulary.JsonPathExpression]: "$.blockedRegion"
 							}
 						} as unknown as IOdrlConstraint
 					]
@@ -1883,8 +3074,8 @@ describe("DefaultPolicyArbiter", () => {
 					action: "delete",
 					constraint: [
 						{
-							leftOperand: "twin:jsonPath",
-							"twin:jsonPathExpression": "$.isPaid",
+							leftOperand: OdrlTwinVocabulary.JsonPath,
+							[OdrlTwinVocabulary.JsonPathExpression]: "$.isPaid",
 							operator: OdrlOperatorType.Eq,
 							rightOperand: { "@value": "false", "@type": "xsd:boolean" }
 						}
@@ -2018,8 +3209,8 @@ describe("DefaultPolicyArbiter", () => {
 				{
 					constraint: [
 						{
-							leftOperand: "twin:jsonPath",
-							"twin:jsonPathExpression": "$.region",
+							leftOperand: OdrlTwinVocabulary.JsonPath,
+							[OdrlTwinVocabulary.JsonPathExpression]: "$.region",
 							operator: OdrlOperatorType.Eq,
 							rightOperand: "EU"
 						}
@@ -2030,8 +3221,8 @@ describe("DefaultPolicyArbiter", () => {
 				{
 					constraint: [
 						{
-							leftOperand: "twin:jsonPath",
-							"twin:jsonPathExpression": "$.region",
+							leftOperand: OdrlTwinVocabulary.JsonPath,
+							[OdrlTwinVocabulary.JsonPathExpression]: "$.region",
 							operator: OdrlOperatorType.Eq,
 							rightOperand: "EU"
 						}
@@ -2083,8 +3274,8 @@ describe("DefaultPolicyArbiter", () => {
 				{
 					constraint: [
 						{
-							leftOperand: "twin:jsonPath",
-							"twin:jsonPathExpression": "$.region",
+							leftOperand: OdrlTwinVocabulary.JsonPath,
+							[OdrlTwinVocabulary.JsonPathExpression]: "$.region",
 							operator: OdrlOperatorType.Eq,
 							rightOperand: "EU"
 						}
@@ -2095,8 +3286,8 @@ describe("DefaultPolicyArbiter", () => {
 				{
 					constraint: [
 						{
-							leftOperand: "twin:jsonPath",
-							"twin:jsonPathExpression": "$.region",
+							leftOperand: OdrlTwinVocabulary.JsonPath,
+							[OdrlTwinVocabulary.JsonPathExpression]: "$.region",
 							operator: OdrlOperatorType.Eq,
 							rightOperand: "EU"
 						}
@@ -2315,8 +3506,8 @@ describe("DefaultPolicyArbiter", () => {
 					action: "read",
 					constraint: [
 						{
-							leftOperand: "twin:jsonPath",
-							"twin:jsonPathExpression": "$.territory",
+							leftOperand: OdrlTwinVocabulary.JsonPath,
+							[OdrlTwinVocabulary.JsonPathExpression]: "$.territory",
 							operator: OdrlOperatorType.Eq,
 							rightOperand: "US"
 						}
@@ -2361,8 +3552,8 @@ describe("DefaultPolicyArbiter", () => {
 					action: "read",
 					constraint: [
 						{
-							leftOperand: "twin:jsonPath",
-							"twin:jsonPathExpression": "$.territory",
+							leftOperand: OdrlTwinVocabulary.JsonPath,
+							[OdrlTwinVocabulary.JsonPathExpression]: "$.territory",
 							operator: OdrlOperatorType.Eq,
 							rightOperand: "US"
 						}
@@ -2577,11 +3768,12 @@ describe("DefaultPolicyArbiter", () => {
 						action: "read",
 						target: {
 							"@type": "AssetCollection",
-							source: "twin:jsonPath",
-							"twin:jsonPathExpression": "$.itemList.itemListElement[*]",
+							source: OdrlTwinVocabulary.JsonPath,
+							[OdrlTwinVocabulary.JsonPathExpression]: "$.itemList.itemListElement[*]",
 							refinement: {
-								leftOperand: "twin:jsonPath",
-								"twin:jsonPathExpression": "$.itemList.itemListElement[*].unloadingLocation.id",
+								leftOperand: OdrlTwinVocabulary.JsonPath,
+								[OdrlTwinVocabulary.JsonPathExpression]:
+									"$.itemList.itemListElement[*].unloadingLocation.id",
 								operator: OdrlOperatorType.Eq,
 								rightOperand: "unece:LOCODE#GBFXT"
 							}
@@ -2623,8 +3815,8 @@ describe("DefaultPolicyArbiter", () => {
 					{
 						action: "read",
 						target: {
-							"@type": "twin:jsonPath",
-							"twin:jsonPathExpression": "$.itemList.itemListElement[1]"
+							"@type": OdrlTwinVocabulary.JsonPath,
+							[OdrlTwinVocabulary.JsonPathExpression]: "$.itemList.itemListElement[1]"
 						}
 					}
 				],
@@ -2632,8 +3824,8 @@ describe("DefaultPolicyArbiter", () => {
 					{
 						action: "read",
 						target: {
-							"@type": "twin:jsonPath",
-							"twin:jsonPathExpression": "$.itemList.itemListElement[0]"
+							"@type": OdrlTwinVocabulary.JsonPath,
+							[OdrlTwinVocabulary.JsonPathExpression]: "$.itemList.itemListElement[0]"
 						}
 					}
 				]
@@ -2672,11 +3864,11 @@ describe("DefaultPolicyArbiter", () => {
 						action: "read",
 						target: {
 							"@type": "AssetCollection",
-							source: "twin:jsonPath",
-							"twin:jsonPathExpression": "$.itemList.itemListElement[*]",
+							source: OdrlTwinVocabulary.JsonPath,
+							[OdrlTwinVocabulary.JsonPathExpression]: "$.itemList.itemListElement[*]",
 							refinement: {
-								leftOperand: "twin:jsonPath",
-								"twin:jsonPathExpression": "$.itemList.itemListElement[*].country",
+								leftOperand: OdrlTwinVocabulary.JsonPath,
+								[OdrlTwinVocabulary.JsonPathExpression]: "$.itemList.itemListElement[*].country",
 								operator: OdrlOperatorType.Eq,
 								rightOperand: "PL"
 							}
@@ -2717,11 +3909,11 @@ describe("DefaultPolicyArbiter", () => {
 						action: "read",
 						target: {
 							"@type": "AssetCollection",
-							source: "twin:jsonPath",
-							"twin:jsonPathExpression": "$.itemList.itemListElement[*]",
+							source: OdrlTwinVocabulary.JsonPath,
+							[OdrlTwinVocabulary.JsonPathExpression]: "$.itemList.itemListElement[*]",
 							refinement: {
-								leftOperand: "twin:jsonPath",
-								"twin:jsonPathExpression": "$.itemList.itemListElement[*].country",
+								leftOperand: OdrlTwinVocabulary.JsonPath,
+								[OdrlTwinVocabulary.JsonPathExpression]: "$.itemList.itemListElement[*].country",
 								operator: OdrlOperatorType.Eq,
 								rightOperand: "PL"
 							}
@@ -2787,11 +3979,11 @@ describe("DefaultPolicyArbiter", () => {
 						action: "write",
 						target: {
 							"@type": "AssetCollection",
-							source: "twin:jsonPath",
-							"twin:jsonPathExpression": "$.itemList.itemListElement[*]",
+							source: OdrlTwinVocabulary.JsonPath,
+							[OdrlTwinVocabulary.JsonPathExpression]: "$.itemList.itemListElement[*]",
 							refinement: {
-								leftOperand: "twin:jsonPath",
-								"twin:jsonPathExpression": "$.itemList.itemListElement[*].country",
+								leftOperand: OdrlTwinVocabulary.JsonPath,
+								[OdrlTwinVocabulary.JsonPathExpression]: "$.itemList.itemListElement[*].country",
 								operator: OdrlOperatorType.Eq,
 								rightOperand: "PL"
 							}
@@ -2825,18 +4017,18 @@ describe("DefaultPolicyArbiter", () => {
 						action: "read",
 						target: {
 							"@type": "AssetCollection",
-							source: "twin:jsonPath",
-							"twin:jsonPathExpression": "$.itemList.itemListElement[*]",
+							source: OdrlTwinVocabulary.JsonPath,
+							[OdrlTwinVocabulary.JsonPathExpression]: "$.itemList.itemListElement[*]",
 							refinement: [
 								{
-									leftOperand: "twin:jsonPath",
-									"twin:jsonPathExpression": "$.itemList.itemListElement[*].country",
+									leftOperand: OdrlTwinVocabulary.JsonPath,
+									[OdrlTwinVocabulary.JsonPathExpression]: "$.itemList.itemListElement[*].country",
 									operator: OdrlOperatorType.Eq,
 									rightOperand: "GB"
 								},
 								{
-									leftOperand: "twin:jsonPath",
-									"twin:jsonPathExpression": "$.itemList.itemListElement[*].status",
+									leftOperand: OdrlTwinVocabulary.JsonPath,
+									[OdrlTwinVocabulary.JsonPathExpression]: "$.itemList.itemListElement[*].status",
 									operator: OdrlOperatorType.Eq,
 									rightOperand: "active"
 								}
@@ -2882,11 +4074,11 @@ describe("DefaultPolicyArbiter", () => {
 						action: "read",
 						target: {
 							"@type": "AssetCollection",
-							source: "twin:jsonPath",
-							"twin:jsonPathExpression": "$.items[*]",
+							source: OdrlTwinVocabulary.JsonPath,
+							[OdrlTwinVocabulary.JsonPathExpression]: "$.items[*]",
 							refinement: {
-								leftOperand: "twin:jsonPath",
-								"twin:jsonPathExpression": "$.items[*].type",
+								leftOperand: OdrlTwinVocabulary.JsonPath,
+								[OdrlTwinVocabulary.JsonPathExpression]: "$.items[*].type",
 								operator: OdrlOperatorType.Eq,
 								rightOperand: "A"
 							}
@@ -2927,8 +4119,8 @@ describe("DefaultPolicyArbiter", () => {
 							"@type": "AssetCollection",
 							source: "https://twin.example.org/external-data",
 							refinement: {
-								leftOperand: "twin:jsonPath",
-								"twin:jsonPathExpression": "$.items[*].type",
+								leftOperand: OdrlTwinVocabulary.JsonPath,
+								[OdrlTwinVocabulary.JsonPathExpression]: "$.items[*].type",
 								operator: OdrlOperatorType.Eq,
 								rightOperand: "A"
 							}
@@ -2940,6 +4132,85 @@ describe("DefaultPolicyArbiter", () => {
 			await expect(arbiter.decide(policy, undefined, { items: [{ type: "A" }] })).rejects.toThrow(
 				"assetCollectionSourceNotSupported"
 			);
+		});
+
+		test("arbiter+enforcement pipeline preserves root JSON-LD fields when array is filtered by refinement (issue #233 regression)", async () => {
+			// Reproduces the scenario reported in issue #233: the enforcement processor was
+			// stripping root-level @context/@type when the policy targeted a nested array via
+			// AssetCollection + refinement. The arbiter emits only per-item decisions (no root
+			// Denied "$") so this test also covers the gap where the existing "preserves
+			// JSON-LD envelope fields" unit test in defaultPolicyEnforcementProcessor.spec.ts
+			// used an artificial Denied "$" as its first decision.
+			const arbiter = new DefaultPolicyArbiter();
+			const processor = new DefaultPolicyEnforcementProcessor();
+
+			const policy: IDataspaceProtocolAgreement = {
+				"@context": OdrlContexts.Context,
+				"@type": OdrlPolicyType.Agreement,
+				"@id": "policy:issue-233-regression",
+				assigner: "did:example:assigner",
+				assignee: "did:example:assignee",
+				permission: [
+					{
+						action: "read",
+						target: {
+							"@type": "AssetCollection",
+							source: OdrlTwinVocabulary.JsonPath,
+							[OdrlTwinVocabulary.JsonPathExpression]: "$.itemList.itemListElement[*]",
+							refinement: {
+								leftOperand: OdrlTwinVocabulary.JsonPath,
+								[OdrlTwinVocabulary.JsonPathExpression]:
+									"$.itemList.itemListElement[*].destinationCountry.countryId",
+								operator: OdrlOperatorType.Eq,
+								rightOperand: "unece:CountryId#GB"
+							}
+						}
+					}
+				]
+			};
+
+			const sourceData = {
+				"@context": "https://schema.org",
+				"@type": "ItemList",
+				"@id": "urn:list:1",
+				type: "ItemList",
+				itemList: {
+					itemListElement: [
+						{ id: "item-1", destinationCountry: { countryId: "unece:CountryId#GB" } },
+						{ id: "item-2", destinationCountry: { countryId: "unece:CountryId#DE" } },
+						{ id: "item-3", destinationCountry: { countryId: "unece:CountryId#GB" } }
+					]
+				}
+			};
+
+			const decisions = await arbiter.decide(policy, undefined, sourceData);
+
+			// Arbiter should emit only per-item decisions — NO Denied "$"
+			expect(decisions).toHaveLength(3);
+			expect(decisions).toEqual(
+				expect.arrayContaining([
+					{ target: "$.itemList.itemListElement[0]", decision: PolicyDecision.Granted },
+					{ target: "$.itemList.itemListElement[1]", decision: PolicyDecision.Denied },
+					{ target: "$.itemList.itemListElement[2]", decision: PolicyDecision.Granted }
+				])
+			);
+			expect(decisions.every(d => d.target !== "$")).toBe(true);
+
+			const result = await processor.process(policy, decisions, sourceData);
+
+			// Root JSON-LD structural keys must survive array filtering
+			expect(result).toMatchObject({
+				"@context": "https://schema.org",
+				"@type": "ItemList",
+				"@id": "urn:list:1",
+				type: "ItemList",
+				itemList: {
+					itemListElement: [
+						{ id: "item-1", destinationCountry: { countryId: "unece:CountryId#GB" } },
+						{ id: "item-3", destinationCountry: { countryId: "unece:CountryId#GB" } }
+					]
+				}
+			});
 		});
 	});
 
@@ -2956,8 +4227,8 @@ describe("DefaultPolicyArbiter", () => {
 					{
 						constraint: [
 							{
-								leftOperand: "twin:jsonPath",
-								"twin:jsonPathExpression": "$.status",
+								leftOperand: OdrlTwinVocabulary.JsonPath,
+								[OdrlTwinVocabulary.JsonPathExpression]: "$.status",
 								operator: OdrlOperatorType.Neq,
 								rightOperand: "blocked"
 							}
@@ -2985,8 +4256,8 @@ describe("DefaultPolicyArbiter", () => {
 					{
 						constraint: [
 							{
-								leftOperand: "twin:jsonPath",
-								"twin:jsonPathExpression": "$.count",
+								leftOperand: OdrlTwinVocabulary.JsonPath,
+								[OdrlTwinVocabulary.JsonPathExpression]: "$.count",
 								operator: OdrlOperatorType.Lt,
 								rightOperand: { "@value": "10", "@type": "xsd:integer" }
 							}
@@ -3014,8 +4285,8 @@ describe("DefaultPolicyArbiter", () => {
 					{
 						constraint: [
 							{
-								leftOperand: "twin:jsonPath",
-								"twin:jsonPathExpression": "$.level",
+								leftOperand: OdrlTwinVocabulary.JsonPath,
+								[OdrlTwinVocabulary.JsonPathExpression]: "$.level",
 								operator: OdrlOperatorType.Lteq,
 								rightOperand: { "@value": "5", "@type": "xsd:integer" }
 							}
@@ -3046,8 +4317,8 @@ describe("DefaultPolicyArbiter", () => {
 					{
 						constraint: [
 							{
-								leftOperand: "twin:jsonPath",
-								"twin:jsonPathExpression": "$.region",
+								leftOperand: OdrlTwinVocabulary.JsonPath,
+								[OdrlTwinVocabulary.JsonPathExpression]: "$.region",
 								operator: OdrlOperatorType.IsNoneOf,
 								rightOperand: ["CN", "RU"]
 							}
@@ -3075,8 +4346,8 @@ describe("DefaultPolicyArbiter", () => {
 					{
 						constraint: [
 							{
-								leftOperand: "twin:jsonPath",
-								"twin:jsonPathExpression": "$.roles[*]",
+								leftOperand: OdrlTwinVocabulary.JsonPath,
+								[OdrlTwinVocabulary.JsonPathExpression]: "$.roles[*]",
 								operator: OdrlOperatorType.IsAllOf,
 								rightOperand: ["admin", "editor"]
 							}
@@ -3106,14 +4377,14 @@ describe("DefaultPolicyArbiter", () => {
 							{
 								and: [
 									{
-										leftOperand: "twin:jsonPath",
-										"twin:jsonPathExpression": "$.age",
+										leftOperand: OdrlTwinVocabulary.JsonPath,
+										[OdrlTwinVocabulary.JsonPathExpression]: "$.age",
 										operator: OdrlOperatorType.Gteq,
 										rightOperand: { "@value": "18", "@type": "xsd:integer" }
 									},
 									{
-										leftOperand: "twin:jsonPath",
-										"twin:jsonPathExpression": "$.region",
+										leftOperand: OdrlTwinVocabulary.JsonPath,
+										[OdrlTwinVocabulary.JsonPathExpression]: "$.region",
 										operator: OdrlOperatorType.Eq,
 										rightOperand: "EU"
 									}
@@ -3143,8 +4414,8 @@ describe("DefaultPolicyArbiter", () => {
 					{
 						constraint: [
 							{
-								leftOperand: "twin:jsonPath",
-								"twin:jsonPathExpression": "$.zone",
+								leftOperand: OdrlTwinVocabulary.JsonPath,
+								[OdrlTwinVocabulary.JsonPathExpression]: "$.zone",
 								operator: OdrlOperatorType.LocTimeEq,
 								rightOperand: "Europe/London"
 							}
@@ -3172,8 +4443,8 @@ describe("DefaultPolicyArbiter", () => {
 					{
 						constraint: [
 							{
-								leftOperand: "twin:jsonPath",
-								"twin:jsonPathExpression": "$.region",
+								leftOperand: OdrlTwinVocabulary.JsonPath,
+								[OdrlTwinVocabulary.JsonPathExpression]: "$.region",
 								operator: OdrlOperatorType.Eq,
 								rightOperandReference: "https://example.com/allowed-regions"
 							}
@@ -3201,15 +4472,15 @@ describe("DefaultPolicyArbiter", () => {
 					{
 						action: "read",
 						target: {
-							"@type": "twin:jsonPath",
-							"twin:jsonPathDataSource": "information",
-							"twin:jsonPathExpression": "$.credentials"
+							"@type": OdrlTwinVocabulary.JsonPath,
+							"twin:jsonPathDataSource": OdrlTwinVocabulary.InformationSourceKey,
+							[OdrlTwinVocabulary.JsonPathExpression]: "$.credentials"
 						},
 						constraint: [
 							{
-								leftOperand: "twin:jsonPath",
-								"twin:jsonPathDataSource": "information",
-								"twin:jsonPathExpression": "$.credentials.clearanceLevel",
+								leftOperand: OdrlTwinVocabulary.JsonPath,
+								"twin:jsonPathDataSource": OdrlTwinVocabulary.InformationSourceKey,
+								[OdrlTwinVocabulary.JsonPathExpression]: "$.credentials.clearanceLevel",
 								operator: OdrlOperatorType.Gteq,
 								rightOperand: { "@value": "3", "@type": "xsd:integer" }
 							}
@@ -3245,15 +4516,15 @@ describe("DefaultPolicyArbiter", () => {
 					{
 						action: "read",
 						target: {
-							"@type": "twin:jsonPath",
-							"twin:jsonPathDataSource": "information",
-							"twin:jsonPathExpression": "$.credentials"
+							"@type": OdrlTwinVocabulary.JsonPath,
+							"twin:jsonPathDataSource": OdrlTwinVocabulary.InformationSourceKey,
+							[OdrlTwinVocabulary.JsonPathExpression]: "$.credentials"
 						},
 						constraint: [
 							{
-								leftOperand: "twin:jsonPath",
-								"twin:jsonPathDataSource": "information",
-								"twin:jsonPathExpression": "$.credentials.clearanceLevel",
+								leftOperand: OdrlTwinVocabulary.JsonPath,
+								"twin:jsonPathDataSource": OdrlTwinVocabulary.InformationSourceKey,
+								[OdrlTwinVocabulary.JsonPathExpression]: "$.credentials.clearanceLevel",
 								operator: OdrlOperatorType.Gteq,
 								rightOperand: { "@value": "3", "@type": "xsd:integer" }
 							}
@@ -3279,19 +4550,19 @@ describe("DefaultPolicyArbiter", () => {
 					{
 						action: "read",
 						target: {
-							"@type": "twin:jsonPath",
-							"twin:jsonPathDataSource": "information",
-							"twin:jsonPathExpression": "$.credentials"
+							"@type": OdrlTwinVocabulary.JsonPath,
+							"twin:jsonPathDataSource": OdrlTwinVocabulary.InformationSourceKey,
+							[OdrlTwinVocabulary.JsonPathExpression]: "$.credentials"
 						},
 						constraint: [
 							{
-								leftOperand: "twin:jsonPath",
-								"twin:jsonPathExpression": "$.requestedLevel",
+								leftOperand: OdrlTwinVocabulary.JsonPath,
+								[OdrlTwinVocabulary.JsonPathExpression]: "$.requestedLevel",
 								operator: OdrlOperatorType.Lteq,
 								rightOperand: {
-									"@type": "twin:jsonPath",
-									"twin:jsonPathDataSource": "information",
-									"twin:jsonPathExpression": "$.credentials.clearanceLevel"
+									"@type": OdrlTwinVocabulary.JsonPath,
+									"twin:jsonPathDataSource": OdrlTwinVocabulary.InformationSourceKey,
+									[OdrlTwinVocabulary.JsonPathExpression]: "$.credentials.clearanceLevel"
 								} as unknown as IOdrlConstraint["rightOperand"]
 							}
 						]
@@ -3328,8 +4599,8 @@ describe("DefaultPolicyArbiter", () => {
 						action: "compensate",
 						constraint: [
 							{
-								leftOperand: "twin:jsonPath",
-								"twin:jsonPathExpression": "$.isPremium",
+								leftOperand: OdrlTwinVocabulary.JsonPath,
+								[OdrlTwinVocabulary.JsonPathExpression]: "$.isPremium",
 								operator: OdrlOperatorType.Eq,
 								rightOperand: { "@value": "true", "@type": "xsd:boolean" }
 							}
@@ -3359,8 +4630,8 @@ describe("DefaultPolicyArbiter", () => {
 						action: "compensate",
 						constraint: [
 							{
-								leftOperand: "twin:jsonPath",
-								"twin:jsonPathExpression": "$.isPremium",
+								leftOperand: OdrlTwinVocabulary.JsonPath,
+								[OdrlTwinVocabulary.JsonPathExpression]: "$.isPremium",
 								operator: OdrlOperatorType.Eq,
 								rightOperand: { "@value": "true", "@type": "xsd:boolean" }
 							}
@@ -3413,8 +4684,8 @@ describe("DefaultPolicyArbiter", () => {
 						action: ["read", "write"],
 						constraint: [
 							{
-								leftOperand: "twin:jsonPath",
-								"twin:jsonPathExpression": "$.region",
+								leftOperand: OdrlTwinVocabulary.JsonPath,
+								[OdrlTwinVocabulary.JsonPathExpression]: "$.region",
 								operator: OdrlOperatorType.Eq,
 								rightOperand: "EU"
 							}
@@ -3446,8 +4717,14 @@ describe("DefaultPolicyArbiter", () => {
 				permission: [
 					{
 						target: [
-							{ "@type": "twin:jsonPath", "twin:jsonPathExpression": "$.items[*]" },
-							{ "@type": "twin:jsonPath", "twin:jsonPathExpression": "$.meta" }
+							{
+								"@type": OdrlTwinVocabulary.JsonPath,
+								[OdrlTwinVocabulary.JsonPathExpression]: "$.items[*]"
+							},
+							{
+								"@type": OdrlTwinVocabulary.JsonPath,
+								[OdrlTwinVocabulary.JsonPathExpression]: "$.meta"
+							}
 						],
 						action: ["read", "write"]
 					}
@@ -3495,24 +4772,36 @@ describe("DefaultPolicyArbiter", () => {
 				permission: [
 					{
 						action: "read",
-						target: { "@type": "twin:jsonPath", "twin:jsonPathExpression": "$.items[*]" }
+						target: {
+							"@type": OdrlTwinVocabulary.JsonPath,
+							[OdrlTwinVocabulary.JsonPathExpression]: "$.items[*]"
+						}
 					},
 					{
 						action: "read",
-						target: { "@type": "twin:jsonPath", "twin:jsonPathExpression": "$.meta" }
+						target: {
+							"@type": OdrlTwinVocabulary.JsonPath,
+							[OdrlTwinVocabulary.JsonPathExpression]: "$.meta"
+						}
 					}
 				],
 				prohibition: [
 					{
 						action: "read",
 						target: [
-							{ "@type": "twin:jsonPath", "twin:jsonPathExpression": "$.items[*]" },
-							{ "@type": "twin:jsonPath", "twin:jsonPathExpression": "$.meta" }
+							{
+								"@type": OdrlTwinVocabulary.JsonPath,
+								[OdrlTwinVocabulary.JsonPathExpression]: "$.items[*]"
+							},
+							{
+								"@type": OdrlTwinVocabulary.JsonPath,
+								[OdrlTwinVocabulary.JsonPathExpression]: "$.meta"
+							}
 						],
 						constraint: [
 							{
-								leftOperand: "twin:jsonPath",
-								"twin:jsonPathExpression": "$.region",
+								leftOperand: OdrlTwinVocabulary.JsonPath,
+								[OdrlTwinVocabulary.JsonPathExpression]: "$.region",
 								operator: OdrlOperatorType.Eq,
 								rightOperand: "EU"
 							}
@@ -3655,8 +4944,8 @@ describe("DefaultPolicyArbiter", () => {
 						action: { "@id": "print", includedIn: "reproduce" },
 						constraint: [
 							{
-								leftOperand: "twin:jsonPath",
-								"twin:jsonPathExpression": "$.region",
+								leftOperand: OdrlTwinVocabulary.JsonPath,
+								[OdrlTwinVocabulary.JsonPathExpression]: "$.region",
 								operator: OdrlOperatorType.Eq,
 								rightOperand: "EU"
 							}
@@ -3746,7 +5035,10 @@ describe("DefaultPolicyArbiter", () => {
 				permission: [
 					{
 						action: "use",
-						target: { "@type": "twin:jsonPath", "twin:jsonPathExpression": "$.value" }
+						target: {
+							"@type": OdrlTwinVocabulary.JsonPath,
+							[OdrlTwinVocabulary.JsonPathExpression]: "$.value"
+						}
 					}
 				]
 			};
@@ -3768,7 +5060,10 @@ describe("DefaultPolicyArbiter", () => {
 				permission: [
 					{
 						action: "use",
-						target: { "@type": "twin:jsonPath", "twin:jsonPathExpression": "$.value" }
+						target: {
+							"@type": OdrlTwinVocabulary.JsonPath,
+							[OdrlTwinVocabulary.JsonPathExpression]: "$.value"
+						}
 					}
 				]
 			};
@@ -3790,7 +5085,10 @@ describe("DefaultPolicyArbiter", () => {
 				permission: [
 					{
 						action: "use",
-						target: { "@type": "twin:jsonPath", "twin:jsonPathExpression": "$.value" }
+						target: {
+							"@type": OdrlTwinVocabulary.JsonPath,
+							[OdrlTwinVocabulary.JsonPathExpression]: "$.value"
+						}
 					}
 				]
 			};
@@ -3812,7 +5110,10 @@ describe("DefaultPolicyArbiter", () => {
 				permission: [
 					{
 						action: "use",
-						target: { "@type": "twin:jsonPath", "twin:jsonPathExpression": "$.value" }
+						target: {
+							"@type": OdrlTwinVocabulary.JsonPath,
+							[OdrlTwinVocabulary.JsonPathExpression]: "$.value"
+						}
 					}
 				]
 			};
@@ -3834,7 +5135,10 @@ describe("DefaultPolicyArbiter", () => {
 				permission: [
 					{
 						action: "use",
-						target: { "@type": "twin:jsonPath", "twin:jsonPathExpression": "$.value" }
+						target: {
+							"@type": OdrlTwinVocabulary.JsonPath,
+							[OdrlTwinVocabulary.JsonPathExpression]: "$.value"
+						}
 					}
 				]
 			};
@@ -3856,7 +5160,10 @@ describe("DefaultPolicyArbiter", () => {
 				permission: [
 					{
 						action: "use",
-						target: { "@type": "twin:jsonPath", "twin:jsonPathExpression": "$.value" }
+						target: {
+							"@type": OdrlTwinVocabulary.JsonPath,
+							[OdrlTwinVocabulary.JsonPathExpression]: "$.value"
+						}
 					}
 				]
 			};
@@ -3878,7 +5185,10 @@ describe("DefaultPolicyArbiter", () => {
 				permission: [
 					{
 						action: "use",
-						target: { "@type": "twin:jsonPath", "twin:jsonPathExpression": "$.value" }
+						target: {
+							"@type": OdrlTwinVocabulary.JsonPath,
+							[OdrlTwinVocabulary.JsonPathExpression]: "$.value"
+						}
 					}
 				]
 			};
@@ -3900,7 +5210,10 @@ describe("DefaultPolicyArbiter", () => {
 				permission: [
 					{
 						action: "use",
-						target: { "@type": "twin:jsonPath", "twin:jsonPathExpression": "$.value" }
+						target: {
+							"@type": OdrlTwinVocabulary.JsonPath,
+							[OdrlTwinVocabulary.JsonPathExpression]: "$.value"
+						}
 					}
 				]
 			};
@@ -3935,7 +5248,10 @@ describe("DefaultPolicyArbiter", () => {
 				assigner: "did:example:default-assigner",
 				assignee: "did:example:default-assignee",
 				"@id": "policy:policy-level-target-inherited",
-				target: { "@type": "twin:jsonPath", "twin:jsonPathExpression": "$.items[*]" },
+				target: {
+					"@type": OdrlTwinVocabulary.JsonPath,
+					[OdrlTwinVocabulary.JsonPathExpression]: "$.items[*]"
+				},
 				permission: [{ action: "read" }]
 			};
 
@@ -3952,11 +5268,17 @@ describe("DefaultPolicyArbiter", () => {
 				assigner: "did:example:default-assigner",
 				assignee: "did:example:default-assignee",
 				"@id": "policy:policy-level-target-overridden",
-				target: { "@type": "twin:jsonPath", "twin:jsonPathExpression": "$.items[*]" },
+				target: {
+					"@type": OdrlTwinVocabulary.JsonPath,
+					[OdrlTwinVocabulary.JsonPathExpression]: "$.items[*]"
+				},
 				permission: [
 					{
 						action: "read",
-						target: { "@type": "twin:jsonPath", "twin:jsonPathExpression": "$.meta" }
+						target: {
+							"@type": OdrlTwinVocabulary.JsonPath,
+							[OdrlTwinVocabulary.JsonPathExpression]: "$.meta"
+						}
 					}
 				]
 			};
@@ -4025,8 +5347,8 @@ describe("DefaultPolicyArbiter", () => {
 						action: "use",
 						constraint: [
 							{
-								leftOperand: "twin:jsonPath",
-								"twin:jsonPathExpression": "$.count",
+								leftOperand: OdrlTwinVocabulary.JsonPath,
+								[OdrlTwinVocabulary.JsonPathExpression]: "$.count",
 								operator: OdrlOperatorType.Lteq,
 								rightOperand: "10",
 								dataType: "xsd:integer"
@@ -4054,8 +5376,8 @@ describe("DefaultPolicyArbiter", () => {
 						action: "use",
 						constraint: [
 							{
-								leftOperand: "twin:jsonPath",
-								"twin:jsonPathExpression": "$.price",
+								leftOperand: OdrlTwinVocabulary.JsonPath,
+								[OdrlTwinVocabulary.JsonPathExpression]: "$.price",
 								operator: OdrlOperatorType.Lteq,
 								rightOperand: "100",
 								unit: "https://dbpedia.org/resource/Euro"
@@ -4083,8 +5405,8 @@ describe("DefaultPolicyArbiter", () => {
 						action: "use",
 						constraint: [
 							{
-								leftOperand: "twin:jsonPath",
-								"twin:jsonPathExpression": "$.count",
+								leftOperand: OdrlTwinVocabulary.JsonPath,
+								[OdrlTwinVocabulary.JsonPathExpression]: "$.count",
 								operator: OdrlOperatorType.Lteq,
 								rightOperand: "5",
 								status: "odrl:policyUsage"
@@ -4113,8 +5435,8 @@ describe("DefaultPolicyArbiter", () => {
 							"@id": "print",
 							refinement: [
 								{
-									leftOperand: "twin:jsonPath",
-									"twin:jsonPathExpression": "$.count",
+									leftOperand: OdrlTwinVocabulary.JsonPath,
+									[OdrlTwinVocabulary.JsonPathExpression]: "$.count",
 									operator: OdrlOperatorType.Lteq,
 									rightOperand: "5"
 								}
@@ -4147,8 +5469,8 @@ describe("DefaultPolicyArbiter", () => {
 							"@id": "print",
 							refinement: [
 								{
-									leftOperand: "twin:jsonPath",
-									"twin:jsonPathExpression": "$.count",
+									leftOperand: OdrlTwinVocabulary.JsonPath,
+									[OdrlTwinVocabulary.JsonPathExpression]: "$.count",
 									operator: OdrlOperatorType.Gt,
 									rightOperand: "5"
 								}
@@ -4183,8 +5505,8 @@ describe("DefaultPolicyArbiter", () => {
 							implies: ["reproduce"],
 							refinement: [
 								{
-									leftOperand: "twin:jsonPath",
-									"twin:jsonPathExpression": "$.region",
+									leftOperand: OdrlTwinVocabulary.JsonPath,
+									[OdrlTwinVocabulary.JsonPathExpression]: "$.region",
 									operator: OdrlOperatorType.Eq,
 									rightOperand: "EU"
 								}
@@ -4328,6 +5650,104 @@ describe("DefaultPolicyArbiter", () => {
 
 			const decisions = await arbiter.decide(policy, undefined, {});
 			expect(decisions[0].decision).toBe(PolicyDecision.Granted);
+		});
+
+		test("grants when current date is within a gteq/lteq window expressed as bare ISO strings", async () => {
+			// Regression test when the leftOperand resolves to a genuine Date instance (as the built-in "dateTime"
+			// operand always does) and the rightOperand is a bare ISO string rather than the typed
+			// {"@value": ..., "@type": "xsd:dateTime"} wrapper used by every other test in this describe
+			// block, Coerce.number(dateInstance) returns its epoch millisecond timestamp while
+			// Coerce.number(isoString) uses Number.parseFloat, which silently truncates at the first
+			// "-" and returns just the leading year (e.g. "2035-12-31..." -> 2035). Both sides were
+			// "defined numbers", so compareOrdered's numeric-first branch fired and compared an
+			// epoch millisecond timestamp against a bare 4-digit year - gteq spuriously passed (huge >= small
+			// year) while lteq spuriously failed (huge <= small year is false), regardless of the
+			// actual dates involved.
+			const arbiter = new DefaultPolicyArbiter();
+			const policy: IDataspaceProtocolAgreement = {
+				"@context": OdrlContexts.Context,
+				"@type": OdrlPolicyType.Agreement,
+				assigner: "did:example:default-assigner",
+				assignee: "did:example:default-assignee",
+				"@id": "policy:datetime-window-bare-string",
+				permission: [
+					{
+						constraint: [
+							{
+								leftOperand: OdrlLeftOperandType.DateTime,
+								operator: OdrlOperatorType.Gteq,
+								rightOperand: "2020-01-01T00:00:00Z"
+							},
+							{
+								leftOperand: OdrlLeftOperandType.DateTime,
+								operator: OdrlOperatorType.Lteq,
+								rightOperand: "2099-12-31T23:59:59Z"
+							}
+						]
+					}
+				]
+			};
+
+			const decisions = await arbiter.decide(policy, undefined, {});
+			expect(decisions[0].decision).toBe(PolicyDecision.Granted);
+		});
+
+		test("denies when current date is after a bare-ISO-string lteq bound", async () => {
+			const arbiter = new DefaultPolicyArbiter();
+			const policy: IDataspaceProtocolAgreement = {
+				"@context": OdrlContexts.Context,
+				"@type": OdrlPolicyType.Agreement,
+				assigner: "did:example:default-assigner",
+				assignee: "did:example:default-assignee",
+				"@id": "policy:datetime-lteq-bare-string-expired",
+				permission: [
+					{
+						constraint: [
+							{
+								leftOperand: OdrlLeftOperandType.DateTime,
+								operator: OdrlOperatorType.Lteq,
+								rightOperand: "2020-12-31T23:59:59Z"
+							}
+						]
+					}
+				]
+			};
+
+			const decisions = await arbiter.decide(policy, undefined, {});
+			expect(decisions[0].decision).toBe(PolicyDecision.Denied);
+		});
+
+		test("denies (fails closed) when the dateTime rightOperand is a malformed date string", async () => {
+			// Regression test: a Date on one side (the built-in "dateTime" leftOperand) means this can
+			// only be a date comparison. If the other side is a string that fails Date parsing (e.g.
+			// "31/12/2035", day/month/year order - genuinely Invalid Date in JS, not just non-ISO), the
+			// old code fell through to the numeric branch: Coerce.number(dateInstance) = epoch ms,
+			// Coerce.number("31/12/2035") = Number.parseFloat's prefix-truncated 31 - reproducing the
+			// exact epoch-ms-vs-truncated-number bug this whole guard exists to prevent (gteq always
+			// true, lteq always false, regardless of the real dates). Failing closed (deny) instead is
+			// strictly safer than a nonsensical comparison.
+			const arbiter = new DefaultPolicyArbiter();
+			const policy: IDataspaceProtocolAgreement = {
+				"@context": OdrlContexts.Context,
+				"@type": OdrlPolicyType.Agreement,
+				assigner: "did:example:default-assigner",
+				assignee: "did:example:default-assignee",
+				"@id": "policy:datetime-malformed-string",
+				permission: [
+					{
+						constraint: [
+							{
+								leftOperand: OdrlLeftOperandType.DateTime,
+								operator: OdrlOperatorType.Gteq,
+								rightOperand: "31/12/2035"
+							}
+						]
+					}
+				]
+			};
+
+			const decisions = await arbiter.decide(policy, undefined, {});
+			expect(decisions[0].decision).toBe(PolicyDecision.Denied);
 		});
 	});
 
@@ -4862,6 +6282,65 @@ describe("DefaultPolicyArbiter", () => {
 			expect(denied[0].decision).toBe(PolicyDecision.Denied);
 		});
 
+		test("same-year ISO date strings compare chronologically, not as truncated year numbers", async () => {
+			// Regression: Coerce.number("2025-06-01") == Coerce.number("2025-12-31") == 2025
+			// because Number.parseFloat truncates at the first "-", making any two same-year
+			// dates compare as equal. The date-string guard must fire before the numeric branch.
+			const arbiter = new DefaultPolicyArbiter();
+			const gteqPolicy = makeAgreement(
+				"policy:event-date-string-gteq",
+				OdrlLeftOperandType.Event,
+				OdrlOperatorType.Gteq,
+				"2025-12-31"
+			);
+
+			// June 1 is NOT >= December 31 (same year)
+			const denied = await arbiter.decide(gteqPolicy, { event: "2025-06-01" }, {});
+			expect(denied[0].decision).toBe(PolicyDecision.Denied);
+
+			// December 31 IS >= June 1 (same year)
+			const granted = await arbiter.decide(gteqPolicy, { event: "2025-12-31" }, {});
+			expect(granted[0].decision).toBe(PolicyDecision.Granted);
+		});
+
+		test("same-year ISO datetime strings compare chronologically with lt", async () => {
+			const arbiter = new DefaultPolicyArbiter();
+			const policy = makeAgreement(
+				"policy:event-datetime-string-lt",
+				OdrlLeftOperandType.Event,
+				OdrlOperatorType.Lt,
+				"2025-12-31T23:59:59Z"
+			);
+
+			// June 1 IS < December 31 (same year)
+			const granted = await arbiter.decide(policy, { event: "2025-06-01T00:00:00Z" }, {});
+			expect(granted[0].decision).toBe(PolicyDecision.Granted);
+
+			// December 31 is NOT < June 1 (same year)
+			const denied = await arbiter.decide(policy, { event: "2025-12-31T23:59:59Z" }, {});
+			expect(denied[0].decision).toBe(PolicyDecision.Denied);
+		});
+
+		test("same-hour ISO time strings compare chronologically, not as truncated hour numbers", async () => {
+			// Regression: Coerce.number("09:30:00") == Coerce.number("09:45:00") == 9
+			// because Number.parseFloat truncates at the first ":".
+			const arbiter = new DefaultPolicyArbiter();
+			const policy = makeAgreement(
+				"policy:event-time-string-lt",
+				OdrlLeftOperandType.Event,
+				OdrlOperatorType.Lt,
+				"09:45:00"
+			);
+
+			// 09:30 IS < 09:45 (same hour)
+			const granted = await arbiter.decide(policy, { event: "09:30:00" }, {});
+			expect(granted[0].decision).toBe(PolicyDecision.Granted);
+
+			// 09:45 is NOT < 09:30 (same hour)
+			const denied = await arbiter.decide(policy, { event: "09:45:00" }, {});
+			expect(denied[0].decision).toBe(PolicyDecision.Denied);
+		});
+
 		// ── Duration operands ─────────────────────────────────────────────────────
 		// Spec: delayPeriod (eq/gt/gteq), elapsedTime (eq/lt/lteq),
 		//       meteredTime (eq/lt/lteq), timeInterval (eq only) — all xsd:duration.
@@ -4987,8 +6466,6 @@ describe("DefaultPolicyArbiter", () => {
 			const denied = await arbiter.decide(policy, { absoluteTemporalPosition: "t=0,30" }, {});
 			expect(denied[0].decision).toBe(PolicyDecision.Denied);
 		});
-
-		// ── Bug regression tests ───────────────────────────────────────────────────
 
 		test("neq correctly denies when ISO 8601 duration string matches xsd:duration right operand", async () => {
 			const arbiter = new DefaultPolicyArbiter();

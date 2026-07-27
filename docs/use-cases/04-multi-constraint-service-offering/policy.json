@@ -9,14 +9,10 @@
 	"uid": "http://example.com/policy-service-offering:api-access-2025",
 	"assigner": "did:iota:testnet:0xfcfa55894cab90504af7eaf38087addd5f77791a89bd3ebbe76d9c2b1a6ce567",
 	"assignee": "did:iota:testnet:0xac534b750ac453d573a55954760af140f87358c7be9a18000a831c452c32f246",
-	"description": "Agreement for veterinary certificate API access valid for 2025 with security certification requirements",
+	"description": "Agreement for veterinary certificate API access valid 2025-2035 with security certification requirements",
 	"permission": [
 		{
 			"action": "use",
-			"target": {
-				"@type": "ServiceOffering",
-				"uid": "https://twin.example.org/service-offerings/api-access-vet-cert"
-			},
 			"constraint": [
 				{
 					"leftOperand": "dateTime",
@@ -27,12 +23,12 @@
 				{
 					"leftOperand": "dateTime",
 					"operator": "lteq",
-					"rightOperand": "2025-12-31T23:59:59Z",
-					"comment": "Access expires end of 2025"
+					"rightOperand": "2035-12-31T23:59:59Z",
+					"comment": "Access expires end of 2035"
 				},
 				{
 					"leftOperand": "twin:jsonPath",
-					"twin:jsonPathExpression": ".assigneeAttributes.certifications",
+					"twin:jsonPathExpression": "$.assigneeAttributes.certifications",
 					"operator": "isAnyOf",
 					"rightOperand": ["ISO27001", "SOC2"],
 					"comment": "Organization must possess ISO27001 or SOC2 certification"

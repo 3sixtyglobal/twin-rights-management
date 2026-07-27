@@ -22,7 +22,7 @@ This use case includes the following component example files:
 
 **Policy Storage (PAP)**:
 
-- [`pap-agreement.json`](./pap-agreement.json) - Agreement with PropertyReference pattern and dynamic evaluation flag
+- [`pap-agreement.json`](./pap-agreement.json) - Agreement with `twin:jsonPath`/information-datasource pattern and dynamic evaluation flag
 
 **Policy Lookup (PMP)**:
 

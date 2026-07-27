@@ -22,15 +22,16 @@
 			"constraint": {
 				"leftOperand": "dateTime",
 				"operator": "lteq",
-				"rightOperand": "2025-12-31T23:59:59Z"
+				"rightOperand": "2035-12-31T23:59:59Z"
 			},
 			"leftOperandValue": "2025-09-30T10:00:00Z",
-			"evaluation": "2025-09-30T10:00:00Z <= 2025-12-31T23:59:59Z",
+			"evaluation": "2025-09-30T10:00:00Z <= 2035-12-31T23:59:59Z",
 			"result": "satisfied"
 		},
 		{
 			"constraint": {
-				"leftOperand": ".certifications",
+				"leftOperand": "twin:jsonPath",
+				"twin:jsonPathExpression": "$.assigneeAttributes.certifications",
 				"operator": "isAnyOf",
 				"rightOperand": ["ISO27001", "SOC2"]
 			},
@@ -46,7 +47,7 @@
 	"grantedPermissions": [
 		{
 			"action": "use",
-			"target": "https://twin.example.org/service-offerings/api-access-vet-cert",
+			"target": "$",
 			"type": "service-access"
 		}
 	],
@@ -54,6 +55,6 @@
 		"type": "simple-grant",
 		"description": "Grant API access to assignee, no data filtering required",
 		"accessToken": "should-be-issued",
-		"validUntil": "2025-12-31T23:59:59Z"
+		"validUntil": "2035-12-31T23:59:59Z"
 	}
 }

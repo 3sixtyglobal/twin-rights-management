@@ -23,7 +23,7 @@ export interface IPolicyNegotiator extends IComponent {
 	 * Handle the offer.
 	 * @param offer The offer to check.
 	 * @param information Information provided by the requester to determine if a policy can be created.
-	 * @returns Sets the accepted flag if it can be offered, and the interventionRequired flag if manual agreement is needed.
+	 * @returns Sets the accepted flag if it can be offered, the interventionRequired flag if manual agreement is needed, and the directAgreement flag if the offer/accept round-trip can be skipped (ignored by callers when interventionRequired is true).
 	 */
 	handleOffer(
 		offer: IDataspaceProtocolOffer,
@@ -31,6 +31,7 @@ export interface IPolicyNegotiator extends IComponent {
 	): Promise<{
 		accepted: boolean;
 		interventionRequired: boolean;
+		directAgreement?: boolean;
 	}>;
 
 	/**

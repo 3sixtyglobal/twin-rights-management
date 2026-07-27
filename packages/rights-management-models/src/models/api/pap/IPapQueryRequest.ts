@@ -10,6 +10,11 @@ export interface IPapQueryRequest {
 	 */
 	query?: {
 		/**
+		 * The type of policy to filter by.
+		 */
+		type?: string;
+
+		/**
 		 * The assigner to filter by.
 		 */
 		assigner?: string;

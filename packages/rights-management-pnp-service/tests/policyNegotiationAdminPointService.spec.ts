@@ -25,9 +25,11 @@ import { initSchema } from "../src/schema.js";
 
 let loggingMemoryEntityStorage: MemoryEntityStorageConnector<LogEntry>;
 let policyNegotiationMemoryEntityStorage: MemoryEntityStorageConnector<PolicyNegotiation>;
+let taskSchedulerComponent: TaskSchedulerService;
 
 describe("PolicyNegotiationAdminPointService", () => {
-	afterEach(() => {
+	afterEach(async () => {
+		await taskSchedulerComponent.stop();
 		vi.restoreAllMocks();
 	});
 
@@ -53,8 +55,12 @@ describe("PolicyNegotiationAdminPointService", () => {
 				})
 		);
 
-		const taskSchedulerComponent = new TaskSchedulerService({ config: { intervalMs: 500 } });
+		taskSchedulerComponent = new TaskSchedulerService({ config: { intervalMs: 500 } });
 		ComponentFactory.register("task-scheduler", () => taskSchedulerComponent);
+		// The engine normally calls start() on every registered IComponent during bootstrap;
+		// tests don't run a full engine bootstrap, so the scheduler must be started explicitly
+		// or addTask() will register tasks that never actually trigger.
+		await taskSchedulerComponent.start();
 		policyNegotiationMemoryEntityStorage = new MemoryEntityStorageConnector<PolicyNegotiation>({
 			entitySchema: nameof<PolicyNegotiation>(),
 			config: { storageKey: "policy-negotiation" }

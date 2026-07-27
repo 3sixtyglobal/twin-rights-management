@@ -1,10 +1,11 @@
 // Copyright 2025 IOTA Stiftung.
 // SPDX-License-Identifier: Apache-2.0.
 import { BaseRestClient } from "@twin.org/api-core";
-import type {
-	IBaseRestClientConfig,
-	ICreatedResponse,
-	INoContentResponse
+import {
+	HttpHeaderHelper,
+	type IBaseRestClientConfig,
+	type ICreatedResponse,
+	type INoContentResponse
 } from "@twin.org/api-models";
 import { Guards } from "@twin.org/core";
 import { nameof } from "@twin.org/nameof";
@@ -20,7 +21,7 @@ import type {
 	IPolicyNegotiationAdminPointComponent
 } from "@twin.org/rights-management-models";
 import type { DataspaceProtocolContractNegotiationStateType } from "@twin.org/standards-dataspace-protocol";
-import { HeaderHelper, HeaderTypes } from "@twin.org/web";
+import { HttpMethod } from "@twin.org/web";
 
 /**
  * Client for performing Rights Management Policy Negotiation Admin through to REST endpoints.
@@ -60,11 +61,14 @@ export class PolicyNegotiationAdminPointRestClient
 
 		const response = await this.fetch<IPnapCreateRequest, ICreatedResponse>(
 			"/negotiations/admin",
-			"POST",
+			HttpMethod.POST,
 			{ body: { id } }
 		);
 
-		return response.headers[HeaderTypes.Location];
+		return HttpHeaderHelper.extractId(
+			response.headers,
+			`${this.getPathPrefix()}/negotiations/admin/:id`
+		);
 	}
 
 	/**
@@ -81,7 +85,7 @@ export class PolicyNegotiationAdminPointRestClient
 
 		const response = await this.fetch<IPnapGetRequest, IPnapGetResponse>(
 			"/negotiations/admin/:policyId",
-			"GET",
+			HttpMethod.GET,
 			{
 				pathParams: {
 					policyId
@@ -104,12 +108,16 @@ export class PolicyNegotiationAdminPointRestClient
 			negotiation
 		);
 
-		await this.fetch<IPnapSetRequest, INoContentResponse>("/negotiations/admin/:policyId", "PUT", {
-			pathParams: {
-				policyId: negotiation.id
-			},
-			body: negotiation
-		});
+		await this.fetch<IPnapSetRequest, INoContentResponse>(
+			"/negotiations/admin/:policyId",
+			HttpMethod.PUT,
+			{
+				pathParams: {
+					policyId: negotiation.id
+				},
+				body: negotiation
+			}
+		);
 	}
 
 	/**
@@ -126,7 +134,7 @@ export class PolicyNegotiationAdminPointRestClient
 
 		await this.fetch<IPnapRemoveRequest, INoContentResponse>(
 			"/negotiations/admin/:policyId",
-			"DELETE",
+			HttpMethod.DELETE,
 			{
 				pathParams: {
 					policyId
@@ -150,7 +158,7 @@ export class PolicyNegotiationAdminPointRestClient
 	}> {
 		const response = await this.fetch<IPnapQueryRequest, IPnapQueryResponse>(
 			"/negotiations/admin",
-			"GET",
+			HttpMethod.GET,
 			{
 				query: {
 					state,
@@ -161,8 +169,7 @@ export class PolicyNegotiationAdminPointRestClient
 
 		return {
 			items: response.body,
-			cursor: HeaderHelper.extractLinkHeaderRelation(response.headers?.[HeaderTypes.Link], "next")
-				?.urlQueryParams?.cursor
+			cursor: HttpHeaderHelper.extractCursor(response.headers)
 		};
 	}
 }

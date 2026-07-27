@@ -16,7 +16,7 @@ This use case assumes an Agreement policy already exists in PAP. The Agreement w
 
 For this scenario, the veterinary authority has already created an Agreement policy with the partner organization that includes:
 
-- Temporal constraints (valid from 2025-01-01 to 2025-12-31)
+- Temporal constraints (valid from 2025-01-01 to 2035-12-31)
 - Certification constraints (requires ISO27001 OR SOC2)
 - Service offering target (API access permission)
 
@@ -78,7 +78,7 @@ The Agreement policy already exists in PAP through negotiation or administrative
 - Action: `"use"` (permission action, not data retrieval)
 - Constraints (ALL must be satisfied - implicit AND logic):
   - **Temporal Constraint 1**: Access valid from 2025-01-01T00:00:00Z
-  - **Temporal Constraint 2**: Access valid until 2025-12-31T23:59:59Z
+  - **Temporal Constraint 2**: Access valid until 2035-12-31T23:59:59Z
   - **Attribute Constraint**: Organization certifications include ISO27001 OR SOC2
 
 ### Phase 2: Access Request and Evaluation (Runtime)
@@ -131,7 +131,7 @@ const currentDateTime = /* PIP provides from time source */ '2025-09-30T10:00:00
 const constraint1 = currentDateTime >= '2025-01-01T00:00:00Z'; // ✓ true
 
 // Constraint 2: lteq (less than or equal)
-const constraint2 = currentDateTime <= '2025-12-31T23:59:59Z'; // ✓ true
+const constraint2 = currentDateTime <= '2035-12-31T23:59:59Z'; // ✓ true
 ```
 
 ##### Step 3: Evaluate Attribute Constraint
@@ -196,8 +196,8 @@ const certificates = await apiClient.searchCertificates({
 
 #### Scenario B: After Valid Period
 
-- Current date: 2026-01-15
-- Temporal constraint 2: 2026-01-15 > 2025-12-31 ✗
+- Current date: 2036-01-15
+- Temporal constraint 2: 2036-01-15 > 2035-12-31 ✗
 - **Result**: Permission denied (expired)
 
 #### Scenario C: Missing Required Certification
@@ -364,7 +364,7 @@ This pattern ensures:
 - `IOdrlPermission` - Permission rule with multiple constraints
 - `IOdrlConstraint` - Multiple constraint instances with different leftOperands
 - Constraint operators: `gteq` (greater than or equal), `lteq` (less than or equal), `isAnyOf` (set membership)
-- Custom extension: `twin:jsonPath` leftOperand with companion `twin:jsonPathExpression` property for certification property extraction (e.g., `twin:jsonPathExpression: ".certifications"`)
+- Custom extension: `twin:jsonPath` leftOperand with companion `twin:jsonPathExpression` property for certification property extraction (e.g., `twin:jsonPathExpression: "$.assigneeAttributes.certifications"` - the expression must start with `$`, the JSONPath root)
 
 ## Real-World Application
 

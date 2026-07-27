@@ -33,11 +33,18 @@ export class PassThroughPolicyNegotiator implements IPolicyNegotiator {
 	private readonly _logging?: ILoggingComponent;
 
 	/**
+	 * Whether handleOffer() signals directAgreement.
+	 * @internal
+	 */
+	private readonly _directAgreement: boolean;
+
+	/**
 	 * Create a new instance of PassThroughPolicyNegotiator.
 	 * @param options The options for the pass through policy negotiator.
 	 */
 	constructor(options?: IPassThroughPolicyNegotiatorConstructorOptions) {
 		this._logging = ComponentFactory.getIfExists<ILoggingComponent>(options?.loggingComponentType);
+		this._directAgreement = options?.config?.directAgreement ?? false;
 	}
 
 	/**
@@ -61,7 +68,7 @@ export class PassThroughPolicyNegotiator implements IPolicyNegotiator {
 	 * Handle the offer.
 	 * @param offer The offer to check.
 	 * @param information Information provided by the requester to determine if a policy can be created.
-	 * @returns Sets the accepted flag if it can be offered, and the interventionRequired flag if manual agreement is needed.
+	 * @returns Sets the accepted flag if it can be offered, the interventionRequired flag if manual agreement is needed, and directAgreement per the constructor's directAgreement option (default true).
 	 */
 	public async handleOffer(
 		offer: IDataspaceProtocolOffer,
@@ -69,6 +76,7 @@ export class PassThroughPolicyNegotiator implements IPolicyNegotiator {
 	): Promise<{
 		accepted: boolean;
 		interventionRequired: boolean;
+		directAgreement?: boolean;
 	}> {
 		Guards.object<IDataspaceProtocolOffer>(
 			PassThroughPolicyNegotiator.CLASS_NAME,
@@ -88,7 +96,8 @@ export class PassThroughPolicyNegotiator implements IPolicyNegotiator {
 
 		return {
 			accepted: true,
-			interventionRequired: false
+			interventionRequired: false,
+			directAgreement: this._directAgreement
 		};
 	}
 

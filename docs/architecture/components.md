@@ -141,6 +141,25 @@ Error handling: If zero Arbiters are registered an error (e.g. `noSupportedArbit
 
 Arbiters SHOULD be deterministic for identical inputs and MUST NOT mutate shared policy objects.
 
+### Party Scoping (PartyCollection Refinements)
+
+A rule's `assigner`/`assignee` may be a plain party id, a `Party` object with a `uid`, or an ODRL `PartyCollection` scoping the rule to parties matching a `refinement` (e.g. "applies to any assignee whose verified `role` is `BorderAgency`") instead of a fixed id. This is the ODRL-idiomatic way to express attribute-scoped rules, and the default Arbiter supports it as follows:
+
+- A `PartyCollection` with **no `source`** but **with a `refinement`**: the collection contributes no party id, so the rule's applicability to that party is decided entirely by evaluating its `refinement` constraints against the same datasources (`data`, `information`) used for rule-level constraints — including verified counterparty attributes carried in `information` via the negotiated Agreement's `trustData`. A rule with both a resolvable id **and** a refinement-only collection (a compact-form array) is expanded into independent alternative rules per ODRL's compact-form semantics — each is evaluated on its own, not ANDed together.
+- A party entry that resolves to **neither** a party id **nor** a refinement (e.g. a `PartyCollection` with no `source` and no `refinement`, or a malformed/untyped party object the Arbiter can't otherwise classify) is **not** treated as "no constraint, applies to anyone." It falls back to the ordinary id-matching path, which denies on an empty id list — the same fail-closed behavior as before this scoping mechanism existed. Only a genuine, non-empty `refinement` unlocks the attribute-matching path above.
+- A `PartyCollection` **with a `source`** (member ids resolved from an external source at decision time) is **not supported** and the Arbiter throws `partyCollectionSourceNotSupported`. This is a deliberate, permanent limitation, not a gap pending a future fix — resolving collection membership from an external source at decision time is a materially larger capability (network lookups inside the Arbiter) that no current deployment requires.
+- This applies identically to permissions, prohibitions, and obligations, and to both `assigner` and `assignee`.
+
+### Asset Scoping (AssetCollection Refinements)
+
+A rule's `target` may be a plain asset id, an `Asset` object, or an ODRL `AssetCollection` scoping the rule to a set of member assets instead of a single fixed one. The default Arbiter supports it as follows, mirroring the `PartyCollection` pattern above where noted:
+
+- An `AssetCollection` **with `source: "twin:jsonPath"`**: the collection's `twin:jsonPathExpression` is resolved as a wildcard path (typically ending in `[*]`) over the data source, and a `refinement` (if present) is applied per-member, expanding to independent per-item decisions. This is the original, longer-standing mechanism (used by, e.g., `docs/use-cases/02-country-filtered-consignments`).
+- An `AssetCollection` **with no `source`** but **with a `refinement`**: the collection contributes no wildcard expansion — the target resolves to `"$"` (the whole decision payload), and the `refinement` is applied as an ordinary rule-level constraint against the same datasources used for other rule constraints, mirroring how a source-less `PartyCollection` contributes refinements without ids. This is not a per-item mechanism; there is no array to iterate without a `twin:jsonPath` source, so `shouldExpandToPerItemTargets()` never triggers for this shape.
+- An `AssetCollection` with **neither `source` nor `refinement`**: also resolves to `"$"`. Unlike the equivalent `PartyCollection` case above, which stays fail-closed and denies on an empty id list, this is treated the same as an entirely absent target and grants — there is no id-matching concept for assets the way there is for parties, so "no scoping information at all" has no fail-closed fallback to fall back to.
+- An `AssetCollection` **with any other defined `source` value** (neither absent nor `"twin:jsonPath"`) is **not supported** and the Arbiter throws `assetCollectionSourceNotSupported`. This mirrors `PartyCollection`'s treatment of an unsupported `source` — the Arbiter only recognizes `"twin:jsonPath"` as a resolvable external-source form.
+- This applies identically to permissions, prohibitions, and obligations.
+
 ## Policy Enforcement Point (PEP)
 
 The PEP applies PDP decisions to a candidate data set.
@@ -208,6 +227,20 @@ Extensibility:
 ### Manual Intervention
 
 A Negotiator MAY request a pause requiring administrative action. Such negotiations enter a managed state handled through PNAP operations before resumption.
+
+### Direct Agreement (REQUESTED → AGREED Shortcut)
+
+The [IDS Contract Negotiation state machine](https://eclipse-dataspace-protocol-base.github.io/DataspaceProtocol/2025-1/#state-machine) permits a Provider-initiated `REQUESTED → AGREED` transition as a first-class alternative to the full `REQUESTED → OFFERED → ACCEPTED → AGREED` cycle — both are explicit transitions in the canonical state machine, not one being an approximation of the other.
+
+A `Negotiator` opts a negotiation into this shortcut by setting `directAgreement: true` on the result of `handleOffer()`, alongside `accepted`. When set (and `interventionRequired` is not also set — that always takes precedence, since a shortcut must never bypass a required manual review), the PNP skips scheduling the Offer message and instead builds and sends the Agreement directly. `VERIFIED` and `FINALIZED` proceed identically to the full cycle regardless of which path produced `AGREED`.
+
+`PassThroughPolicyNegotiator` sets `directAgreement: true` by default, matching its unconditional auto-accept behavior. Pass `{ directAgreement: false }` to its constructor to keep the full negotiation cycle instead. See [use case 7](../use-cases/07-policy-negotiation-direct-agreement/) for a worked example contrasted against the full-cycle [use case 6](../use-cases/06-policy-negotiation-offer-to-agreement/).
+
+#### Upgrade order (breaking change)
+
+A negotiation only reaches `AGREED` directly if the **consumer's** deployed `rights-management-pnp-service` accepts an inbound `ContractAgreementMessage` while its local negotiation is still `REQUESTED` (not only `ACCEPTED`, which is all older versions accept). A Provider whose Negotiator signals `directAgreement: true` while talking to a Consumer running an older version will see that negotiation fail: the Consumer rejects the message and its own record is silently abandoned in `REQUESTED` (recovered only by PNAP's cleanup sweep), while the Provider's record is separately marked `TERMINATED`.
+
+Because `PassThroughPolicyNegotiator` now defaults to `directAgreement: true`, **upgrade every Consumer-side deployment before any Provider-side deployment that uses `PassThroughPolicyNegotiator` picks up this version.** If providers and consumers cannot be upgraded together, pass `{ directAgreement: false }` on the Provider side until every Consumer it negotiates with is confirmed upgraded.
 
 ## Policy Negotiation Admin Point (PNAP)
 

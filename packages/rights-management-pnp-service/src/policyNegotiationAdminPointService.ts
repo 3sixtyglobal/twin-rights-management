@@ -176,7 +176,9 @@ export class PolicyNegotiationAdminPointService implements IPolicyNegotiationAdm
 
 			await this.set({
 				// correlationId (the provider's pid) is unknown at pre-registration time;
-				// offerFromProvider() fills it in when the ContractOfferMessage arrives.
+				// offerFromProvider() fills it in when the ContractOfferMessage arrives (full cycle),
+				// or agreementFromProvider() fills it in when the ContractAgreementMessage arrives
+				// directly (direct-agreement fast path, which skips the offer step entirely).
 				id,
 				correlationId: "",
 				dateCreated: new Date(Date.now()).toISOString(),

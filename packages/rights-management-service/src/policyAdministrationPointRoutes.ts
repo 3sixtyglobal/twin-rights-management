@@ -2,6 +2,7 @@
 // SPDX-License-Identifier: Apache-2.0.
 import {
 	HttpContextIdKeys,
+	HttpHeaderHelper,
 	HttpParameterHelper,
 	HttpUrlHelper,
 	type ICreatedResponse,
@@ -11,7 +12,7 @@ import {
 	type ITag
 } from "@twin.org/api-models";
 import { ContextIdStore } from "@twin.org/context";
-import { Coerce, ComponentFactory, Guards, Is } from "@twin.org/core";
+import { Coerce, ComponentFactory, Guards } from "@twin.org/core";
 import { nameof } from "@twin.org/nameof";
 import {
 	POLICY_METADATA_CONTEXT,
@@ -31,7 +32,7 @@ import {
 	type IPolicyAdministrationPointComponent
 } from "@twin.org/rights-management-models";
 import { OdrlContexts, OdrlPolicyType, type OdrlContextType } from "@twin.org/standards-w3c-odrl";
-import { HeaderHelper, HeaderTypes, HttpStatusCode } from "@twin.org/web";
+import { HttpStatusCode, type IHttpHeaders } from "@twin.org/web";
 
 /**
  * The source used when communicating about these routes.
@@ -79,7 +80,7 @@ export function generateRestRoutesPolicyAdministrationPoint(
 		method: "POST",
 		path: `${baseRouteName}/policy/admin`,
 		handler: async (httpRequestContext, request) =>
-			papCreate(httpRequestContext, componentName, request),
+			papCreate(httpRequestContext, componentName, request, baseRouteName),
 		requestType: {
 			type: nameof<IPapCreateRequest>(),
 			examples: [
@@ -445,12 +446,14 @@ export function generateRestRoutesPolicyAdministrationPoint(
  * @param httpRequestContext The request context for the API.
  * @param componentName The name of the component to use in the routes.
  * @param request The request.
+ * @param baseRouteName The base route name to use for generating the location header.
  * @returns The response object with additional http response properties.
  */
 export async function papCreate(
 	httpRequestContext: IHttpRequestContext,
 	componentName: string,
-	request: IPapCreateRequest
+	request: IPapCreateRequest,
+	baseRouteName: string
 ): Promise<ICreatedResponse> {
 	Guards.object<IPapCreateRequest>(ROUTES_SOURCE, nameof(request), request);
 	Guards.object<IPapCreateRequest["body"]>(ROUTES_SOURCE, nameof(request.body), request.body);
@@ -459,6 +462,16 @@ export async function papCreate(
 
 	const policy = request.body;
 	const uid = await component.create(policy);
+
+	const contextIds = await ContextIdStore.getContextIds();
+	const publicOrigin = contextIds?.[HttpContextIdKeys.PublicOrigin];
+
+	const headers: IHttpHeaders = {};
+	HttpHeaderHelper.buildId(
+		headers,
+		uid,
+		HttpUrlHelper.combineOriginPath(publicOrigin, `${baseRouteName}/policy/admin/:id`)
+	);
 
 	return {
 		statusCode: HttpStatusCode.created,
@@ -650,6 +663,7 @@ export async function papQuery(
 	const component = ComponentFactory.get<IPolicyAdministrationPointComponent>(componentName);
 	const result = await component.query(
 		{
+			type: request.query?.type as OdrlPolicyType,
 			assigner: request.query?.assigner,
 			assignee: request.query?.assignee,
 			target: request.query?.target,
@@ -662,18 +676,13 @@ export async function papQuery(
 
 	const headers: IPapQueryResponse["headers"] = {};
 
-	if (Is.stringValue(result.cursor)) {
-		const contextIds = await ContextIdStore.getContextIds();
-
-		headers[HeaderTypes.Link] = HeaderHelper.createLinkHeader(
-			HttpUrlHelper.replaceOrigin(
-				httpRequestContext.serverRequest.url,
-				contextIds?.[HttpContextIdKeys.PublicOrigin]
-			),
-			{ cursor: result.cursor },
-			"next"
-		);
-	}
+	const contextIds = await ContextIdStore.getContextIds();
+	HttpHeaderHelper.buildCursor(
+		headers,
+		httpRequestContext.serverRequest.url,
+		contextIds?.[HttpContextIdKeys.PublicOrigin],
+		result.cursor
+	);
 
 	return {
 		headers,

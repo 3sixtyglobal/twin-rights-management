@@ -16,14 +16,10 @@
 				"@type": "PartyCollection",
 				"refinement": {
 					"leftOperand": "twin:jsonPath",
-					"twin:jsonPathExpression": ".legalAddress.countryCode",
+					"twin:jsonPathExpression": "$.assigneeAttributes.legalAddress.countryCode",
 					"operator": "eq",
 					"rightOperand": "PL"
 				}
-			},
-			"target": {
-				"@type": "Asset",
-				"uid": "https://twin.example.org/data-resources/vet-cert-doc-6ce567"
 			}
 		}
 	],
@@ -42,7 +38,7 @@
 		},
 		"policyLocatorHints": {
 			"lookupKey": "assigner:did:iota:testnet:0xfcfa55894cab90504af7eaf38087addd5f77791a89bd3ebbe76d9c2b1a6ce567:action:read",
-			"searchableConstraints": ["legalAddress.countryCode"]
+			"searchableConstraints": ["assigneeAttributes.legalAddress.countryCode"]
 		}
 	}
 }

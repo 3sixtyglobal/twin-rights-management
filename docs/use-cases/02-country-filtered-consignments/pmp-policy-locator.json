@@ -1,5 +1,5 @@
 {
-	"$comment": "PMP (Policy Management Point) - Policy locator for AssetCollection with PropertyReference pattern requiring dynamic evaluation.",
+	"$comment": "PMP (Policy Management Point) - Policy locator for AssetCollection with twin:jsonPath/information-datasource pattern requiring dynamic evaluation.",
 	"policyQuery": {
 		"assigner": "did:iota:testnet:0x1ee831611a9fe9877c82e05075d9670c4970b4fd0904c208082ee50e45817a9d",
 		"assignee": "did:iota:testnet:0xac534b750ac453d573a55954760af140f87358c7be9a18000a831c452c32f246",
@@ -34,16 +34,18 @@
 			"policyType": "Agreement",
 			"matchScore": 1.0,
 			"matchedCriteria": ["assigner", "assignee", "action", "targetType", "targetSource"],
-			"filteringPattern": "PropertyReference",
+			"filteringPattern": "twin:jsonPath (information datasource)",
 			"requiresDynamicEvaluation": true,
 			"constraints": [
 				{
 					"type": "AssetCollection.refinement",
-					"leftOperand": "destinationCountry",
+					"leftOperand": "twin:jsonPath",
+					"twin:jsonPathExpression": "$.consignments[*].destinationCountry",
 					"operator": "eq",
 					"rightOperand": {
-						"@type": "PropertyReference",
-						"property": "assignee.countryCode"
+						"@type": "twin:jsonPath",
+						"twin:jsonPathDataSource": "information",
+						"twin:jsonPathExpression": "$.assigneeAttributes.countryCode"
 					}
 				}
 			]
@@ -51,7 +53,7 @@
 	],
 	"policySelectionResult": {
 		"selectedPolicy": "http://example.com/policy-exporter-data-resource:6750",
-		"selectionReason": "Exact match on assigner, assignee, action, and AssetCollection target. PropertyReference requires dynamic evaluation of assignee.countryCode against each consignment's destinationCountry.",
-		"nextStep": "Forward to PDP for dynamic filtering evaluation. PDP will compare destinationCountry of each consignment against assignee.countryCode from PIP context."
+		"selectionReason": "Exact match on assigner, assignee, action, and AssetCollection target. The refinement requires dynamic evaluation of assigneeAttributes.countryCode (from the information datasource) against each consignment's destinationCountry.",
+		"nextStep": "Forward to PDP for dynamic filtering evaluation. PDP will compare destinationCountry of each consignment against assigneeAttributes.countryCode from PIP context."
 	}
 }

@@ -9,7 +9,8 @@
 	"evaluatedConstraints": [
 		{
 			"constraint": {
-				"leftOperand": ".legalAddress.countryCode",
+				"leftOperand": "twin:jsonPath",
+				"twin:jsonPathExpression": "$.assigneeAttributes.legalAddress.countryCode",
 				"operator": "eq",
 				"rightOperand": "PL"
 			},
@@ -21,7 +22,7 @@
 	"grantedPermissions": [
 		{
 			"action": "read",
-			"target": "https://twin.example.org/data-resources/vet-cert-doc-6ce567"
+			"target": "$"
 		}
 	]
 }

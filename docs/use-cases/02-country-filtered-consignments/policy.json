@@ -15,14 +15,16 @@
 			"action": "read",
 			"target": {
 				"@type": "AssetCollection",
-				"source": "https://twin.example.org/asset-collections/consignments",
+				"source": "twin:jsonPath",
+				"twin:jsonPathExpression": "$.consignments[*]",
 				"refinement": {
 					"leftOperand": "twin:jsonPath",
-					"twin:jsonPathExpression": ".destinationCountry",
+					"twin:jsonPathExpression": "$.consignments[*].destinationCountry",
 					"operator": "eq",
 					"rightOperand": {
-						"@type": "PropertyReference",
-						"property": "assignee.countryCode"
+						"@type": "twin:jsonPath",
+						"twin:jsonPathDataSource": "information",
+						"twin:jsonPathExpression": "$.assigneeAttributes.countryCode"
 					}
 				}
 			}

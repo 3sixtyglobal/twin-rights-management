@@ -2,6 +2,7 @@
 // SPDX-License-Identifier: Apache-2.0.
 import {
 	HttpContextIdKeys,
+	HttpHeaderHelper,
 	HttpUrlHelper,
 	type ICreatedResponse,
 	type IHttpRequestContext,
@@ -10,7 +11,7 @@ import {
 	type ITag
 } from "@twin.org/api-models";
 import { ContextIdStore } from "@twin.org/context";
-import { ComponentFactory, Guards, Is } from "@twin.org/core";
+import { ComponentFactory, Guards } from "@twin.org/core";
 import { nameof } from "@twin.org/nameof";
 import type {
 	IPnapCreateRequest,
@@ -23,7 +24,7 @@ import type {
 	IPolicyNegotiationAdminPointComponent
 } from "@twin.org/rights-management-models";
 import { DataspaceProtocolContractNegotiationStateType } from "@twin.org/standards-dataspace-protocol";
-import { HeaderHelper, HeaderTypes, HttpMethod, HttpStatusCode } from "@twin.org/web";
+import { HeaderTypes, HttpMethod, HttpStatusCode, type IHttpHeaders } from "@twin.org/web";
 
 /**
  * The source used when communicating about these routes.
@@ -58,7 +59,7 @@ export function generateRestRoutesPolicyNegotiationAdminPoint(
 		method: HttpMethod.POST,
 		path: `${baseRouteName}/negotiations/admin`,
 		handler: async (httpRequestContext, request) =>
-			pnapCreate(httpRequestContext, componentName, request),
+			pnapCreate(httpRequestContext, componentName, request, baseRouteName),
 		requestType: {
 			type: nameof<IPnapCreateRequest>(),
 			examples: [
@@ -235,12 +236,14 @@ export function generateRestRoutesPolicyNegotiationAdminPoint(
  * @param httpRequestContext The request context for the API.
  * @param componentName The name of the component to use in the routes.
  * @param request The request.
+ * @param baseRouteName The base route name to use for the Location header.
  * @returns The response object with additional http response properties.
  */
 export async function pnapCreate(
 	httpRequestContext: IHttpRequestContext,
 	componentName: string,
-	request: IPnapCreateRequest
+	request: IPnapCreateRequest,
+	baseRouteName: string
 ): Promise<ICreatedResponse> {
 	Guards.object<IPnapCreateRequest>(ROUTES_SOURCE, nameof(request), request);
 	Guards.object<IPnapCreateRequest["body"]>(ROUTES_SOURCE, nameof(request.body), request.body);
@@ -248,11 +251,19 @@ export async function pnapCreate(
 	const component = ComponentFactory.get<IPolicyNegotiationAdminPointComponent>(componentName);
 	const id = await component.create(request.body.id);
 
+	const contextIds = await ContextIdStore.getContextIds();
+	const publicOrigin = contextIds?.[HttpContextIdKeys.PublicOrigin];
+
+	const headers: IHttpHeaders = {};
+	HttpHeaderHelper.buildId(
+		headers,
+		id,
+		HttpUrlHelper.combineOriginPath(publicOrigin, `${baseRouteName}/negotiations/admin/:id`)
+	);
+
 	return {
 		statusCode: HttpStatusCode.created,
-		headers: {
-			[HeaderTypes.Location]: id
-		}
+		headers
 	};
 }
 
@@ -360,17 +371,13 @@ export async function pnapQuery(
 
 	const headers: IPnapQueryResponse["headers"] = {};
 
-	if (Is.stringValue(result.cursor)) {
-		const contextIds = await ContextIdStore.getContextIds();
-		headers[HeaderTypes.Link] = HeaderHelper.createLinkHeader(
-			HttpUrlHelper.replaceOrigin(
-				httpRequestContext.serverRequest.url,
-				contextIds?.[HttpContextIdKeys.PublicOrigin]
-			),
-			{ cursor: result.cursor },
-			"next"
-		);
-	}
+	const contextIds = await ContextIdStore.getContextIds();
+	HttpHeaderHelper.buildCursor(
+		headers,
+		httpRequestContext.serverRequest.url,
+		contextIds?.[HttpContextIdKeys.PublicOrigin],
+		result.cursor
+	);
 
 	return {
 		headers,

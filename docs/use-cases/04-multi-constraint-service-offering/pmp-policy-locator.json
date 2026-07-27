@@ -41,7 +41,7 @@
 			"matchedCriteria": ["assignee", "action", "targetType", "targetUid"],
 			"temporalValidity": {
 				"validFrom": "2025-01-01T00:00:00Z",
-				"validUntil": "2025-12-31T23:59:59Z",
+				"validUntil": "2035-12-31T23:59:59Z",
 				"isCurrentlyValid": true
 			},
 			"constraints": [
@@ -55,12 +55,12 @@
 					"type": "temporal",
 					"leftOperand": "dateTime",
 					"operator": "lteq",
-					"rightOperand": "2025-12-31T23:59:59Z"
+					"rightOperand": "2035-12-31T23:59:59Z"
 				},
 				{
 					"type": "attribute",
 					"leftOperand": "twin:jsonPath",
-					"twin:jsonPathExpression": ".certifications",
+					"twin:jsonPathExpression": "$.assigneeAttributes.certifications",
 					"operator": "isAnyOf",
 					"rightOperand": ["ISO27001", "SOC2"]
 				}
@@ -70,7 +70,7 @@
 	],
 	"policySelectionResult": {
 		"selectedPolicy": "http://example.com/policy-service-offering:api-access-2025",
-		"selectionReason": "Exact match on assignee, action, and ServiceOffering target. Policy is temporally valid (2025-09-30 within 2025-01-01 to 2025-12-31). Certification constraint requires PDP evaluation.",
+		"selectionReason": "Exact match on assignee, action, and ServiceOffering target. Policy is temporally valid (2025-09-30 within 2025-01-01 to 2035-12-31). Certification constraint requires PDP evaluation.",
 		"nextStep": "Forward to PDP for multi-constraint evaluation. PDP will verify: 1) dateTime within valid period (AND), 2) certifications contain ISO27001 or SOC2 (AND)."
 	}
 }

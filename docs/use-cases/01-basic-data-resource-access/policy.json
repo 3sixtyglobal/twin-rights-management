@@ -15,14 +15,10 @@
 				"@type": "PartyCollection",
 				"refinement": {
 					"leftOperand": "twin:jsonPath",
-					"twin:jsonPathExpression": ".legalAddress.countryCode",
+					"twin:jsonPathExpression": "$.assigneeAttributes.legalAddress.countryCode",
 					"operator": "eq",
 					"rightOperand": "PL"
 				}
-			},
-			"target": {
-				"@type": "Asset",
-				"uid": "https://twin.example.org/data-resources/vet-cert-doc-6ce567"
 			}
 		}
 	]

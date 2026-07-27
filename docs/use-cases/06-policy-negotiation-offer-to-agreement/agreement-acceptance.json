@@ -1,19 +1,14 @@
 {
-	"$comment": "Consumer accepts the Agreement - IDS Protocol. After reviewing the Offer terms, the consumer accepts and signals readiness to finalize the Agreement.",
-	"@context": "https://w3id.org/dspace/2024/1/context.json",
-	"@type": "dspace:ContractAgreementMessage",
+	"$comment": "Consumer accepts the Offer terms - IDS Protocol. Despite this file's name (kept for continuity with the documented 7-component format), the two DSP messages involved are distinct: (1) the Consumer's acceptance shown here is a ContractNegotiationEventMessage (event: ACCEPTED), OFFERED -> ACCEPTED; (2) the Provider then separately builds and sends the Agreement via ContractAgreementMessage, ACCEPTED -> AGREED - see finalized-agreement.json and state-transitions.json for that step. Per DSP 2025-1, ContractAgreementMessage is always Provider-sent, never Consumer-sent.",
+	"@context": "https://w3id.org/dspace/2025/1/context.json",
+	"@type": "dspace:ContractNegotiationEventMessage",
 	"dspace:providerPid": "neg-vet-cert-12345",
 	"dspace:consumerPid": "consumer-neg-98765",
-	"dspace:agreement": {
-		"@id": "https://giw-node.example.org/policies/agreements/agreement-vet-cert-12345",
-		"@type": "odrl:Agreement",
-		"assigner": "did:iota:testnet:0xfcfa55894cab90504af7eaf38087addd5f77791a89bd3ebbe76d9c2b1a6ce567",
-		"assignee": "did:iota:testnet:0x1ee831611a9fe9877c82e05075d9670c4970b4fd0904c208082ee50e45817a9d"
-	},
-	"acceptanceTimestamp": "2025-10-02T09:58:00Z",
+	"dspace:event": "ACCEPTED",
+	"acceptanceTimestamp": "2025-10-02T09:57:30Z",
 	"consumerSignature": {
 		"type": "Ed25519Signature2020",
-		"created": "2025-10-02T09:58:00Z",
+		"created": "2025-10-02T09:57:30Z",
 		"verificationMethod": "did:iota:testnet:0x1ee831611a9fe9877c82e05075d9670c4970b4fd0904c208082ee50e45817a9d#keys-1",
 		"proofPurpose": "authentication",
 		"proofValue": "z5XqJ8KN9mH7Pk3VyT2sL4wR1cF6bD8nA9eG3hK5mP2jQ7tU4vX6yZ8aB1dC3eF5gH7iJ9kL2mN4oP6qR8sT1uV3w"

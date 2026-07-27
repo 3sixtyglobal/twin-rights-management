@@ -34,6 +34,14 @@ The options for the default policy enforcement processor.
 
 The class name of the Default Policy Enforcement Processor.
 
+***
+
+### DEFAULT\_STRUCTURAL\_KEYS {#default_structural_keys}
+
+> `readonly` `static` **DEFAULT\_STRUCTURAL\_KEYS**: `string`[]
+
+Default set of top-level keys treated as document-structural fields.
+
 ## Methods
 
 ### className() {#classname}

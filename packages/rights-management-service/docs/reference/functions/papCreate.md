@@ -1,6 +1,6 @@
 # Function: papCreate()
 
-> **papCreate**(`httpRequestContext`, `componentName`, `request`): `Promise`\<`ICreatedResponse`\>
+> **papCreate**(`httpRequestContext`, `componentName`, `request`, `baseRouteName`): `Promise`\<`ICreatedResponse`\>
 
 PAP: Create a policy.
 
@@ -23,6 +23,12 @@ The name of the component to use in the routes.
 `IPapCreateRequest`
 
 The request.
+
+### baseRouteName
+
+`string`
+
+The base route name to use for generating the location header.
 
 ## Returns
 

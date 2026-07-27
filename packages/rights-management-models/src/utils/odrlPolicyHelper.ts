@@ -104,10 +104,7 @@ export class OdrlPolicyHelper {
 	 */
 	public static getPartyIds(
 		party?:
-			| string
-			| IOdrlParty
-			| IOdrlPartyCollection
-			| (string | IOdrlParty | IOdrlPartyCollection)[]
+			string | IOdrlParty | IOdrlPartyCollection | (string | IOdrlParty | IOdrlPartyCollection)[]
 	): string[] {
 		const ids: string[] = [];
 

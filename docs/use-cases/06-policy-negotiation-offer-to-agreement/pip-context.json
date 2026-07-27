@@ -28,7 +28,7 @@
 		"negotiationCompleted": "2025-09-30T10:05:00Z",
 		"constraintValidatedDuringNegotiation": {
 			"leftOperand": "twin:jsonPath",
-			"twin:jsonPathExpression": ".legalAddress.countryCode",
+			"twin:jsonPathExpression": "$.legalAddress.countryCode",
 			"operator": "eq",
 			"rightOperand": "PL",
 			"result": "satisfied"

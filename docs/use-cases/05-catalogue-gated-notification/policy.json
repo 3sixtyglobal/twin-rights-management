@@ -11,24 +11,20 @@
 	"description": "Permit veterinary certificate notifications to UK authority when certification and destination constraints are satisfied",
 	"permission": [
 		{
-			"action": "permission",
-			"target": {
-				"@type": "ServiceOffering",
-				"uid": "https://twin.example.org/service-offerings/vet-cert-notification"
-			},
+			"action": "use",
 			"assignee": {
 				"@type": "PartyCollection",
 				"refinement": {
 					"leftOperand": "twin:jsonPath",
-					"twin:jsonPathExpression": ".assigneeAttributes.certifications",
-					"operator": "contains",
+					"twin:jsonPathExpression": "$.assigneeAttributes.certifications",
+					"operator": "isAnyOf",
 					"rightOperand": "FSA-Trusted-Notifier"
 				}
 			},
 			"constraint": [
 				{
 					"leftOperand": "twin:jsonPath",
-					"twin:jsonPathExpression": ".resourceAttributes.consignment.destinationCountry.countryId",
+					"twin:jsonPathExpression": "$.resourceAttributes.consignment.destinationCountry.countryId",
 					"operator": "eq",
 					"rightOperand": "GB",
 					"comment": "Only consignments destined for Great Britain qualify"
@@ -38,13 +34,13 @@
 				{
 					"action": {
 						"@type": "Action",
-						"rdf:value": "notify"
+						"rdf:value": "inform"
 					},
 					"target": "https://my-ds-connectors.example.org/ds-connector-uk-fsa/notify",
 					"constraint": [
 						{
 							"leftOperand": "twin:jsonPath",
-							"twin:jsonPathExpression": ".resourceAttributes.latestDocument.documentTypeCode",
+							"twin:jsonPathExpression": "$.resourceAttributes.latestDocument.documentTypeCode",
 							"operator": "eq",
 							"rightOperand": "unece:DocumentCodeList#853",
 							"comment": "Notify only for veterinary certificate documents"

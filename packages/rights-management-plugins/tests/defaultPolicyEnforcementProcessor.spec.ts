@@ -182,11 +182,28 @@ describe("DefaultPolicyEnforcementProcessor", () => {
 			itemList: {
 				itemListElement: [
 					{ id: "item-1", country: "GB" },
-					undefined,
 					{ id: "item-3", country: "GB" }
 				]
 			}
 		});
+	});
+
+	test("compacts undefined holes left in arrays by deleteAtLocation", async () => {
+		const processor = new DefaultPolicyEnforcementProcessor();
+		const data = {
+			items: [{ id: 1 }, { id: 2 }, { id: 3 }]
+		};
+
+		const result = await processor.process(
+			createPolicy(),
+			[
+				{ decision: PolicyDecision.Granted, target: "$" },
+				{ decision: PolicyDecision.Denied, target: "$.items[1]" }
+			] as IPolicyDecision[],
+			data
+		);
+
+		expect(result).toEqual({ items: [{ id: 1 }, { id: 3 }] });
 	});
 
 	test("grants a single property after root deny-all", async () => {
@@ -395,6 +412,171 @@ describe("DefaultPolicyEnforcementProcessor", () => {
 				{ a: 1 }
 			)
 		).rejects.toThrow();
+	});
+
+	test("preserves JSON-LD envelope fields when policy only grants a nested array", async () => {
+		const processor = new DefaultPolicyEnforcementProcessor();
+		const data = {
+			"@context": "https://schema.org",
+			"@type": "ItemList",
+			"@id": "urn:list:1",
+			type: "ItemList",
+			id: "urn:list:1",
+			items: [{ id: "a" }, { id: "b" }, { id: "c" }]
+		};
+
+		const result = await processor.process(
+			createPolicy(),
+			[
+				{ decision: PolicyDecision.Denied, target: "$" },
+				{ decision: PolicyDecision.Granted, target: "$.items[0]" },
+				{ decision: PolicyDecision.Granted, target: "$.items[2]" }
+			] as IPolicyDecision[],
+			data
+		);
+
+		expect(result).toMatchObject({
+			"@context": "https://schema.org",
+			"@type": "ItemList",
+			"@id": "urn:list:1",
+			type: "ItemList",
+			id: "urn:list:1",
+			items: [{ id: "a" }, { id: "c" }]
+		});
+	});
+
+	test("preserves JSON-LD envelope fields when arbiter emits per-element decisions only (no root deny-all)", async () => {
+		const processor = new DefaultPolicyEnforcementProcessor();
+		const data = {
+			"@context": "https://schema.org",
+			"@type": "ItemList",
+			"@id": "urn:list:1",
+			type: "ItemList",
+			itemList: {
+				itemListElement: [
+					{ id: "a", countryId: "GB" },
+					{ id: "b", countryId: "DE" },
+					{ id: "c", countryId: "GB" }
+				]
+			}
+		};
+
+		const result = await processor.process(
+			createPolicy(),
+			[
+				{ decision: PolicyDecision.Granted, target: "$.itemList.itemListElement[0]" },
+				{ decision: PolicyDecision.Denied, target: "$.itemList.itemListElement[1]" },
+				{ decision: PolicyDecision.Granted, target: "$.itemList.itemListElement[2]" }
+			] as IPolicyDecision[],
+			data
+		);
+
+		expect(result).toMatchObject({
+			"@context": "https://schema.org",
+			"@type": "ItemList",
+			"@id": "urn:list:1",
+			type: "ItemList",
+			itemList: {
+				itemListElement: [
+					{ id: "a", countryId: "GB" },
+					{ id: "c", countryId: "GB" }
+				]
+			}
+		});
+	});
+
+	test("does not overwrite output envelope fields already written by a grant decision", async () => {
+		const processor = new DefaultPolicyEnforcementProcessor();
+		const data = {
+			"@context": "https://schema.org",
+			"@type": "ItemList",
+			items: [{ id: "a" }]
+		};
+
+		const result = await processor.process(
+			createPolicy(),
+			[{ decision: PolicyDecision.Granted, target: "$" }] as IPolicyDecision[],
+			data
+		);
+
+		expect(result).toEqual(data);
+	});
+
+	describe("custom structuralKeys config", () => {
+		test("passes through only the configured custom keys, not the defaults", async () => {
+			const processor = new DefaultPolicyEnforcementProcessor({
+				config: { structuralKeys: ["schema", "version"] }
+			});
+			const data = {
+				"@context": "https://schema.org",
+				schema: "v1",
+				version: "2.0",
+				items: [{ id: "a" }]
+			};
+
+			const result = await processor.process(
+				createPolicy(),
+				[
+					{ decision: PolicyDecision.Denied, target: "$" },
+					{ decision: PolicyDecision.Granted, target: "$.items[0]" }
+				] as IPolicyDecision[],
+				data
+			);
+
+			expect(result).toEqual({
+				schema: "v1",
+				version: "2.0",
+				items: [{ id: "a" }]
+			});
+			expect(result).not.toHaveProperty("@context");
+		});
+
+		test("passes through no structural keys when configured with an empty array", async () => {
+			const processor = new DefaultPolicyEnforcementProcessor({
+				config: { structuralKeys: [] }
+			});
+			const data = {
+				"@context": "https://schema.org",
+				"@type": "ItemList",
+				items: [{ id: "a" }]
+			};
+
+			const result = await processor.process(
+				createPolicy(),
+				[
+					{ decision: PolicyDecision.Denied, target: "$" },
+					{ decision: PolicyDecision.Granted, target: "$.items[0]" }
+				] as IPolicyDecision[],
+				data
+			);
+
+			expect(result).toEqual({ items: [{ id: "a" }] });
+			expect(result).not.toHaveProperty("@context");
+			expect(result).not.toHaveProperty("@type");
+		});
+
+		test("uses DEFAULT_STRUCTURAL_KEYS when no config is provided", async () => {
+			const processor = new DefaultPolicyEnforcementProcessor();
+			const data = {
+				"@context": "https://schema.org",
+				"@type": "ItemList",
+				items: [{ id: "a" }]
+			};
+
+			const result = await processor.process(
+				createPolicy(),
+				[
+					{ decision: PolicyDecision.Denied, target: "$" },
+					{ decision: PolicyDecision.Granted, target: "$.items[0]" }
+				] as IPolicyDecision[],
+				data
+			);
+
+			expect(result).toMatchObject({
+				"@context": "https://schema.org",
+				"@type": "ItemList"
+			});
+		});
 	});
 
 	test("throws when policy is not an object", async () => {
