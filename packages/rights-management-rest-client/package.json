@@ -1,6 +1,6 @@
 {
 	"name": "@twin.org/rights-management-rest-client",
-	"version": "0.9.2-next.0",
+	"version": "0.9.2-next.1",
 	"description": "REST client for integrating rights management workflows with remote endpoints.",
 	"repository": {
 		"type": "git",
@@ -39,7 +39,7 @@
 		"@twin.org/data-json-ld": "next",
 		"@twin.org/entity": "next",
 		"@twin.org/nameof": "next",
-		"@twin.org/rights-management-models": "0.9.2-next.0",
+		"@twin.org/rights-management-models": "0.9.2-next.1",
 		"@twin.org/standards-dataspace-protocol": "next",
 		"@twin.org/standards-w3c-did": "next",
 		"@twin.org/web": "next"
