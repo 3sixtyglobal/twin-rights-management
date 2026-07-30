@@ -475,9 +475,7 @@ export async function papCreate(
 
 	return {
 		statusCode: HttpStatusCode.created,
-		headers: {
-			location: uid
-		}
+		headers
 	};
 }
 
