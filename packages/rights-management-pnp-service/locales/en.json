@@ -32,7 +32,8 @@
 			"sendTerminateFailed": "Failed to send terminate to consumer for negotiation id: \"{id}\", correlation id: \"{correlationId}\""
 		},
 		"policyNegotiationPointService": {
-			"terminatedCallbackFailed": "Failed to notify requester via terminated() for negotiation id: \"{negotiationId}\""
+			"terminatedCallbackFailed": "Failed to notify requester via terminated() for negotiation id: \"{negotiationId}\"",
+			"callbackDeliveryFailed": "Failed to deliver the negotiation callback to \"{callbackAddress}\" for negotiation id: \"{negotiationId}\" in state \"{state}\"; the negotiation is unchanged and remains discoverable by polling"
 		}
 	}
 }

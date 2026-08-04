@@ -445,8 +445,13 @@ export class PolicyNegotiationPointService implements IPolicyNegotiationPointCom
 					throw error;
 				}
 
-				// The negotiation must be in the REQUESTED state to update it
-				if (policyNegotiation.state !== DataspaceProtocolContractNegotiationStateType.REQUESTED) {
+				// DSP 2025-1: OFFERED --> REQUESTED is a valid Consumer transition (a counter-offer),
+				// alongside REQUESTED --> REQUESTED (revising before any reply).
+				const validCounterRequestStates: DataspaceProtocolContractNegotiationStateType[] = [
+					DataspaceProtocolContractNegotiationStateType.REQUESTED,
+					DataspaceProtocolContractNegotiationStateType.OFFERED
+				];
+				if (!validCounterRequestStates.includes(policyNegotiation.state)) {
 					const err = await this.setErrorState(
 						message.providerPid,
 						policyNegotiation.correlationId,
@@ -459,6 +464,9 @@ export class PolicyNegotiationPointService implements IPolicyNegotiationPointCom
 					return err;
 				}
 
+				// Explicit reset: OFFERED is now also a valid predecessor, so it can no longer be
+				// assumed the stored state is already REQUESTED.
+				policyNegotiation.state = DataspaceProtocolContractNegotiationStateType.REQUESTED;
 				policyNegotiation.offer = providerOffer;
 				policyNegotiation.trustVerificationInfo = trustInfo;
 				policyNegotiation.handlerId = negotiator.className();
@@ -1398,6 +1406,31 @@ export class PolicyNegotiationPointService implements IPolicyNegotiationPointCom
 	}
 
 	/**
+	 * Logs an outbound delivery failure. Deliberately does not call setErrorState — the
+	 * negotiation itself is still valid, only the notification failed to reach the peer.
+	 * @param policyNegotiation The negotiation whose notification could not be delivered.
+	 * @param error The delivery error.
+	 * @internal
+	 */
+	private async logDeliveryFailure(
+		policyNegotiation: IPolicyNegotiation,
+		error: unknown
+	): Promise<void> {
+		await this._logging?.log({
+			level: "warn",
+			source: PolicyNegotiationPointService.CLASS_NAME,
+			ts: Date.now(),
+			message: "callbackDeliveryFailed",
+			data: {
+				negotiationId: policyNegotiation.id,
+				state: policyNegotiation.state,
+				callbackAddress: policyNegotiation.callbackAddress
+			},
+			error: BaseError.fromError(error)
+		});
+	}
+
+	/**
 	 * Validate that the caller's verified identity matches the counterparty identity
 	 * captured from the first trusted interaction in this negotiation.
 	 * @param negotiation The policy negotiation to check against.
@@ -1538,12 +1571,17 @@ export class PolicyNegotiationPointService implements IPolicyNegotiationPointCom
 			// consumer is expected to poll GET /negotiations/admin/:policyId, which returns
 			// the full negotiation entity (offer included).
 			if (Is.stringValue(callbackAddress)) {
-				const response = await this.withPolicyNegotiationPointComponent(callbackAddress, async c =>
-					c.offerFromProvider(offerMessage, trustPayload)
-				);
+				try {
+					const response = await this.withPolicyNegotiationPointComponent(
+						callbackAddress,
+						async c => c.offerFromProvider(offerMessage, trustPayload)
+					);
 
-				// If there was no error then the consumer will now send an event if they accepted the offer
-				await this.terminateIfResponseError(response, policyNegotiation);
+					// If there was no error then the consumer will now send an event if they accepted the offer
+					await this.terminateIfResponseError(response, policyNegotiation);
+				} catch (deliveryError) {
+					await this.logDeliveryFailure(policyNegotiation, deliveryError);
+				}
 			}
 		} catch (error) {
 			if (this.isStateGuardError(error)) {
@@ -1609,11 +1647,16 @@ export class PolicyNegotiationPointService implements IPolicyNegotiationPointCom
 			// Only push the event when a callbackAddress was supplied. Without one the peer
 			// polls GET /negotiations/admin/:policyId to discover the transition.
 			if (Is.stringValue(callbackAddress)) {
-				const response = await this.withPolicyNegotiationPointComponent(callbackAddress, async c =>
-					c.event(eventMessage, destination, trustPayload)
-				);
+				try {
+					const response = await this.withPolicyNegotiationPointComponent(
+						callbackAddress,
+						async c => c.event(eventMessage, destination, trustPayload)
+					);
 
-				await this.terminateIfResponseError(response, policyNegotiation);
+					await this.terminateIfResponseError(response, policyNegotiation);
+				} catch (deliveryError) {
+					await this.logDeliveryFailure(policyNegotiation, deliveryError);
+				}
 			}
 		} catch (error) {
 			if (this.isStateGuardError(error)) {
@@ -1727,13 +1770,17 @@ export class PolicyNegotiationPointService implements IPolicyNegotiationPointCom
 					// consumer polls GET /negotiations/admin/:policyId, which returns the full
 					// negotiation entity (agreement included).
 					if (Is.stringValue(callbackAddress)) {
-						const response = await this.withPolicyNegotiationPointComponent(
-							callbackAddress,
-							async c => c.agreementFromProvider(agreementMessage, trustPayload)
-						);
+						try {
+							const response = await this.withPolicyNegotiationPointComponent(
+								callbackAddress,
+								async c => c.agreementFromProvider(agreementMessage, trustPayload)
+							);
 
-						// If there was no error then the consumer will now send an agreement verification
-						await this.terminateIfResponseError(response, policyNegotiation);
+							// If there was no error then the consumer will now send an agreement verification
+							await this.terminateIfResponseError(response, policyNegotiation);
+						} catch (deliveryError) {
+							await this.logDeliveryFailure(policyNegotiation, deliveryError);
+						}
 					}
 				}
 			}
@@ -1790,11 +1837,17 @@ export class PolicyNegotiationPointService implements IPolicyNegotiationPointCom
 			// Only push to the provider when a callbackAddress was supplied. Without one the
 			// provider polls GET /negotiations/admin/:policyId to discover the new VERIFIED state.
 			if (Is.stringValue(callbackAddress)) {
-				const response = await this.withPolicyNegotiationPointComponent(callbackAddress, async c =>
-					c.agreementVerificationFromConsumer(agreementVerificationMessage, trustPayload)
-				);
+				try {
+					const response = await this.withPolicyNegotiationPointComponent(
+						callbackAddress,
+						async c =>
+							c.agreementVerificationFromConsumer(agreementVerificationMessage, trustPayload)
+					);
 
-				await this.terminateIfResponseError(response, policyNegotiation);
+					await this.terminateIfResponseError(response, policyNegotiation);
+				} catch (deliveryError) {
+					await this.logDeliveryFailure(policyNegotiation, deliveryError);
+				}
 			}
 		} catch (error) {
 			if (this.isStateGuardError(error)) {

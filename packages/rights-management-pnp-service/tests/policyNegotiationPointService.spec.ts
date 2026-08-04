@@ -1364,7 +1364,7 @@ describe("PolicyNegotiationPointService", () => {
 			expect(final[0].state).toBe(DataspaceProtocolContractNegotiationStateType.TERMINATED);
 		});
 
-		test("terminateIfResponseError does not resurrect record deleted before it runs — issue #162", async () => {
+		test("terminateIfResponseError does not resurrect record deleted before it runs", async () => {
 			// Scenario: admin DELETE lands during the peer HTTP round-trip (the async gap
 			// between the provider dispatching the offer and receiving the error back).
 			// By the time terminateIfResponseError runs, the record is already gone.
@@ -1469,8 +1469,7 @@ describe("PolicyNegotiationPointService", () => {
 			// pre-deletion snapshot, simulating a DB read-then-delete overlap.
 			//
 			// The assertion toHaveLength(1) is INTENTIONAL — it documents the known limitation.
-			// To truly close this race, a storage-layer atomic conditional write is needed
-			// (Option A from the issue #162 plan: UPDATE ... WHERE id = ? that no-ops if deleted).
+			// To truly close this race, a storage-layer atomic conditional write is needed.
 
 			const { provider } = buildServices();
 			PolicyRequesterFactory.register("requester-toctou-1", () => mockPolicyRequester);
@@ -1571,9 +1570,151 @@ describe("PolicyNegotiationPointService", () => {
 			expect(toctouStore[0].state).toBe(DataspaceProtocolContractNegotiationStateType.TERMINATED);
 			expect(toctouStore[0].code).toBe("consumer.rejectedOffer");
 		});
+
+		// -------------------------------------------------------------------------
+		// Unrecognized (non-state-guard) failures in async send methods.
+		//
+		// The three tests above cover the errors isStateGuardError() DOES recognize
+		// (NotFoundError / invalidState), which are absorbed silently. These cover an
+		// error it does NOT recognize: the outbound callback delivery itself failing.
+		// An unreachable callbackAddress is a transport problem, not a negotiation
+		// problem; it is logged as a warning and must not terminate the negotiation.
+		// A pre-delivery failure (e.g. trust generation) is a different matter and
+		// must still terminate — see the last test in this group.
+		//
+		// Originally reproduced the flaky twin-node endpoints.spec.ts failure ("consumer
+		// counter-request" seeing state TERMINATED): its fixture supplies
+		// callbackAddress http://127.0.0.1:19999/callback, which nothing listens on.
+		// -------------------------------------------------------------------------
+
+		// Origin the buildServices() resolver does not know, so the outbound callback
+		// throws TypeError("Unknown remote url ...") — a deterministic stand-in for the
+		// connection-refused a real unreachable callback address produces.
+		const unreachableOrigin = "http://localhost:19999";
+
+		test("callback delivery failure does not terminate an otherwise-valid negotiation", async () => {
+			const { consumer } = buildServices();
+			PolicyRequesterFactory.register("requester-cb-fail", () => mockPolicyRequester);
+			await adminPointComponent.create(mockOffer);
+			PolicyNegotiatorFactory.register("MockPolicyNegotiator", () => mockNegotiator);
+
+			// Everything about this negotiation is valid: the offer exists, the negotiator
+			// accepts it, and the provider replied REQUESTED. Only the consumer's callback
+			// address is unreachable.
+			await consumer.sendRequestToProvider(
+				providerOrigin,
+				"requester-cb-fail",
+				"urn:policy:offer-1",
+				unreachableOrigin
+			);
+
+			// Let the scheduled sendOfferToConsumer (setTimeout 100) run to completion.
+			await new Promise(resolve => setTimeout(resolve, 300));
+
+			const stored = await policyNegotiationProviderMemoryEntityStorage.getStore();
+			expect(stored).toHaveLength(1);
+
+			// An undeliverable notification is a transport problem, not a negotiation
+			// problem. Per the service's own comments a consumer with no callbackAddress
+			// simply polls GET /negotiations/admin/:id, so a callback that cannot be
+			// delivered leaves the negotiation readable at OFFERED rather than terminating it.
+			expect(stored[0].state).toBe(DataspaceProtocolContractNegotiationStateType.OFFERED);
+		});
+
+		test("counter-request after a failed callback delivery is accepted", async () => {
+			const { provider, consumer } = buildServices();
+			PolicyRequesterFactory.register("requester-cb-race", () => mockPolicyRequester);
+			await adminPointComponent.create(mockOffer);
+			PolicyNegotiatorFactory.register("MockPolicyNegotiator", () => mockNegotiator);
+
+			await consumer.sendRequestToProvider(
+				providerOrigin,
+				"requester-cb-race",
+				"urn:policy:offer-1",
+				unreachableOrigin
+			);
+
+			const [initial] = await policyNegotiationProviderMemoryEntityStorage.getStore();
+			const providerPid = initial.id;
+			const consumerPid = initial.correlationId;
+
+			// Deliberately lose the race the twin-node test loses intermittently: wait for the
+			// background job to finish before sending the counter-request. In twin-node this
+			// ordering is left to wall-clock chance, which is why it fails only sometimes.
+			await new Promise(resolve => setTimeout(resolve, 300));
+
+			const result = await provider.requestFromConsumer(
+				{
+					"@context": [DataspaceProtocolContexts.Context],
+					"@type": DataspaceProtocolContractNegotiationTypes.ContractRequestMessage,
+					providerPid,
+					consumerPid,
+					offer: mockOffer
+				},
+				`token:${testIdentityConsumer}`
+			);
+
+			// The counter-request is accepted: nothing the consumer did was invalid, only an
+			// unrelated outbound notification failed, which does not terminate the negotiation
+			// (see the previous test) and so does not block a subsequent ContractRequestMessage.
+			expect(result["@type"]).toBe(DataspaceProtocolContractNegotiationTypes.ContractNegotiation);
+		});
+
+		test("negotiation survives when callback delivery succeeds (control)", async () => {
+			const { consumer } = buildServices();
+			PolicyRequesterFactory.register("requester-cb-ok", () => mockPolicyRequester);
+			await adminPointComponent.create(mockOffer);
+			PolicyNegotiatorFactory.register("MockPolicyNegotiator", () => mockNegotiator);
+
+			// Identical to the first test except the callback origin is one the resolver knows,
+			// so delivery succeeds. A successful, reachable round-trip keeps cascading past
+			// OFFERED (the accepted offer schedules its own event back to the provider, and so
+			// on), so the only stable assertion here is that it never lands on TERMINATED —
+			// isolating delivery success as the difference from the failure case above.
+			await consumer.sendRequestToProvider(
+				providerOrigin,
+				"requester-cb-ok",
+				"urn:policy:offer-1",
+				consumerOrigin
+			);
+
+			await new Promise(resolve => setTimeout(resolve, 300));
+
+			const stored = await policyNegotiationProviderMemoryEntityStorage.getStore();
+			expect(stored).toHaveLength(1);
+			expect(stored[0].state).not.toBe(DataspaceProtocolContractNegotiationStateType.TERMINATED);
+		});
+
+		test("pre-delivery failure (e.g. trust generation) still terminates the negotiation", async () => {
+			const { consumer } = buildServices();
+			PolicyRequesterFactory.register("requester-pre-delivery-fail", () => mockPolicyRequester);
+			await adminPointComponent.create(mockOffer);
+			PolicyNegotiatorFactory.register("MockPolicyNegotiator", () => mockNegotiator);
+
+			// First call: the consumer's own outbound request — succeeds normally, as usual.
+			// Second call: sendOfferToConsumer's own trust payload, generated before any
+			// delivery is attempted — fails. Unlike the delivery-only failures above, this
+			// must still terminate the negotiation via setErrorState.
+			vi.spyOn(mockTrustComponent, "generate")
+				.mockResolvedValueOnce(`token:${testIdentityConsumer}`)
+				.mockRejectedValueOnce(new Error("vault unavailable"));
+
+			await consumer.sendRequestToProvider(
+				providerOrigin,
+				"requester-pre-delivery-fail",
+				"urn:policy:offer-1",
+				consumerOrigin // reachable — delivery itself is never reached in this test
+			);
+
+			await new Promise(resolve => setTimeout(resolve, 300));
+
+			const stored = await policyNegotiationProviderMemoryEntityStorage.getStore();
+			expect(stored).toHaveLength(1);
+			expect(stored[0].state).toBe(DataspaceProtocolContractNegotiationStateType.TERMINATED);
+		});
 	});
 
-	describe("callbackAddress is optional per DSP spec (issue #130)", () => {
+	describe("callbackAddress is optional per DSP spec", () => {
 		test("requestFromConsumer accepts a ContractRequestMessage with no callbackAddress", async () => {
 			PolicyNegotiatorFactory.register("MockPolicyNegotiator", () => mockNegotiator);
 			await adminPointComponent.create(mockOffer);
