@@ -626,7 +626,7 @@ describe("PolicyNegotiationPointService", () => {
 		// identity of the responder. That's the node DID from the
 		// current context. Both consumer and provider services share a single
 		// in-memory mock here, so the signer surfaces as `testIdentityConsumer`
-		// — the node DID configured in the global ContextIdStore mock. The
+		// - the node DID configured in the global ContextIdStore mock. The
 		// production scenario has distinct node DIDs per side; the test
 		// validates the lifecycle, not the cryptographic separation.
 		expect(consumerStore2[0].trustVerificationInfo).toEqual({
@@ -1086,7 +1086,7 @@ describe("PolicyNegotiationPointService", () => {
 		});
 
 		test("adds organization to the callback address regardless of tenant context", async () => {
-			// Does NOT call setupTenantContextIds() — verifies the organisation-id
+			// Does NOT call setupTenantContextIds() - verifies the organisation-id
 			// query parameter is added even when no tenant key is present in context.
 
 			let capturedCallbackAddress: string | undefined;
@@ -1263,8 +1263,8 @@ describe("PolicyNegotiationPointService", () => {
 
 		test("sends the agreement with the provider's organization in the callback address", async () => {
 			// Regression for the organization-identifiers refactor: the outbound
-			// ContractAgreementMessage's callbackAddress — which the consumer uses to send
-			// the verification BACK to the provider — must carry the PROVIDER's
+			// ContractAgreementMessage's callbackAddress - which the consumer uses to send
+			// the verification BACK to the provider - must carry the PROVIDER's
 			// organization id (the routing token), not the consumer's
 			// (trustVerificationInfo.identity). Both sides share the same mocked context in
 			// this suite, so the provider record's organization is flipped to the provider
@@ -1372,7 +1372,7 @@ describe("PolicyNegotiationPointService", () => {
 			//
 			// sendOfferToConsumer call sequence on the provider:
 			//   checkNegotiationInState (state = REQUESTED → pass)
-			//   set() — advance state to OFFERED
+			//   set() - advance state to OFFERED
 			//   offerFromProvider round-trip:
 			//     → DELETE fires inside fake consumer callback
 			//     → returns ContractNegotiationError
@@ -1451,12 +1451,12 @@ describe("PolicyNegotiationPointService", () => {
 			await new Promise(resolve => setTimeout(resolve, 300));
 
 			// setIfExists() detected the record was gone and returned false.
-			// The admin DELETE was respected — no upsert happened.
+			// The admin DELETE was respected - no upsert happened.
 			const store = await policyNegotiationProviderMemoryEntityStorage.getStore();
 			expect(store).toHaveLength(0);
 		});
 
-		test("known limitation: setIfExists() is non-atomic across nodes (TOCTOU) — DELETE between get() and set() can still resurrect", async () => {
+		test("known limitation: setIfExists() is non-atomic across nodes (TOCTOU) - DELETE between get() and set() can still resurrect", async () => {
 			// Documents the residual race window that setIfExists() does NOT eliminate across nodes.
 			//
 			// The guard is a best-effort check-then-act (get → set). A DELETE that lands
@@ -1519,8 +1519,8 @@ describe("PolicyNegotiationPointService", () => {
 			};
 
 			// Inject the TOCTOU race: intercept negotiationProviderAdminPointComponent.get()
-			// Call #1 — checkNegotiationInState: pass through unchanged.
-			// Call #2 — get() inside setIfExists() (terminateIfResponseError path):
+			// Call #1 - checkNegotiationInState: pass through unchanged.
+			// Call #2 - get() inside setIfExists() (terminateIfResponseError path):
 			//   return the record (simulates DB read seeing the record before DELETE lands)
 			//   then delete it from storage (simulates DELETE completing after the read)
 			//   → setIfExists() proceeds to set() → entity storage UPSERT resurrection.
@@ -1561,7 +1561,7 @@ describe("PolicyNegotiationPointService", () => {
 			// The in-process Mutex (from @twin.org/core) serialises remove() and setIfExists()
 			// when both go through the service. It does NOT protect against a DELETE that
 			// arrives at the database layer from outside the process (different node, different
-			// DB connection, or a direct storage call — as simulated here by the mock).
+			// DB connection, or a direct storage call - as simulated here by the mock).
 			// In that scenario: get() sees the record → DELETE lands at DB level → set() upserts.
 			// Closing this fully requires a storage-layer atomic write (Option A from the plan:
 			// UPDATE ... WHERE id = ? that no-ops if the row was already deleted).
@@ -1732,7 +1732,7 @@ describe("PolicyNegotiationPointService", () => {
 					"@type": DataspaceProtocolContractNegotiationTypes.ContractRequestMessage,
 					consumerPid: "urn:contract-negotiation:no-cb-consumer-pid",
 					offer: mockOffer
-					// callbackAddress intentionally omitted — must be accepted per DSP spec
+					// callbackAddress intentionally omitted - must be accepted per DSP spec
 				},
 				`token:${testIdentityConsumer}`
 			);
@@ -1815,7 +1815,7 @@ describe("PolicyNegotiationPointService", () => {
 						assigner: testIdentityProvider,
 						assignee: testIdentityConsumer
 					}
-					// callbackAddress intentionally omitted — must be accepted per DSP spec
+					// callbackAddress intentionally omitted - must be accepted per DSP spec
 				},
 				`token:${testIdentityProvider}`
 			);
@@ -1850,7 +1850,7 @@ describe("PolicyNegotiationPointService", () => {
 				dateCreated: new Date(Date.now()).toISOString(),
 				offer: mockOffer,
 				state: DataspaceProtocolContractNegotiationStateType.OFFERED,
-				// callbackAddress intentionally absent — polling mode
+				// callbackAddress intentionally absent - polling mode
 				organizationIdentity: testIdentityProvider,
 				trustVerificationInfo: { identity: testIdentityConsumer },
 				handlerId: "MockPolicyNegotiator"
@@ -1899,7 +1899,7 @@ describe("PolicyNegotiationPointService", () => {
 				dateCreated: new Date(Date.now()).toISOString(),
 				offer: mockOffer,
 				state: DataspaceProtocolContractNegotiationStateType.ACCEPTED,
-				// callbackAddress intentionally absent — polling mode
+				// callbackAddress intentionally absent - polling mode
 				organizationIdentity: testIdentityConsumer,
 				trustVerificationInfo: { identity: testIdentityProvider }
 			});
@@ -2145,13 +2145,13 @@ describe("PolicyNegotiationPointService", () => {
 
 			createSpy.mockRestore();
 
-			// setErrorState was called — an error response is returned
+			// setErrorState was called - an error response is returned
 			expect(result).toBeDefined();
 
-			// terminated() fires promptly — requester receives the failure signal
+			// terminated() fires promptly - requester receives the failure signal
 			expect(mockPolicyRequester.terminated).toHaveBeenCalledWith("consumer-pid-176-fail");
 
-			// finalised() is NOT called — the early return prevents the happy-path callback
+			// finalised() is NOT called - the early return prevents the happy-path callback
 			expect(mockPolicyRequester.finalised).not.toHaveBeenCalled();
 
 			// The agreement was never written to the PAP
@@ -2160,7 +2160,7 @@ describe("PolicyNegotiationPointService", () => {
 			).rejects.toThrow();
 		});
 
-		test("event(FINALIZED) PAP failure: terminated() is called exactly once for the negotiation — no double-callback from the outer catch", async () => {
+		test("event(FINALIZED) PAP failure: terminated() is called exactly once for the negotiation - no double-callback from the outer catch", async () => {
 			PolicyRequesterFactory.register("requester-2", () => mockPolicyRequester);
 
 			const consumer = new PolicyNegotiationPointService({
@@ -2282,7 +2282,7 @@ describe("PolicyNegotiationPointService", () => {
 				offer: mockOffer,
 				state: DataspaceProtocolContractNegotiationStateType.OFFERED,
 				organizationIdentity: testIdentityProvider,
-				// No tenantId — single-tenant / no tid claim.
+				// No tenantId - single-tenant / no tid claim.
 				trustVerificationInfo: { identity: testIdentityConsumer },
 				handlerId: "MockPolicyNegotiator"
 			});
@@ -3266,7 +3266,7 @@ describe("PolicyNegotiationPointService", () => {
 					"@type": DataspaceProtocolContractNegotiationTypes.ContractRequestMessage,
 					consumerPid: "urn:contract-negotiation:no-cb-direct-agreement",
 					offer: mockOffer
-					// callbackAddress intentionally omitted — must be accepted per DSP spec
+					// callbackAddress intentionally omitted - must be accepted per DSP spec
 				},
 				`token:${testIdentityConsumer}`
 			);

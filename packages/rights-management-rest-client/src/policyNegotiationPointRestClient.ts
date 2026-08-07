@@ -148,7 +148,7 @@ export class PolicyNegotiationPointRestClient
 		);
 		const offerId = OdrlPolicyHelper.getUid(message.offer);
 		Guards.stringValue(PolicyNegotiationPointRestClient.CLASS_NAME, nameof(offerId), offerId);
-		// callbackAddress is optional per the DSP spec — only validate when present.
+		// callbackAddress is optional per the DSP spec - only validate when present.
 		if (Is.stringValue(message.callbackAddress)) {
 			Url.guard(
 				PolicyNegotiationPointRestClient.CLASS_NAME,
@@ -249,7 +249,7 @@ export class PolicyNegotiationPointRestClient
 			nameof(message.consumerPid),
 			message.consumerPid
 		);
-		// callbackAddress is optional per the DSP spec — only validate when present.
+		// callbackAddress is optional per the DSP spec - only validate when present.
 		if (Is.stringValue(message.callbackAddress)) {
 			Url.guard(
 				PolicyNegotiationPointRestClient.CLASS_NAME,

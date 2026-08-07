@@ -12,7 +12,7 @@ import type { IPolicyNegotiation } from "./IPolicyNegotiation.js";
 export interface IPolicyNegotiationAdminPointComponent extends IComponent {
 	/**
 	 * Pre-registers a consumer-side negotiation entry.
-	 * id must be the consumer's chosen consumerPid — it becomes the primary key used by offerFromProvider().
+	 * id must be the consumer's chosen consumerPid - it becomes the primary key used by offerFromProvider().
 	 * @param id The consumer-side negotiation identifier.
 	 * @returns The negotiation id (same as the caller-supplied id).
 	 */

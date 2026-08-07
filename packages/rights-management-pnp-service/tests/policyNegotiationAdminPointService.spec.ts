@@ -310,7 +310,7 @@ describe("PolicyNegotiationAdminPointService", () => {
 			const service = new PolicyNegotiationAdminPointService();
 			const consumerPid = "urn:uuid:consumer-pid-f3";
 			await service.create(consumerPid);
-			// offerFromProvider() calls get(message.consumerPid) — this is the lookup that must succeed
+			// offerFromProvider() calls get(message.consumerPid) - this is the lookup that must succeed
 			const retrieved = await service.get(consumerPid);
 			expect(retrieved.id).toEqual(consumerPid);
 		});

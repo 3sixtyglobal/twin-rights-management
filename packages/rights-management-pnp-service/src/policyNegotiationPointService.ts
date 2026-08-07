@@ -825,7 +825,7 @@ export class PolicyNegotiationPointService implements IPolicyNegotiationPointCom
 				this.validateCallerIsNegotiationParty(policyNegotiation, trustInfo);
 			} else {
 				// REQUESTED predecessor via the directAgreement fast path skipped OFFERED, so this
-				// is the first trusted interaction for this negotiation — pin it now, mirroring what
+				// is the first trusted interaction for this negotiation - pin it now, mirroring what
 				// offerFromProvider does on the full cycle.
 				policyNegotiation.trustVerificationInfo = trustInfo;
 			}
