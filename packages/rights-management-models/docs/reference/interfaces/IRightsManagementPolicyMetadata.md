@@ -15,7 +15,7 @@ PAP-managed metadata attached to stored and returned ODRL policies.
 
 > `optional` **dateCreated?**: `string`
 
-schema.org dateCreated — ISO 8601 date-time set by PAP on create.
+schema.org dateCreated - ISO 8601 date-time set by PAP on create.
 
 ***
 
@@ -23,4 +23,4 @@ schema.org dateCreated — ISO 8601 date-time set by PAP on create.
 
 > `optional` **dateModified?**: `string`
 
-schema.org dateModified — ISO 8601 date-time set by PAP on create and update.
+schema.org dateModified - ISO 8601 date-time set by PAP on create and update.
