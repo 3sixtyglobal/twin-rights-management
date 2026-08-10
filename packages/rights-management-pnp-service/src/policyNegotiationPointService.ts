@@ -31,7 +31,8 @@ import {
 	type IPolicyInformationPointComponent,
 	type IPolicyNegotiation,
 	type IPolicyNegotiationAdminPointComponent,
-	type IPolicyNegotiationPointComponent
+	type IPolicyNegotiationPointComponent,
+	type IRightsManagementAgreement
 } from "@twin.org/rights-management-models";
 import {
 	DataspaceProtocolContexts,
@@ -422,6 +423,10 @@ export class PolicyNegotiationPointService implements IPolicyNegotiationPointCom
 			const requestOrganizationId = requestContextIds[ContextIdKeys.Organization];
 			const publicOrigin = requestContextIds[HttpContextIdKeys.PublicOrigin];
 
+			// If an agreement with identical rule content already exists for this
+			// assigner/assignee/target, reuse it instead of minting a duplicate.
+			const existingAgreement = await this.findMatchingAgreement(providerOffer, trustInfo.identity);
+
 			// Construct a new negotiation or update an existing one
 			if (Is.stringValue(message.providerPid)) {
 				try {
@@ -487,6 +492,10 @@ export class PolicyNegotiationPointService implements IPolicyNegotiationPointCom
 				};
 			}
 
+			if (!Is.empty(existingAgreement)) {
+				policyNegotiation.agreement = existingAgreement;
+			}
+
 			await this._policyNegotiationAdminPointComponent.set(policyNegotiation);
 
 			const negotiateResult = await negotiator.handleOffer(providerOffer, policyInformation);
@@ -500,11 +509,13 @@ export class PolicyNegotiationPointService implements IPolicyNegotiationPointCom
 					const callbackAddress = message.callbackAddress;
 					const pol = policyNegotiation;
 
-					if (negotiateResult.directAgreement) {
+					if (negotiateResult.directAgreement || !Is.empty(existingAgreement)) {
 						// DSP 2025-1 permits a direct REQUESTED -> AGREED transition (see
 						// docs/architecture/components.md). Skip the OFFERED/ACCEPTED round-trip
 						// and go straight to building and sending the agreement, on the next cycle
-						// so we don't delay the current response.
+						// so we don't delay the current response. An existing matching agreement
+						// also takes this path so the same agreement id is re-delivered rather
+						// than a fresh one being minted (see: requestFromConsumer duplicate guard).
 						setTimeout(async () => {
 							await this.sendAgreementToConsumer(callbackAddress, pol);
 						}, 100);
@@ -988,13 +999,29 @@ export class PolicyNegotiationPointService implements IPolicyNegotiationPointCom
 				return err;
 			}
 
-			// Now that the agreement is finalised create the policy in the PAP
-			await this._policyAdministrationPointComponent.create({
-				...policyNegotiation.agreement,
-				trustData: policyNegotiation.trustVerificationInfo?.data
-			});
+			// Now that the agreement is finalised, write it to the PAP only when it is not
+			// already there. A prior negotiation with the same offer may have already stored
+			// it (duplicate-guard fast path in requestFromConsumer).
+			const agreementId = OdrlPolicyHelper.getUid(policyNegotiation.agreement);
+			let agreementAlreadyInPap = false;
+			if (Is.stringValue(agreementId)) {
+				try {
+					await this._policyAdministrationPointComponent.getAgreement(agreementId);
+					agreementAlreadyInPap = true;
+				} catch (error) {
+					if (!BaseError.someErrorName(error, NotFoundError.CLASS_NAME)) {
+						throw error;
+					}
+				}
+			}
+			if (!agreementAlreadyInPap) {
+				await this._policyAdministrationPointComponent.create({
+					...policyNegotiation.agreement,
+					trustData: policyNegotiation.trustVerificationInfo?.data
+				});
+			}
 
-			// The agreement was created, so update the state to finalized
+			// The agreement was created (or already existed), so update the state to finalized
 			policyNegotiation.state = DataspaceProtocolContractNegotiationStateType.FINALIZED;
 			await this._policyNegotiationAdminPointComponent.set(policyNegotiation);
 
@@ -1392,6 +1419,63 @@ export class PolicyNegotiationPointService implements IPolicyNegotiationPointCom
 	}
 
 	/**
+	 * Query the PAP for an existing agreement whose assigner, assignee, target, and rule
+	 * content all match those of the given offer. Returns the first such agreement, or
+	 * undefined when none exists or the query fails.
+	 * @param offer The offer whose identity and rules to match against.
+	 * @param consumerIdentity The verified identity of the consumer.
+	 * @returns A matching agreement, or undefined.
+	 * @internal
+	 */
+	private async findMatchingAgreement(
+		offer: IDataspaceProtocolOffer,
+		consumerIdentity: string
+	): Promise<IRightsManagementAgreement | undefined> {
+		if (!Is.stringValue(consumerIdentity)) {
+			return undefined;
+		}
+
+		const assignerIds = OdrlPolicyHelper.getPartyIds(offer.assigner);
+		if (Is.empty(assignerIds)) {
+			return undefined;
+		}
+
+		const targets = OdrlPolicyHelper.getTargets(offer);
+
+		try {
+			const locator = {
+				assigner: assignerIds[0],
+				assignee: consumerIdentity,
+				...(targets.length > 0 ? { target: targets[0] } : {})
+			};
+			const { policies } = await this._policyAdministrationPointComponent.query(locator);
+
+			const offerRules = JSON.stringify({
+				permission: offer.permission,
+				prohibition: offer.prohibition,
+				obligation: offer.obligation
+			});
+
+			for (const policy of policies) {
+				if (OdrlPolicyHelper.getType(policy) === OdrlTypes.Agreement) {
+					const candidateRules = JSON.stringify({
+						permission: policy.permission,
+						prohibition: policy.prohibition,
+						obligation: policy.obligation
+					});
+					if (candidateRules === offerRules) {
+						return policy as IRightsManagementAgreement;
+					}
+				}
+			}
+		} catch {
+			// PAP query failure is non-fatal: fall through to fresh negotiation
+		}
+
+		return undefined;
+	}
+
+	/**
 	 * Returns true when the error is one of the expected "state guard" failures that
 	 * async send-* methods should absorb silently instead of recording as a terminal error.
 	 * @param error The error to test.
@@ -1726,12 +1810,14 @@ export class PolicyNegotiationPointService implements IPolicyNegotiationPointCom
 				// Stamp the agreement assignee as the consumer's organization identity
 				const consumerAssignee = policyNegotiation.trustVerificationInfo.identity;
 
-				// Use the negotiator to create the agreement for the offer
-				const agreement = await negotiator.createAgreement(
-					offer,
-					consumerAssignee,
-					policyNegotiation.trustVerificationInfo.data
-				);
+				// Reuse a pre-set agreement (duplicate-guard fast path) or create a fresh one.
+				const agreement = !Is.empty(policyNegotiation.agreement)
+					? policyNegotiation.agreement
+					: await negotiator.createAgreement(
+							offer,
+							consumerAssignee,
+							policyNegotiation.trustVerificationInfo.data
+						);
 
 				if (Is.empty(agreement)) {
 					// No agreement, so set the error on the negotiation

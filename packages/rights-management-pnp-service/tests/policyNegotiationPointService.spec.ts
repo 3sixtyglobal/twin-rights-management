@@ -26,6 +26,7 @@ import { LoggingConnectorFactory } from "@twin.org/logging-models";
 import { LoggingService } from "@twin.org/logging-service";
 import { nameof } from "@twin.org/nameof";
 import {
+	OdrlPolicyHelper,
 	PolicyNegotiatorFactory,
 	PolicyRequesterFactory,
 	type IPolicyNegotiationPointComponent,
@@ -3339,6 +3340,98 @@ describe("PolicyNegotiationPointService", () => {
 			// The existing (unmodified) "event(FINALIZED) fails loudly ... offer id" test proves
 			// the agreementOfferIdCollision guard itself works correctly once this field is
 			// populated - the two tests together cover Finding 6 end-to-end.
+		});
+
+		test("does not create a duplicate agreement when the same offer is negotiated twice by the same parties", async () => {
+			// Regression for issue #286: without the provider-side duplicate guard,
+			// each call to requestFromConsumer mints a fresh agreement, leaving two
+			// distinct entries in the PAP for the same {assigner, assignee, target}.
+			const providerPoints: { [id: string]: PolicyNegotiationPointService } = {};
+
+			const policyNegotiationConsumerPoint = new PolicyNegotiationPointService({
+				policyNegotiationAdministrationPointComponentType:
+					"policy-negotiation-consumer-admin-point",
+				policyNegotiationPointRemoteComponentType: "pnp-remote",
+				config: { callbackPath: "/callback" }
+			});
+			const policyNegotiationProviderPoint = new PolicyNegotiationPointService({
+				policyNegotiationAdministrationPointComponentType:
+					"policy-negotiation-provider-admin-point",
+				policyNegotiationPointRemoteComponentType: "pnp-remote",
+				config: { callbackPath: "/callback" }
+			});
+			providerPoints.provider = policyNegotiationProviderPoint;
+			providerPoints.consumer = policyNegotiationConsumerPoint;
+			remoteComponentResolver = (params: { endpoint: string }) => {
+				if (params.endpoint.startsWith(providerOrigin)) {
+					return createRemoteComponent(providerPoints.provider, providerOrigin);
+				}
+				if (params.endpoint.startsWith(consumerOrigin)) {
+					return createRemoteComponent(providerPoints.consumer, consumerOrigin);
+				}
+				throw new TypeError(`Unknown remote url ${params.endpoint}`);
+			};
+
+			PolicyRequesterFactory.register("requester-dedup", () => mockPolicyRequester);
+			await adminPointComponent.create(mockOffer);
+
+			// Mint a unique agreement id per call so that without the fix both lifecycles
+			// produce distinct PAP entries and the duplicate becomes visible.
+			let agreementCounter = 0;
+			mockNegotiator.createAgreement = vi.fn(
+				async (offer: IDataspaceProtocolOffer, assignee: string) => ({
+					"@context": OdrlContexts.Context,
+					"@type": OdrlTypes.Agreement,
+					"@id": `urn:policy:agreement-dedup-${++agreementCounter}`,
+					assigner: testIdentityProvider,
+					assignee
+				})
+			);
+			mockNegotiator.handleOffer = vi.fn(async () => ({
+				accepted: true,
+				interventionRequired: false,
+				directAgreement: true
+			}));
+			PolicyNegotiatorFactory.register("MockPolicyNegotiator", () => mockNegotiator);
+
+			// First full lifecycle.
+			await policyNegotiationConsumerPoint.sendRequestToProvider(
+				providerOrigin,
+				"requester-dedup",
+				"urn:policy:offer-1",
+				consumerOrigin
+			);
+			await waitForState(policyNegotiationConsumerMemoryEntityStorage, "FINALIZED", "consumer");
+
+			// Second full lifecycle — identical offer, identical parties.
+			await policyNegotiationConsumerPoint.sendRequestToProvider(
+				providerOrigin,
+				"requester-dedup",
+				"urn:policy:offer-1",
+				consumerOrigin
+			);
+
+			// Wait for the second consumer negotiation to reach FINALIZED.
+			for (let i = 0; i < 60; i++) {
+				const store = await policyNegotiationConsumerMemoryEntityStorage.getStore();
+				if (store.length >= 2 && store[1].state === "FINALIZED") {
+					break;
+				}
+				await new Promise(resolve => setTimeout(resolve, 100));
+			}
+			const finalConsumerStore = await policyNegotiationConsumerMemoryEntityStorage.getStore();
+			expect(finalConsumerStore).toHaveLength(2);
+			expect(finalConsumerStore[1].state).toBe(
+				DataspaceProtocolContractNegotiationStateType.FINALIZED
+			);
+
+			// The PAP must hold exactly one agreement — the second run reused the existing one.
+			const { policies } = await adminPointComponent.query({ assigner: testIdentityProvider });
+			const agreements = policies.filter(p => OdrlPolicyHelper.getType(p) === OdrlTypes.Agreement);
+			expect(agreements).toHaveLength(1);
+
+			// createAgreement was only called once; the second run did not mint a new agreement.
+			expect(mockNegotiator.createAgreement).toHaveBeenCalledTimes(1);
 		});
 	});
 });
