@@ -1490,7 +1490,7 @@ export class PolicyNegotiationPointService implements IPolicyNegotiationPointCom
 	}
 
 	/**
-	 * Logs an outbound delivery failure. Deliberately does not call setErrorState — the
+	 * Logs an outbound delivery failure. Deliberately does not call setErrorState - the
 	 * negotiation itself is still valid, only the notification failed to reach the peer.
 	 * @param policyNegotiation The negotiation whose notification could not be delivered.
 	 * @param error The delivery error.
