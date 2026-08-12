@@ -6,6 +6,28 @@
 
 * remove EcosystemPolicy-related examples/assumptions; plugins now target standard ODRL policy types for v2.
 
+## [0.9.2-next.5](https://github.com/iotaledger/twin-rights-management/compare/rights-management-plugins-v0.9.2-next.4...rights-management-plugins-v0.9.2-next.5) (2026-08-12)
+
+
+### Miscellaneous Chores
+
+* **rights-management-plugins:** Synchronize repo versions
+
+
+### Dependencies
+
+* The following workspace dependencies were updated
+  * dependencies
+    * @twin.org/rights-management-models bumped from 0.9.2-next.4 to 0.9.2-next.5
+  * devDependencies
+    * @twin.org/rights-management-pap-service bumped from 0.9.2-next.4 to 0.9.2-next.5
+    * @twin.org/rights-management-pdp-service bumped from 0.9.2-next.4 to 0.9.2-next.5
+    * @twin.org/rights-management-pep-service bumped from 0.9.2-next.4 to 0.9.2-next.5
+    * @twin.org/rights-management-pip-service bumped from 0.9.2-next.4 to 0.9.2-next.5
+    * @twin.org/rights-management-pmp-service bumped from 0.9.2-next.4 to 0.9.2-next.5
+    * @twin.org/rights-management-pnp-service bumped from 0.9.2-next.4 to 0.9.2-next.5
+    * @twin.org/rights-management-pxp-service bumped from 0.9.2-next.4 to 0.9.2-next.5
+
 ## [0.9.2-next.4](https://github.com/iotaledger/twin-rights-management/compare/rights-management-plugins-v0.9.2-next.3...rights-management-plugins-v0.9.2-next.4) (2026-08-10)
 
 
