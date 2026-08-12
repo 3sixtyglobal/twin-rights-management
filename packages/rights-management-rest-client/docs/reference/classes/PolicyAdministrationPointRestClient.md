@@ -246,7 +246,7 @@ A promise that resolves when the policy has been removed.
 
 ### query() {#query}
 
-> **query**(`options?`, `conditions?`, `cursor?`, `limit?`): `Promise`\<\{ `cursor?`: `string`; `policies`: `IRightsManagementPolicy`[]; \}\>
+> **query**(`options?`, `conditions?`, `cursor?`, `limit?`, `properties?`): `Promise`\<\{ `cursor?`: `string`; `policies`: `IRightsManagementPolicy`[]; \}\>
 
 Query the policies using the specified conditions.
 
@@ -297,6 +297,12 @@ The cursor to use for pagination.
 `number`
 
 The number of results to return per page.
+
+##### properties?
+
+keyof `IRightsManagementPolicy`[]
+
+Optional list of policy property names to include in the response.
 
 #### Returns
 
