@@ -361,13 +361,15 @@ export class PolicyAdministrationPointService implements IPolicyAdministrationPo
 	 * @param conditions The conditions to query the entity storage with.
 	 * @param cursor The cursor to use for pagination.
 	 * @param limit The number of results to return per page.
+	 * @param properties Optional list of policy property names to include in the response.
 	 * @returns The matching policies and an optional cursor for the next page of results.
 	 */
 	public async query(
 		locator?: IPolicyLocator,
 		conditions?: EntityCondition<IRightsManagementPolicy>,
 		cursor?: string,
-		limit?: number
+		limit?: number,
+		properties?: (keyof IRightsManagementPolicy)[]
 	): Promise<{
 		cursor?: string;
 		policies: IRightsManagementPolicy[];
@@ -470,7 +472,7 @@ export class PolicyAdministrationPointService implements IPolicyAdministrationPo
 		const result = await this._odrlPolicyEntityStorage.query(
 			allConditions.conditions.length > 0 ? allConditions : undefined,
 			undefined,
-			undefined,
+			properties as (keyof OdrlPolicy)[] | undefined,
 			cursor,
 			limit
 		);
