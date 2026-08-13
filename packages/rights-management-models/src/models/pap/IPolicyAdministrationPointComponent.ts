@@ -68,7 +68,7 @@ export interface IPolicyAdministrationPointComponent extends IComponent {
 	 * @param conditions The conditions to use for the query.
 	 * @param cursor The cursor to use for pagination.
 	 * @param limit The number of results to return per page.
-	 * @param properties Optional list of policy property names to include in the response.
+	 * @param properties Optional list of policy property names to include in the response, the policy "@id" is always included.
 	 * @returns Cursor for next page of results and the policies matching the query.
 	 */
 	query(

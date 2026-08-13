@@ -6,6 +6,7 @@ import { ArrayHelper, Is, ObjectHelper } from "@twin.org/core";
 import type { IJsonLdNodeObject, JsonLdObjectWithOptionalAtId } from "@twin.org/data-json-ld";
 import type { EntityCondition } from "@twin.org/entity";
 import type { MemoryEntityStorageConnector } from "@twin.org/entity-storage-connector-memory";
+import type { IRightsManagementPolicy } from "@twin.org/rights-management-models";
 import type { IDataspaceProtocolPolicy } from "@twin.org/standards-dataspace-protocol";
 import { OdrlContexts, OdrlPolicyType, type OdrlContextType } from "@twin.org/standards-w3c-odrl";
 import {
@@ -218,6 +219,54 @@ describe("PolicyAdministrationPointService", () => {
 		const result = await policyAdminPoint.query(undefined, undefined, "invalid-cursor", 5);
 
 		expect(result.policies).toBeDefined();
+	});
+
+	test("should query policies with model-shaped properties list", async () => {
+		await createTestPolicies(policyAdminPoint);
+
+		const result = await policyAdminPoint.query(undefined, undefined, undefined, undefined, [
+			"@id",
+			"@type"
+		]);
+
+		expect(result.policies.length).toEqual(10);
+		for (const policy of result.policies) {
+			expect(policy["@id"]).toBeDefined();
+			expect(policy["@type"]).toBeDefined();
+			expect(policy.permission).toBeUndefined();
+		}
+	});
+
+	test("should query policies with storage-shaped properties list", async () => {
+		await createTestPolicies(policyAdminPoint);
+
+		const result = await policyAdminPoint.query(undefined, undefined, undefined, undefined, [
+			"id",
+			"type"
+		] as unknown as (keyof IRightsManagementPolicy)[]);
+
+		expect(result.policies.length).toEqual(10);
+		for (const policy of result.policies) {
+			expect(policy["@id"]).toBeDefined();
+			expect(policy["@type"]).toBeDefined();
+			expect(policy.permission).toBeUndefined();
+		}
+	});
+
+	test("should always include the policy id when querying with a reduced properties list", async () => {
+		await createTestPolicies(policyAdminPoint);
+
+		const result = await policyAdminPoint.query(undefined, undefined, undefined, undefined, [
+			"dateCreated"
+		]);
+
+		expect(result.policies.length).toEqual(10);
+		for (const policy of result.policies) {
+			expect(policy["@id"]).toBeDefined();
+			expect(policy.dateCreated).toBeDefined();
+			expect(policy["@type"]).toBeUndefined();
+			expect(policy.permission).toBeUndefined();
+		}
 	});
 
 	test("should throw validation error when creating invalid policy", async () => {

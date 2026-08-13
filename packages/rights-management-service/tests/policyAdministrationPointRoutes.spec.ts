@@ -8,7 +8,7 @@ import type {
 } from "@twin.org/rights-management-models";
 import { OdrlContexts, OdrlTypes } from "@twin.org/standards-w3c-odrl";
 import { HeaderTypes, HttpStatusCode } from "@twin.org/web";
-import { papCreate } from "../src/policyAdministrationPointRoutes.js";
+import { papCreate, papQuery } from "../src/policyAdministrationPointRoutes.js";
 
 const BASE_ROUTE_NAME = "rights-management";
 const POLICY_UID = "urn:rights-management:abc123def456";
@@ -71,5 +71,28 @@ describe("policyAdministrationPointRoutes", () => {
 		expect(
 			HttpHeaderHelper.extractId(response.headers, `${BASE_ROUTE_NAME}/policy/admin/:id`)
 		).toEqual(POLICY_UID);
+	});
+
+	test("papQuery forwards the parsed model-shaped properties list to the component", async () => {
+		vi.mocked(mockPapComponent.query).mockResolvedValueOnce({ policies: [] });
+
+		const response = await papQuery(mockHttpRequestContext, "pap", {
+			query: { properties: "@id,@type" }
+		});
+
+		expect(mockPapComponent.query).toHaveBeenCalledWith(
+			{
+				type: undefined,
+				assigner: undefined,
+				assignee: undefined,
+				target: undefined,
+				action: undefined
+			},
+			undefined,
+			undefined,
+			undefined,
+			["@id", "@type"]
+		);
+		expect(response.body).toEqual([]);
 	});
 });

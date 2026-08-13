@@ -50,7 +50,7 @@ export interface IPapQueryRequest {
 		cursor?: string;
 
 		/**
-		 * Comma-separated list of policy property names to include in the response.
+		 * Comma-separated list of policy property names to include in the response, the policy "@id" is always included.
 		 */
 		properties?: string;
 	};

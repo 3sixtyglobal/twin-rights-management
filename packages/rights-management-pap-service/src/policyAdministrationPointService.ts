@@ -361,7 +361,7 @@ export class PolicyAdministrationPointService implements IPolicyAdministrationPo
 	 * @param conditions The conditions to query the entity storage with.
 	 * @param cursor The cursor to use for pagination.
 	 * @param limit The number of results to return per page.
-	 * @param properties Optional list of policy property names to include in the response.
+	 * @param properties Optional list of policy property names to include in the response, the policy "@id" is always included.
 	 * @returns The matching policies and an optional cursor for the next page of results.
 	 */
 	public async query(
@@ -419,6 +419,9 @@ export class PolicyAdministrationPointService implements IPolicyAdministrationPo
 		if (!Is.empty(limit)) {
 			Guards.integer(PolicyAdministrationPointService.CLASS_NAME, nameof(limit), limit);
 		}
+		if (!Is.empty(properties)) {
+			Guards.array(PolicyAdministrationPointService.CLASS_NAME, nameof(properties), properties);
+		}
 
 		const allConditions: EntityCondition<IRightsManagementPolicy> = {
 			conditions: [],
@@ -472,7 +475,7 @@ export class PolicyAdministrationPointService implements IPolicyAdministrationPo
 		const result = await this._odrlPolicyEntityStorage.query(
 			allConditions.conditions.length > 0 ? allConditions : undefined,
 			undefined,
-			properties as (keyof OdrlPolicy)[] | undefined,
+			this.convertToStorageProperties(properties),
 			cursor,
 			limit
 		);
@@ -603,6 +606,36 @@ export class PolicyAdministrationPointService implements IPolicyAdministrationPo
 		}
 
 		return policy as T;
+	}
+
+	/**
+	 * Converts a properties list to storage keys, accepting both the model "@"-prefixed and storage forms.
+	 * The policy id is always included so reduced results remain identifiable.
+	 * @param properties The optional list of policy property names.
+	 * @returns The storage-shaped properties list, or undefined when no list was supplied.
+	 * @internal
+	 */
+	private convertToStorageProperties(
+		properties?: (keyof IRightsManagementPolicy)[]
+	): (keyof OdrlPolicy)[] | undefined {
+		if (!Is.arrayValue(properties)) {
+			return undefined;
+		}
+
+		const storageProperties = new Set<keyof OdrlPolicy>(["id"]);
+		for (const property of properties) {
+			if (property === "@id") {
+				storageProperties.add("id");
+			} else if (property === "@type") {
+				storageProperties.add("type");
+			} else if (property === "@context") {
+				storageProperties.add("context");
+			} else {
+				storageProperties.add(property);
+			}
+		}
+
+		return [...storageProperties];
 	}
 
 	/**
