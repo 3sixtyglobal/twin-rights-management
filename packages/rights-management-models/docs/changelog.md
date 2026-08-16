@@ -6,6 +6,13 @@
 
 * remove EcosystemPolicy models/DTOs and standardize policy typing on `OdrlPolicyType` for v2.
 
+## [0.9.2-next.6](https://github.com/iotaledger/twin-rights-management/compare/rights-management-models-v0.9.2-next.5...rights-management-models-v0.9.2-next.6) (2026-08-16)
+
+
+### Bug Fixes
+
+* translate PAP query properties to storage keys ([#293](https://github.com/iotaledger/twin-rights-management/issues/293)) ([b4206c4](https://github.com/iotaledger/twin-rights-management/commit/b4206c4687bff4a4e2cab996fcf9ec2c77268012))
+
 ## [0.9.2-next.5](https://github.com/iotaledger/twin-rights-management/compare/rights-management-models-v0.9.2-next.4...rights-management-models-v0.9.2-next.5) (2026-08-12)
 
 
