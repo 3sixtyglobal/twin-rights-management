@@ -198,7 +198,7 @@ The number of results to return per page.
 
 keyof [`IRightsManagementPolicy`](IRightsManagementPolicy.md)[]
 
-Optional list of policy property names to include in the response.
+Optional list of policy property names to include in the response, the policy "@id" is always included.
 
 #### Returns
 

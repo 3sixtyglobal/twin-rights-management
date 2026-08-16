@@ -62,4 +62,4 @@ The cursor to get next chunk of data, returned in previous response.
 
 > `optional` **properties?**: `string`
 
-Comma-separated list of policy property names to include in the response.
+Comma-separated list of policy property names to include in the response, the policy "@id" is always included.
