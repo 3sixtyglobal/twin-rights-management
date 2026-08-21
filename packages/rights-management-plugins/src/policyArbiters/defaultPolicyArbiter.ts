@@ -2301,9 +2301,7 @@ export class DefaultPolicyArbiter implements IPolicyArbiter {
 			case OdrlOperatorType.IsAnyOf: {
 				return leftValues.some(v => {
 					const stringValue =
-						typeof v === "string" || typeof v === "number" || typeof v === "boolean"
-							? String(v)
-							: JSON.stringify(v);
+						Is.string(v) || Is.number(v) || Is.boolean(v) ? String(v) : JSON.stringify(v);
 					return (ArrayHelper.fromObjectOrArray(right) ?? []).includes(stringValue);
 				});
 			}

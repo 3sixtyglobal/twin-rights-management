@@ -1446,7 +1446,7 @@ export class PolicyNegotiationPointService implements IPolicyNegotiationPointCom
 			const locator = {
 				assigner: assignerIds[0],
 				assignee: consumerIdentity,
-				...(targets.length > 0 ? { target: targets[0] } : {})
+				target: targets[0]
 			};
 			const { policies } = await this._policyAdministrationPointComponent.query(locator);
 

@@ -474,13 +474,13 @@ describe("PolicyAdministrationPointService", () => {
 
 		// Check policy was completely replaced
 		expect(result.assigner).toBeDefined();
-		if (result.assigner && typeof result.assigner === "object" && "uid" in result.assigner) {
+		if (Is.object(result.assigner) && "uid" in result.assigner) {
 			expect(result.assigner.uid).toEqual("http://example.com/party/1");
 			expect(result.assigner["@type"]).toEqual("Organization");
 		}
 
 		expect(result.assignee).toBeDefined();
-		if (result.assignee && typeof result.assignee === "object" && "uid" in result.assignee) {
+		if (Is.object(result.assignee) && "uid" in result.assignee) {
 			expect(result.assignee.uid).toEqual("http://example.com/party/2");
 		}
 

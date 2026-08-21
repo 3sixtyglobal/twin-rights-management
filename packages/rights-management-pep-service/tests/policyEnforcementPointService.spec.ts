@@ -1,6 +1,6 @@
 // Copyright 2025 IOTA Stiftung.
 // SPDX-License-Identifier: Apache-2.0.
-import { ComponentFactory, Factory, GeneralError } from "@twin.org/core";
+import { ComponentFactory, Factory, GeneralError, Is } from "@twin.org/core";
 import type { IJsonLdNodeObject } from "@twin.org/data-json-ld";
 import { MemoryEntityStorageConnector } from "@twin.org/entity-storage-connector-memory";
 import { EntityStorageConnectorFactory } from "@twin.org/entity-storage-models";
@@ -314,8 +314,8 @@ describe("PolicyEnforcementPointService", () => {
 
 		// Processor modifies the data it receives
 		mockProcessor.process.mockImplementation(async (agreement, decisions, data: unknown) => {
-			if (data && typeof data === "object") {
-				(data as { [key: string]: unknown }).modified = true;
+			if (Is.object(data)) {
+				data.modified = true;
 			}
 			return data;
 		});
@@ -442,8 +442,7 @@ describe("PolicyEnforcementPointService", () => {
 		watermarkProcessor.process.mockImplementation(
 			async (agreement: IDataspaceProtocolAgreement, decisions, data: unknown) => {
 				if (agreement.target === "image" && agreement.action === "share") {
-					const assigneeStr =
-						typeof agreement.assignee === "string" ? agreement.assignee : "Unknown";
+					const assigneeStr = Is.string(agreement.assignee) ? agreement.assignee : "Unknown";
 					return {
 						...(data as { [key: string]: unknown }),
 						watermarked: true,
@@ -505,8 +504,7 @@ describe("PolicyEnforcementPointService", () => {
 		auditProcessor.process.mockImplementation(
 			async (agreement: IDataspaceProtocolAgreement, decisions, data: unknown) => {
 				if (agreement.action === "download") {
-					const assigneeStr =
-						typeof agreement.assignee === "string" ? agreement.assignee : "Unknown";
+					const assigneeStr = Is.string(agreement.assignee) ? agreement.assignee : "Unknown";
 					return {
 						...(data as { [key: string]: unknown }),
 						audited: true,
