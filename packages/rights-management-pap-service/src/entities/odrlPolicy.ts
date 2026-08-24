@@ -83,13 +83,13 @@ export class OdrlPolicy {
 	public obligation?: IDataspaceProtocolPolicy["obligation"];
 
 	/**
-	 * schema.org dateCreated — ISO 8601 date-time set by PAP on create.
+	 * schema.org dateCreated - ISO 8601 date-time set by PAP on create.
 	 */
 	@property({ type: "string", format: "date-time", optional: true })
 	public dateCreated?: string;
 
 	/**
-	 * schema.org dateModified — ISO 8601 date-time set by PAP on create and update.
+	 * schema.org dateModified - ISO 8601 date-time set by PAP on create and update.
 	 */
 	@property({ type: "string", format: "date-time", optional: true })
 	public dateModified?: string;

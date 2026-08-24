@@ -29,7 +29,8 @@ import {
 	type IPapQueryResponse,
 	type IPapRemoveRequest,
 	type IPapUpdateRequest,
-	type IPolicyAdministrationPointComponent
+	type IPolicyAdministrationPointComponent,
+	type IRightsManagementPolicy
 } from "@twin.org/rights-management-models";
 import { OdrlContexts, OdrlPolicyType, type OdrlContextType } from "@twin.org/standards-w3c-odrl";
 import { HttpStatusCode, type IHttpHeaders } from "@twin.org/web";
@@ -475,9 +476,7 @@ export async function papCreate(
 
 	return {
 		statusCode: HttpStatusCode.created,
-		headers: {
-			location: uid
-		}
+		headers
 	};
 }
 
@@ -671,7 +670,8 @@ export async function papQuery(
 		},
 		HttpParameterHelper.objectFromString(request.query?.conditions),
 		request.query?.cursor,
-		Coerce.integer(request.query?.limit)
+		Coerce.integer(request.query?.limit),
+		HttpParameterHelper.arrayFromString<keyof IRightsManagementPolicy>(request.query?.properties)
 	);
 
 	const headers: IPapQueryResponse["headers"] = {};

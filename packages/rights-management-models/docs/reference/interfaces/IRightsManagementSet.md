@@ -12,7 +12,7 @@ Set policy returned by PAP, including optional PAP-managed lifecycle metadata.
 
 > `optional` **dateCreated?**: `string`
 
-schema.org dateCreated — ISO 8601 date-time set by PAP on create.
+schema.org dateCreated - ISO 8601 date-time set by PAP on create.
 
 #### Inherited from
 
@@ -24,7 +24,7 @@ schema.org dateCreated — ISO 8601 date-time set by PAP on create.
 
 > `optional` **dateModified?**: `string`
 
-schema.org dateModified — ISO 8601 date-time set by PAP on create and update.
+schema.org dateModified - ISO 8601 date-time set by PAP on create and update.
 
 #### Inherited from
 

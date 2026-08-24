@@ -31,7 +31,8 @@ import {
 	type IPolicyInformationPointComponent,
 	type IPolicyNegotiation,
 	type IPolicyNegotiationAdminPointComponent,
-	type IPolicyNegotiationPointComponent
+	type IPolicyNegotiationPointComponent,
+	type IRightsManagementAgreement
 } from "@twin.org/rights-management-models";
 import {
 	DataspaceProtocolContexts,
@@ -422,6 +423,10 @@ export class PolicyNegotiationPointService implements IPolicyNegotiationPointCom
 			const requestOrganizationId = requestContextIds[ContextIdKeys.Organization];
 			const publicOrigin = requestContextIds[HttpContextIdKeys.PublicOrigin];
 
+			// If an agreement with identical rule content already exists for this
+			// assigner/assignee/target, reuse it instead of minting a duplicate.
+			const existingAgreement = await this.findMatchingAgreement(providerOffer, trustInfo.identity);
+
 			// Construct a new negotiation or update an existing one
 			if (Is.stringValue(message.providerPid)) {
 				try {
@@ -445,8 +450,13 @@ export class PolicyNegotiationPointService implements IPolicyNegotiationPointCom
 					throw error;
 				}
 
-				// The negotiation must be in the REQUESTED state to update it
-				if (policyNegotiation.state !== DataspaceProtocolContractNegotiationStateType.REQUESTED) {
+				// DSP 2025-1: OFFERED --> REQUESTED is a valid Consumer transition (a counter-offer),
+				// alongside REQUESTED --> REQUESTED (revising before any reply).
+				const validCounterRequestStates: DataspaceProtocolContractNegotiationStateType[] = [
+					DataspaceProtocolContractNegotiationStateType.REQUESTED,
+					DataspaceProtocolContractNegotiationStateType.OFFERED
+				];
+				if (!validCounterRequestStates.includes(policyNegotiation.state)) {
 					const err = await this.setErrorState(
 						message.providerPid,
 						policyNegotiation.correlationId,
@@ -459,6 +469,9 @@ export class PolicyNegotiationPointService implements IPolicyNegotiationPointCom
 					return err;
 				}
 
+				// Explicit reset: OFFERED is now also a valid predecessor, so it can no longer be
+				// assumed the stored state is already REQUESTED.
+				policyNegotiation.state = DataspaceProtocolContractNegotiationStateType.REQUESTED;
 				policyNegotiation.offer = providerOffer;
 				policyNegotiation.trustVerificationInfo = trustInfo;
 				policyNegotiation.handlerId = negotiator.className();
@@ -479,6 +492,10 @@ export class PolicyNegotiationPointService implements IPolicyNegotiationPointCom
 				};
 			}
 
+			if (!Is.empty(existingAgreement)) {
+				policyNegotiation.agreement = existingAgreement;
+			}
+
 			await this._policyNegotiationAdminPointComponent.set(policyNegotiation);
 
 			const negotiateResult = await negotiator.handleOffer(providerOffer, policyInformation);
@@ -492,11 +509,13 @@ export class PolicyNegotiationPointService implements IPolicyNegotiationPointCom
 					const callbackAddress = message.callbackAddress;
 					const pol = policyNegotiation;
 
-					if (negotiateResult.directAgreement) {
+					if (negotiateResult.directAgreement || !Is.empty(existingAgreement)) {
 						// DSP 2025-1 permits a direct REQUESTED -> AGREED transition (see
 						// docs/architecture/components.md). Skip the OFFERED/ACCEPTED round-trip
 						// and go straight to building and sending the agreement, on the next cycle
-						// so we don't delay the current response.
+						// so we don't delay the current response. An existing matching agreement
+						// also takes this path so the same agreement id is re-delivered rather
+						// than a fresh one being minted (see: requestFromConsumer duplicate guard).
 						setTimeout(async () => {
 							await this.sendAgreementToConsumer(callbackAddress, pol);
 						}, 100);
@@ -817,7 +836,7 @@ export class PolicyNegotiationPointService implements IPolicyNegotiationPointCom
 				this.validateCallerIsNegotiationParty(policyNegotiation, trustInfo);
 			} else {
 				// REQUESTED predecessor via the directAgreement fast path skipped OFFERED, so this
-				// is the first trusted interaction for this negotiation — pin it now, mirroring what
+				// is the first trusted interaction for this negotiation - pin it now, mirroring what
 				// offerFromProvider does on the full cycle.
 				policyNegotiation.trustVerificationInfo = trustInfo;
 			}
@@ -980,13 +999,29 @@ export class PolicyNegotiationPointService implements IPolicyNegotiationPointCom
 				return err;
 			}
 
-			// Now that the agreement is finalised create the policy in the PAP
-			await this._policyAdministrationPointComponent.create({
-				...policyNegotiation.agreement,
-				trustData: policyNegotiation.trustVerificationInfo?.data
-			});
+			// Now that the agreement is finalised, write it to the PAP only when it is not
+			// already there. A prior negotiation with the same offer may have already stored
+			// it (duplicate-guard fast path in requestFromConsumer).
+			const agreementId = OdrlPolicyHelper.getUid(policyNegotiation.agreement);
+			let agreementAlreadyInPap = false;
+			if (Is.stringValue(agreementId)) {
+				try {
+					await this._policyAdministrationPointComponent.getAgreement(agreementId);
+					agreementAlreadyInPap = true;
+				} catch (error) {
+					if (!BaseError.someErrorName(error, NotFoundError.CLASS_NAME)) {
+						throw error;
+					}
+				}
+			}
+			if (!agreementAlreadyInPap) {
+				await this._policyAdministrationPointComponent.create({
+					...policyNegotiation.agreement,
+					trustData: policyNegotiation.trustVerificationInfo?.data
+				});
+			}
 
-			// The agreement was created, so update the state to finalized
+			// The agreement was created (or already existed), so update the state to finalized
 			policyNegotiation.state = DataspaceProtocolContractNegotiationStateType.FINALIZED;
 			await this._policyNegotiationAdminPointComponent.set(policyNegotiation);
 
@@ -1384,6 +1419,63 @@ export class PolicyNegotiationPointService implements IPolicyNegotiationPointCom
 	}
 
 	/**
+	 * Query the PAP for an existing agreement whose assigner, assignee, target, and rule
+	 * content all match those of the given offer. Returns the first such agreement, or
+	 * undefined when none exists or the query fails.
+	 * @param offer The offer whose identity and rules to match against.
+	 * @param consumerIdentity The verified identity of the consumer.
+	 * @returns A matching agreement, or undefined.
+	 * @internal
+	 */
+	private async findMatchingAgreement(
+		offer: IDataspaceProtocolOffer,
+		consumerIdentity: string
+	): Promise<IRightsManagementAgreement | undefined> {
+		if (!Is.stringValue(consumerIdentity)) {
+			return undefined;
+		}
+
+		const assignerIds = OdrlPolicyHelper.getPartyIds(offer.assigner);
+		if (Is.empty(assignerIds)) {
+			return undefined;
+		}
+
+		const targets = OdrlPolicyHelper.getTargets(offer);
+
+		try {
+			const locator = {
+				assigner: assignerIds[0],
+				assignee: consumerIdentity,
+				target: targets[0]
+			};
+			const { policies } = await this._policyAdministrationPointComponent.query(locator);
+
+			const offerRules = JSON.stringify({
+				permission: offer.permission,
+				prohibition: offer.prohibition,
+				obligation: offer.obligation
+			});
+
+			for (const policy of policies) {
+				if (OdrlPolicyHelper.getType(policy) === OdrlTypes.Agreement) {
+					const candidateRules = JSON.stringify({
+						permission: policy.permission,
+						prohibition: policy.prohibition,
+						obligation: policy.obligation
+					});
+					if (candidateRules === offerRules) {
+						return policy as IRightsManagementAgreement;
+					}
+				}
+			}
+		} catch {
+			// PAP query failure is non-fatal: fall through to fresh negotiation
+		}
+
+		return undefined;
+	}
+
+	/**
 	 * Returns true when the error is one of the expected "state guard" failures that
 	 * async send-* methods should absorb silently instead of recording as a terminal error.
 	 * @param error The error to test.
@@ -1395,6 +1487,31 @@ export class PolicyNegotiationPointService implements IPolicyNegotiationPointCom
 			BaseError.someErrorName(error, NotFoundError.CLASS_NAME) ||
 			BaseError.someErrorMessage(error, `${PolicyNegotiationPointService.CLASS_NAME}.invalidState`)
 		);
+	}
+
+	/**
+	 * Logs an outbound delivery failure. Deliberately does not call setErrorState - the
+	 * negotiation itself is still valid, only the notification failed to reach the peer.
+	 * @param policyNegotiation The negotiation whose notification could not be delivered.
+	 * @param error The delivery error.
+	 * @internal
+	 */
+	private async logDeliveryFailure(
+		policyNegotiation: IPolicyNegotiation,
+		error: unknown
+	): Promise<void> {
+		await this._logging?.log({
+			level: "warn",
+			source: PolicyNegotiationPointService.CLASS_NAME,
+			ts: Date.now(),
+			message: "callbackDeliveryFailed",
+			data: {
+				negotiationId: policyNegotiation.id,
+				state: policyNegotiation.state,
+				callbackAddress: policyNegotiation.callbackAddress
+			},
+			error: BaseError.fromError(error)
+		});
 	}
 
 	/**
@@ -1538,12 +1655,17 @@ export class PolicyNegotiationPointService implements IPolicyNegotiationPointCom
 			// consumer is expected to poll GET /negotiations/admin/:policyId, which returns
 			// the full negotiation entity (offer included).
 			if (Is.stringValue(callbackAddress)) {
-				const response = await this.withPolicyNegotiationPointComponent(callbackAddress, async c =>
-					c.offerFromProvider(offerMessage, trustPayload)
-				);
+				try {
+					const response = await this.withPolicyNegotiationPointComponent(
+						callbackAddress,
+						async c => c.offerFromProvider(offerMessage, trustPayload)
+					);
 
-				// If there was no error then the consumer will now send an event if they accepted the offer
-				await this.terminateIfResponseError(response, policyNegotiation);
+					// If there was no error then the consumer will now send an event if they accepted the offer
+					await this.terminateIfResponseError(response, policyNegotiation);
+				} catch (deliveryError) {
+					await this.logDeliveryFailure(policyNegotiation, deliveryError);
+				}
 			}
 		} catch (error) {
 			if (this.isStateGuardError(error)) {
@@ -1609,11 +1731,16 @@ export class PolicyNegotiationPointService implements IPolicyNegotiationPointCom
 			// Only push the event when a callbackAddress was supplied. Without one the peer
 			// polls GET /negotiations/admin/:policyId to discover the transition.
 			if (Is.stringValue(callbackAddress)) {
-				const response = await this.withPolicyNegotiationPointComponent(callbackAddress, async c =>
-					c.event(eventMessage, destination, trustPayload)
-				);
+				try {
+					const response = await this.withPolicyNegotiationPointComponent(
+						callbackAddress,
+						async c => c.event(eventMessage, destination, trustPayload)
+					);
 
-				await this.terminateIfResponseError(response, policyNegotiation);
+					await this.terminateIfResponseError(response, policyNegotiation);
+				} catch (deliveryError) {
+					await this.logDeliveryFailure(policyNegotiation, deliveryError);
+				}
 			}
 		} catch (error) {
 			if (this.isStateGuardError(error)) {
@@ -1683,12 +1810,14 @@ export class PolicyNegotiationPointService implements IPolicyNegotiationPointCom
 				// Stamp the agreement assignee as the consumer's organization identity
 				const consumerAssignee = policyNegotiation.trustVerificationInfo.identity;
 
-				// Use the negotiator to create the agreement for the offer
-				const agreement = await negotiator.createAgreement(
-					offer,
-					consumerAssignee,
-					policyNegotiation.trustVerificationInfo.data
-				);
+				// Reuse a pre-set agreement (duplicate-guard fast path) or create a fresh one.
+				const agreement = !Is.empty(policyNegotiation.agreement)
+					? policyNegotiation.agreement
+					: await negotiator.createAgreement(
+							offer,
+							consumerAssignee,
+							policyNegotiation.trustVerificationInfo.data
+						);
 
 				if (Is.empty(agreement)) {
 					// No agreement, so set the error on the negotiation
@@ -1727,13 +1856,17 @@ export class PolicyNegotiationPointService implements IPolicyNegotiationPointCom
 					// consumer polls GET /negotiations/admin/:policyId, which returns the full
 					// negotiation entity (agreement included).
 					if (Is.stringValue(callbackAddress)) {
-						const response = await this.withPolicyNegotiationPointComponent(
-							callbackAddress,
-							async c => c.agreementFromProvider(agreementMessage, trustPayload)
-						);
+						try {
+							const response = await this.withPolicyNegotiationPointComponent(
+								callbackAddress,
+								async c => c.agreementFromProvider(agreementMessage, trustPayload)
+							);
 
-						// If there was no error then the consumer will now send an agreement verification
-						await this.terminateIfResponseError(response, policyNegotiation);
+							// If there was no error then the consumer will now send an agreement verification
+							await this.terminateIfResponseError(response, policyNegotiation);
+						} catch (deliveryError) {
+							await this.logDeliveryFailure(policyNegotiation, deliveryError);
+						}
 					}
 				}
 			}
@@ -1790,11 +1923,17 @@ export class PolicyNegotiationPointService implements IPolicyNegotiationPointCom
 			// Only push to the provider when a callbackAddress was supplied. Without one the
 			// provider polls GET /negotiations/admin/:policyId to discover the new VERIFIED state.
 			if (Is.stringValue(callbackAddress)) {
-				const response = await this.withPolicyNegotiationPointComponent(callbackAddress, async c =>
-					c.agreementVerificationFromConsumer(agreementVerificationMessage, trustPayload)
-				);
+				try {
+					const response = await this.withPolicyNegotiationPointComponent(
+						callbackAddress,
+						async c =>
+							c.agreementVerificationFromConsumer(agreementVerificationMessage, trustPayload)
+					);
 
-				await this.terminateIfResponseError(response, policyNegotiation);
+					await this.terminateIfResponseError(response, policyNegotiation);
+				} catch (deliveryError) {
+					await this.logDeliveryFailure(policyNegotiation, deliveryError);
+				}
 			}
 		} catch (error) {
 			if (this.isStateGuardError(error)) {

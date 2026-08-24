@@ -6,12 +6,12 @@
  */
 export interface IRightsManagementPolicyMetadata {
 	/**
-	 * schema.org dateCreated — ISO 8601 date-time set by PAP on create.
+	 * schema.org dateCreated - ISO 8601 date-time set by PAP on create.
 	 */
 	dateCreated?: string;
 
 	/**
-	 * schema.org dateModified — ISO 8601 date-time set by PAP on create and update.
+	 * schema.org dateModified - ISO 8601 date-time set by PAP on create and update.
 	 */
 	dateModified?: string;
 }

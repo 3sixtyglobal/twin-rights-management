@@ -864,7 +864,7 @@ describe("DefaultPolicyArbiter", () => {
 
 			const information = { subject: { role: "BorderAgency" } };
 
-			// The obligation's assignee refinement matches, so it is now applicable — and since no
+			// The obligation's assignee refinement matches, so it is now applicable - and since no
 			// enforcer fulfills it, the whole decision is denied.
 			const decisions = await arbiter.decide(agreement, information, { any: "data" });
 			expect(decisions).toEqual([{ target: "$", decision: PolicyDecision.Denied }]);
@@ -940,7 +940,7 @@ describe("DefaultPolicyArbiter", () => {
 
 			const information = { subject: { role: "TrustedPublisher" } };
 
-			// Symmetric to the assignee case above but on the assigner side — resolveRulePartyContext
+			// Symmetric to the assignee case above but on the assigner side - resolveRulePartyContext
 			// and isPartyContextApplicable treat assigner and assignee identically, so this now grants
 			// too.
 			const decisions = await arbiter.decide(agreement, information, { any: "data" });
@@ -2861,7 +2861,7 @@ describe("DefaultPolicyArbiter", () => {
 			]
 		};
 
-		// Refinement is satisfied — prohibition fires and denies
+		// Refinement is satisfied - prohibition fires and denies
 		const denied = await arbiter.decide(
 			policy,
 			undefined,
@@ -2875,7 +2875,7 @@ describe("DefaultPolicyArbiter", () => {
 			])
 		);
 
-		// Refinement is not satisfied — prohibition does not fire and permission grants
+		// Refinement is not satisfied - prohibition does not fire and permission grants
 		const granted = await arbiter.decide(
 			policy,
 			undefined,
@@ -4185,7 +4185,7 @@ describe("DefaultPolicyArbiter", () => {
 
 			const decisions = await arbiter.decide(policy, undefined, sourceData);
 
-			// Arbiter should emit only per-item decisions — NO Denied "$"
+			// Arbiter should emit only per-item decisions - NO Denied "$"
 			expect(decisions).toHaveLength(3);
 			expect(decisions).toEqual(
 				expect.arrayContaining([
@@ -4609,7 +4609,7 @@ describe("DefaultPolicyArbiter", () => {
 				]
 			};
 
-			// Obligation constraint is not satisfied — obligation is skipped, permission is granted
+			// Obligation constraint is not satisfied - obligation is skipped, permission is granted
 			const decisions = await arbiter.decide(policy, undefined, { isPremium: false });
 			expect(decisions).toEqual([{ target: "$", decision: PolicyDecision.Granted }]);
 		});
@@ -4640,7 +4640,7 @@ describe("DefaultPolicyArbiter", () => {
 				]
 			};
 
-			// Obligation constraint is satisfied — obligation is enforced and succeeds
+			// Obligation constraint is satisfied - obligation is enforced and succeeds
 			const decisions = await arbiter.decide(policy, undefined, { isPremium: true });
 			expect(decisions).toEqual([{ target: "$", decision: PolicyDecision.Granted }]);
 		});
@@ -4664,7 +4664,7 @@ describe("DefaultPolicyArbiter", () => {
 				]
 			};
 
-			// Obligation targets a different assignee — it is skipped, so the permission grants
+			// Obligation targets a different assignee - it is skipped, so the permission grants
 			const decisions = await arbiter.decide(policy, undefined, { any: "data" });
 			expect(decisions).toEqual([{ target: "$", decision: PolicyDecision.Granted }]);
 		});
@@ -4694,7 +4694,7 @@ describe("DefaultPolicyArbiter", () => {
 				]
 			};
 
-			// Both actions are permitted — requesting either should grant
+			// Both actions are permitted - requesting either should grant
 			const grantedRead = await arbiter.decide(policy, undefined, { region: "EU" }, "read");
 			expect(grantedRead).toEqual([{ target: "$", decision: PolicyDecision.Granted }]);
 
@@ -4859,15 +4859,15 @@ describe("DefaultPolicyArbiter", () => {
 				]
 			};
 
-			// Requesting the parent action — covered by includedIn
+			// Requesting the parent action - covered by includedIn
 			const grantedParent = await arbiter.decide(policy, undefined, { any: "data" }, "reproduce");
 			expect(grantedParent).toEqual([{ target: "$", decision: PolicyDecision.Granted }]);
 
-			// Requesting the exact action — still an exact match
+			// Requesting the exact action - still an exact match
 			const grantedExact = await arbiter.decide(policy, undefined, { any: "data" }, "print");
 			expect(grantedExact).toEqual([{ target: "$", decision: PolicyDecision.Granted }]);
 
-			// Requesting an unrelated action — denied
+			// Requesting an unrelated action - denied
 			const denied = await arbiter.decide(policy, undefined, { any: "data" }, "distribute");
 			expect(denied).toEqual([{ target: "$", decision: PolicyDecision.Denied }]);
 		});
@@ -4888,15 +4888,15 @@ describe("DefaultPolicyArbiter", () => {
 				]
 			};
 
-			// Requesting an implied action — covered
+			// Requesting an implied action - covered
 			const grantedImplied = await arbiter.decide(policy, undefined, { any: "data" }, "reproduce");
 			expect(grantedImplied).toEqual([{ target: "$", decision: PolicyDecision.Granted }]);
 
-			// Requesting the exact action — still an exact match
+			// Requesting the exact action - still an exact match
 			const grantedExact = await arbiter.decide(policy, undefined, { any: "data" }, "distribute");
 			expect(grantedExact).toEqual([{ target: "$", decision: PolicyDecision.Granted }]);
 
-			// Requesting an action that is neither exact nor implied — denied
+			// Requesting an action that is neither exact nor implied - denied
 			const denied = await arbiter.decide(policy, undefined, { any: "data" }, "print");
 			expect(denied).toEqual([{ target: "$", decision: PolicyDecision.Denied }]);
 		});
@@ -5516,11 +5516,11 @@ describe("DefaultPolicyArbiter", () => {
 				]
 			};
 
-			// requesting implied action "reproduce" in EU — refinement satisfied
+			// requesting implied action "reproduce" in EU - refinement satisfied
 			const granted = await arbiter.decide(policy, undefined, { region: "EU" }, "reproduce");
 			expect(granted).toEqual([{ target: "$", decision: PolicyDecision.Granted }]);
 
-			// requesting implied action "reproduce" outside EU — refinement not satisfied
+			// requesting implied action "reproduce" outside EU - refinement not satisfied
 			const denied = await arbiter.decide(policy, undefined, { region: "US" }, "reproduce");
 			expect(denied).toEqual([{ target: "$", decision: PolicyDecision.Denied }]);
 		});
@@ -6343,7 +6343,7 @@ describe("DefaultPolicyArbiter", () => {
 
 		// ── Duration operands ─────────────────────────────────────────────────────
 		// Spec: delayPeriod (eq/gt/gteq), elapsedTime (eq/lt/lteq),
-		//       meteredTime (eq/lt/lteq), timeInterval (eq only) — all xsd:duration.
+		//       meteredTime (eq/lt/lteq), timeInterval (eq only) - all xsd:duration.
 		// ISO 8601 strings are supported end-to-end: coerceXsdType maps xsd:duration
 		// to Coerce.duration, and compareOrdered resolves duration strings on either side.
 
@@ -6489,7 +6489,7 @@ describe("DefaultPolicyArbiter", () => {
 			const arbiter = new DefaultPolicyArbiter();
 			const policy = makeAgreement("policy:eq-boolean-zero", "enabled", OdrlOperatorType.Eq, "0");
 
-			// false is not equal to "0" — no numeric coercion should bridge them
+			// false is not equal to "0" - no numeric coercion should bridge them
 			const denied = await arbiter.decide(policy, { enabled: false }, {});
 			expect(denied[0].decision).toBe(PolicyDecision.Denied);
 		});

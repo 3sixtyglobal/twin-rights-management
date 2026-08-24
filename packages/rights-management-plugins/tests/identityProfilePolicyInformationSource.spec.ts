@@ -73,7 +73,8 @@ describe("IdentityProfilePolicyInformationSource", () => {
 			getPublic: mockGetPublic as IIdentityProfileComponent["getPublic"],
 			update: vi.fn(),
 			remove: vi.fn(),
-			list: vi.fn()
+			list: vi.fn(),
+			listAdmin: vi.fn()
 		};
 
 		ComponentFactory.register("identity-profile", () => mockIdentityProfile);
@@ -272,7 +273,8 @@ describe("IdentityProfilePolicyInformationSource", () => {
 			getPublic: customGetPublic,
 			update: vi.fn(),
 			remove: vi.fn(),
-			list: vi.fn()
+			list: vi.fn(),
+			listAdmin: vi.fn()
 		};
 		ComponentFactory.register("custom-identity-profile", () => customProfile);
 

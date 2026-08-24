@@ -26,6 +26,7 @@ import { LoggingConnectorFactory } from "@twin.org/logging-models";
 import { LoggingService } from "@twin.org/logging-service";
 import { nameof } from "@twin.org/nameof";
 import {
+	OdrlPolicyHelper,
 	PolicyNegotiatorFactory,
 	PolicyRequesterFactory,
 	type IPolicyNegotiationPointComponent,
@@ -626,7 +627,7 @@ describe("PolicyNegotiationPointService", () => {
 		// identity of the responder. That's the node DID from the
 		// current context. Both consumer and provider services share a single
 		// in-memory mock here, so the signer surfaces as `testIdentityConsumer`
-		// — the node DID configured in the global ContextIdStore mock. The
+		// - the node DID configured in the global ContextIdStore mock. The
 		// production scenario has distinct node DIDs per side; the test
 		// validates the lifecycle, not the cryptographic separation.
 		expect(consumerStore2[0].trustVerificationInfo).toEqual({
@@ -1086,7 +1087,7 @@ describe("PolicyNegotiationPointService", () => {
 		});
 
 		test("adds organization to the callback address regardless of tenant context", async () => {
-			// Does NOT call setupTenantContextIds() — verifies the organisation-id
+			// Does NOT call setupTenantContextIds() - verifies the organisation-id
 			// query parameter is added even when no tenant key is present in context.
 
 			let capturedCallbackAddress: string | undefined;
@@ -1263,8 +1264,8 @@ describe("PolicyNegotiationPointService", () => {
 
 		test("sends the agreement with the provider's organization in the callback address", async () => {
 			// Regression for the organization-identifiers refactor: the outbound
-			// ContractAgreementMessage's callbackAddress — which the consumer uses to send
-			// the verification BACK to the provider — must carry the PROVIDER's
+			// ContractAgreementMessage's callbackAddress - which the consumer uses to send
+			// the verification BACK to the provider - must carry the PROVIDER's
 			// organization id (the routing token), not the consumer's
 			// (trustVerificationInfo.identity). Both sides share the same mocked context in
 			// this suite, so the provider record's organization is flipped to the provider
@@ -1364,7 +1365,7 @@ describe("PolicyNegotiationPointService", () => {
 			expect(final[0].state).toBe(DataspaceProtocolContractNegotiationStateType.TERMINATED);
 		});
 
-		test("terminateIfResponseError does not resurrect record deleted before it runs — issue #162", async () => {
+		test("terminateIfResponseError does not resurrect record deleted before it runs", async () => {
 			// Scenario: admin DELETE lands during the peer HTTP round-trip (the async gap
 			// between the provider dispatching the offer and receiving the error back).
 			// By the time terminateIfResponseError runs, the record is already gone.
@@ -1372,7 +1373,7 @@ describe("PolicyNegotiationPointService", () => {
 			//
 			// sendOfferToConsumer call sequence on the provider:
 			//   checkNegotiationInState (state = REQUESTED → pass)
-			//   set() — advance state to OFFERED
+			//   set() - advance state to OFFERED
 			//   offerFromProvider round-trip:
 			//     → DELETE fires inside fake consumer callback
 			//     → returns ContractNegotiationError
@@ -1451,12 +1452,12 @@ describe("PolicyNegotiationPointService", () => {
 			await new Promise(resolve => setTimeout(resolve, 300));
 
 			// setIfExists() detected the record was gone and returned false.
-			// The admin DELETE was respected — no upsert happened.
+			// The admin DELETE was respected - no upsert happened.
 			const store = await policyNegotiationProviderMemoryEntityStorage.getStore();
 			expect(store).toHaveLength(0);
 		});
 
-		test("known limitation: setIfExists() is non-atomic across nodes (TOCTOU) — DELETE between get() and set() can still resurrect", async () => {
+		test("known limitation: setIfExists() is non-atomic across nodes (TOCTOU) - DELETE between get() and set() can still resurrect", async () => {
 			// Documents the residual race window that setIfExists() does NOT eliminate across nodes.
 			//
 			// The guard is a best-effort check-then-act (get → set). A DELETE that lands
@@ -1469,8 +1470,7 @@ describe("PolicyNegotiationPointService", () => {
 			// pre-deletion snapshot, simulating a DB read-then-delete overlap.
 			//
 			// The assertion toHaveLength(1) is INTENTIONAL — it documents the known limitation.
-			// To truly close this race, a storage-layer atomic conditional write is needed
-			// (Option A from the issue #162 plan: UPDATE ... WHERE id = ? that no-ops if deleted).
+			// To truly close this race, a storage-layer atomic conditional write is needed.
 
 			const { provider } = buildServices();
 			PolicyRequesterFactory.register("requester-toctou-1", () => mockPolicyRequester);
@@ -1520,8 +1520,8 @@ describe("PolicyNegotiationPointService", () => {
 			};
 
 			// Inject the TOCTOU race: intercept negotiationProviderAdminPointComponent.get()
-			// Call #1 — checkNegotiationInState: pass through unchanged.
-			// Call #2 — get() inside setIfExists() (terminateIfResponseError path):
+			// Call #1 - checkNegotiationInState: pass through unchanged.
+			// Call #2 - get() inside setIfExists() (terminateIfResponseError path):
 			//   return the record (simulates DB read seeing the record before DELETE lands)
 			//   then delete it from storage (simulates DELETE completing after the read)
 			//   → setIfExists() proceeds to set() → entity storage UPSERT resurrection.
@@ -1562,7 +1562,7 @@ describe("PolicyNegotiationPointService", () => {
 			// The in-process Mutex (from @twin.org/core) serialises remove() and setIfExists()
 			// when both go through the service. It does NOT protect against a DELETE that
 			// arrives at the database layer from outside the process (different node, different
-			// DB connection, or a direct storage call — as simulated here by the mock).
+			// DB connection, or a direct storage call - as simulated here by the mock).
 			// In that scenario: get() sees the record → DELETE lands at DB level → set() upserts.
 			// Closing this fully requires a storage-layer atomic write (Option A from the plan:
 			// UPDATE ... WHERE id = ? that no-ops if the row was already deleted).
@@ -1571,9 +1571,151 @@ describe("PolicyNegotiationPointService", () => {
 			expect(toctouStore[0].state).toBe(DataspaceProtocolContractNegotiationStateType.TERMINATED);
 			expect(toctouStore[0].code).toBe("consumer.rejectedOffer");
 		});
+
+		// -------------------------------------------------------------------------
+		// Unrecognized (non-state-guard) failures in async send methods.
+		//
+		// The three tests above cover the errors isStateGuardError() DOES recognize
+		// (NotFoundError / invalidState), which are absorbed silently. These cover an
+		// error it does NOT recognize: the outbound callback delivery itself failing.
+		// An unreachable callbackAddress is a transport problem, not a negotiation
+		// problem; it is logged as a warning and must not terminate the negotiation.
+		// A pre-delivery failure (e.g. trust generation) is a different matter and
+		// must still terminate — see the last test in this group.
+		//
+		// Originally reproduced the flaky twin-node endpoints.spec.ts failure ("consumer
+		// counter-request" seeing state TERMINATED): its fixture supplies
+		// callbackAddress http://127.0.0.1:19999/callback, which nothing listens on.
+		// -------------------------------------------------------------------------
+
+		// Origin the buildServices() resolver does not know, so the outbound callback
+		// throws TypeError("Unknown remote url ...") — a deterministic stand-in for the
+		// connection-refused a real unreachable callback address produces.
+		const unreachableOrigin = "http://localhost:19999";
+
+		test("callback delivery failure does not terminate an otherwise-valid negotiation", async () => {
+			const { consumer } = buildServices();
+			PolicyRequesterFactory.register("requester-cb-fail", () => mockPolicyRequester);
+			await adminPointComponent.create(mockOffer);
+			PolicyNegotiatorFactory.register("MockPolicyNegotiator", () => mockNegotiator);
+
+			// Everything about this negotiation is valid: the offer exists, the negotiator
+			// accepts it, and the provider replied REQUESTED. Only the consumer's callback
+			// address is unreachable.
+			await consumer.sendRequestToProvider(
+				providerOrigin,
+				"requester-cb-fail",
+				"urn:policy:offer-1",
+				unreachableOrigin
+			);
+
+			// Let the scheduled sendOfferToConsumer (setTimeout 100) run to completion.
+			await new Promise(resolve => setTimeout(resolve, 300));
+
+			const stored = await policyNegotiationProviderMemoryEntityStorage.getStore();
+			expect(stored).toHaveLength(1);
+
+			// An undeliverable notification is a transport problem, not a negotiation
+			// problem. Per the service's own comments a consumer with no callbackAddress
+			// simply polls GET /negotiations/admin/:id, so a callback that cannot be
+			// delivered leaves the negotiation readable at OFFERED rather than terminating it.
+			expect(stored[0].state).toBe(DataspaceProtocolContractNegotiationStateType.OFFERED);
+		});
+
+		test("counter-request after a failed callback delivery is accepted", async () => {
+			const { provider, consumer } = buildServices();
+			PolicyRequesterFactory.register("requester-cb-race", () => mockPolicyRequester);
+			await adminPointComponent.create(mockOffer);
+			PolicyNegotiatorFactory.register("MockPolicyNegotiator", () => mockNegotiator);
+
+			await consumer.sendRequestToProvider(
+				providerOrigin,
+				"requester-cb-race",
+				"urn:policy:offer-1",
+				unreachableOrigin
+			);
+
+			const [initial] = await policyNegotiationProviderMemoryEntityStorage.getStore();
+			const providerPid = initial.id;
+			const consumerPid = initial.correlationId;
+
+			// Deliberately lose the race the twin-node test loses intermittently: wait for the
+			// background job to finish before sending the counter-request. In twin-node this
+			// ordering is left to wall-clock chance, which is why it fails only sometimes.
+			await new Promise(resolve => setTimeout(resolve, 300));
+
+			const result = await provider.requestFromConsumer(
+				{
+					"@context": [DataspaceProtocolContexts.Context],
+					"@type": DataspaceProtocolContractNegotiationTypes.ContractRequestMessage,
+					providerPid,
+					consumerPid,
+					offer: mockOffer
+				},
+				`token:${testIdentityConsumer}`
+			);
+
+			// The counter-request is accepted: nothing the consumer did was invalid, only an
+			// unrelated outbound notification failed, which does not terminate the negotiation
+			// (see the previous test) and so does not block a subsequent ContractRequestMessage.
+			expect(result["@type"]).toBe(DataspaceProtocolContractNegotiationTypes.ContractNegotiation);
+		});
+
+		test("negotiation survives when callback delivery succeeds (control)", async () => {
+			const { consumer } = buildServices();
+			PolicyRequesterFactory.register("requester-cb-ok", () => mockPolicyRequester);
+			await adminPointComponent.create(mockOffer);
+			PolicyNegotiatorFactory.register("MockPolicyNegotiator", () => mockNegotiator);
+
+			// Identical to the first test except the callback origin is one the resolver knows,
+			// so delivery succeeds. A successful, reachable round-trip keeps cascading past
+			// OFFERED (the accepted offer schedules its own event back to the provider, and so
+			// on), so the only stable assertion here is that it never lands on TERMINATED —
+			// isolating delivery success as the difference from the failure case above.
+			await consumer.sendRequestToProvider(
+				providerOrigin,
+				"requester-cb-ok",
+				"urn:policy:offer-1",
+				consumerOrigin
+			);
+
+			await new Promise(resolve => setTimeout(resolve, 300));
+
+			const stored = await policyNegotiationProviderMemoryEntityStorage.getStore();
+			expect(stored).toHaveLength(1);
+			expect(stored[0].state).not.toBe(DataspaceProtocolContractNegotiationStateType.TERMINATED);
+		});
+
+		test("pre-delivery failure (e.g. trust generation) still terminates the negotiation", async () => {
+			const { consumer } = buildServices();
+			PolicyRequesterFactory.register("requester-pre-delivery-fail", () => mockPolicyRequester);
+			await adminPointComponent.create(mockOffer);
+			PolicyNegotiatorFactory.register("MockPolicyNegotiator", () => mockNegotiator);
+
+			// First call: the consumer's own outbound request — succeeds normally, as usual.
+			// Second call: sendOfferToConsumer's own trust payload, generated before any
+			// delivery is attempted — fails. Unlike the delivery-only failures above, this
+			// must still terminate the negotiation via setErrorState.
+			vi.spyOn(mockTrustComponent, "generate")
+				.mockResolvedValueOnce(`token:${testIdentityConsumer}`)
+				.mockRejectedValueOnce(new Error("vault unavailable"));
+
+			await consumer.sendRequestToProvider(
+				providerOrigin,
+				"requester-pre-delivery-fail",
+				"urn:policy:offer-1",
+				consumerOrigin // reachable — delivery itself is never reached in this test
+			);
+
+			await new Promise(resolve => setTimeout(resolve, 300));
+
+			const stored = await policyNegotiationProviderMemoryEntityStorage.getStore();
+			expect(stored).toHaveLength(1);
+			expect(stored[0].state).toBe(DataspaceProtocolContractNegotiationStateType.TERMINATED);
+		});
 	});
 
-	describe("callbackAddress is optional per DSP spec (issue #130)", () => {
+	describe("callbackAddress is optional per DSP spec", () => {
 		test("requestFromConsumer accepts a ContractRequestMessage with no callbackAddress", async () => {
 			PolicyNegotiatorFactory.register("MockPolicyNegotiator", () => mockNegotiator);
 			await adminPointComponent.create(mockOffer);
@@ -1591,7 +1733,7 @@ describe("PolicyNegotiationPointService", () => {
 					"@type": DataspaceProtocolContractNegotiationTypes.ContractRequestMessage,
 					consumerPid: "urn:contract-negotiation:no-cb-consumer-pid",
 					offer: mockOffer
-					// callbackAddress intentionally omitted — must be accepted per DSP spec
+					// callbackAddress intentionally omitted - must be accepted per DSP spec
 				},
 				`token:${testIdentityConsumer}`
 			);
@@ -1674,7 +1816,7 @@ describe("PolicyNegotiationPointService", () => {
 						assigner: testIdentityProvider,
 						assignee: testIdentityConsumer
 					}
-					// callbackAddress intentionally omitted — must be accepted per DSP spec
+					// callbackAddress intentionally omitted - must be accepted per DSP spec
 				},
 				`token:${testIdentityProvider}`
 			);
@@ -1709,7 +1851,7 @@ describe("PolicyNegotiationPointService", () => {
 				dateCreated: new Date(Date.now()).toISOString(),
 				offer: mockOffer,
 				state: DataspaceProtocolContractNegotiationStateType.OFFERED,
-				// callbackAddress intentionally absent — polling mode
+				// callbackAddress intentionally absent - polling mode
 				organizationIdentity: testIdentityProvider,
 				trustVerificationInfo: { identity: testIdentityConsumer },
 				handlerId: "MockPolicyNegotiator"
@@ -1758,7 +1900,7 @@ describe("PolicyNegotiationPointService", () => {
 				dateCreated: new Date(Date.now()).toISOString(),
 				offer: mockOffer,
 				state: DataspaceProtocolContractNegotiationStateType.ACCEPTED,
-				// callbackAddress intentionally absent — polling mode
+				// callbackAddress intentionally absent - polling mode
 				organizationIdentity: testIdentityConsumer,
 				trustVerificationInfo: { identity: testIdentityProvider }
 			});
@@ -2004,13 +2146,13 @@ describe("PolicyNegotiationPointService", () => {
 
 			createSpy.mockRestore();
 
-			// setErrorState was called — an error response is returned
+			// setErrorState was called - an error response is returned
 			expect(result).toBeDefined();
 
-			// terminated() fires promptly — requester receives the failure signal
+			// terminated() fires promptly - requester receives the failure signal
 			expect(mockPolicyRequester.terminated).toHaveBeenCalledWith("consumer-pid-176-fail");
 
-			// finalised() is NOT called — the early return prevents the happy-path callback
+			// finalised() is NOT called - the early return prevents the happy-path callback
 			expect(mockPolicyRequester.finalised).not.toHaveBeenCalled();
 
 			// The agreement was never written to the PAP
@@ -2019,7 +2161,7 @@ describe("PolicyNegotiationPointService", () => {
 			).rejects.toThrow();
 		});
 
-		test("event(FINALIZED) PAP failure: terminated() is called exactly once for the negotiation — no double-callback from the outer catch", async () => {
+		test("event(FINALIZED) PAP failure: terminated() is called exactly once for the negotiation - no double-callback from the outer catch", async () => {
 			PolicyRequesterFactory.register("requester-2", () => mockPolicyRequester);
 
 			const consumer = new PolicyNegotiationPointService({
@@ -2141,7 +2283,7 @@ describe("PolicyNegotiationPointService", () => {
 				offer: mockOffer,
 				state: DataspaceProtocolContractNegotiationStateType.OFFERED,
 				organizationIdentity: testIdentityProvider,
-				// No tenantId — single-tenant / no tid claim.
+				// No tenantId - single-tenant / no tid claim.
 				trustVerificationInfo: { identity: testIdentityConsumer },
 				handlerId: "MockPolicyNegotiator"
 			});
@@ -3125,7 +3267,7 @@ describe("PolicyNegotiationPointService", () => {
 					"@type": DataspaceProtocolContractNegotiationTypes.ContractRequestMessage,
 					consumerPid: "urn:contract-negotiation:no-cb-direct-agreement",
 					offer: mockOffer
-					// callbackAddress intentionally omitted — must be accepted per DSP spec
+					// callbackAddress intentionally omitted - must be accepted per DSP spec
 				},
 				`token:${testIdentityConsumer}`
 			);
@@ -3198,6 +3340,98 @@ describe("PolicyNegotiationPointService", () => {
 			// The existing (unmodified) "event(FINALIZED) fails loudly ... offer id" test proves
 			// the agreementOfferIdCollision guard itself works correctly once this field is
 			// populated - the two tests together cover Finding 6 end-to-end.
+		});
+
+		test("does not create a duplicate agreement when the same offer is negotiated twice by the same parties", async () => {
+			// Regression for issue #286: without the provider-side duplicate guard,
+			// each call to requestFromConsumer mints a fresh agreement, leaving two
+			// distinct entries in the PAP for the same {assigner, assignee, target}.
+			const providerPoints: { [id: string]: PolicyNegotiationPointService } = {};
+
+			const policyNegotiationConsumerPoint = new PolicyNegotiationPointService({
+				policyNegotiationAdministrationPointComponentType:
+					"policy-negotiation-consumer-admin-point",
+				policyNegotiationPointRemoteComponentType: "pnp-remote",
+				config: { callbackPath: "/callback" }
+			});
+			const policyNegotiationProviderPoint = new PolicyNegotiationPointService({
+				policyNegotiationAdministrationPointComponentType:
+					"policy-negotiation-provider-admin-point",
+				policyNegotiationPointRemoteComponentType: "pnp-remote",
+				config: { callbackPath: "/callback" }
+			});
+			providerPoints.provider = policyNegotiationProviderPoint;
+			providerPoints.consumer = policyNegotiationConsumerPoint;
+			remoteComponentResolver = (params: { endpoint: string }) => {
+				if (params.endpoint.startsWith(providerOrigin)) {
+					return createRemoteComponent(providerPoints.provider, providerOrigin);
+				}
+				if (params.endpoint.startsWith(consumerOrigin)) {
+					return createRemoteComponent(providerPoints.consumer, consumerOrigin);
+				}
+				throw new TypeError(`Unknown remote url ${params.endpoint}`);
+			};
+
+			PolicyRequesterFactory.register("requester-dedup", () => mockPolicyRequester);
+			await adminPointComponent.create(mockOffer);
+
+			// Mint a unique agreement id per call so that without the fix both lifecycles
+			// produce distinct PAP entries and the duplicate becomes visible.
+			let agreementCounter = 0;
+			mockNegotiator.createAgreement = vi.fn(
+				async (offer: IDataspaceProtocolOffer, assignee: string) => ({
+					"@context": OdrlContexts.Context,
+					"@type": OdrlTypes.Agreement,
+					"@id": `urn:policy:agreement-dedup-${++agreementCounter}`,
+					assigner: testIdentityProvider,
+					assignee
+				})
+			);
+			mockNegotiator.handleOffer = vi.fn(async () => ({
+				accepted: true,
+				interventionRequired: false,
+				directAgreement: true
+			}));
+			PolicyNegotiatorFactory.register("MockPolicyNegotiator", () => mockNegotiator);
+
+			// First full lifecycle.
+			await policyNegotiationConsumerPoint.sendRequestToProvider(
+				providerOrigin,
+				"requester-dedup",
+				"urn:policy:offer-1",
+				consumerOrigin
+			);
+			await waitForState(policyNegotiationConsumerMemoryEntityStorage, "FINALIZED", "consumer");
+
+			// Second full lifecycle — identical offer, identical parties.
+			await policyNegotiationConsumerPoint.sendRequestToProvider(
+				providerOrigin,
+				"requester-dedup",
+				"urn:policy:offer-1",
+				consumerOrigin
+			);
+
+			// Wait for the second consumer negotiation to reach FINALIZED.
+			for (let i = 0; i < 60; i++) {
+				const store = await policyNegotiationConsumerMemoryEntityStorage.getStore();
+				if (store.length >= 2 && store[1].state === "FINALIZED") {
+					break;
+				}
+				await new Promise(resolve => setTimeout(resolve, 100));
+			}
+			const finalConsumerStore = await policyNegotiationConsumerMemoryEntityStorage.getStore();
+			expect(finalConsumerStore).toHaveLength(2);
+			expect(finalConsumerStore[1].state).toBe(
+				DataspaceProtocolContractNegotiationStateType.FINALIZED
+			);
+
+			// The PAP must hold exactly one agreement — the second run reused the existing one.
+			const { policies } = await adminPointComponent.query({ assigner: testIdentityProvider });
+			const agreements = policies.filter(p => OdrlPolicyHelper.getType(p) === OdrlTypes.Agreement);
+			expect(agreements).toHaveLength(1);
+
+			// createAgreement was only called once; the second run did not mint a new agreement.
+			expect(mockNegotiator.createAgreement).toHaveBeenCalledTimes(1);
 		});
 	});
 });

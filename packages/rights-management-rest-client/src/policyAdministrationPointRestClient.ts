@@ -215,6 +215,7 @@ export class PolicyAdministrationPointRestClient
 	 * @param conditions The conditions to use for the query.
 	 * @param cursor The cursor to use for pagination.
 	 * @param limit The number of results to return per page.
+	 * @param properties Optional list of policy property names to include in the response, the policy "@id" is always included.
 	 * @returns Cursor for next page of results and the policies matching the query.
 	 */
 	public async query(
@@ -226,7 +227,8 @@ export class PolicyAdministrationPointRestClient
 		},
 		conditions?: EntityCondition<IRightsManagementPolicy>,
 		cursor?: string,
-		limit?: number
+		limit?: number,
+		properties?: (keyof IRightsManagementPolicy)[]
 	): Promise<{
 		cursor?: string;
 		policies: IRightsManagementPolicy[];
@@ -242,7 +244,8 @@ export class PolicyAdministrationPointRestClient
 					action: options?.action,
 					cursor,
 					conditions: HttpParameterHelper.objectToString(conditions),
-					limit: Coerce.string(limit)
+					limit: Coerce.string(limit),
+					properties: HttpParameterHelper.arrayToString(properties)
 				}
 			}
 		);

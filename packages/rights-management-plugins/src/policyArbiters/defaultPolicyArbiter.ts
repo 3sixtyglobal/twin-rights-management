@@ -167,7 +167,7 @@ export class DefaultPolicyArbiter implements IPolicyArbiter {
 		// rejecting valid policies authored by IRI-aware tooling.
 		//
 		// `every` (conjunction) is intentional: a policy declaring ["TWIN", "unknown"] is
-		// rejected — the arbiter refuses to evaluate rules from a profile whose semantics it
+		// rejected - the arbiter refuses to evaluate rules from a profile whose semantics it
 		// does not understand, even if other declared profiles are known.
 		const declaredProfiles = ArrayHelper.fromObjectOrArray<string>(agreement.profile ?? [])
 			.filter(p => Is.stringValue(p))
@@ -1040,7 +1040,7 @@ export class DefaultPolicyArbiter implements IPolicyArbiter {
 		requestedActionId: string,
 		dataSources: { [source: string]: unknown }
 	): boolean {
-		// Extract the rule action ID — support both @id and rdf:value forms
+		// Extract the rule action ID - support both @id and rdf:value forms
 		let ruleActionId: string | undefined;
 		if (Is.string(ruleAction)) {
 			ruleActionId = ruleAction;
@@ -1763,7 +1763,7 @@ export class DefaultPolicyArbiter implements IPolicyArbiter {
 		// JSONPath expression to scope to the per-item target, then re-assemble. Without
 		// this, the leftOperand stays at the wildcard
 		// `$.itemList.itemListElement[*].unloadingLocation.id` for every item, returning
-		// the full array of all ids per check — so all items pass the equality test.
+		// the full array of all ids per check - so all items pass the equality test.
 		if (
 			Is.stringValue(operand) &&
 			operand.startsWith(`twin:${OdrlTwinVocabulary.InformationSourceKey}:`)
@@ -1828,7 +1828,7 @@ export class DefaultPolicyArbiter implements IPolicyArbiter {
 		// Must be a regular constraint beyond this point
 		const regularConstraint = constraint as IOdrlConstraint;
 
-		// rightOperandReference is not supported — it requires an external IRI lookup that
+		// rightOperandReference is not supported - it requires an external IRI lookup that
 		// is outside the scope of the local evaluation engine.
 		if (Is.notEmpty(regularConstraint.rightOperandReference)) {
 			throw new GeneralError(DefaultPolicyArbiter.CLASS_NAME, "rightOperandReferenceNotSupported");
@@ -2301,9 +2301,7 @@ export class DefaultPolicyArbiter implements IPolicyArbiter {
 			case OdrlOperatorType.IsAnyOf: {
 				return leftValues.some(v => {
 					const stringValue =
-						typeof v === "string" || typeof v === "number" || typeof v === "boolean"
-							? String(v)
-							: JSON.stringify(v);
+						Is.string(v) || Is.number(v) || Is.boolean(v) ? String(v) : JSON.stringify(v);
 					return (ArrayHelper.fromObjectOrArray(right) ?? []).includes(stringValue);
 				});
 			}

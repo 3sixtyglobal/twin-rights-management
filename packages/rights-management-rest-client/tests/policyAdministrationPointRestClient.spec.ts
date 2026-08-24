@@ -327,6 +327,15 @@ describe("PolicyAdministrationPointRestClient", () => {
 			expect(url).toContain("limit=10");
 		});
 
+		test("includes properties query parameter as comma-separated list when provided", async () => {
+			fetchMock.mockResolvedValueOnce(jsonResponse([TEST_POLICY]));
+
+			await client.query(undefined, undefined, undefined, undefined, ["@id", "@type"]);
+
+			const [url] = fetchMock.mock.calls[0];
+			expect(url).toContain("properties=");
+		});
+
 		test("returns policies array", async () => {
 			fetchMock.mockResolvedValueOnce(jsonResponse([TEST_POLICY]));
 
