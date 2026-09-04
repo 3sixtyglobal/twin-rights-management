@@ -238,7 +238,7 @@ A promise that resolves when the policy has been removed.
 
 ### query() {#query}
 
-> **query**(`locator?`, `conditions?`, `cursor?`, `limit?`, `properties?`): `Promise`\<\{ `cursor?`: `string`; `policies`: `IRightsManagementPolicy`[]; \}\>
+> **query**(`locator?`, `conditions?`, `cursor?`, `limit?`, `properties?`, `orderBy?`, `orderByDirection?`): `Promise`\<\{ `cursor?`: `string`; `policies`: `IRightsManagementPolicy`[]; \}\>
 
 Query the entity storage for policies.
 
@@ -273,6 +273,18 @@ The number of results to return per page.
 keyof `IRightsManagementPolicy`[]
 
 Optional list of policy property names to include in the response, the policy "@id" is always included.
+
+##### orderBy?
+
+keyof IRightsManagementPolicy
+
+The policy property to order the results by.
+
+##### orderByDirection?
+
+`SortDirection`
+
+The direction for the order, defaults to descending.
 
 #### Returns
 

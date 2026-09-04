@@ -241,7 +241,7 @@
 						"in": "query",
 						"required": false,
 						"schema": {
-							"$ref": "#/components/schemas/SortDirection"
+							"type": "string"
 						}
 					}
 				],
@@ -2768,19 +2768,6 @@
 					"dateCreated",
 					"state",
 					"organizationIdentity"
-				]
-			},
-			"SortDirection": {
-				"description": "The sort directions.",
-				"anyOf": [
-					{
-						"const": "asc",
-						"description": "Ascending."
-					},
-					{
-						"const": "desc",
-						"description": "Descending."
-					}
 				]
 			},
 			"TrustVerificationInfo": {
