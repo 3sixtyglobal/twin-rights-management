@@ -76,10 +76,10 @@ export class PolicyNegotiationAdminPointService implements IPolicyNegotiationAdm
 	private readonly _mutexTimeoutMs?: number;
 
 	/**
-	 * Optional PNP component type for sending terminate to consumer callbacks during expired cleanup.
+	 * PNP component type for sending terminate to consumer callbacks during expired cleanup.
 	 * @internal
 	 */
-	private readonly _policyNegotiationPointComponentType?: string;
+	private readonly _policyNegotiationPointComponentType: string;
 
 	/**
 	 * The platform component.
@@ -105,7 +105,8 @@ export class PolicyNegotiationAdminPointService implements IPolicyNegotiationAdm
 			60 *
 			1000;
 		this._mutexTimeoutMs = Coerce.integer(options?.config?.mutexTimeoutMs);
-		this._policyNegotiationPointComponentType = options?.policyNegotiationPointComponentType;
+		this._policyNegotiationPointComponentType =
+			options?.policyNegotiationPointComponentType ?? "policy-negotiation-point";
 		this._platformComponent = ComponentFactory.get<IPlatformComponent>(
 			options?.platformComponentType ?? "platform"
 		);
@@ -299,7 +300,7 @@ export class PolicyNegotiationAdminPointService implements IPolicyNegotiationAdm
 
 	/**
 	 * Cleans up old negotiation states for a specific partition (tenant).
-	 * Sends terminate to consumer callbacks when PNP component is configured, then removes.
+	 * Sends terminate to the consumer callback, then removes.
 	 * @returns A promise that resolves when all expired negotiations have been cleaned up.
 	 * @internal
 	 */
@@ -308,7 +309,7 @@ export class PolicyNegotiationAdminPointService implements IPolicyNegotiationAdm
 			let cursor: string | undefined;
 			const now = Date.now();
 
-			const pnpComponent = ComponentFactory.getIfExists<IPolicyNegotiationPointComponent>(
+			const pnpComponent = ComponentFactory.get<IPolicyNegotiationPointComponent>(
 				this._policyNegotiationPointComponentType
 			);
 
@@ -328,37 +329,33 @@ export class PolicyNegotiationAdminPointService implements IPolicyNegotiationAdm
 					],
 					logicalOperator: LogicalOperator.And
 				});
-				if (Is.arrayValue(result.entities)) {
-					for (const item of result.entities as PolicyNegotiation[]) {
-						if (Is.stringValue(item.id)) {
-							if (!Is.empty(pnpComponent) && Is.stringValue(item.callbackAddress)) {
-								try {
-									await pnpComponent.sendTerminateToConsumer(
-										item.callbackAddress,
-										item.id,
-										item.correlationId
-									);
-								} catch (error) {
-									await this._logging?.log({
-										level: "warn",
-										source: PolicyNegotiationAdminPointService.CLASS_NAME,
-										ts: Date.now(),
-										message: "sendTerminateFailed",
-										data: {
-											id: item.id,
-											correlationId: item.correlationId
-										},
-										error: BaseError.fromError(error)
-									});
-								}
+				for (const item of result.entities as PolicyNegotiation[]) {
+					if (Is.stringValue(item.id)) {
+						if (Is.stringValue(item.callbackAddress)) {
+							try {
+								await pnpComponent.sendTerminateToConsumer(
+									item.callbackAddress,
+									item.id,
+									item.correlationId
+								);
+							} catch (error) {
+								await this._logging?.log({
+									level: "warn",
+									source: PolicyNegotiationAdminPointService.CLASS_NAME,
+									ts: Date.now(),
+									message: "sendTerminateFailed",
+									data: {
+										id: item.id,
+										correlationId: item.correlationId
+									},
+									error: BaseError.fromError(error)
+								});
 							}
-							await this._policyNegotiationEntityStorage.remove(item.id);
 						}
+						await this._policyNegotiationEntityStorage.remove(item.id);
 					}
-					cursor = result.cursor;
-				} else {
-					cursor = undefined;
 				}
+				cursor = result.cursor;
 			} while (Is.stringValue(cursor));
 		} catch (error) {
 			await this._logging?.log({

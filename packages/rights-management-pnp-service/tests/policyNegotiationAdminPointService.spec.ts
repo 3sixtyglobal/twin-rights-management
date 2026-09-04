@@ -18,6 +18,7 @@ import {
 import { LoggingConnectorFactory } from "@twin.org/logging-models";
 import { LoggingService } from "@twin.org/logging-service";
 import { nameof } from "@twin.org/nameof";
+import type { IPolicyNegotiationPointComponent } from "@twin.org/rights-management-models";
 import { DataspaceProtocolContractNegotiationStateType } from "@twin.org/standards-dataspace-protocol";
 import type { PolicyNegotiation } from "../src/entities/policyNegotiation.js";
 import { PolicyNegotiationAdminPointService } from "../src/policyNegotiationAdminPointService.js";
@@ -26,6 +27,7 @@ import { initSchema } from "../src/schema.js";
 let loggingMemoryEntityStorage: MemoryEntityStorageConnector<LogEntry>;
 let policyNegotiationMemoryEntityStorage: MemoryEntityStorageConnector<PolicyNegotiation>;
 let taskSchedulerComponent: TaskSchedulerService;
+let sendTerminateToConsumerSpy: Mock;
 
 describe("PolicyNegotiationAdminPointService", () => {
 	afterEach(async () => {
@@ -79,6 +81,16 @@ describe("PolicyNegotiationAdminPointService", () => {
 			execute: async (method: () => Promise<void>) => method(),
 			getLocalOriginContext: async () => undefined
 		}));
+
+		sendTerminateToConsumerSpy = vi.fn().mockResolvedValue(undefined);
+		ComponentFactory.register(
+			"policy-negotiation-point",
+			() =>
+				({
+					className: () => "MockPolicyNegotiationPointComponent",
+					sendTerminateToConsumer: sendTerminateToConsumerSpy
+				}) as unknown as IPolicyNegotiationPointComponent
+		);
 	});
 
 	test("can create the service", async () => {
@@ -238,6 +250,41 @@ describe("PolicyNegotiationAdminPointService", () => {
 		const manualResult = await service.get("manual-pid");
 		expect(manualResult).toBeDefined();
 		expect(manualResult.state).toBe(DataspaceProtocolContractNegotiationStateType.REQUESTED);
+	});
+
+	test("expired cleanup sends terminate to the consumer callback before removal", async () => {
+		const service = new PolicyNegotiationAdminPointService({
+			config: { negotiationStateTtlMinutes: 1440 }
+		});
+
+		const now = Date.now();
+		const msInDay = 1440 * 60 * 1000;
+
+		Date.now = vi.fn().mockImplementation(() => now - msInDay - 60000);
+		const expired: PolicyNegotiation = {
+			id: "expired-pid",
+			correlationId: "expired-cid",
+			dateCreated: new Date().toISOString(),
+			state: DataspaceProtocolContractNegotiationStateType.REQUESTED,
+			callbackAddress: "https://consumer.example.com/callback",
+			organizationIdentity: "identity",
+			trustVerificationInfo: { identity: "identity" }
+		};
+		await service.set(expired);
+
+		Date.now = vi.fn().mockImplementation(() => now + msInDay);
+		await (
+			service as unknown as { cleanupOldStatesPartition(): Promise<void> }
+		).cleanupOldStatesPartition();
+
+		expect(sendTerminateToConsumerSpy).toHaveBeenCalledWith(
+			"https://consumer.example.com/callback",
+			"expired-pid",
+			"expired-cid"
+		);
+		await expect(service.get("expired-pid")).rejects.toMatchObject({
+			name: expect.stringMatching("NotFoundError")
+		});
 	});
 
 	test("partitioned cleanup iterates tenants via per tenant execution", async () => {
