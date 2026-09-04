@@ -1,6 +1,7 @@
 // Copyright 2026 IOTA Stiftung.
 // SPDX-License-Identifier: Apache-2.0.
 import { GuardError } from "@twin.org/core";
+import { SortDirection } from "@twin.org/entity";
 import type {
 	IRightsManagementAgreement,
 	IRightsManagementOffer,
@@ -334,6 +335,24 @@ describe("PolicyAdministrationPointRestClient", () => {
 
 			const [url] = fetchMock.mock.calls[0];
 			expect(url).toContain("properties=");
+		});
+
+		test("includes orderBy and orderByDirection query parameters when provided", async () => {
+			fetchMock.mockResolvedValueOnce(jsonResponse([TEST_POLICY]));
+
+			await client.query(
+				undefined,
+				undefined,
+				undefined,
+				undefined,
+				undefined,
+				"dateCreated",
+				SortDirection.Ascending
+			);
+
+			const [url] = fetchMock.mock.calls[0];
+			expect(url).toContain("orderBy=dateCreated");
+			expect(url).toContain(`orderByDirection=${SortDirection.Ascending}`);
 		});
 
 		test("returns policies array", async () => {

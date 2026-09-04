@@ -4,7 +4,7 @@ import { existsSync } from "node:fs";
 import { rm } from "node:fs/promises";
 import { ArrayHelper, Is, ObjectHelper } from "@twin.org/core";
 import type { IJsonLdNodeObject, JsonLdObjectWithOptionalAtId } from "@twin.org/data-json-ld";
-import type { EntityCondition } from "@twin.org/entity";
+import { SortDirection, type EntityCondition } from "@twin.org/entity";
 import type { MemoryEntityStorageConnector } from "@twin.org/entity-storage-connector-memory";
 import type { IRightsManagementPolicy } from "@twin.org/rights-management-models";
 import type { IDataspaceProtocolPolicy } from "@twin.org/standards-dataspace-protocol";
@@ -267,6 +267,132 @@ describe("PolicyAdministrationPointService", () => {
 			expect(policy["@type"]).toBeUndefined();
 			expect(policy.permission).toBeUndefined();
 		}
+	});
+
+	test("should query policies ordered ascending by the requested property", async () => {
+		await createTestPolicies(policyAdminPoint);
+
+		const result = await policyAdminPoint.query(
+			undefined,
+			undefined,
+			undefined,
+			undefined,
+			undefined,
+			"@id",
+			SortDirection.Ascending
+		);
+
+		const ids = result.policies.map(policy => policy["@id"] ?? "");
+		expect(ids.length).toEqual(10);
+		expect(ids).toEqual([...ids].sort((a, b) => a.localeCompare(b)));
+	});
+
+	test("should query policies ordered descending by the requested property", async () => {
+		await createTestPolicies(policyAdminPoint);
+
+		const result = await policyAdminPoint.query(
+			undefined,
+			undefined,
+			undefined,
+			undefined,
+			undefined,
+			"@id",
+			SortDirection.Descending
+		);
+
+		const ids = result.policies.map(policy => policy["@id"] ?? "");
+		expect(ids.length).toEqual(10);
+		expect(ids).toEqual([...ids].sort((a, b) => b.localeCompare(a)));
+	});
+
+	test("should default to descending order when no direction is supplied", async () => {
+		await createTestPolicies(policyAdminPoint);
+
+		const defaultOrder = await policyAdminPoint.query(
+			undefined,
+			undefined,
+			undefined,
+			undefined,
+			undefined,
+			"@id"
+		);
+		const descendingOrder = await policyAdminPoint.query(
+			undefined,
+			undefined,
+			undefined,
+			undefined,
+			undefined,
+			"@id",
+			SortDirection.Descending
+		);
+
+		expect(defaultOrder.policies.map(policy => policy["@id"])).toEqual(
+			descendingOrder.policies.map(policy => policy["@id"])
+		);
+	});
+
+	test("should query policies ordered by a storage-shaped property name", async () => {
+		await createTestPolicies(policyAdminPoint);
+
+		const result = await policyAdminPoint.query(
+			undefined,
+			undefined,
+			undefined,
+			undefined,
+			undefined,
+			"id" as keyof IRightsManagementPolicy,
+			SortDirection.Ascending
+		);
+
+		const ids = result.policies.map(policy => policy["@id"] ?? "");
+		expect(ids.length).toEqual(10);
+		expect(ids).toEqual([...ids].sort((a, b) => a.localeCompare(b)));
+	});
+
+	test("should query policies ordered by the created date", async () => {
+		await createTestPolicies(policyAdminPoint);
+
+		const result = await policyAdminPoint.query(
+			undefined,
+			undefined,
+			undefined,
+			undefined,
+			undefined,
+			"dateCreated",
+			SortDirection.Ascending
+		);
+
+		expect(result.policies.length).toEqual(10);
+	});
+
+	test("should throw when ordering by a property which is not sortable", async () => {
+		await createTestPolicies(policyAdminPoint);
+
+		await expect(
+			policyAdminPoint.query(
+				undefined,
+				undefined,
+				undefined,
+				undefined,
+				undefined,
+				"permission",
+				SortDirection.Ascending
+			)
+		).rejects.toThrow();
+	});
+
+	test("should throw when the order direction is not a known sort direction", async () => {
+		await expect(
+			policyAdminPoint.query(
+				undefined,
+				undefined,
+				undefined,
+				undefined,
+				undefined,
+				"@id",
+				"sideways" as SortDirection
+			)
+		).rejects.toThrow();
 	});
 
 	test("should throw validation error when creating invalid policy", async () => {

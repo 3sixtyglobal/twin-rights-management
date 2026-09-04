@@ -225,6 +225,24 @@
 						"schema": {
 							"type": "string"
 						}
+					},
+					{
+						"name": "orderBy",
+						"description": "The policy property to order the results by.",
+						"in": "query",
+						"required": false,
+						"schema": {
+							"type": "string"
+						}
+					},
+					{
+						"name": "orderByDirection",
+						"description": "The direction for the order, defaults to descending.",
+						"in": "query",
+						"required": false,
+						"schema": {
+							"$ref": "#/components/schemas/SortDirection"
+						}
 					}
 				],
 				"security": [
@@ -2750,6 +2768,19 @@
 					"dateCreated",
 					"state",
 					"organizationIdentity"
+				]
+			},
+			"SortDirection": {
+				"description": "The sort directions.",
+				"anyOf": [
+					{
+						"const": "asc",
+						"description": "Ascending."
+					},
+					{
+						"const": "desc",
+						"description": "Descending."
+					}
 				]
 			},
 			"TrustVerificationInfo": {

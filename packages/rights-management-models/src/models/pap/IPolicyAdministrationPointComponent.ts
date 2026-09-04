@@ -2,7 +2,7 @@
 // SPDX-License-Identifier: Apache-2.0.
 import type { IComponent } from "@twin.org/core";
 import type { JsonLdObjectWithOptionalAtId } from "@twin.org/data-json-ld";
-import type { EntityCondition } from "@twin.org/entity";
+import type { EntityCondition, SortDirection } from "@twin.org/entity";
 import type { IRightsManagementAgreement } from "../IRightsManagementAgreement.js";
 import type { IRightsManagementOffer } from "../IRightsManagementOffer.js";
 import type { IRightsManagementPolicy } from "../IRightsManagementPolicy.js";
@@ -69,6 +69,8 @@ export interface IPolicyAdministrationPointComponent extends IComponent {
 	 * @param cursor The cursor to use for pagination.
 	 * @param limit The number of results to return per page.
 	 * @param properties Optional list of policy property names to include in the response, the policy "@id" is always included.
+	 * @param orderBy The policy property to order the results by.
+	 * @param orderByDirection The direction for the order, defaults to descending.
 	 * @returns Cursor for next page of results and the policies matching the query.
 	 */
 	query(
@@ -76,7 +78,9 @@ export interface IPolicyAdministrationPointComponent extends IComponent {
 		conditions?: EntityCondition<IRightsManagementPolicy>,
 		cursor?: string,
 		limit?: number,
-		properties?: (keyof IRightsManagementPolicy)[]
+		properties?: (keyof IRightsManagementPolicy)[],
+		orderBy?: keyof IRightsManagementPolicy,
+		orderByDirection?: SortDirection
 	): Promise<{
 		/**
 		 * The cursor for the next page of results.
