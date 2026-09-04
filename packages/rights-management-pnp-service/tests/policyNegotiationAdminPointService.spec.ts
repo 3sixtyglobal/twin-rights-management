@@ -20,6 +20,7 @@ import { LoggingService } from "@twin.org/logging-service";
 import { nameof } from "@twin.org/nameof";
 import type { IPolicyNegotiationPointComponent } from "@twin.org/rights-management-models";
 import { DataspaceProtocolContractNegotiationStateType } from "@twin.org/standards-dataspace-protocol";
+import type { Mock } from "vitest";
 import type { PolicyNegotiation } from "../src/entities/policyNegotiation.js";
 import { PolicyNegotiationAdminPointService } from "../src/policyNegotiationAdminPointService.js";
 import { initSchema } from "../src/schema.js";
