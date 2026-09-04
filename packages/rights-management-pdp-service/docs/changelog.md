@@ -1,5 +1,24 @@
 # Changelog
 
+## [0.9.3-next.2](https://github.com/iotaledger/twin-rights-management/compare/rights-management-pdp-service-v0.9.3-next.1...rights-management-pdp-service-v0.9.3-next.2) (2026-09-04)
+
+
+### Miscellaneous Chores
+
+* **rights-management-pdp-service:** Synchronize repo versions
+
+
+### Dependencies
+
+* The following workspace dependencies were updated
+  * dependencies
+    * @twin.org/rights-management-models bumped from 0.9.3-next.1 to 0.9.3-next.2
+  * devDependencies
+    * @twin.org/rights-management-pap-service bumped from 0.9.3-next.1 to 0.9.3-next.2
+    * @twin.org/rights-management-pip-service bumped from 0.9.3-next.1 to 0.9.3-next.2
+    * @twin.org/rights-management-pmp-service bumped from 0.9.3-next.1 to 0.9.3-next.2
+    * @twin.org/rights-management-pxp-service bumped from 0.9.3-next.1 to 0.9.3-next.2
+
 ## [0.9.3-next.1](https://github.com/iotaledger/twin-rights-management/compare/rights-management-pdp-service-v0.9.3-next.0...rights-management-pdp-service-v0.9.3-next.1) (2026-09-04)
 
 
