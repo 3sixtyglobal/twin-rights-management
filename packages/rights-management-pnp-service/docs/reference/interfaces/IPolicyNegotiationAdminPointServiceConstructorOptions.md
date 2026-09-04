@@ -58,13 +58,13 @@ policy-information-point
 
 > `optional` **policyNegotiationPointComponentType?**: `string`
 
-If set, stall cleanup will use this component to send terminate to consumer callbacks.
-If not set, stall cleanup will only mark negotiations as TERMINATED locally (no outbound notification).
+The type of the policy negotiation point component, used by stall cleanup to send
+terminate to consumer callbacks.
 
 #### Default
 
 ```ts
-undefined
+policy-negotiation-point
 ```
 
 ***
