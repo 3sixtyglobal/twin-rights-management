@@ -19,21 +19,19 @@
 			"agreementNotAccepted": "Agreement with id: \"{agreementId}\" was not accepted by the requester",
 			"noAgreementCreated": "No agreement was created for offer with id: \"{offerId}\"",
 			"providerInitiatedNotSupported": "Provider initiated negotiations are currently not supported as the consumer identity is required to be set as the trust identity in the negotiation",
-			"callerNotAuthorizedForNegotiation": "The caller's verified identity does not match any authorized party in this negotiation"
+			"callerNotAuthorizedForNegotiation": "The caller's verified identity does not match any authorized party in this negotiation",
+			"cleanupFailed": "Failed to cleanup old negotiations"
 		},
 		"policyNegotiationAdminPointService": {
 			"policyNotFound": "Contract negotiation with id: \"{notFoundId}\" not found",
-			"cleanupFailed": "Failed to cleanup old negotiations",
 			"negotiationAlreadyExists": "Contract negotiation with correlationId: \"{existingId}\" already exists"
 		}
 	},
 	"warn": {
-		"policyNegotiationAdminPointService": {
-			"sendTerminateFailed": "Failed to send terminate to consumer for negotiation id: \"{id}\", correlation id: \"{correlationId}\""
-		},
 		"policyNegotiationPointService": {
 			"terminatedCallbackFailed": "Failed to notify requester via terminated() for negotiation id: \"{negotiationId}\"",
-			"callbackDeliveryFailed": "Failed to deliver the negotiation callback to \"{callbackAddress}\" for negotiation id: \"{negotiationId}\" in state \"{state}\"; the negotiation is unchanged and remains discoverable by polling"
+			"callbackDeliveryFailed": "Failed to deliver the negotiation callback to \"{callbackAddress}\" for negotiation id: \"{negotiationId}\" in state \"{state}\"; the negotiation is unchanged and remains discoverable by polling",
+			"sendTerminateFailed": "Failed to send terminate to consumer for negotiation id: \"{id}\", correlation id: \"{correlationId}\""
 		}
 	}
 }

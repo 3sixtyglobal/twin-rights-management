@@ -12,12 +12,6 @@ export interface IPolicyNegotiationAdminPointServiceConstructorOptions {
 	loggingComponentType?: string;
 
 	/**
-	 * The task scheduler component for scheduling background tasks.
-	 * @default task-scheduler
-	 */
-	taskSchedulerComponentType?: string;
-
-	/**
 	 * The entity storage component for storing policy negotiation.
 	 * @default policy-negotiation
 	 */
@@ -28,19 +22,6 @@ export interface IPolicyNegotiationAdminPointServiceConstructorOptions {
 	 * @default policy-information-point
 	 */
 	policyInformationPointComponentType?: string;
-
-	/**
-	 * The type of the policy negotiation point component, used by stall cleanup to send
-	 * terminate to consumer callbacks.
-	 * @default policy-negotiation-point
-	 */
-	policyNegotiationPointComponentType?: string;
-
-	/**
-	 * Platform component type.
-	 * @default platform
-	 */
-	platformComponentType?: string;
 
 	/**
 	 * Configuration options for the policy negotiation point service.

@@ -1,6 +1,7 @@
 // Copyright 2025 IOTA Stiftung.
 // SPDX-License-Identifier: Apache-2.0.
 import { HttpContextIdKeys, HttpUrlHelper, type IPlatformComponent } from "@twin.org/api-models";
+import type { ITaskSchedulerComponent } from "@twin.org/background-task-models";
 import { ContextIdHelper, ContextIdKeys, ContextIdStore } from "@twin.org/context";
 import {
 	AlreadyExistsError,
@@ -19,6 +20,11 @@ import {
 	Url,
 	Urn
 } from "@twin.org/core";
+import { ComparisonOperator, LogicalOperator } from "@twin.org/entity";
+import {
+	EntityStorageConnectorFactory,
+	type IEntityStorageConnector
+} from "@twin.org/entity-storage-models";
 import type { ILoggingComponent } from "@twin.org/logging-models";
 import { nameof } from "@twin.org/nameof";
 import {
@@ -55,6 +61,7 @@ import {
 	type ITrustComponent,
 	type ITrustVerificationInfo
 } from "@twin.org/trust-models";
+import type { PolicyNegotiation } from "./entities/policyNegotiation.js";
 import type { IPolicyNegotiationPointServiceConstructorOptions } from "./models/IPolicyNegotiationPointServiceConstructorOptions.js";
 
 /**
@@ -73,10 +80,23 @@ export class PolicyNegotiationPointService implements IPolicyNegotiationPointCom
 	private readonly _logging?: ILoggingComponent;
 
 	/**
-	 * The entity storage component for storing policy state.
+	 * The task scheduler component.
+	 * @internal
+	 */
+	private readonly _taskScheduler: ITaskSchedulerComponent;
+
+	/**
+	 * The policy negotiation admin point component, which owns the negotiation state.
 	 * @internal
 	 */
 	private readonly _policyNegotiationAdminPointComponent: IPolicyNegotiationAdminPointComponent;
+
+	/**
+	 * The entity storage the admin point stores negotiations in, used by the expiry sweep to
+	 * query on expires, which the admin point component interface does not expose.
+	 * @internal
+	 */
+	private readonly _policyNegotiationEntityStorage: IEntityStorageConnector<PolicyNegotiation>;
 
 	/**
 	 * The policy administration point component.
@@ -138,11 +158,17 @@ export class PolicyNegotiationPointService implements IPolicyNegotiationPointCom
 	 */
 	constructor(options?: IPolicyNegotiationPointServiceConstructorOptions) {
 		this._logging = ComponentFactory.getIfExists<ILoggingComponent>(options?.loggingComponentType);
+		this._taskScheduler = ComponentFactory.get<ITaskSchedulerComponent>(
+			options?.taskSchedulerComponentType ?? "task-scheduler"
+		);
 		this._policyNegotiationAdminPointComponent =
 			ComponentFactory.get<IPolicyNegotiationAdminPointComponent>(
 				options?.policyNegotiationAdministrationPointComponentType ??
 					"policy-negotiation-admin-point"
 			);
+		this._policyNegotiationEntityStorage = EntityStorageConnectorFactory.get(
+			options?.policyNegotiationEntityStorageType ?? "policy-negotiation"
+		);
 		this._policyAdministrationPointComponent =
 			ComponentFactory.get<IPolicyAdministrationPointComponent>(
 				options?.policyAdministrationPointComponentType ?? "policy-administration-point"
@@ -172,6 +198,38 @@ export class PolicyNegotiationPointService implements IPolicyNegotiationPointCom
 	 */
 	public className(): string {
 		return PolicyNegotiationPointService.CLASS_NAME;
+	}
+
+	/**
+	 * The component needs to be started when the node is initialized.
+	 * @param nodeLoggingComponentType The node logging component type.
+	 * @returns A promise that resolves when the component has started.
+	 */
+	public async start(nodeLoggingComponentType?: string): Promise<void> {
+		await this._taskScheduler.addTask(
+			"policy-negotiation",
+			[
+				{
+					nextTriggerTime: Date.now(),
+					intervalMinutes: 5
+				}
+			],
+			async () => {
+				// Clean up old negotiation states (expired); sends terminate to consumer when configured
+				// Since we might have many expired negotiations, we need to page through them
+				// and delete them in batches per partition
+				await this._platformComponent.execute(async () => this.cleanupOldStatesPartition());
+			}
+		);
+	}
+
+	/**
+	 * The component needs to be stopped when the node is closed.
+	 * @param nodeLoggingComponentType The node logging component type.
+	 * @returns A promise that resolves when the component has stopped.
+	 */
+	public async stop(nodeLoggingComponentType?: string): Promise<void> {
+		await this._taskScheduler.removeTask("policy-negotiation");
 	}
 
 	/**
@@ -1388,6 +1446,75 @@ export class PolicyNegotiationPointService implements IPolicyNegotiationPointCom
 		await this.withPolicyNegotiationPointComponent(callbackAddress, async c =>
 			c.terminate(terminationMessage, "consumer", trustPayload)
 		);
+	}
+
+	/**
+	 * Cleans up old negotiation states for a specific partition (tenant).
+	 * Sends terminate to the consumer callback, then removes. The expired negotiations are read
+	 * straight from the entity storage the admin point writes to, as querying on expires is not
+	 * part of the admin point component interface; the removal goes back through the admin point
+	 * so it stays coordinated with the per-id mutex.
+	 * @returns A promise that resolves when all expired negotiations have been cleaned up.
+	 * @internal
+	 */
+	private async cleanupOldStatesPartition(): Promise<void> {
+		try {
+			let cursor: string | undefined;
+			const now = Date.now();
+
+			do {
+				const result = await this._policyNegotiationEntityStorage.query({
+					conditions: [
+						{
+							property: "expires",
+							comparison: ComparisonOperator.LessThan,
+							value: now
+						},
+						{
+							property: "expires",
+							comparison: ComparisonOperator.NotEquals,
+							value: undefined
+						}
+					],
+					logicalOperator: LogicalOperator.And
+				});
+				for (const item of result.entities as PolicyNegotiation[]) {
+					if (Is.stringValue(item.id)) {
+						if (Is.stringValue(item.callbackAddress)) {
+							try {
+								await this.sendTerminateToConsumer(
+									item.callbackAddress,
+									item.id,
+									item.correlationId
+								);
+							} catch (error) {
+								await this._logging?.log({
+									level: "warn",
+									source: PolicyNegotiationPointService.CLASS_NAME,
+									ts: Date.now(),
+									message: "sendTerminateFailed",
+									data: {
+										id: item.id,
+										correlationId: item.correlationId
+									},
+									error: BaseError.fromError(error)
+								});
+							}
+						}
+						await this._policyNegotiationAdminPointComponent.remove(item.id);
+					}
+				}
+				cursor = result.cursor;
+			} while (Is.stringValue(cursor));
+		} catch (error) {
+			await this._logging?.log({
+				level: "error",
+				source: PolicyNegotiationPointService.CLASS_NAME,
+				ts: Date.now(),
+				message: "cleanupFailed",
+				error: BaseError.fromError(error)
+			});
+		}
 	}
 
 	/**
