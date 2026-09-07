@@ -6,6 +6,23 @@
 
 * remove EcosystemPolicy-specific negotiation guard and related locale contract for v2.
 
+## [0.9.3-next.5](https://github.com/iotaledger/twin-rights-management/compare/rights-management-pnp-service-v0.9.3-next.4...rights-management-pnp-service-v0.9.3-next.5) (2026-09-07)
+
+
+### Bug Fixes
+
+* walk all agreements ([#312](https://github.com/iotaledger/twin-rights-management/issues/312)) ([eaf415f](https://github.com/iotaledger/twin-rights-management/commit/eaf415f6a15bb83471913c6f5150485059bab16a))
+
+
+### Dependencies
+
+* The following workspace dependencies were updated
+  * dependencies
+    * @twin.org/rights-management-models bumped from 0.9.3-next.4 to 0.9.3-next.5
+  * devDependencies
+    * @twin.org/rights-management-pap-service bumped from 0.9.3-next.4 to 0.9.3-next.5
+    * @twin.org/rights-management-pip-service bumped from 0.9.3-next.4 to 0.9.3-next.5
+
 ## [0.9.3-next.4](https://github.com/iotaledger/twin-rights-management/compare/rights-management-pnp-service-v0.9.3-next.3...rights-management-pnp-service-v0.9.3-next.4) (2026-09-06)
 
 
