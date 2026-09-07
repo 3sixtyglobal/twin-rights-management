@@ -13,6 +13,7 @@ import {
 	GeneralError,
 	Guards,
 	Is,
+	JsonHelper,
 	Mutex,
 	NotFoundError,
 	StringHelper,
@@ -20,7 +21,7 @@ import {
 	Url,
 	Urn
 } from "@twin.org/core";
-import { ComparisonOperator, LogicalOperator } from "@twin.org/entity";
+import { ComparisonOperator, LogicalOperator, SortDirection } from "@twin.org/entity";
 import {
 	EntityStorageConnectorFactory,
 	type IEntityStorageConnector
@@ -55,7 +56,7 @@ import {
 	type IDataspaceProtocolContractRequestMessage,
 	type IDataspaceProtocolOffer
 } from "@twin.org/standards-dataspace-protocol";
-import { OdrlContexts, OdrlTypes } from "@twin.org/standards-w3c-odrl";
+import { OdrlContexts, OdrlPolicyType, OdrlTypes } from "@twin.org/standards-w3c-odrl";
 import {
 	TrustHelper,
 	type ITrustComponent,
@@ -1547,8 +1548,9 @@ export class PolicyNegotiationPointService implements IPolicyNegotiationPointCom
 
 	/**
 	 * Query the PAP for an existing agreement whose assigner, assignee, target, and rule
-	 * content all match those of the given offer. Returns the first such agreement, or
-	 * undefined when none exists or the query fails.
+	 * content all match those of the given offer, paging through every matching policy.
+	 * Returns the most recently created such agreement, or undefined when none exists
+	 * or the query fails.
 	 * @param offer The offer whose identity and rules to match against.
 	 * @param consumerIdentity The verified identity of the consumer.
 	 * @returns A matching agreement, or undefined.
@@ -1571,21 +1573,34 @@ export class PolicyNegotiationPointService implements IPolicyNegotiationPointCom
 
 		try {
 			const locator = {
+				type: OdrlPolicyType.Agreement,
 				assigner: assignerIds[0],
 				assignee: consumerIdentity,
 				target: targets[0]
 			};
-			const { policies } = await this._policyAdministrationPointComponent.query(locator);
 
-			const offerRules = JSON.stringify({
+			const offerRules = JsonHelper.canonicalize({
 				permission: offer.permission,
 				prohibition: offer.prohibition,
 				obligation: offer.obligation
 			});
 
-			for (const policy of policies) {
-				if (OdrlPolicyHelper.getType(policy) === OdrlTypes.Agreement) {
-					const candidateRules = JSON.stringify({
+			// The query is paged, so walk every page for the locator, newest first, otherwise a
+			// match beyond the first page is missed and a duplicate agreement is minted.
+			let cursor: string | undefined;
+			do {
+				const result = await this._policyAdministrationPointComponent.query(
+					locator,
+					undefined,
+					cursor,
+					undefined,
+					undefined,
+					"dateCreated",
+					SortDirection.Descending
+				);
+
+				for (const policy of result.policies) {
+					const candidateRules = JsonHelper.canonicalize({
 						permission: policy.permission,
 						prohibition: policy.prohibition,
 						obligation: policy.obligation
@@ -1594,7 +1609,9 @@ export class PolicyNegotiationPointService implements IPolicyNegotiationPointCom
 						return policy as IRightsManagementAgreement;
 					}
 				}
-			}
+
+				cursor = result.cursor;
+			} while (Is.stringValue(cursor));
 		} catch {
 			// PAP query failure is non-fatal: fall through to fresh negotiation
 		}

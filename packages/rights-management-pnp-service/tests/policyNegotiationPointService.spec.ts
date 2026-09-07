@@ -3508,6 +3508,112 @@ describe("PolicyNegotiationPointService", () => {
 			// createAgreement was only called once; the second run did not mint a new agreement.
 			expect(mockNegotiator.createAgreement).toHaveBeenCalledTimes(1);
 		});
+
+		test("reuses the existing agreement when it sits beyond the first page of PAP results", async () => {
+			// Regression for issue #310: the duplicate guard read a single PAP page, so a match
+			// beyond that page was missed and a second agreement was minted for the same parties.
+			const providerPoints: { [id: string]: PolicyNegotiationPointService } = {};
+
+			const policyNegotiationConsumerPoint = new PolicyNegotiationPointService({
+				policyNegotiationAdministrationPointComponentType:
+					"policy-negotiation-consumer-admin-point",
+				policyNegotiationEntityStorageType: "policy-negotiation-consumer",
+				policyNegotiationPointRemoteComponentType: "pnp-remote",
+				config: { callbackPath: "/callback" }
+			});
+			const policyNegotiationProviderPoint = new PolicyNegotiationPointService({
+				policyNegotiationAdministrationPointComponentType:
+					"policy-negotiation-provider-admin-point",
+				policyNegotiationEntityStorageType: "policy-negotiation-provider",
+				policyNegotiationPointRemoteComponentType: "pnp-remote",
+				config: { callbackPath: "/callback" }
+			});
+			providerPoints.provider = policyNegotiationProviderPoint;
+			providerPoints.consumer = policyNegotiationConsumerPoint;
+			remoteComponentResolver = (params: { endpoint: string }) => {
+				if (params.endpoint.startsWith(providerOrigin)) {
+					return createRemoteComponent(providerPoints.provider, providerOrigin);
+				}
+				if (params.endpoint.startsWith(consumerOrigin)) {
+					return createRemoteComponent(providerPoints.consumer, consumerOrigin);
+				}
+				throw new TypeError(`Unknown remote url ${params.endpoint}`);
+			};
+
+			PolicyRequesterFactory.register("requester-dedup-paged", () => mockPolicyRequester);
+			await adminPointComponent.create(mockOffer);
+
+			let agreementCounter = 0;
+			mockNegotiator.createAgreement = vi.fn(
+				async (offer: IDataspaceProtocolOffer, assignee: string) => ({
+					"@context": OdrlContexts.Context,
+					"@type": OdrlTypes.Agreement,
+					"@id": `urn:policy:agreement-dedup-paged-${++agreementCounter}`,
+					assigner: testIdentityProvider,
+					assignee
+				})
+			);
+			mockNegotiator.handleOffer = vi.fn(async () => ({
+				accepted: true,
+				interventionRequired: false,
+				directAgreement: true
+			}));
+			PolicyNegotiatorFactory.register("MockPolicyNegotiator", () => mockNegotiator);
+
+			// First full lifecycle, which mints the agreement the second run must reuse.
+			await policyNegotiationConsumerPoint.sendRequestToProvider(
+				providerOrigin,
+				"requester-dedup-paged",
+				"urn:policy:offer-1",
+				consumerOrigin
+			);
+			await waitForState(policyNegotiationConsumerMemoryEntityStorage, "FINALIZED", "consumer");
+
+			// Fill the PAP with same-party agreements whose rules do not match the offer, created
+			// after the minted one so that it falls onto the second page of query results.
+			await new Promise(resolve => setTimeout(resolve, 10));
+			for (let i = 0; i < 45; i++) {
+				await adminPointComponent.create({
+					"@context": OdrlContexts.Context,
+					"@type": OdrlTypes.Agreement,
+					"@id": `urn:policy:agreement-filler-${i}`,
+					assigner: testIdentityProvider,
+					assignee: testIdentityConsumer,
+					permission: [{ target: `urn:asset:filler-${i}`, action: "use" }]
+				});
+			}
+
+			// Second full lifecycle — identical offer, identical parties.
+			await policyNegotiationConsumerPoint.sendRequestToProvider(
+				providerOrigin,
+				"requester-dedup-paged",
+				"urn:policy:offer-1",
+				consumerOrigin
+			);
+
+			for (let i = 0; i < 60; i++) {
+				const store = await policyNegotiationConsumerMemoryEntityStorage.getStore();
+				if (store.length >= 2 && store[1].state === "FINALIZED") {
+					break;
+				}
+				await new Promise(resolve => setTimeout(resolve, 100));
+			}
+			const finalConsumerStore = await policyNegotiationConsumerMemoryEntityStorage.getStore();
+			expect(finalConsumerStore).toHaveLength(2);
+			expect(finalConsumerStore[1].state).toBe(
+				DataspaceProtocolContractNegotiationStateType.FINALIZED
+			);
+
+			// Only the fillers and the single minted agreement are stored.
+			const policyStore = await odrlPolicyMemoryEntityStorage.getStore();
+			const negotiatedAgreements = policyStore.filter(p =>
+				p.id.startsWith("urn:policy:agreement-dedup-paged-")
+			);
+			expect(negotiatedAgreements).toHaveLength(1);
+
+			// createAgreement was only called once; the second run reused the paged match.
+			expect(mockNegotiator.createAgreement).toHaveBeenCalledTimes(1);
+		});
 	});
 
 	describe("expired state cleanup", () => {
