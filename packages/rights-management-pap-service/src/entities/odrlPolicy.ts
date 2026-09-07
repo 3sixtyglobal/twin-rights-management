@@ -8,7 +8,7 @@ import type { OdrlContextType, OdrlPolicyType } from "@twin.org/standards-w3c-od
 /**
  * Class describing an ODRL policy for entity storage.
  */
-@entity({ version: 1 })
+@entity()
 export class OdrlPolicy {
 	/**
 	 * The unique identifier for the policy.
