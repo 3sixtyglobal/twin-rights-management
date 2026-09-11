@@ -1973,6 +1973,159 @@ describe("PolicyNegotiationPointService", () => {
 		});
 	});
 
+	describe("public origin is required for outbound callback addresses", () => {
+		test("sendRequestToProvider rejects a missing public origin instead of building a path-only callback address", async () => {
+			PolicyRequesterFactory.register("requester-1", () => mockPolicyRequester);
+
+			const consumer = new PolicyNegotiationPointService({
+				policyNegotiationAdministrationPointComponentType:
+					"policy-negotiation-consumer-admin-point",
+				policyNegotiationEntityStorageType: "policy-negotiation-consumer",
+				policyNegotiationPointRemoteComponentType: "pnp-remote",
+				config: { callbackPath: "/callback" }
+			});
+
+			await expect(
+				consumer.sendRequestToProvider(providerOrigin, "requester-1", "urn:policy:offer-1", "")
+			).rejects.toMatchObject({
+				name: "GuardError",
+				properties: { property: "publicOrigin" }
+			});
+
+			const stored = await policyNegotiationConsumerMemoryEntityStorage.getStore();
+			expect(stored).toHaveLength(0);
+		});
+
+		test("requestFromConsumer terminates when the context carries no public origin", async () => {
+			PolicyNegotiatorFactory.register("MockPolicyNegotiator", () => mockNegotiator);
+			await adminPointComponent.create(mockOffer);
+
+			ContextIdStore.getContextIds = vi.fn().mockImplementation(() => ({
+				[ContextIdKeys.Node]: testIdentityConsumer,
+				[ContextIdKeys.Organization]: testOrganizationId
+				// PublicOrigin intentionally absent, as when the tenant was created without one
+			}));
+
+			const provider = new PolicyNegotiationPointService({
+				policyNegotiationAdministrationPointComponentType:
+					"policy-negotiation-provider-admin-point",
+				policyNegotiationEntityStorageType: "policy-negotiation-provider",
+				policyNegotiationPointRemoteComponentType: "pnp-remote",
+				config: { callbackPath: "/callback" }
+			});
+
+			const result = await provider.requestFromConsumer(
+				{
+					"@context": [DataspaceProtocolContexts.Context],
+					"@type": DataspaceProtocolContractNegotiationTypes.ContractRequestMessage,
+					consumerPid: "urn:contract-negotiation:no-origin-consumer-pid",
+					offer: mockOffer,
+					callbackAddress: `${consumerOrigin}/callback`
+				},
+				`token:${testIdentityConsumer}`
+			);
+
+			// The negotiation fails at the point the origin is needed rather than stalling later
+			// when the consumer cannot parse a path-only callback address.
+			expect(result["@type"]).toBe(
+				DataspaceProtocolContractNegotiationTypes.ContractNegotiationError
+			);
+			if ("code" in result) {
+				expect(result.code).toMatch(/^guard\./);
+			}
+
+			const stored = await policyNegotiationProviderMemoryEntityStorage.getStore();
+			expect(stored).toHaveLength(0);
+		});
+
+		test("offerFromProvider rejects a path-only inbound callback address", async () => {
+			PolicyRequesterFactory.register("requester-1", () => mockPolicyRequester);
+
+			const consumer = new PolicyNegotiationPointService({
+				policyNegotiationAdministrationPointComponentType:
+					"policy-negotiation-consumer-admin-point",
+				policyNegotiationEntityStorageType: "policy-negotiation-consumer",
+				policyNegotiationPointRemoteComponentType: "pnp-remote",
+				config: { callbackPath: "/callback" }
+			});
+
+			await expect(
+				consumer.offerFromProvider(
+					{
+						"@context": [DataspaceProtocolContexts.Context],
+						"@type": DataspaceProtocolContractNegotiationTypes.ContractOfferMessage,
+						providerPid: "provider-pid-relative-cb",
+						consumerPid: "consumer-pid-relative-cb",
+						offer: mockOffer,
+						callbackAddress: "/rights-management?organization=did%3Aexample%3A1"
+					},
+					`token:${testIdentityProvider}`
+				)
+			).rejects.toMatchObject({
+				name: "GuardError",
+				message: "guard.url",
+				properties: { property: expect.stringMatching(/callbackAddress$/) }
+			});
+		});
+
+		test("the offer pushed to the consumer carries an absolute callback address", async () => {
+			PolicyNegotiatorFactory.register("MockPolicyNegotiator", () => mockNegotiator);
+			await adminPointComponent.create(mockOffer);
+
+			let deliveredCallbackAddress: string | undefined;
+			remoteComponentResolver = () => ({
+				...createRemoteComponent(
+					new PolicyNegotiationPointService({
+						policyNegotiationAdministrationPointComponentType:
+							"policy-negotiation-consumer-admin-point",
+						policyNegotiationEntityStorageType: "policy-negotiation-consumer",
+						policyNegotiationPointRemoteComponentType: "pnp-remote",
+						config: { callbackPath: "/callback" }
+					}),
+					consumerOrigin
+				),
+				offerFromProvider: async message => {
+					deliveredCallbackAddress = message.callbackAddress;
+					return {
+						"@context": [DataspaceProtocolContexts.Context],
+						"@type": DataspaceProtocolContractNegotiationTypes.ContractNegotiation,
+						providerPid: message.providerPid,
+						consumerPid: message.consumerPid ?? "",
+						state: DataspaceProtocolContractNegotiationStateType.ACCEPTED
+					};
+				}
+			});
+
+			const provider = new PolicyNegotiationPointService({
+				policyNegotiationAdministrationPointComponentType:
+					"policy-negotiation-provider-admin-point",
+				policyNegotiationEntityStorageType: "policy-negotiation-provider",
+				policyNegotiationPointRemoteComponentType: "pnp-remote",
+				config: { callbackPath: "/callback" }
+			});
+
+			await provider.requestFromConsumer(
+				{
+					"@context": [DataspaceProtocolContexts.Context],
+					"@type": DataspaceProtocolContractNegotiationTypes.ContractRequestMessage,
+					consumerPid: "urn:contract-negotiation:absolute-cb-consumer-pid",
+					offer: mockOffer,
+					callbackAddress: `${consumerOrigin}/callback`
+				},
+				`token:${testIdentityConsumer}`
+			);
+
+			await waitForState(
+				policyNegotiationProviderMemoryEntityStorage,
+				DataspaceProtocolContractNegotiationStateType.OFFERED,
+				"provider"
+			);
+
+			expect(deliveredCallbackAddress).toBeDefined();
+			expect(deliveredCallbackAddress?.startsWith(providerOrigin)).toBe(true);
+		});
+	});
+
 	describe("consumer-side agreement persistence on finalize", () => {
 		test("event(FINALIZED) on the consumer writes the agreement to the consumer PAP so it is resolvable by agreementId", async () => {
 			PolicyRequesterFactory.register("requester-2", () => mockPolicyRequester);

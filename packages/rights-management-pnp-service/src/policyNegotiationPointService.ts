@@ -296,6 +296,7 @@ export class PolicyNegotiationPointService implements IPolicyNegotiationPointCom
 			requesterType
 		);
 		Guards.stringValue(PolicyNegotiationPointService.CLASS_NAME, nameof(odrlOfferId), odrlOfferId);
+		Url.guard(PolicyNegotiationPointService.CLASS_NAME, nameof(publicOrigin), publicOrigin);
 
 		const policyRequester = PolicyRequesterFactory.getIfExists(requesterType);
 		if (Is.empty(policyRequester)) {
@@ -481,6 +482,7 @@ export class PolicyNegotiationPointService implements IPolicyNegotiationPointCom
 			ContextIdHelper.guard(requestContextIds, ContextIdKeys.Organization);
 			const requestOrganizationId = requestContextIds[ContextIdKeys.Organization];
 			const publicOrigin = requestContextIds[HttpContextIdKeys.PublicOrigin];
+			Url.guard(PolicyNegotiationPointService.CLASS_NAME, nameof(publicOrigin), publicOrigin);
 
 			// If an agreement with identical rule content already exists for this
 			// assigner/assignee/target, reuse it instead of minting a duplicate.
@@ -636,6 +638,16 @@ export class PolicyNegotiationPointService implements IPolicyNegotiationPointCom
 			nameof(message.providerPid),
 			message.providerPid
 		);
+		// callbackAddress is optional per the DSP spec. When provided, it must be a valid URL;
+		// when omitted, the provider is expected to poll GET /negotiations/admin/:policyId to
+		// observe state changes and read the negotiation.
+		if (Is.stringValue(message.callbackAddress)) {
+			Url.guard(
+				PolicyNegotiationPointService.CLASS_NAME,
+				nameof(message.callbackAddress),
+				message.callbackAddress
+			);
+		}
 
 		let consumerPid;
 		let policyNegotiation: IPolicyNegotiation | undefined;
@@ -1771,16 +1783,21 @@ export class PolicyNegotiationPointService implements IPolicyNegotiationPointCom
 				policyNegotiation.offer
 			);
 
+			// In polling mode nothing is sent, so no origin is required.
+			const outboundCallbackAddress = Is.stringValue(callbackAddress)
+				? await this.buildCallbackUrl(
+						policyNegotiation.publicOrigin,
+						policyNegotiation.organizationIdentity
+					)
+				: undefined;
+
 			const offerMessage: IDataspaceProtocolContractOfferMessage = {
 				"@context": [DataspaceProtocolContexts.Context],
 				"@type": DataspaceProtocolContractNegotiationTypes.ContractOfferMessage,
 				providerPid: policyNegotiation.id,
 				consumerPid: policyNegotiation.correlationId,
 				offer: policyNegotiation.offer,
-				callbackAddress: await this.buildCallbackUrl(
-					policyNegotiation.publicOrigin,
-					policyNegotiation.organizationIdentity
-				)
+				callbackAddress: outboundCallbackAddress
 			};
 
 			const trustPayload = await this.generateNegotiationTrustPayload(policyNegotiation, {
@@ -1974,6 +1991,14 @@ export class PolicyNegotiationPointService implements IPolicyNegotiationPointCom
 						})
 					);
 				} else {
+					// In polling mode nothing is sent, so no origin is required.
+					const outboundCallbackAddress = Is.stringValue(callbackAddress)
+						? await this.buildCallbackUrl(
+								policyNegotiation.publicOrigin,
+								policyNegotiation.organizationIdentity
+							)
+						: undefined;
+
 					// Create the agreement message
 					const agreementMessage: IDataspaceProtocolContractAgreementMessage = {
 						"@context": [DataspaceProtocolContexts.Context],
@@ -1981,10 +2006,7 @@ export class PolicyNegotiationPointService implements IPolicyNegotiationPointCom
 						providerPid: policyNegotiation.id,
 						consumerPid: policyNegotiation.correlationId,
 						agreement,
-						callbackAddress: await this.buildCallbackUrl(
-							policyNegotiation.publicOrigin,
-							policyNegotiation.organizationIdentity
-						)
+						callbackAddress: outboundCallbackAddress
 					};
 
 					const trustPayload = await this.generateNegotiationTrustPayload(policyNegotiation, {
@@ -2151,8 +2173,10 @@ export class PolicyNegotiationPointService implements IPolicyNegotiationPointCom
 		publicOrigin: string | undefined,
 		organizationId: string
 	): Promise<string> {
+		Url.guard(PolicyNegotiationPointService.CLASS_NAME, nameof(publicOrigin), publicOrigin);
+
 		// Combine the public origin (host) with the configured callback path
-		const origin = StringHelper.trimTrailingSlashes(publicOrigin ?? "");
+		const origin = StringHelper.trimTrailingSlashes(publicOrigin);
 
 		const url = Is.stringValue(this._callbackPath) ? `${origin}/${this._callbackPath}` : origin;
 
