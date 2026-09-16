@@ -2,6 +2,7 @@
 // SPDX-License-Identifier: Apache-2.0.
 import { HttpHeaderHelper, type IHttpRequestContext } from "@twin.org/api-models";
 import { ComponentFactory, Factory } from "@twin.org/core";
+import { SortDirection } from "@twin.org/entity";
 import type {
 	IPapCreateRequest,
 	IPolicyAdministrationPointComponent
@@ -91,7 +92,34 @@ describe("policyAdministrationPointRoutes", () => {
 			undefined,
 			undefined,
 			undefined,
-			["@id", "@type"]
+			["@id", "@type"],
+			undefined,
+			undefined
+		);
+		expect(response.body).toEqual([]);
+	});
+
+	test("papQuery forwards the sort order to the component", async () => {
+		vi.mocked(mockPapComponent.query).mockResolvedValueOnce({ policies: [] });
+
+		const response = await papQuery(mockHttpRequestContext, "pap", {
+			query: { orderBy: "dateCreated", orderByDirection: SortDirection.Ascending }
+		});
+
+		expect(mockPapComponent.query).toHaveBeenCalledWith(
+			{
+				type: undefined,
+				assigner: undefined,
+				assignee: undefined,
+				target: undefined,
+				action: undefined
+			},
+			undefined,
+			undefined,
+			undefined,
+			undefined,
+			"dateCreated",
+			SortDirection.Ascending
 		);
 		expect(response.body).toEqual([]);
 	});

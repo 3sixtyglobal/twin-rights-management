@@ -12,6 +12,20 @@ The logging component for logging policy negotiation.
 
 ***
 
+### taskSchedulerComponentType? {#taskschedulercomponenttype}
+
+> `optional` **taskSchedulerComponentType?**: `string`
+
+The task scheduler component for scheduling background tasks.
+
+#### Default
+
+```ts
+task-scheduler
+```
+
+***
+
 ### policyNegotiationAdministrationPointComponentType? {#policynegotiationadministrationpointcomponenttype}
 
 > `optional` **policyNegotiationAdministrationPointComponentType?**: `string`
@@ -22,6 +36,21 @@ The type of the policy negotiation administration point component.
 
 ```ts
 policy-negotiation-admin-point
+```
+
+***
+
+### policyNegotiationEntityStorageType? {#policynegotiationentitystoragetype}
+
+> `optional` **policyNegotiationEntityStorageType?**: `string`
+
+The entity storage the policy negotiation administration point stores negotiations in,
+used by the expiry sweep.
+
+#### Default
+
+```ts
+policy-negotiation
 ```
 
 ***

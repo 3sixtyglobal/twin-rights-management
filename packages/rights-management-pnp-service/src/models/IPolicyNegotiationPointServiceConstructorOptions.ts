@@ -12,10 +12,23 @@ export interface IPolicyNegotiationPointServiceConstructorOptions {
 	loggingComponentType?: string;
 
 	/**
+	 * The task scheduler component for scheduling background tasks.
+	 * @default task-scheduler
+	 */
+	taskSchedulerComponentType?: string;
+
+	/**
 	 * The type of the policy negotiation administration point component.
 	 * @default policy-negotiation-admin-point
 	 */
 	policyNegotiationAdministrationPointComponentType?: string;
+
+	/**
+	 * The entity storage the policy negotiation administration point stores negotiations in,
+	 * used by the expiry sweep.
+	 * @default policy-negotiation
+	 */
+	policyNegotiationEntityStorageType?: string;
 
 	/**
 	 * The type of the policy administration point component.

@@ -1,6 +1,7 @@
 // Copyright 2025 IOTA Stiftung.
 // SPDX-License-Identifier: Apache-2.0.
 import { HttpContextIdKeys, HttpUrlHelper, type IPlatformComponent } from "@twin.org/api-models";
+import type { ITaskSchedulerComponent } from "@twin.org/background-task-models";
 import { ContextIdHelper, ContextIdKeys, ContextIdStore } from "@twin.org/context";
 import {
 	AlreadyExistsError,
@@ -12,6 +13,7 @@ import {
 	GeneralError,
 	Guards,
 	Is,
+	JsonHelper,
 	Mutex,
 	NotFoundError,
 	StringHelper,
@@ -19,6 +21,11 @@ import {
 	Url,
 	Urn
 } from "@twin.org/core";
+import { ComparisonOperator, LogicalOperator, SortDirection } from "@twin.org/entity";
+import {
+	EntityStorageConnectorFactory,
+	type IEntityStorageConnector
+} from "@twin.org/entity-storage-models";
 import type { ILoggingComponent } from "@twin.org/logging-models";
 import { nameof } from "@twin.org/nameof";
 import {
@@ -49,12 +56,13 @@ import {
 	type IDataspaceProtocolContractRequestMessage,
 	type IDataspaceProtocolOffer
 } from "@twin.org/standards-dataspace-protocol";
-import { OdrlContexts, OdrlTypes } from "@twin.org/standards-w3c-odrl";
+import { OdrlContexts, OdrlPolicyType, OdrlTypes } from "@twin.org/standards-w3c-odrl";
 import {
 	TrustHelper,
 	type ITrustComponent,
 	type ITrustVerificationInfo
 } from "@twin.org/trust-models";
+import type { PolicyNegotiation } from "./entities/policyNegotiation.js";
 import type { IPolicyNegotiationPointServiceConstructorOptions } from "./models/IPolicyNegotiationPointServiceConstructorOptions.js";
 
 /**
@@ -73,10 +81,23 @@ export class PolicyNegotiationPointService implements IPolicyNegotiationPointCom
 	private readonly _logging?: ILoggingComponent;
 
 	/**
-	 * The entity storage component for storing policy state.
+	 * The task scheduler component.
+	 * @internal
+	 */
+	private readonly _taskScheduler: ITaskSchedulerComponent;
+
+	/**
+	 * The policy negotiation admin point component, which owns the negotiation state.
 	 * @internal
 	 */
 	private readonly _policyNegotiationAdminPointComponent: IPolicyNegotiationAdminPointComponent;
+
+	/**
+	 * The entity storage the admin point stores negotiations in, used by the expiry sweep to
+	 * query on expires, which the admin point component interface does not expose.
+	 * @internal
+	 */
+	private readonly _policyNegotiationEntityStorage: IEntityStorageConnector<PolicyNegotiation>;
 
 	/**
 	 * The policy administration point component.
@@ -138,11 +159,17 @@ export class PolicyNegotiationPointService implements IPolicyNegotiationPointCom
 	 */
 	constructor(options?: IPolicyNegotiationPointServiceConstructorOptions) {
 		this._logging = ComponentFactory.getIfExists<ILoggingComponent>(options?.loggingComponentType);
+		this._taskScheduler = ComponentFactory.get<ITaskSchedulerComponent>(
+			options?.taskSchedulerComponentType ?? "task-scheduler"
+		);
 		this._policyNegotiationAdminPointComponent =
 			ComponentFactory.get<IPolicyNegotiationAdminPointComponent>(
 				options?.policyNegotiationAdministrationPointComponentType ??
 					"policy-negotiation-admin-point"
 			);
+		this._policyNegotiationEntityStorage = EntityStorageConnectorFactory.get(
+			options?.policyNegotiationEntityStorageType ?? "policy-negotiation"
+		);
 		this._policyAdministrationPointComponent =
 			ComponentFactory.get<IPolicyAdministrationPointComponent>(
 				options?.policyAdministrationPointComponentType ?? "policy-administration-point"
@@ -172,6 +199,38 @@ export class PolicyNegotiationPointService implements IPolicyNegotiationPointCom
 	 */
 	public className(): string {
 		return PolicyNegotiationPointService.CLASS_NAME;
+	}
+
+	/**
+	 * The component needs to be started when the node is initialized.
+	 * @param nodeLoggingComponentType The node logging component type.
+	 * @returns A promise that resolves when the component has started.
+	 */
+	public async start(nodeLoggingComponentType?: string): Promise<void> {
+		await this._taskScheduler.addTask(
+			"policy-negotiation",
+			[
+				{
+					nextTriggerTime: Date.now(),
+					intervalMinutes: 5
+				}
+			],
+			async () => {
+				// Clean up old negotiation states (expired); sends terminate to consumer when configured
+				// Since we might have many expired negotiations, we need to page through them
+				// and delete them in batches per partition
+				await this._platformComponent.execute(async () => this.cleanupOldStatesPartition());
+			}
+		);
+	}
+
+	/**
+	 * The component needs to be stopped when the node is closed.
+	 * @param nodeLoggingComponentType The node logging component type.
+	 * @returns A promise that resolves when the component has stopped.
+	 */
+	public async stop(nodeLoggingComponentType?: string): Promise<void> {
+		await this._taskScheduler.removeTask("policy-negotiation");
 	}
 
 	/**
@@ -237,6 +296,7 @@ export class PolicyNegotiationPointService implements IPolicyNegotiationPointCom
 			requesterType
 		);
 		Guards.stringValue(PolicyNegotiationPointService.CLASS_NAME, nameof(odrlOfferId), odrlOfferId);
+		Url.guard(PolicyNegotiationPointService.CLASS_NAME, nameof(publicOrigin), publicOrigin);
 
 		const policyRequester = PolicyRequesterFactory.getIfExists(requesterType);
 		if (Is.empty(policyRequester)) {
@@ -422,6 +482,7 @@ export class PolicyNegotiationPointService implements IPolicyNegotiationPointCom
 			ContextIdHelper.guard(requestContextIds, ContextIdKeys.Organization);
 			const requestOrganizationId = requestContextIds[ContextIdKeys.Organization];
 			const publicOrigin = requestContextIds[HttpContextIdKeys.PublicOrigin];
+			Url.guard(PolicyNegotiationPointService.CLASS_NAME, nameof(publicOrigin), publicOrigin);
 
 			// If an agreement with identical rule content already exists for this
 			// assigner/assignee/target, reuse it instead of minting a duplicate.
@@ -577,6 +638,16 @@ export class PolicyNegotiationPointService implements IPolicyNegotiationPointCom
 			nameof(message.providerPid),
 			message.providerPid
 		);
+		// callbackAddress is optional per the DSP spec. When provided, it must be a valid URL;
+		// when omitted, the provider is expected to poll GET /negotiations/admin/:policyId to
+		// observe state changes and read the negotiation.
+		if (Is.stringValue(message.callbackAddress)) {
+			Url.guard(
+				PolicyNegotiationPointService.CLASS_NAME,
+				nameof(message.callbackAddress),
+				message.callbackAddress
+			);
+		}
 
 		let consumerPid;
 		let policyNegotiation: IPolicyNegotiation | undefined;
@@ -1391,6 +1462,75 @@ export class PolicyNegotiationPointService implements IPolicyNegotiationPointCom
 	}
 
 	/**
+	 * Cleans up old negotiation states for a specific partition (tenant).
+	 * Sends terminate to the consumer callback, then removes. The expired negotiations are read
+	 * straight from the entity storage the admin point writes to, as querying on expires is not
+	 * part of the admin point component interface; the removal goes back through the admin point
+	 * so it stays coordinated with the per-id mutex.
+	 * @returns A promise that resolves when all expired negotiations have been cleaned up.
+	 * @internal
+	 */
+	private async cleanupOldStatesPartition(): Promise<void> {
+		try {
+			let cursor: string | undefined;
+			const now = Date.now();
+
+			do {
+				const result = await this._policyNegotiationEntityStorage.query({
+					conditions: [
+						{
+							property: "expires",
+							comparison: ComparisonOperator.LessThan,
+							value: now
+						},
+						{
+							property: "expires",
+							comparison: ComparisonOperator.NotEquals,
+							value: undefined
+						}
+					],
+					logicalOperator: LogicalOperator.And
+				});
+				for (const item of result.entities as PolicyNegotiation[]) {
+					if (Is.stringValue(item.id)) {
+						if (Is.stringValue(item.callbackAddress)) {
+							try {
+								await this.sendTerminateToConsumer(
+									item.callbackAddress,
+									item.id,
+									item.correlationId
+								);
+							} catch (error) {
+								await this._logging?.log({
+									level: "warn",
+									source: PolicyNegotiationPointService.CLASS_NAME,
+									ts: Date.now(),
+									message: "sendTerminateFailed",
+									data: {
+										id: item.id,
+										correlationId: item.correlationId
+									},
+									error: BaseError.fromError(error)
+								});
+							}
+						}
+						await this._policyNegotiationAdminPointComponent.remove(item.id);
+					}
+				}
+				cursor = result.cursor;
+			} while (Is.stringValue(cursor));
+		} catch (error) {
+			await this._logging?.log({
+				level: "error",
+				source: PolicyNegotiationPointService.CLASS_NAME,
+				ts: Date.now(),
+				message: "cleanupFailed",
+				error: BaseError.fromError(error)
+			});
+		}
+	}
+
+	/**
 	 * Check that a stored negotiation exists and is in one of the expected states.
 	 * @param negotiationId The id of the negotiation to look up.
 	 * @param expectedState The state, or one of the states, the negotiation must be in to proceed.
@@ -1420,8 +1560,9 @@ export class PolicyNegotiationPointService implements IPolicyNegotiationPointCom
 
 	/**
 	 * Query the PAP for an existing agreement whose assigner, assignee, target, and rule
-	 * content all match those of the given offer. Returns the first such agreement, or
-	 * undefined when none exists or the query fails.
+	 * content all match those of the given offer, paging through every matching policy.
+	 * Returns the most recently created such agreement, or undefined when none exists
+	 * or the query fails.
 	 * @param offer The offer whose identity and rules to match against.
 	 * @param consumerIdentity The verified identity of the consumer.
 	 * @returns A matching agreement, or undefined.
@@ -1444,21 +1585,34 @@ export class PolicyNegotiationPointService implements IPolicyNegotiationPointCom
 
 		try {
 			const locator = {
+				type: OdrlPolicyType.Agreement,
 				assigner: assignerIds[0],
 				assignee: consumerIdentity,
 				target: targets[0]
 			};
-			const { policies } = await this._policyAdministrationPointComponent.query(locator);
 
-			const offerRules = JSON.stringify({
+			const offerRules = JsonHelper.canonicalize({
 				permission: offer.permission,
 				prohibition: offer.prohibition,
 				obligation: offer.obligation
 			});
 
-			for (const policy of policies) {
-				if (OdrlPolicyHelper.getType(policy) === OdrlTypes.Agreement) {
-					const candidateRules = JSON.stringify({
+			// The query is paged, so walk every page for the locator, newest first, otherwise a
+			// match beyond the first page is missed and a duplicate agreement is minted.
+			let cursor: string | undefined;
+			do {
+				const result = await this._policyAdministrationPointComponent.query(
+					locator,
+					undefined,
+					cursor,
+					undefined,
+					undefined,
+					"dateCreated",
+					SortDirection.Descending
+				);
+
+				for (const policy of result.policies) {
+					const candidateRules = JsonHelper.canonicalize({
 						permission: policy.permission,
 						prohibition: policy.prohibition,
 						obligation: policy.obligation
@@ -1467,7 +1621,9 @@ export class PolicyNegotiationPointService implements IPolicyNegotiationPointCom
 						return policy as IRightsManagementAgreement;
 					}
 				}
-			}
+
+				cursor = result.cursor;
+			} while (Is.stringValue(cursor));
 		} catch {
 			// PAP query failure is non-fatal: fall through to fresh negotiation
 		}
@@ -1627,16 +1783,21 @@ export class PolicyNegotiationPointService implements IPolicyNegotiationPointCom
 				policyNegotiation.offer
 			);
 
+			// In polling mode nothing is sent, so no origin is required.
+			const outboundCallbackAddress = Is.stringValue(callbackAddress)
+				? await this.buildCallbackUrl(
+						policyNegotiation.publicOrigin,
+						policyNegotiation.organizationIdentity
+					)
+				: undefined;
+
 			const offerMessage: IDataspaceProtocolContractOfferMessage = {
 				"@context": [DataspaceProtocolContexts.Context],
 				"@type": DataspaceProtocolContractNegotiationTypes.ContractOfferMessage,
 				providerPid: policyNegotiation.id,
 				consumerPid: policyNegotiation.correlationId,
 				offer: policyNegotiation.offer,
-				callbackAddress: await this.buildCallbackUrl(
-					policyNegotiation.publicOrigin,
-					policyNegotiation.organizationIdentity
-				)
+				callbackAddress: outboundCallbackAddress
 			};
 
 			const trustPayload = await this.generateNegotiationTrustPayload(policyNegotiation, {
@@ -1830,6 +1991,14 @@ export class PolicyNegotiationPointService implements IPolicyNegotiationPointCom
 						})
 					);
 				} else {
+					// In polling mode nothing is sent, so no origin is required.
+					const outboundCallbackAddress = Is.stringValue(callbackAddress)
+						? await this.buildCallbackUrl(
+								policyNegotiation.publicOrigin,
+								policyNegotiation.organizationIdentity
+							)
+						: undefined;
+
 					// Create the agreement message
 					const agreementMessage: IDataspaceProtocolContractAgreementMessage = {
 						"@context": [DataspaceProtocolContexts.Context],
@@ -1837,10 +2006,7 @@ export class PolicyNegotiationPointService implements IPolicyNegotiationPointCom
 						providerPid: policyNegotiation.id,
 						consumerPid: policyNegotiation.correlationId,
 						agreement,
-						callbackAddress: await this.buildCallbackUrl(
-							policyNegotiation.publicOrigin,
-							policyNegotiation.organizationIdentity
-						)
+						callbackAddress: outboundCallbackAddress
 					};
 
 					const trustPayload = await this.generateNegotiationTrustPayload(policyNegotiation, {
@@ -2007,8 +2173,10 @@ export class PolicyNegotiationPointService implements IPolicyNegotiationPointCom
 		publicOrigin: string | undefined,
 		organizationId: string
 	): Promise<string> {
+		Url.guard(PolicyNegotiationPointService.CLASS_NAME, nameof(publicOrigin), publicOrigin);
+
 		// Combine the public origin (host) with the configured callback path
-		const origin = StringHelper.trimTrailingSlashes(publicOrigin ?? "");
+		const origin = StringHelper.trimTrailingSlashes(publicOrigin);
 
 		const url = Is.stringValue(this._callbackPath) ? `${origin}/${this._callbackPath}` : origin;
 

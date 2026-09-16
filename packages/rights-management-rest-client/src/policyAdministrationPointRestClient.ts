@@ -9,7 +9,7 @@ import {
 } from "@twin.org/api-models";
 import { Coerce, Guards } from "@twin.org/core";
 import type { JsonLdObjectWithOptionalAtId } from "@twin.org/data-json-ld";
-import type { EntityCondition } from "@twin.org/entity";
+import type { EntityCondition, SortDirection } from "@twin.org/entity";
 import { nameof } from "@twin.org/nameof";
 import {
 	type IPapCreateRequest,
@@ -216,6 +216,8 @@ export class PolicyAdministrationPointRestClient
 	 * @param cursor The cursor to use for pagination.
 	 * @param limit The number of results to return per page.
 	 * @param properties Optional list of policy property names to include in the response, the policy "@id" is always included.
+	 * @param orderBy The policy property to order the results by.
+	 * @param orderByDirection The direction for the order, defaults to descending.
 	 * @returns Cursor for next page of results and the policies matching the query.
 	 */
 	public async query(
@@ -228,7 +230,9 @@ export class PolicyAdministrationPointRestClient
 		conditions?: EntityCondition<IRightsManagementPolicy>,
 		cursor?: string,
 		limit?: number,
-		properties?: (keyof IRightsManagementPolicy)[]
+		properties?: (keyof IRightsManagementPolicy)[],
+		orderBy?: keyof IRightsManagementPolicy,
+		orderByDirection?: SortDirection
 	): Promise<{
 		cursor?: string;
 		policies: IRightsManagementPolicy[];
@@ -245,7 +249,9 @@ export class PolicyAdministrationPointRestClient
 					cursor,
 					conditions: HttpParameterHelper.objectToString(conditions),
 					limit: Coerce.string(limit),
-					properties: HttpParameterHelper.arrayToString(properties)
+					properties: HttpParameterHelper.arrayToString(properties),
+					orderBy,
+					orderByDirection
 				}
 			}
 		);

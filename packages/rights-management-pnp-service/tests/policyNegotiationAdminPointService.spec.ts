@@ -1,11 +1,5 @@
 // Copyright 2025 IOTA Stiftung.
 // SPDX-License-Identifier: Apache-2.0.
-import type { IPlatformComponent } from "@twin.org/api-models";
-import {
-	TaskSchedulerService,
-	initSchema as initSchemaScheduler,
-	type ScheduledTask
-} from "@twin.org/background-task-scheduler";
 import { ContextIdStore } from "@twin.org/context";
 import { ComponentFactory } from "@twin.org/core";
 import { MemoryEntityStorageConnector } from "@twin.org/entity-storage-connector-memory";
@@ -25,17 +19,14 @@ import { initSchema } from "../src/schema.js";
 
 let loggingMemoryEntityStorage: MemoryEntityStorageConnector<LogEntry>;
 let policyNegotiationMemoryEntityStorage: MemoryEntityStorageConnector<PolicyNegotiation>;
-let taskSchedulerComponent: TaskSchedulerService;
 
 describe("PolicyNegotiationAdminPointService", () => {
 	afterEach(async () => {
-		await taskSchedulerComponent.stop();
 		vi.restoreAllMocks();
 	});
 
 	beforeEach(async () => {
 		initSchemaLogging();
-		initSchemaScheduler();
 		initSchema();
 
 		loggingMemoryEntityStorage = new MemoryEntityStorageConnector<LogEntry>({
@@ -46,21 +37,6 @@ describe("PolicyNegotiationAdminPointService", () => {
 		LoggingConnectorFactory.register("logging", () => new EntityStorageLoggingConnector());
 		ComponentFactory.register("logging", () => new LoggingService());
 
-		EntityStorageConnectorFactory.register(
-			"scheduled-task",
-			() =>
-				new MemoryEntityStorageConnector<ScheduledTask>({
-					entitySchema: nameof<ScheduledTask>(),
-					config: { storageKey: "scheduled-task" }
-				})
-		);
-
-		taskSchedulerComponent = new TaskSchedulerService({ config: { intervalMs: 500 } });
-		ComponentFactory.register("task-scheduler", () => taskSchedulerComponent);
-		// The engine normally calls start() on every registered IComponent during bootstrap;
-		// tests don't run a full engine bootstrap, so the scheduler must be started explicitly
-		// or addTask() will register tasks that never actually trigger.
-		await taskSchedulerComponent.start();
 		policyNegotiationMemoryEntityStorage = new MemoryEntityStorageConnector<PolicyNegotiation>({
 			entitySchema: nameof<PolicyNegotiation>(),
 			config: { storageKey: "policy-negotiation" }
@@ -71,13 +47,6 @@ describe("PolicyNegotiationAdminPointService", () => {
 		);
 		ContextIdStore.getContextIds = vi.fn().mockImplementation(() => ({
 			organization: "org"
-		}));
-
-		ComponentFactory.register("platform", () => ({
-			className: () => "MockPlatformComponent",
-			isMultiTenant: () => false,
-			execute: async (method: () => Promise<void>) => method(),
-			getLocalOriginContext: async () => undefined
 		}));
 	});
 
@@ -148,147 +117,6 @@ describe("PolicyNegotiationAdminPointService", () => {
 		await expect(service.get("pid")).rejects.toMatchObject({
 			name: expect.stringMatching("NotFoundError")
 		});
-	});
-
-	test("can cleanup old requests", async () => {
-		const service = new PolicyNegotiationAdminPointService();
-
-		const now = Date.now();
-		const msInDay = 1440 * 60 * 1000;
-		const negotiation: PolicyNegotiation = {
-			id: "pid",
-			correlationId: "cid",
-			dateCreated: new Date().toISOString(),
-			state: DataspaceProtocolContractNegotiationStateType.REQUESTED,
-			organizationIdentity: "identity",
-			trustVerificationInfo: {
-				identity: "identity"
-			}
-		};
-
-		Date.now = vi.fn().mockImplementation(() => now - msInDay);
-		await service.set(negotiation);
-
-		const negotiation2: PolicyNegotiation = {
-			id: "pid2",
-			correlationId: "cid2",
-			dateCreated: new Date().toISOString(),
-			state: DataspaceProtocolContractNegotiationStateType.REQUESTED,
-			organizationIdentity: "identity",
-			trustVerificationInfo: {
-				identity: "identity"
-			}
-		};
-
-		Date.now = vi.fn().mockImplementation(() => now + msInDay);
-		await service.set(negotiation2);
-
-		vi.clearAllMocks();
-		await service.start();
-
-		await expect(service.get("pid")).rejects.toMatchObject({
-			name: expect.stringMatching("NotFoundError")
-		});
-		const pid2 = await service.get("pid2");
-		expect(pid2).toBeDefined();
-	});
-
-	test("expired cleanup removes expired negotiation and leaves interventionRequired", async () => {
-		const service = new PolicyNegotiationAdminPointService({
-			config: { negotiationStateTtlMinutes: 1440 }
-		});
-
-		const now = Date.now();
-		const msInDay = 1440 * 60 * 1000;
-		const hoursInMs = 60 * 1000;
-		// First negotiation: set while "in the past" so its expires will be in the past once we advance time
-		Date.now = vi.fn().mockImplementation(() => now - msInDay - hoursInMs);
-		const expired: PolicyNegotiation = {
-			id: "expired-pid",
-			correlationId: "expired-cid",
-			dateCreated: new Date().toISOString(),
-			state: DataspaceProtocolContractNegotiationStateType.REQUESTED,
-			organizationIdentity: "identity",
-			trustVerificationInfo: { identity: "identity" }
-		};
-		await service.set(expired);
-
-		// Second: manual intervention (expires stays undefined)
-		Date.now = vi.fn().mockImplementation(() => now);
-		const manual: PolicyNegotiation = {
-			id: "manual-pid",
-			correlationId: "manual-cid",
-			dateCreated: new Date().toISOString(),
-			state: DataspaceProtocolContractNegotiationStateType.REQUESTED,
-			interventionRequired: true,
-			organizationIdentity: "identity",
-			trustVerificationInfo: { identity: "identity" }
-		};
-		await service.set(manual);
-
-		// Advance time so expired's expires is in the past; run expired cleanup directly
-		Date.now = vi.fn().mockImplementation(() => now + msInDay);
-		await (
-			service as unknown as { cleanupOldStatesPartition(): Promise<void> }
-		).cleanupOldStatesPartition();
-
-		await expect(service.get("expired-pid")).rejects.toMatchObject({
-			name: expect.stringMatching("NotFoundError")
-		});
-		const manualResult = await service.get("manual-pid");
-		expect(manualResult).toBeDefined();
-		expect(manualResult.state).toBe(DataspaceProtocolContractNegotiationStateType.REQUESTED);
-	});
-
-	test("partitioned cleanup iterates tenants via per tenant execution", async () => {
-		const executeSpy = vi.fn().mockImplementation(async (method: () => Promise<void>) => {
-			await method();
-			await method();
-		});
-		const platformComponent = {
-			className: () => "platform",
-			execute: executeSpy
-		};
-		ComponentFactory.register("platform", () => platformComponent);
-
-		const service = new PolicyNegotiationAdminPointService();
-
-		interface InternalService {
-			cleanupOldStatesPartition(): Promise<void>;
-		}
-		const internalService = service as unknown as InternalService;
-		const cleanupPartitionSpy = vi
-			.spyOn(internalService, "cleanupOldStatesPartition")
-			.mockResolvedValue(undefined);
-
-		await service.start();
-
-		expect(executeSpy).toHaveBeenCalledTimes(1);
-		expect(cleanupPartitionSpy).toHaveBeenCalledTimes(2);
-	});
-
-	test("single-tenant cleanup runs partition method once via platform execute", async () => {
-		const executeSpy = vi.fn().mockImplementation(async (method: () => Promise<void>) => method());
-		const platformComponent = {
-			className: () => "platform",
-			execute: executeSpy
-		} as unknown as IPlatformComponent;
-		ComponentFactory.register("platform", () => platformComponent);
-
-		const service = new PolicyNegotiationAdminPointService();
-
-		interface InternalService {
-			cleanupOldStatesPartition(): Promise<void>;
-		}
-		const internalService = service as unknown as InternalService;
-		const cleanupPartitionSpy = vi
-			.spyOn(internalService, "cleanupOldStatesPartition")
-			.mockResolvedValue(undefined);
-
-		await service.start();
-
-		expect(executeSpy).toHaveBeenCalledTimes(1);
-		expect(cleanupPartitionSpy).toHaveBeenCalledTimes(1);
 	});
 
 	describe("create", () => {

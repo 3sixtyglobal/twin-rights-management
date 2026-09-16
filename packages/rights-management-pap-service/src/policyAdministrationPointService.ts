@@ -16,7 +16,12 @@ import {
 } from "@twin.org/core";
 import type { JsonLdObjectWithOptionalAtId } from "@twin.org/data-json-ld";
 import { JsonLdHelper } from "@twin.org/data-json-ld";
-import { ComparisonOperator, LogicalOperator, type EntityCondition } from "@twin.org/entity";
+import {
+	ComparisonOperator,
+	LogicalOperator,
+	SortDirection,
+	type EntityCondition
+} from "@twin.org/entity";
 import {
 	EntityStorageConnectorFactory,
 	type IEntityStorageConnector
@@ -362,6 +367,8 @@ export class PolicyAdministrationPointService implements IPolicyAdministrationPo
 	 * @param cursor The cursor to use for pagination.
 	 * @param limit The number of results to return per page.
 	 * @param properties Optional list of policy property names to include in the response, the policy "@id" is always included.
+	 * @param orderBy The policy property to order the results by.
+	 * @param orderByDirection The direction for the order, defaults to descending.
 	 * @returns The matching policies and an optional cursor for the next page of results.
 	 */
 	public async query(
@@ -369,7 +376,9 @@ export class PolicyAdministrationPointService implements IPolicyAdministrationPo
 		conditions?: EntityCondition<IRightsManagementPolicy>,
 		cursor?: string,
 		limit?: number,
-		properties?: (keyof IRightsManagementPolicy)[]
+		properties?: (keyof IRightsManagementPolicy)[],
+		orderBy?: keyof IRightsManagementPolicy,
+		orderByDirection?: SortDirection
 	): Promise<{
 		cursor?: string;
 		policies: IRightsManagementPolicy[];
@@ -421,6 +430,17 @@ export class PolicyAdministrationPointService implements IPolicyAdministrationPo
 		}
 		if (!Is.empty(properties)) {
 			Guards.array(PolicyAdministrationPointService.CLASS_NAME, nameof(properties), properties);
+		}
+		if (!Is.empty(orderBy)) {
+			Guards.stringValue(PolicyAdministrationPointService.CLASS_NAME, nameof(orderBy), orderBy);
+		}
+		if (!Is.empty(orderByDirection)) {
+			Guards.arrayOneOf(
+				PolicyAdministrationPointService.CLASS_NAME,
+				nameof(orderByDirection),
+				orderByDirection,
+				Object.values(SortDirection)
+			);
 		}
 
 		const allConditions: EntityCondition<IRightsManagementPolicy> = {
@@ -474,7 +494,14 @@ export class PolicyAdministrationPointService implements IPolicyAdministrationPo
 
 		const result = await this._odrlPolicyEntityStorage.query(
 			allConditions.conditions.length > 0 ? allConditions : undefined,
-			undefined,
+			Is.stringValue(orderBy)
+				? [
+						{
+							property: this.convertToStorageProperty(orderBy),
+							sortDirection: orderByDirection ?? SortDirection.Descending
+						}
+					]
+				: undefined,
 			this.convertToStorageProperties(properties),
 			cursor,
 			limit
@@ -624,18 +651,27 @@ export class PolicyAdministrationPointService implements IPolicyAdministrationPo
 
 		const storageProperties = new Set<keyof OdrlPolicy>(["id"]);
 		for (const property of properties) {
-			if (property === "@id") {
-				storageProperties.add("id");
-			} else if (property === "@type") {
-				storageProperties.add("type");
-			} else if (property === "@context") {
-				storageProperties.add("context");
-			} else {
-				storageProperties.add(property);
-			}
+			storageProperties.add(this.convertToStorageProperty(property));
 		}
 
 		return [...storageProperties];
+	}
+
+	/**
+	 * Converts a policy property name to its storage key, accepting both the model "@"-prefixed and storage forms.
+	 * @param property The policy property name.
+	 * @returns The storage-shaped property name.
+	 * @internal
+	 */
+	private convertToStorageProperty(property: keyof IRightsManagementPolicy): keyof OdrlPolicy {
+		if (property === "@id") {
+			return "id";
+		} else if (property === "@type") {
+			return "type";
+		} else if (property === "@context") {
+			return "context";
+		}
+		return property;
 	}
 
 	/**

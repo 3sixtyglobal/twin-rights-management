@@ -63,3 +63,15 @@ The cursor to get next chunk of data, returned in previous response.
 > `optional` **properties?**: `string`
 
 Comma-separated list of policy property names to include in the response, the policy "@id" is always included.
+
+#### orderBy?
+
+> `optional` **orderBy?**: `string`
+
+The policy property to order the results by.
+
+#### orderByDirection?
+
+> `optional` **orderByDirection?**: `string`
+
+The direction for the order, defaults to descending.

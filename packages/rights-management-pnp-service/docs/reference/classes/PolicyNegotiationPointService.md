@@ -54,6 +54,58 @@ The class name of the component.
 
 ***
 
+### start() {#start}
+
+> **start**(`nodeLoggingComponentType?`): `Promise`\<`void`\>
+
+The component needs to be started when the node is initialized.
+
+#### Parameters
+
+##### nodeLoggingComponentType?
+
+`string`
+
+The node logging component type.
+
+#### Returns
+
+`Promise`\<`void`\>
+
+A promise that resolves when the component has started.
+
+#### Implementation of
+
+`IPolicyNegotiationPointComponent.start`
+
+***
+
+### stop() {#stop}
+
+> **stop**(`nodeLoggingComponentType?`): `Promise`\<`void`\>
+
+The component needs to be stopped when the node is closed.
+
+#### Parameters
+
+##### nodeLoggingComponentType?
+
+`string`
+
+The node logging component type.
+
+#### Returns
+
+`Promise`\<`void`\>
+
+A promise that resolves when the component has stopped.
+
+#### Implementation of
+
+`IPolicyNegotiationPointComponent.stop`
+
+***
+
 ### getNegotiation() {#getnegotiation}
 
 > **getNegotiation**(`id`, `trustPayload`): `Promise`\<`IDataspaceProtocolContractNegotiation` \| `IDataspaceProtocolContractNegotiationError`\>

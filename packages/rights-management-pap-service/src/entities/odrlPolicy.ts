@@ -1,7 +1,7 @@
 // Copyright 2025 IOTA Stiftung.
 // SPDX-License-Identifier: Apache-2.0.
 import type { IJsonLdNodeObject } from "@twin.org/data-json-ld";
-import { entity, property } from "@twin.org/entity";
+import { entity, property, SortDirection } from "@twin.org/entity";
 import type { IDataspaceProtocolPolicy } from "@twin.org/standards-dataspace-protocol";
 import type { OdrlContextType, OdrlPolicyType } from "@twin.org/standards-w3c-odrl";
 
@@ -85,13 +85,23 @@ export class OdrlPolicy {
 	/**
 	 * schema.org dateCreated - ISO 8601 date-time set by PAP on create.
 	 */
-	@property({ type: "string", format: "date-time", optional: true })
+	@property({
+		type: "string",
+		format: "date-time",
+		sortDirection: SortDirection.Descending,
+		optional: true
+	})
 	public dateCreated?: string;
 
 	/**
 	 * schema.org dateModified - ISO 8601 date-time set by PAP on create and update.
 	 */
-	@property({ type: "string", format: "date-time", optional: true })
+	@property({
+		type: "string",
+		format: "date-time",
+		sortDirection: SortDirection.Descending,
+		optional: true
+	})
 	public dateModified?: string;
 
 	/**

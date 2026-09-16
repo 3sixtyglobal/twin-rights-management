@@ -53,5 +53,15 @@ export interface IPapQueryRequest {
 		 * Comma-separated list of policy property names to include in the response, the policy "@id" is always included.
 		 */
 		properties?: string;
+
+		/**
+		 * The policy property to order the results by.
+		 */
+		orderBy?: string;
+
+		/**
+		 * The direction for the order, defaults to descending.
+		 */
+		orderByDirection?: string;
 	};
 }

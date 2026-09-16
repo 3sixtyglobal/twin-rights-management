@@ -12,7 +12,7 @@ Class implementation of Policy Negotiation Admin Point Component.
 
 > **new PolicyNegotiationAdminPointService**(`options?`): `PolicyNegotiationAdminPointService`
 
-Create a new instance of PolicyNegotiationPointService (PNP).
+Create a new instance of PolicyNegotiationAdminPointService (PNAP).
 
 #### Parameters
 
@@ -51,58 +51,6 @@ The class name of the component.
 #### Implementation of
 
 `IPolicyNegotiationAdminPointComponent.className`
-
-***
-
-### start() {#start}
-
-> **start**(`nodeLoggingComponentType?`): `Promise`\<`void`\>
-
-The component needs to be started when the node is initialized.
-
-#### Parameters
-
-##### nodeLoggingComponentType?
-
-`string`
-
-The node logging component type.
-
-#### Returns
-
-`Promise`\<`void`\>
-
-A promise that resolves when the component has started.
-
-#### Implementation of
-
-`IPolicyNegotiationAdminPointComponent.start`
-
-***
-
-### stop() {#stop}
-
-> **stop**(`nodeLoggingComponentType?`): `Promise`\<`void`\>
-
-The component needs to be stopped when the node is closed.
-
-#### Parameters
-
-##### nodeLoggingComponentType?
-
-`string`
-
-The node logging component type.
-
-#### Returns
-
-`Promise`\<`void`\>
-
-A promise that resolves when the component has stopped.
-
-#### Implementation of
-
-`IPolicyNegotiationAdminPointComponent.stop`
 
 ***
 

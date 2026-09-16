@@ -149,6 +149,14 @@ async function waitForState(
 	throw new Error(`Timeout waiting for state ${state} for ${entity}`);
 }
 
+/**
+ * The internal members of the negotiation point service exercised by the cleanup tests.
+ */
+interface InternalNegotiationPoint {
+	cleanupOldStatesPartition(): Promise<void>;
+}
+
+let taskSchedulerComponent: TaskSchedulerService;
 let testOrganizationId: string;
 
 describe("PolicyNegotiationPointService", () => {
@@ -180,8 +188,12 @@ describe("PolicyNegotiationPointService", () => {
 				})
 		);
 
-		const taskSchedulerComponent = new TaskSchedulerService({ config: { intervalMs: 500 } });
+		taskSchedulerComponent = new TaskSchedulerService({ config: { intervalMs: 500 } });
 		ComponentFactory.register("task-scheduler", () => taskSchedulerComponent);
+		// The engine normally calls start() on every registered IComponent during bootstrap;
+		// tests don't run a full engine bootstrap, so the scheduler must be started explicitly
+		// or addTask() will register tasks that never actually trigger.
+		await taskSchedulerComponent.start();
 
 		EntityStorageConnectorFactory.register(
 			"vault-key",
@@ -348,6 +360,7 @@ describe("PolicyNegotiationPointService", () => {
 	});
 
 	afterEach(async () => {
+		await taskSchedulerComponent?.stop();
 		vi.restoreAllMocks();
 		await loggingMemoryEntityStorage?.teardown();
 		await odrlPolicyMemoryEntityStorage?.teardown();
@@ -358,6 +371,7 @@ describe("PolicyNegotiationPointService", () => {
 	test("can create the service", async () => {
 		const policyNegotiationPoint = new PolicyNegotiationPointService({
 			policyNegotiationAdministrationPointComponentType: "policy-negotiation-provider-admin-point",
+			policyNegotiationEntityStorageType: "policy-negotiation-provider",
 			policyNegotiationPointRemoteComponentType: "pnp-remote",
 			config: { callbackPath: "/callback" }
 		});
@@ -369,12 +383,14 @@ describe("PolicyNegotiationPointService", () => {
 
 		const policyNegotiationConsumerPoint = new PolicyNegotiationPointService({
 			policyNegotiationAdministrationPointComponentType: "policy-negotiation-consumer-admin-point",
+			policyNegotiationEntityStorageType: "policy-negotiation-consumer",
 			policyNegotiationPointRemoteComponentType: "pnp-remote",
 			config: { callbackPath: "/callback" }
 		});
 
 		const policyNegotiationProviderPoint = new PolicyNegotiationPointService({
 			policyNegotiationAdministrationPointComponentType: "policy-negotiation-provider-admin-point",
+			policyNegotiationEntityStorageType: "policy-negotiation-provider",
 			policyNegotiationPointRemoteComponentType: "pnp-remote",
 			config: { callbackPath: "/callback" }
 		});
@@ -408,12 +424,14 @@ describe("PolicyNegotiationPointService", () => {
 
 		const policyNegotiationConsumerPoint = new PolicyNegotiationPointService({
 			policyNegotiationAdministrationPointComponentType: "policy-negotiation-consumer-admin-point",
+			policyNegotiationEntityStorageType: "policy-negotiation-consumer",
 			policyNegotiationPointRemoteComponentType: "pnp-remote",
 			config: { callbackPath: "/callback" }
 		});
 
 		const policyNegotiationProviderPoint = new PolicyNegotiationPointService({
 			policyNegotiationAdministrationPointComponentType: "policy-negotiation-provider-admin-point",
+			policyNegotiationEntityStorageType: "policy-negotiation-provider",
 			policyNegotiationPointRemoteComponentType: "pnp-remote",
 			config: { callbackPath: "/callback" }
 		});
@@ -451,12 +469,14 @@ describe("PolicyNegotiationPointService", () => {
 
 		const policyNegotiationConsumerPoint = new PolicyNegotiationPointService({
 			policyNegotiationAdministrationPointComponentType: "policy-negotiation-consumer-admin-point",
+			policyNegotiationEntityStorageType: "policy-negotiation-consumer",
 			policyNegotiationPointRemoteComponentType: "pnp-remote",
 			config: { callbackPath: "/callback" }
 		});
 
 		const policyNegotiationProviderPoint = new PolicyNegotiationPointService({
 			policyNegotiationAdministrationPointComponentType: "policy-negotiation-provider-admin-point",
+			policyNegotiationEntityStorageType: "policy-negotiation-provider",
 			policyNegotiationPointRemoteComponentType: "pnp-remote",
 			config: { callbackPath: "/callback" }
 		});
@@ -494,12 +514,14 @@ describe("PolicyNegotiationPointService", () => {
 
 		const policyNegotiationConsumerPoint = new PolicyNegotiationPointService({
 			policyNegotiationAdministrationPointComponentType: "policy-negotiation-consumer-admin-point",
+			policyNegotiationEntityStorageType: "policy-negotiation-consumer",
 			policyNegotiationPointRemoteComponentType: "pnp-remote",
 			config: { callbackPath: "/callback" }
 		});
 
 		const policyNegotiationProviderPoint = new PolicyNegotiationPointService({
 			policyNegotiationAdministrationPointComponentType: "policy-negotiation-provider-admin-point",
+			policyNegotiationEntityStorageType: "policy-negotiation-provider",
 			policyNegotiationPointRemoteComponentType: "pnp-remote",
 			config: { callbackPath: "/callback" }
 		});
@@ -565,12 +587,14 @@ describe("PolicyNegotiationPointService", () => {
 
 		const policyNegotiationConsumerPoint = new PolicyNegotiationPointService({
 			policyNegotiationAdministrationPointComponentType: "policy-negotiation-consumer-admin-point",
+			policyNegotiationEntityStorageType: "policy-negotiation-consumer",
 			policyNegotiationPointRemoteComponentType: "pnp-remote",
 			config: { callbackPath: "/callback" }
 		});
 
 		const policyNegotiationProviderPoint = new PolicyNegotiationPointService({
 			policyNegotiationAdministrationPointComponentType: "policy-negotiation-provider-admin-point",
+			policyNegotiationEntityStorageType: "policy-negotiation-provider",
 			policyNegotiationPointRemoteComponentType: "pnp-remote",
 			config: { callbackPath: "/callback" }
 		});
@@ -885,12 +909,14 @@ describe("PolicyNegotiationPointService", () => {
 
 		const policyNegotiationConsumerPoint = new PolicyNegotiationPointService({
 			policyNegotiationAdministrationPointComponentType: "policy-negotiation-consumer-admin-point",
+			policyNegotiationEntityStorageType: "policy-negotiation-consumer",
 			policyNegotiationPointRemoteComponentType: "pnp-remote",
 			config: { callbackPath: "/callback" }
 		});
 
 		const policyNegotiationProviderPoint = new PolicyNegotiationPointService({
 			policyNegotiationAdministrationPointComponentType: "policy-negotiation-provider-admin-point",
+			policyNegotiationEntityStorageType: "policy-negotiation-provider",
 			policyNegotiationPointRemoteComponentType: "pnp-remote",
 			config: { callbackPath: "/callback" }
 		});
@@ -929,6 +955,7 @@ describe("PolicyNegotiationPointService", () => {
 	test("getNegotiation should return error when caller is not a negotiation party", async () => {
 		const policyNegotiationProviderPoint = new PolicyNegotiationPointService({
 			policyNegotiationAdministrationPointComponentType: "policy-negotiation-provider-admin-point",
+			policyNegotiationEntityStorageType: "policy-negotiation-provider",
 			policyNegotiationPointRemoteComponentType: "pnp-remote",
 			config: { callbackPath: "/callback" }
 		});
@@ -964,6 +991,7 @@ describe("PolicyNegotiationPointService", () => {
 	test("getNegotiation should succeed when caller is a negotiation party", async () => {
 		const policyNegotiationProviderPoint = new PolicyNegotiationPointService({
 			policyNegotiationAdministrationPointComponentType: "policy-negotiation-provider-admin-point",
+			policyNegotiationEntityStorageType: "policy-negotiation-provider",
 			policyNegotiationPointRemoteComponentType: "pnp-remote",
 			config: { callbackPath: "/callback" }
 		});
@@ -1029,6 +1057,7 @@ describe("PolicyNegotiationPointService", () => {
 			const consumer = new PolicyNegotiationPointService({
 				policyNegotiationAdministrationPointComponentType:
 					"policy-negotiation-consumer-admin-point",
+				policyNegotiationEntityStorageType: "policy-negotiation-consumer",
 				policyNegotiationPointRemoteComponentType: "pnp-remote",
 				config: { callbackPath: "/callback" }
 			});
@@ -1070,6 +1099,7 @@ describe("PolicyNegotiationPointService", () => {
 			const consumer = new PolicyNegotiationPointService({
 				policyNegotiationAdministrationPointComponentType:
 					"policy-negotiation-consumer-admin-point",
+				policyNegotiationEntityStorageType: "policy-negotiation-consumer",
 				policyNegotiationPointRemoteComponentType: "pnp-remote",
 				config: { callbackPath: "/callback" }
 			});
@@ -1112,6 +1142,7 @@ describe("PolicyNegotiationPointService", () => {
 			const consumer = new PolicyNegotiationPointService({
 				policyNegotiationAdministrationPointComponentType:
 					"policy-negotiation-consumer-admin-point",
+				policyNegotiationEntityStorageType: "policy-negotiation-consumer",
 				policyNegotiationPointRemoteComponentType: "pnp-remote",
 				config: { callbackPath: "/callback" }
 			});
@@ -1137,12 +1168,14 @@ describe("PolicyNegotiationPointService", () => {
 			const provider = new PolicyNegotiationPointService({
 				policyNegotiationAdministrationPointComponentType:
 					"policy-negotiation-provider-admin-point",
+				policyNegotiationEntityStorageType: "policy-negotiation-provider",
 				policyNegotiationPointRemoteComponentType: "pnp-remote",
 				config: { callbackPath: "/callback" }
 			});
 			const consumer = new PolicyNegotiationPointService({
 				policyNegotiationAdministrationPointComponentType:
 					"policy-negotiation-consumer-admin-point",
+				policyNegotiationEntityStorageType: "policy-negotiation-consumer",
 				policyNegotiationPointRemoteComponentType: "pnp-remote",
 				config: { callbackPath: "/callback" }
 			});
@@ -1437,6 +1470,7 @@ describe("PolicyNegotiationPointService", () => {
 			const consumer = new PolicyNegotiationPointService({
 				policyNegotiationAdministrationPointComponentType:
 					"policy-negotiation-consumer-admin-point",
+				policyNegotiationEntityStorageType: "policy-negotiation-consumer",
 				policyNegotiationPointRemoteComponentType: "pnp-remote",
 				config: { callbackPath: "/callback" }
 			});
@@ -1543,6 +1577,7 @@ describe("PolicyNegotiationPointService", () => {
 			const consumer = new PolicyNegotiationPointService({
 				policyNegotiationAdministrationPointComponentType:
 					"policy-negotiation-consumer-admin-point",
+				policyNegotiationEntityStorageType: "policy-negotiation-consumer",
 				policyNegotiationPointRemoteComponentType: "pnp-remote",
 				config: { callbackPath: "/callback" }
 			});
@@ -1723,6 +1758,7 @@ describe("PolicyNegotiationPointService", () => {
 			const provider = new PolicyNegotiationPointService({
 				policyNegotiationAdministrationPointComponentType:
 					"policy-negotiation-provider-admin-point",
+				policyNegotiationEntityStorageType: "policy-negotiation-provider",
 				policyNegotiationPointRemoteComponentType: "pnp-remote",
 				config: { callbackPath: "/callback" }
 			});
@@ -1755,6 +1791,7 @@ describe("PolicyNegotiationPointService", () => {
 			const provider = new PolicyNegotiationPointService({
 				policyNegotiationAdministrationPointComponentType:
 					"policy-negotiation-provider-admin-point",
+				policyNegotiationEntityStorageType: "policy-negotiation-provider",
 				policyNegotiationPointRemoteComponentType: "pnp-remote",
 				config: { callbackPath: "/callback" }
 			});
@@ -1787,6 +1824,7 @@ describe("PolicyNegotiationPointService", () => {
 			const consumer = new PolicyNegotiationPointService({
 				policyNegotiationAdministrationPointComponentType:
 					"policy-negotiation-consumer-admin-point",
+				policyNegotiationEntityStorageType: "policy-negotiation-consumer",
 				policyNegotiationPointRemoteComponentType: "pnp-remote",
 				config: { callbackPath: "/callback" }
 			});
@@ -1837,6 +1875,7 @@ describe("PolicyNegotiationPointService", () => {
 			const provider = new PolicyNegotiationPointService({
 				policyNegotiationAdministrationPointComponentType:
 					"policy-negotiation-provider-admin-point",
+				policyNegotiationEntityStorageType: "policy-negotiation-provider",
 				policyNegotiationPointRemoteComponentType: "pnp-remote",
 				config: { callbackPath: "/callback" }
 			});
@@ -1886,6 +1925,7 @@ describe("PolicyNegotiationPointService", () => {
 			const consumer = new PolicyNegotiationPointService({
 				policyNegotiationAdministrationPointComponentType:
 					"policy-negotiation-consumer-admin-point",
+				policyNegotiationEntityStorageType: "policy-negotiation-consumer",
 				policyNegotiationPointRemoteComponentType: "pnp-remote",
 				config: { callbackPath: "/callback" }
 			});
@@ -1933,6 +1973,159 @@ describe("PolicyNegotiationPointService", () => {
 		});
 	});
 
+	describe("public origin is required for outbound callback addresses", () => {
+		test("sendRequestToProvider rejects a missing public origin instead of building a path-only callback address", async () => {
+			PolicyRequesterFactory.register("requester-1", () => mockPolicyRequester);
+
+			const consumer = new PolicyNegotiationPointService({
+				policyNegotiationAdministrationPointComponentType:
+					"policy-negotiation-consumer-admin-point",
+				policyNegotiationEntityStorageType: "policy-negotiation-consumer",
+				policyNegotiationPointRemoteComponentType: "pnp-remote",
+				config: { callbackPath: "/callback" }
+			});
+
+			await expect(
+				consumer.sendRequestToProvider(providerOrigin, "requester-1", "urn:policy:offer-1", "")
+			).rejects.toMatchObject({
+				name: "GuardError",
+				properties: { property: "publicOrigin" }
+			});
+
+			const stored = await policyNegotiationConsumerMemoryEntityStorage.getStore();
+			expect(stored).toHaveLength(0);
+		});
+
+		test("requestFromConsumer terminates when the context carries no public origin", async () => {
+			PolicyNegotiatorFactory.register("MockPolicyNegotiator", () => mockNegotiator);
+			await adminPointComponent.create(mockOffer);
+
+			ContextIdStore.getContextIds = vi.fn().mockImplementation(() => ({
+				[ContextIdKeys.Node]: testIdentityConsumer,
+				[ContextIdKeys.Organization]: testOrganizationId
+				// PublicOrigin intentionally absent, as when the tenant was created without one
+			}));
+
+			const provider = new PolicyNegotiationPointService({
+				policyNegotiationAdministrationPointComponentType:
+					"policy-negotiation-provider-admin-point",
+				policyNegotiationEntityStorageType: "policy-negotiation-provider",
+				policyNegotiationPointRemoteComponentType: "pnp-remote",
+				config: { callbackPath: "/callback" }
+			});
+
+			const result = await provider.requestFromConsumer(
+				{
+					"@context": [DataspaceProtocolContexts.Context],
+					"@type": DataspaceProtocolContractNegotiationTypes.ContractRequestMessage,
+					consumerPid: "urn:contract-negotiation:no-origin-consumer-pid",
+					offer: mockOffer,
+					callbackAddress: `${consumerOrigin}/callback`
+				},
+				`token:${testIdentityConsumer}`
+			);
+
+			// The negotiation fails at the point the origin is needed rather than stalling later
+			// when the consumer cannot parse a path-only callback address.
+			expect(result["@type"]).toBe(
+				DataspaceProtocolContractNegotiationTypes.ContractNegotiationError
+			);
+			if ("code" in result) {
+				expect(result.code).toMatch(/^guard\./);
+			}
+
+			const stored = await policyNegotiationProviderMemoryEntityStorage.getStore();
+			expect(stored).toHaveLength(0);
+		});
+
+		test("offerFromProvider rejects a path-only inbound callback address", async () => {
+			PolicyRequesterFactory.register("requester-1", () => mockPolicyRequester);
+
+			const consumer = new PolicyNegotiationPointService({
+				policyNegotiationAdministrationPointComponentType:
+					"policy-negotiation-consumer-admin-point",
+				policyNegotiationEntityStorageType: "policy-negotiation-consumer",
+				policyNegotiationPointRemoteComponentType: "pnp-remote",
+				config: { callbackPath: "/callback" }
+			});
+
+			await expect(
+				consumer.offerFromProvider(
+					{
+						"@context": [DataspaceProtocolContexts.Context],
+						"@type": DataspaceProtocolContractNegotiationTypes.ContractOfferMessage,
+						providerPid: "provider-pid-relative-cb",
+						consumerPid: "consumer-pid-relative-cb",
+						offer: mockOffer,
+						callbackAddress: "/rights-management?organization=did%3Aexample%3A1"
+					},
+					`token:${testIdentityProvider}`
+				)
+			).rejects.toMatchObject({
+				name: "GuardError",
+				message: "guard.url",
+				properties: { property: expect.stringMatching(/callbackAddress$/) }
+			});
+		});
+
+		test("the offer pushed to the consumer carries an absolute callback address", async () => {
+			PolicyNegotiatorFactory.register("MockPolicyNegotiator", () => mockNegotiator);
+			await adminPointComponent.create(mockOffer);
+
+			let deliveredCallbackAddress: string | undefined;
+			remoteComponentResolver = () => ({
+				...createRemoteComponent(
+					new PolicyNegotiationPointService({
+						policyNegotiationAdministrationPointComponentType:
+							"policy-negotiation-consumer-admin-point",
+						policyNegotiationEntityStorageType: "policy-negotiation-consumer",
+						policyNegotiationPointRemoteComponentType: "pnp-remote",
+						config: { callbackPath: "/callback" }
+					}),
+					consumerOrigin
+				),
+				offerFromProvider: async message => {
+					deliveredCallbackAddress = message.callbackAddress;
+					return {
+						"@context": [DataspaceProtocolContexts.Context],
+						"@type": DataspaceProtocolContractNegotiationTypes.ContractNegotiation,
+						providerPid: message.providerPid,
+						consumerPid: message.consumerPid ?? "",
+						state: DataspaceProtocolContractNegotiationStateType.ACCEPTED
+					};
+				}
+			});
+
+			const provider = new PolicyNegotiationPointService({
+				policyNegotiationAdministrationPointComponentType:
+					"policy-negotiation-provider-admin-point",
+				policyNegotiationEntityStorageType: "policy-negotiation-provider",
+				policyNegotiationPointRemoteComponentType: "pnp-remote",
+				config: { callbackPath: "/callback" }
+			});
+
+			await provider.requestFromConsumer(
+				{
+					"@context": [DataspaceProtocolContexts.Context],
+					"@type": DataspaceProtocolContractNegotiationTypes.ContractRequestMessage,
+					consumerPid: "urn:contract-negotiation:absolute-cb-consumer-pid",
+					offer: mockOffer,
+					callbackAddress: `${consumerOrigin}/callback`
+				},
+				`token:${testIdentityConsumer}`
+			);
+
+			await waitForState(
+				policyNegotiationProviderMemoryEntityStorage,
+				DataspaceProtocolContractNegotiationStateType.OFFERED,
+				"provider"
+			);
+
+			expect(deliveredCallbackAddress).toBeDefined();
+			expect(deliveredCallbackAddress?.startsWith(providerOrigin)).toBe(true);
+		});
+	});
+
 	describe("consumer-side agreement persistence on finalize", () => {
 		test("event(FINALIZED) on the consumer writes the agreement to the consumer PAP so it is resolvable by agreementId", async () => {
 			PolicyRequesterFactory.register("requester-2", () => mockPolicyRequester);
@@ -1940,6 +2133,7 @@ describe("PolicyNegotiationPointService", () => {
 			const consumer = new PolicyNegotiationPointService({
 				policyNegotiationAdministrationPointComponentType:
 					"policy-negotiation-consumer-admin-point",
+				policyNegotiationEntityStorageType: "policy-negotiation-consumer",
 				policyNegotiationPointRemoteComponentType: "pnp-remote",
 				config: { callbackPath: "/callback" }
 			});
@@ -2001,6 +2195,7 @@ describe("PolicyNegotiationPointService", () => {
 			const consumer = new PolicyNegotiationPointService({
 				policyNegotiationAdministrationPointComponentType:
 					"policy-negotiation-consumer-admin-point",
+				policyNegotiationEntityStorageType: "policy-negotiation-consumer",
 				policyNegotiationPointRemoteComponentType: "pnp-remote",
 				config: { callbackPath: "/callback" }
 			});
@@ -2052,6 +2247,7 @@ describe("PolicyNegotiationPointService", () => {
 			const consumer = new PolicyNegotiationPointService({
 				policyNegotiationAdministrationPointComponentType:
 					"policy-negotiation-consumer-admin-point",
+				policyNegotiationEntityStorageType: "policy-negotiation-consumer",
 				policyNegotiationPointRemoteComponentType: "pnp-remote",
 				config: { callbackPath: "/callback" }
 			});
@@ -2104,6 +2300,7 @@ describe("PolicyNegotiationPointService", () => {
 			const consumer = new PolicyNegotiationPointService({
 				policyNegotiationAdministrationPointComponentType:
 					"policy-negotiation-consumer-admin-point",
+				policyNegotiationEntityStorageType: "policy-negotiation-consumer",
 				policyNegotiationPointRemoteComponentType: "pnp-remote",
 				config: { callbackPath: "/callback" }
 			});
@@ -2167,6 +2364,7 @@ describe("PolicyNegotiationPointService", () => {
 			const consumer = new PolicyNegotiationPointService({
 				policyNegotiationAdministrationPointComponentType:
 					"policy-negotiation-consumer-admin-point",
+				policyNegotiationEntityStorageType: "policy-negotiation-consumer",
 				policyNegotiationPointRemoteComponentType: "pnp-remote",
 				config: { callbackPath: "/callback" }
 			});
@@ -2221,6 +2419,7 @@ describe("PolicyNegotiationPointService", () => {
 			const provider = new PolicyNegotiationPointService({
 				policyNegotiationAdministrationPointComponentType:
 					"policy-negotiation-provider-admin-point",
+				policyNegotiationEntityStorageType: "policy-negotiation-provider",
 				policyNegotiationPointRemoteComponentType: "pnp-remote",
 				config: { callbackPath: "/callback" }
 			});
@@ -2272,6 +2471,7 @@ describe("PolicyNegotiationPointService", () => {
 			const provider = new PolicyNegotiationPointService({
 				policyNegotiationAdministrationPointComponentType:
 					"policy-negotiation-provider-admin-point",
+				policyNegotiationEntityStorageType: "policy-negotiation-provider",
 				policyNegotiationPointRemoteComponentType: "pnp-remote",
 				config: { callbackPath: "/callback" }
 			});
@@ -2337,6 +2537,7 @@ describe("PolicyNegotiationPointService", () => {
 			const policyNegotiationPoint = new PolicyNegotiationPointService({
 				policyNegotiationAdministrationPointComponentType:
 					"policy-negotiation-provider-admin-point",
+				policyNegotiationEntityStorageType: "policy-negotiation-provider",
 				policyNegotiationPointRemoteComponentType: "pnp-remote",
 				config: { callbackPath: "/callback" }
 			});
@@ -2363,6 +2564,7 @@ describe("PolicyNegotiationPointService", () => {
 				const providerPoint = new PolicyNegotiationPointService({
 					policyNegotiationAdministrationPointComponentType:
 						"policy-negotiation-provider-admin-point",
+					policyNegotiationEntityStorageType: "policy-negotiation-provider",
 					policyNegotiationPointRemoteComponentType: "pnp-remote",
 					config: { callbackPath: "/callback" }
 				});
@@ -2375,6 +2577,7 @@ describe("PolicyNegotiationPointService", () => {
 			const consumer = new PolicyNegotiationPointService({
 				policyNegotiationAdministrationPointComponentType:
 					"policy-negotiation-consumer-admin-point",
+				policyNegotiationEntityStorageType: "policy-negotiation-consumer",
 				policyNegotiationPointRemoteComponentType: "pnp-remote",
 				config: { callbackPath: "/callback" }
 			});
@@ -2409,6 +2612,7 @@ describe("PolicyNegotiationPointService", () => {
 			const policyNegotiationPoint = new PolicyNegotiationPointService({
 				policyNegotiationAdministrationPointComponentType:
 					"policy-negotiation-provider-admin-point",
+				policyNegotiationEntityStorageType: "policy-negotiation-provider",
 				policyNegotiationPointRemoteComponentType: "pnp-remote",
 				config: { callbackPath: "/callback" }
 			});
@@ -2457,6 +2661,7 @@ describe("PolicyNegotiationPointService", () => {
 			const policyNegotiationPoint = new PolicyNegotiationPointService({
 				policyNegotiationAdministrationPointComponentType:
 					"policy-negotiation-provider-admin-point",
+				policyNegotiationEntityStorageType: "policy-negotiation-provider",
 				policyNegotiationPointRemoteComponentType: "pnp-remote",
 				config: { callbackPath: "/callback" }
 			});
@@ -2515,6 +2720,7 @@ describe("PolicyNegotiationPointService", () => {
 			const policyNegotiationPoint = new PolicyNegotiationPointService({
 				policyNegotiationAdministrationPointComponentType:
 					"policy-negotiation-provider-admin-point",
+				policyNegotiationEntityStorageType: "policy-negotiation-provider",
 				policyNegotiationPointRemoteComponentType: "pnp-remote",
 				config: { callbackPath: "/callback" }
 			});
@@ -2545,12 +2751,14 @@ describe("PolicyNegotiationPointService", () => {
 			const policyNegotiationConsumerPoint = new PolicyNegotiationPointService({
 				policyNegotiationAdministrationPointComponentType:
 					"policy-negotiation-consumer-admin-point",
+				policyNegotiationEntityStorageType: "policy-negotiation-consumer",
 				policyNegotiationPointRemoteComponentType: "pnp-remote",
 				config: { callbackPath: "/callback" }
 			});
 			const policyNegotiationProviderPoint = new PolicyNegotiationPointService({
 				policyNegotiationAdministrationPointComponentType:
 					"policy-negotiation-provider-admin-point",
+				policyNegotiationEntityStorageType: "policy-negotiation-provider",
 				policyNegotiationPointRemoteComponentType: "pnp-remote",
 				config: { callbackPath: "/callback" }
 			});
@@ -2630,12 +2838,14 @@ describe("PolicyNegotiationPointService", () => {
 			const policyNegotiationConsumerPoint = new PolicyNegotiationPointService({
 				policyNegotiationAdministrationPointComponentType:
 					"policy-negotiation-consumer-admin-point",
+				policyNegotiationEntityStorageType: "policy-negotiation-consumer",
 				policyNegotiationPointRemoteComponentType: "pnp-remote",
 				config: { callbackPath: "/callback" }
 			});
 			const policyNegotiationProviderPoint = new PolicyNegotiationPointService({
 				policyNegotiationAdministrationPointComponentType:
 					"policy-negotiation-provider-admin-point",
+				policyNegotiationEntityStorageType: "policy-negotiation-provider",
 				policyNegotiationPointRemoteComponentType: "pnp-remote",
 				config: { callbackPath: "/callback" }
 			});
@@ -2704,12 +2914,14 @@ describe("PolicyNegotiationPointService", () => {
 			const policyNegotiationConsumerPoint = new PolicyNegotiationPointService({
 				policyNegotiationAdministrationPointComponentType:
 					"policy-negotiation-consumer-admin-point",
+				policyNegotiationEntityStorageType: "policy-negotiation-consumer",
 				policyNegotiationPointRemoteComponentType: "pnp-remote",
 				config: { callbackPath: "/callback" }
 			});
 			const policyNegotiationProviderPoint = new PolicyNegotiationPointService({
 				policyNegotiationAdministrationPointComponentType:
 					"policy-negotiation-provider-admin-point",
+				policyNegotiationEntityStorageType: "policy-negotiation-provider",
 				policyNegotiationPointRemoteComponentType: "pnp-remote",
 				config: { callbackPath: "/callback" }
 			});
@@ -2764,12 +2976,14 @@ describe("PolicyNegotiationPointService", () => {
 			const policyNegotiationConsumerPoint = new PolicyNegotiationPointService({
 				policyNegotiationAdministrationPointComponentType:
 					"policy-negotiation-consumer-admin-point",
+				policyNegotiationEntityStorageType: "policy-negotiation-consumer",
 				policyNegotiationPointRemoteComponentType: "pnp-remote",
 				config: { callbackPath: "/callback" }
 			});
 			const policyNegotiationProviderPoint = new PolicyNegotiationPointService({
 				policyNegotiationAdministrationPointComponentType:
 					"policy-negotiation-provider-admin-point",
+				policyNegotiationEntityStorageType: "policy-negotiation-provider",
 				policyNegotiationPointRemoteComponentType: "pnp-remote",
 				config: { callbackPath: "/callback" }
 			});
@@ -2848,12 +3062,14 @@ describe("PolicyNegotiationPointService", () => {
 			const policyNegotiationConsumerPoint = new PolicyNegotiationPointService({
 				policyNegotiationAdministrationPointComponentType:
 					"policy-negotiation-consumer-admin-point",
+				policyNegotiationEntityStorageType: "policy-negotiation-consumer",
 				policyNegotiationPointRemoteComponentType: "pnp-remote",
 				config: { callbackPath: "/callback" }
 			});
 			const policyNegotiationProviderPoint = new PolicyNegotiationPointService({
 				policyNegotiationAdministrationPointComponentType:
 					"policy-negotiation-provider-admin-point",
+				policyNegotiationEntityStorageType: "policy-negotiation-provider",
 				policyNegotiationPointRemoteComponentType: "pnp-remote",
 				config: { callbackPath: "/callback" }
 			});
@@ -2929,6 +3145,7 @@ describe("PolicyNegotiationPointService", () => {
 			const consumer = new PolicyNegotiationPointService({
 				policyNegotiationAdministrationPointComponentType:
 					"policy-negotiation-consumer-admin-point",
+				policyNegotiationEntityStorageType: "policy-negotiation-consumer",
 				policyNegotiationPointRemoteComponentType: "pnp-remote",
 				config: { callbackPath: "/callback" }
 			});
@@ -2988,6 +3205,7 @@ describe("PolicyNegotiationPointService", () => {
 			const consumer = new PolicyNegotiationPointService({
 				policyNegotiationAdministrationPointComponentType:
 					"policy-negotiation-consumer-admin-point",
+				policyNegotiationEntityStorageType: "policy-negotiation-consumer",
 				policyNegotiationPointRemoteComponentType: "pnp-remote",
 				config: { callbackPath: "/callback" }
 			});
@@ -3032,6 +3250,7 @@ describe("PolicyNegotiationPointService", () => {
 			const consumer = new PolicyNegotiationPointService({
 				policyNegotiationAdministrationPointComponentType:
 					"policy-negotiation-consumer-admin-point",
+				policyNegotiationEntityStorageType: "policy-negotiation-consumer",
 				policyNegotiationPointRemoteComponentType: "pnp-remote",
 				config: { callbackPath: "/callback" }
 			});
@@ -3073,6 +3292,7 @@ describe("PolicyNegotiationPointService", () => {
 			const consumer = new PolicyNegotiationPointService({
 				policyNegotiationAdministrationPointComponentType:
 					"policy-negotiation-consumer-admin-point",
+				policyNegotiationEntityStorageType: "policy-negotiation-consumer",
 				policyNegotiationPointRemoteComponentType: "pnp-remote",
 				config: { callbackPath: "/callback" }
 			});
@@ -3117,6 +3337,7 @@ describe("PolicyNegotiationPointService", () => {
 			const consumer = new PolicyNegotiationPointService({
 				policyNegotiationAdministrationPointComponentType:
 					"policy-negotiation-consumer-admin-point",
+				policyNegotiationEntityStorageType: "policy-negotiation-consumer",
 				policyNegotiationPointRemoteComponentType: "pnp-remote",
 				config: { callbackPath: "/callback" }
 			});
@@ -3162,6 +3383,7 @@ describe("PolicyNegotiationPointService", () => {
 			const consumer = new PolicyNegotiationPointService({
 				policyNegotiationAdministrationPointComponentType:
 					"policy-negotiation-consumer-admin-point",
+				policyNegotiationEntityStorageType: "policy-negotiation-consumer",
 				policyNegotiationPointRemoteComponentType: "pnp-remote",
 				config: { callbackPath: "/callback" }
 			});
@@ -3220,6 +3442,7 @@ describe("PolicyNegotiationPointService", () => {
 			const provider = new PolicyNegotiationPointService({
 				policyNegotiationAdministrationPointComponentType:
 					"policy-negotiation-provider-admin-point",
+				policyNegotiationEntityStorageType: "policy-negotiation-provider",
 				policyNegotiationPointRemoteComponentType: "pnp-remote",
 				config: { callbackPath: "/callback" }
 			});
@@ -3257,6 +3480,7 @@ describe("PolicyNegotiationPointService", () => {
 			const provider = new PolicyNegotiationPointService({
 				policyNegotiationAdministrationPointComponentType:
 					"policy-negotiation-provider-admin-point",
+				policyNegotiationEntityStorageType: "policy-negotiation-provider",
 				policyNegotiationPointRemoteComponentType: "pnp-remote",
 				config: { callbackPath: "/callback" }
 			});
@@ -3295,12 +3519,14 @@ describe("PolicyNegotiationPointService", () => {
 			const policyNegotiationConsumerPoint = new PolicyNegotiationPointService({
 				policyNegotiationAdministrationPointComponentType:
 					"policy-negotiation-consumer-admin-point",
+				policyNegotiationEntityStorageType: "policy-negotiation-consumer",
 				policyNegotiationPointRemoteComponentType: "pnp-remote",
 				config: { callbackPath: "/callback" }
 			});
 			const policyNegotiationProviderPoint = new PolicyNegotiationPointService({
 				policyNegotiationAdministrationPointComponentType:
 					"policy-negotiation-provider-admin-point",
+				policyNegotiationEntityStorageType: "policy-negotiation-provider",
 				policyNegotiationPointRemoteComponentType: "pnp-remote",
 				config: { callbackPath: "/callback" }
 			});
@@ -3351,12 +3577,14 @@ describe("PolicyNegotiationPointService", () => {
 			const policyNegotiationConsumerPoint = new PolicyNegotiationPointService({
 				policyNegotiationAdministrationPointComponentType:
 					"policy-negotiation-consumer-admin-point",
+				policyNegotiationEntityStorageType: "policy-negotiation-consumer",
 				policyNegotiationPointRemoteComponentType: "pnp-remote",
 				config: { callbackPath: "/callback" }
 			});
 			const policyNegotiationProviderPoint = new PolicyNegotiationPointService({
 				policyNegotiationAdministrationPointComponentType:
 					"policy-negotiation-provider-admin-point",
+				policyNegotiationEntityStorageType: "policy-negotiation-provider",
 				policyNegotiationPointRemoteComponentType: "pnp-remote",
 				config: { callbackPath: "/callback" }
 			});
@@ -3432,6 +3660,311 @@ describe("PolicyNegotiationPointService", () => {
 
 			// createAgreement was only called once; the second run did not mint a new agreement.
 			expect(mockNegotiator.createAgreement).toHaveBeenCalledTimes(1);
+		});
+
+		test("reuses the existing agreement when it sits beyond the first page of PAP results", async () => {
+			// Regression for issue #310: the duplicate guard read a single PAP page, so a match
+			// beyond that page was missed and a second agreement was minted for the same parties.
+			const providerPoints: { [id: string]: PolicyNegotiationPointService } = {};
+
+			const policyNegotiationConsumerPoint = new PolicyNegotiationPointService({
+				policyNegotiationAdministrationPointComponentType:
+					"policy-negotiation-consumer-admin-point",
+				policyNegotiationEntityStorageType: "policy-negotiation-consumer",
+				policyNegotiationPointRemoteComponentType: "pnp-remote",
+				config: { callbackPath: "/callback" }
+			});
+			const policyNegotiationProviderPoint = new PolicyNegotiationPointService({
+				policyNegotiationAdministrationPointComponentType:
+					"policy-negotiation-provider-admin-point",
+				policyNegotiationEntityStorageType: "policy-negotiation-provider",
+				policyNegotiationPointRemoteComponentType: "pnp-remote",
+				config: { callbackPath: "/callback" }
+			});
+			providerPoints.provider = policyNegotiationProviderPoint;
+			providerPoints.consumer = policyNegotiationConsumerPoint;
+			remoteComponentResolver = (params: { endpoint: string }) => {
+				if (params.endpoint.startsWith(providerOrigin)) {
+					return createRemoteComponent(providerPoints.provider, providerOrigin);
+				}
+				if (params.endpoint.startsWith(consumerOrigin)) {
+					return createRemoteComponent(providerPoints.consumer, consumerOrigin);
+				}
+				throw new TypeError(`Unknown remote url ${params.endpoint}`);
+			};
+
+			PolicyRequesterFactory.register("requester-dedup-paged", () => mockPolicyRequester);
+			await adminPointComponent.create(mockOffer);
+
+			let agreementCounter = 0;
+			mockNegotiator.createAgreement = vi.fn(
+				async (offer: IDataspaceProtocolOffer, assignee: string) => ({
+					"@context": OdrlContexts.Context,
+					"@type": OdrlTypes.Agreement,
+					"@id": `urn:policy:agreement-dedup-paged-${++agreementCounter}`,
+					assigner: testIdentityProvider,
+					assignee
+				})
+			);
+			mockNegotiator.handleOffer = vi.fn(async () => ({
+				accepted: true,
+				interventionRequired: false,
+				directAgreement: true
+			}));
+			PolicyNegotiatorFactory.register("MockPolicyNegotiator", () => mockNegotiator);
+
+			// First full lifecycle, which mints the agreement the second run must reuse.
+			await policyNegotiationConsumerPoint.sendRequestToProvider(
+				providerOrigin,
+				"requester-dedup-paged",
+				"urn:policy:offer-1",
+				consumerOrigin
+			);
+			await waitForState(policyNegotiationConsumerMemoryEntityStorage, "FINALIZED", "consumer");
+
+			// Fill the PAP with same-party agreements whose rules do not match the offer, created
+			// after the minted one so that it falls onto the second page of query results.
+			await new Promise(resolve => setTimeout(resolve, 10));
+			for (let i = 0; i < 45; i++) {
+				await adminPointComponent.create({
+					"@context": OdrlContexts.Context,
+					"@type": OdrlTypes.Agreement,
+					"@id": `urn:policy:agreement-filler-${i}`,
+					assigner: testIdentityProvider,
+					assignee: testIdentityConsumer,
+					permission: [{ target: `urn:asset:filler-${i}`, action: "use" }]
+				});
+			}
+
+			// Second full lifecycle — identical offer, identical parties.
+			await policyNegotiationConsumerPoint.sendRequestToProvider(
+				providerOrigin,
+				"requester-dedup-paged",
+				"urn:policy:offer-1",
+				consumerOrigin
+			);
+
+			for (let i = 0; i < 60; i++) {
+				const store = await policyNegotiationConsumerMemoryEntityStorage.getStore();
+				if (store.length >= 2 && store[1].state === "FINALIZED") {
+					break;
+				}
+				await new Promise(resolve => setTimeout(resolve, 100));
+			}
+			const finalConsumerStore = await policyNegotiationConsumerMemoryEntityStorage.getStore();
+			expect(finalConsumerStore).toHaveLength(2);
+			expect(finalConsumerStore[1].state).toBe(
+				DataspaceProtocolContractNegotiationStateType.FINALIZED
+			);
+
+			// Only the fillers and the single minted agreement are stored.
+			const policyStore = await odrlPolicyMemoryEntityStorage.getStore();
+			const negotiatedAgreements = policyStore.filter(p =>
+				p.id.startsWith("urn:policy:agreement-dedup-paged-")
+			);
+			expect(negotiatedAgreements).toHaveLength(1);
+
+			// createAgreement was only called once; the second run reused the paged match.
+			expect(mockNegotiator.createAgreement).toHaveBeenCalledTimes(1);
+		});
+	});
+
+	describe("expired state cleanup", () => {
+		/**
+		 * Build a negotiation point over the provider admin point and the storage it writes to.
+		 * @returns The service under test.
+		 */
+		function createProviderNegotiationPoint(): PolicyNegotiationPointService {
+			return new PolicyNegotiationPointService({
+				policyNegotiationAdministrationPointComponentType:
+					"policy-negotiation-provider-admin-point",
+				policyNegotiationEntityStorageType: "policy-negotiation-provider",
+				policyNegotiationPointRemoteComponentType: "pnp-remote",
+				config: { callbackPath: "/callback" }
+			});
+		}
+
+		/**
+		 * Store a negotiation through the provider admin point at a given point in time, so its
+		 * expiry is stamped relative to that time.
+		 * @param at The time to store the negotiation at.
+		 * @param negotiation The negotiation to store.
+		 */
+		async function setProviderNegotiationAt(
+			at: number,
+			negotiation: Parameters<PolicyNegotiationAdminPointService["set"]>[0]
+		): Promise<void> {
+			Date.now = vi.fn().mockImplementation(() => at);
+			await negotiationProviderAdminPointComponent.set(negotiation);
+		}
+
+		const msInDay = 1440 * 60 * 1000;
+
+		test("removes expired negotiations and leaves unexpired ones", async () => {
+			const service = createProviderNegotiationPoint();
+			const now = Date.now();
+
+			await setProviderNegotiationAt(now - msInDay - 60000, {
+				id: "pid",
+				correlationId: "cid",
+				dateCreated: new Date().toISOString(),
+				state: DataspaceProtocolContractNegotiationStateType.REQUESTED,
+				organizationIdentity: "identity",
+				trustVerificationInfo: { identity: "identity" }
+			});
+			await setProviderNegotiationAt(now + msInDay, {
+				id: "pid2",
+				correlationId: "cid2",
+				dateCreated: new Date().toISOString(),
+				state: DataspaceProtocolContractNegotiationStateType.REQUESTED,
+				organizationIdentity: "identity",
+				trustVerificationInfo: { identity: "identity" }
+			});
+
+			Date.now = vi.fn().mockImplementation(() => now + msInDay);
+			await (service as unknown as InternalNegotiationPoint).cleanupOldStatesPartition();
+
+			await expect(negotiationProviderAdminPointComponent.get("pid")).rejects.toMatchObject({
+				name: expect.stringMatching("NotFoundError")
+			});
+			await expect(negotiationProviderAdminPointComponent.get("pid2")).resolves.toBeDefined();
+		});
+
+		test("leaves negotiations which require intervention", async () => {
+			const service = createProviderNegotiationPoint();
+			const now = Date.now();
+
+			await setProviderNegotiationAt(now - msInDay - 60000, {
+				id: "expired-pid",
+				correlationId: "expired-cid",
+				dateCreated: new Date().toISOString(),
+				state: DataspaceProtocolContractNegotiationStateType.REQUESTED,
+				organizationIdentity: "identity",
+				trustVerificationInfo: { identity: "identity" }
+			});
+			// Manual intervention means expires stays undefined, so it is never swept.
+			await setProviderNegotiationAt(now, {
+				id: "manual-pid",
+				correlationId: "manual-cid",
+				dateCreated: new Date().toISOString(),
+				state: DataspaceProtocolContractNegotiationStateType.REQUESTED,
+				interventionRequired: true,
+				organizationIdentity: "identity",
+				trustVerificationInfo: { identity: "identity" }
+			});
+
+			Date.now = vi.fn().mockImplementation(() => now + msInDay);
+			await (service as unknown as InternalNegotiationPoint).cleanupOldStatesPartition();
+
+			await expect(negotiationProviderAdminPointComponent.get("expired-pid")).rejects.toMatchObject(
+				{
+					name: expect.stringMatching("NotFoundError")
+				}
+			);
+			const manualResult = await negotiationProviderAdminPointComponent.get("manual-pid");
+			expect(manualResult.state).toBe(DataspaceProtocolContractNegotiationStateType.REQUESTED);
+		});
+
+		test("sends terminate to the consumer callback before removal", async () => {
+			const service = createProviderNegotiationPoint();
+			const sendTerminateSpy = vi
+				.spyOn(service, "sendTerminateToConsumer")
+				.mockResolvedValue(undefined);
+			const now = Date.now();
+
+			await setProviderNegotiationAt(now - msInDay - 60000, {
+				id: "expired-pid",
+				correlationId: "expired-cid",
+				dateCreated: new Date().toISOString(),
+				state: DataspaceProtocolContractNegotiationStateType.REQUESTED,
+				callbackAddress: "https://consumer.example.com/callback",
+				organizationIdentity: "identity",
+				trustVerificationInfo: { identity: "identity" }
+			});
+
+			Date.now = vi.fn().mockImplementation(() => now + msInDay);
+			await (service as unknown as InternalNegotiationPoint).cleanupOldStatesPartition();
+
+			expect(sendTerminateSpy).toHaveBeenCalledWith(
+				"https://consumer.example.com/callback",
+				"expired-pid",
+				"expired-cid"
+			);
+			await expect(negotiationProviderAdminPointComponent.get("expired-pid")).rejects.toMatchObject(
+				{
+					name: expect.stringMatching("NotFoundError")
+				}
+			);
+		});
+
+		test("removes the negotiation when the terminate delivery fails", async () => {
+			const service = createProviderNegotiationPoint();
+			vi.spyOn(service, "sendTerminateToConsumer").mockRejectedValue(
+				new Error("consumer unreachable")
+			);
+			const now = Date.now();
+
+			await setProviderNegotiationAt(now - msInDay - 60000, {
+				id: "expired-pid",
+				correlationId: "expired-cid",
+				dateCreated: new Date().toISOString(),
+				state: DataspaceProtocolContractNegotiationStateType.REQUESTED,
+				callbackAddress: "https://consumer.example.com/callback",
+				organizationIdentity: "identity",
+				trustVerificationInfo: { identity: "identity" }
+			});
+
+			Date.now = vi.fn().mockImplementation(() => now + msInDay);
+			await (service as unknown as InternalNegotiationPoint).cleanupOldStatesPartition();
+
+			await expect(negotiationProviderAdminPointComponent.get("expired-pid")).rejects.toMatchObject(
+				{
+					name: expect.stringMatching("NotFoundError")
+				}
+			);
+		});
+
+		test("partitioned cleanup iterates tenants via per tenant execution", async () => {
+			const executeSpy = vi.fn().mockImplementation(async (method: () => Promise<void>) => {
+				await method();
+				await method();
+			});
+			ComponentFactory.register("platform", () => ({
+				className: () => "platform",
+				execute: executeSpy
+			}));
+
+			const service = createProviderNegotiationPoint();
+			const internalService = service as unknown as InternalNegotiationPoint;
+			const cleanupPartitionSpy = vi
+				.spyOn(internalService, "cleanupOldStatesPartition")
+				.mockResolvedValue(undefined);
+
+			await service.start();
+
+			expect(executeSpy).toHaveBeenCalledTimes(1);
+			expect(cleanupPartitionSpy).toHaveBeenCalledTimes(2);
+		});
+
+		test("single-tenant cleanup runs partition method once via platform execute", async () => {
+			const executeSpy = vi
+				.fn()
+				.mockImplementation(async (method: () => Promise<void>) => method());
+			ComponentFactory.register("platform", () => ({
+				className: () => "platform",
+				execute: executeSpy
+			}));
+
+			const service = createProviderNegotiationPoint();
+			const internalService = service as unknown as InternalNegotiationPoint;
+			const cleanupPartitionSpy = vi
+				.spyOn(internalService, "cleanupOldStatesPartition")
+				.mockResolvedValue(undefined);
+
+			await service.start();
+
+			expect(executeSpy).toHaveBeenCalledTimes(1);
+			expect(cleanupPartitionSpy).toHaveBeenCalledTimes(1);
 		});
 	});
 });

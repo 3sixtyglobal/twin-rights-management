@@ -13,6 +13,7 @@ import {
 } from "@twin.org/api-models";
 import { ContextIdStore } from "@twin.org/context";
 import { Coerce, ComponentFactory, Guards } from "@twin.org/core";
+import type { SortDirection } from "@twin.org/entity";
 import { nameof } from "@twin.org/nameof";
 import {
 	POLICY_METADATA_CONTEXT,
@@ -671,7 +672,9 @@ export async function papQuery(
 		HttpParameterHelper.objectFromString(request.query?.conditions),
 		request.query?.cursor,
 		Coerce.integer(request.query?.limit),
-		HttpParameterHelper.arrayFromString<keyof IRightsManagementPolicy>(request.query?.properties)
+		HttpParameterHelper.arrayFromString<keyof IRightsManagementPolicy>(request.query?.properties),
+		request.query?.orderBy as keyof IRightsManagementPolicy,
+		request.query?.orderByDirection as SortDirection
 	);
 
 	const headers: IPapQueryResponse["headers"] = {};
