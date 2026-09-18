@@ -6,20 +6,20 @@ import type { IDataspaceProtocolPolicy } from "@twin.org/standards-dataspace-pro
 import type { OdrlContextType, OdrlPolicyType } from "@twin.org/standards-w3c-odrl";
 
 /**
- * Class describing an ODRL policy for entity storage.
+ * Class describing an ODRL policy for entity storage, version 0.
  */
-@entity({ version: 1 })
-export class OdrlPolicy {
+@entity({ version: 0 })
+export class OdrlPolicyV0 {
 	/**
 	 * The unique identifier for the policy.
 	 */
-	@property({ type: "string", isPrimary: true, maxLength: 255 })
+	@property({ type: "string", isPrimary: true })
 	public id!: string;
 
 	/**
 	 * The type of policy.
 	 */
-	@property({ type: "string", maxLength: 128, isSecondary: true })
+	@property({ type: "string", isSecondary: true })
 	public type!: OdrlPolicyType;
 
 	/**
@@ -61,7 +61,7 @@ export class OdrlPolicy {
 	/**
 	 * The conflict resolution strategy.
 	 */
-	@property({ type: "string", maxLength: 16, optional: true })
+	@property({ type: "string", optional: true })
 	public conflict?: IDataspaceProtocolPolicy["conflict"];
 
 	/**
@@ -115,4 +115,28 @@ export class OdrlPolicy {
 	 */
 	@property({ type: "object", format: "json", optional: true })
 	public trustData?: { [key: string]: IJsonLdNodeObject };
+
+	/**
+	 * Pipe-delimited index of all assigner party IDs for efficient query filtering.
+	 */
+	@property({ type: "string" })
+	public assignerIndex!: string;
+
+	/**
+	 * Pipe-delimited index of all assignee party IDs for efficient query filtering.
+	 */
+	@property({ type: "string" })
+	public assigneeIndex!: string;
+
+	/**
+	 * Pipe-delimited index of all target asset IDs for efficient query filtering.
+	 */
+	@property({ type: "string" })
+	public targetIndex!: string;
+
+	/**
+	 * Pipe-delimited index of all action identifiers for efficient query filtering.
+	 */
+	@property({ type: "string" })
+	public actionIndex!: string;
 }

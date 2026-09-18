@@ -1,6 +1,7 @@
 // Copyright 2025 IOTA Stiftung.
 // SPDX-License-Identifier: Apache-2.0.
-import { ComponentFactory } from "@twin.org/core";
+import { ComponentFactory, Is } from "@twin.org/core";
+import { ComparisonOperator } from "@twin.org/entity";
 import { MemoryEntityStorageConnector } from "@twin.org/entity-storage-connector-memory";
 import { EntityStorageConnectorFactory } from "@twin.org/entity-storage-models";
 import {
@@ -14,13 +15,74 @@ import { nameof } from "@twin.org/nameof";
 import {
 	PolicyAdministrationPointService,
 	initSchema as initSchemaPolicyAdministrationPoint,
-	type OdrlPolicy
+	type OdrlPolicy,
+	type OdrlPolicyIndex
 } from "@twin.org/rights-management-pap-service";
 import { OdrlTypes } from "@twin.org/standards-w3c-odrl";
 import { PolicyManagementPointService } from "../src/policyManagementPointService.js";
 
 let loggingMemoryEntityStorage: MemoryEntityStorageConnector<LogEntry>;
 let odrlPolicyMemoryEntityStorage: MemoryEntityStorageConnector<OdrlPolicy>;
+let odrlPolicyIndexMemoryEntityStorage: MemoryEntityStorageConnector<OdrlPolicyIndex>;
+
+/**
+ * Store a policy along with the index entries the administration point would have created for it.
+ * @param policy The policy to store.
+ * @param indexes The index values to store for the policy, keyed by index type.
+ * @param indexes.assigner The assigner index values.
+ * @param indexes.assignee The assignee index values.
+ * @param indexes.target The target index values.
+ * @param indexes.action The action index values.
+ * @returns Nothing.
+ */
+async function seedPolicy(
+	policy: OdrlPolicy,
+	indexes: { assigner?: string[]; assignee?: string[]; target?: string[]; action?: string[] }
+): Promise<void> {
+	await odrlPolicyMemoryEntityStorage.set(policy);
+
+	const existing = await odrlPolicyIndexMemoryEntityStorage.query(
+		{
+			property: "policyId",
+			comparison: ComparisonOperator.Equals,
+			value: policy.id
+		},
+		undefined,
+		["id"]
+	);
+	const removeIds = existing.entities.map(entry => entry.id as string);
+	if (removeIds.length > 0) {
+		await odrlPolicyIndexMemoryEntityStorage.removeBatch(removeIds);
+	}
+
+	// The administration point stores one entry per combination of the locator dimensions, and an
+	// absent dimension contributes a single undefined value so the combinations do not collapse.
+	function dimension(values?: string[]): (string | undefined)[] {
+		return Is.arrayValue(values) ? values : [undefined];
+	}
+
+	const entries: OdrlPolicyIndex[] = [];
+	for (const assigner of dimension(indexes.assigner)) {
+		for (const assignee of dimension(indexes.assignee)) {
+			for (const target of dimension(indexes.target)) {
+				for (const action of dimension(indexes.action)) {
+					entries.push({
+						id: `${policy.id}|${assigner}|${assignee}|${target}|${action}`,
+						policyId: policy.id,
+						assigner,
+						assignee,
+						target,
+						action,
+						dateCreated: policy.dateCreated ?? "2026-01-01T00:00:00.000Z"
+					});
+				}
+			}
+		}
+	}
+	if (entries.length > 0) {
+		await odrlPolicyIndexMemoryEntityStorage.setBatch(entries);
+	}
+}
 
 describe("PolicyManagementPointService", () => {
 	beforeEach(() => {
@@ -41,6 +103,15 @@ describe("PolicyManagementPointService", () => {
 		});
 		EntityStorageConnectorFactory.register("odrl-policy", () => odrlPolicyMemoryEntityStorage);
 
+		odrlPolicyIndexMemoryEntityStorage = new MemoryEntityStorageConnector<OdrlPolicyIndex>({
+			entitySchema: nameof<OdrlPolicyIndex>(),
+			config: { storageKey: "odrl-policy-index" }
+		});
+		EntityStorageConnectorFactory.register(
+			"odrl-policy-index",
+			() => odrlPolicyIndexMemoryEntityStorage
+		);
+
 		ComponentFactory.register(
 			"policy-administration-point",
 			() => new PolicyAdministrationPointService()
@@ -50,6 +121,7 @@ describe("PolicyManagementPointService", () => {
 	afterEach(async () => {
 		await loggingMemoryEntityStorage?.teardown();
 		await odrlPolicyMemoryEntityStorage?.teardown();
+		await odrlPolicyIndexMemoryEntityStorage?.teardown();
 	});
 
 	test("can create the service", async () => {
@@ -61,28 +133,26 @@ describe("PolicyManagementPointService", () => {
 		const policyManagementPoint = new PolicyManagementPointService();
 
 		for (let i = 0; i < 10; i++) {
-			await odrlPolicyMemoryEntityStorage.set({
-				type: OdrlTypes.Policy,
-				id: `policy${i + 1}`,
-				assignee: "node1",
-				assignerIndex: "||",
-				assigneeIndex: "|node1|",
-				targetIndex: "|target:1234|",
-				actionIndex: "|read|"
-			});
+			await seedPolicy(
+				{
+					type: OdrlTypes.Policy,
+					id: `policy${i + 1}`,
+					assignee: "node1"
+				},
+				{ assignee: ["node1"], target: ["target:1234"], action: ["read"] }
+			);
 		}
 
 		for (let i = 0; i < 5; i++) {
-			await odrlPolicyMemoryEntityStorage.set({
-				type: OdrlTypes.Policy,
-				id: `policy${i + 1}`,
-				target: "target:1234",
-				action: "read",
-				assignerIndex: "||",
-				assigneeIndex: "||",
-				targetIndex: "|target:1234|",
-				actionIndex: "|read|"
-			});
+			await seedPolicy(
+				{
+					type: OdrlTypes.Policy,
+					id: `policy${i + 1}`,
+					target: "target:1234",
+					action: "read"
+				},
+				{ target: ["target:1234"], action: ["read"] }
+			);
 		}
 
 		const result = await policyManagementPoint.retrieve({ assignee: "node1" });
@@ -95,30 +165,28 @@ describe("PolicyManagementPointService", () => {
 		const policyManagementPoint = new PolicyManagementPointService();
 
 		for (let i = 0; i < 10; i++) {
-			await odrlPolicyMemoryEntityStorage.set({
-				type: OdrlTypes.Policy,
-				id: `policy${i + 1}`,
-				assignee: "node1",
-				target: "target:1234",
-				action: "read",
-				assignerIndex: "||",
-				assigneeIndex: "|node1|",
-				targetIndex: "|target:1234|",
-				actionIndex: "|read|"
-			});
+			await seedPolicy(
+				{
+					type: OdrlTypes.Policy,
+					id: `policy${i + 1}`,
+					assignee: "node1",
+					target: "target:1234",
+					action: "read"
+				},
+				{ assignee: ["node1"], target: ["target:1234"], action: ["read"] }
+			);
 		}
 
 		for (let i = 0; i < 5; i++) {
-			await odrlPolicyMemoryEntityStorage.set({
-				type: OdrlTypes.Policy,
-				id: `policy${i + 1}`,
-				assignee: "node1",
-				action: "write",
-				assignerIndex: "||",
-				assigneeIndex: "|node1|",
-				targetIndex: "||",
-				actionIndex: "|write|"
-			});
+			await seedPolicy(
+				{
+					type: OdrlTypes.Policy,
+					id: `policy${i + 1}`,
+					assignee: "node1",
+					action: "write"
+				},
+				{ assignee: ["node1"], action: ["write"] }
+			);
 		}
 
 		// Wildcard action means action is undefined (property present)
@@ -135,44 +203,41 @@ describe("PolicyManagementPointService", () => {
 		const policyManagementPoint = new PolicyManagementPointService();
 
 		for (let i = 0; i < 10; i++) {
-			await odrlPolicyMemoryEntityStorage.set({
-				type: OdrlTypes.Policy,
-				id: `policy${i + 1}`,
-				assignee: "node1",
-				target: "target:1234",
-				action: "read",
-				assignerIndex: "||",
-				assigneeIndex: "|node1|",
-				targetIndex: "|target:1234|",
-				actionIndex: "|read|"
-			});
+			await seedPolicy(
+				{
+					type: OdrlTypes.Policy,
+					id: `policy${i + 1}`,
+					assignee: "node1",
+					target: "target:1234",
+					action: "read"
+				},
+				{ assignee: ["node1"], target: ["target:1234"], action: ["read"] }
+			);
 		}
 
 		for (let i = 0; i < 5; i++) {
-			await odrlPolicyMemoryEntityStorage.set({
-				type: OdrlTypes.Policy,
-				id: `policy${i + 1}`,
-				assignee: "node1",
-				target: "target:1234",
-				action: "read",
-				assignerIndex: "||",
-				assigneeIndex: "|node1|",
-				targetIndex: "|target:1234|",
-				actionIndex: "|read|"
-			});
+			await seedPolicy(
+				{
+					type: OdrlTypes.Policy,
+					id: `policy${i + 1}`,
+					assignee: "node1",
+					target: "target:1234",
+					action: "read"
+				},
+				{ assignee: ["node1"], target: ["target:1234"], action: ["read"] }
+			);
 		}
 		for (let i = 5; i < 10; i++) {
-			await odrlPolicyMemoryEntityStorage.set({
-				type: OdrlTypes.Policy,
-				id: `policy${i + 1}`,
-				assignee: "node1",
-				target: undefined,
-				action: "write",
-				assignerIndex: "||",
-				assigneeIndex: "|node1|",
-				targetIndex: "||",
-				actionIndex: "|write|"
-			});
+			await seedPolicy(
+				{
+					type: OdrlTypes.Policy,
+					id: `policy${i + 1}`,
+					assignee: "node1",
+					target: undefined,
+					action: "write"
+				},
+				{ assignee: ["node1"], action: ["write"] }
+			);
 		}
 		// Wildcard target means target is undefined
 		const result = await policyManagementPoint.retrieve({ action: "read", assignee: "node1" });
@@ -184,27 +249,39 @@ describe("PolicyManagementPointService", () => {
 	test("can query the service when there are lots of entries", async () => {
 		const policyManagementPoint = new PolicyManagementPointService();
 
-		for (let i = 0; i < 100; i++) {
-			await odrlPolicyMemoryEntityStorage.set({
-				type: OdrlTypes.Policy,
-				id: `policy${i + 1}`,
-				assignee: "node1",
-				target: "target:1234",
-				action: "read",
-				assignerIndex: "||",
-				assigneeIndex: "|node1|",
-				targetIndex: "|target:1234|",
-				actionIndex: "|read|"
-			});
+		// More entries than the administration point returns in a single page, so the retrieve has
+		// to hand back a cursor for the caller to continue from.
+		const total = 250;
+		for (let i = 0; i < total; i++) {
+			await seedPolicy(
+				{
+					type: OdrlTypes.Policy,
+					id: `policy${i + 1}`,
+					assignee: "node1",
+					target: "target:1234",
+					action: "read"
+				},
+				{ assignee: ["node1"], target: ["target:1234"], action: ["read"] }
+			);
 		}
 
-		const result = await policyManagementPoint.retrieve({
-			target: "target:1234",
-			action: "read",
-			assignee: "node1"
-		});
-		expect(result.policies).toHaveLength(40);
+		const locator = { target: "target:1234", action: "read", assignee: "node1" };
+
+		const result = await policyManagementPoint.retrieve(locator);
+		expect(result.policies.length).toBeLessThan(total);
 		expect(result.cursor).toBeDefined();
+
+		const seen = new Set(result.policies.map(p => p["@id"]));
+		let cursor = result.cursor;
+		while (Is.stringValue(cursor)) {
+			const page = await policyManagementPoint.retrieve(locator, cursor);
+			for (const policy of page.policies) {
+				seen.add(policy["@id"]);
+			}
+			cursor = page.cursor;
+		}
+
+		expect(seen.size).toEqual(total);
 	});
 
 	test("returns empty array when no policies match", async () => {
@@ -221,17 +298,16 @@ describe("PolicyManagementPointService", () => {
 
 	test("can retrieve policies with undefined assignee using wildcard", async () => {
 		const policyManagementPoint = new PolicyManagementPointService();
-		await odrlPolicyMemoryEntityStorage.set({
-			type: OdrlTypes.Policy,
-			id: "policy-undef-assignee",
-			target: "target:1234",
-			action: "read",
-			// assignee is undefined
-			assignerIndex: "||",
-			assigneeIndex: "||",
-			targetIndex: "|target:1234|",
-			actionIndex: "|read|"
-		});
+		await seedPolicy(
+			{
+				type: OdrlTypes.Policy,
+				id: "policy-undef-assignee",
+				target: "target:1234",
+				action: "read"
+				// assignee is undefined
+			},
+			{ target: ["target:1234"], action: ["read"] }
+		);
 		const result = await policyManagementPoint.retrieve({
 			target: "target:1234",
 			action: "read"
@@ -242,17 +318,16 @@ describe("PolicyManagementPointService", () => {
 
 	test("can retrieve policies with undefined target using wildcard", async () => {
 		const policyManagementPoint = new PolicyManagementPointService();
-		await odrlPolicyMemoryEntityStorage.set({
-			type: OdrlTypes.Policy,
-			id: "policy-undef-target",
-			assignee: "node1",
-			action: "read",
-			// target is undefined
-			assignerIndex: "||",
-			assigneeIndex: "|node1|",
-			targetIndex: "||",
-			actionIndex: "|read|"
-		});
+		await seedPolicy(
+			{
+				type: OdrlTypes.Policy,
+				id: "policy-undef-target",
+				assignee: "node1",
+				action: "read"
+				// target is undefined
+			},
+			{ assignee: ["node1"], action: ["read"] }
+		);
 		const result = await policyManagementPoint.retrieve({ action: "read", assignee: "node1" });
 		expect(result.policies).toHaveLength(1);
 		expect(result.policies[0].target).toBeUndefined();
@@ -260,17 +335,16 @@ describe("PolicyManagementPointService", () => {
 
 	test("can retrieve policies with undefined action using wildcard", async () => {
 		const policyManagementPoint = new PolicyManagementPointService();
-		await odrlPolicyMemoryEntityStorage.set({
-			type: OdrlTypes.Policy,
-			id: "policy-undef-action",
-			assignee: "node1",
-			target: "target:1234",
-			// action is undefined
-			assignerIndex: "||",
-			assigneeIndex: "|node1|",
-			targetIndex: "|target:1234|",
-			actionIndex: "||"
-		});
+		await seedPolicy(
+			{
+				type: OdrlTypes.Policy,
+				id: "policy-undef-action",
+				assignee: "node1",
+				target: "target:1234"
+				// action is undefined
+			},
+			{ assignee: ["node1"], target: ["target:1234"] }
+		);
 		const result = await policyManagementPoint.retrieve({
 			target: "target:1234",
 			assignee: "node1"

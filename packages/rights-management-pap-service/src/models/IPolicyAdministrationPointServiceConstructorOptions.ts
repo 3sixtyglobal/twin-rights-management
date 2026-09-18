@@ -15,4 +15,10 @@ export interface IPolicyAdministrationPointServiceConstructorOptions {
 	 * @default odrl-policy
 	 */
 	odrlPolicyEntityStorageType?: string;
+
+	/**
+	 * The entity storage component for storing policy indexes.
+	 * @default odrl-policy-index
+	 */
+	odrlPolicyIndexEntityStorageType?: string;
 }

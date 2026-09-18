@@ -2,15 +2,16 @@
 // SPDX-License-Identifier: Apache-2.0.
 import { existsSync } from "node:fs";
 import { rm } from "node:fs/promises";
-import { ArrayHelper, Is, ObjectHelper } from "@twin.org/core";
+import { ArrayHelper, Converter, Is, ObjectHelper } from "@twin.org/core";
 import type { IJsonLdNodeObject, JsonLdObjectWithOptionalAtId } from "@twin.org/data-json-ld";
 import { SortDirection, type EntityCondition } from "@twin.org/entity";
 import type { MemoryEntityStorageConnector } from "@twin.org/entity-storage-connector-memory";
-import type { IRightsManagementPolicy } from "@twin.org/rights-management-models";
+import type { IPolicyLocator, IRightsManagementPolicy } from "@twin.org/rights-management-models";
 import type { IDataspaceProtocolPolicy } from "@twin.org/standards-dataspace-protocol";
 import { OdrlContexts, OdrlPolicyType, type OdrlContextType } from "@twin.org/standards-w3c-odrl";
 import {
 	createTestPolicies,
+	resetOdrlPolicyIndexStorage,
 	resetOdrlPolicyStorage,
 	SAMPLE_POLICY,
 	TEST_ASSET_ID,
@@ -20,23 +21,86 @@ import {
 	testPolicyMapping
 } from "./setupTestEnv.js";
 import { OdrlPolicy } from "../src/entities/odrlPolicy.js";
+import type { OdrlPolicyIndex } from "../src/entities/odrlPolicyIndex.js";
 import { PolicyAdministrationPointService } from "../src/policyAdministrationPointService.js";
 import { buildPapStorageContext } from "../src/utils/policyContextHelper.js";
 
 describe("PolicyAdministrationPointService", () => {
 	let policyAdminPoint: PolicyAdministrationPointService;
 	let odrlPolicyEntityStorage: MemoryEntityStorageConnector<OdrlPolicy>;
+	let odrlPolicyIndexEntityStorage: MemoryEntityStorageConnector<OdrlPolicyIndex>;
+
+	/**
+	 * Get the index entries stored for a policy.
+	 * @param policyId The id of the policy to get the index entries for.
+	 * @returns The index entries in the order they were stored.
+	 */
+	async function indexEntries(policyId: string): Promise<OdrlPolicyIndex[]> {
+		const store = await odrlPolicyIndexEntityStorage.getStore();
+		return store.filter(e => e.policyId === policyId);
+	}
+
+	/**
+	 * Get the distinct values a policy holds in one of the index columns. The entries are a cross
+	 * product of the locator dimensions, so a column repeats across entries.
+	 * @param policyId The id of the policy to get the index values for.
+	 * @param column The index column to get the values for.
+	 * @returns The distinct index values in the order they were stored.
+	 */
+	async function indexValues(policyId: string, column: keyof OdrlPolicyIndex): Promise<string[]> {
+		const values: string[] = [];
+		for (const entry of await indexEntries(policyId)) {
+			const value = entry[column];
+			if (Is.stringValue(value) && !values.includes(value)) {
+				values.push(value);
+			}
+		}
+		return values;
+	}
+
+	/**
+	 * Walk every page of a locator query and collect the policy ids in page order.
+	 * @param locator The locator to query with.
+	 * @param limit The page size to request.
+	 * @param orderByDirection The direction to order the results by creation date.
+	 * @returns The policy ids in the order the pages returned them.
+	 */
+	async function pageAll(
+		locator: IPolicyLocator,
+		limit: number,
+		orderByDirection: SortDirection
+	): Promise<string[]> {
+		const ids: string[] = [];
+		let cursor: string | undefined;
+		do {
+			const page = await policyAdminPoint.query(
+				locator,
+				undefined,
+				cursor,
+				limit,
+				undefined,
+				"dateCreated",
+				orderByDirection
+			);
+			ids.push(...page.policies.map(p => p["@id"]));
+			cursor = page.cursor;
+		} while (Is.stringValue(cursor));
+		return ids;
+	}
 
 	beforeEach(() => {
 		odrlPolicyEntityStorage = resetOdrlPolicyStorage();
+		odrlPolicyIndexEntityStorage = resetOdrlPolicyIndexStorage();
 
 		policyAdminPoint = new PolicyAdministrationPointService({
-			odrlPolicyEntityStorageType: "odrl-policy"
+			odrlPolicyEntityStorageType: "odrl-policy",
+			odrlPolicyIndexEntityStorageType: "odrl-policy-index"
 		});
 	});
 
 	afterEach(async () => {
 		await odrlPolicyEntityStorage?.teardown();
+		await odrlPolicyIndexEntityStorage?.teardown();
 	});
 
 	afterAll(async () => {
@@ -712,7 +776,7 @@ describe("PolicyAdministrationPointService", () => {
 		expect(retrievedPolicy.assigner).toEqual("http://example.com/party/assigner");
 	});
 
-	test("should build pipe-delimited index fields on create, including rule-level targets and actions", async () => {
+	test("should build index entries on create, including rule-level targets and actions", async () => {
 		const policy: IDataspaceProtocolPolicy = {
 			"@context": OdrlContexts.Context,
 			"@type": "Offer",
@@ -737,12 +801,17 @@ describe("PolicyAdministrationPointService", () => {
 		expect(store).toHaveLength(1);
 		const stored = store[0];
 		expect(stored.id).toEqual(uid);
-		expect(stored.assignerIndex).toEqual("|user:assigner-1|");
-		expect(stored.assigneeIndex).toEqual("|user:assignee-1|");
-		expect(stored.targetIndex).toEqual(
-			"|http://example.com/asset/alpha|http://example.com/asset/rule-level|"
-		);
-		expect(stored.actionIndex).toEqual("|use|display|");
+		expect(await indexValues(uid, "assigner")).toEqual(["user:assigner-1"]);
+		expect(await indexValues(uid, "assignee")).toEqual(["user:assignee-1"]);
+		expect(await indexValues(uid, "target")).toEqual([
+			"http://example.com/asset/alpha",
+			"http://example.com/asset/rule-level"
+		]);
+		expect(await indexValues(uid, "action")).toEqual(["use", "display"]);
+
+		// One entry per combination of the dimensions, so 1 assigner x 1 assignee x 2 targets x
+		// 2 actions, which is what lets a multi field locator be answered by a single lookup.
+		expect(await indexEntries(uid)).toHaveLength(4);
 	});
 
 	test("should query policies by assigner index", async () => {
@@ -839,10 +908,10 @@ describe("PolicyAdministrationPointService", () => {
 
 		const store = await odrlPolicyEntityStorage.getStore();
 		expect(store).toHaveLength(1);
-		expect(store[0].targetIndex).toContain("|http://example.com/asset/a|");
-		expect(store[0].targetIndex).toContain("|http://example.com/asset/b|");
-		expect(store[0].actionIndex).toContain("|use|");
-		expect(store[0].actionIndex).toContain("|read|");
+		expect(await indexValues(uid, "target")).toContain("http://example.com/asset/a");
+		expect(await indexValues(uid, "target")).toContain("http://example.com/asset/b");
+		expect(await indexValues(uid, "action")).toContain("use");
+		expect(await indexValues(uid, "action")).toContain("read");
 
 		const byTargetB = await policyAdminPoint.query({ target: "http://example.com/asset/b" });
 		expect(byTargetB.policies).toHaveLength(1);
@@ -867,8 +936,10 @@ describe("PolicyAdministrationPointService", () => {
 
 		const store = await odrlPolicyEntityStorage.getStore();
 		expect(store).toHaveLength(1);
-		expect(store[0].targetIndex).toEqual("|http://example.com/asset/only-in-permission|");
-		expect(store[0].actionIndex).toEqual("|use|");
+		expect(await indexValues(uid, "target")).toEqual([
+			"http://example.com/asset/only-in-permission"
+		]);
+		expect(await indexValues(uid, "action")).toEqual(["use"]);
 
 		const byTarget = await policyAdminPoint.query({
 			target: "http://example.com/asset/only-in-permission"
@@ -879,6 +950,522 @@ describe("PolicyAdministrationPointService", () => {
 		const byAction = await policyAdminPoint.query({ action: "use" });
 		expect(byAction.policies).toHaveLength(1);
 		expect(byAction.policies[0]["@id"]).toEqual(uid);
+	});
+
+	test("should lower case index entries and match locators case insensitively", async () => {
+		const uid = await policyAdminPoint.create({
+			"@context": OdrlContexts.Context,
+			"@type": "Offer",
+			assigner: "User:Assigner-Mixed",
+			assignee: "User:Assignee-Mixed",
+			permission: [
+				{
+					target: "http://example.com/asset/Mixed-Case",
+					action: "Use"
+				}
+			]
+		});
+
+		expect(await indexValues(uid, "assigner")).toEqual(["user:assigner-mixed"]);
+		expect(await indexValues(uid, "assignee")).toEqual(["user:assignee-mixed"]);
+		expect(await indexValues(uid, "target")).toEqual(["http://example.com/asset/mixed-case"]);
+		expect(await indexValues(uid, "action")).toEqual(["use"]);
+
+		// Single valued on every dimension, so the cross product is a single entry.
+		const entries = await indexEntries(uid);
+		expect(entries).toHaveLength(1);
+
+		const stored = await policyAdminPoint.get(uid);
+		expect(entries[0].dateCreated).toEqual(stored.dateCreated);
+
+		const byUpperLocator = await policyAdminPoint.query({
+			assigner: "USER:ASSIGNER-MIXED",
+			target: "HTTP://EXAMPLE.COM/ASSET/MIXED-CASE",
+			action: "USE"
+		});
+		expect(byUpperLocator.policies).toHaveLength(1);
+		expect(byUpperLocator.policies[0]["@id"]).toEqual(uid);
+
+		const byLowerLocator = await policyAdminPoint.query({
+			assignee: "user:assignee-mixed"
+		});
+		expect(byLowerLocator.policies).toHaveLength(1);
+		expect(byLowerLocator.policies[0]["@id"]).toEqual(uid);
+	});
+
+	test("should read the index once however many locator fields are supplied", async () => {
+		const uid = await policyAdminPoint.create({
+			"@context": OdrlContexts.Context,
+			"@type": "Offer",
+			assigner: "user:assigner-single",
+			assignee: "user:assignee-single",
+			permission: [{ target: "http://example.com/asset/single", action: "use" }]
+		});
+
+		const indexQuery = vi.spyOn(odrlPolicyIndexEntityStorage, "query");
+
+		const result = await policyAdminPoint.query({
+			assigner: "user:assigner-single",
+			assignee: "user:assignee-single",
+			target: "http://example.com/asset/single",
+			action: "use"
+		});
+
+		expect(result.policies).toHaveLength(1);
+		expect(result.policies[0]["@id"]).toEqual(uid);
+
+		// All four locator fields resolve against the one composite index, so widening the locator
+		// does not cost extra lookups or any narrowing passes.
+		expect(indexQuery).toHaveBeenCalledTimes(1);
+
+		indexQuery.mockRestore();
+	});
+
+	test("should replace stale index entries on update", async () => {
+		const uid = await policyAdminPoint.create({
+			"@context": OdrlContexts.Context,
+			"@type": "Offer",
+			assigner: "user:assigner-original",
+			permission: [
+				{
+					target: "http://example.com/asset/original",
+					action: "use"
+				}
+			]
+		});
+
+		await policyAdminPoint.update({
+			"@context": OdrlContexts.Context,
+			"@type": "Offer",
+			"@id": uid,
+			assigner: "user:assigner-updated",
+			permission: [
+				{
+					target: "http://example.com/asset/updated",
+					action: "display"
+				}
+			]
+		});
+
+		expect(await indexValues(uid, "assigner")).toEqual(["user:assigner-updated"]);
+		expect(await indexValues(uid, "target")).toEqual(["http://example.com/asset/updated"]);
+		expect(await indexValues(uid, "action")).toEqual(["display"]);
+
+		const byOriginalTarget = await policyAdminPoint.query({
+			target: "http://example.com/asset/original"
+		});
+		expect(byOriginalTarget.policies).toHaveLength(0);
+
+		const byUpdatedTarget = await policyAdminPoint.query({
+			target: "http://example.com/asset/updated"
+		});
+		expect(byUpdatedTarget.policies).toHaveLength(1);
+		expect(byUpdatedTarget.policies[0]["@id"]).toEqual(uid);
+	});
+
+	test("should page a locator query through the index storage", async () => {
+		const created: string[] = [];
+		for (let i = 0; i < 45; i++) {
+			created.push(
+				await policyAdminPoint.create({
+					"@context": OdrlContexts.Context,
+					"@type": "Offer",
+					assigner: "user:assigner-paged",
+					permission: [
+						{
+							target: "http://example.com/asset/paged",
+							action: "use"
+						}
+					]
+				})
+			);
+		}
+
+		const seen: string[] = [];
+		const pageSizes: number[] = [];
+		let cursor: string | undefined;
+		do {
+			const page = await policyAdminPoint.query(
+				{ target: "http://example.com/asset/paged" },
+				undefined,
+				cursor,
+				10
+			);
+			expect(page.policies.length).toBeLessThanOrEqual(10);
+			if (Is.stringValue(page.cursor)) {
+				// The cursor carries the index paging state, so it is an encoded object.
+				expect(Is.stringBase64(page.cursor)).toBeTruthy();
+			}
+			seen.push(...page.policies.map(p => p["@id"]));
+			pageSizes.push(page.policies.length);
+			cursor = page.cursor;
+		} while (Is.stringValue(cursor));
+
+		expect(pageSizes).toEqual([10, 10, 10, 10, 5]);
+		expect(seen).toHaveLength(created.length);
+		expect([...seen].sort()).toEqual([...created].sort());
+	});
+
+	test("should not return a policy twice when its index entries straddle a page boundary", async () => {
+		// Each policy has four targets and four actions, so sixteen index entries. Paging three
+		// policies at a time over entries which come sixteen to a policy forces a boundary to fall
+		// inside a policy on nearly every page.
+		const created: string[] = [];
+		for (let i = 0; i < 6; i++) {
+			created.push(
+				await policyAdminPoint.create({
+					"@context": OdrlContexts.Context,
+					"@type": "Offer",
+					assigner: "user:assigner-straddle",
+					permission: [
+						{ target: `http://example.com/asset/straddle-${i}-a`, action: "use" },
+						{ target: `http://example.com/asset/straddle-${i}-b`, action: "read" },
+						{ target: `http://example.com/asset/straddle-${i}-c`, action: "display" },
+						{ target: `http://example.com/asset/straddle-${i}-d`, action: "modify" }
+					]
+				})
+			);
+		}
+
+		for (const uid of created) {
+			expect(await indexEntries(uid)).toHaveLength(16);
+		}
+
+		const seen: string[] = [];
+		let cursor: string | undefined;
+		do {
+			const page = await policyAdminPoint.query(
+				{ assigner: "user:assigner-straddle" },
+				undefined,
+				cursor,
+				3
+			);
+			seen.push(...page.policies.map(p => p["@id"]));
+			cursor = page.cursor;
+		} while (Is.stringValue(cursor));
+
+		// Every policy appears exactly once even though its entries span several pages.
+		expect(seen).toHaveLength(created.length);
+		expect(new Set(seen).size).toEqual(created.length);
+		expect([...seen].sort()).toEqual([...created].sort());
+	});
+
+	test("should reject a cursor which was not produced by a locator query", async () => {
+		await policyAdminPoint.create({
+			"@context": OdrlContexts.Context,
+			"@type": "Offer",
+			assigner: "user:assigner-cursor",
+			permission: [{ target: "http://example.com/asset/cursor", action: "use" }]
+		});
+
+		await expect(
+			policyAdminPoint.query(
+				{ target: "http://example.com/asset/cursor" },
+				undefined,
+				"not-a-cursor"
+			)
+		).rejects.toMatchObject({
+			name: "GeneralError",
+			message: "policyAdministrationPointService.invalidCursor"
+		});
+	});
+
+	test("should reject a locator cursor on a query without a locator", async () => {
+		for (let i = 0; i < 4; i++) {
+			await policyAdminPoint.create({
+				"@context": OdrlContexts.Context,
+				"@type": "Offer",
+				assigner: "user:assigner-swap",
+				permission: [{ target: "http://example.com/asset/swap", action: "use" }]
+			});
+		}
+
+		const page = await policyAdminPoint.query(
+			{ target: "http://example.com/asset/swap" },
+			undefined,
+			undefined,
+			2
+		);
+		expect(page.cursor).toBeDefined();
+
+		// The cursor belongs to the index storage, so continuing without the locator would page
+		// the wrong storage rather than simply returning different results.
+		await expect(policyAdminPoint.query(undefined, undefined, page.cursor)).rejects.toMatchObject({
+			name: "GeneralError",
+			message: "policyAdministrationPointService.invalidCursor"
+		});
+	});
+
+	test("should reject an encoded cursor which is not a locator cursor", async () => {
+		await policyAdminPoint.create({
+			"@context": OdrlContexts.Context,
+			"@type": "Offer",
+			assigner: "user:assigner-foreign",
+			permission: [{ target: "http://example.com/asset/foreign", action: "use" }]
+		});
+
+		// Storage connectors encode their own cursors the same way, so a well formed but foreign
+		// cursor has to be rejected on the version marker rather than on the encoding.
+		const foreignCursor = Converter.bytesToBase64(ObjectHelper.toBytes({ i: "policy1" }));
+
+		await expect(
+			policyAdminPoint.query(
+				{ target: "http://example.com/asset/foreign" },
+				undefined,
+				foreignCursor
+			)
+		).rejects.toMatchObject({
+			name: "GeneralError",
+			message: "policyAdministrationPointService.invalidCursor"
+		});
+	});
+
+	test("should return the same page when a cursor is replayed", async () => {
+		for (let i = 0; i < 6; i++) {
+			await policyAdminPoint.create({
+				"@context": OdrlContexts.Context,
+				"@type": "Offer",
+				assigner: "user:assigner-replay",
+				permission: [{ target: "http://example.com/asset/replay", action: "use" }]
+			});
+		}
+
+		const locator = { target: "http://example.com/asset/replay" };
+
+		const first = await policyAdminPoint.query(locator, undefined, undefined, 2);
+		expect(first.cursor).toBeDefined();
+
+		const second = await policyAdminPoint.query(locator, undefined, first.cursor, 2);
+		const replay = await policyAdminPoint.query(locator, undefined, first.cursor, 2);
+
+		// Paging holds no state of its own, so the same cursor always yields the same page.
+		expect(replay.policies.map(p => p["@id"])).toEqual(second.policies.map(p => p["@id"]));
+		expect(replay.cursor).toEqual(second.cursor);
+	});
+
+	test("should order a paged locator query by creation date across every page", async () => {
+		vi.useFakeTimers();
+		try {
+			const created: string[] = [];
+			for (let i = 0; i < 9; i++) {
+				vi.setSystemTime(new Date(Date.UTC(2026, 0, 1, 0, 0, i)));
+				created.push(
+					await policyAdminPoint.create({
+						"@context": OdrlContexts.Context,
+						"@type": "Offer",
+						assigner: "user:assigner-ordered",
+						permission: [{ target: "http://example.com/asset/ordered", action: "use" }]
+					})
+				);
+			}
+
+			const locator = { target: "http://example.com/asset/ordered" };
+
+			const newestFirst = await pageAll(locator, 2, SortDirection.Descending);
+			const oldestFirst = await pageAll(locator, 2, SortDirection.Ascending);
+
+			// The index carries the creation date, so the order holds across pages and is not just
+			// applied within each one.
+			expect(newestFirst).toEqual([...created].reverse());
+			expect(oldestFirst).toEqual(created);
+		} finally {
+			vi.useRealTimers();
+		}
+	});
+
+	test("should page a policy which holds more index entries than the page size", async () => {
+		// Six targets and six actions give thirty six index entries for the one policy, so a page
+		// of five entries cannot cover it and most pages hold nothing new.
+		const uid = await policyAdminPoint.create({
+			"@context": OdrlContexts.Context,
+			"@type": "Offer",
+			assigner: "user:assigner-wide",
+			permission: Array.from({ length: 6 }, (unused, i) => ({
+				target: `http://example.com/asset/wide-${i}`,
+				action: (["use", "read", "display", "modify", "distribute", "print"] as const)[i]
+			}))
+		});
+
+		expect(await indexEntries(uid)).toHaveLength(36);
+
+		const seen: string[] = [];
+		let cursor: string | undefined;
+		let pages = 0;
+		do {
+			const page = await policyAdminPoint.query(
+				{ assigner: "user:assigner-wide" },
+				undefined,
+				cursor,
+				5
+			);
+			seen.push(...page.policies.map(p => p["@id"]));
+			cursor = page.cursor;
+			pages++;
+		} while (Is.stringValue(cursor));
+
+		// The later pages are empty because the policy was already returned, and it is never
+		// returned a second time.
+		expect(pages).toBeGreaterThan(1);
+		expect(seen).toEqual([uid]);
+	});
+
+	test("should page a locator query which is further filtered by conditions", async () => {
+		const offers: string[] = [];
+		for (let i = 0; i < 12; i++) {
+			const uid = await policyAdminPoint.create({
+				"@context": OdrlContexts.Context,
+				"@type": i % 4 === 0 ? "Offer" : "Set",
+				assigner: i % 4 === 0 ? "user:assigner-filtered" : undefined,
+				permission: [{ target: "http://example.com/asset/filtered", action: "use" }]
+			});
+			if (i % 4 === 0) {
+				offers.push(uid);
+			}
+		}
+
+		const seen: string[] = [];
+		let cursor: string | undefined;
+		do {
+			const page = await policyAdminPoint.query(
+				{ target: "http://example.com/asset/filtered", type: OdrlPolicyType.Offer },
+				undefined,
+				cursor,
+				2
+			);
+			seen.push(...page.policies.map(p => p["@id"]));
+			cursor = page.cursor;
+		} while (Is.stringValue(cursor));
+
+		// The type filter runs on the policy storage, so pages can come back short or empty while
+		// the index still has entries to walk.
+		expect([...seen].sort()).toEqual([...offers].sort());
+	});
+
+	test("should not match a locator field which the policy does not have", async () => {
+		const setUid = await policyAdminPoint.create({
+			"@context": OdrlContexts.Context,
+			"@type": "Set",
+			permission: [{ target: "http://example.com/asset/no-parties", action: "use" }]
+		});
+
+		const entries = await indexEntries(setUid);
+		expect(entries).toHaveLength(1);
+		expect(entries[0].assigner).toBeUndefined();
+		expect(entries[0].assignee).toBeUndefined();
+
+		// An absent dimension still gets an entry so the policy is reachable by its other fields.
+		const byTarget = await policyAdminPoint.query({
+			target: "http://example.com/asset/no-parties"
+		});
+		expect(byTarget.policies.map(p => p["@id"])).toEqual([setUid]);
+
+		// But an absent dimension must never satisfy a locator which pins it.
+		const byAssigner = await policyAdminPoint.query({
+			target: "http://example.com/asset/no-parties",
+			assigner: "user:assigner-absent"
+		});
+		expect(byAssigner.policies).toHaveLength(0);
+		expect(byAssigner.cursor).toBeUndefined();
+	});
+
+	test("should return no cursor when a locator matches nothing", async () => {
+		await policyAdminPoint.create({
+			"@context": OdrlContexts.Context,
+			"@type": "Offer",
+			assigner: "user:assigner-present",
+			permission: [{ target: "http://example.com/asset/present", action: "use" }]
+		});
+
+		const result = await policyAdminPoint.query({ target: "http://example.com/asset/missing" });
+		expect(result.policies).toHaveLength(0);
+		expect(result.cursor).toBeUndefined();
+	});
+
+	test("should fall back to the default page size for a non positive limit", async () => {
+		const created: string[] = [];
+		for (let i = 0; i < 5; i++) {
+			created.push(
+				await policyAdminPoint.create({
+					"@context": OdrlContexts.Context,
+					"@type": "Offer",
+					assigner: "user:assigner-zero-limit",
+					permission: [{ target: "http://example.com/asset/zero-limit", action: "use" }]
+				})
+			);
+		}
+
+		const result = await policyAdminPoint.query(
+			{ target: "http://example.com/asset/zero-limit" },
+			undefined,
+			undefined,
+			0
+		);
+
+		expect([...result.policies.map(p => p["@id"])].sort()).toEqual([...created].sort());
+		expect(result.cursor).toBeUndefined();
+	});
+
+	test("should narrow a paged locator query by the remaining locator fields", async () => {
+		const matching: string[] = [];
+		for (let i = 0; i < 45; i++) {
+			const uid = await policyAdminPoint.create({
+				"@context": OdrlContexts.Context,
+				"@type": "Offer",
+				assigner: i % 3 === 0 ? "user:assigner-wanted" : "user:assigner-other",
+				permission: [
+					{
+						target: "http://example.com/asset/shared",
+						action: "use"
+					}
+				]
+			});
+			if (i % 3 === 0) {
+				matching.push(uid);
+			}
+		}
+
+		const seen: string[] = [];
+		let cursor: string | undefined;
+		let pages = 0;
+		do {
+			const page = await policyAdminPoint.query(
+				{ target: "http://example.com/asset/shared", assigner: "user:assigner-wanted" },
+				undefined,
+				cursor,
+				4
+			);
+			seen.push(...page.policies.map(p => p["@id"]));
+			cursor = page.cursor;
+			pages++;
+		} while (Is.stringValue(cursor));
+
+		expect(pages).toBeGreaterThan(1);
+		expect(seen).toHaveLength(matching.length);
+		expect([...seen].sort()).toEqual([...matching].sort());
+	});
+
+	test("should remove the index entries when a policy is removed", async () => {
+		const uid = await policyAdminPoint.create({
+			"@context": OdrlContexts.Context,
+			"@type": "Offer",
+			assigner: "user:assigner-removed",
+			permission: [
+				{
+					target: "http://example.com/asset/removed",
+					action: "use"
+				}
+			]
+		});
+
+		await policyAdminPoint.remove(uid);
+
+		const indexStore = await odrlPolicyIndexEntityStorage.getStore();
+		expect(indexStore).toHaveLength(0);
+
+		const byTarget = await policyAdminPoint.query({
+			target: "http://example.com/asset/removed"
+		});
+		expect(byTarget.policies).toHaveLength(0);
 	});
 
 	describe("getAgreement", () => {
@@ -1169,10 +1756,6 @@ describe("PolicyAdministrationPointService", () => {
 			legacyPolicy.id = TEST_POLICY_ID;
 			legacyPolicy.type = OdrlPolicyType.Set;
 			legacyPolicy.permission = [{ target: TEST_ASSET_ID, action: "use" }];
-			legacyPolicy.assignerIndex = "||";
-			legacyPolicy.assigneeIndex = "||";
-			legacyPolicy.targetIndex = `|${TEST_ASSET_ID}|`;
-			legacyPolicy.actionIndex = "|use|";
 
 			await odrlPolicyEntityStorage.set(legacyPolicy);
 

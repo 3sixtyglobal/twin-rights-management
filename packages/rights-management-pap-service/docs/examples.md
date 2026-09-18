@@ -104,11 +104,37 @@ entity.assigner = 'did:example:provider';
 entity.assignee = 'did:example:consumer';
 entity.target = 'urn:asset:dataset-1';
 entity.action = 'use';
-entity.assignerIndex = '|did:example:provider|';
-entity.assigneeIndex = '|did:example:consumer|';
-entity.targetIndex = '|urn:asset:dataset-1|';
-entity.actionIndex = '|use|';
 
 console.log(entity.id); // urn:rights-management:policy-1
 console.log(entity.type); // Agreement
 ```
+
+## OdrlPolicyIndex
+
+The administration point resolves the locator filters on `query` against a separate index table. It
+stores one row per combination of assigner, assignee, target and action that a policy carries, all
+on a single composite index, so a locator naming several of those fields is answered by one lookup
+rather than one lookup per field. Values are always stored lower cased, and locator values are
+lower cased before lookup, so matching is case insensitive.
+
+```typescript
+import { OdrlPolicyIndex } from '@twin.org/rights-management-pap-service';
+
+const entity = new OdrlPolicyIndex();
+entity.id = '8f14e45fceea167a5a36dedd4bea2543';
+entity.policyId = 'urn:rights-management:policy-1';
+entity.assigner = 'did:example:provider';
+entity.assignee = 'did:example:consumer';
+entity.target = 'urn:asset:dataset-1';
+entity.action = 'use';
+entity.dateCreated = '2026-01-01T00:00:00.000Z';
+
+console.log(entity.policyId); // urn:rights-management:policy-1
+console.log(entity.target); // urn:asset:dataset-1
+```
+
+A policy with a single assigner, assignee, target and action produces one row. A policy with two
+targets and two actions produces four, one for each combination, which is what keeps the lookup to
+a single query. The creation date is copied onto each row so the index can order and page its own
+matches, which is why ordering a locator query by `dateCreated` applies across the whole result
+rather than only within a page.

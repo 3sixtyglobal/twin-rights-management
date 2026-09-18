@@ -22,7 +22,8 @@ import {
 import {
 	PolicyAdministrationPointService,
 	initSchema as initSchemaPolicyAdministrationPoint,
-	type OdrlPolicy
+	type OdrlPolicy,
+	type OdrlPolicyIndex
 } from "@twin.org/rights-management-pap-service";
 import { PolicyInformationPointService } from "@twin.org/rights-management-pip-service";
 import { PolicyManagementPointService } from "@twin.org/rights-management-pmp-service";
@@ -89,6 +90,7 @@ function createPolicy(options?: {
 
 let loggingMemoryEntityStorage: MemoryEntityStorageConnector<LogEntry>;
 let odrlPolicyMemoryEntityStorage: MemoryEntityStorageConnector<OdrlPolicy>;
+let odrlPolicyIndexMemoryEntityStorage: MemoryEntityStorageConnector<OdrlPolicyIndex>;
 
 describe("PolicyEnforcementPointService", () => {
 	beforeEach(() => {
@@ -121,6 +123,15 @@ describe("PolicyEnforcementPointService", () => {
 			config: { storageKey: "odrl-policy" }
 		});
 		EntityStorageConnectorFactory.register("odrl-policy", () => odrlPolicyMemoryEntityStorage);
+
+		odrlPolicyIndexMemoryEntityStorage = new MemoryEntityStorageConnector<OdrlPolicyIndex>({
+			entitySchema: nameof<OdrlPolicyIndex>(),
+			config: { storageKey: "odrl-policy-index" }
+		});
+		EntityStorageConnectorFactory.register(
+			"odrl-policy-index",
+			() => odrlPolicyIndexMemoryEntityStorage
+		);
 
 		ComponentFactory.register(
 			"policy-administration-point",

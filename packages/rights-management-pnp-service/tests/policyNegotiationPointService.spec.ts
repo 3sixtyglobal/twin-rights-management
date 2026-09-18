@@ -37,7 +37,8 @@ import {
 	PolicyAdministrationPointService,
 	buildPapStorageContext,
 	initSchema as initSchemaPolicyAdministrationPoint,
-	type OdrlPolicy
+	type OdrlPolicy,
+	type OdrlPolicyIndex
 } from "@twin.org/rights-management-pap-service";
 import { PolicyInformationPointService } from "@twin.org/rights-management-pip-service";
 import {
@@ -67,6 +68,7 @@ const PAP_STORED_POLICY_CONTEXT = buildPapStorageContext();
 
 let loggingMemoryEntityStorage: MemoryEntityStorageConnector<LogEntry>;
 let odrlPolicyMemoryEntityStorage: MemoryEntityStorageConnector<OdrlPolicy>;
+let odrlPolicyIndexMemoryEntityStorage: MemoryEntityStorageConnector<OdrlPolicyIndex>;
 let policyNegotiationProviderMemoryEntityStorage: MemoryEntityStorageConnector<PolicyNegotiation>;
 let policyNegotiationConsumerMemoryEntityStorage: MemoryEntityStorageConnector<PolicyNegotiation>;
 let identityConnector: EntityStorageIdentityConnector;
@@ -254,6 +256,15 @@ describe("PolicyNegotiationPointService", () => {
 			config: { storageKey: "odrl-policy" }
 		});
 		EntityStorageConnectorFactory.register("odrl-policy", () => odrlPolicyMemoryEntityStorage);
+
+		odrlPolicyIndexMemoryEntityStorage = new MemoryEntityStorageConnector<OdrlPolicyIndex>({
+			entitySchema: nameof<OdrlPolicyIndex>(),
+			config: { storageKey: "odrl-policy-index" }
+		});
+		EntityStorageConnectorFactory.register(
+			"odrl-policy-index",
+			() => odrlPolicyIndexMemoryEntityStorage
+		);
 
 		policyNegotiationProviderMemoryEntityStorage =
 			new MemoryEntityStorageConnector<PolicyNegotiation>({
