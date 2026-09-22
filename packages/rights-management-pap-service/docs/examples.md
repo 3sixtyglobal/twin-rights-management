@@ -138,3 +138,7 @@ targets and two actions produces four, one for each combination, which is what k
 a single query. The creation date is copied onto each row so the index can order and page its own
 matches, which is why ordering a locator query by `dateCreated` applies across the whole result
 rather than only within a page.
+
+The rows are read with `queryJoin`, which joins the policies onto the index, groups the rows by
+`policyId` so a policy matched by several of them is returned once, and requires the join so the
+policies excluded by the query conditions do not take up room on a page.

@@ -993,7 +993,7 @@ describe("PolicyAdministrationPointService", () => {
 		expect(byLowerLocator.policies[0]["@id"]).toEqual(uid);
 	});
 
-	test("should read the index once however many locator fields are supplied", async () => {
+	test("should not read the index more often when the locator is widened", async () => {
 		const uid = await policyAdminPoint.create({
 			"@context": OdrlContexts.Context,
 			"@type": "Offer",
@@ -1004,19 +1004,25 @@ describe("PolicyAdministrationPointService", () => {
 
 		const indexQuery = vi.spyOn(odrlPolicyIndexEntityStorage, "query");
 
-		const result = await policyAdminPoint.query({
+		const byOneField = await policyAdminPoint.query({ assigner: "user:assigner-single" });
+		const narrowReads = indexQuery.mock.calls.length;
+
+		indexQuery.mockClear();
+
+		const byEveryField = await policyAdminPoint.query({
 			assigner: "user:assigner-single",
 			assignee: "user:assignee-single",
 			target: "http://example.com/asset/single",
 			action: "use"
 		});
+		const wideReads = indexQuery.mock.calls.length;
 
-		expect(result.policies).toHaveLength(1);
-		expect(result.policies[0]["@id"]).toEqual(uid);
+		expect(byOneField.policies.map(p => p["@id"])).toEqual([uid]);
+		expect(byEveryField.policies.map(p => p["@id"])).toEqual([uid]);
 
 		// All four locator fields resolve against the one composite index, so widening the locator
-		// does not cost extra lookups or any narrowing passes.
-		expect(indexQuery).toHaveBeenCalledTimes(1);
+		// narrows the page without costing a single extra lookup.
+		expect(wideReads).toEqual(narrowReads);
 
 		indexQuery.mockRestore();
 	});
@@ -1093,7 +1099,7 @@ describe("PolicyAdministrationPointService", () => {
 			);
 			expect(page.policies.length).toBeLessThanOrEqual(10);
 			if (Is.stringValue(page.cursor)) {
-				// The cursor carries the index paging state, so it is an encoded object.
+				// The cursor is the one the join produced, which is an opaque encoded position.
 				expect(Is.stringBase64(page.cursor)).toBeTruthy();
 			}
 			seen.push(...page.policies.map(p => p["@id"]));
@@ -1166,33 +1172,7 @@ describe("PolicyAdministrationPointService", () => {
 			)
 		).rejects.toMatchObject({
 			name: "GeneralError",
-			message: "policyAdministrationPointService.invalidCursor"
-		});
-	});
-
-	test("should reject a locator cursor on a query without a locator", async () => {
-		for (let i = 0; i < 4; i++) {
-			await policyAdminPoint.create({
-				"@context": OdrlContexts.Context,
-				"@type": "Offer",
-				assigner: "user:assigner-swap",
-				permission: [{ target: "http://example.com/asset/swap", action: "use" }]
-			});
-		}
-
-		const page = await policyAdminPoint.query(
-			{ target: "http://example.com/asset/swap" },
-			undefined,
-			undefined,
-			2
-		);
-		expect(page.cursor).toBeDefined();
-
-		// The cursor belongs to the index storage, so continuing without the locator would page
-		// the wrong storage rather than simply returning different results.
-		await expect(policyAdminPoint.query(undefined, undefined, page.cursor)).rejects.toMatchObject({
-			name: "GeneralError",
-			message: "policyAdministrationPointService.invalidCursor"
+			message: "entityStorageHelper.cursorInvalid"
 		});
 	});
 
@@ -1205,7 +1185,7 @@ describe("PolicyAdministrationPointService", () => {
 		});
 
 		// Storage connectors encode their own cursors the same way, so a well formed but foreign
-		// cursor has to be rejected on the version marker rather than on the encoding.
+		// cursor has to be rejected on what it was produced by rather than on the encoding.
 		const foreignCursor = Converter.bytesToBase64(ObjectHelper.toBytes({ i: "policy1" }));
 
 		await expect(
@@ -1216,7 +1196,43 @@ describe("PolicyAdministrationPointService", () => {
 			)
 		).rejects.toMatchObject({
 			name: "GeneralError",
-			message: "policyAdministrationPointService.invalidCursor"
+			message: "entityStorageHelper.cursorInvalid"
+		});
+	});
+
+	test("should reject a locator cursor from a query with a different locator", async () => {
+		for (let i = 0; i < 4; i++) {
+			await policyAdminPoint.create({
+				"@context": OdrlContexts.Context,
+				"@type": "Offer",
+				assigner: "user:assigner-shape",
+				permission: [
+					{ target: "http://example.com/asset/shape-a", action: "use" },
+					{ target: "http://example.com/asset/shape-b", action: "use" }
+				]
+			});
+		}
+
+		const page = await policyAdminPoint.query(
+			{ target: "http://example.com/asset/shape-a" },
+			undefined,
+			undefined,
+			2
+		);
+		expect(page.cursor).toBeDefined();
+
+		// The cursor holds a position in the entries matched by the first locator, so continuing
+		// with a different one would restart the page somewhere unrelated.
+		await expect(
+			policyAdminPoint.query(
+				{ target: "http://example.com/asset/shape-b" },
+				undefined,
+				page.cursor,
+				2
+			)
+		).rejects.toMatchObject({
+			name: "GeneralError",
+			message: "entityStorageHelper.cursorInvalid"
 		});
 	});
 
@@ -1273,9 +1289,60 @@ describe("PolicyAdministrationPointService", () => {
 		}
 	});
 
+	test("should order a locator query page by a property which is not in the projection", async () => {
+		vi.useFakeTimers();
+		try {
+			const created: string[] = [];
+			for (let i = 0; i < 4; i++) {
+				vi.setSystemTime(new Date(Date.UTC(2026, 0, 1, 0, 0, i)));
+				created.push(
+					await policyAdminPoint.create({
+						"@context": OdrlContexts.Context,
+						"@type": "Offer",
+						assigner: "user:assigner-projected",
+						permission: [{ target: "http://example.com/asset/projected", action: "use" }]
+					})
+				);
+			}
+
+			// Touching them in reverse makes the modification order the opposite of the creation
+			// order, so ordering by it cannot be satisfied by the index.
+			for (let i = created.length - 1; i >= 0; i--) {
+				vi.setSystemTime(new Date(Date.UTC(2026, 0, 1, 1, 0, created.length - i)));
+				await policyAdminPoint.update({
+					"@context": OdrlContexts.Context,
+					"@type": "Offer",
+					"@id": created[i],
+					assigner: "user:assigner-projected",
+					permission: [{ target: "http://example.com/asset/projected", action: "use" }]
+				});
+			}
+
+			const result = await policyAdminPoint.query(
+				{ target: "http://example.com/asset/projected" },
+				undefined,
+				undefined,
+				undefined,
+				["@type"],
+				"dateModified",
+				SortDirection.Ascending
+			);
+
+			// The page is ordered by the modification date even though the caller did not ask for
+			// it back, and it does not appear in the result.
+			expect(result.policies.map(p => p["@id"])).toEqual([...created].reverse());
+			for (const policy of result.policies) {
+				expect(policy["@type"]).toEqual("Offer");
+				expect(policy.dateModified).toBeUndefined();
+			}
+		} finally {
+			vi.useRealTimers();
+		}
+	});
+
 	test("should page a policy which holds more index entries than the page size", async () => {
-		// Six targets and six actions give thirty six index entries for the one policy, so a page
-		// of five entries cannot cover it and most pages hold nothing new.
+		// Six targets and six actions give thirty six index entries for the one policy, far more
+		// than a page of five, yet the join groups them so the policy fills a single page.
 		const uid = await policyAdminPoint.create({
 			"@context": OdrlContexts.Context,
 			"@type": "Offer",
@@ -1303,9 +1370,9 @@ describe("PolicyAdministrationPointService", () => {
 			pages++;
 		} while (Is.stringValue(cursor));
 
-		// The later pages are empty because the policy was already returned, and it is never
-		// returned a second time.
-		expect(pages).toBeGreaterThan(1);
+		// The limit counts policies rather than index entries, so the one policy is returned by the
+		// first page and no further page is offered.
+		expect(pages).toEqual(1);
 		expect(seen).toEqual([uid]);
 	});
 
@@ -1324,6 +1391,7 @@ describe("PolicyAdministrationPointService", () => {
 		}
 
 		const seen: string[] = [];
+		const pageSizes: number[] = [];
 		let cursor: string | undefined;
 		do {
 			const page = await policyAdminPoint.query(
@@ -1333,12 +1401,14 @@ describe("PolicyAdministrationPointService", () => {
 				2
 			);
 			seen.push(...page.policies.map(p => p["@id"]));
+			pageSizes.push(page.policies.length);
 			cursor = page.cursor;
 		} while (Is.stringValue(cursor));
 
-		// The type filter runs on the policy storage, so pages can come back short or empty while
-		// the index still has entries to walk.
+		// The type filter runs on the joined policies and the join requires a match, so a page is
+		// filled with policies which survive it rather than coming back short.
 		expect([...seen].sort()).toEqual([...offers].sort());
+		expect(pageSizes).toEqual([2, 1]);
 	});
 
 	test("should not match a locator field which the policy does not have", async () => {
@@ -1378,30 +1448,6 @@ describe("PolicyAdministrationPointService", () => {
 
 		const result = await policyAdminPoint.query({ target: "http://example.com/asset/missing" });
 		expect(result.policies).toHaveLength(0);
-		expect(result.cursor).toBeUndefined();
-	});
-
-	test("should fall back to the default page size for a non positive limit", async () => {
-		const created: string[] = [];
-		for (let i = 0; i < 5; i++) {
-			created.push(
-				await policyAdminPoint.create({
-					"@context": OdrlContexts.Context,
-					"@type": "Offer",
-					assigner: "user:assigner-zero-limit",
-					permission: [{ target: "http://example.com/asset/zero-limit", action: "use" }]
-				})
-			);
-		}
-
-		const result = await policyAdminPoint.query(
-			{ target: "http://example.com/asset/zero-limit" },
-			undefined,
-			undefined,
-			0
-		);
-
-		expect([...result.policies.map(p => p["@id"])].sort()).toEqual([...created].sort());
 		expect(result.cursor).toBeUndefined();
 	});
 

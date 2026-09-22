@@ -19,10 +19,13 @@ import type { JsonLdObjectWithOptionalAtId } from "@twin.org/data-json-ld";
 import { JsonLdHelper } from "@twin.org/data-json-ld";
 import {
 	ComparisonOperator,
+	EntitySchemaPropertyType,
+	EntitySorter,
 	LogicalOperator,
 	SortDirection,
 	type EntityCondition,
-	type IComparator
+	type IComparator,
+	type IEntitySort
 } from "@twin.org/entity";
 import {
 	EntityStorageConnectorFactory,
@@ -50,7 +53,6 @@ import {
 import { OdrlPolicy } from "./entities/odrlPolicy.js";
 import type { OdrlPolicyIndex } from "./entities/odrlPolicyIndex.js";
 import type { IPolicyAdministrationPointServiceConstructorOptions } from "./models/IPolicyAdministrationPointServiceConstructorOptions.js";
-import type { IPolicyIndexCursor } from "./models/IPolicyIndexCursor.js";
 import { buildPapStorageContext, hasPolicyMetadata } from "./utils/policyContextHelper.js";
 
 /**
@@ -61,19 +63,6 @@ export class PolicyAdministrationPointService implements IPolicyAdministrationPo
 	 * The class name of the Policy Administration Point Service.
 	 */
 	public static readonly CLASS_NAME: string = nameof<PolicyAdministrationPointService>();
-
-	/**
-	 * The maximum number of index entries read in one page, which bounds the size of the id list
-	 * handed to the policy storage.
-	 * @internal
-	 */
-	private static readonly _INDEX_PAGE_SIZE: number = 100;
-
-	/**
-	 * The version stored in the encoded locator cursor.
-	 * @internal
-	 */
-	private static readonly _INDEX_CURSOR_VERSION: number = 1;
 
 	/**
 	 * The logging component.
@@ -396,14 +385,13 @@ export class PolicyAdministrationPointService implements IPolicyAdministrationPo
 
 	/**
 	 * Query the entity storage for policies.
-	 * When the locator filters on assigner, assignee, target or action the page is driven by a
-	 * single lookup on the index storage, and the returned cursor encodes the index paging state.
-	 * The index orders by the policy creation date, so ordering by dateCreated applies across the
-	 * whole result while ordering by any other property only applies within a page. A page can
-	 * contain fewer policies than the limit, because the conditions can exclude some of them and
-	 * because a policy can hold several index entries which match a locator that does not pin every
-	 * field, so callers must page until the cursor is undefined rather than stop on a short page.
-	 * No policy is returned by more than one page.
+	 * When the locator filters on assigner, assignee, target or action the page is driven by a join
+	 * from the index storage onto the policy storage, and the returned cursor encodes the paging
+	 * state of that join. The index orders by the policy creation date, so ordering by dateCreated
+	 * applies across the whole result while ordering by any other property only applies within a
+	 * page. The join groups the index entries by policy and drops the policies the conditions
+	 * exclude, so a page holds the requested number of distinct policies whenever that many remain
+	 * and no policy is returned by more than one page.
 	 * @param locator Optional locator to filter by type, assigner, assignee, target, or action.
 	 * @param conditions The conditions to query the entity storage with.
 	 * @param cursor The cursor to use for pagination.
@@ -533,15 +521,6 @@ export class PolicyAdministrationPointService implements IPolicyAdministrationPo
 
 		// Without an index lookup the policy storage drives the paging, so its cursor is returned.
 		if (indexConditions.length === 0) {
-			// A cursor from a locator query means the caller changed the locator midway through
-			// paging. It belongs to the index storage, so passing it on would silently read from the
-			// wrong place.
-			if (!Is.empty(this.tryParsePolicyIndexCursor(cursor))) {
-				throw new GeneralError(PolicyAdministrationPointService.CLASS_NAME, "invalidCursor", {
-					cursor
-				});
-			}
-
 			const result = await this._odrlPolicyEntityStorage.query(
 				allConditions.conditions.length > 0 ? allConditions : undefined,
 				sortProperties,
@@ -555,35 +534,37 @@ export class PolicyAdministrationPointService implements IPolicyAdministrationPo
 			};
 		}
 
-		// One read of the index gives the page of policy ids, already ordered by creation date.
-		const indexPage = await this.queryIndexedPolicyIds(
+		// The index carries the locator columns and the creation date, so it drives the page and
+		// the policies are joined onto it. Grouping by policy collapses the entries a locator which
+		// does not pin every field matches, and requiring the join drops the policies the
+		// conditions exclude, so the limit counts policies which really are returned.
+		const storageProperties = this.convertToStorageProperties(properties);
+
+		const joinPage = await this.queryJoinedPolicies(
 			indexConditions,
+			allConditions.conditions.length > 0 ? allConditions : undefined,
+			sortProperties,
+			// Sorting a page in memory needs the property being sorted on, even when the caller
+			// did not ask for it back.
+			this.extendWithSortProperties(storageProperties, sortProperties),
 			orderByDirection ?? SortDirection.Descending,
 			cursor,
 			limit
 		);
 
-		if (indexPage.policyIds.length === 0) {
-			return { cursor: indexPage.cursor, policies: [] };
-		}
-
-		allConditions.conditions.push({
-			property: "id",
-			comparison: ComparisonOperator.In,
-			value: indexPage.policyIds
-		});
-
-		const result = await this._odrlPolicyEntityStorage.query(
-			allConditions,
-			sortProperties,
-			this.convertToStorageProperties(properties),
-			undefined,
-			indexPage.policyIds.length
-		);
+		// The join pages the index, so only the order by creation date reaches across the pages and
+		// any other order has to be applied to the page which came back.
+		const ordered = this.sortPolicyPage(joinPage.entities, sortProperties);
 
 		return {
-			cursor: indexPage.cursor,
-			policies: result.entities.map(entity => this.convertFromStoragePolicy(entity as OdrlPolicy))
+			cursor: joinPage.cursor,
+			policies: ordered.map(entity =>
+				this.convertFromStoragePolicy(
+					(Is.arrayValue(storageProperties)
+						? ObjectHelper.pick(entity, storageProperties)
+						: entity) as OdrlPolicy
+				)
+			)
 		};
 	}
 
@@ -822,67 +803,113 @@ export class PolicyAdministrationPointService implements IPolicyAdministrationPo
 	}
 
 	/**
-	 * Read one page of policy ids from the index storage. Every locator field is a comparison on
-	 * the same composite index, so the page costs a single query no matter how many fields the
-	 * locator pins.
+	 * Read one page of policies by joining the policy storage onto the index storage. Every locator
+	 * field is a comparison on the same composite index, so the page is driven by one indexed read
+	 * of the index storage no matter how many fields the locator pins.
 	 * @param indexConditions The comparisons for the locator fields the index covers.
+	 * @param policyConditions The conditions the joined policies must match.
+	 * @param policySortProperties The order requested by the caller, validated against the policy
+	 * schema so an unsortable property is refused as it is on a query without a locator.
+	 * @param policyProperties The policy properties to read back.
 	 * @param sortDirection The direction to order the index entries by creation date.
 	 * @param cursor The cursor from a previous page.
-	 * @param limit The number of index entries to read.
-	 * @returns The distinct policy ids for the page and a cursor when more pages remain.
+	 * @param limit The number of policies to read.
+	 * @returns The policies for the page and a cursor when more pages remain.
 	 * @internal
 	 */
-	private async queryIndexedPolicyIds(
+	private async queryJoinedPolicies(
 		indexConditions: IComparator[],
+		policyConditions: EntityCondition<IRightsManagementPolicy> | undefined,
+		policySortProperties:
+			{ property: keyof OdrlPolicy; sortDirection: SortDirection }[] | undefined,
+		policyProperties: (keyof OdrlPolicy)[] | undefined,
 		sortDirection: SortDirection,
 		cursor?: string,
 		limit?: number
-	): Promise<{ policyIds: string[]; cursor?: string }> {
-		const pageSize =
-			Is.integer(limit) && limit > 0
-				? Math.min(limit, PolicyAdministrationPointService._INDEX_PAGE_SIZE)
-				: PolicyAdministrationPointService._INDEX_PAGE_SIZE;
-
-		const parsedCursor = this.parsePolicyIndexCursor(cursor);
-
-		const results = await this._odrlPolicyIndexEntityStorage.query(
-			indexConditions.length === 1
-				? indexConditions[0]
-				: { logicalOperator: LogicalOperator.And, conditions: indexConditions },
-			[
-				{ property: "dateCreated", sortDirection },
-				{ property: "policyId", sortDirection: SortDirection.Ascending }
-			],
-			["policyId"],
-			parsedCursor?.ic,
-			pageSize
+	): Promise<{ entities: Partial<OdrlPolicy>[]; cursor?: string }> {
+		const result = await this._odrlPolicyIndexEntityStorage.queryJoin(
+			this._odrlPolicyEntityStorage,
+			{
+				property: "policyId",
+				joinProperty: "id",
+				// A policy holds one entry per combination of its locator fields, so a locator which
+				// does not pin every field matches several entries of the same policy. Grouping by
+				// the policy collapses them to one result wherever the entries fall.
+				groupProperty: "policyId",
+				conditions:
+					indexConditions.length === 1
+						? indexConditions[0]
+						: { logicalOperator: LogicalOperator.And, conditions: indexConditions },
+				sortProperties: [
+					{ property: "dateCreated", sortDirection },
+					{ property: "policyId", sortDirection: SortDirection.Ascending }
+				],
+				properties: ["policyId"],
+				cursor,
+				limit,
+				joinConditions: policyConditions,
+				joinRequired: true,
+				joinSortProperties: policySortProperties,
+				joinProperties: policyProperties
+			}
 		);
 
-		// A policy holds one entry per combination, so a locator which does not pin every field can
-		// match several entries of the same policy. They are collapsed here, which is why a page can
-		// hold fewer policies than entries were read. Ordering by policy id within a creation date
-		// keeps those entries contiguous, so the only policy which can continue into the next page
-		// is the last one of this page, and the cursor carries it to be skipped there.
-		const policyIds: string[] = [];
-		const seen = new Set<string>();
-		for (const entity of results.entities) {
-			if (Is.stringValue(entity.policyId) && entity.policyId !== parsedCursor?.sp) {
-				if (!seen.has(entity.policyId)) {
-					seen.add(entity.policyId);
-					policyIds.push(entity.policyId);
-				}
-			}
+		// The join is on the policy primary key, so every group carries exactly one policy.
+		const entities: Partial<OdrlPolicy>[] = [];
+		for (const entity of result.entities) {
+			entities.push(...entity.joined);
 		}
 
-		const lastEntity = results.entities[results.entities.length - 1];
-		const straddlingPolicyId = Is.stringValue(lastEntity?.policyId)
-			? lastEntity.policyId
-			: undefined;
+		return { entities, cursor: result.cursor };
+	}
 
-		return {
-			policyIds,
-			cursor: this.buildPolicyIndexCursor(results.cursor, straddlingPolicyId)
-		};
+	/**
+	 * Add the properties being sorted on to a projection, so a page can be ordered by a property
+	 * the caller did not ask to have returned.
+	 * @param properties The projection requested by the caller.
+	 * @param sortProperties The order requested by the caller.
+	 * @returns The projection including the sort properties, or undefined when everything is read.
+	 * @internal
+	 */
+	private extendWithSortProperties(
+		properties: (keyof OdrlPolicy)[] | undefined,
+		sortProperties?: { property: keyof OdrlPolicy; sortDirection: SortDirection }[]
+	): (keyof OdrlPolicy)[] | undefined {
+		if (!Is.arrayValue(properties) || !Is.arrayValue(sortProperties)) {
+			return properties;
+		}
+
+		return [
+			...new Set([...properties, ...sortProperties.map(sortProperty => sortProperty.property)])
+		];
+	}
+
+	/**
+	 * Order the policies of a page, which the join cannot do because it pages the index entries
+	 * rather than the policies.
+	 * @param entities The policies of the page.
+	 * @param sortProperties The order requested by the caller.
+	 * @returns The policies in the requested order.
+	 * @internal
+	 */
+	private sortPolicyPage(
+		entities: Partial<OdrlPolicy>[],
+		sortProperties?: { property: keyof OdrlPolicy; sortDirection: SortDirection }[]
+	): Partial<OdrlPolicy>[] {
+		if (!Is.arrayValue(sortProperties)) {
+			return entities;
+		}
+
+		const schema = this._odrlPolicyEntityStorage.getSchema();
+		const sorters: IEntitySort<Partial<OdrlPolicy>>[] = sortProperties.map(sortProperty => ({
+			property: sortProperty.property,
+			sortDirection: sortProperty.sortDirection,
+			type:
+				schema.properties?.find(schemaProperty => schemaProperty.property === sortProperty.property)
+					?.type ?? EntitySchemaPropertyType.String
+		}));
+
+		return EntitySorter.sort(entities, sorters);
 	}
 
 	/**
@@ -898,81 +925,6 @@ export class PolicyAdministrationPointService implements IPolicyAdministrationPo
 			comparison: ComparisonOperator.Equals,
 			value: value.toLowerCase()
 		};
-	}
-
-	/**
-	 * Encode the paging state for a locator query into an opaque cursor.
-	 * @param indexCursor The cursor for the index storage.
-	 * @param straddlingPolicyId The policy whose remaining index entries begin the next page.
-	 * @returns The encoded cursor, or undefined when the index has no more entries.
-	 * @internal
-	 */
-	private buildPolicyIndexCursor(
-		indexCursor?: string,
-		straddlingPolicyId?: string
-	): string | undefined {
-		if (!Is.stringValue(indexCursor)) {
-			return undefined;
-		}
-
-		const cursorData: IPolicyIndexCursor = {
-			v: PolicyAdministrationPointService._INDEX_CURSOR_VERSION,
-			ic: indexCursor
-		};
-
-		if (Is.stringValue(straddlingPolicyId)) {
-			cursorData.sp = straddlingPolicyId;
-		}
-
-		return Converter.bytesToBase64(ObjectHelper.toBytes(cursorData));
-	}
-
-	/**
-	 * Decode the paging state for a locator query from an opaque cursor.
-	 * @param cursor The cursor to decode.
-	 * @returns The decoded paging state, or undefined when no cursor was supplied.
-	 * @throws GeneralError if the cursor is not one produced by a locator query.
-	 * @internal
-	 */
-	private parsePolicyIndexCursor(cursor?: string): IPolicyIndexCursor | undefined {
-		if (!Is.stringValue(cursor)) {
-			return undefined;
-		}
-
-		const parsed = this.tryParsePolicyIndexCursor(cursor);
-		if (!Is.empty(parsed)) {
-			return parsed;
-		}
-
-		throw new GeneralError(PolicyAdministrationPointService.CLASS_NAME, "invalidCursor", {
-			cursor
-		});
-	}
-
-	/**
-	 * Decode the paging state for a locator query from an opaque cursor, without rejecting a cursor
-	 * which belongs to a query of a different shape.
-	 * @param cursor The cursor to decode.
-	 * @returns The decoded paging state, or undefined when the cursor is not one of ours.
-	 * @internal
-	 */
-	private tryParsePolicyIndexCursor(cursor?: string): IPolicyIndexCursor | undefined {
-		if (Is.stringBase64(cursor)) {
-			try {
-				const parsed = ObjectHelper.fromBytes<IPolicyIndexCursor>(Converter.base64ToBytes(cursor));
-				if (
-					Is.object<IPolicyIndexCursor>(parsed) &&
-					parsed.v === PolicyAdministrationPointService._INDEX_CURSOR_VERSION &&
-					Is.stringValue(parsed.ic)
-				) {
-					return parsed;
-				}
-			} catch {
-				// A cursor which cannot be decoded is simply not one of ours.
-			}
-		}
-
-		return undefined;
 	}
 
 	/**
