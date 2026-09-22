@@ -1,6 +1,6 @@
 {
 	"name": "@twin.org/rights-management-pdp-service",
-	"version": "0.10.1-next.1",
+	"version": "0.10.1-next.2",
 	"description": "Policy decision point service for producing authorisation decisions from policies and context.",
 	"repository": {
 		"type": "git",
@@ -30,7 +30,7 @@
 	},
 	"dependencies": {
 		"@twin.org/core": "next",
-		"@twin.org/rights-management-models": "0.10.1-next.1",
+		"@twin.org/rights-management-models": "0.10.1-next.2",
 		"@twin.org/logging-models": "next",
 		"@twin.org/nameof": "next",
 		"@twin.org/data-json-ld": "next",
@@ -43,10 +43,10 @@
 		"@twin.org/logging-service": "next",
 		"@twin.org/nameof-transformer": "next",
 		"@twin.org/nameof-vitest-plugin": "next",
-		"@twin.org/rights-management-pap-service": "0.10.1-next.1",
-		"@twin.org/rights-management-pip-service": "0.10.1-next.1",
-		"@twin.org/rights-management-pmp-service": "0.10.1-next.1",
-		"@twin.org/rights-management-pxp-service": "0.10.1-next.1",
+		"@twin.org/rights-management-pap-service": "0.10.1-next.2",
+		"@twin.org/rights-management-pip-service": "0.10.1-next.2",
+		"@twin.org/rights-management-pmp-service": "0.10.1-next.2",
+		"@twin.org/rights-management-pxp-service": "0.10.1-next.2",
 		"@twin.org/validate-locales": "next",
 		"@types/node": "26.1.2",
 		"@vitest/coverage-v8": "4.1.10",

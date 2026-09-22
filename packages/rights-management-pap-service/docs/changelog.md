@@ -6,6 +6,20 @@
 
 * remove EcosystemPolicy-specific PAP APIs (`getEcosystemPolicy`) and error contracts for v2.
 
+## [0.10.1-next.2](https://github.com/iotaledger/twin-rights-management/compare/rights-management-pap-service-v0.10.1-next.1...rights-management-pap-service-v0.10.1-next.2) (2026-09-22)
+
+
+### Features
+
+* use entity connector queryJoin method ([#327](https://github.com/iotaledger/twin-rights-management/issues/327)) ([caea353](https://github.com/iotaledger/twin-rights-management/commit/caea353d91033673ff717d9e2604b20cea3a3e44))
+
+
+### Dependencies
+
+* The following workspace dependencies were updated
+  * dependencies
+    * @twin.org/rights-management-models bumped from 0.10.1-next.1 to 0.10.1-next.2
+
 ## [0.10.1-next.1](https://github.com/iotaledger/twin-rights-management/compare/rights-management-pap-service-v0.10.1-next.0...rights-management-pap-service-v0.10.1-next.1) (2026-09-18)
 
 
