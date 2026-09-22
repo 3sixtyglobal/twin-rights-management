@@ -241,14 +241,13 @@ A promise that resolves when the policy has been removed.
 > **query**(`locator?`, `conditions?`, `cursor?`, `limit?`, `properties?`, `orderBy?`, `orderByDirection?`): `Promise`\<\{ `cursor?`: `string`; `policies`: `IRightsManagementPolicy`[]; \}\>
 
 Query the entity storage for policies.
-When the locator filters on assigner, assignee, target or action the page is driven by a
-single lookup on the index storage, and the returned cursor encodes the index paging state.
-The index orders by the policy creation date, so ordering by dateCreated applies across the
-whole result while ordering by any other property only applies within a page. A page can
-contain fewer policies than the limit, because the conditions can exclude some of them and
-because a policy can hold several index entries which match a locator that does not pin every
-field, so callers must page until the cursor is undefined rather than stop on a short page.
-No policy is returned by more than one page.
+When the locator filters on assigner, assignee, target or action the page is driven by a join
+from the index storage onto the policy storage, and the returned cursor encodes the paging
+state of that join. The index orders by the policy creation date, so ordering by dateCreated
+applies across the whole result while ordering by any other property only applies within a
+page. The join groups the index entries by policy and drops the policies the conditions
+exclude, so a page holds the requested number of distinct policies whenever that many remain
+and no policy is returned by more than one page.
 
 #### Parameters
 
