@@ -6,6 +6,20 @@
 
 * remove EcosystemPolicy-specific PAP client API (`getEcosystemPolicy`) for v2.
 
+## [0.10.1-next.3](https://github.com/iotaledger/twin-rights-management/compare/rights-management-rest-client-v0.10.1-next.2...rights-management-rest-client-v0.10.1-next.3) (2026-09-23)
+
+
+### Miscellaneous Chores
+
+* **rights-management-rest-client:** Synchronize repo versions
+
+
+### Dependencies
+
+* The following workspace dependencies were updated
+  * dependencies
+    * @twin.org/rights-management-models bumped from 0.10.1-next.2 to 0.10.1-next.3
+
 ## [0.10.1-next.2](https://github.com/iotaledger/twin-rights-management/compare/rights-management-rest-client-v0.10.1-next.1...rights-management-rest-client-v0.10.1-next.2) (2026-09-22)
 
 

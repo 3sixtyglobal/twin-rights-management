@@ -348,7 +348,7 @@ importers:
         specifier: next
         version: 0.10.1-next.10
       '@twin.org/rights-management-models':
-        specifier: 0.10.1-next.2
+        specifier: 0.10.1-next.3
         version: link:../rights-management-models
       '@twin.org/standards-dataspace-protocol':
         specifier: next
@@ -427,7 +427,7 @@ importers:
         specifier: next
         version: 0.10.1-next.10
       '@twin.org/rights-management-models':
-        specifier: 0.10.1-next.2
+        specifier: 0.10.1-next.3
         version: link:../rights-management-models
       '@twin.org/standards-dataspace-protocol':
         specifier: next
@@ -455,16 +455,16 @@ importers:
         specifier: next
         version: 0.10.1-next.10(@types/node@26.6.2)(@vitest/coverage-v8@5.0.1)(vite@8.3.0(@types/node@26.6.2)(jiti@2.6.1))
       '@twin.org/rights-management-pap-service':
-        specifier: 0.10.1-next.2
+        specifier: 0.10.1-next.3
         version: link:../rights-management-pap-service
       '@twin.org/rights-management-pip-service':
-        specifier: 0.10.1-next.2
+        specifier: 0.10.1-next.3
         version: link:../rights-management-pip-service
       '@twin.org/rights-management-pmp-service':
-        specifier: 0.10.1-next.2
+        specifier: 0.10.1-next.3
         version: link:../rights-management-pmp-service
       '@twin.org/rights-management-pxp-service':
-        specifier: 0.10.1-next.2
+        specifier: 0.10.1-next.3
         version: link:../rights-management-pxp-service
       '@twin.org/validate-locales':
         specifier: next
@@ -521,7 +521,7 @@ importers:
         specifier: next
         version: 0.10.1-next.10
       '@twin.org/rights-management-models':
-        specifier: 0.10.1-next.2
+        specifier: 0.10.1-next.3
         version: link:../rights-management-models
       '@twin.org/standards-dataspace-protocol':
         specifier: next
@@ -549,19 +549,19 @@ importers:
         specifier: next
         version: 0.10.1-next.10(@types/node@26.6.2)(@vitest/coverage-v8@5.0.1)(vite@8.3.0(@types/node@26.6.2)(jiti@2.6.1))
       '@twin.org/rights-management-pap-service':
-        specifier: 0.10.1-next.2
+        specifier: 0.10.1-next.3
         version: link:../rights-management-pap-service
       '@twin.org/rights-management-pdp-service':
-        specifier: 0.10.1-next.2
+        specifier: 0.10.1-next.3
         version: link:../rights-management-pdp-service
       '@twin.org/rights-management-pip-service':
-        specifier: 0.10.1-next.2
+        specifier: 0.10.1-next.3
         version: link:../rights-management-pip-service
       '@twin.org/rights-management-pmp-service':
-        specifier: 0.10.1-next.2
+        specifier: 0.10.1-next.3
         version: link:../rights-management-pmp-service
       '@twin.org/rights-management-pxp-service':
-        specifier: 0.10.1-next.2
+        specifier: 0.10.1-next.3
         version: link:../rights-management-pxp-service
       '@twin.org/validate-locales':
         specifier: next
@@ -621,7 +621,7 @@ importers:
         specifier: next
         version: 0.10.1-next.10
       '@twin.org/rights-management-models':
-        specifier: 0.10.1-next.2
+        specifier: 0.10.1-next.3
         version: link:../rights-management-models
       '@twin.org/standards-w3c-odrl':
         specifier: next
@@ -712,7 +712,7 @@ importers:
         specifier: next
         version: 0.10.1-next.10
       '@twin.org/rights-management-models':
-        specifier: 0.10.1-next.2
+        specifier: 0.10.1-next.3
         version: link:../rights-management-models
       '@twin.org/standards-dataspace-protocol':
         specifier: next
@@ -740,25 +740,25 @@ importers:
         specifier: next
         version: 0.10.1-next.10(@types/node@26.6.2)(@vitest/coverage-v8@5.0.1)(vite@8.3.0(@types/node@26.6.2)(jiti@2.6.1))
       '@twin.org/rights-management-pap-service':
-        specifier: 0.10.1-next.2
+        specifier: 0.10.1-next.3
         version: link:../rights-management-pap-service
       '@twin.org/rights-management-pdp-service':
-        specifier: 0.10.1-next.2
+        specifier: 0.10.1-next.3
         version: link:../rights-management-pdp-service
       '@twin.org/rights-management-pep-service':
-        specifier: 0.10.1-next.2
+        specifier: 0.10.1-next.3
         version: link:../rights-management-pep-service
       '@twin.org/rights-management-pip-service':
-        specifier: 0.10.1-next.2
+        specifier: 0.10.1-next.3
         version: link:../rights-management-pip-service
       '@twin.org/rights-management-pmp-service':
-        specifier: 0.10.1-next.2
+        specifier: 0.10.1-next.3
         version: link:../rights-management-pmp-service
       '@twin.org/rights-management-pnp-service':
-        specifier: 0.10.1-next.2
+        specifier: 0.10.1-next.3
         version: link:../rights-management-pnp-service
       '@twin.org/rights-management-pxp-service':
-        specifier: 0.10.1-next.2
+        specifier: 0.10.1-next.3
         version: link:../rights-management-pxp-service
       '@twin.org/validate-locales':
         specifier: next
@@ -812,7 +812,7 @@ importers:
         specifier: next
         version: 0.10.1-next.10
       '@twin.org/rights-management-models':
-        specifier: 0.10.1-next.2
+        specifier: 0.10.1-next.3
         version: link:../rights-management-models
     devDependencies:
       '@twin.org/entity-storage-connector-memory':
@@ -834,7 +834,7 @@ importers:
         specifier: next
         version: 0.10.1-next.10(@types/node@26.6.2)(@vitest/coverage-v8@5.0.1)(vite@8.3.0(@types/node@26.6.2)(jiti@2.6.1))
       '@twin.org/rights-management-pap-service':
-        specifier: 0.10.1-next.2
+        specifier: 0.10.1-next.3
         version: link:../rights-management-pap-service
       '@twin.org/standards-w3c-odrl':
         specifier: next
@@ -906,7 +906,7 @@ importers:
         specifier: next
         version: 0.10.1-next.10
       '@twin.org/rights-management-models':
-        specifier: 0.10.1-next.2
+        specifier: 0.10.1-next.3
         version: link:../rights-management-models
       '@twin.org/standards-dataspace-protocol':
         specifier: next
@@ -949,10 +949,10 @@ importers:
         specifier: next
         version: 0.10.1-next.10(@types/node@26.6.2)(@vitest/coverage-v8@5.0.1)(vite@8.3.0(@types/node@26.6.2)(jiti@2.6.1))
       '@twin.org/rights-management-pap-service':
-        specifier: 0.10.1-next.2
+        specifier: 0.10.1-next.3
         version: link:../rights-management-pap-service
       '@twin.org/rights-management-pip-service':
-        specifier: 0.10.1-next.2
+        specifier: 0.10.1-next.3
         version: link:../rights-management-pip-service
       '@twin.org/validate-locales':
         specifier: next
@@ -1012,7 +1012,7 @@ importers:
         specifier: next
         version: 0.10.1-next.10
       '@twin.org/rights-management-models':
-        specifier: 0.10.1-next.2
+        specifier: 0.10.1-next.3
         version: link:../rights-management-models
       '@twin.org/standards-w3c-odrl':
         specifier: next
@@ -1103,7 +1103,7 @@ importers:
         specifier: next
         version: 0.10.1-next.10
       '@twin.org/rights-management-models':
-        specifier: 0.10.1-next.2
+        specifier: 0.10.1-next.3
         version: link:../rights-management-models
       '@twin.org/standards-dataspace-protocol':
         specifier: next
@@ -1179,7 +1179,7 @@ importers:
         specifier: next
         version: 0.10.1-next.10
       '@twin.org/rights-management-models':
-        specifier: 0.10.1-next.2
+        specifier: 0.10.1-next.3
         version: link:../rights-management-models
       '@twin.org/standards-dataspace-protocol':
         specifier: next
@@ -1228,25 +1228,25 @@ importers:
         specifier: next
         version: 0.10.1-next.10(@types/node@26.6.2)(@vitest/coverage-v8@5.0.1)(vite@8.3.0(@types/node@26.6.2)(jiti@2.6.1))
       '@twin.org/rights-management-pap-service':
-        specifier: 0.10.1-next.2
+        specifier: 0.10.1-next.3
         version: link:../rights-management-pap-service
       '@twin.org/rights-management-pdp-service':
-        specifier: 0.10.1-next.2
+        specifier: 0.10.1-next.3
         version: link:../rights-management-pdp-service
       '@twin.org/rights-management-pep-service':
-        specifier: 0.10.1-next.2
+        specifier: 0.10.1-next.3
         version: link:../rights-management-pep-service
       '@twin.org/rights-management-pip-service':
-        specifier: 0.10.1-next.2
+        specifier: 0.10.1-next.3
         version: link:../rights-management-pip-service
       '@twin.org/rights-management-pmp-service':
-        specifier: 0.10.1-next.2
+        specifier: 0.10.1-next.3
         version: link:../rights-management-pmp-service
       '@twin.org/rights-management-pnp-service':
-        specifier: 0.10.1-next.2
+        specifier: 0.10.1-next.3
         version: link:../rights-management-pnp-service
       '@twin.org/rights-management-pxp-service':
-        specifier: 0.10.1-next.2
+        specifier: 0.10.1-next.3
         version: link:../rights-management-pxp-service
       '@twin.org/ts-to-openapi':
         specifier: next

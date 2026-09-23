@@ -6,6 +6,20 @@
 
 * remove EcosystemPolicy-specific PAP APIs (`getEcosystemPolicy`) and error contracts for v2.
 
+## [0.10.1-next.3](https://github.com/iotaledger/twin-rights-management/compare/rights-management-pap-service-v0.10.1-next.2...rights-management-pap-service-v0.10.1-next.3) (2026-09-23)
+
+
+### Features
+
+* use canonical hash for index id ([660a093](https://github.com/iotaledger/twin-rights-management/commit/660a093e904455a8154996d5194e0a4a0d3f38f7))
+
+
+### Dependencies
+
+* The following workspace dependencies were updated
+  * dependencies
+    * @twin.org/rights-management-models bumped from 0.10.1-next.2 to 0.10.1-next.3
+
 ## [0.10.1-next.2](https://github.com/iotaledger/twin-rights-management/compare/rights-management-pap-service-v0.10.1-next.1...rights-management-pap-service-v0.10.1-next.2) (2026-09-22)
 
 
