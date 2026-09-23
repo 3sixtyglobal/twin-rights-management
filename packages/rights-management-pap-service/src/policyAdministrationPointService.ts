@@ -8,13 +8,14 @@ import {
 	GeneralError,
 	Guards,
 	Is,
+	JsonHelper,
 	NotFoundError,
 	ObjectHelper,
-	RandomHelper,
 	Urn,
 	Validation,
 	type IValidationFailure
 } from "@twin.org/core";
+import { Blake2b } from "@twin.org/crypto";
 import type { JsonLdObjectWithOptionalAtId } from "@twin.org/data-json-ld";
 import { JsonLdHelper } from "@twin.org/data-json-ld";
 import {
@@ -710,7 +711,9 @@ export class PolicyAdministrationPointService implements IPolicyAdministrationPo
 		for (const [key, entry] of required) {
 			if (!retainedKeys.has(key)) {
 				addEntries.push({
-					id: Converter.bytesToHex(RandomHelper.generate(16)),
+					id: Converter.bytesToHex(
+						Blake2b.sum256(ObjectHelper.toBytes(JsonHelper.canonicalize(entry)))
+					),
 					...entry
 				});
 			}
