@@ -255,7 +255,7 @@ importers:
         version: 0.10.1-next.10
       '@twin.org/identity-models':
         specifier: next
-        version: 0.10.1-next.3
+        version: 0.10.1-next.4
       '@twin.org/nameof':
         specifier: next
         version: 0.10.1-next.10
@@ -280,7 +280,7 @@ importers:
         version: 0.10.1-next.10
       '@twin.org/identity-connector-entity-storage':
         specifier: next
-        version: 0.10.1-next.3
+        version: 0.10.1-next.4
       '@twin.org/nameof-transformer':
         specifier: next
         version: 0.10.1-next.10
@@ -613,7 +613,7 @@ importers:
         version: 0.10.1-next.1
       '@twin.org/identity-models':
         specifier: next
-        version: 0.10.1-next.3
+        version: 0.10.1-next.4
       '@twin.org/logging-models':
         specifier: next
         version: 0.10.1-next.3
@@ -704,7 +704,7 @@ importers:
         version: 0.10.1-next.1
       '@twin.org/identity-models':
         specifier: next
-        version: 0.10.1-next.3
+        version: 0.10.1-next.4
       '@twin.org/logging-models':
         specifier: next
         version: 0.10.1-next.3
@@ -932,10 +932,10 @@ importers:
         version: 0.10.1-next.10
       '@twin.org/identity-connector-entity-storage':
         specifier: next
-        version: 0.10.1-next.3
+        version: 0.10.1-next.4
       '@twin.org/identity-models':
         specifier: next
-        version: 0.10.1-next.3
+        version: 0.10.1-next.4
       '@twin.org/logging-connector-entity-storage':
         specifier: next
         version: 0.10.1-next.3
@@ -1208,10 +1208,10 @@ importers:
         version: 0.10.1-next.10
       '@twin.org/identity-connector-entity-storage':
         specifier: next
-        version: 0.10.1-next.3
+        version: 0.10.1-next.4
       '@twin.org/identity-models':
         specifier: next
-        version: 0.10.1-next.3
+        version: 0.10.1-next.4
       '@twin.org/logging-connector-entity-storage':
         specifier: next
         version: 0.10.1-next.3
@@ -2101,12 +2101,12 @@ packages:
     resolution: {integrity: sha512-7EWfC+XyXgyNEf1DVB8IAmgqfIArWUhsLVwAbfsCkCo3TNtJlse32fQND49QHt4FNIC5QOpuO4v9N4Q61GjiLQ==}
     engines: {node: '>=24.0.0'}
 
-  '@twin.org/identity-connector-entity-storage@0.10.1-next.3':
-    resolution: {integrity: sha512-CV+0Me36JArBNW3ayH8GZktz9UYP2q6wQpHd1a3OJsjXPF6z7eRIfg4QSwpc4v6aTKD0QTpOJ4WvNgbiclbtHA==}
+  '@twin.org/identity-connector-entity-storage@0.10.1-next.4':
+    resolution: {integrity: sha512-SCS3c6nTlpJMUcPX2ceK1VBFS6d/CSygk33P0IKpXWgpnbMkm1/WCb+CCuWJ9Zf71PeOVDI28IkPgApzMOIhEw==}
     engines: {node: '>=24.0.0'}
 
-  '@twin.org/identity-models@0.10.1-next.3':
-    resolution: {integrity: sha512-qH1FVlT6OUMkEY5wH84jRC4pCyf2pVKuB92DBhI5R4UjxtqtW5SPH4NBGxwwOqwhaqi8mgyshBrt8E8R1UpbMg==}
+  '@twin.org/identity-models@0.10.1-next.4':
+    resolution: {integrity: sha512-vMO0bVab5ogdNa07RyXUrMxC5jEkRSpMK2vBeImQk9rh8EqWI/TgklbhwBiQhHwGZkI3XkKaCZzUT2EJgASCxA==}
     engines: {node: '>=24.0.0'}
 
   '@twin.org/logging-connector-entity-storage@0.10.1-next.3':
@@ -5409,20 +5409,20 @@ snapshots:
       reflect-metadata: 0.2.2
       tslib: 2.8.1
 
-  '@twin.org/identity-connector-entity-storage@0.10.1-next.3':
+  '@twin.org/identity-connector-entity-storage@0.10.1-next.4':
     dependencies:
       '@twin.org/core': 0.10.1-next.10
       '@twin.org/data-core': 0.10.1-next.1
       '@twin.org/data-json-ld': 0.10.1-next.1
       '@twin.org/entity': 0.10.1-next.10
       '@twin.org/entity-storage-models': 0.10.1-next.10
-      '@twin.org/identity-models': 0.10.1-next.3
+      '@twin.org/identity-models': 0.10.1-next.4
       '@twin.org/nameof': 0.10.1-next.10
       '@twin.org/standards-w3c-did': 0.9.3-next.2
       '@twin.org/vault-models': 0.10.1-next.3
       '@twin.org/web': 0.10.1-next.10
 
-  '@twin.org/identity-models@0.10.1-next.3':
+  '@twin.org/identity-models@0.10.1-next.4':
     dependencies:
       '@twin.org/context': 0.10.1-next.10
       '@twin.org/core': 0.10.1-next.10
