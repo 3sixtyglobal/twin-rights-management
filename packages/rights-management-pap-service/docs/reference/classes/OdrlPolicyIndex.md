@@ -5,8 +5,9 @@ each combination of assigner, assignee, target and action a policy carries, so a
 filters on several of those fields is answered by a single lookup on the composite index instead
 of one lookup per field.
 
-The lengths of the indexed columns are deliberately modest because they all belong to the same
-composite index, and a composite index key has a size limit on some databases.
+The composite index is built on fixed length hashes of the values rather than the values
+themselves, so its key stays within the size limit some databases place on an index key however
+long the values are.
 
 ## Constructors
 
@@ -47,12 +48,28 @@ collation. Absent when the policy has no assigner.
 
 ***
 
+### assignerHash? {#assignerhash}
+
+> `optional` **assignerHash?**: `string`
+
+The hash of the assigner, used for lookups. Absent when the policy has no assigner.
+
+***
+
 ### assignee? {#assignee}
 
 > `optional` **assignee?**: `string`
 
 An assignee party id of the policy, case folded so lookups do not depend on the column
 collation. Absent when the policy has no assignee.
+
+***
+
+### assigneeHash? {#assigneehash}
+
+> `optional` **assigneeHash?**: `string`
+
+The hash of the assignee, used for lookups. Absent when the policy has no assignee.
 
 ***
 
@@ -65,12 +82,28 @@ collation. Absent when the policy has no target.
 
 ***
 
+### targetHash? {#targethash}
+
+> `optional` **targetHash?**: `string`
+
+The hash of the target, used for lookups. Absent when the policy has no target.
+
+***
+
 ### action? {#action}
 
 > `optional` **action?**: `string`
 
 An action identifier of the policy, case folded so lookups do not depend on the column
 collation. Absent when the policy has no action.
+
+***
+
+### actionHash? {#actionhash}
+
+> `optional` **actionHash?**: `string`
+
+The hash of the action, used for lookups. Absent when the policy has no action.
 
 ***
 
