@@ -1,6 +1,6 @@
 {
 	"name": "@twin.org/rights-management-pdp-service",
-	"version": "0.10.1-next.3",
+	"version": "0.10.1-next.4",
 	"description": "Policy decision point service for producing authorisation decisions from policies and context.",
 	"repository": {
 		"type": "git",
@@ -33,7 +33,7 @@
 		"@twin.org/data-json-ld": "next",
 		"@twin.org/logging-models": "next",
 		"@twin.org/nameof": "next",
-		"@twin.org/rights-management-models": "0.10.1-next.3",
+		"@twin.org/rights-management-models": "0.10.1-next.4",
 		"@twin.org/standards-dataspace-protocol": "next",
 		"@twin.org/standards-w3c-odrl": "next"
 	},
@@ -44,10 +44,10 @@
 		"@twin.org/logging-service": "next",
 		"@twin.org/nameof-transformer": "next",
 		"@twin.org/nameof-vitest-plugin": "next",
-		"@twin.org/rights-management-pap-service": "0.10.1-next.3",
-		"@twin.org/rights-management-pip-service": "0.10.1-next.3",
-		"@twin.org/rights-management-pmp-service": "0.10.1-next.3",
-		"@twin.org/rights-management-pxp-service": "0.10.1-next.3",
+		"@twin.org/rights-management-pap-service": "0.10.1-next.4",
+		"@twin.org/rights-management-pip-service": "0.10.1-next.4",
+		"@twin.org/rights-management-pmp-service": "0.10.1-next.4",
+		"@twin.org/rights-management-pxp-service": "0.10.1-next.4",
 		"@twin.org/validate-locales": "next",
 		"@types/node": "26.6.2",
 		"@vitest/coverage-v8": "5.0.1",

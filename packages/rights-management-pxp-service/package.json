@@ -1,6 +1,6 @@
 {
 	"name": "@twin.org/rights-management-pxp-service",
-	"version": "0.10.1-next.3",
+	"version": "0.10.1-next.4",
 	"description": "Policy execution point service for pre and post evaluation action pipelines.",
 	"repository": {
 		"type": "git",
@@ -32,7 +32,7 @@
 		"@twin.org/core": "next",
 		"@twin.org/logging-models": "next",
 		"@twin.org/nameof": "next",
-		"@twin.org/rights-management-models": "0.10.1-next.3",
+		"@twin.org/rights-management-models": "0.10.1-next.4",
 		"@twin.org/standards-w3c-odrl": "next"
 	},
 	"devDependencies": {
