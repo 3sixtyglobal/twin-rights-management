@@ -4,18 +4,15 @@ import {
 	AlreadyExistsError,
 	BaseError,
 	ComponentFactory,
-	Converter,
 	GeneralError,
 	Guards,
 	Is,
-	JsonHelper,
 	NotFoundError,
 	ObjectHelper,
 	Urn,
 	Validation,
 	type IValidationFailure
 } from "@twin.org/core";
-import { Blake2b } from "@twin.org/crypto";
 import type { JsonLdObjectWithOptionalAtId } from "@twin.org/data-json-ld";
 import { JsonLdHelper } from "@twin.org/data-json-ld";
 import {
@@ -54,6 +51,7 @@ import {
 import { OdrlPolicy } from "./entities/odrlPolicy.js";
 import type { OdrlPolicyIndex } from "./entities/odrlPolicyIndex.js";
 import type { IPolicyAdministrationPointServiceConstructorOptions } from "./models/IPolicyAdministrationPointServiceConstructorOptions.js";
+import { OdrlPolicyIndexHelper } from "./utils/odrlPolicyIndexHelper.js";
 import { buildPapStorageContext, hasPolicyMetadata } from "./utils/policyContextHelper.js";
 
 /**
@@ -492,19 +490,19 @@ export class PolicyAdministrationPointService implements IPolicyAdministrationPo
 		const indexConditions: IComparator[] = [];
 
 		if (Is.stringValue(locator?.assigner)) {
-			indexConditions.push(this.buildIndexComparator("assigner", locator.assigner));
+			indexConditions.push(this.buildIndexComparator("assignerHash", locator.assigner));
 		}
 
 		if (Is.stringValue(locator?.assignee)) {
-			indexConditions.push(this.buildIndexComparator("assignee", locator.assignee));
+			indexConditions.push(this.buildIndexComparator("assigneeHash", locator.assignee));
 		}
 
 		if (Is.stringValue(locator?.target)) {
-			indexConditions.push(this.buildIndexComparator("target", locator.target));
+			indexConditions.push(this.buildIndexComparator("targetHash", locator.target));
 		}
 
 		if (Is.stringValue(locator?.action)) {
-			indexConditions.push(this.buildIndexComparator("action", locator.action));
+			indexConditions.push(this.buildIndexComparator("actionHash", locator.action));
 		}
 
 		if (!Is.empty(conditions)) {
@@ -659,19 +657,22 @@ export class PolicyAdministrationPointService implements IPolicyAdministrationPo
 		const targets = this.buildIndexDimension(OdrlPolicyHelper.getTargets(policy));
 		const actions = this.buildIndexDimension(OdrlPolicyHelper.getActions(policy));
 
-		const required = new Map<string, Omit<OdrlPolicyIndex, "id">>();
+		const required = new Map<string, OdrlPolicyIndex>();
 		for (const assigner of assigners) {
 			for (const assignee of assignees) {
 				for (const target of targets) {
 					for (const action of actions) {
-						required.set(JSON.stringify([assigner, assignee, target, action]), {
-							policyId,
-							assigner,
-							assignee,
-							target,
-							action,
-							dateCreated
-						});
+						required.set(
+							JSON.stringify([assigner, assignee, target, action]),
+							OdrlPolicyIndexHelper.createIndexEntry(
+								policyId,
+								dateCreated,
+								assigner,
+								assignee,
+								target,
+								action
+							)
+						);
 					}
 				}
 			}
@@ -683,6 +684,10 @@ export class PolicyAdministrationPointService implements IPolicyAdministrationPo
 			"assignee",
 			"target",
 			"action",
+			"assignerHash",
+			"assigneeHash",
+			"targetHash",
+			"actionHash",
 			"dateCreated"
 		]);
 
@@ -692,13 +697,18 @@ export class PolicyAdministrationPointService implements IPolicyAdministrationPo
 		for (const entry of existing) {
 			if (Is.stringValue(entry.id)) {
 				// Entries which are no longer required, duplicates of a retained entry, and entries
-				// holding a stale creation date are removed so exactly one current entry remains
-				// per combination.
+				// holding a stale creation date or hash are removed so exactly one current entry
+				// remains per combination.
 				const key = JSON.stringify([entry.assigner, entry.assignee, entry.target, entry.action]);
+				const requiredEntry = required.get(key);
 				if (
-					required.has(key) &&
+					Is.object(requiredEntry) &&
 					!retainedKeys.has(key) &&
-					entry.dateCreated === required.get(key)?.dateCreated
+					entry.dateCreated === requiredEntry.dateCreated &&
+					entry.assignerHash === requiredEntry.assignerHash &&
+					entry.assigneeHash === requiredEntry.assigneeHash &&
+					entry.targetHash === requiredEntry.targetHash &&
+					entry.actionHash === requiredEntry.actionHash
 				) {
 					retainedKeys.add(key);
 				} else {
@@ -710,12 +720,7 @@ export class PolicyAdministrationPointService implements IPolicyAdministrationPo
 		const addEntries: OdrlPolicyIndex[] = [];
 		for (const [key, entry] of required) {
 			if (!retainedKeys.has(key)) {
-				addEntries.push({
-					id: Converter.bytesToHex(
-						Blake2b.sum256(ObjectHelper.toBytes(JsonHelper.canonicalize(entry)))
-					),
-					...entry
-				});
+				addEntries.push(entry);
 			}
 		}
 
@@ -916,9 +921,9 @@ export class PolicyAdministrationPointService implements IPolicyAdministrationPo
 	}
 
 	/**
-	 * Build the comparison for a locator field against its index column.
-	 * @param property The index column to compare.
-	 * @param value The locator value, case folded to match the stored entries.
+	 * Build the comparison for a locator field against its index hash column.
+	 * @param property The index hash column to compare.
+	 * @param value The locator value, case folded and hashed to match the stored entries.
 	 * @returns The comparison for the index column.
 	 * @internal
 	 */
@@ -926,7 +931,7 @@ export class PolicyAdministrationPointService implements IPolicyAdministrationPo
 		return {
 			property,
 			comparison: ComparisonOperator.Equals,
-			value: value.toLowerCase()
+			value: OdrlPolicyIndexHelper.hashValue(value)
 		};
 	}
 

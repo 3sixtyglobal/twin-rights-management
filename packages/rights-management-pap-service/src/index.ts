@@ -6,4 +6,5 @@ export * from "./entities/odrlPolicyV0.js";
 export * from "./models/IPolicyAdministrationPointServiceConstructorOptions.js";
 export * from "./policyAdministrationPointService.js";
 export * from "./schema.js";
+export * from "./utils/odrlPolicyIndexHelper.js";
 export * from "./utils/policyContextHelper.js";

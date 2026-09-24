@@ -117,20 +117,30 @@ on a single composite index, so a locator naming several of those fields is answ
 rather than one lookup per field. Values are always stored lower cased, and locator values are
 lower cased before lookup, so matching is case insensitive.
 
+The composite index is built on the `assignerHash`, `assigneeHash`, `targetHash` and `actionHash`
+columns, which hold the base64 url encoded Blake2b-160 hash of each lower cased value, rather than
+on the values themselves. This keeps the index key a fixed size whatever the length of the values,
+so it stays within the key size limit of databases such as MySQL. The values are kept alongside
+their hashes.
+
+`OdrlPolicyIndexHelper.createIndexEntry` builds the entry for one combination, case folding and
+hashing the values and deriving the `id` from the content, so the same combination always produces
+the same entry. `OdrlPolicyIndexHelper.hashValue` gives the hash to look a value up by.
+
 ```typescript
-import { OdrlPolicyIndex } from '@twin.org/rights-management-pap-service';
+import { OdrlPolicyIndexHelper } from '@twin.org/rights-management-pap-service';
 
-const entity = new OdrlPolicyIndex();
-entity.id = '8f14e45fceea167a5a36dedd4bea2543';
-entity.policyId = 'urn:rights-management:policy-1';
-entity.assigner = 'did:example:provider';
-entity.assignee = 'did:example:consumer';
-entity.target = 'urn:asset:dataset-1';
-entity.action = 'use';
-entity.dateCreated = '2026-01-01T00:00:00.000Z';
+const entity = OdrlPolicyIndexHelper.createIndexEntry(
+  'urn:rights-management:policy-1',
+  '2026-01-01T00:00:00.000Z',
+  'did:example:Provider',
+  'did:example:consumer',
+  'urn:asset:dataset-1',
+  'use'
+);
 
-console.log(entity.policyId); // urn:rights-management:policy-1
-console.log(entity.target); // urn:asset:dataset-1
+console.log(entity.assigner); // did:example:provider
+console.log(entity.assignerHash === OdrlPolicyIndexHelper.hashValue('DID:EXAMPLE:PROVIDER')); // true
 ```
 
 A policy with a single assigner, assignee, target and action produces one row. A policy with two

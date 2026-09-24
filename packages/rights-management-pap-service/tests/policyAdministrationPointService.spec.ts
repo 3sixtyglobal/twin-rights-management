@@ -3,8 +3,9 @@
 import { existsSync } from "node:fs";
 import { rm } from "node:fs/promises";
 import { ArrayHelper, Converter, Is, ObjectHelper } from "@twin.org/core";
+import { Blake2b } from "@twin.org/crypto";
 import type { IJsonLdNodeObject, JsonLdObjectWithOptionalAtId } from "@twin.org/data-json-ld";
-import { SortDirection, type EntityCondition } from "@twin.org/entity";
+import { EntitySchemaHelper, SortDirection, type EntityCondition } from "@twin.org/entity";
 import type { MemoryEntityStorageConnector } from "@twin.org/entity-storage-connector-memory";
 import type { IPolicyLocator, IRightsManagementPolicy } from "@twin.org/rights-management-models";
 import type { IDataspaceProtocolPolicy } from "@twin.org/standards-dataspace-protocol";
@@ -975,6 +976,15 @@ describe("PolicyAdministrationPointService", () => {
 		const entries = await indexEntries(uid);
 		expect(entries).toHaveLength(1);
 
+		// The hashes are taken from the case folded values, so the lookups are case insensitive too.
+		const hash = (value: string): string =>
+			Converter.bytesToBase64Url(Blake2b.sum160(Converter.utf8ToBytes(value)));
+		expect(entries[0].assignerHash).toEqual(hash("user:assigner-mixed"));
+		expect(entries[0].assigneeHash).toEqual(hash("user:assignee-mixed"));
+		expect(entries[0].targetHash).toEqual(hash("http://example.com/asset/mixed-case"));
+		expect(entries[0].actionHash).toEqual(hash("use"));
+		expect(entries[0].actionHash).toHaveLength(27);
+
 		const stored = await policyAdminPoint.get(uid);
 		expect(entries[0].dateCreated).toEqual(stored.dateCreated);
 
@@ -991,6 +1001,54 @@ describe("PolicyAdministrationPointService", () => {
 		});
 		expect(byLowerLocator.policies).toHaveLength(1);
 		expect(byLowerLocator.policies[0]["@id"]).toEqual(uid);
+	});
+
+	test("should keep the locator composite index key within the MySQL key limit", () => {
+		// MySQL leads every index with a 255 character partition key and counts 4 bytes per
+		// utf8mb4 character, against a 3072 byte limit on the key.
+		const bytesPerChar = 4;
+		const locator = EntitySchemaHelper.getIndexGroups(
+			odrlPolicyIndexEntityStorage.getSchema()
+		).locator;
+		const keyChars = locator.reduce(
+			(total, { property }) =>
+				total +
+				(property.maxLength ??
+					(Is.stringValue(property.format)
+						? EntitySchemaHelper.FORMAT_MAX_LENGTHS[property.format]
+						: 0)),
+			255
+		);
+
+		expect(locator.map(({ property }) => property.property)).toEqual([
+			"assignerHash",
+			"assigneeHash",
+			"targetHash",
+			"actionHash",
+			"dateCreated",
+			"policyId"
+		]);
+		expect(keyChars * bytesPerChar).toBeLessThanOrEqual(3072);
+	});
+
+	test("should match a locator on a target longer than the composite index could hold", async () => {
+		const longTarget = `http://example.com/asset/${"a".repeat(220)}`;
+		const uid = await policyAdminPoint.create({
+			"@context": OdrlContexts.Context,
+			"@type": "Offer",
+			assigner: "user:assigner-long",
+			assignee: "user:assignee-long",
+			permission: [{ target: longTarget, action: "use" }]
+		});
+
+		expect(await indexValues(uid, "target")).toEqual([longTarget]);
+
+		const result = await policyAdminPoint.query({
+			assigner: "user:assigner-long",
+			assignee: "user:assignee-long",
+			target: longTarget
+		});
+		expect(result.policies.map(p => p["@id"])).toEqual([uid]);
 	});
 
 	test("should not read the index more often when the locator is widened", async () => {

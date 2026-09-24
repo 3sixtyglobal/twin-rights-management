@@ -8,8 +8,9 @@ import { entity, property, SortDirection } from "@twin.org/entity";
  * filters on several of those fields is answered by a single lookup on the composite index instead
  * of one lookup per field.
  *
- * The lengths of the indexed columns are deliberately modest because they all belong to the same
- * composite index, and a composite index key has a size limit on some databases.
+ * The composite index is built on fixed length hashes of the values rather than the values
+ * themselves, so its key stays within the size limit some databases place on an index key however
+ * long the values are.
  */
 @entity()
 export class OdrlPolicyIndex {
@@ -37,53 +38,77 @@ export class OdrlPolicyIndex {
 	 * An assigner party id of the policy, case folded so lookups do not depend on the column
 	 * collation. Absent when the policy has no assigner.
 	 */
+	@property({ type: "string", maxLength: 128, optional: true })
+	public assigner?: string;
+
+	/**
+	 * The hash of the assigner, used for lookups. Absent when the policy has no assigner.
+	 */
 	@property({
 		type: "string",
-		maxLength: 128,
+		maxLength: 27,
 		isSecondary: true,
 		optional: true,
 		indexGroup: [{ name: "locator", direction: SortDirection.Ascending, index: 0 }]
 	})
-	public assigner?: string;
+	public assignerHash?: string;
 
 	/**
 	 * An assignee party id of the policy, case folded so lookups do not depend on the column
 	 * collation. Absent when the policy has no assignee.
 	 */
+	@property({ type: "string", maxLength: 128, optional: true })
+	public assignee?: string;
+
+	/**
+	 * The hash of the assignee, used for lookups. Absent when the policy has no assignee.
+	 */
 	@property({
 		type: "string",
-		maxLength: 128,
+		maxLength: 27,
 		isSecondary: true,
 		optional: true,
 		indexGroup: [{ name: "locator", direction: SortDirection.Ascending, index: 1 }]
 	})
-	public assignee?: string;
+	public assigneeHash?: string;
 
 	/**
 	 * A target asset id of the policy, case folded so lookups do not depend on the column
 	 * collation. Absent when the policy has no target.
 	 */
+	@property({ type: "string", maxLength: 255, optional: true })
+	public target?: string;
+
+	/**
+	 * The hash of the target, used for lookups. Absent when the policy has no target.
+	 */
 	@property({
 		type: "string",
-		maxLength: 255,
+		maxLength: 27,
 		isSecondary: true,
 		optional: true,
 		indexGroup: [{ name: "locator", direction: SortDirection.Ascending, index: 2 }]
 	})
-	public target?: string;
+	public targetHash?: string;
 
 	/**
 	 * An action identifier of the policy, case folded so lookups do not depend on the column
 	 * collation. Absent when the policy has no action.
 	 */
+	@property({ type: "string", maxLength: 64, optional: true })
+	public action?: string;
+
+	/**
+	 * The hash of the action, used for lookups. Absent when the policy has no action.
+	 */
 	@property({
 		type: "string",
-		maxLength: 64,
+		maxLength: 27,
 		isSecondary: true,
 		optional: true,
 		indexGroup: [{ name: "locator", direction: SortDirection.Ascending, index: 3 }]
 	})
-	public action?: string;
+	public actionHash?: string;
 
 	/**
 	 * The date/time of when the policy was created, copied so the index can order and page its own

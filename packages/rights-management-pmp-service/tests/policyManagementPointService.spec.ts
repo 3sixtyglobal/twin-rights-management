@@ -15,6 +15,7 @@ import { nameof } from "@twin.org/nameof";
 import {
 	PolicyAdministrationPointService,
 	initSchema as initSchemaPolicyAdministrationPoint,
+	OdrlPolicyIndexHelper,
 	type OdrlPolicy,
 	type OdrlPolicyIndex
 } from "@twin.org/rights-management-pap-service";
@@ -66,15 +67,16 @@ async function seedPolicy(
 		for (const assignee of dimension(indexes.assignee)) {
 			for (const target of dimension(indexes.target)) {
 				for (const action of dimension(indexes.action)) {
-					entries.push({
-						id: `${policy.id}|${assigner}|${assignee}|${target}|${action}`,
-						policyId: policy.id,
-						assigner,
-						assignee,
-						target,
-						action,
-						dateCreated: policy.dateCreated ?? "2026-01-01T00:00:00.000Z"
-					});
+					entries.push(
+						OdrlPolicyIndexHelper.createIndexEntry(
+							policy.id,
+							policy.dateCreated ?? "2026-01-01T00:00:00.000Z",
+							assigner,
+							assignee,
+							target,
+							action
+						)
+					);
 				}
 			}
 		}
