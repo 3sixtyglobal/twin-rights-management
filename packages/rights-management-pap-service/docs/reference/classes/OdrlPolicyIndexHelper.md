@@ -19,8 +19,8 @@ Helper methods for building ODRL policy index entries.
 > `static` **createIndexEntry**(`policyId`, `dateCreated`, `assigner?`, `assignee?`, `target?`, `action?`): [`OdrlPolicyIndex`](OdrlPolicyIndex.md)
 
 Create the index entry for one combination of assigner, assignee, target and action. The
-values are case folded and hashed, and the id is derived from the content so the same
-combination always produces the same entry.
+values are case folded and hashed, and the id is derived from the policy id and values so the
+same combination always produces the same id.
 
 #### Parameters
 
