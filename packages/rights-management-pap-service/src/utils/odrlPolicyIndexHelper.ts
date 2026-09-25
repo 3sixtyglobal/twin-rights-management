@@ -10,8 +10,8 @@ import type { OdrlPolicyIndex } from "../entities/odrlPolicyIndex.js";
 export class OdrlPolicyIndexHelper {
 	/**
 	 * Create the index entry for one combination of assigner, assignee, target and action. The
-	 * values are case folded and hashed, and the id is derived from the content so the same
-	 * combination always produces the same entry.
+	 * values are case folded and hashed, and the id is derived from the policy id and values so the
+	 * same combination always produces the same id.
 	 * @param policyId The id of the policy the entry refers to.
 	 * @param dateCreated The creation date of the policy.
 	 * @param assigner The assigner party id.
@@ -33,24 +33,26 @@ export class OdrlPolicyIndexHelper {
 		const foldedTarget = OdrlPolicyIndexHelper.foldValue(target);
 		const foldedAction = OdrlPolicyIndexHelper.foldValue(action);
 
-		const entry: Omit<OdrlPolicyIndex, "id"> = {
+		// The id only covers the identifying fields, so it stays stable when the creation date is
+		// backfilled or changes.
+		const identity = {
 			policyId,
 			assigner: foldedAssigner,
-			assignerHash: OdrlPolicyIndexHelper.hashValue(foldedAssigner),
 			assignee: foldedAssignee,
-			assigneeHash: OdrlPolicyIndexHelper.hashValue(foldedAssignee),
 			target: foldedTarget,
-			targetHash: OdrlPolicyIndexHelper.hashValue(foldedTarget),
-			action: foldedAction,
-			actionHash: OdrlPolicyIndexHelper.hashValue(foldedAction),
-			dateCreated
+			action: foldedAction
 		};
 
 		return {
 			id: Converter.bytesToHex(
-				Blake2b.sum256(ObjectHelper.toBytes(JsonHelper.canonicalize(entry)))
+				Blake2b.sum256(ObjectHelper.toBytes(JsonHelper.canonicalize(identity)))
 			),
-			...entry
+			...identity,
+			assignerHash: OdrlPolicyIndexHelper.hashValue(foldedAssigner),
+			assigneeHash: OdrlPolicyIndexHelper.hashValue(foldedAssignee),
+			targetHash: OdrlPolicyIndexHelper.hashValue(foldedTarget),
+			actionHash: OdrlPolicyIndexHelper.hashValue(foldedAction),
+			dateCreated
 		};
 	}
 

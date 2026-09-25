@@ -111,14 +111,6 @@ describe("OdrlPolicyIndexHelper", () => {
 				"urn:asset:1",
 				"use"
 			),
-			OdrlPolicyIndexHelper.createIndexEntry(
-				POLICY_ID,
-				"2026-01-02T00:00:00.000Z",
-				"did:example:a",
-				"did:example:b",
-				"urn:asset:1",
-				"use"
-			),
 			// Swapping the assigner and assignee must not collide.
 			OdrlPolicyIndexHelper.createIndexEntry(
 				POLICY_ID,
@@ -141,5 +133,27 @@ describe("OdrlPolicyIndexHelper", () => {
 		for (const variant of variants) {
 			expect(variant.id).not.toEqual(base.id);
 		}
+	});
+
+	test("should derive the same id when only the creation date differs", () => {
+		const original = OdrlPolicyIndexHelper.createIndexEntry(
+			POLICY_ID,
+			DATE_CREATED,
+			"did:example:a",
+			"did:example:b",
+			"urn:asset:1",
+			"use"
+		);
+		const backfilled = OdrlPolicyIndexHelper.createIndexEntry(
+			POLICY_ID,
+			"2026-01-02T00:00:00.000Z",
+			"did:example:a",
+			"did:example:b",
+			"urn:asset:1",
+			"use"
+		);
+
+		expect(backfilled.id).toEqual(original.id);
+		expect(backfilled.dateCreated).toEqual("2026-01-02T00:00:00.000Z");
 	});
 });
