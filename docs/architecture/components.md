@@ -112,6 +112,8 @@ Invocation model:
 
 Sources SHOULD be side-effect free and SHOULD implement internal caching for expensive lookups.
 
+The source contract, the built-in sources and the semantics of the policy-less public retrieve are described in [Information Sources](./information-sources.mdx).
+
 ## Policy Execution Point (PXP)
 
 The PXP provides ordered pre-/post-evaluation interception around PDP decision computation. Extension units are `Execution Actions`.
@@ -140,6 +142,8 @@ Evaluation pipeline:
 Error handling: If zero Arbiters are registered an error (e.g. `noSupportedArbiters`) MUST be raised. Individual Arbiter failures SHOULD be isolated; a catastrophic failure aborts with `decidingFailed` (exact codes defined elsewhere).
 
 Arbiters SHOULD be deterministic for identical inputs and MUST NOT mutate shared policy objects.
+
+The contextual facts handed to arbiters are the PIP output with the agreement's `trustData` merged over it; [Trust Subject Flow](./trust-subject-flow.mdx) follows that data from negotiation to evaluation, and [Default Policy Arbiter](./default-policy-arbiter.mdx) is the reference for the shipped arbiter's operand forms, targets and decision semantics.
 
 ### Party Scoping (PartyCollection Refinements)
 
@@ -218,6 +222,7 @@ Capabilities:
 - Dispatch negotiation progress events to a `Requester` (consumer side callback handler).
 - Finalize: on `FINALIZED`, persist Agreement into PAP.
 - Termination handling with explicit reason codes.
+- Capture the counterparty's verified trust token subject and persist it on the Agreement as `trustData` (see [Trust Subject Flow](./trust-subject-flow.mdx)).
 
 Extensibility:
 

@@ -1,0 +1,11 @@
+{
+	"$comment": "Source data - The veterinary certificate document the consumer reads. The permission has no target of its own, so it inherits the agreement target (the document identifier) and the decision covers the whole payload.",
+	"@context": "https://schema.org",
+	"@type": "DigitalDocument",
+	"id": "https://twin.example.org/data-resources/vet-cert-doc-6ce567",
+	"name": "Veterinary Certificate PL-2026-000123",
+	"consignmentId": "CONS000001",
+	"exportCountry": "PL",
+	"destinationCountry": "GB",
+	"inspectionDate": "2026-09-20"
+}

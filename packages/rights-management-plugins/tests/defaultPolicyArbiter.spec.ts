@@ -20,7 +20,8 @@ import {
 	PolicyDecision,
 	PolicyObligationEnforcerFactory,
 	type IPolicyAdministrationPointComponent,
-	type IPolicyObligationEnforcer
+	type IPolicyObligationEnforcer,
+	type IRightsManagementAgreement
 } from "@twin.org/rights-management-models";
 import type {
 	IDataspaceProtocolAgreement,
@@ -503,6 +504,35 @@ describe("DefaultPolicyArbiter", () => {
 				"use"
 			);
 			expect(wrongDocumentType).toEqual([{ target: "$", decision: PolicyDecision.Denied }]);
+		});
+
+		test("UC8 policy.json grants/denies via the trust subject (docs stay in sync with the arbiter)", async () => {
+			const arbiter = new DefaultPolicyArbiter();
+			const policy = loadUseCaseFixture("08-trust-subject-role-constraint/policy.json");
+			const information = loadUseCaseFixture<{ subject: { role: string; country: string } }>(
+				"08-trust-subject-role-constraint/pip-context.json"
+			);
+			const sourceData = loadUseCaseFixture<{ id: string }>(
+				"08-trust-subject-role-constraint/source-data.json"
+			);
+			const storedAgreement = loadUseCaseFixture<IRightsManagementAgreement>(
+				"08-trust-subject-role-constraint/pap-agreement.json"
+			);
+
+			// The PDP spreads the agreement's trustData over the information source output, so the
+			// subject the pip-context fixture shows must be the one the PAP fixture stores.
+			expect(storedAgreement.trustData?.subject).toEqual(information.subject);
+
+			const granted = await arbiter.decide(policy, information, sourceData, "read");
+			expect(granted).toEqual([{ target: "$", decision: PolicyDecision.Granted }]);
+
+			const denied = await arbiter.decide(
+				policy,
+				{ subject: { role: "Carrier", country: "GB" } },
+				sourceData,
+				"read"
+			);
+			expect(denied).toEqual([{ target: "$", decision: PolicyDecision.Denied }]);
 		});
 
 		test("legacy jsonPathSelector shape never matches, even when the data satisfies it (regression guard, description.md no longer documents this)", async () => {

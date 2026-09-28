@@ -311,6 +311,8 @@ export class PolicyNegotiationPointService implements IPolicyNegotiationPointCom
 			false
 		);
 
+		// No policy exists yet, so only sources that serve node-level public facts without one
+		// (the static source among the built-ins) contribute to the trust token subject.
 		const policyData = await this._policyInformationPointComponent.retrieve(
 			undefined,
 			PolicyInformationAccessMode.Public

@@ -1,0 +1,38 @@
+{
+	"$comment": "PDP Decision Output - The constraint is evaluated against the information data source, where the agreement's trustData.subject was merged over the information source output. The untargeted permission inherited the agreement target, which the arbiter resolves to the whole payload.",
+	"decision": "Permit",
+	"reasoning": "Trust subject role 'BorderAgency' satisfies the permission constraint",
+	"appliedPolicy": {
+		"uid": "http://example.com/policy-vet-cert-border-agency:8001",
+		"type": "Agreement",
+		"assigner": "did:iota:testnet:0x1ee831611a9fe9877c82e05075d9670c4970b4fd0904c208082ee50e45817a9d",
+		"assignee": "did:iota:testnet:0xac534b750ac453d573a55954760af140f87358c7be9a18000a831c452c32f246"
+	},
+	"evaluatedConstraints": [
+		{
+			"constraint": {
+				"leftOperand": "twin:jsonPath",
+				"twin:jsonPathDataSource": "information",
+				"twin:jsonPathExpression": "$.subject.role",
+				"operator": "eq",
+				"rightOperand": "BorderAgency"
+			},
+			"leftOperandValue": "BorderAgency",
+			"result": "satisfied"
+		}
+	],
+	"obligations": [],
+	"dataDecisions": [
+		{
+			"target": "$",
+			"decision": "Granted",
+			"reasoning": "Full document access granted - the role constraint is satisfied by the trust subject"
+		}
+	],
+	"grantedPermissions": [
+		{
+			"action": "read",
+			"target": "$"
+		}
+	]
+}
