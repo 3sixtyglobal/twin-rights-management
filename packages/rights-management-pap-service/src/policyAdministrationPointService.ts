@@ -2,7 +2,6 @@
 // SPDX-License-Identifier: Apache-2.0.
 import {
 	AlreadyExistsError,
-	ArrayHelper,
 	BaseError,
 	ComponentFactory,
 	GeneralError,
@@ -18,9 +17,13 @@ import type { JsonLdObjectWithOptionalAtId } from "@twin.org/data-json-ld";
 import { JsonLdHelper } from "@twin.org/data-json-ld";
 import {
 	ComparisonOperator,
+	EntitySchemaPropertyType,
+	EntitySorter,
 	LogicalOperator,
 	SortDirection,
-	type EntityCondition
+	type EntityCondition,
+	type IComparator,
+	type IEntitySort
 } from "@twin.org/entity";
 import {
 	EntityStorageConnectorFactory,
@@ -46,7 +49,9 @@ import {
 	type OdrlContextType
 } from "@twin.org/standards-w3c-odrl";
 import { OdrlPolicy } from "./entities/odrlPolicy.js";
+import type { OdrlPolicyIndex } from "./entities/odrlPolicyIndex.js";
 import type { IPolicyAdministrationPointServiceConstructorOptions } from "./models/IPolicyAdministrationPointServiceConstructorOptions.js";
+import { OdrlPolicyIndexHelper } from "./utils/odrlPolicyIndexHelper.js";
 import { buildPapStorageContext, hasPolicyMetadata } from "./utils/policyContextHelper.js";
 
 /**
@@ -72,6 +77,12 @@ export class PolicyAdministrationPointService implements IPolicyAdministrationPo
 	private readonly _odrlPolicyEntityStorage: IEntityStorageConnector<OdrlPolicy>;
 
 	/**
+	 * The entity storage component for storing policy indexes.
+	 * @internal
+	 */
+	private readonly _odrlPolicyIndexEntityStorage: IEntityStorageConnector<OdrlPolicyIndex>;
+
+	/**
 	 * Create a new instance of PolicyAdministrationPointService (PAP).
 	 * @param options The options for the component.
 	 */
@@ -83,6 +94,10 @@ export class PolicyAdministrationPointService implements IPolicyAdministrationPo
 
 		this._odrlPolicyEntityStorage = EntityStorageConnectorFactory.get(
 			options?.odrlPolicyEntityStorageType ?? "odrl-policy"
+		);
+
+		this._odrlPolicyIndexEntityStorage = EntityStorageConnectorFactory.get(
+			options?.odrlPolicyIndexEntityStorageType ?? "odrl-policy-index"
 		);
 	}
 
@@ -147,11 +162,13 @@ export class PolicyAdministrationPointService implements IPolicyAdministrationPo
 			validationFailures
 		);
 
+		const policyWithId = {
+			...policy,
+			"@id": id
+		};
+
 		const storagePolicy = this.convertToStoragePolicy(
-			{
-				...policy,
-				"@id": id
-			},
+			policyWithId,
 			{
 				dateCreated: now,
 				dateModified: now
@@ -159,6 +176,7 @@ export class PolicyAdministrationPointService implements IPolicyAdministrationPo
 			this.buildStorageContext()
 		);
 		await this._odrlPolicyEntityStorage.set(storagePolicy);
+		await this.syncPolicyIndexes(id, policyWithId, now);
 
 		return id;
 	}
@@ -199,11 +217,13 @@ export class PolicyAdministrationPointService implements IPolicyAdministrationPo
 		const dateCreated = existingStoragePolicy.dateCreated ?? now;
 		const dateModified = now;
 
+		const policyWithId = {
+			...policy,
+			"@id": policyUid
+		};
+
 		const storagePolicy = this.convertToStoragePolicy(
-			{
-				...policy,
-				"@id": policyUid
-			},
+			policyWithId,
 			{
 				dateCreated,
 				dateModified
@@ -211,6 +231,7 @@ export class PolicyAdministrationPointService implements IPolicyAdministrationPo
 			this.buildStorageContext()
 		);
 		await this._odrlPolicyEntityStorage.set(storagePolicy);
+		await this.syncPolicyIndexes(policyUid, policyWithId, dateCreated);
 	}
 
 	/**
@@ -358,10 +379,18 @@ export class PolicyAdministrationPointService implements IPolicyAdministrationPo
 		Guards.stringValue(PolicyAdministrationPointService.CLASS_NAME, nameof(policyId), policyId);
 
 		await this._odrlPolicyEntityStorage.remove(policyId);
+		await this.removePolicyIndexes(policyId);
 	}
 
 	/**
 	 * Query the entity storage for policies.
+	 * When the locator filters on assigner, assignee, target or action the page is driven by a join
+	 * from the index storage onto the policy storage, and the returned cursor encodes the paging
+	 * state of that join. The index orders by the policy creation date, so ordering by dateCreated
+	 * applies across the whole result while ordering by any other property only applies within a
+	 * page. The join groups the index entries by policy and drops the policies the conditions
+	 * exclude, so a page holds the requested number of distinct policies whenever that many remain
+	 * and no policy is returned by more than one page.
 	 * @param locator Optional locator to filter by type, assigner, assignee, target, or action.
 	 * @param conditions The conditions to query the entity storage with.
 	 * @param cursor The cursor to use for pagination.
@@ -456,59 +485,85 @@ export class PolicyAdministrationPointService implements IPolicyAdministrationPo
 			});
 		}
 
+		// Every locator field which the index covers becomes one comparison on the composite index,
+		// so however many of them are supplied the index is only read once per page.
+		const indexConditions: IComparator[] = [];
+
 		if (Is.stringValue(locator?.assigner)) {
-			allConditions.conditions.push({
-				property: "assignerIndex",
-				comparison: ComparisonOperator.Includes,
-				value: `|${locator.assigner}|`
-			});
+			indexConditions.push(this.buildIndexComparator("assignerHash", locator.assigner));
 		}
 
 		if (Is.stringValue(locator?.assignee)) {
-			allConditions.conditions.push({
-				property: "assigneeIndex",
-				comparison: ComparisonOperator.Includes,
-				value: `|${locator.assignee}|`
-			});
+			indexConditions.push(this.buildIndexComparator("assigneeHash", locator.assignee));
 		}
 
 		if (Is.stringValue(locator?.target)) {
-			allConditions.conditions.push({
-				property: "targetIndex",
-				comparison: ComparisonOperator.Includes,
-				value: `|${locator.target}|`
-			});
+			indexConditions.push(this.buildIndexComparator("targetHash", locator.target));
 		}
 
 		if (Is.stringValue(locator?.action)) {
-			allConditions.conditions.push({
-				property: "actionIndex",
-				comparison: ComparisonOperator.Includes,
-				value: `|${locator.action}|`
-			});
+			indexConditions.push(this.buildIndexComparator("actionHash", locator.action));
 		}
 
 		if (!Is.empty(conditions)) {
 			allConditions.conditions.push(conditions);
 		}
 
-		const result = await this._odrlPolicyEntityStorage.query(
+		const sortProperties = Is.stringValue(orderBy)
+			? [
+					{
+						property: this.convertToStorageProperty(orderBy),
+						sortDirection: orderByDirection ?? SortDirection.Descending
+					}
+				]
+			: undefined;
+
+		// Without an index lookup the policy storage drives the paging, so its cursor is returned.
+		if (indexConditions.length === 0) {
+			const result = await this._odrlPolicyEntityStorage.query(
+				allConditions.conditions.length > 0 ? allConditions : undefined,
+				sortProperties,
+				this.convertToStorageProperties(properties),
+				cursor,
+				limit
+			);
+			return {
+				cursor: result.cursor,
+				policies: result.entities.map(entity => this.convertFromStoragePolicy(entity as OdrlPolicy))
+			};
+		}
+
+		// The index carries the locator columns and the creation date, so it drives the page and
+		// the policies are joined onto it. Grouping by policy collapses the entries a locator which
+		// does not pin every field matches, and requiring the join drops the policies the
+		// conditions exclude, so the limit counts policies which really are returned.
+		const storageProperties = this.convertToStorageProperties(properties);
+
+		const joinPage = await this.queryJoinedPolicies(
+			indexConditions,
 			allConditions.conditions.length > 0 ? allConditions : undefined,
-			Is.stringValue(orderBy)
-				? [
-						{
-							property: this.convertToStorageProperty(orderBy),
-							sortDirection: orderByDirection ?? SortDirection.Descending
-						}
-					]
-				: undefined,
-			this.convertToStorageProperties(properties),
+			sortProperties,
+			// Sorting a page in memory needs the property being sorted on, even when the caller
+			// did not ask for it back.
+			this.extendWithSortProperties(storageProperties, sortProperties),
+			orderByDirection ?? SortDirection.Descending,
 			cursor,
 			limit
 		);
+
+		// The join pages the index, so only the order by creation date reaches across the pages and
+		// any other order has to be applied to the page which came back.
+		const ordered = this.sortPolicyPage(joinPage.entities, sortProperties);
+
 		return {
-			cursor: result.cursor,
-			policies: result.entities.map(entity => this.convertFromStoragePolicy(entity as OdrlPolicy))
+			cursor: joinPage.cursor,
+			policies: ordered.map(entity =>
+				this.convertFromStoragePolicy(
+					(Is.arrayValue(storageProperties)
+						? ObjectHelper.pick(entity, storageProperties)
+						: entity) as OdrlPolicy
+				)
+			)
 		};
 	}
 
@@ -577,20 +632,307 @@ export class PolicyAdministrationPointService implements IPolicyAdministrationPo
 			storagePolicy.trustData = policy.trustData;
 		}
 
-		// Build the indexes
-		const assigner = ArrayHelper.fromObjectOrArray(OdrlPolicyHelper.getPartyIds(policy.assigner));
-		storagePolicy.assignerIndex = `|${assigner.join("|")}|`;
-
-		const assignee = ArrayHelper.fromObjectOrArray(OdrlPolicyHelper.getPartyIds(policy.assignee));
-		storagePolicy.assigneeIndex = `|${assignee.join("|")}|`;
-
-		const targetTokens: string[] = OdrlPolicyHelper.getTargets(policy);
-		storagePolicy.targetIndex = `|${targetTokens.join("|")}|`;
-
-		const actionTokens: string[] = OdrlPolicyHelper.getActions(policy);
-		storagePolicy.actionIndex = `|${actionTokens.join("|")}|`;
-
 		return storagePolicy;
+	}
+
+	/**
+	 * Synchronise the index storage with the current state of a policy. One entry is stored per
+	 * combination of assigner, assignee, target and action, which is what lets a locator covering
+	 * several of those fields be answered by a single lookup.
+	 * @param policyId The id of the policy to synchronise the index entries for.
+	 * @param policy The policy to derive the index entries from.
+	 * @param dateCreated The creation date to copy onto the index entries so they can be ordered.
+	 * @returns A promise that resolves when the index entries match the policy.
+	 * @internal
+	 */
+	private async syncPolicyIndexes<T extends IRightsManagementPolicy>(
+		policyId: string,
+		policy: T,
+		dateCreated: string
+	): Promise<void> {
+		// An absent dimension contributes a single undefined value, otherwise it would collapse the
+		// combinations to none and the policy would not be indexed at all.
+		const assigners = this.buildIndexDimension(OdrlPolicyHelper.getPartyIds(policy.assigner));
+		const assignees = this.buildIndexDimension(OdrlPolicyHelper.getPartyIds(policy.assignee));
+		const targets = this.buildIndexDimension(OdrlPolicyHelper.getTargets(policy));
+		const actions = this.buildIndexDimension(OdrlPolicyHelper.getActions(policy));
+
+		const required = new Map<string, OdrlPolicyIndex>();
+		for (const assigner of assigners) {
+			for (const assignee of assignees) {
+				for (const target of targets) {
+					for (const action of actions) {
+						required.set(
+							JSON.stringify([assigner, assignee, target, action]),
+							OdrlPolicyIndexHelper.createIndexEntry(
+								policyId,
+								dateCreated,
+								assigner,
+								assignee,
+								target,
+								action
+							)
+						);
+					}
+				}
+			}
+		}
+
+		const existing = await this.queryPolicyIndexesForPolicy(policyId, [
+			"id",
+			"assigner",
+			"assignee",
+			"target",
+			"action",
+			"assignerHash",
+			"assigneeHash",
+			"targetHash",
+			"actionHash",
+			"dateCreated"
+		]);
+
+		const retainedKeys = new Set<string>();
+		const removeIds: string[] = [];
+
+		for (const entry of existing) {
+			if (Is.stringValue(entry.id)) {
+				// Entries which are no longer required, duplicates of a retained entry, and entries
+				// holding a stale creation date or hash are removed so exactly one current entry
+				// remains per combination.
+				const key = JSON.stringify([entry.assigner, entry.assignee, entry.target, entry.action]);
+				const requiredEntry = required.get(key);
+				if (
+					Is.object(requiredEntry) &&
+					!retainedKeys.has(key) &&
+					entry.dateCreated === requiredEntry.dateCreated &&
+					entry.assignerHash === requiredEntry.assignerHash &&
+					entry.assigneeHash === requiredEntry.assigneeHash &&
+					entry.targetHash === requiredEntry.targetHash &&
+					entry.actionHash === requiredEntry.actionHash
+				) {
+					retainedKeys.add(key);
+				} else {
+					removeIds.push(entry.id);
+				}
+			}
+		}
+
+		const addEntries: OdrlPolicyIndex[] = [];
+		for (const [key, entry] of required) {
+			if (!retainedKeys.has(key)) {
+				addEntries.push(entry);
+			}
+		}
+
+		if (removeIds.length > 0) {
+			await this._odrlPolicyIndexEntityStorage.removeBatch(removeIds);
+		}
+
+		if (addEntries.length > 0) {
+			await this._odrlPolicyIndexEntityStorage.setBatch(addEntries);
+		}
+	}
+
+	/**
+	 * Build the distinct values for one index dimension.
+	 * @param values The values read from the policy.
+	 * @returns The case folded distinct values, or a single undefined when there are none.
+	 * @internal
+	 */
+	private buildIndexDimension(values: string[]): (string | undefined)[] {
+		const dimension: string[] = [];
+		for (const value of values) {
+			if (Is.stringValue(value)) {
+				// Index values are always stored case folded so lookups are case insensitive.
+				const folded = value.toLowerCase();
+				if (!dimension.includes(folded)) {
+					dimension.push(folded);
+				}
+			}
+		}
+
+		return dimension.length === 0 ? [undefined] : dimension;
+	}
+
+	/**
+	 * Remove all the index entries for a policy.
+	 * @param policyId The id of the policy to remove the index entries for.
+	 * @returns A promise that resolves when the index entries have been removed.
+	 * @internal
+	 */
+	private async removePolicyIndexes(policyId: string): Promise<void> {
+		const existing = await this.queryPolicyIndexesForPolicy(policyId, ["id"]);
+
+		const removeIds: string[] = [];
+		for (const entry of existing) {
+			if (Is.stringValue(entry.id)) {
+				removeIds.push(entry.id);
+			}
+		}
+
+		if (removeIds.length > 0) {
+			await this._odrlPolicyIndexEntityStorage.removeBatch(removeIds);
+		}
+	}
+
+	/**
+	 * Query every index entry belonging to a policy, walking all the pages. The entries are
+	 * bounded by the combinations of a single policy, so the whole set is safe to hold in memory.
+	 * @param policyId The id of the policy to get the index entries for.
+	 * @param properties The properties to return.
+	 * @returns The index entries for the policy.
+	 * @internal
+	 */
+	private async queryPolicyIndexesForPolicy(
+		policyId: string,
+		properties: (keyof OdrlPolicyIndex)[]
+	): Promise<Partial<OdrlPolicyIndex>[]> {
+		const conditions: EntityCondition<OdrlPolicyIndex> = {
+			property: "policyId",
+			comparison: ComparisonOperator.Equals,
+			value: policyId
+		};
+
+		const entities: Partial<OdrlPolicyIndex>[] = [];
+		let cursor: string | undefined;
+
+		do {
+			const results = await this._odrlPolicyIndexEntityStorage.query(
+				conditions,
+				undefined,
+				properties,
+				cursor
+			);
+			entities.push(...results.entities);
+			cursor = results.cursor;
+		} while (Is.stringValue(cursor));
+
+		return entities;
+	}
+
+	/**
+	 * Read one page of policies by joining the policy storage onto the index storage. Every locator
+	 * field is a comparison on the same composite index, so the page is driven by one indexed read
+	 * of the index storage no matter how many fields the locator pins.
+	 * @param indexConditions The comparisons for the locator fields the index covers.
+	 * @param policyConditions The conditions the joined policies must match.
+	 * @param policySortProperties The order requested by the caller, validated against the policy
+	 * schema so an unsortable property is refused as it is on a query without a locator.
+	 * @param policyProperties The policy properties to read back.
+	 * @param sortDirection The direction to order the index entries by creation date.
+	 * @param cursor The cursor from a previous page.
+	 * @param limit The number of policies to read.
+	 * @returns The policies for the page and a cursor when more pages remain.
+	 * @internal
+	 */
+	private async queryJoinedPolicies(
+		indexConditions: IComparator[],
+		policyConditions: EntityCondition<IRightsManagementPolicy> | undefined,
+		policySortProperties:
+			{ property: keyof OdrlPolicy; sortDirection: SortDirection }[] | undefined,
+		policyProperties: (keyof OdrlPolicy)[] | undefined,
+		sortDirection: SortDirection,
+		cursor?: string,
+		limit?: number
+	): Promise<{ entities: Partial<OdrlPolicy>[]; cursor?: string }> {
+		const result = await this._odrlPolicyIndexEntityStorage.queryJoin(
+			this._odrlPolicyEntityStorage,
+			{
+				property: "policyId",
+				joinProperty: "id",
+				// A policy holds one entry per combination of its locator fields, so a locator which
+				// does not pin every field matches several entries of the same policy. Grouping by
+				// the policy collapses them to one result wherever the entries fall.
+				groupProperty: "policyId",
+				conditions:
+					indexConditions.length === 1
+						? indexConditions[0]
+						: { logicalOperator: LogicalOperator.And, conditions: indexConditions },
+				sortProperties: [
+					{ property: "dateCreated", sortDirection },
+					{ property: "policyId", sortDirection: SortDirection.Ascending }
+				],
+				properties: ["policyId"],
+				cursor,
+				limit,
+				joinConditions: policyConditions,
+				joinRequired: true,
+				joinSortProperties: policySortProperties,
+				joinProperties: policyProperties
+			}
+		);
+
+		// The join is on the policy primary key, so every group carries exactly one policy.
+		const entities: Partial<OdrlPolicy>[] = [];
+		for (const entity of result.entities) {
+			entities.push(...entity.joined);
+		}
+
+		return { entities, cursor: result.cursor };
+	}
+
+	/**
+	 * Add the properties being sorted on to a projection, so a page can be ordered by a property
+	 * the caller did not ask to have returned.
+	 * @param properties The projection requested by the caller.
+	 * @param sortProperties The order requested by the caller.
+	 * @returns The projection including the sort properties, or undefined when everything is read.
+	 * @internal
+	 */
+	private extendWithSortProperties(
+		properties: (keyof OdrlPolicy)[] | undefined,
+		sortProperties?: { property: keyof OdrlPolicy; sortDirection: SortDirection }[]
+	): (keyof OdrlPolicy)[] | undefined {
+		if (!Is.arrayValue(properties) || !Is.arrayValue(sortProperties)) {
+			return properties;
+		}
+
+		return [
+			...new Set([...properties, ...sortProperties.map(sortProperty => sortProperty.property)])
+		];
+	}
+
+	/**
+	 * Order the policies of a page, which the join cannot do because it pages the index entries
+	 * rather than the policies.
+	 * @param entities The policies of the page.
+	 * @param sortProperties The order requested by the caller.
+	 * @returns The policies in the requested order.
+	 * @internal
+	 */
+	private sortPolicyPage(
+		entities: Partial<OdrlPolicy>[],
+		sortProperties?: { property: keyof OdrlPolicy; sortDirection: SortDirection }[]
+	): Partial<OdrlPolicy>[] {
+		if (!Is.arrayValue(sortProperties)) {
+			return entities;
+		}
+
+		const schema = this._odrlPolicyEntityStorage.getSchema();
+		const sorters: IEntitySort<Partial<OdrlPolicy>>[] = sortProperties.map(sortProperty => ({
+			property: sortProperty.property,
+			sortDirection: sortProperty.sortDirection,
+			type:
+				schema.properties?.find(schemaProperty => schemaProperty.property === sortProperty.property)
+					?.type ?? EntitySchemaPropertyType.String
+		}));
+
+		return EntitySorter.sort(entities, sorters);
+	}
+
+	/**
+	 * Build the comparison for a locator field against its index hash column.
+	 * @param property The index hash column to compare.
+	 * @param value The locator value, case folded and hashed to match the stored entries.
+	 * @returns The comparison for the index column.
+	 * @internal
+	 */
+	private buildIndexComparator(property: keyof OdrlPolicyIndex, value: string): IComparator {
+		return {
+			property,
+			comparison: ComparisonOperator.Equals,
+			value: OdrlPolicyIndexHelper.hashValue(value)
+		};
 	}
 
 	/**

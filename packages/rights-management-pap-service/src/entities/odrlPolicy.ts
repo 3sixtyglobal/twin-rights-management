@@ -1,4 +1,4 @@
-// Copyright 2025 IOTA Stiftung.
+// Copyright 2026 IOTA Stiftung.
 // SPDX-License-Identifier: Apache-2.0.
 import type { IJsonLdNodeObject } from "@twin.org/data-json-ld";
 import { entity, property, SortDirection } from "@twin.org/entity";
@@ -8,18 +8,18 @@ import type { OdrlContextType, OdrlPolicyType } from "@twin.org/standards-w3c-od
 /**
  * Class describing an ODRL policy for entity storage.
  */
-@entity()
+@entity({ version: 1 })
 export class OdrlPolicy {
 	/**
 	 * The unique identifier for the policy.
 	 */
-	@property({ type: "string", isPrimary: true })
+	@property({ type: "string", isPrimary: true, maxLength: 255 })
 	public id!: string;
 
 	/**
 	 * The type of policy.
 	 */
-	@property({ type: "string", isSecondary: true })
+	@property({ type: "string", maxLength: 128, isSecondary: true })
 	public type!: OdrlPolicyType;
 
 	/**
@@ -61,7 +61,7 @@ export class OdrlPolicy {
 	/**
 	 * The conflict resolution strategy.
 	 */
-	@property({ type: "string", optional: true })
+	@property({ type: "string", maxLength: 16, optional: true })
 	public conflict?: IDataspaceProtocolPolicy["conflict"];
 
 	/**
@@ -115,28 +115,4 @@ export class OdrlPolicy {
 	 */
 	@property({ type: "object", format: "json", optional: true })
 	public trustData?: { [key: string]: IJsonLdNodeObject };
-
-	/**
-	 * Pipe-delimited index of all assigner party IDs for efficient query filtering.
-	 */
-	@property({ type: "string" })
-	public assignerIndex!: string;
-
-	/**
-	 * Pipe-delimited index of all assignee party IDs for efficient query filtering.
-	 */
-	@property({ type: "string" })
-	public assigneeIndex!: string;
-
-	/**
-	 * Pipe-delimited index of all target asset IDs for efficient query filtering.
-	 */
-	@property({ type: "string" })
-	public targetIndex!: string;
-
-	/**
-	 * Pipe-delimited index of all action identifiers for efficient query filtering.
-	 */
-	@property({ type: "string" })
-	public actionIndex!: string;
 }

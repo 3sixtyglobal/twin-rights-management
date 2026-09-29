@@ -143,35 +143,3 @@ Trust verification data captured at the beginning of the negotiation.
 #### Index Signature
 
 \[`key`: `string`\]: `IJsonLdNodeObject`
-
-***
-
-### assignerIndex {#assignerindex}
-
-> **assignerIndex**: `string`
-
-Pipe-delimited index of all assigner party IDs for efficient query filtering.
-
-***
-
-### assigneeIndex {#assigneeindex}
-
-> **assigneeIndex**: `string`
-
-Pipe-delimited index of all assignee party IDs for efficient query filtering.
-
-***
-
-### targetIndex {#targetindex}
-
-> **targetIndex**: `string`
-
-Pipe-delimited index of all target asset IDs for efficient query filtering.
-
-***
-
-### actionIndex {#actionindex}
-
-> **actionIndex**: `string`
-
-Pipe-delimited index of all action identifiers for efficient query filtering.

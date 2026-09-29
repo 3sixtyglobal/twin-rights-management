@@ -1,0 +1,15 @@
+{
+	"$comment": "PIP Context - The information object the PDP hands to the arbiter: the merged output of the registered information sources with the agreement's trustData spread over it. The subject is the consumer's public information captured in the negotiation trust token, so a constraint reads it as $.subject.role from the information data source.",
+	"subject": {
+		"role": "BorderAgency",
+		"country": "GB"
+	},
+	"verifiableCredential": {
+		"$comment": "Abbreviated. The trust verifier stores the whole verified credential under this key next to its credentialSubject under subject.",
+		"issuer": "did:iota:testnet:0xac534b750ac453d573a55954760af140f87358c7be9a18000a831c452c32f246",
+		"credentialSubject": {
+			"role": "BorderAgency",
+			"country": "GB"
+		}
+	}
+}

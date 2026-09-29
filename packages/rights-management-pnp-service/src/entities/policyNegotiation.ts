@@ -17,19 +17,19 @@ export class PolicyNegotiation {
 	/**
 	 * An id to help identify the negotiation on the provider's side.
 	 */
-	@property({ type: "string", isPrimary: true })
+	@property({ type: "string", isPrimary: true, maxLength: 255 })
 	public id!: string;
 
 	/**
 	 * This is used by the other side of the negotiation.
 	 */
-	@property({ type: "string", isSecondary: true })
+	@property({ type: "string", maxLength: 255, isSecondary: true })
 	public correlationId!: string;
 
 	/**
 	 * The unique identifier for the policy.
 	 */
-	@property({ type: "string", isSecondary: true, optional: true })
+	@property({ type: "string", maxLength: 255, isSecondary: true, optional: true })
 	public policyId?: string;
 
 	/**
@@ -47,26 +47,26 @@ export class PolicyNegotiation {
 	/**
 	 * The status of the negotiation.
 	 */
-	@property({ type: "string" })
+	@property({ type: "string", maxLength: 16 })
 	public state!: DataspaceProtocolContractNegotiationStateType;
 
 	/**
 	 * The callback address to send updates to the requester.
 	 */
-	@property({ type: "string", optional: true })
+	@property({ type: "string", format: "uri", optional: true })
 	public callbackAddress?: string;
 
 	/**
 	 * The public origin of the server that initiated or received this negotiation.
 	 * Used to construct callback URLs in subsequent async messages.
 	 */
-	@property({ type: "string", optional: true })
+	@property({ type: "string", format: "uri", optional: true })
 	public publicOrigin?: string;
 
 	/**
 	 * Organization identity.
 	 */
-	@property({ type: "string" })
+	@property({ type: "string", maxLength: 255 })
 	public organizationIdentity!: string;
 
 	/**
@@ -90,7 +90,7 @@ export class PolicyNegotiation {
 	/**
 	 * A reason code for when the negotiation errors.
 	 */
-	@property({ type: "string", optional: true })
+	@property({ type: "string", maxLength: 128, optional: true })
 	public code?: string;
 
 	/**
@@ -120,7 +120,7 @@ export class PolicyNegotiation {
 	/**
 	 * The id of the handler, on provider side this is the negotiator, on consumer side this is the requester.
 	 */
-	@property({ type: "string", optional: true })
+	@property({ type: "string", maxLength: 255, optional: true })
 	public handlerId?: string;
 
 	/**

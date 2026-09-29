@@ -141,15 +141,16 @@ The following architectural components are implemented and functional:
 
 ## Use Case Index
 
-| ID                                                 | Name                                    | Action Type | Asset Target                                | Key Features                                                                                               | Phase       |
-| -------------------------------------------------- | --------------------------------------- | ----------- | ------------------------------------------- | ---------------------------------------------------------------------------------------------------------- | ----------- |
-| [UC1](./01-basic-data-resource-access/)            | Basic Data Resource Access              | `read`      | DataResource                                | PartyCollection, country filtering, JSON Path selectors, **PEP enforcement**                               | Phase 2     |
-| [UC2](./02-country-filtered-consignments/)         | Country Filtered Consignments           | `view`      | Consignment (asset class)                   | Data filtering, PIP integration, reduced datasets, **PEP data transformation**                             | Phase 2     |
-| [UC3](./03-specific-resource-inheritance/)         | Specific Resource Inheritance           | `read`      | CONS000001 (specific) + Consignment (class) | Policy inheritance, Set + Agreement, **PEP layered evaluation**                                            | Phase 2     |
-| [UC4](./04-multi-constraint-service-offering/)     | Multi-Constraint Service Offering       | `use`       | ServiceOffering                             | Multiple constraints (temporal + attribute), **PEP permission checks**                                     | Phase 2     |
-| [UC5](./05-catalogue-gated-notification/)          | Catalogue-Gated Notification            | `use`       | NotificationService + Consignment           | ODRL duty clauses, Data Space Connector integration, Federated Catalogue, **duty enforcement**             | Phase 2     |
-| [UC6](./06-policy-negotiation-offer-to-agreement/) | Policy Negotiation - Offer to Agreement | N/A         | Offer → Agreement                           | **IDS Contract Negotiation**, PNP state machine, Negotiator evaluation, **Offer→Agreement transformation** | **Phase 1** |
-| [UC7](./07-policy-negotiation-direct-agreement/)   | Policy Negotiation - Direct Agreement   | N/A         | Offer → Agreement                           | **DSP 2025-1 REQUESTED→AGREED shortcut**, `directAgreement` signal, contrasts with UC6 full cycle          | **Phase 1** |
+| ID                                                 | Name                                    | Action Type | Asset Target                                | Key Features                                                                                                               | Phase       |
+| -------------------------------------------------- | --------------------------------------- | ----------- | ------------------------------------------- | -------------------------------------------------------------------------------------------------------------------------- | ----------- |
+| [UC1](./01-basic-data-resource-access/)            | Basic Data Resource Access              | `read`      | DataResource                                | PartyCollection, country filtering, JSON Path selectors, **PEP enforcement**                                               | Phase 2     |
+| [UC2](./02-country-filtered-consignments/)         | Country Filtered Consignments           | `view`      | Consignment (asset class)                   | Data filtering, PIP integration, reduced datasets, **PEP data transformation**                                             | Phase 2     |
+| [UC3](./03-specific-resource-inheritance/)         | Specific Resource Inheritance           | `read`      | CONS000001 (specific) + Consignment (class) | Policy inheritance, Set + Agreement, **PEP layered evaluation**                                                            | Phase 2     |
+| [UC4](./04-multi-constraint-service-offering/)     | Multi-Constraint Service Offering       | `use`       | ServiceOffering                             | Multiple constraints (temporal + attribute), **PEP permission checks**                                                     | Phase 2     |
+| [UC5](./05-catalogue-gated-notification/)          | Catalogue-Gated Notification            | `use`       | NotificationService + Consignment           | ODRL duty clauses, Data Space Connector integration, Federated Catalogue, **duty enforcement**                             | Phase 2     |
+| [UC6](./06-policy-negotiation-offer-to-agreement/) | Policy Negotiation - Offer to Agreement | N/A         | Offer → Agreement                           | **IDS Contract Negotiation**, PNP state machine, Negotiator evaluation, **Offer→Agreement transformation**                 | **Phase 1** |
+| [UC7](./07-policy-negotiation-direct-agreement/)   | Policy Negotiation - Direct Agreement   | N/A         | Offer → Agreement                           | **DSP 2025-1 REQUESTED→AGREED shortcut**, `directAgreement` signal, contrasts with UC6 full cycle                          | **Phase 1** |
+| [UC8](./08-trust-subject-role-constraint/)         | Trust Subject Role Constraint           | `read`      | DataResource                                | **Trust subject flow**, `$.subject.role` constraint over the `information` data source, granted and denied via `trustData` | Phase 2     |
 
 ## Component Format
 
@@ -271,6 +272,8 @@ Trace of the notification delivery made to satisfy an ODRL duty clause:
 Used in UC5 (Catalogue-Gated Notification) to trace the actual delivery to the duty's target endpoint (the assignee's own connector), which is what satisfies the attached duty for veterinary-certificate documents.
 
 **source-data.json** - Sample unfiltered data for view actions demonstrating PEP post-action transformation (used in UC2)
+
+**trust-payload.json** - Decoded negotiation trust token showing the consumer's public information as the credential subject, together with the information source entry that produced it (used in UC8)
 
 ### Component Example Files (New Format)
 
@@ -488,6 +491,7 @@ All policies conform to W3C ODRL 2.2 specification using TypeScript interfaces:
 - **UC3**: Policy inheritance (Set + Agreement) with layered evaluation
 - **UC4**: Multi-constraint AND logic (temporal + attribute) for permission checks
 - **UC5**: ODRL duty clauses with Data Space Connector and Federated Catalogue integration
+- **UC8**: Trust subject flow, a `$.subject.role` constraint evaluated against the consumer's verified negotiation attributes (`trustData`)
 
 #### Phase 1: Policy Negotiation (UC6)
 
@@ -571,6 +575,7 @@ To add a Phase 1 use case (like UC6):
 ## References
 
 - [Rights Management Architecture](../architecture.md)
+- [Trust Subject Flow](../architecture/trust-subject-flow.mdx), [Information Sources](../architecture/information-sources.mdx) and [Default Policy Arbiter](../architecture/default-policy-arbiter.mdx)
 - [W3C ODRL 2.2 Specification](https://www.w3.org/TR/odrl-model/)
 - [TWIN Platform Standards - W3C ODRL Package](../../../standards/packages/standards-w3c-odrl/)
 - [IDS Contract Negotiation Protocol](https://github.com/International-Data-Spaces-Association/IDS-G)

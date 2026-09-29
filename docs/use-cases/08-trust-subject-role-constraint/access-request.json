@@ -1,0 +1,7 @@
+{
+	"$comment": "Policy Locator - Used by PMP to query PAP for matching Agreement policies",
+	"assetType": "DataResource",
+	"action": "read",
+	"resourceId": "https://twin.example.org/data-resources/vet-cert-doc-6ce567",
+	"requestingNodeIdentity": "did:iota:testnet:0xac534b750ac453d573a55954760af140f87358c7be9a18000a831c452c32f246"
+}

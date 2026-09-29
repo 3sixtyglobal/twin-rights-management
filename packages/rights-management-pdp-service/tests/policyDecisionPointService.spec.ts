@@ -16,7 +16,8 @@ import { PolicyArbiterFactory, PolicyDecision } from "@twin.org/rights-managemen
 import {
 	PolicyAdministrationPointService,
 	initSchema as initSchemaPolicyAdministrationPoint,
-	type OdrlPolicy
+	type OdrlPolicy,
+	type OdrlPolicyIndex
 } from "@twin.org/rights-management-pap-service";
 import { PolicyInformationPointService } from "@twin.org/rights-management-pip-service";
 import { PolicyManagementPointService } from "@twin.org/rights-management-pmp-service";
@@ -27,6 +28,7 @@ import { PolicyDecisionPointService } from "../src/policyDecisionPointService.js
 
 let loggingMemoryEntityStorage: MemoryEntityStorageConnector<LogEntry>;
 let odrlPolicyMemoryEntityStorage: MemoryEntityStorageConnector<OdrlPolicy>;
+let odrlPolicyIndexMemoryEntityStorage: MemoryEntityStorageConnector<OdrlPolicyIndex>;
 
 function createPolicy(options?: {
 	uid?: string;
@@ -63,6 +65,15 @@ describe("PolicyDecisionPointService", () => {
 			config: { storageKey: "odrl-policy" }
 		});
 		EntityStorageConnectorFactory.register("odrl-policy", () => odrlPolicyMemoryEntityStorage);
+
+		odrlPolicyIndexMemoryEntityStorage = new MemoryEntityStorageConnector<OdrlPolicyIndex>({
+			entitySchema: nameof<OdrlPolicyIndex>(),
+			config: { storageKey: "odrl-policy-index" }
+		});
+		EntityStorageConnectorFactory.register(
+			"odrl-policy-index",
+			() => odrlPolicyIndexMemoryEntityStorage
+		);
 
 		ComponentFactory.register(
 			"policy-administration-point",

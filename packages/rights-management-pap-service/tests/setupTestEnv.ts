@@ -10,6 +10,7 @@ import type { IDataspaceProtocolPolicy } from "@twin.org/standards-dataspace-pro
 import { OdrlContexts, OdrlPolicyType, type OdrlActionType } from "@twin.org/standards-w3c-odrl";
 import * as dotenv from "dotenv";
 import type { OdrlPolicy } from "../src/entities/odrlPolicy.js";
+import type { OdrlPolicyIndex } from "../src/entities/odrlPolicyIndex.js";
 import type { PolicyAdministrationPointService } from "../src/policyAdministrationPointService.js";
 import { initSchema } from "../src/schema.js";
 
@@ -53,6 +54,16 @@ EntityStorageConnectorFactory.register(
 		})
 );
 
+// Register the memory storage connector for ODRL policy indexes
+EntityStorageConnectorFactory.register(
+	"odrl-policy-index",
+	() =>
+		new MemoryEntityStorageConnector<OdrlPolicyIndex>({
+			entitySchema: nameof<OdrlPolicyIndex>(),
+			config: { storageKey: "odrl-policy-index" }
+		})
+);
+
 /**
  * Re-register the ODRL policy storage to force a fresh store instance.
  * Call this in beforeEach to ensure each test starts with an empty store,
@@ -69,6 +80,26 @@ export function resetOdrlPolicyStorage(): MemoryEntityStorageConnector<OdrlPolic
 			})
 	);
 	return EntityStorageConnectorFactory.get<MemoryEntityStorageConnector<OdrlPolicy>>("odrl-policy");
+}
+
+/**
+ * Re-register the ODRL policy index storage to force a fresh store instance.
+ * Call this in beforeEach to ensure each test starts with an empty store,
+ * since getStore() now returns a copy (not the internal array).
+ * @returns The new MemoryEntityStorageConnector instance for ODRL policy indexes.
+ */
+export function resetOdrlPolicyIndexStorage(): MemoryEntityStorageConnector<OdrlPolicyIndex> {
+	EntityStorageConnectorFactory.register(
+		"odrl-policy-index",
+		() =>
+			new MemoryEntityStorageConnector<OdrlPolicyIndex>({
+				entitySchema: nameof<OdrlPolicyIndex>(),
+				config: { storageKey: "odrl-policy-index" }
+			})
+	);
+	return EntityStorageConnectorFactory.get<MemoryEntityStorageConnector<OdrlPolicyIndex>>(
+		"odrl-policy-index"
+	);
 }
 
 // Helper function to create test policy without UID (for auto-generation)

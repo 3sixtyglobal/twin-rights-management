@@ -1,0 +1,176 @@
+---
+category: components
+order: 13
+---
+
+# Default Policy Arbiter
+
+`DefaultPolicyArbiter` is the shipped `IPolicyArbiter` implementation. The policy decision point calls every registered arbiter with the agreement, the merged information object, the payload and the action, and each arbiter returns a list of `IPolicyDecision` values: a JSONPath `target` inside the payload and a `decision` of `Granted`, `Denied` or `Replace`. This page is the reference for how the default arbiter reads ODRL, where it finds the values a constraint compares, and how it turns rules into decisions. The default enforcement processor, which applies those decisions to the payload, is covered at the end.
+
+## Inputs and Outputs
+
+```ts
+decide<D = unknown>(
+  agreement: IDataspaceProtocolAgreement,
+  information?: IRightsManagementInformation,
+  data?: D,
+  action?: OdrlActionType | string
+): Promise<IPolicyDecision[]>;
+```
+
+- `agreement` is the policy to evaluate. The arbiter evaluates whatever rules it carries, whichever policy type it is.
+- `information` is the object built by the decision point: the information point output with the agreement's `trustData` spread over it (see [Information Sources](./information-sources.mdx)).
+- `data` is the payload under evaluation. It may be absent for a pure permission check.
+- `action` narrows evaluation to rules for that action. Without it every action in the policy is evaluated.
+
+The default arbiter emits `Granted` and `Denied`; `Replace` is available to custom arbiters. Decisions are per target, so one call can grant `$.consignments[0]` and deny `$.consignments[1]`.
+
+## Data Sources
+
+Every JSONPath in a policy is evaluated against one of two named sources.
+
+| Key           | Contents                                                                                   |
+| ------------- | ------------------------------------------------------------------------------------------ |
+| `data`        | The payload passed to `decide`. This is the default when no source is named.               |
+| `information` | The merged information object: information source output plus the agreement's `trustData`. |
+
+The keys are the `DataSourceKey` and `InformationSourceKey` constants of `OdrlTwinVocabulary`. A constraint or target selects a source with `twin:jsonPathDataSource`; omitting it means `data`.
+
+## Operand Forms
+
+The canonical left operand is the `twin:jsonPath` type with the expression in `twin:jsonPathExpression` and an optional `twin:jsonPathDataSource`:
+
+```json
+{
+  "leftOperand": "twin:jsonPath",
+  "twin:jsonPathDataSource": "information",
+  "twin:jsonPathExpression": "$.subject.role",
+  "operator": "eq",
+  "rightOperand": "BorderAgency"
+}
+```
+
+A right operand may be a literal, a typed value, or a JSONPath reference written as a typed object:
+
+```json
+{
+  "rightOperand": {
+    "@type": "twin:jsonPath",
+    "twin:jsonPathDataSource": "information",
+    "twin:jsonPathExpression": "$.assigneeAttributes.countryCode"
+  }
+}
+```
+
+The arbiter applies these rules while resolving operands.
+
+- A `twin:jsonPath` operand without `twin:jsonPathExpression` throws `jsonPathExpressionMissing`, and an expression must start with `$`.
+- A plain string right operand is a literal, never a path: `"rightOperand": "$.foo"` compares against the text `$.foo`.
+- Typed values such as `{ "@value": "10", "@type": "xsd:integer" }` are coerced before comparison. ISO 8601 dates, times and durations compare chronologically rather than as truncated numbers.
+- When a path matches several locations the left side becomes the list of matches. `eq`, `gt`, `lt` and their variants succeed if any element satisfies the comparison; `neq` and `isNoneOf` require every element to.
+- An ODRL built-in left operand name is resolved from the evaluation context (`dateTime` is the current time) or as a key of `information` (for example `{ "event": "2026-06-01" }`). A recognised built-in with no value to resolve throws `leftOperandNotSupported`.
+
+### Operators
+
+| Operator                     | Semantics                                                                                                                                         |
+| ---------------------------- | ------------------------------------------------------------------------------------------------------------------------------------------------- |
+| `eq`, `neq`                  | Deep equality, with durations compared as durations.                                                                                              |
+| `lt`, `lteq`, `gt`, `gteq`   | Ordered comparison after numeric or date coercion. A date on either side forces a date comparison, and a value that does not coerce fails closed. |
+| `isAnyOf`, `isNoneOf`        | Membership of the left value, stringified, in the right-hand list.                                                                                |
+| `isAllOf`                    | The left list equals the right list.                                                                                                              |
+| `isPartOf`, `hasPart`, `isA` | Treated as equality; richer semantics are left to profile-specific arbiters.                                                                      |
+| `locTimeEq`, `locTimeGteq`   | Equality and ordered comparison, as for `eq` and `gteq`.                                                                                          |
+
+Any other operator evaluates to false.
+
+## Logical Constraints
+
+`and`, `or`, `xone` and `andSequence` are supported, with operands given either as an array or in `@list` form:
+
+```json
+{
+  "or": {
+    "@list": [
+      {
+        "leftOperand": "twin:jsonPath",
+        "twin:jsonPathExpression": "$.portOfExit",
+        "operator": "isAnyOf",
+        "rightOperand": ["GBDVR", "GBFXT"]
+      },
+      {
+        "leftOperand": "twin:jsonPath",
+        "twin:jsonPathExpression": "$.portOfEntry",
+        "operator": "isAnyOf",
+        "rightOperand": ["GBDVR", "GBFXT"]
+      }
+    ]
+  }
+}
+```
+
+`and` and `andSequence` require every operand to hold, `or` at least one, `xone` exactly one. Operands carrying a `uid` must be unique within the policy, otherwise `logicalConstraintOperandNotUnique` is thrown. Constraints listed directly on a rule are combined with AND.
+
+## Rule Targets
+
+The target of a rule decides which part of the payload a decision names. The arbiter resolves it as follows.
+
+| Target form                                                                                          | Resolution                                                                                                                                                                                                                         |
+| ---------------------------------------------------------------------------------------------------- | ---------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| Absent                                                                                               | The rule inherits the policy-level `target` when there is one; otherwise the whole payload, `$`.                                                                                                                                   |
+| A plain identifier equal to the policy-level asset identifier (a string, or an `Asset` with a `uid`) | The whole payload, `$`. Negotiated agreements take this shape: the dataset identifier is the policy target and untargeted rules inherit it.                                                                                        |
+| A plain identifier different from the policy-level target                                            | `ruleTargetNotSupported`. The arbiter has no way to map a foreign asset identifier onto the payload.                                                                                                                               |
+| `{ "@type": "twin:jsonPath", "twin:jsonPathExpression": "$.field" }`                                 | The matching locations in the named source, `twin:jsonPathDataSource` selecting it. The compact strings `twin:jsonPath:$.field` and `twin:jsonPath:information:$.field` are accepted too.                                          |
+| `AssetCollection` with `source: "twin:jsonPath"` and a wildcard expression such as `$.items[*]`      | One decision per matched item. A `refinement` is rewritten per item and evaluated as that item's constraint, which is how per-item filtering works. A wildcard over an empty array yields a root grant with no per-item decisions. |
+| `AssetCollection` without `source`                                                                   | The whole payload, `$`. A `refinement`, if present, becomes an ordinary rule-level constraint.                                                                                                                                     |
+| `AssetCollection` with any other `source`                                                            | `assetCollectionSourceNotSupported`.                                                                                                                                                                                               |
+| More than one target on a rule                                                                       | `multipleTargetsNotSupported`.                                                                                                                                                                                                     |
+
+### Party Scoping
+
+A rule's `assigner` or `assignee` may be a party identifier, a `Party` with a `uid`, or a `PartyCollection` whose `refinement` scopes the rule to parties with matching attributes. The refinement is evaluated against the same two data sources as ordinary constraints, which is how a collection can select any assignee whose `$.subject.role` is `BorderAgency`. The full rules, including the fail-closed handling of empty collections and the rejection of collections with a `source`, are in the [party scoping section of the components page](./components.md#party-scoping-partycollection-refinements); the asset scoping section next to it covers `AssetCollection` in the same depth.
+
+## From Rules to Decisions
+
+For each rule the arbiter checks, in order, that the action matches, the target resolves, the parties apply, every constraint holds and, for permissions, every duty is enforced by a registered obligation enforcer. Rules are grouped by resolved target and the outcome per target is decided as follows.
+
+- `Granted` when at least one permission applies and no prohibition does.
+- `Denied` when a prohibition applies and no permission does, or when nothing applies at all. Evaluation is closed world: a target with no applicable permission is denied, and a policy with no rules yields a single `Denied` on `$`.
+- When a permission and a prohibition both apply, the policy's `conflict` strategy decides: `perm` grants, `prohibit` denies, and the default (`invalid`, also used when `conflict` is absent) denies.
+- A prohibition whose `remedy` duties are all fulfilled is treated as mitigated and does not apply.
+- Policy-level `obligation` duties that are not fulfilled turn every decision into `Denied`.
+
+Before any rule runs, the arbiter checks the declared `profile` values against the profiles it understands (the platform ODRL profile), resolves `inheritFrom` chains through the administration point up to a configurable depth while rejecting cycles, and expands compact rules with several actions, targets or parties into independent atomic rules. A compact-form array is therefore an OR of alternatives, never an AND.
+
+## Errors Policy Authors Meet
+
+| Error                                                                                                                               | Trigger                                                                                                                                             |
+| ----------------------------------------------------------------------------------------------------------------------------------- | --------------------------------------------------------------------------------------------------------------------------------------------------- |
+| `ruleTargetNotSupported`                                                                                                            | A target that does not resolve (see the target table), a JSONPath not starting with `$`, or a JSONPath whose value is required but matches nothing. |
+| `multipleTargetsNotSupported`                                                                                                       | More than one target on a single rule.                                                                                                              |
+| `assetCollectionSourceNotSupported`                                                                                                 | An `AssetCollection` whose `source` is not `twin:jsonPath`.                                                                                         |
+| `partyCollectionSourceNotSupported`                                                                                                 | A `PartyCollection` carrying a `source`.                                                                                                            |
+| `jsonPathExpressionMissing`                                                                                                         | A `twin:jsonPath` operand or target without `twin:jsonPathExpression`.                                                                              |
+| `leftOperandNotSupported`                                                                                                           | An ODRL built-in left operand the arbiter recognises but cannot resolve.                                                                            |
+| `logicalConstraintOperandNotUnique`                                                                                                 | Duplicate operand `uid` values inside a logical constraint.                                                                                         |
+| `rightOperandReferenceNotSupported`, `constraintDataTypeNotSupported`, `constraintUnitNotSupported`, `constraintStatusNotSupported` | Use of the ODRL properties `rightOperandReference`, `dataType`, `unit` or `status`, which are not implemented.                                      |
+| `policyProfileNotSupported`, `inheritedPolicyProfileNotSupported`                                                                   | A policy, or one of its ancestors, declaring a profile the arbiter does not know.                                                                   |
+| `inheritedPolicyNotFound`, `circularInheritanceDetected`, `maxInheritanceDepthExceeded`                                             | Faults in an `inheritFrom` chain.                                                                                                                   |
+| `noObligationEnforcersRegistered`                                                                                                   | A duty to enforce with no `IPolicyObligationEnforcer` registered.                                                                                   |
+
+## The Default Enforcement Processor
+
+`DefaultPolicyEnforcementProcessor` turns the decision list into the released payload. It starts from an empty output and applies the decisions in order.
+
+- A single decision on `$` is the fast path: `Granted` returns the payload unchanged (or `true` when there was no payload), `Denied` returns an empty object (or `false`), and `Replace` returns the replacement value.
+- Otherwise `Granted` copies every location the target matches from the source into the output, `Replace` writes the replacement value at those locations, and `Denied` deletes the matching locations from the output.
+- Deleting an array element leaves a hole. Once every decision has been applied the processor compacts every array in the output, so denied items are removed rather than left as `null` entries and the surviving items keep their relative order.
+- The JSON-LD envelope keys `@context`, `@type`, `@id`, `type` and `id` are copied from the source unconditionally, so a policy that only targets a nested array does not strip the document's own type and context.
+
+Anything neither granted nor replaced is absent from the output: a field with no decision is not released.
+
+## Related
+
+- [Information Sources](./information-sources.mdx)
+- [Trust Subject Flow](./trust-subject-flow.mdx)
+- [Rights Management components](./components.md), for the party and asset scoping rules and the decision point pipeline
+- [Use cases](../use-cases/README.md), whose fixtures are evaluated by the arbiter's own test suite

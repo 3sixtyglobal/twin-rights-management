@@ -23,3 +23,17 @@ The entity storage component for storing policies.
 ```ts
 odrl-policy
 ```
+
+***
+
+### odrlPolicyIndexEntityStorageType? {#odrlpolicyindexentitystoragetype}
+
+> `optional` **odrlPolicyIndexEntityStorageType?**: `string`
+
+The entity storage component for storing policy indexes.
+
+#### Default
+
+```ts
+odrl-policy-index
+```

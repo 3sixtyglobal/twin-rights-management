@@ -1,0 +1,16 @@
+{
+	"$comment": "Negotiation-time trust payload (decoded) - The consumer's PNP retrieves its public information from the PIP with no policy and hands the result to the trust component as the credential subject of a signed verifiable credential. The provider verifies the token on the contract request and the PAP stores the verified credential subject as trustData.subject on the finalised agreement.",
+	"issuer": "did:iota:testnet:0xac534b750ac453d573a55954760af140f87358c7be9a18000a831c452c32f246",
+	"credentialSubject": {
+		"role": "BorderAgency",
+		"country": "GB"
+	},
+	"informationSourceConfiguration": {
+		"$comment": "The static information source entry on the consumer node that produced the credential subject. Only entries with a public or any access mode and no matchLocators answer the policy-less retrieve at negotiation start.",
+		"accessMode": "public",
+		"objects": {
+			"role": "BorderAgency",
+			"country": "GB"
+		}
+	}
+}

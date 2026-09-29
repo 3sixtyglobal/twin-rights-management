@@ -1,0 +1,52 @@
+{
+	"$comment": "PMP (Policy Management Point) - Policy locator showing how PMP queries PAP to find the agreement. The trust subject is not a lookup key; it is only consulted by the PDP once the agreement has been found.",
+	"policyQuery": {
+		"assigner": "did:iota:testnet:0x1ee831611a9fe9877c82e05075d9670c4970b4fd0904c208082ee50e45817a9d",
+		"assignee": "did:iota:testnet:0xac534b750ac453d573a55954760af140f87358c7be9a18000a831c452c32f246",
+		"action": "read",
+		"target": {
+			"uid": "https://twin.example.org/data-resources/vet-cert-doc-6ce567",
+			"type": "Asset"
+		}
+	},
+	"lookupStrategy": {
+		"primaryIndex": "assigner:action:target",
+		"lookupKey": "assigner:did:iota:testnet:0x1ee831611a9fe9877c82e05075d9670c4970b4fd0904c208082ee50e45817a9d:action:read",
+		"filterCriteria": [
+			{
+				"field": "assignee",
+				"operator": "eq",
+				"value": "did:iota:testnet:0xac534b750ac453d573a55954760af140f87358c7be9a18000a831c452c32f246"
+			},
+			{
+				"field": "targetUid",
+				"operator": "eq",
+				"value": "https://twin.example.org/data-resources/vet-cert-doc-6ce567"
+			}
+		]
+	},
+	"matchedPolicies": [
+		{
+			"policyUid": "http://example.com/policy-vet-cert-border-agency:8001",
+			"policyType": "Agreement",
+			"matchScore": 1.0,
+			"matchedCriteria": ["assigner", "assignee", "action", "targetUid"],
+			"requiresRuntimeEvaluation": true,
+			"constraints": [
+				{
+					"type": "permission.constraint",
+					"leftOperand": "twin:jsonPath",
+					"twin:jsonPathDataSource": "information",
+					"twin:jsonPathExpression": "$.subject.role",
+					"operator": "eq",
+					"rightOperand": "BorderAgency"
+				}
+			]
+		}
+	],
+	"policySelectionResult": {
+		"selectedPolicy": "http://example.com/policy-vet-cert-border-agency:8001",
+		"selectionReason": "Exact match on assigner, assignee, action, and target. The role constraint requires runtime evaluation against the trust subject.",
+		"nextStep": "Forward to PDP with the agreement's trustData for constraint evaluation"
+	}
+}

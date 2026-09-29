@@ -1,0 +1,164 @@
+---
+category: components
+order: 12
+---
+
+# Information Sources
+
+Information sources are the extension point through which facts reach policy evaluation and negotiation. The policy information point (PIP) owns no data of its own: it fans a request out to every registered `IPolicyInformationSource`, merges what they return into one `IRightsManagementInformation` object, and hands that object to the caller. Two callers exist, and they ask very different questions, so this page sets out the contract a source must honour, how the point merges the answers, and what the built-in sources return in each situation.
+
+## The Contract
+
+A source implements `IPolicyInformationSource`, which extends `IComponent` with a single method:
+
+```ts
+retrieve<D = unknown>(
+  policy: IRightsManagementPolicy | undefined,
+  accessMode: PolicyInformationAccessMode,
+  data?: D,
+  action?: OdrlActionType | string
+): Promise<IRightsManagementInformation | undefined>;
+```
+
+- `policy` is the policy under evaluation when there is one. It is `undefined` for the negotiation-time call described below, and a source must handle that case rather than assume a policy is present.
+- `accessMode` states which facts the caller may receive: `public`, `private` or `any`.
+- `data` and `action` are the payload and the action under evaluation, present only at decision time.
+- The return value is a map of named objects, keyed however the source chooses, or `undefined` when the source has nothing to contribute.
+
+`IRightsManagementInformation` is deliberately loose, `{ [id: string]: unknown }`. Values are addressed by JSONPath from ODRL constraints, so a source may return JSON-LD node objects, plain objects, arrays or scalars; the arbiter only needs the keys and paths to be stable.
+
+Sources are registered with `PolicyInformationSourceFactory` under a name. A node selects which of the built-in sources it registers through its `RIGHTS_MANAGEMENT_POLICY_INFORMATION_SOURCES` setting (a comma-separated list of `static`, `identity` and `identity-profile`, carrying the node's environment prefix, `TWIN_` by default).
+
+## How the Point Merges Answers
+
+`PolicyInformationPointService.retrieve` looks up every registered source, calls them all in parallel with the same arguments, and folds each non-empty result into the running map with an object spread. Three consequences follow.
+
+- Keys merge shallowly. A source returning `{ "profile": { ... } }` replaces, rather than extends, a `profile` key returned by a sibling; sources therefore use distinct top-level keys (the identity source keys by DID, the profile source by `profile`).
+- Later results win on a key collision, and completion order is not guaranteed for parallel calls. Choose distinct keys instead of relying on ordering.
+- A source that throws does not fail the request. The error is logged as `sourceRetrieveFailed` and the remaining sources' output is returned, so a missing fact surfaces later as an unresolved path or a failed constraint, not as an error from the point.
+
+The point always returns an object, possibly empty, even when every source returned `undefined`.
+
+## Access Modes and Who Asks
+
+`PolicyInformationAccessMode` has three values. The two shipped callers use them as follows.
+
+| Caller                                                        | Call                                       | Mode     | Purpose                                                         |
+| ------------------------------------------------------------- | ------------------------------------------ | -------- | --------------------------------------------------------------- |
+| Policy decision point, at evaluation time                     | `retrieve(agreement, "any", data, action)` | `any`    | Every fact the node holds may feed the local decision.          |
+| Policy negotiation point, when a consumer opens a negotiation | `retrieve(undefined, "public")`            | `public` | Only facts the node is willing to disclose to the counterparty. |
+
+`private` is a mode a source entry may be configured with; no shipped caller requests it directly, but a `private` entry answers an `any` request. The rule the static source applies is symmetric: an entry is released when its mode equals the requested mode, or when either side is `any`.
+
+## The Policy-Less Public Retrieve
+
+When a consumer starts a negotiation, its PNP calls `retrieve(undefined, "public")` before any policy exists on the consumer side, and the result becomes the credential subject of the trust token sent to the provider (see [Trust Subject Flow](./trust-subject-flow.mdx)). The call carries no policy, no data and no action, so a source can only answer it from facts that are true of the node itself.
+
+| Source             | Answer to the policy-less public call                                                                                                                                                                        |
+| ------------------ | ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------ |
+| `static`           | Every configured entry whose `accessMode` is `public` or `any` and which has no `matchLocators`. An entry with locators is skipped, because `OdrlPolicyHelper.matchPolicy` is false for an undefined policy. |
+| `identity`         | Nothing. It resolves the assigner and assignee identities of the policy, and there is no policy.                                                                                                             |
+| `identity-profile` | Nothing, for the same reason.                                                                                                                                                                                |
+
+Out of the box, the static source is therefore the only one that populates the trust-token subject. A custom source that wants to contribute node-level facts to negotiation must answer the `undefined` policy case explicitly and respect the `public` mode.
+
+Every top-level key the call returns becomes a property of the credential subject. Configure `{ "role": "BorderAgency" }`, not `{ "subject": { "role": "BorderAgency" } }`: the verifier nests the credential subject under `subject` on the receiving side, and constraints read `$.subject.role`. When the call returns nothing at all, the generator substitutes `{ "id": "<organisation identity>" }` so the credential still has a subject.
+
+## Built-in Sources
+
+### Static
+
+`StaticPolicyInformationSource` returns configured objects. Its configuration is a list of `IStaticPolicyInformationSource` entries under `information`:
+
+```json
+{
+  "information": [
+    {
+      "accessMode": "public",
+      "objects": { "role": "BorderAgency", "country": "GB" }
+    },
+    {
+      "accessMode": "private",
+      "matchLocators": [
+        {
+          "action": "read",
+          "target": "https://twin.example.org/data-resources/vet-cert-doc-6ce567"
+        }
+      ],
+      "objects": { "documentClassification": "official" }
+    }
+  ]
+}
+```
+
+- `accessMode` gates the entry as described above.
+- `matchLocators`, when present, restricts the entry to policies matching at least one locator. A locator is any combination of `assignee`, `assigner`, `target` and `action`, compared against the policy with `OdrlPolicyHelper.matchPolicy`. Entries with locators never answer the policy-less call.
+- `objects` is spread into the result as is, so its keys are top-level information keys.
+
+Entries can also be added at runtime with `addInformation`. The source is node-global: anything added is visible to every later retrieve that its mode and locators admit, for every caller and every tenant on the node, so it is not a channel for per-request facts.
+
+### Identity
+
+`IdentityPolicyInformationSource` resolves the DID documents of the policy's `assigner` and `assignee` (when each is a plain string) through the identity resolver and returns them keyed by DID:
+
+```json
+{
+  "did:iota:testnet:0x1ee8...": {
+    "id": "did:iota:testnet:0x1ee8...",
+    "verificationMethod": ["..."]
+  }
+}
+```
+
+The access mode is not consulted: a DID document is public by nature. A resolution failure is logged and that identity is left out.
+
+### Identity Profile
+
+`IdentityProfilePolicyInformationSource` fetches the profiles of the same two parties through the identity profile component and returns them under a single `profile` key, one entry per DID:
+
+```json
+{
+  "profile": {
+    "did:iota:testnet:0xac53...": {
+      "public": { "...": "public profile" },
+      "private": { "...": "private profile" }
+    }
+  }
+}
+```
+
+In `public` mode only the public profile is fetched and the `private` property is absent. In `private` or `any` mode both are fetched. A missing profile is skipped silently; other failures are logged.
+
+## What the Arbiter Sees
+
+At decision time the PDP spreads the agreement's `trustData` over the merged result, `{ ...information, ...trustData }`. Trust data carries the keys the trust verifier produced, `verifiableCredential` and `subject`, and those keys win on a collision. For the scenario in use case 8, with all three built-in sources registered, the object the arbiter receives looks like this:
+
+```json
+{
+  "did:iota:testnet:0x1ee8...": { "...": "assigner DID document" },
+  "did:iota:testnet:0xac53...": { "...": "assignee DID document" },
+  "profile": { "did:iota:testnet:0xac53...": { "public": { "...": "" } } },
+  "verifiableCredential": { "...": "the verified negotiation credential" },
+  "subject": { "role": "BorderAgency", "country": "GB" }
+}
+```
+
+Constraints select from this object with `"twin:jsonPathDataSource": "information"`; the [Default Policy Arbiter](./default-policy-arbiter.mdx) page describes the operand forms.
+
+## Writing a Custom Source
+
+A custom source implements `IPolicyInformationSource`, is registered with `PolicyInformationSourceFactory.register(name, () => new MySource())`, and should:
+
+- return `undefined` or an empty object, rather than throw, when it has nothing for the given policy, mode or action;
+- decide explicitly what it answers when `policy` is `undefined`, because that answer is disclosed to counterparties;
+- use its own top-level key so it neither overwrites nor is overwritten by a sibling source;
+- serve facts that are local or global to the node. Attributes about the other party in an exchange do not belong here: they arrive through the negotiation trust token and reach evaluation as `trustData`, as the [Trust Subject Flow](./trust-subject-flow.mdx) page explains.
+
+Sources should be side-effect free and may cache expensive lookups.
+
+## Related
+
+- [Trust Subject Flow](./trust-subject-flow.mdx)
+- [Default Policy Arbiter](./default-policy-arbiter.mdx)
+- [Rights Management components](./components.md), in particular the policy information point section
+- [Use case 8: Trust Subject Role Constraint](../use-cases/08-trust-subject-role-constraint/description.md)
