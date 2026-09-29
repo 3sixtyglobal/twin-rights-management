@@ -6,6 +6,18 @@
 
 * remove EcosystemPolicy models/DTOs and standardize policy typing on `OdrlPolicyType` for v2.
 
+## [0.11.0](https://github.com/iotaledger/twin-rights-management/compare/rights-management-models-v0.11.0...rights-management-models-v0.11.0) (2026-09-29)
+
+
+### Features
+
+* release to production ([947f85a](https://github.com/iotaledger/twin-rights-management/commit/947f85ab9e23c117135dba7008a75c2d85435259))
+* release to production ([#223](https://github.com/iotaledger/twin-rights-management/issues/223)) ([8188fe6](https://github.com/iotaledger/twin-rights-management/commit/8188fe643107e3d4989b45a313d3f451e51e4b52))
+* release to production ([#275](https://github.com/iotaledger/twin-rights-management/issues/275)) ([a5dc94e](https://github.com/iotaledger/twin-rights-management/commit/a5dc94e7f207fce4c4806d8e8e124eeb180e7b15))
+* release to production ([#300](https://github.com/iotaledger/twin-rights-management/issues/300)) ([1151a4d](https://github.com/iotaledger/twin-rights-management/commit/1151a4d337d92ce6c25e685a78cefbe9a23f64e0))
+* release to production [skip ci] ([#320](https://github.com/iotaledger/twin-rights-management/issues/320)) ([be550c2](https://github.com/iotaledger/twin-rights-management/commit/be550c217668a47465dd373b7598682003b9d6a0))
+* release to production [skip ci] ([#340](https://github.com/iotaledger/twin-rights-management/issues/340)) ([0a1cb86](https://github.com/iotaledger/twin-rights-management/commit/0a1cb86ff09ae1f67d32321613046db5164466cd))
+
 ## [0.10.1-next.5](https://github.com/iotaledger/twin-rights-management/compare/rights-management-models-v0.10.1-next.4...rights-management-models-v0.10.1-next.5) (2026-09-25)
 
 
