@@ -25,3 +25,7 @@ Together, these packages establish a consistent policy model, predictable decisi
 ## Contributing
 
 To contribute to this package see the guidelines for building and publishing in [CONTRIBUTING](./CONTRIBUTING.md)
+
+## Origin
+
+This repository is derived from the original [iotaledger/twin-rights-management](https://github.com/iotaledger/twin-rights-management) repository.

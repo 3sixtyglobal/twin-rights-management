@@ -4,7 +4,7 @@
 	"description": "Plugin implementations for extending rights management behaviour across components.",
 	"repository": {
 		"type": "git",
-		"url": "git+https://github.com/iotaledger/twin-rights-management.git",
+		"url": "git+https://github.com/3sixtyglobal/twin-rights-management.git",
 		"directory": "packages/rights-management-plugins"
 	},
 	"contributors": [
@@ -96,7 +96,7 @@
 		"rights-management"
 	],
 	"bugs": {
-		"url": "git+https://github.com/iotaledger/twin-rights-management/issues"
+		"url": "git+https://github.com/3sixtyglobal/twin-rights-management/issues"
 	},
 	"homepage": "https://twindev.org"
 }
