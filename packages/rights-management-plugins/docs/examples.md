@@ -5,8 +5,8 @@ These examples show how to wire default and pass-through plugins so negotiation,
 ## PassThroughPolicyRequester
 
 ```typescript
-import { PassThroughPolicyRequester } from '@twin.org/rights-management-plugins';
-import { PolicyType } from '@twin.org/standards-w3c-odrl';
+import { PassThroughPolicyRequester } from '@3sixty/rights-management-plugins';
+import { PolicyType } from '@3sixty/standards-w3c-odrl';
 
 const requester = new PassThroughPolicyRequester();
 
@@ -34,8 +34,8 @@ console.log(agreementAccepted); // true
 ## PassThroughPolicyNegotiator
 
 ```typescript
-import { PassThroughPolicyNegotiator } from '@twin.org/rights-management-plugins';
-import { PolicyType } from '@twin.org/standards-w3c-odrl';
+import { PassThroughPolicyNegotiator } from '@3sixty/rights-management-plugins';
+import { PolicyType } from '@3sixty/standards-w3c-odrl';
 
 const negotiator = new PassThroughPolicyNegotiator();
 
@@ -66,9 +66,9 @@ console.log(agreement?.['@type']); // Agreement
 ## LoggingPolicyExecutionAction
 
 ```typescript
-import { LoggingPolicyExecutionAction } from '@twin.org/rights-management-plugins';
-import { PolicyDecision, PolicyDecisionStage } from '@twin.org/rights-management-models';
-import { PolicyType } from '@twin.org/standards-w3c-odrl';
+import { LoggingPolicyExecutionAction } from '@3sixty/rights-management-plugins';
+import { PolicyDecision, PolicyDecisionStage } from '@3sixty/rights-management-models';
+import { PolicyType } from '@3sixty/standards-w3c-odrl';
 
 const action = new LoggingPolicyExecutionAction({
   config: {
@@ -99,8 +99,8 @@ console.log(action.supportedStages()); // [ 'before', 'after' ]
 ## StaticPolicyInformationSource
 
 ```typescript
-import { PolicyInformationAccessMode } from '@twin.org/rights-management-models';
-import { StaticPolicyInformationSource } from '@twin.org/rights-management-plugins';
+import { PolicyInformationAccessMode } from '@3sixty/rights-management-models';
+import { StaticPolicyInformationSource } from '@3sixty/rights-management-plugins';
 
 const source = new StaticPolicyInformationSource({
   config: {
@@ -149,8 +149,8 @@ console.log(Object.keys(result ?? {}).length); // 2
 ## DefaultPolicyArbiter
 
 ```typescript
-import { DefaultPolicyArbiter } from '@twin.org/rights-management-plugins';
-import { PolicyType } from '@twin.org/standards-w3c-odrl';
+import { DefaultPolicyArbiter } from '@3sixty/rights-management-plugins';
+import { PolicyType } from '@3sixty/standards-w3c-odrl';
 
 const arbiter = new DefaultPolicyArbiter();
 
@@ -179,8 +179,8 @@ console.log(decisions[0].decision); // granted
 ## PassThroughPolicyArbiter
 
 ```typescript
-import { PassThroughPolicyArbiter } from '@twin.org/rights-management-plugins';
-import { PolicyType } from '@twin.org/standards-w3c-odrl';
+import { PassThroughPolicyArbiter } from '@3sixty/rights-management-plugins';
+import { PolicyType } from '@3sixty/standards-w3c-odrl';
 
 const arbiter = new PassThroughPolicyArbiter();
 
@@ -203,9 +203,9 @@ console.log(decisions[0].decision); // granted
 ## DefaultPolicyEnforcementProcessor
 
 ```typescript
-import { PolicyDecision } from '@twin.org/rights-management-models';
-import { DefaultPolicyEnforcementProcessor } from '@twin.org/rights-management-plugins';
-import { PolicyType } from '@twin.org/standards-w3c-odrl';
+import { PolicyDecision } from '@3sixty/rights-management-models';
+import { DefaultPolicyEnforcementProcessor } from '@3sixty/rights-management-plugins';
+import { PolicyType } from '@3sixty/standards-w3c-odrl';
 
 const processor = new DefaultPolicyEnforcementProcessor();
 
@@ -226,8 +226,8 @@ console.log(processed); // { asset: 'dataset-1' }
 ## PassThroughPolicyEnforcementProcessor
 
 ```typescript
-import { PassThroughPolicyEnforcementProcessor } from '@twin.org/rights-management-plugins';
-import { PolicyType } from '@twin.org/standards-w3c-odrl';
+import { PassThroughPolicyEnforcementProcessor } from '@3sixty/rights-management-plugins';
+import { PolicyType } from '@3sixty/standards-w3c-odrl';
 
 const processor = new PassThroughPolicyEnforcementProcessor();
 
@@ -248,8 +248,8 @@ console.log(result); // { asset: 'dataset-1' }
 ## IdentityPolicyInformationSource
 
 ```typescript
-import { PolicyInformationAccessMode } from '@twin.org/rights-management-models';
-import { IdentityPolicyInformationSource } from '@twin.org/rights-management-plugins';
+import { PolicyInformationAccessMode } from '@3sixty/rights-management-models';
+import { IdentityPolicyInformationSource } from '@3sixty/rights-management-plugins';
 
 const source = new IdentityPolicyInformationSource();
 
@@ -272,8 +272,8 @@ console.log(Object.keys(info ?? {}).length); // 2
 ## PassThroughPolicyObligationEnforcer
 
 ```typescript
-import { PassThroughPolicyObligationEnforcer } from '@twin.org/rights-management-plugins';
-import { PolicyType } from '@twin.org/standards-w3c-odrl';
+import { PassThroughPolicyObligationEnforcer } from '@3sixty/rights-management-plugins';
+import { PolicyType } from '@3sixty/standards-w3c-odrl';
 
 const enforcer = new PassThroughPolicyObligationEnforcer();
 

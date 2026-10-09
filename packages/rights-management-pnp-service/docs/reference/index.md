@@ -1,4 +1,4 @@
-# @twin.org/rights-management-pnp-service
+# @3sixty/rights-management-pnp-service
 
 ## Classes
 

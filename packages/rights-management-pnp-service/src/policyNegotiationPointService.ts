@@ -1,8 +1,8 @@
 // Copyright 2025 IOTA Stiftung.
 // SPDX-License-Identifier: Apache-2.0.
-import { HttpContextIdKeys, HttpUrlHelper, type IPlatformComponent } from "@twin.org/api-models";
-import type { ITaskSchedulerComponent } from "@twin.org/background-task-models";
-import { ContextIdHelper, ContextIdKeys, ContextIdStore } from "@twin.org/context";
+import { HttpContextIdKeys, HttpUrlHelper, type IPlatformComponent } from "@3sixty/api-models";
+import type { ITaskSchedulerComponent } from "@3sixty/background-task-models";
+import { ContextIdHelper, ContextIdKeys, ContextIdStore } from "@3sixty/context";
 import {
 	AlreadyExistsError,
 	ArrayHelper,
@@ -20,14 +20,14 @@ import {
 	UnauthorizedError,
 	Url,
 	Urn
-} from "@twin.org/core";
-import { ComparisonOperator, LogicalOperator, SortDirection } from "@twin.org/entity";
+} from "@3sixty/core";
+import { ComparisonOperator, LogicalOperator, SortDirection } from "@3sixty/entity";
 import {
 	EntityStorageConnectorFactory,
 	type IEntityStorageConnector
-} from "@twin.org/entity-storage-models";
-import type { ILoggingComponent } from "@twin.org/logging-models";
-import { nameof } from "@twin.org/nameof";
+} from "@3sixty/entity-storage-models";
+import type { ILoggingComponent } from "@3sixty/logging-models";
+import { nameof } from "@3sixty/nameof";
 import {
 	OdrlPolicyHelper,
 	PolicyInformationAccessMode,
@@ -40,7 +40,7 @@ import {
 	type IPolicyNegotiationAdminPointComponent,
 	type IPolicyNegotiationPointComponent,
 	type IRightsManagementAgreement
-} from "@twin.org/rights-management-models";
+} from "@3sixty/rights-management-models";
 import {
 	DataspaceProtocolContexts,
 	DataspaceProtocolContractNegotiationEventType,
@@ -55,13 +55,13 @@ import {
 	type IDataspaceProtocolContractOfferMessage,
 	type IDataspaceProtocolContractRequestMessage,
 	type IDataspaceProtocolOffer
-} from "@twin.org/standards-dataspace-protocol";
-import { OdrlContexts, OdrlPolicyType, OdrlTypes } from "@twin.org/standards-w3c-odrl";
+} from "@3sixty/standards-dataspace-protocol";
+import { OdrlContexts, OdrlPolicyType, OdrlTypes } from "@3sixty/standards-w3c-odrl";
 import {
 	TrustHelper,
 	type ITrustComponent,
 	type ITrustVerificationInfo
-} from "@twin.org/trust-models";
+} from "@3sixty/trust-models";
 import type { PolicyNegotiation } from "./entities/policyNegotiation.js";
 import type { IPolicyNegotiationPointServiceConstructorOptions } from "./models/IPolicyNegotiationPointServiceConstructorOptions.js";
 

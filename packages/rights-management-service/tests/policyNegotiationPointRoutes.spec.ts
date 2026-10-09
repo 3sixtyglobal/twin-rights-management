@@ -1,20 +1,20 @@
 // Copyright 2025 IOTA Stiftung.
 // SPDX-License-Identifier: Apache-2.0.
-import type { IHttpRequestContext } from "@twin.org/api-models";
-import { ComponentFactory, Factory } from "@twin.org/core";
+import type { IHttpRequestContext } from "@3sixty/api-models";
+import { ComponentFactory, Factory } from "@3sixty/core";
 import type {
 	IPnpNegotiateRequest,
 	IPnpOfferRequest,
 	IPolicyNegotiationPointComponent
-} from "@twin.org/rights-management-models";
+} from "@3sixty/rights-management-models";
 import {
 	DataspaceProtocolContexts,
 	DataspaceProtocolContractNegotiationStateType,
 	DataspaceProtocolContractNegotiationTypes,
 	type IDataspaceProtocolContractNegotiation
-} from "@twin.org/standards-dataspace-protocol";
-import { OdrlTypes } from "@twin.org/standards-w3c-odrl";
-import { HeaderTypes, MimeTypes } from "@twin.org/web";
+} from "@3sixty/standards-dataspace-protocol";
+import { OdrlTypes } from "@3sixty/standards-w3c-odrl";
+import { HeaderTypes, MimeTypes } from "@3sixty/web";
 import {
 	generateRestRoutesPolicyNegotiationPoint,
 	pnpNegotiationOffer,

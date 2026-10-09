@@ -12,9 +12,9 @@ import {
 	Urn,
 	Validation,
 	type IValidationFailure
-} from "@twin.org/core";
-import type { JsonLdObjectWithOptionalAtId } from "@twin.org/data-json-ld";
-import { JsonLdHelper } from "@twin.org/data-json-ld";
+} from "@3sixty/core";
+import type { JsonLdObjectWithOptionalAtId } from "@3sixty/data-json-ld";
+import { JsonLdHelper } from "@3sixty/data-json-ld";
 import {
 	ComparisonOperator,
 	EntitySchemaPropertyType,
@@ -24,13 +24,13 @@ import {
 	type EntityCondition,
 	type IComparator,
 	type IEntitySort
-} from "@twin.org/entity";
+} from "@3sixty/entity";
 import {
 	EntityStorageConnectorFactory,
 	type IEntityStorageConnector
-} from "@twin.org/entity-storage-models";
-import type { ILoggingComponent } from "@twin.org/logging-models";
-import { nameof } from "@twin.org/nameof";
+} from "@3sixty/entity-storage-models";
+import type { ILoggingComponent } from "@3sixty/logging-models";
+import { nameof } from "@3sixty/nameof";
 import {
 	OdrlPolicyHelper,
 	RightsManagementNamespaces,
@@ -41,13 +41,13 @@ import {
 	type IRightsManagementPolicy,
 	type IRightsManagementPolicyMetadata,
 	type IRightsManagementSet
-} from "@twin.org/rights-management-models";
+} from "@3sixty/rights-management-models";
 import {
 	OdrlContexts,
 	OdrlDataTypes,
 	OdrlPolicyType,
 	type OdrlContextType
-} from "@twin.org/standards-w3c-odrl";
+} from "@3sixty/standards-w3c-odrl";
 import { OdrlPolicy } from "./entities/odrlPolicy.js";
 import type { OdrlPolicyIndex } from "./entities/odrlPolicyIndex.js";
 import type { IPolicyAdministrationPointServiceConstructorOptions } from "./models/IPolicyAdministrationPointServiceConstructorOptions.js";

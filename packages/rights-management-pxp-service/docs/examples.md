@@ -5,9 +5,9 @@ Use these examples to execute policy actions in the before or after decision sta
 ## PolicyExecutionPointService
 
 ```typescript
-import { PolicyDecision, PolicyDecisionStage } from '@twin.org/rights-management-models';
-import { PolicyExecutionPointService } from '@twin.org/rights-management-pxp-service';
-import { PolicyType } from '@twin.org/standards-w3c-odrl';
+import { PolicyDecision, PolicyDecisionStage } from '@3sixty/rights-management-models';
+import { PolicyExecutionPointService } from '@3sixty/rights-management-pxp-service';
+import { PolicyType } from '@3sixty/standards-w3c-odrl';
 
 const pxp = new PolicyExecutionPointService();
 

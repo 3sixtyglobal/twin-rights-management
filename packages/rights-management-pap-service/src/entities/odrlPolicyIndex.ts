@@ -1,6 +1,6 @@
 // Copyright 2026 IOTA Stiftung.
 // SPDX-License-Identifier: Apache-2.0.
-import { entity, property, SortDirection } from "@twin.org/entity";
+import { entity, property, SortDirection } from "@3sixty/entity";
 
 /**
  * Class describing an ODRL policy index entry used for query filtering. One entry is stored for

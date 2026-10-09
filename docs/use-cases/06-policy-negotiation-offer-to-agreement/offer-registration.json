@@ -8,7 +8,7 @@
 	],
 	"@type": "Offer",
 	"@id": "https://giw-node.example.org/policies/offers/vet-cert-offer-001",
-	"profile": "https://schema.twindev.org/odrl/v1/profile",
+	"profile": "https://schema.3sixty.global/odrl/v1/profile",
 	"assigner": "did:iota:testnet:0xfcfa55894cab90504af7eaf38087addd5f77791a89bd3ebbe76d9c2b1a6ce567",
 	"permission": [
 		{

@@ -1,12 +1,12 @@
 // Copyright 2026 IOTA Stiftung.
 // SPDX-License-Identifier: Apache-2.0.
-import { Is, ObjectHelper } from "@twin.org/core";
-import { JsonLdProcessor } from "@twin.org/data-json-ld";
+import { Is, ObjectHelper } from "@3sixty/core";
+import { JsonLdProcessor } from "@3sixty/data-json-ld";
 import {
 	POLICY_METADATA_CONTEXT,
 	type IRightsManagementPolicyMetadata
-} from "@twin.org/rights-management-models";
-import { OdrlContexts, type OdrlContextType } from "@twin.org/standards-w3c-odrl";
+} from "@3sixty/rights-management-models";
+import { OdrlContexts, type OdrlContextType } from "@3sixty/standards-w3c-odrl";
 
 /**
  * Normalizes the caller JSON-LD context, defaulting to ODRL when omitted.

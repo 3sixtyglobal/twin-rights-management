@@ -230,8 +230,8 @@ console.log(consignment); // Complete consignment object
 The logistics provider's PEP exposes consignment data with automatic PEP enforcement and policy inheritance:
 
 ```typescript
-import { ComponentFactory } from '@twin.org/framework';
-import type { IDataAccessPoint } from '@twin.org/rights-management-models';
+import { ComponentFactory } from '@3sixty/framework';
+import type { IDataAccessPoint } from '@3sixty/rights-management-models';
 
 // Initialize PEP with PEP integration
 const dap = ComponentFactory.get<IDataAccessPoint>('data-access-point');
@@ -269,8 +269,8 @@ app.get('/api/dap/consignment/:id', async (req, res) => {
 The logistics partner's application code reads specific consignment:
 
 ```typescript
-import { ComponentFactory } from '@twin.org/framework';
-import type { IDataAccessRequestPoint } from '@twin.org/rights-management-models';
+import { ComponentFactory } from '@3sixty/framework';
+import type { IDataAccessRequestPoint } from '@3sixty/rights-management-models';
 
 // Initialize application code for remote queries
 const darp = ComponentFactory.get<IDataAccessRequestPoint>('data-access-request-point');

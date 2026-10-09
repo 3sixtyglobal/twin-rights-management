@@ -1,12 +1,12 @@
 // Copyright 2025 IOTA Stiftung.
 // SPDX-License-Identifier: Apache-2.0.
-import type { IError } from "@twin.org/core";
+import type { IError } from "@3sixty/core";
 import type {
 	DataspaceProtocolContractNegotiationStateType,
 	IDataspaceProtocolAgreement,
 	IDataspaceProtocolOffer
-} from "@twin.org/standards-dataspace-protocol";
-import type { ITrustVerificationInfo } from "@twin.org/trust-models";
+} from "@3sixty/standards-dataspace-protocol";
+import type { ITrustVerificationInfo } from "@3sixty/trust-models";
 
 /**
  * Interface describing a rights management policy negotiation.

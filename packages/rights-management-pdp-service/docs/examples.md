@@ -5,7 +5,7 @@ These snippets show how to initialise a decision point and evaluate agreements w
 ## PolicyDecisionPointService
 
 ```typescript
-import { PolicyDecisionPointService } from '@twin.org/rights-management-pdp-service';
+import { PolicyDecisionPointService } from '@3sixty/rights-management-pdp-service';
 
 const pdp = new PolicyDecisionPointService();
 
@@ -13,8 +13,8 @@ console.log(pdp.className()); // PolicyDecisionPointService
 ```
 
 ```typescript
-import { PolicyDecisionPointService } from '@twin.org/rights-management-pdp-service';
-import { PolicyType } from '@twin.org/standards-w3c-odrl';
+import { PolicyDecisionPointService } from '@3sixty/rights-management-pdp-service';
+import { PolicyType } from '@3sixty/standards-w3c-odrl';
 
 const pdp = new PolicyDecisionPointService();
 

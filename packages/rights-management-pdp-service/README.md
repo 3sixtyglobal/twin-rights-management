@@ -1,11 +1,11 @@
-# TWIN Rights Management Policy Decision Point Service
+# 3Sixty Rights Management Policy Decision Point Service
 
 This package provides the policy decision point service for producing authorisation decisions from policies and context. It coordinates candidate policies, runtime facts, and arbiters to deliver consistent outcomes.
 
 ## Installation
 
 `shell
-npm install @twin.org/rights-management-pdp-service
+npm install @3sixty/rights-management-pdp-service
 `
 
 ## Testing

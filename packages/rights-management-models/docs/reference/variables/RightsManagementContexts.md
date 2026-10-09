@@ -8,18 +8,18 @@ The LD Contexts concerning Rights Management.
 
 ### Namespace {#namespace}
 
-> `readonly` **Namespace**: `"https://schema.twindev.org/rights-management/"` = `"https://schema.twindev.org/rights-management/"`
+> `readonly` **Namespace**: `"https://schema.3sixty.global/rights-management/"` = `"https://schema.3sixty.global/rights-management/"`
 
 The canonical RDF namespace URI.
 
 ### Context {#context}
 
-> `readonly` **Context**: `"https://schema.twindev.org/rights-management/"` = `"https://schema.twindev.org/rights-management/"`
+> `readonly` **Context**: `"https://schema.3sixty.global/rights-management/"` = `"https://schema.3sixty.global/rights-management/"`
 
 The value to use in @context.
 
 ### JsonLdContext {#jsonldcontext}
 
-> `readonly` **JsonLdContext**: `"https://schema.twindev.org/rights-management/types.jsonld"` = `"https://schema.twindev.org/rights-management/types.jsonld"`
+> `readonly` **JsonLdContext**: `"https://schema.3sixty.global/rights-management/types.jsonld"` = `"https://schema.3sixty.global/rights-management/types.jsonld"`
 
 The JSON-LD Context URL.

@@ -12,7 +12,7 @@ import {
   papTags,
   pnapTags,
   pnpTags
-} from '@twin.org/rights-management-service';
+} from '@3sixty/rights-management-service';
 
 const papRoutes = generateRestRoutesPolicyAdministrationPoint(
   '/rights-management',
@@ -38,7 +38,7 @@ console.log(pnpTags[0].name); // Policy Negotiation Point
 ## REST Entry Points
 
 ```typescript
-import { restEntryPoints } from '@twin.org/rights-management-service';
+import { restEntryPoints } from '@3sixty/rights-management-service';
 
 const entryNames = restEntryPoints.map(entry => entry.name);
 

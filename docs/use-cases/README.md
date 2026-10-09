@@ -193,7 +193,7 @@ Policy Locator used by PMP to query PAP for matching Agreement policies:
 
 ### 3. policy.json
 
-Agreement policy that already exists in PAP, conforming to `@twin.org/standards-w3c-odrl` interfaces:
+Agreement policy that already exists in PAP, conforming to `@3sixty/standards-w3c-odrl` interfaces:
 
 - `IOdrlAgreement` - Bilateral agreement with specific assignee (most common in UC1-UC5)
 - `IOdrlSet` - Asset class policies without specific parties (used with Agreement in UC3)
@@ -457,7 +457,7 @@ PXP (Policy Execution Point)
 
 ## Standards Integration
 
-### ODRL Standards (`@twin.org/standards-w3c-odrl`)
+### ODRL Standards (`@3sixty/standards-w3c-odrl`)
 
 All policies conform to W3C ODRL 2.2 specification using TypeScript interfaces:
 
@@ -539,7 +539,7 @@ This use case prepares the framework for federated data space ecosystems with do
 ### For Reviewers
 
 1. **Completeness**: Verify all 7 components are present and consistent
-2. **Standards**: Check ODRL policies conform to `@twin.org/standards-w3c-odrl` interfaces
+2. **Standards**: Check ODRL policies conform to `@3sixty/standards-w3c-odrl` interfaces
 3. **Realism**: Ensure scenarios reflect real-world TWIN Platform requirements
 4. **Testability**: Confirm use cases can drive actual test implementation
 
@@ -559,7 +559,7 @@ To add a new Phase 2 use case:
    - `expected-decision.json`
 3. Add optional components if needed (notification-trace.json, source-data.json)
 4. Update this README with a new entry in the index table
-5. Ensure ODRL policy validation against JSON schemas in `@twin.org/standards-w3c-odrl`
+5. Ensure ODRL policy validation against JSON schemas in `@3sixty/standards-w3c-odrl`
 6. Include PEP enforcement examples in `description.md` showing application code calling PEP
 
 ### For Phase 1 (Negotiation) Use Cases

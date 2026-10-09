@@ -1,4 +1,4 @@
-# @twin.org/rights-management-pap-service
+# @3sixty/rights-management-pap-service
 
 ## Classes
 

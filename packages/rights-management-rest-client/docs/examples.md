@@ -5,11 +5,11 @@ These examples show how to call remote rights-management endpoints for policy ad
 ## PolicyNegotiationPointRestClient
 
 ```typescript
-import { PolicyNegotiationPointRestClient } from '@twin.org/rights-management-rest-client';
+import { PolicyNegotiationPointRestClient } from '@3sixty/rights-management-rest-client';
 import {
   DataspaceProtocolContexts,
   DataspaceProtocolContractNegotiationTypes
-} from '@twin.org/standards-dataspace-protocol';
+} from '@3sixty/standards-dataspace-protocol';
 
 const pnpClient = new PolicyNegotiationPointRestClient({
   endpoint: 'https://api.example.com'
@@ -43,12 +43,12 @@ console.log(requestResult['@type']); // ContractNegotiation
 ```
 
 ```typescript
-import { PolicyNegotiationPointRestClient } from '@twin.org/rights-management-rest-client';
+import { PolicyNegotiationPointRestClient } from '@3sixty/rights-management-rest-client';
 import {
   DataspaceProtocolContexts,
   DataspaceProtocolContractNegotiationEventType,
   DataspaceProtocolContractNegotiationTypes
-} from '@twin.org/standards-dataspace-protocol';
+} from '@3sixty/standards-dataspace-protocol';
 
 const pnpClient = new PolicyNegotiationPointRestClient({
   endpoint: 'https://api.example.com'
@@ -128,7 +128,7 @@ console.log(terminateError); // undefined
 ```
 
 ```typescript
-import { PolicyNegotiationPointRestClient } from '@twin.org/rights-management-rest-client';
+import { PolicyNegotiationPointRestClient } from '@3sixty/rights-management-rest-client';
 
 const pnpClient = new PolicyNegotiationPointRestClient({
   endpoint: 'https://api.example.com'
@@ -158,8 +158,8 @@ try {
 ## PolicyAdministrationPointRestClient
 
 ```typescript
-import { PolicyAdministrationPointRestClient } from '@twin.org/rights-management-rest-client';
-import { PolicyType } from '@twin.org/standards-w3c-odrl';
+import { PolicyAdministrationPointRestClient } from '@3sixty/rights-management-rest-client';
+import { PolicyType } from '@3sixty/standards-w3c-odrl';
 
 const papClient = new PolicyAdministrationPointRestClient({
   endpoint: 'https://api.example.com'
@@ -221,8 +221,8 @@ console.log(queryResult.policies.length); // 1
 ## PolicyNegotiationAdminPointRestClient
 
 ```typescript
-import { PolicyNegotiationAdminPointRestClient } from '@twin.org/rights-management-rest-client';
-import { DataspaceProtocolContractNegotiationStateType } from '@twin.org/standards-dataspace-protocol';
+import { PolicyNegotiationAdminPointRestClient } from '@3sixty/rights-management-rest-client';
+import { DataspaceProtocolContractNegotiationStateType } from '@3sixty/standards-dataspace-protocol';
 
 const adminClient = new PolicyNegotiationAdminPointRestClient({
   endpoint: 'https://api.example.com'

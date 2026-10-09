@@ -5,8 +5,8 @@ These examples show how to register policies, retrieve specific policy shapes, a
 ## PolicyAdministrationPointService
 
 ```typescript
-import { PolicyAdministrationPointService } from '@twin.org/rights-management-pap-service';
-import { PolicyType } from '@twin.org/standards-w3c-odrl';
+import { PolicyAdministrationPointService } from '@3sixty/rights-management-pap-service';
+import { PolicyType } from '@3sixty/standards-w3c-odrl';
 
 const pap = new PolicyAdministrationPointService();
 
@@ -28,8 +28,8 @@ console.log(pap.className()); // PolicyAdministrationPointService
 ```
 
 ```typescript
-import { PolicyAdministrationPointService } from '@twin.org/rights-management-pap-service';
-import { PolicyType } from '@twin.org/standards-w3c-odrl';
+import { PolicyAdministrationPointService } from '@3sixty/rights-management-pap-service';
+import { PolicyType } from '@3sixty/standards-w3c-odrl';
 
 const pap = new PolicyAdministrationPointService();
 
@@ -54,7 +54,7 @@ console.log(offer['@type']); // Offer
 ```
 
 ```typescript
-import { PolicyAdministrationPointService } from '@twin.org/rights-management-pap-service';
+import { PolicyAdministrationPointService } from '@3sixty/rights-management-pap-service';
 
 const pap = new PolicyAdministrationPointService();
 
@@ -66,7 +66,7 @@ console.log(set['@type']); // Set
 ```
 
 ```typescript
-import { PolicyAdministrationPointService } from '@twin.org/rights-management-pap-service';
+import { PolicyAdministrationPointService } from '@3sixty/rights-management-pap-service';
 
 const pap = new PolicyAdministrationPointService();
 
@@ -94,8 +94,8 @@ console.log(queryResult.cursor); // cursor-2
 ## OdrlPolicy
 
 ```typescript
-import { OdrlPolicy } from '@twin.org/rights-management-pap-service';
-import { PolicyType } from '@twin.org/standards-w3c-odrl';
+import { OdrlPolicy } from '@3sixty/rights-management-pap-service';
+import { PolicyType } from '@3sixty/standards-w3c-odrl';
 
 const entity = new OdrlPolicy();
 entity.id = 'urn:rights-management:policy-1';
@@ -128,7 +128,7 @@ hashing the values and deriving the `id` from the content, so the same combinati
 the same entry. `OdrlPolicyIndexHelper.hashValue` gives the hash to look a value up by.
 
 ```typescript
-import { OdrlPolicyIndexHelper } from '@twin.org/rights-management-pap-service';
+import { OdrlPolicyIndexHelper } from '@3sixty/rights-management-pap-service';
 
 const entity = OdrlPolicyIndexHelper.createIndexEntry(
   'urn:rights-management:policy-1',

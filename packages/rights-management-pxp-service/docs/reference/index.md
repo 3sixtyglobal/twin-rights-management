@@ -1,4 +1,4 @@
-# @twin.org/rights-management-pxp-service
+# @3sixty/rights-management-pxp-service
 
 ## Classes
 

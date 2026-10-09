@@ -1,9 +1,9 @@
 // Copyright 2026 IOTA Stiftung.
 // SPDX-License-Identifier: Apache-2.0.
-import type { IAutomationComponent } from "@twin.org/automation-models";
-import { ComponentFactory } from "@twin.org/core";
-import { PolicyDecisionStage } from "@twin.org/rights-management-models";
-import { OdrlActionType } from "@twin.org/standards-w3c-odrl";
+import type { IAutomationComponent } from "@3sixty/automation-models";
+import { ComponentFactory } from "@3sixty/core";
+import { PolicyDecisionStage } from "@3sixty/rights-management-models";
+import { OdrlActionType } from "@3sixty/standards-w3c-odrl";
 import type { IAutomationPolicyExecutionActionConstructorOptions } from "../../src/models/IAutomationPolicyExecutionActionConstructorOptions.js";
 import { AutomationPolicyExecutionAction } from "../../src/policyExecutionActions/automationPolicyExecutionAction.js";
 

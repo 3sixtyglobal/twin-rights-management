@@ -1,37 +1,37 @@
 // Copyright 2025 IOTA Stiftung.
 // SPDX-License-Identifier: Apache-2.0.
-import { ComponentFactory, Factory } from "@twin.org/core";
-import type { IJsonLdNodeObject } from "@twin.org/data-json-ld";
-import { MemoryEntityStorageConnector } from "@twin.org/entity-storage-connector-memory";
-import { EntityStorageConnectorFactory } from "@twin.org/entity-storage-models";
+import { ComponentFactory, Factory } from "@3sixty/core";
+import type { IJsonLdNodeObject } from "@3sixty/data-json-ld";
+import { MemoryEntityStorageConnector } from "@3sixty/entity-storage-connector-memory";
+import { EntityStorageConnectorFactory } from "@3sixty/entity-storage-models";
 import {
 	EntityStorageLoggingConnector,
 	initSchema as initSchemaLogging,
 	type LogEntry
-} from "@twin.org/logging-connector-entity-storage";
-import { LoggingConnectorFactory } from "@twin.org/logging-models";
-import { LoggingService } from "@twin.org/logging-service";
-import { nameof } from "@twin.org/nameof";
+} from "@3sixty/logging-connector-entity-storage";
+import { LoggingConnectorFactory } from "@3sixty/logging-models";
+import { LoggingService } from "@3sixty/logging-service";
+import { nameof } from "@3sixty/nameof";
 import {
 	PolicyArbiterFactory,
 	PolicyEnforcementProcessorFactory,
 	PolicyExecutionActionFactory,
 	PolicyInformationAccessMode,
 	PolicyInformationSourceFactory
-} from "@twin.org/rights-management-models";
+} from "@3sixty/rights-management-models";
 import {
 	PolicyAdministrationPointService,
 	initSchema as initSchemaPolicyAdministrationPoint,
 	type OdrlPolicy,
 	type OdrlPolicyIndex
-} from "@twin.org/rights-management-pap-service";
-import { PolicyDecisionPointService } from "@twin.org/rights-management-pdp-service";
-import { PolicyEnforcementPointService } from "@twin.org/rights-management-pep-service";
-import { PolicyInformationPointService } from "@twin.org/rights-management-pip-service";
-import { PolicyManagementPointService } from "@twin.org/rights-management-pmp-service";
-import { PolicyExecutionPointService } from "@twin.org/rights-management-pxp-service";
-import type { IDataspaceProtocolPolicy } from "@twin.org/standards-dataspace-protocol";
-import { OdrlContexts, OdrlPolicyType } from "@twin.org/standards-w3c-odrl";
+} from "@3sixty/rights-management-pap-service";
+import { PolicyDecisionPointService } from "@3sixty/rights-management-pdp-service";
+import { PolicyEnforcementPointService } from "@3sixty/rights-management-pep-service";
+import { PolicyInformationPointService } from "@3sixty/rights-management-pip-service";
+import { PolicyManagementPointService } from "@3sixty/rights-management-pmp-service";
+import { PolicyExecutionPointService } from "@3sixty/rights-management-pxp-service";
+import type { IDataspaceProtocolPolicy } from "@3sixty/standards-dataspace-protocol";
+import { OdrlContexts, OdrlPolicyType } from "@3sixty/standards-w3c-odrl";
 import { PassThroughPolicyArbiter } from "../src/policyArbiters/passThroughPolicyArbiter.js";
 import { PassThroughPolicyEnforcementProcessor } from "../src/policyEnforcementProcessor/passThroughPolicyEnforcementProcessor.js";
 import { LoggingPolicyExecutionAction } from "../src/policyExecutionActions/loggingPolicyExecutionAction.js";

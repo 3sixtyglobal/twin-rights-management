@@ -1,11 +1,11 @@
-# TWIN Rights Management Plugins
+# 3Sixty Rights Management Plugins
 
 This package provides plugin implementations for extending rights management behaviour across components. It supports modular customisation for deployment-specific requirements.
 
 ## Installation
 
 `shell
-npm install @twin.org/rights-management-plugins
+npm install @3sixty/rights-management-plugins
 `
 
 ## Testing

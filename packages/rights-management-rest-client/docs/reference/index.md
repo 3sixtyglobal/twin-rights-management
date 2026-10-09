@@ -1,4 +1,4 @@
-# @twin.org/rights-management-rest-client
+# @3sixty/rights-management-rest-client
 
 ## Classes
 

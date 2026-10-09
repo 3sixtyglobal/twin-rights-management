@@ -1,18 +1,18 @@
 // Copyright 2025 IOTA Stiftung.
 // SPDX-License-Identifier: Apache-2.0.
-import { ContextIdStore } from "@twin.org/context";
-import { ComponentFactory } from "@twin.org/core";
-import { MemoryEntityStorageConnector } from "@twin.org/entity-storage-connector-memory";
-import { EntityStorageConnectorFactory } from "@twin.org/entity-storage-models";
+import { ContextIdStore } from "@3sixty/context";
+import { ComponentFactory } from "@3sixty/core";
+import { MemoryEntityStorageConnector } from "@3sixty/entity-storage-connector-memory";
+import { EntityStorageConnectorFactory } from "@3sixty/entity-storage-models";
 import {
 	EntityStorageLoggingConnector,
 	initSchema as initSchemaLogging,
 	type LogEntry
-} from "@twin.org/logging-connector-entity-storage";
-import { LoggingConnectorFactory } from "@twin.org/logging-models";
-import { LoggingService } from "@twin.org/logging-service";
-import { nameof } from "@twin.org/nameof";
-import { DataspaceProtocolContractNegotiationStateType } from "@twin.org/standards-dataspace-protocol";
+} from "@3sixty/logging-connector-entity-storage";
+import { LoggingConnectorFactory } from "@3sixty/logging-models";
+import { LoggingService } from "@3sixty/logging-service";
+import { nameof } from "@3sixty/nameof";
+import { DataspaceProtocolContractNegotiationStateType } from "@3sixty/standards-dataspace-protocol";
 import type { PolicyNegotiation } from "../src/entities/policyNegotiation.js";
 import { PolicyNegotiationAdminPointService } from "../src/policyNegotiationAdminPointService.js";
 import { initSchema } from "../src/schema.js";

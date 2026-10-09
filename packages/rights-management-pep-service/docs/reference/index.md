@@ -1,4 +1,4 @@
-# @twin.org/rights-management-pep-service
+# @3sixty/rights-management-pep-service
 
 ## Classes
 

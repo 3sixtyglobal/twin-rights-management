@@ -1,6 +1,6 @@
 // Copyright 2025 IOTA Stiftung.
 // SPDX-License-Identifier: Apache-2.0.
-import { ContextIdHelper, ContextIdKeys, ContextIdStore } from "@twin.org/context";
+import { ContextIdHelper, ContextIdKeys, ContextIdStore } from "@3sixty/context";
 import {
 	AlreadyExistsError,
 	Coerce,
@@ -9,19 +9,19 @@ import {
 	Is,
 	Mutex,
 	NotFoundError
-} from "@twin.org/core";
-import { ComparisonOperator, SortDirection } from "@twin.org/entity";
+} from "@3sixty/core";
+import { ComparisonOperator, SortDirection } from "@3sixty/entity";
 import {
 	EntityStorageConnectorFactory,
 	type IEntityStorageConnector
-} from "@twin.org/entity-storage-models";
-import type { ILoggingComponent } from "@twin.org/logging-models";
-import { nameof } from "@twin.org/nameof";
+} from "@3sixty/entity-storage-models";
+import type { ILoggingComponent } from "@3sixty/logging-models";
+import { nameof } from "@3sixty/nameof";
 import type {
 	IPolicyNegotiation,
 	IPolicyNegotiationAdminPointComponent
-} from "@twin.org/rights-management-models";
-import { DataspaceProtocolContractNegotiationStateType } from "@twin.org/standards-dataspace-protocol";
+} from "@3sixty/rights-management-models";
+import { DataspaceProtocolContractNegotiationStateType } from "@3sixty/standards-dataspace-protocol";
 import type { PolicyNegotiation } from "./entities/policyNegotiation.js";
 import type { IPolicyNegotiationAdminPointServiceConstructorOptions } from "./models/IPolicyNegotiationAdminPointServiceConstructorOptions.js";
 

@@ -1,11 +1,11 @@
-# TWIN Rights Management Models
+# 3Sixty Rights Management Models
 
 This package provides data model definitions for rights management policies, negotiations, and service contracts. It is intended to be used as a shared foundation for services and integrations across the repository.
 
 ## Installation
 
 `shell
-npm install @twin.org/rights-management-models
+npm install @3sixty/rights-management-models
 `
 
 ## Testing

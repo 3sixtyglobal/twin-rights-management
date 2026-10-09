@@ -1,11 +1,11 @@
-# TWIN Rights Management Service
+# 3Sixty Rights Management Service
 
 This package provides a unified rights management service exposing policy and negotiation capabilities. It is designed for deployments that want a consolidated service interface.
 
 ## Installation
 
 `shell
-npm install @twin.org/rights-management-service
+npm install @3sixty/rights-management-service
 `
 
 ## Testing

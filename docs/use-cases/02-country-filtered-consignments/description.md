@@ -223,8 +223,8 @@ Returned dataset contains only:
 The exporter's application code exposes consignment data with PEP enforcement:
 
 ```typescript
-import { ComponentFactory } from '@twin.org/framework';
-import type { IPolicyEnforcementPoint } from '@twin.org/rights-management-models';
+import { ComponentFactory } from '@3sixty/framework';
+import type { IPolicyEnforcementPoint } from '@3sixty/rights-management-models';
 
 // Initialize PEP
 const pep = ComponentFactory.get<IPolicyEnforcementPoint>('policy-enforcement-point');

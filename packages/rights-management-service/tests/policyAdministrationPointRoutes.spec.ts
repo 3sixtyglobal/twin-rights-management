@@ -1,14 +1,14 @@
 // Copyright 2025 IOTA Stiftung.
 // SPDX-License-Identifier: Apache-2.0.
-import { HttpHeaderHelper, type IHttpRequestContext } from "@twin.org/api-models";
-import { ComponentFactory, Factory } from "@twin.org/core";
-import { SortDirection } from "@twin.org/entity";
+import { HttpHeaderHelper, type IHttpRequestContext } from "@3sixty/api-models";
+import { ComponentFactory, Factory } from "@3sixty/core";
+import { SortDirection } from "@3sixty/entity";
 import type {
 	IPapCreateRequest,
 	IPolicyAdministrationPointComponent
-} from "@twin.org/rights-management-models";
-import { OdrlContexts, OdrlTypes } from "@twin.org/standards-w3c-odrl";
-import { HeaderTypes, HttpStatusCode } from "@twin.org/web";
+} from "@3sixty/rights-management-models";
+import { OdrlContexts, OdrlTypes } from "@3sixty/standards-w3c-odrl";
+import { HeaderTypes, HttpStatusCode } from "@3sixty/web";
 import { papCreate, papQuery } from "../src/policyAdministrationPointRoutes.js";
 
 const BASE_ROUTE_NAME = "rights-management";

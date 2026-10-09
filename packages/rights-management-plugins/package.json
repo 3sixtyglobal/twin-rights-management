@@ -1,10 +1,10 @@
 {
-	"name": "@twin.org/rights-management-plugins",
-	"version": "0.11.1-next.0",
+	"name": "@3sixty/rights-management-plugins",
+	"version": "0.20.0-next.0",
 	"description": "Plugin implementations for extending rights management behaviour across components.",
 	"repository": {
 		"type": "git",
-		"url": "git+https://github.com/3sixtyglobal/twin-rights-management.git",
+		"url": "git+https://github.com/3sixtyglobal/rights-management.git",
 		"directory": "packages/rights-management-plugins"
 	},
 	"contributors": [
@@ -32,33 +32,33 @@
 		"dist:no-test": "pnpm run clean && concurrently -g -n build,locales,types \"pnpm run build\" \"pnpm run validate-locales\" \"pnpm run test:build\""
 	},
 	"dependencies": {
-		"@twin.org/automation-models": "next",
-		"@twin.org/context": "next",
-		"@twin.org/core": "next",
-		"@twin.org/data-json-ld": "next",
-		"@twin.org/data-json-path": "next",
-		"@twin.org/identity-models": "next",
-		"@twin.org/logging-models": "next",
-		"@twin.org/nameof": "next",
-		"@twin.org/rights-management-models": "0.11.1-next.0",
-		"@twin.org/standards-dataspace-protocol": "next",
-		"@twin.org/standards-w3c-odrl": "next"
+		"@3sixty/automation-models": "next",
+		"@3sixty/context": "next",
+		"@3sixty/core": "next",
+		"@3sixty/data-json-ld": "next",
+		"@3sixty/data-json-path": "next",
+		"@3sixty/identity-models": "next",
+		"@3sixty/logging-models": "next",
+		"@3sixty/nameof": "next",
+		"@3sixty/rights-management-models": "0.20.0-next.0",
+		"@3sixty/standards-dataspace-protocol": "next",
+		"@3sixty/standards-w3c-odrl": "next"
 	},
 	"devDependencies": {
-		"@twin.org/entity-storage-connector-memory": "next",
-		"@twin.org/entity-storage-models": "next",
-		"@twin.org/logging-connector-entity-storage": "next",
-		"@twin.org/logging-service": "next",
-		"@twin.org/nameof-transformer": "next",
-		"@twin.org/nameof-vitest-plugin": "next",
-		"@twin.org/rights-management-pap-service": "0.11.1-next.0",
-		"@twin.org/rights-management-pdp-service": "0.11.1-next.0",
-		"@twin.org/rights-management-pep-service": "0.11.1-next.0",
-		"@twin.org/rights-management-pip-service": "0.11.1-next.0",
-		"@twin.org/rights-management-pmp-service": "0.11.1-next.0",
-		"@twin.org/rights-management-pnp-service": "0.11.1-next.0",
-		"@twin.org/rights-management-pxp-service": "0.11.1-next.0",
-		"@twin.org/validate-locales": "next",
+		"@3sixty/entity-storage-connector-memory": "next",
+		"@3sixty/entity-storage-models": "next",
+		"@3sixty/logging-connector-entity-storage": "next",
+		"@3sixty/logging-service": "next",
+		"@3sixty/nameof-transformer": "next",
+		"@3sixty/nameof-vitest-plugin": "next",
+		"@3sixty/rights-management-pap-service": "0.20.0-next.0",
+		"@3sixty/rights-management-pdp-service": "0.20.0-next.0",
+		"@3sixty/rights-management-pep-service": "0.20.0-next.0",
+		"@3sixty/rights-management-pip-service": "0.20.0-next.0",
+		"@3sixty/rights-management-pmp-service": "0.20.0-next.0",
+		"@3sixty/rights-management-pnp-service": "0.20.0-next.0",
+		"@3sixty/rights-management-pxp-service": "0.20.0-next.0",
+		"@3sixty/validate-locales": "next",
 		"@types/node": "26.6.2",
 		"@vitest/coverage-v8": "5.0.1",
 		"concurrently": "10.0.5",
@@ -96,7 +96,7 @@
 		"rights-management"
 	],
 	"bugs": {
-		"url": "git+https://github.com/3sixtyglobal/twin-rights-management/issues"
+		"url": "git+https://github.com/3sixtyglobal/rights-management/issues"
 	},
-	"homepage": "https://twindev.org"
+	"homepage": "https://3sixty.global"
 }

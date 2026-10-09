@@ -1,9 +1,9 @@
 // Copyright 2026 IOTA Stiftung.
 // SPDX-License-Identifier: Apache-2.0.
-import type { IJsonLdNodeObject } from "@twin.org/data-json-ld";
-import { entity, property, SortDirection } from "@twin.org/entity";
-import type { IDataspaceProtocolPolicy } from "@twin.org/standards-dataspace-protocol";
-import type { OdrlContextType, OdrlPolicyType } from "@twin.org/standards-w3c-odrl";
+import type { IJsonLdNodeObject } from "@3sixty/data-json-ld";
+import { entity, property, SortDirection } from "@3sixty/entity";
+import type { IDataspaceProtocolPolicy } from "@3sixty/standards-dataspace-protocol";
+import type { OdrlContextType, OdrlPolicyType } from "@3sixty/standards-w3c-odrl";
 
 /**
  * Class describing an ODRL policy for entity storage.

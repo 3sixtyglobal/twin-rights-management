@@ -5,7 +5,7 @@ The following snippets show how to retrieve contextual information for decisions
 ## PolicyInformationPointService
 
 ```typescript
-import { PolicyInformationPointService } from '@twin.org/rights-management-pip-service';
+import { PolicyInformationPointService } from '@3sixty/rights-management-pip-service';
 
 const pip = new PolicyInformationPointService();
 
@@ -13,8 +13,8 @@ console.log(pip.className()); // PolicyInformationPointService
 ```
 
 ```typescript
-import { PolicyInformationAccessMode } from '@twin.org/rights-management-models';
-import { PolicyInformationPointService } from '@twin.org/rights-management-pip-service';
+import { PolicyInformationAccessMode } from '@3sixty/rights-management-models';
+import { PolicyInformationPointService } from '@3sixty/rights-management-pip-service';
 
 const pip = new PolicyInformationPointService();
 

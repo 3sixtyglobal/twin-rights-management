@@ -1,6 +1,6 @@
 // Copyright 2025 IOTA Stiftung.
 // SPDX-License-Identifier: Apache-2.0.
-import type { IComponent } from "@twin.org/core";
+import type { IComponent } from "@3sixty/core";
 import type {
 	IDataspaceProtocolContractAgreementMessage,
 	IDataspaceProtocolContractAgreementVerificationMessage,
@@ -10,7 +10,7 @@ import type {
 	IDataspaceProtocolContractNegotiationTerminationMessage,
 	IDataspaceProtocolContractOfferMessage,
 	IDataspaceProtocolContractRequestMessage
-} from "@twin.org/standards-dataspace-protocol";
+} from "@3sixty/standards-dataspace-protocol";
 
 /**
  * Interface describing a Policy Negotiation Point (PNP) contract.

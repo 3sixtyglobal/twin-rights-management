@@ -1,4 +1,4 @@
-# @twin.org/rights-management-pip-service
+# @3sixty/rights-management-pip-service
 
 ## Classes
 

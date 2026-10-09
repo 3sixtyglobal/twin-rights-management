@@ -1,25 +1,25 @@
 // Copyright 2025 IOTA Stiftung.
 // SPDX-License-Identifier: Apache-2.0.
-import { ComponentFactory, Is } from "@twin.org/core";
-import { ComparisonOperator } from "@twin.org/entity";
-import { MemoryEntityStorageConnector } from "@twin.org/entity-storage-connector-memory";
-import { EntityStorageConnectorFactory } from "@twin.org/entity-storage-models";
+import { ComponentFactory, Is } from "@3sixty/core";
+import { ComparisonOperator } from "@3sixty/entity";
+import { MemoryEntityStorageConnector } from "@3sixty/entity-storage-connector-memory";
+import { EntityStorageConnectorFactory } from "@3sixty/entity-storage-models";
 import {
 	EntityStorageLoggingConnector,
 	initSchema as initSchemaLogging,
 	type LogEntry
-} from "@twin.org/logging-connector-entity-storage";
-import { LoggingConnectorFactory } from "@twin.org/logging-models";
-import { LoggingService } from "@twin.org/logging-service";
-import { nameof } from "@twin.org/nameof";
+} from "@3sixty/logging-connector-entity-storage";
+import { LoggingConnectorFactory } from "@3sixty/logging-models";
+import { LoggingService } from "@3sixty/logging-service";
+import { nameof } from "@3sixty/nameof";
 import {
 	PolicyAdministrationPointService,
 	initSchema as initSchemaPolicyAdministrationPoint,
 	OdrlPolicyIndexHelper,
 	type OdrlPolicy,
 	type OdrlPolicyIndex
-} from "@twin.org/rights-management-pap-service";
-import { OdrlTypes } from "@twin.org/standards-w3c-odrl";
+} from "@3sixty/rights-management-pap-service";
+import { OdrlTypes } from "@3sixty/standards-w3c-odrl";
 import { PolicyManagementPointService } from "../src/policyManagementPointService.js";
 
 let loggingMemoryEntityStorage: MemoryEntityStorageConnector<LogEntry>;

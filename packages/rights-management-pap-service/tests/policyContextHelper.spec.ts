@@ -1,7 +1,7 @@
 // Copyright 2026 IOTA Stiftung.
 // SPDX-License-Identifier: Apache-2.0.
-import { POLICY_METADATA_CONTEXT } from "@twin.org/rights-management-models";
-import { OdrlContexts, type OdrlContextType } from "@twin.org/standards-w3c-odrl";
+import { POLICY_METADATA_CONTEXT } from "@3sixty/rights-management-models";
+import { OdrlContexts, type OdrlContextType } from "@3sixty/standards-w3c-odrl";
 import {
 	ensurePolicyMetadataContext,
 	hasPolicyMetadata,

@@ -5,7 +5,7 @@ Use these snippets to inspect ODRL policies, extract common identifiers, and mat
 ## OdrlPolicyHelper
 
 ```typescript
-import { OdrlPolicyHelper } from '@twin.org/rights-management-models';
+import { OdrlPolicyHelper } from '@3sixty/rights-management-models';
 
 const policy = {
   '@id': 'urn:rm:policy:policy-1',
@@ -24,7 +24,7 @@ console.log(policyType); // Agreement
 ```
 
 ```typescript
-import { OdrlPolicyHelper } from '@twin.org/rights-management-models';
+import { OdrlPolicyHelper } from '@3sixty/rights-management-models';
 
 const policy = {
   '@id': 'urn:rm:policy:policy-2',
@@ -41,7 +41,7 @@ console.log(assignee); // [ 'did:example:consumer-1', 'did:example:consumer-2' ]
 ```
 
 ```typescript
-import { OdrlPolicyHelper } from '@twin.org/rights-management-models';
+import { OdrlPolicyHelper } from '@3sixty/rights-management-models';
 
 const parties = [
   'did:example:consumer-1',
@@ -55,7 +55,7 @@ console.log(partyIds); // [ 'did:example:consumer-1', 'did:example:consumer-2', 
 ```
 
 ```typescript
-import { OdrlPolicyHelper } from '@twin.org/rights-management-models';
+import { OdrlPolicyHelper } from '@3sixty/rights-management-models';
 
 const policy = {
   '@id': 'urn:rm:policy:policy-3',

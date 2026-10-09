@@ -10,6 +10,7 @@
 	"versioning": "prerelease",
 	"prerelease": true,
 	"prerelease-type": "next",
+	"last-release-sha": "c0039c4f105317313eb32ede1cf79a30e59fd05f",
 	"packages": {
 		"packages/rights-management-models": {
 			"package-name": "rights-management-models",

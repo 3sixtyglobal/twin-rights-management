@@ -1,4 +1,4 @@
-# @twin.org/rights-management-models
+# @3sixty/rights-management-models
 
 ## Classes
 

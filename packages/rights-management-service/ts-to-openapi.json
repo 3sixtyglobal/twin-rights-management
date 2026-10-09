@@ -1,7 +1,7 @@
 {
-	"title": "TWIN - Test Endpoints",
+	"title": "3Sixty - Test Endpoints",
 	"version": "1.0.0",
-	"description": "REST API for TWIN - Test Endpoints.",
+	"description": "REST API for 3Sixty - Test Endpoints.",
 	"licenseName": "Apache 2.0 License",
 	"licenseUrl": "https://opensource.org/licenses/Apache-2.0",
 	"servers": ["https://localhost"],
@@ -12,14 +12,14 @@
 		}
 	],
 	"externalReferences": {
-		"JsonLd(.*)": "https://schema.twindev.org/json-ld/JsonLd$1",
-		"Odrl(.*)": "https://schema.twindev.org/w3c-odrl/Odrl$1",
-		"RightsManagement(.*)": "https://schema.twindev.org/rights-management/RightsManagement$1",
-		"ProofTypes": "https://schema.twindev.org/w3c-did/ProofTypes",
-		"Proof": "https://schema.twindev.org/w3c-did/Proof",
-		"DataIntegrityProof": "https://schema.twindev.org/w3c-did/DataIntegrityProof",
-		"DataAccess(.*)": "https://schema.twindev.org/rights-management/DataAccessQuery$1",
-		"Contract(.*)": "https://schema.twindev.org/ids-contract-negotiation/Contract$1",
-		"DataspaceProtocol(.*)": "https://schema.twindev.org/dataspace-protocol/DataspaceProtocol$1"
+		"JsonLd(.*)": "https://schema.3sixty.global/json-ld/JsonLd$1",
+		"Odrl(.*)": "https://schema.3sixty.global/w3c-odrl/Odrl$1",
+		"RightsManagement(.*)": "https://schema.3sixty.global/rights-management/RightsManagement$1",
+		"ProofTypes": "https://schema.3sixty.global/w3c-did/ProofTypes",
+		"Proof": "https://schema.3sixty.global/w3c-did/Proof",
+		"DataIntegrityProof": "https://schema.3sixty.global/w3c-did/DataIntegrityProof",
+		"DataAccess(.*)": "https://schema.3sixty.global/rights-management/DataAccessQuery$1",
+		"Contract(.*)": "https://schema.3sixty.global/ids-contract-negotiation/Contract$1",
+		"DataspaceProtocol(.*)": "https://schema.3sixty.global/dataspace-protocol/DataspaceProtocol$1"
 	}
 }

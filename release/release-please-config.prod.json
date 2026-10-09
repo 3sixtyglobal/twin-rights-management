@@ -8,6 +8,7 @@
 	"release-type": "node",
 	"initial-version": "0.0.1",
 	"versioning": "default",
+	"last-release-sha": "03a4a65519c5f23cf2627695c115ba116bc20569",
 	"packages": {
 		"packages/rights-management-models": {
 			"package-name": "rights-management-models",

@@ -10,15 +10,15 @@ export const OdrlProfiles = {
 	 * The TWIN platform ODRL profile URI.
 	 * Policies carrying this profile may use TWIN-specific vocabulary extensions
 	 * (e.g. canonical twin:jsonPath + twin:jsonPathExpression operands).
-	 * https://schema.twindev.org/odrl/v1/
+	 * https://schema.3sixty.global/odrl/v1/
 	 */
-	Twin: "https://schema.twindev.org/odrl/v1/profile",
+	Twin: "https://schema.3sixty.global/odrl/v1/profile",
 
 	/**
 	 * The TWIN platform ODRL vocabulary context URL.
 	 * Used as the second entry in the `@context` array when policy extensions are used.
 	 */
-	TwinVocabContext: "https://schema.twindev.org/odrl/v1/"
+	TwinVocabContext: "https://schema.3sixty.global/odrl/v1/"
 } as const;
 
 /**

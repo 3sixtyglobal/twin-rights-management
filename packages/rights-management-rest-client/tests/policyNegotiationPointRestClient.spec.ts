@@ -1,6 +1,6 @@
 // Copyright 2026 IOTA Stiftung.
 // SPDX-License-Identifier: Apache-2.0.
-import { GuardError } from "@twin.org/core";
+import { GuardError } from "@3sixty/core";
 import type {
 	IDataspaceProtocolContractAgreementMessage,
 	IDataspaceProtocolContractAgreementVerificationMessage,
@@ -9,13 +9,13 @@ import type {
 	IDataspaceProtocolContractNegotiationTerminationMessage,
 	IDataspaceProtocolContractOfferMessage,
 	IDataspaceProtocolContractRequestMessage
-} from "@twin.org/standards-dataspace-protocol";
+} from "@3sixty/standards-dataspace-protocol";
 import {
 	DataspaceProtocolContractNegotiationStateType,
 	DataspaceProtocolContractNegotiationTypes,
 	DataspaceProtocolContexts
-} from "@twin.org/standards-dataspace-protocol";
-import { HttpMethod } from "@twin.org/web";
+} from "@3sixty/standards-dataspace-protocol";
+import { HttpMethod } from "@3sixty/web";
 import { PolicyNegotiationPointRestClient } from "../src/policyNegotiationPointRestClient.js";
 import {
 	jsonResponse,

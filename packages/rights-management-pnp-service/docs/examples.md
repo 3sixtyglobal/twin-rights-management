@@ -8,7 +8,7 @@ These snippets walk through negotiation lifecycle operations from request creati
 import {
   PolicyNegotiationPointService,
   type IPolicyNegotiationPointServiceConstructorOptions
-} from '@twin.org/rights-management-pnp-service';
+} from '@3sixty/rights-management-pnp-service';
 
 const options: IPolicyNegotiationPointServiceConstructorOptions = {
   config: {
@@ -25,12 +25,12 @@ console.log(pnp.className()); // PolicyNegotiationPointService
 import {
   PolicyNegotiationPointService,
   type IPolicyNegotiationPointServiceConstructorOptions
-} from '@twin.org/rights-management-pnp-service';
+} from '@3sixty/rights-management-pnp-service';
 import {
   DataspaceProtocolContexts,
   DataspaceProtocolContractNegotiationTypes
-} from '@twin.org/standards-dataspace-protocol';
-import { OdrlTypes } from '@twin.org/standards-w3c-odrl';
+} from '@3sixty/standards-dataspace-protocol';
+import { OdrlTypes } from '@3sixty/standards-w3c-odrl';
 
 const options: IPolicyNegotiationPointServiceConstructorOptions = {
   config: {
@@ -75,12 +75,12 @@ console.log(requestResult['@type']); // ContractNegotiation
 import {
   PolicyNegotiationPointService,
   type IPolicyNegotiationPointServiceConstructorOptions
-} from '@twin.org/rights-management-pnp-service';
+} from '@3sixty/rights-management-pnp-service';
 import {
   DataspaceProtocolContexts,
   DataspaceProtocolContractNegotiationEventType,
   DataspaceProtocolContractNegotiationTypes
-} from '@twin.org/standards-dataspace-protocol';
+} from '@3sixty/standards-dataspace-protocol';
 
 const options: IPolicyNegotiationPointServiceConstructorOptions = {
   config: {
@@ -159,11 +159,11 @@ console.log(eventError); // undefined
 import {
   PolicyNegotiationPointService,
   type IPolicyNegotiationPointServiceConstructorOptions
-} from '@twin.org/rights-management-pnp-service';
+} from '@3sixty/rights-management-pnp-service';
 import {
   DataspaceProtocolContexts,
   DataspaceProtocolContractNegotiationTypes
-} from '@twin.org/standards-dataspace-protocol';
+} from '@3sixty/standards-dataspace-protocol';
 
 const options: IPolicyNegotiationPointServiceConstructorOptions = {
   config: {
@@ -200,8 +200,8 @@ console.log(terminateError); // undefined
 import {
   PolicyNegotiationAdminPointService,
   type IPolicyNegotiationAdminPointServiceConstructorOptions
-} from '@twin.org/rights-management-pnp-service';
-import { DataspaceProtocolContractNegotiationStateType } from '@twin.org/standards-dataspace-protocol';
+} from '@3sixty/rights-management-pnp-service';
+import { DataspaceProtocolContractNegotiationStateType } from '@3sixty/standards-dataspace-protocol';
 
 const options: IPolicyNegotiationAdminPointServiceConstructorOptions = {
   config: {
@@ -238,8 +238,8 @@ console.log(queryResult.items.length); // 1
 ## PolicyNegotiation
 
 ```typescript
-import { PolicyNegotiation } from '@twin.org/rights-management-pnp-service';
-import { DataspaceProtocolContractNegotiationStateType } from '@twin.org/standards-dataspace-protocol';
+import { PolicyNegotiation } from '@3sixty/rights-management-pnp-service';
+import { DataspaceProtocolContractNegotiationStateType } from '@3sixty/standards-dataspace-protocol';
 
 const negotiation = new PolicyNegotiation();
 negotiation.id = 'urn:rights-management:provider-neg-1';

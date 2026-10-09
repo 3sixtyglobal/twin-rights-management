@@ -2,14 +2,14 @@
 // SPDX-License-Identifier: Apache-2.0.
 import { existsSync } from "node:fs";
 import { rm } from "node:fs/promises";
-import { ArrayHelper, Converter, Is, ObjectHelper } from "@twin.org/core";
-import { Blake2b } from "@twin.org/crypto";
-import type { IJsonLdNodeObject, JsonLdObjectWithOptionalAtId } from "@twin.org/data-json-ld";
-import { EntitySchemaHelper, SortDirection, type EntityCondition } from "@twin.org/entity";
-import type { MemoryEntityStorageConnector } from "@twin.org/entity-storage-connector-memory";
-import type { IPolicyLocator, IRightsManagementPolicy } from "@twin.org/rights-management-models";
-import type { IDataspaceProtocolPolicy } from "@twin.org/standards-dataspace-protocol";
-import { OdrlContexts, OdrlPolicyType, type OdrlContextType } from "@twin.org/standards-w3c-odrl";
+import { ArrayHelper, Converter, Is, ObjectHelper } from "@3sixty/core";
+import { Blake2b } from "@3sixty/crypto";
+import type { IJsonLdNodeObject, JsonLdObjectWithOptionalAtId } from "@3sixty/data-json-ld";
+import { EntitySchemaHelper, SortDirection, type EntityCondition } from "@3sixty/entity";
+import type { MemoryEntityStorageConnector } from "@3sixty/entity-storage-connector-memory";
+import type { IPolicyLocator, IRightsManagementPolicy } from "@3sixty/rights-management-models";
+import type { IDataspaceProtocolPolicy } from "@3sixty/standards-dataspace-protocol";
+import { OdrlContexts, OdrlPolicyType, type OdrlContextType } from "@3sixty/standards-w3c-odrl";
 import {
 	createTestPolicies,
 	resetOdrlPolicyIndexStorage,

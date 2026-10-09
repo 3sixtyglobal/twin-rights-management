@@ -1,30 +1,30 @@
 // Copyright 2025 IOTA Stiftung.
 // SPDX-License-Identifier: Apache-2.0.
-import { HttpContextIdKeys } from "@twin.org/api-models";
+import { HttpContextIdKeys } from "@3sixty/api-models";
 import {
 	TaskSchedulerService,
 	initSchema as initSchemaScheduler,
 	type ScheduledTask
-} from "@twin.org/background-task-scheduler";
-import { ContextIdKeys, ContextIdStore, type IContextIds } from "@twin.org/context";
-import { ComponentFactory, Factory, Is } from "@twin.org/core";
-import type { IJsonLdNodeObject } from "@twin.org/data-json-ld";
-import { MemoryEntityStorageConnector } from "@twin.org/entity-storage-connector-memory";
-import { EntityStorageConnectorFactory } from "@twin.org/entity-storage-models";
+} from "@3sixty/background-task-scheduler";
+import { ContextIdKeys, ContextIdStore, type IContextIds } from "@3sixty/context";
+import { ComponentFactory, Factory, Is } from "@3sixty/core";
+import type { IJsonLdNodeObject } from "@3sixty/data-json-ld";
+import { MemoryEntityStorageConnector } from "@3sixty/entity-storage-connector-memory";
+import { EntityStorageConnectorFactory } from "@3sixty/entity-storage-models";
 import {
 	EntityStorageIdentityConnector,
 	initSchema as initSchemaIdentity,
 	type IdentityDocument
-} from "@twin.org/identity-connector-entity-storage";
-import { IdentityConnectorFactory } from "@twin.org/identity-models";
+} from "@3sixty/identity-connector-entity-storage";
+import { IdentityConnectorFactory } from "@3sixty/identity-models";
 import {
 	EntityStorageLoggingConnector,
 	initSchema as initSchemaLogging,
 	type LogEntry
-} from "@twin.org/logging-connector-entity-storage";
-import { LoggingConnectorFactory } from "@twin.org/logging-models";
-import { LoggingService } from "@twin.org/logging-service";
-import { nameof } from "@twin.org/nameof";
+} from "@3sixty/logging-connector-entity-storage";
+import { LoggingConnectorFactory } from "@3sixty/logging-models";
+import { LoggingService } from "@3sixty/logging-service";
+import { nameof } from "@3sixty/nameof";
 import {
 	OdrlPolicyHelper,
 	PolicyNegotiatorFactory,
@@ -32,30 +32,30 @@ import {
 	type IPolicyNegotiationPointComponent,
 	type IPolicyNegotiator,
 	type IPolicyRequester
-} from "@twin.org/rights-management-models";
+} from "@3sixty/rights-management-models";
 import {
 	PolicyAdministrationPointService,
 	buildPapStorageContext,
 	initSchema as initSchemaPolicyAdministrationPoint,
 	type OdrlPolicy,
 	type OdrlPolicyIndex
-} from "@twin.org/rights-management-pap-service";
-import { PolicyInformationPointService } from "@twin.org/rights-management-pip-service";
+} from "@3sixty/rights-management-pap-service";
+import { PolicyInformationPointService } from "@3sixty/rights-management-pip-service";
 import {
 	DataspaceProtocolContexts,
 	DataspaceProtocolContractNegotiationStateType,
 	DataspaceProtocolContractNegotiationTypes,
 	type IDataspaceProtocolOffer
-} from "@twin.org/standards-dataspace-protocol";
-import { OdrlContexts, OdrlTypes } from "@twin.org/standards-w3c-odrl";
-import type { ITrustComponent } from "@twin.org/trust-models";
+} from "@3sixty/standards-dataspace-protocol";
+import { OdrlContexts, OdrlTypes } from "@3sixty/standards-w3c-odrl";
+import type { ITrustComponent } from "@3sixty/trust-models";
 import {
 	EntityStorageVaultConnector,
 	initSchema as initSchemaVault,
 	type VaultKey,
 	type VaultSecret
-} from "@twin.org/vault-connector-entity-storage";
-import { VaultConnectorFactory } from "@twin.org/vault-models";
+} from "@3sixty/vault-connector-entity-storage";
+import { VaultConnectorFactory } from "@3sixty/vault-models";
 import type { PolicyNegotiation } from "../src/entities/policyNegotiation.js";
 import { PolicyNegotiationAdminPointService } from "../src/policyNegotiationAdminPointService.js";
 import { PolicyNegotiationPointService } from "../src/policyNegotiationPointService.js";
@@ -1605,7 +1605,7 @@ describe("PolicyNegotiationPointService", () => {
 			getSpy.mockRestore();
 
 			// KNOWN LIMITATION (toHaveLength(1) is intentional):
-			// The in-process Mutex (from @twin.org/core) serialises remove() and setIfExists()
+			// The in-process Mutex (from @3sixty/core) serialises remove() and setIfExists()
 			// when both go through the service. It does NOT protect against a DELETE that
 			// arrives at the database layer from outside the process (different node, different
 			// DB connection, or a direct storage call - as simulated here by the mock).

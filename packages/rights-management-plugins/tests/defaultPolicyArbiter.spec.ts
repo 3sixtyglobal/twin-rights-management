@@ -2,18 +2,18 @@
 // SPDX-License-Identifier: Apache-2.0.
 import { readFileSync } from "node:fs";
 import path from "node:path";
-import { ComponentFactory } from "@twin.org/core";
-import { JsonPathHelper } from "@twin.org/data-json-path";
-import { MemoryEntityStorageConnector } from "@twin.org/entity-storage-connector-memory";
-import { EntityStorageConnectorFactory } from "@twin.org/entity-storage-models";
+import { ComponentFactory } from "@3sixty/core";
+import { JsonPathHelper } from "@3sixty/data-json-path";
+import { MemoryEntityStorageConnector } from "@3sixty/entity-storage-connector-memory";
+import { EntityStorageConnectorFactory } from "@3sixty/entity-storage-models";
 import {
 	EntityStorageLoggingConnector,
 	initSchema,
 	type LogEntry
-} from "@twin.org/logging-connector-entity-storage";
-import { LoggingConnectorFactory } from "@twin.org/logging-models";
-import { LoggingService } from "@twin.org/logging-service";
-import { nameof } from "@twin.org/nameof";
+} from "@3sixty/logging-connector-entity-storage";
+import { LoggingConnectorFactory } from "@3sixty/logging-models";
+import { LoggingService } from "@3sixty/logging-service";
+import { nameof } from "@3sixty/nameof";
 import {
 	OdrlProfiles,
 	OdrlTwinVocabulary,
@@ -22,11 +22,11 @@ import {
 	type IPolicyAdministrationPointComponent,
 	type IPolicyObligationEnforcer,
 	type IRightsManagementAgreement
-} from "@twin.org/rights-management-models";
+} from "@3sixty/rights-management-models";
 import type {
 	IDataspaceProtocolAgreement,
 	IDataspaceProtocolPolicy
-} from "@twin.org/standards-dataspace-protocol";
+} from "@3sixty/standards-dataspace-protocol";
 import {
 	OdrlConflictStrategyType,
 	OdrlContexts,
@@ -35,11 +35,11 @@ import {
 	OdrlPolicyType,
 	type IOdrlConstraint,
 	type IOdrlLogicalConstraint
-} from "@twin.org/standards-w3c-odrl";
+} from "@3sixty/standards-w3c-odrl";
 import { DefaultPolicyArbiter } from "../src/policyArbiters/defaultPolicyArbiter.js";
 import { DefaultPolicyEnforcementProcessor } from "../src/policyEnforcementProcessor/defaultPolicyEnforcementProcessor.js";
 
-declare module "@twin.org/standards-w3c-odrl" {
+declare module "@3sixty/standards-w3c-odrl" {
 	interface IOdrlConstraint {
 		"twin:jsonPathDataSource"?: string;
 		"twin:jsonPathExpression"?: string;
@@ -5186,7 +5186,10 @@ describe("DefaultPolicyArbiter", () => {
 				assigner: "did:example:default-assigner",
 				assignee: "did:example:default-assignee",
 				"@id": "policy:twin-profile-double-slash",
-				profile: OdrlProfiles.Twin.replace("schema.twindev.org/odrl", "schema.twindev.org//odrl"),
+				profile: OdrlProfiles.Twin.replace(
+					"schema.3sixty.global/odrl",
+					"schema.3sixty.global//odrl"
+				),
 				permission: [
 					{
 						action: "use",
@@ -5236,7 +5239,7 @@ describe("DefaultPolicyArbiter", () => {
 				assigner: "did:example:default-assigner",
 				assignee: "did:example:default-assignee",
 				"@id": "policy:twin-profile-uppercase-host",
-				profile: OdrlProfiles.Twin.replace("schema.twindev.org", "SCHEMA.TWINDEV.ORG"),
+				profile: OdrlProfiles.Twin.replace("schema.3sixty.global", "SCHEMA.TWINDEV.ORG"),
 				permission: [
 					{
 						action: "use",

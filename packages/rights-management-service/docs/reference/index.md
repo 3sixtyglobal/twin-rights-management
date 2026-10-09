@@ -1,4 +1,4 @@
-# @twin.org/rights-management-service
+# @3sixty/rights-management-service
 
 ## Variables
 

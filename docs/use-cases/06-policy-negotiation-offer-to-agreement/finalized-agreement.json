@@ -3,7 +3,7 @@
 	"@context": "https://www.w3.org/ns/odrl.jsonld",
 	"@type": "Agreement",
 	"@id": "https://giw-node.example.org/policies/agreements/agreement-vet-cert-12345",
-	"profile": "https://schema.twindev.org/odrl/v1/profile",
+	"profile": "https://schema.3sixty.global/odrl/v1/profile",
 	"assigner": "did:iota:testnet:0xfcfa55894cab90504af7eaf38087addd5f77791a89bd3ebbe76d9c2b1a6ce567",
 	"assignee": "did:iota:testnet:0x1ee831611a9fe9877c82e05075d9670c4970b4fd0904c208082ee50e45817a9d",
 	"permission": [

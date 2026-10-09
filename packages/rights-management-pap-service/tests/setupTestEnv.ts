@@ -1,13 +1,13 @@
 // Copyright 2025 IOTA Stiftung.
 // SPDX-License-Identifier: Apache-2.0.
 import path from "node:path";
-import { Converter, RandomHelper, Urn } from "@twin.org/core";
-import { MemoryEntityStorageConnector } from "@twin.org/entity-storage-connector-memory";
-import { EntityStorageConnectorFactory } from "@twin.org/entity-storage-models";
-import { nameof } from "@twin.org/nameof";
-import { RightsManagementNamespaces } from "@twin.org/rights-management-models";
-import type { IDataspaceProtocolPolicy } from "@twin.org/standards-dataspace-protocol";
-import { OdrlContexts, OdrlPolicyType, type OdrlActionType } from "@twin.org/standards-w3c-odrl";
+import { Converter, RandomHelper, Urn } from "@3sixty/core";
+import { MemoryEntityStorageConnector } from "@3sixty/entity-storage-connector-memory";
+import { EntityStorageConnectorFactory } from "@3sixty/entity-storage-models";
+import { nameof } from "@3sixty/nameof";
+import { RightsManagementNamespaces } from "@3sixty/rights-management-models";
+import type { IDataspaceProtocolPolicy } from "@3sixty/standards-dataspace-protocol";
+import { OdrlContexts, OdrlPolicyType, type OdrlActionType } from "@3sixty/standards-w3c-odrl";
 import * as dotenv from "dotenv";
 import type { OdrlPolicy } from "../src/entities/odrlPolicy.js";
 import type { OdrlPolicyIndex } from "../src/entities/odrlPolicyIndex.js";

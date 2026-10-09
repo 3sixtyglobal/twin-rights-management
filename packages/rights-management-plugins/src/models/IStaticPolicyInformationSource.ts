@@ -3,7 +3,7 @@
 import type {
 	IRightsManagementInformation,
 	PolicyInformationAccessMode
-} from "@twin.org/rights-management-models";
+} from "@3sixty/rights-management-models";
 
 /**
  * Configuration for the Static Policy Information Source Component.

@@ -1,4 +1,4 @@
-# @twin.org/rights-management-pdp-service
+# @3sixty/rights-management-pdp-service
 
 ## Classes
 

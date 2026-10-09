@@ -1,16 +1,16 @@
 // Copyright 2025 IOTA Stiftung.
 // SPDX-License-Identifier: Apache-2.0.
-import { BaseRestClient } from "@twin.org/api-core";
+import { BaseRestClient } from "@3sixty/api-core";
 import {
 	HttpHeaderHelper,
 	HttpParameterHelper,
 	type IBaseRestClientConfig,
 	type ICreatedResponse
-} from "@twin.org/api-models";
-import { Coerce, Guards } from "@twin.org/core";
-import type { JsonLdObjectWithOptionalAtId } from "@twin.org/data-json-ld";
-import type { EntityCondition, SortDirection } from "@twin.org/entity";
-import { nameof } from "@twin.org/nameof";
+} from "@3sixty/api-models";
+import { Coerce, Guards } from "@3sixty/core";
+import type { JsonLdObjectWithOptionalAtId } from "@3sixty/data-json-ld";
+import type { EntityCondition, SortDirection } from "@3sixty/entity";
+import { nameof } from "@3sixty/nameof";
 import {
 	type IPapCreateRequest,
 	type IPapQueryRequest,
@@ -31,8 +31,8 @@ import {
 	type IRightsManagementSet,
 	type IPolicyAdministrationPointComponent,
 	OdrlPolicyHelper
-} from "@twin.org/rights-management-models";
-import { HttpMethod } from "@twin.org/web";
+} from "@3sixty/rights-management-models";
+import { HttpMethod } from "@3sixty/web";
 
 /**
  * Client for performing Rights Management Policy Administration through to REST endpoints.

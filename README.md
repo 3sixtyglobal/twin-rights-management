@@ -1,4 +1,4 @@
-# TWIN Rights Management
+# 3Sixty Rights Management
 
 This repository provides a modular rights management stack for policy lifecycle management, policy evaluation, policy enforcement, and policy negotiation across interoperable data-sharing environments. The packages are designed to be composed, so teams can adopt a complete end-to-end service or integrate individual components into existing platform workflows.
 

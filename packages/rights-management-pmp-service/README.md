@@ -1,11 +1,11 @@
-# TWIN Rights Management Policy Management Point Service
+# 3Sixty Rights Management Policy Management Point Service
 
 This package provides the policy management point service for locating and preparing candidate policies. It helps downstream decision components evaluate the right policy set for each request.
 
 ## Installation
 
 `shell
-npm install @twin.org/rights-management-pmp-service
+npm install @3sixty/rights-management-pmp-service
 `
 
 ## Testing

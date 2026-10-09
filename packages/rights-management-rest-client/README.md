@@ -1,11 +1,11 @@
-# TWIN Rights Management REST Client
+# 3Sixty Rights Management REST Client
 
 This package provides a REST client for integrating rights management workflows with remote endpoints. It simplifies interaction with distributed rights management services over HTTP.
 
 ## Installation
 
 `shell
-npm install @twin.org/rights-management-rest-client
+npm install @3sixty/rights-management-rest-client
 `
 
 ## Testing

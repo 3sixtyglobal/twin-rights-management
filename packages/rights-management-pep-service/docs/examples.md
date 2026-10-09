@@ -5,7 +5,7 @@ Use these examples to enforce agreements directly, by agreement id, or through a
 ## PolicyEnforcementPointService
 
 ```typescript
-import { PolicyEnforcementPointService } from '@twin.org/rights-management-pep-service';
+import { PolicyEnforcementPointService } from '@3sixty/rights-management-pep-service';
 
 const pep = new PolicyEnforcementPointService();
 
@@ -13,8 +13,8 @@ console.log(pep.className()); // PolicyEnforcementPointService
 ```
 
 ```typescript
-import { PolicyEnforcementPointService } from '@twin.org/rights-management-pep-service';
-import { PolicyType } from '@twin.org/standards-w3c-odrl';
+import { PolicyEnforcementPointService } from '@3sixty/rights-management-pep-service';
+import { PolicyType } from '@3sixty/standards-w3c-odrl';
 
 const pep = new PolicyEnforcementPointService();
 
@@ -38,7 +38,7 @@ console.log(filtered); // { asset: 'dataset-1' }
 ```
 
 ```typescript
-import { PolicyEnforcementPointService } from '@twin.org/rights-management-pep-service';
+import { PolicyEnforcementPointService } from '@3sixty/rights-management-pep-service';
 
 const pep = new PolicyEnforcementPointService();
 

@@ -1,7 +1,7 @@
 // Copyright 2025 IOTA Stiftung.
 // SPDX-License-Identifier: Apache-2.0.
-import type { IDataspaceProtocolContractNegotiationError } from "@twin.org/standards-dataspace-protocol";
-import type { HeaderTypes, HttpStatusCode, MimeTypes } from "@twin.org/web";
+import type { IDataspaceProtocolContractNegotiationError } from "@3sixty/standards-dataspace-protocol";
+import type { HeaderTypes, HttpStatusCode, MimeTypes } from "@3sixty/web";
 
 /**
  * The response structure for negotiating a policy.

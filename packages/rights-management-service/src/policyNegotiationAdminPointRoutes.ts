@@ -9,10 +9,10 @@ import {
 	type INoContentResponse,
 	type IRestRoute,
 	type ITag
-} from "@twin.org/api-models";
-import { ContextIdStore } from "@twin.org/context";
-import { ComponentFactory, Guards } from "@twin.org/core";
-import { nameof } from "@twin.org/nameof";
+} from "@3sixty/api-models";
+import { ContextIdStore } from "@3sixty/context";
+import { ComponentFactory, Guards } from "@3sixty/core";
+import { nameof } from "@3sixty/nameof";
 import type {
 	IPnapCreateRequest,
 	IPnapGetRequest,
@@ -22,9 +22,9 @@ import type {
 	IPnapRemoveRequest,
 	IPnapSetRequest,
 	IPolicyNegotiationAdminPointComponent
-} from "@twin.org/rights-management-models";
-import { DataspaceProtocolContractNegotiationStateType } from "@twin.org/standards-dataspace-protocol";
-import { HeaderTypes, HttpMethod, HttpStatusCode, type IHttpHeaders } from "@twin.org/web";
+} from "@3sixty/rights-management-models";
+import { DataspaceProtocolContractNegotiationStateType } from "@3sixty/standards-dataspace-protocol";
+import { HeaderTypes, HttpMethod, HttpStatusCode, type IHttpHeaders } from "@3sixty/web";
 
 /**
  * The source used when communicating about these routes.

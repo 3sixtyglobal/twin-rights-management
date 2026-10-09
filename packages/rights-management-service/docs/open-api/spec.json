@@ -1,8 +1,8 @@
 {
 	"openapi": "3.1.1",
 	"info": {
-		"title": "TWIN - Test Endpoints",
-		"description": "REST API for TWIN - Test Endpoints.",
+		"title": "3Sixty - Test Endpoints",
+		"description": "REST API for 3Sixty - Test Endpoints.",
 		"version": "1.0.0",
 		"license": {
 			"name": "Apache 2.0 License",
@@ -377,7 +377,7 @@
 					"content": {
 						"application/json": {
 							"schema": {
-								"$ref": "https://schema.twindev.org/rights-management/RightsManagementPolicy"
+								"$ref": "https://schema.3sixty.global/rights-management/RightsManagementPolicy"
 							},
 							"examples": {
 								"papUpdateRequestExample": {
@@ -490,7 +490,7 @@
 						"content": {
 							"application/json": {
 								"schema": {
-									"$ref": "https://schema.twindev.org/rights-management/RightsManagementPolicy"
+									"$ref": "https://schema.3sixty.global/rights-management/RightsManagementPolicy"
 								},
 								"examples": {
 									"papGetResponseExample": {
@@ -696,7 +696,7 @@
 						"content": {
 							"application/json": {
 								"schema": {
-									"$ref": "https://schema.twindev.org/rights-management/RightsManagementAgreement"
+									"$ref": "https://schema.3sixty.global/rights-management/RightsManagementAgreement"
 								},
 								"examples": {
 									"papGetResponseExample": {
@@ -817,7 +817,7 @@
 						"content": {
 							"application/json": {
 								"schema": {
-									"$ref": "https://schema.twindev.org/rights-management/RightsManagementOffer"
+									"$ref": "https://schema.3sixty.global/rights-management/RightsManagementOffer"
 								},
 								"examples": {
 									"papGetResponseExample": {
@@ -938,7 +938,7 @@
 						"content": {
 							"application/json": {
 								"schema": {
-									"$ref": "https://schema.twindev.org/rights-management/RightsManagementSet"
+									"$ref": "https://schema.3sixty.global/rights-management/RightsManagementSet"
 								},
 								"examples": {
 									"papGetResponseExample": {
@@ -1169,7 +1169,7 @@
 					"content": {
 						"application/json": {
 							"schema": {
-								"$ref": "https://schema.twindev.org/dataspace-protocol/DataspaceProtocolContractRequestMessage"
+								"$ref": "https://schema.3sixty.global/dataspace-protocol/DataspaceProtocolContractRequestMessage"
 							},
 							"examples": {
 								"pnpNegotiationRequestExample": {
@@ -1282,7 +1282,7 @@
 					"content": {
 						"application/json": {
 							"schema": {
-								"$ref": "https://schema.twindev.org/dataspace-protocol/DataspaceProtocolContractRequestMessage"
+								"$ref": "https://schema.3sixty.global/dataspace-protocol/DataspaceProtocolContractRequestMessage"
 							},
 							"examples": {
 								"pnpNegotiationProviderRequestExample": {
@@ -1309,7 +1309,7 @@
 						"content": {
 							"application/json": {
 								"schema": {
-									"$ref": "https://schema.twindev.org/dataspace-protocol/DataspaceProtocolContractNegotiationError"
+									"$ref": "https://schema.3sixty.global/dataspace-protocol/DataspaceProtocolContractNegotiationError"
 								}
 							}
 						}
@@ -1402,7 +1402,7 @@
 					"content": {
 						"application/json": {
 							"schema": {
-								"$ref": "https://schema.twindev.org/dataspace-protocol/DataspaceProtocolContractNegotiationEventMessage"
+								"$ref": "https://schema.3sixty.global/dataspace-protocol/DataspaceProtocolContractNegotiationEventMessage"
 							},
 							"examples": {
 								"pnpNegotiationEventsRequestExample": {
@@ -1426,7 +1426,7 @@
 						"content": {
 							"application/json": {
 								"schema": {
-									"$ref": "https://schema.twindev.org/dataspace-protocol/DataspaceProtocolContractNegotiationError"
+									"$ref": "https://schema.3sixty.global/dataspace-protocol/DataspaceProtocolContractNegotiationError"
 								}
 							}
 						}
@@ -1519,7 +1519,7 @@
 					"content": {
 						"application/json": {
 							"schema": {
-								"$ref": "https://schema.twindev.org/dataspace-protocol/DataspaceProtocolContractAgreementVerificationMessage"
+								"$ref": "https://schema.3sixty.global/dataspace-protocol/DataspaceProtocolContractAgreementVerificationMessage"
 							},
 							"examples": {
 								"pnpNegotiationAgreementVerificationRequestExample": {
@@ -1542,7 +1542,7 @@
 						"content": {
 							"application/json": {
 								"schema": {
-									"$ref": "https://schema.twindev.org/dataspace-protocol/DataspaceProtocolContractNegotiationError"
+									"$ref": "https://schema.3sixty.global/dataspace-protocol/DataspaceProtocolContractNegotiationError"
 								}
 							}
 						}
@@ -1635,7 +1635,7 @@
 					"content": {
 						"application/json": {
 							"schema": {
-								"$ref": "https://schema.twindev.org/dataspace-protocol/DataspaceProtocolContractNegotiationTerminationMessage"
+								"$ref": "https://schema.3sixty.global/dataspace-protocol/DataspaceProtocolContractNegotiationTerminationMessage"
 							},
 							"examples": {
 								"pnpNegotiationTerminationRequestExample": {
@@ -1658,7 +1658,7 @@
 						"content": {
 							"application/json": {
 								"schema": {
-									"$ref": "https://schema.twindev.org/dataspace-protocol/DataspaceProtocolContractNegotiationError"
+									"$ref": "https://schema.3sixty.global/dataspace-protocol/DataspaceProtocolContractNegotiationError"
 								}
 							}
 						}
@@ -1740,7 +1740,7 @@
 					"content": {
 						"application/json": {
 							"schema": {
-								"$ref": "https://schema.twindev.org/dataspace-protocol/DataspaceProtocolContractOfferMessage"
+								"$ref": "https://schema.3sixty.global/dataspace-protocol/DataspaceProtocolContractOfferMessage"
 							},
 							"examples": {
 								"pnpNegotiationOfferRequestExample": {
@@ -1768,7 +1768,7 @@
 						"content": {
 							"application/json": {
 								"schema": {
-									"$ref": "https://schema.twindev.org/dataspace-protocol/DataspaceProtocolContractNegotiationError"
+									"$ref": "https://schema.3sixty.global/dataspace-protocol/DataspaceProtocolContractNegotiationError"
 								},
 								"examples": {
 									"pnpNegotiationOfferResponseExample": {
@@ -1853,7 +1853,7 @@
 					"content": {
 						"application/json": {
 							"schema": {
-								"$ref": "https://schema.twindev.org/dataspace-protocol/DataspaceProtocolContractOfferMessage"
+								"$ref": "https://schema.3sixty.global/dataspace-protocol/DataspaceProtocolContractOfferMessage"
 							},
 							"examples": {
 								"pnpNegotiationConsumerOfferRequestExample": {
@@ -1881,7 +1881,7 @@
 						"content": {
 							"application/json": {
 								"schema": {
-									"$ref": "https://schema.twindev.org/dataspace-protocol/DataspaceProtocolContractNegotiationError"
+									"$ref": "https://schema.3sixty.global/dataspace-protocol/DataspaceProtocolContractNegotiationError"
 								},
 								"examples": {
 									"pnpNegotiationConsumerOfferResponseExample": {
@@ -1986,7 +1986,7 @@
 					"content": {
 						"application/json": {
 							"schema": {
-								"$ref": "https://schema.twindev.org/dataspace-protocol/DataspaceProtocolContractAgreementMessage"
+								"$ref": "https://schema.3sixty.global/dataspace-protocol/DataspaceProtocolContractAgreementMessage"
 							},
 							"examples": {
 								"pnpNegotiationAgreementRequestExample": {
@@ -2015,7 +2015,7 @@
 						"content": {
 							"application/json": {
 								"schema": {
-									"$ref": "https://schema.twindev.org/dataspace-protocol/DataspaceProtocolContractNegotiationError"
+									"$ref": "https://schema.3sixty.global/dataspace-protocol/DataspaceProtocolContractNegotiationError"
 								}
 							}
 						}
@@ -2176,7 +2176,7 @@
 						"in": "query",
 						"required": false,
 						"schema": {
-							"$ref": "https://schema.twindev.org/dataspace-protocol/DataspaceProtocolContractNegotiationStateType"
+							"$ref": "https://schema.3sixty.global/dataspace-protocol/DataspaceProtocolContractNegotiationStateType"
 						},
 						"example": "ACCEPTED"
 					},
@@ -2627,7 +2627,7 @@
 			"PapQueryResponse": {
 				"type": "array",
 				"items": {
-					"$ref": "https://schema.twindev.org/rights-management/RightsManagementPolicy"
+					"$ref": "https://schema.3sixty.global/rights-management/RightsManagementPolicy"
 				},
 				"description": "The body of the response."
 			},
@@ -2654,10 +2654,10 @@
 			"PnpContractNegotiationResponse": {
 				"anyOf": [
 					{
-						"$ref": "https://schema.twindev.org/dataspace-protocol/DataspaceProtocolContractNegotiation"
+						"$ref": "https://schema.3sixty.global/dataspace-protocol/DataspaceProtocolContractNegotiation"
 					},
 					{
-						"$ref": "https://schema.twindev.org/dataspace-protocol/DataspaceProtocolContractNegotiationError"
+						"$ref": "https://schema.3sixty.global/dataspace-protocol/DataspaceProtocolContractNegotiationError"
 					}
 				],
 				"description": "The state of the policy or an error."
@@ -2687,7 +2687,7 @@
 						"description": "The expiration time for the policy negotiation if it's a manual process."
 					},
 					"state": {
-						"$ref": "https://schema.twindev.org/dataspace-protocol/DataspaceProtocolContractNegotiationStateType"
+						"$ref": "https://schema.3sixty.global/dataspace-protocol/DataspaceProtocolContractNegotiationStateType"
 					},
 					"callbackAddress": {
 						"type": "string",
@@ -2702,10 +2702,10 @@
 						"description": "Organization identity."
 					},
 					"offer": {
-						"$ref": "https://schema.twindev.org/dataspace-protocol/DataspaceProtocolOffer"
+						"$ref": "https://schema.3sixty.global/dataspace-protocol/DataspaceProtocolOffer"
 					},
 					"agreement": {
-						"$ref": "https://schema.twindev.org/dataspace-protocol/DataspaceProtocolAgreement"
+						"$ref": "https://schema.3sixty.global/dataspace-protocol/DataspaceProtocolAgreement"
 					},
 					"trustVerificationInfo": {
 						"$ref": "#/components/schemas/TrustVerificationInfo"
@@ -2781,7 +2781,7 @@
 					"data": {
 						"type": "object",
 						"additionalProperties": {
-							"$ref": "https://schema.twindev.org/json-ld/JsonLdNodeObject"
+							"$ref": "https://schema.3sixty.global/json-ld/JsonLdNodeObject"
 						},
 						"description": "Additional JSON-LD node objects associated with the verification."
 					}

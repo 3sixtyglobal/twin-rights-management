@@ -1,6 +1,6 @@
 // Copyright 2025 IOTA Stiftung.
 // SPDX-License-Identifier: Apache-2.0.
-import type { OdrlPolicyType } from "@twin.org/standards-w3c-odrl";
+import type { OdrlPolicyType } from "@3sixty/standards-w3c-odrl";
 
 /**
  * Interface describing criteria for locating policies.

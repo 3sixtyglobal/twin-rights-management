@@ -1,11 +1,11 @@
 // Copyright 2025 IOTA Stiftung.
 // SPDX-License-Identifier: Apache-2.0.
-import type { IComponent } from "@twin.org/core";
-import type { JsonLdObjectWithOptionalContext } from "@twin.org/data-json-ld";
+import type { IComponent } from "@3sixty/core";
+import type { JsonLdObjectWithOptionalContext } from "@3sixty/data-json-ld";
 import type {
 	IDataspaceProtocolAgreement,
 	IDataspaceProtocolOffer
-} from "@twin.org/standards-dataspace-protocol";
+} from "@3sixty/standards-dataspace-protocol";
 
 /**
  * Interface describing a Policy Requester.

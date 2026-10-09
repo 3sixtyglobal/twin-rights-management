@@ -1,4 +1,4 @@
-# @twin.org/rights-management-pmp-service
+# @3sixty/rights-management-pmp-service
 
 ## Classes
 

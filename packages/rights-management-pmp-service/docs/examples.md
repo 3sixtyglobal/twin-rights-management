@@ -5,7 +5,7 @@ These snippets focus on policy retrieval workflows where callers filter by ident
 ## PolicyManagementPointService
 
 ```typescript
-import { PolicyManagementPointService } from '@twin.org/rights-management-pmp-service';
+import { PolicyManagementPointService } from '@3sixty/rights-management-pmp-service';
 
 const pmp = new PolicyManagementPointService();
 
@@ -13,7 +13,7 @@ console.log(pmp.className()); // PolicyManagementPointService
 ```
 
 ```typescript
-import { PolicyManagementPointService } from '@twin.org/rights-management-pmp-service';
+import { PolicyManagementPointService } from '@3sixty/rights-management-pmp-service';
 
 const pmp = new PolicyManagementPointService();
 

@@ -1,7 +1,7 @@
 // Copyright 2025 IOTA Stiftung.
 // SPDX-License-Identifier: Apache-2.0.
-import type { IDataspaceProtocolContractAgreementVerificationMessage } from "@twin.org/standards-dataspace-protocol";
-import type { HeaderTypes, MimeTypes } from "@twin.org/web";
+import type { IDataspaceProtocolContractAgreementVerificationMessage } from "@3sixty/standards-dataspace-protocol";
+import type { HeaderTypes, MimeTypes } from "@3sixty/web";
 
 /**
  * The request structure for sending a contract negotiation agreement verification.

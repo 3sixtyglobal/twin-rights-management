@@ -5,9 +5,9 @@ import {
 	type IHttpRequestContext,
 	type IRestRoute,
 	type ITag
-} from "@twin.org/api-models";
-import { ComponentFactory, Guards, Is } from "@twin.org/core";
-import { nameof } from "@twin.org/nameof";
+} from "@3sixty/api-models";
+import { ComponentFactory, Guards, Is } from "@3sixty/core";
+import { nameof } from "@3sixty/nameof";
 import {
 	OdrlPolicyHelper,
 	type IPnpAgreementRequest,
@@ -20,7 +20,7 @@ import {
 	type IPnpOfferRequest,
 	type IPnpTerminateRequest,
 	type IPolicyNegotiationPointComponent
-} from "@twin.org/rights-management-models";
+} from "@3sixty/rights-management-models";
 import {
 	DataspaceProtocolContexts,
 	DataspaceProtocolContractNegotiationEventType,
@@ -28,15 +28,15 @@ import {
 	DataspaceProtocolContractNegotiationTypes,
 	type IDataspaceProtocolContractNegotiation,
 	type IDataspaceProtocolContractNegotiationError
-} from "@twin.org/standards-dataspace-protocol";
-import { OdrlTypes } from "@twin.org/standards-w3c-odrl";
+} from "@3sixty/standards-dataspace-protocol";
+import { OdrlTypes } from "@3sixty/standards-w3c-odrl";
 import {
 	HeaderHelper,
 	HeaderTypes,
 	HttpStatusCode,
 	type IHttpHeaders,
 	MimeTypes
-} from "@twin.org/web";
+} from "@3sixty/web";
 
 /**
  * The source used when communicating about these routes.

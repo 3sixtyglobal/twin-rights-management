@@ -277,8 +277,8 @@ When the assignee provides valid certifications from the catalogue, the consignm
 The Polish agency's Data Space Connector integrates with PEP for rights-managed notifications:
 
 ```typescript
-import { ComponentFactory } from '@twin.org/framework';
-import type { IDataSpaceConnector, IDataAccessPoint } from '@twin.org/rights-management-models';
+import { ComponentFactory } from '@3sixty/framework';
+import type { IDataSpaceConnector, IDataAccessPoint } from '@3sixty/rights-management-models';
 
 // Initialize Data Space Connector with PEP integration
 const dsc = ComponentFactory.get<IDataSpaceConnector>('data-space-connector');

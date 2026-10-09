@@ -1,4 +1,4 @@
-# @twin.org/rights-management-plugins
+# @3sixty/rights-management-plugins
 
 ## Classes
 

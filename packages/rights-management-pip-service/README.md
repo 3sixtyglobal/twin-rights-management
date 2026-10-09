@@ -1,11 +1,11 @@
-# TWIN Rights Management Policy Information Point Service
+# 3Sixty Rights Management Policy Information Point Service
 
 This package provides the policy information point service for supplying context facts to evaluations. It offers an extensible way to gather runtime data used by policy decisions and negotiations.
 
 ## Installation
 
 `shell
-npm install @twin.org/rights-management-pip-service
+npm install @3sixty/rights-management-pip-service
 `
 
 ## Testing

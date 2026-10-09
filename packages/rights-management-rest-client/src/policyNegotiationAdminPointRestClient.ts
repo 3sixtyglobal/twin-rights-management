@@ -1,14 +1,14 @@
 // Copyright 2025 IOTA Stiftung.
 // SPDX-License-Identifier: Apache-2.0.
-import { BaseRestClient } from "@twin.org/api-core";
+import { BaseRestClient } from "@3sixty/api-core";
 import {
 	HttpHeaderHelper,
 	type IBaseRestClientConfig,
 	type ICreatedResponse,
 	type INoContentResponse
-} from "@twin.org/api-models";
-import { Guards } from "@twin.org/core";
-import { nameof } from "@twin.org/nameof";
+} from "@3sixty/api-models";
+import { Guards } from "@3sixty/core";
+import { nameof } from "@3sixty/nameof";
 import type {
 	IPnapCreateRequest,
 	IPnapGetRequest,
@@ -19,9 +19,9 @@ import type {
 	IPnapSetRequest,
 	IPolicyNegotiation,
 	IPolicyNegotiationAdminPointComponent
-} from "@twin.org/rights-management-models";
-import type { DataspaceProtocolContractNegotiationStateType } from "@twin.org/standards-dataspace-protocol";
-import { HttpMethod } from "@twin.org/web";
+} from "@3sixty/rights-management-models";
+import type { DataspaceProtocolContractNegotiationStateType } from "@3sixty/standards-dataspace-protocol";
+import { HttpMethod } from "@3sixty/web";
 
 /**
  * Client for performing Rights Management Policy Negotiation Admin through to REST endpoints.

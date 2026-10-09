@@ -219,8 +219,8 @@ const certificates = await apiClient.searchCertificates({
 The service provider's API endpoint uses PEP with automatic enforcement:
 
 ```typescript
-import { ComponentFactory } from '@twin.org/framework';
-import type { IDataAccessPoint } from '@twin.org/rights-management-models';
+import { ComponentFactory } from '@3sixty/framework';
+import type { IDataAccessPoint } from '@3sixty/rights-management-models';
 
 // ILLUSTRATIVE: Service access control concept
 // Actual implementation would use PEP handlers with standard CRUD operations
@@ -252,8 +252,8 @@ dap.registerHandler('service-offering-handler', {
 The partner organization accesses the service:
 
 ```typescript
-import { ComponentFactory } from '@twin.org/framework';
-import type { IDataAccessRequestPoint } from '@twin.org/rights-management-models';
+import { ComponentFactory } from '@3sixty/framework';
+import type { IDataAccessRequestPoint } from '@3sixty/rights-management-models';
 
 // ILLUSTRATIVE: Service access concept
 // Actual implementation: application code calls provider's PEP handler

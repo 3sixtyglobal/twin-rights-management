@@ -9,17 +9,17 @@ export const RightsManagementContexts = {
 	/**
 	 * The canonical RDF namespace URI.
 	 */
-	Namespace: "https://schema.twindev.org/rights-management/",
+	Namespace: "https://schema.3sixty.global/rights-management/",
 
 	/**
 	 * The value to use in @context.
 	 */
-	Context: "https://schema.twindev.org/rights-management/",
+	Context: "https://schema.3sixty.global/rights-management/",
 
 	/**
 	 * The JSON-LD Context URL.
 	 */
-	JsonLdContext: "https://schema.twindev.org/rights-management/types.jsonld"
+	JsonLdContext: "https://schema.3sixty.global/rights-management/types.jsonld"
 } as const;
 
 /**

@@ -1,6 +1,6 @@
 // Copyright 2025 IOTA Stiftung.
 // SPDX-License-Identifier: Apache-2.0.
-import type { PolicyDecisionStage } from "@twin.org/rights-management-models";
+import type { PolicyDecisionStage } from "@3sixty/rights-management-models";
 
 /**
  * Options for the Logging Policy Execution Action Component.
